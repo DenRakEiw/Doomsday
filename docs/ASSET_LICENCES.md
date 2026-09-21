@@ -21,7 +21,7 @@ discover after a commercial release.
 
 | Asset | Source | Licence | Notes |
 | --- | --- | --- | --- |
-| Godot MCP Pro (editor plugin) | github.com/youichi-uda/godot-mcp-pro | MIT | Development tooling only; excluded from exports |
+| godot-mcp v3.1.0 | github.com/tugcantopaloglu/godot-mcp | MIT | AI-assisted development tooling. Lives outside the repository; nothing ships. Builds on `Coding-Solo/godot-mcp` (MIT). |
 
 ## Engine
 

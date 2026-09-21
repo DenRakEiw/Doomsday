@@ -24,7 +24,21 @@ Satirical science fiction in the tradition of *Plague Inc.*, *Pandemic* and *Uni
 1. Install [Godot 4.7.2 stable](https://godotengine.org/download) (standard build, not .NET).
 2. Open `project.godot` in the Godot editor.
 
-## Third-party
+## Development tooling
 
-- `addons/godot_mcp/` – Godot MCP Pro editor plugin by Youichi Uda (MIT, see `addons/godot_mcp/LICENSE`).
-  Development tooling only; it is not part of exported builds.
+AI-assisted development uses [godot-mcp](https://github.com/tugcantopaloglu/godot-mcp) (MIT), which
+drives the Godot editor and a running game over the Model Context Protocol. It needs no in-project
+plugin — the server lives outside the repository and talks to Godot through its command line and a
+runtime interaction server.
+
+Setup is per-machine and not committed, since it holds absolute paths:
+
+```
+claude mcp add godot --scope local \
+  -e GODOT_PATH=<path to your Godot 4.7 executable> \
+  -e GODOT_MCP_ALLOWED_DIRS=<path to this repository> \
+  -- node <path to godot-mcp>/build/index.js
+```
+
+`GODOT_MCP_ALLOWED_DIRS` confines the server's file access to this repository and should always be
+set.
