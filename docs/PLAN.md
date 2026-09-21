@@ -452,10 +452,13 @@ Android and iOS touch interface pass, web demo, store pages.
 
 ## 7. Immediate next steps
 
-1. Decide the Godot MCP server question (paid package versus a free alternative).
+The milestones above are broken into session-sized steps in [IMPLEMENTATION.md](IMPLEMENTATION.md);
+the current state is tracked in [PROGRESS.md](PROGRESS.md).
+
+1. ~~Decide the Godot MCP server question.~~ Resolved: `godot-mcp` (MIT, free).
 2. M0: folder skeleton, test framework, CI workflow, `CLAUDE.md`.
-3. Convert Natural Earth into a 60-region dataset plus ID map.
-4. Build the headless simulation core and prove determinism.
+3. Build the headless simulation core and prove determinism.
+4. Convert Natural Earth into a 60-region dataset plus ID map.
 
 ---
 

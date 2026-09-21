@@ -13,6 +13,8 @@ Satirical science fiction in the tradition of *Plague Inc.*, *Pandemic* and *Uni
 
 ## Documentation
 
+- [Progress](docs/PROGRESS.md) – where the work stands, decisions, session log
+- [Implementation roadmap](docs/IMPLEMENTATION.md) – the milestones broken into session-sized steps
 - [Implementation plan](docs/PLAN.md) – concept, research basis, architecture, milestones
 - [Content design](docs/CONTENT.md) – technology trees, event chains, scenarios, endings
 - [Interface design](docs/UI.md) – screen flow, HUD, UI architecture
