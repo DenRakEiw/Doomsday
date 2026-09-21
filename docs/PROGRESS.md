@@ -14,16 +14,21 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S1.8 — Save/load, headless runner, bots** |
-| **Model for it** | **Opus** (no switch) |
-| **After it** | **⇄ `/model fable`** → G1 + D2.1 |
-| **Last completed** | S1.7 — Map pipeline 2: attributes and links — **the real world runs** |
-| **Milestone** | M1 build |
+| **Next step** | **G1 + D2.1 — M1 gate, then the interface foundation spec** |
+| **Model for it** | **Fable** — ⇄ **`/model fable` before starting** |
+| **After it** | `/clear` → S1.P / S2.1 (**`/model opus`**) |
+| **Last completed** | S1.8 — Save/load, headless runner, bots — **M1 complete** |
+| **Milestone** | M1 complete; M2 next |
 | **Branch** | `main` |
+| **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 56 scripts compile, 228 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 66 scripts compile, 260 tests. The same command is all of CI. |
 
-> **Running without `/clear` from S1.2 on.** The user asked (2026-09-22) for the Opus block
+> **The continuous session ends here.** S1.2–S1.8 were built in one conversation at the user's
+> request (2026-09-22). G1 is a Fable step **and** a gate with the user, so the normal rule returns:
+> `/clear`, then `/model fable`.
+
+> **Ran without `/clear` from S1.2 to S1.8.** The user asked (2026-09-22) for the Opus block
 > S1.2–S1.8 to run in one continuous session, with context compression instead of a clear between
 > steps. Everything a step needs is still written down here; the rule returns at the G1 switch.
 
@@ -55,7 +60,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S1.5 [O] Harm, single containment track, phases, outcomes
 - [x] S1.6 [O] Map pipeline 1: geometry *(timeboxed — done inside it)*
 - [x] S1.7 [O] Map pipeline 2: attributes and links
-- [ ] S1.8 [O] Save/load, headless runner, bots — ⇄ **then `/model fable`**
+- [x] S1.8 [O] Save/load, headless runner, bots — ⇄ **then `/model fable`**
 
 **Block 3 — M1 gate, M2 design · Fable**
 - [ ] G1 + D2.1 [F] M1 gate, then the interface foundation spec — ⇄ **then `/model opus`**
@@ -238,6 +243,13 @@ without new information.
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
+- **2026-09-22 — Save precision (from S1.8, see *Deviations*).** A readable JSON save cannot
+  restore a 64-bit float exactly in Godot 4.7. Three ways out, and **the choice is a design one**:
+  (a) leave it — a loaded run may drift by a day or two and nothing else notices; (b) store floats
+  as their bits, making the save exact and unreadable; (c) restore by replaying the command log,
+  exact and readable but a load then costs a second or two per thousand days. The code today does
+  (a). S2.1's `SaveManager` is the first thing that depends on the answer.
+
 - **2026-09-22 — Spectator and benchmark mode (user idea, decided in principle).** Besides the
   human game there is to be a mode in which an **AI model plays and the player watches**, and out
   of it a **benchmark**: different models are scored on how well they destroy the world, with a
@@ -254,10 +266,29 @@ without new information.
 
 ## Punch list for Opus
 
+- **From S1.8's baselines, for G1 to judge:** `greedy` wins 99.5 % of runs. PLAN wants a first-run
+  loss rate that is high but not total, so either containment is too slow, the placeholder
+  technology is too strong, or both. It is `balance.json` work (G1/G3), not code.
+
+
 *(empty — reviews and gates write concrete, file-level fixes here; they become the `S<m>.P` step at
 the head of the next Opus block)*
 
 ## Deviations from the plan or a spec
+
+- **2026-09-22** (S1.8) — **A save does not round-trip a 64-bit float, and no Godot 4.7 API does.**
+  `JSON.stringify(…, full_precision = true)` writes every digit, but **the parser cannot read them
+  back**: measured over 20 000 computed doubles, 91 % of values below 0.1 come back one bit off.
+  `String.to_float`, `str_to_var` and `String.num_scientific` all lose the same bit; only
+  `PackedByteArray.encode_double` is exact. IMPLEMENTATION §3's remedy is therefore necessary and
+  not sufficient, and core.md §12's *"run N+M ticks equals run N, save, load, run M by hash"* is not
+  achievable in this engine with a readable save.
+  **What is guaranteed instead, and tested:** `to_dict` → `from_dict` round-trips **exactly** (which
+  is what catches a field forgotten in either); a save restores every integer, id, flag and the RNG
+  state exactly, and every float to within 1e-9; and **the seed plus the command log replay the run
+  bit for bit**, which is the reproducibility the determinism contract actually rests on. A player
+  who saves and loads may end a long run a few days early or late; nothing else notices.
+  **→ a design question for G1.**
 
 - **2026-09-22** (S1.4) — **`ModifierStack.CLAMPS` is `Dictionary[String, Array]`, not
   `Dictionary[String, Vector2]`** as core.md §8 writes it. `Vector2` holds 32-bit components, so the
@@ -302,19 +333,41 @@ the head of the next Opus block)*
 
 ## Balance baselines
 
-*(first entry arrives with S1.8: run length in ticks and terminal-state distribution over 200 seeds
-per policy)*
+**2026-09-22 (S1.8) — the real world, 61 regions, `data/tech/placeholder.json`, 200 seeds per
+policy, zero rejected commands, no invariant violated.**
 
-Expectation from D1.1's throwaway prototype, synthetic 60-region grid, 40 seeds, placeholder tech:
-`greedy` ≈ 78 % Ascendance / 22 % contained, median 750 days; `stealth` 100 % Ascendance, median
-790; `idle` 100 % contained, ≈ 1500–2000. A real-world baseline far from this points to a bug or to
-the world's link graph before it points to balance. Extinction is never chosen by these bots.
+| Policy | Outcomes | Days p10 / p50 / p90 | Runtime |
+| --- | --- | --- | --- |
+| `greedy` (origin `usa`) | 99.5 % Ascendance, 0.5 % no compute | 446 / **481** / 526 | 66 s |
+| `stealth` (origin `venezuela_guianas`) | 100 % Ascendance | 566 / **627** / 687 | 86 s |
+| `idle` | 100 % contained | 992 / **1170** / 1458 | 80 s |
+
+Against D1.1's prototype (synthetic 60-cell grid, 40 seeds: `greedy` ≈ 78 % Ascendance / 22 %
+contained, median 750; `stealth` 100 %, median 790; `idle` 100 % contained, 1500–2000):
+
+- **Runs are about a third shorter.** world.md §8 predicted it — a hub origin with 11 neighbours
+  spreads far faster than a uniform grid cell. The shape is right; the speed is a tuning matter.
+- **`greedy` almost never loses** (99.5 % against 78 %). This is the one number that looks wrong:
+  containment never catches a player who simply buys the cheapest thing available. See the punch
+  list.
+- `idle` still loses to containment every time, which is the floor the design asks for.
+- Extinction is never chosen by these bots, as expected: none of them buys Harm deliberately.
+
+CSVs in the session scratch directory (`baseline_greedy.csv`, `baseline_stealth.csv`,
+`baseline_idle.csv`) — they do not survive the session; the command to regenerate them is in *Now*.
 
 ---
 
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — S1.8 Save/load, headless runner, bots [O]
+`WorldSerializer` + `LoadResult`, the three policies, `tools/sim_run.gd` / `sim_batch.gd` /
+`sim_harness.gd`, and a second CI job that plays seed 1 twice with `--check --replay` and compares
+the hashes. 32 new tests. **Found: Godot cannot read a 64-bit float back out of JSON** — see
+*Deviations*; the save format is unchanged and the question goes to G1. Baselines recorded above.
+Next: **G1 + D2.1 on Fable** — `/clear`, then `/model fable`.
 
 ### 2026-09-22 — S1.7 Map pipeline 2: attributes and links [O]
 `tools/map/build_world.py` joins the geometry, `region_attributes.csv`, Natural Earth's population

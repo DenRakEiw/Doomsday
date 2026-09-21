@@ -31,3 +31,38 @@ jobs:
         # The same one command a developer runs; it fails on a script that does
         # not compile as well as on a failing test.
         run: tools/test.sh
+
+  determinism:
+    name: Determinism
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: barichello/godot-ci:4.7.2
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Import
+        run: godot --headless --path . --import
+
+      - name: The same seed twice, with the invariants and the replay checked
+        # Two full runs of the real world. `--check` stops at the first broken
+        # invariant, `--replay` proves the command log reproduces the run, and
+        # the two hashes catch anything that is not reproducible at all — an
+        # unseeded generator, an iteration order that depends on a pointer.
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_once() {
+            godot --headless --path . -s tools/sim_run.gd -- \
+              --seed=1 --policy=greedy --check --replay | tail -n 1
+          }
+          first=$(run_once)
+          second=$(run_once)
+          echo "$first"
+          if [ "$first" != "$second" ]; then
+            echo "the same seed gave two different runs:"
+            echo "  $first"
+            echo "  $second"
+            exit 1
+          fi

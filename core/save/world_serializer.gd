@@ -1,0 +1,160 @@
+class_name WorldSerializer
+extends RefCounted
+## Reads and writes a save (core.md §10). Works on strings only: the file itself
+## belongs to the `SaveManager` autoload of M2, not to `core/`.
+##
+## Three JSON traps are handled here, each of which corrupts a save without
+## looking like it:
+##
+##   * JSON has no integers, so every whole number is cast explicitly;
+##   * the RNG seed and state are 64-bit and are stored **as strings** — as JSON
+##     numbers they lose their low bits and the restored run diverges a few
+##     hundred ticks later;
+##   * floats are written at full precision, because the default formatting is
+##     lossy and breaks save → load → continue.
+
+const FORMAT: String = "doomsday-save"
+const CURRENT_VERSION: int = 1
+## The project setting the `build` field records.
+const VERSION_SETTING: String = "application/config/version"
+
+const REASON_INVALID_JSON: String = "save_invalid_json"
+const REASON_WRONG_FORMAT: String = "save_wrong_format"
+const REASON_CORRUPT: String = "save_corrupt"
+const REASON_FROM_FUTURE: String = "save_from_future"
+const REASON_MIGRATION_MISSING: String = "save_migration_missing"
+const REASON_CONTENT_MISSING: String = "save_content_missing"
+
+## v1 has nothing to migrate from. A later version adds `{1: Callable}` here.
+const NO_MIGRATIONS: Dictionary[int, Callable] = {}
+
+
+static func to_json(sim: Simulation) -> String:
+	var commands: Array = []
+	for command: Command in sim.command_log:
+		commands.append(command.to_dict())
+	var save: Dictionary = {
+		"format": FORMAT,
+		"version": CURRENT_VERSION,
+		"build": str(ProjectSettings.get_setting(VERSION_SETTING, "")),
+		"content_hash": sim.db.content_hash,
+		"seed": sim.world.rng.seed_string(),
+		"world": sim.world.to_dict(),
+		"commands": commands,
+	}
+	return JSON.stringify(save, "\t", true, true)
+
+
+## Loads a save, or says why it will not. Checks run in the order core.md §10
+## lists them, and the first failure is the reason.
+static func from_json(text: String, db: ContentDB,
+		migrations: Dictionary[int, Callable] = NO_MIGRATIONS) -> LoadResult:
+	var json: JSON = JSON.new()
+	if json.parse(text) != OK or typeof(json.data) != TYPE_DICTIONARY:
+		return LoadResult.refused(REASON_INVALID_JSON)
+	var save: Dictionary = json.data
+
+	if not save.has("format") or str(save.get("format", "")) != FORMAT:
+		return LoadResult.refused(REASON_WRONG_FORMAT)
+
+	var version: int = _whole(save, "version")
+	if version < 1:
+		return LoadResult.refused(REASON_CORRUPT)
+	if version > CURRENT_VERSION:
+		return LoadResult.refused(REASON_FROM_FUTURE)
+
+	var migration_reason: String = migrate(save, migrations)
+	if not migration_reason.is_empty():
+		return LoadResult.refused(migration_reason)
+
+	if typeof(save.get("world")) != TYPE_DICTIONARY or typeof(save.get("commands")) != TYPE_ARRAY:
+		return LoadResult.refused(REASON_CORRUPT)
+	var world_dict: Dictionary = save["world"]
+
+	# Content before structure: a save that names a region or a node this build
+	# no longer has is a *content* problem, and saying "corrupt" about it would
+	# send the player looking for the wrong thing.
+	var missing: String = _missing_content(world_dict, db)
+	if not missing.is_empty():
+		return LoadResult.refused(REASON_CONTENT_MISSING)
+
+	var world: World = World.from_dict(world_dict, db)
+	if world == null:
+		return LoadResult.refused(REASON_CORRUPT)
+
+	var log: Array[Command] = []
+	for entry: Variant in save["commands"]:
+		if typeof(entry) != TYPE_DICTIONARY:
+			return LoadResult.refused(REASON_CORRUPT)
+		var command: Command = CommandCodec.from_dict(entry)
+		if command == null:
+			return LoadResult.refused(REASON_CORRUPT)
+		log.append(command)
+
+	var result: LoadResult = LoadResult.new()
+	result.sim = Simulation.from_world(db, world, log)
+	result.content_mismatch = str(save.get("content_hash", "")) != db.content_hash
+	return result
+
+
+## Applies `migrations[v]` while the save is older than `CURRENT_VERSION`,
+## writing the new version after each. Returns a reason, or "" when there was
+## nothing to do or everything succeeded.
+##
+## The table is a parameter so that a test can run a fabricated v0 → v1 migration
+## without a migration existing in production code. Migrations work on raw
+## dictionaries and never instantiate a model class.
+static func migrate(save: Dictionary, migrations: Dictionary[int, Callable]) -> String:
+	var version: int = _whole(save, "version")
+	while version < CURRENT_VERSION:
+		if not migrations.has(version):
+			return REASON_MIGRATION_MISSING
+		var migrated: Variant = migrations[version].call(save)
+		if typeof(migrated) != TYPE_DICTIONARY:
+			return REASON_CORRUPT
+		save.clear()
+		save.merge(migrated)
+		version += 1
+		save["version"] = version
+	return ""
+
+
+## The first region id or owned node the content does not have, or "".
+static func _missing_content(world_dict: Dictionary, db: ContentDB) -> String:
+	if typeof(world_dict.get("regions")) != TYPE_ARRAY:
+		return ""
+	var regions: Array = world_dict["regions"]
+	for entry: Variant in regions:
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var region: Dictionary = entry
+		if typeof(region.get("id")) != TYPE_STRING:
+			continue
+		if not db.region_index_by_id.has(str(region["id"])):
+			return str(region["id"])
+
+	if typeof(world_dict.get("agent")) != TYPE_DICTIONARY:
+		return ""
+	var agent: Dictionary = world_dict["agent"]
+	if typeof(agent.get("owned_nodes")) == TYPE_ARRAY:
+		for entry: Variant in agent["owned_nodes"]:
+			if typeof(entry) == TYPE_STRING and db.tech(str(entry)) == null:
+				return str(entry)
+	if typeof(agent.get("origin")) == TYPE_STRING:
+		var origin: String = str(agent["origin"])
+		if not origin.is_empty() and not db.region_index_by_id.has(origin):
+			return origin
+	return ""
+
+
+## A whole number, or -1 for anything that is missing, not a number or fractional.
+static func _whole(d: Dictionary, key: String) -> int:
+	if not d.has(key):
+		return -1
+	var type: int = typeof(d[key])
+	if type != TYPE_FLOAT and type != TYPE_INT:
+		return -1
+	var value: float = float(d[key])
+	if value != floor(value):
+		return -1
+	return int(value)
