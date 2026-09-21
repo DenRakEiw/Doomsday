@@ -414,25 +414,27 @@ criterion needs a terminal state; M3 builds the interface and the tuning.
 hand-authored dataset and record the decision.
 **Build:** `tools/map/` as a `uv` project with pinned `geopandas`, `shapely`, `pyproj`, `rasterio`,
 `numpy`, `pillow` (no system GDAL needed — it is not installed on the dev machine, and the wheels
-bundle it). `build_map.py`: dissolve by `region_groups.csv` → **adjacency on the dissolved,
-un-simplified layer** → reproject to `eqearth` → `representative_point()` anchors → simplify to the
-raster grid → rasterise the ID map at 4096×2048 with `all_touched=False` as a single-band integer,
-then id → RGB (R low byte, G high byte) → PNG. Base map and border rasters rendered separately,
-anti-aliased.
-**Verify (scripted, `verify_map.py`):** every colour in the PNG is a known index; no blended
-pixels; every region reaches a minimum pixel area (exceptions listed explicitly); the pixel under
-each anchor decodes to its own region; adjacency is symmetric. Regions that fail the area check go
+bundle it). `build_map.py`: apply `part_overrides.csv`, dissolve by `region_groups.csv` → **adjacency on the
+dissolved, un-simplified layer** → cut at the map edge and reproject to `eqearth` with `lon_0=11`
+(world.md §4) → project the authored anchors from `region_attributes.csv` → simplify to the raster
+grid → rasterise the ID map at 4096×2048 with `all_touched=False` as a single-band integer,
+then id → RGB (R low byte, G high byte) → PNG. Land and border masks rendered separately,
+anti-aliased. Files and frame: world.md §2 and §4.
+**Verify (scripted, `verify_map.py`):** the list in world.md §7 — known indices only, no blended
+pixels, minimum pixel area, anchors decode to their own region, land links equal
+`expected_land_links.csv`, no seam at 180°, reproducible output. Regions that fail the area check go
 back to Fable as a design question — do not regroup them here.
 **Done when:** `build_map.py` regenerates identical outputs from scratch and `verify_map.py` passes.
 
 ### S1.7 — Map data pipeline, part 2: attributes and links **[O]**
 **Read first:** `docs/specs/world.md` · PLAN §4.2
-**Build:** join `region_attributes.csv`, Natural Earth population and `extra_links.csv` into
+**Build:** join `tools/map/build/geometry.json`, `region_attributes.csv`, Natural Earth population
+and `extra_links.csv` (link order: world.md §5.3) into
 `data/world/regions.json` and `links.json`, validated by the S1.1 schema. Godot import settings for
 the ID map: **Lossless, no mipmaps, Detect 3D off** — check the generated `.import` file, do not
 trust the dialog. Mark Natural Earth as integrated in `ASSET_LICENCES.md`.
-**Tests:** the real world loads through `ContentLoader`; the link graph is connected; the spec's
-archetype coverage checks hold.
+**Tests:** world.md §7, S1.7 list — the real world loads through `ContentLoader`; the link graph is
+connected; archetype coverage, population sums and string keys hold.
 **Done when:** the full world runs in the simulation.
 
 ### S1.8 — Save/load, headless runner, bots **[O]**

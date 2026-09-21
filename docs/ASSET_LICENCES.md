@@ -35,7 +35,7 @@ Verified during research; recorded here so the decision is not re-litigated late
 
 | Asset | Licence | Attribution | Notes |
 | --- | --- | --- | --- |
-| Natural Earth Admin-0 50m | **Public domain** | Not required | Map source geometry |
+| Natural Earth Admin-0 50m | **Public domain** | Not required | Map source geometry. v5.1.1, committed as `tools/map/input/ne_50m_admin_0_countries.zip` (from naciscdn.org, 2026-09-21). Pipeline input only; S1.7 marks it integrated |
 | Phosphor Icons | MIT | Not required | Functional interface icons; six weights |
 | Tabler Icons | MIT | Not required | Gap-filler |
 | Lucide | ISC | Not required | Alternative to Phosphor |

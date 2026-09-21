@@ -231,7 +231,10 @@ sixty regions of borders removes an entire category of tedious, error-prone work
   *nothing*, quietly, with no error.
 - **Use `representative_point()`, not `centroid`,** for label anchors. A centroid is not guaranteed
   to lie inside its own polygon and will place markers in the sea for Indonesia, Croatia, and Norway
-  with Svalbard attached. Reproject before computing either.
+  with Svalbard attached. Reproject before computing either. *(Since D1.2 region anchors are
+  authored in `tools/map/region_attributes.csv` — `docs/specs/world.md` §3.5 — because the marker
+  belongs on the region's centre of gravity, which no geometric rule finds. The warning still holds
+  for any other computed label position.)*
 - **The rasteriser must not anti-alias, and `gdal_rasterize` does not** — provided the "all touched"
   flag stays off, so that the burn is a binary pixel-centre test. It also cannot write PNG directly,
   so the ID map goes to GeoTIFF first and is converted after. Burn a single-band integer ID and map

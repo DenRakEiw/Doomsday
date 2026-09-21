@@ -1,0 +1,68 @@
+keys,en,de
+CONTINENT_NORTH_AMERICA,North America,Nordamerika
+CONTINENT_SOUTH_AMERICA,South America,Südamerika
+CONTINENT_EUROPE,Europe,Europa
+CONTINENT_ASIA,Asia,Asien
+CONTINENT_AFRICA,Africa,Afrika
+CONTINENT_OCEANIA,Oceania,Ozeanien
+REGION_USA,United States,Vereinigte Staaten
+REGION_CANADA,Canada,Kanada
+REGION_MEXICO,Mexico,Mexiko
+REGION_CENTRAL_AMERICA,Central America,Zentralamerika
+REGION_CARIBBEAN,Caribbean,Karibik
+REGION_GREENLAND,Greenland,Grönland
+REGION_BRAZIL,Brazil,Brasilien
+REGION_ARGENTINA_CHILE,Argentina & Chile,Argentinien & Chile
+REGION_ANDES,Andean States,Andenstaaten
+REGION_COLOMBIA,Colombia,Kolumbien
+REGION_VENEZUELA_GUIANAS,Venezuela & Guianas,Venezuela & Guayanas
+REGION_BRITAIN_IRELAND,Britain & Ireland,Großbritannien & Irland
+REGION_FRANCE,France,Frankreich
+REGION_GERMANY,Germany,Deutschland
+REGION_BENELUX,Benelux,Benelux
+REGION_ALPINE,Alpine States,Alpenländer
+REGION_IBERIA,Iberia,Iberische Halbinsel
+REGION_ITALY,Italy,Italien
+REGION_NORDIC,Nordic Countries,Nordische Länder
+REGION_ICELAND,Iceland,Island
+REGION_CENTRAL_EUROPE,East-Central Europe,Ostmitteleuropa
+REGION_SOUTHEAST_EUROPE,Southeast Europe,Südosteuropa
+REGION_EASTERN_EUROPE,Eastern Europe,Osteuropa
+REGION_RUSSIA,Russia,Russland
+REGION_TURKEY,Turkey,Türkei
+REGION_CAUCASUS,Caucasus,Kaukasus
+REGION_LEVANT,Levant & Iraq,Levante & Irak
+REGION_ARABIA,Arabian Peninsula,Arabische Halbinsel
+REGION_IRAN,Iran,Iran
+REGION_CENTRAL_ASIA,Central Asia,Zentralasien
+REGION_PAKISTAN,Pakistan & Afghanistan,Pakistan & Afghanistan
+REGION_INDIA,India,Indien
+REGION_HIMALAYA,Himalayan States,Himalaya-Staaten
+REGION_BANGLADESH,Bangladesh,Bangladesch
+REGION_SRI_LANKA,Sri Lanka,Sri Lanka
+REGION_CHINA,China,China
+REGION_MONGOLIA,Mongolia,Mongolei
+REGION_SOUTH_KOREA,South Korea,Südkorea
+REGION_NORTH_KOREA,North Korea,Nordkorea
+REGION_JAPAN,Japan,Japan
+REGION_TAIWAN,Taiwan,Taiwan
+REGION_INDOCHINA,Indochina,Indochina
+REGION_THAILAND_MYANMAR,Thailand & Myanmar,Thailand & Myanmar
+REGION_MALAYSIA,Malaysia & Singapore,Malaysia & Singapur
+REGION_INDONESIA,Indonesia,Indonesien
+REGION_PHILIPPINES,Philippines,Philippinen
+REGION_MAGHREB,Maghreb,Maghreb
+REGION_EGYPT,Egypt,Ägypten
+REGION_SAHEL,Sahel,Sahel
+REGION_SUDAN,Sudan & South Sudan,Sudan & Südsudan
+REGION_HORN_OF_AFRICA,Horn of Africa,Horn von Afrika
+REGION_WEST_AFRICA,West Africa,Westafrika
+REGION_NIGERIA,Nigeria,Nigeria
+REGION_CENTRAL_AFRICA,Central Africa,Zentralafrika
+REGION_EAST_AFRICA,East Africa,Ostafrika
+REGION_ZAMBEZI,Zambezi Basin,Sambesi-Becken
+REGION_SOUTHERN_AFRICA,Southern Africa,Südliches Afrika
+REGION_MADAGASCAR,Madagascar,Madagaskar
+REGION_AUSTRALIA,Australia,Australien
+REGION_NEW_ZEALAND,New Zealand,Neuseeland
+REGION_PACIFIC_ISLANDS,Pacific Islands,Pazifische Inseln

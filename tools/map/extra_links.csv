@@ -1,0 +1,70 @@
+a,b,kind,note
+canada,greenland,sea,Davis Strait
+greenland,nordic,air,the one scheduled route out
+britain_ireland,iceland,sea,North Atlantic
+iceland,nordic,sea,Norwegian Sea
+britain_ireland,france,sea,Channel
+benelux,britain_ireland,sea,North Sea
+britain_ireland,nordic,sea,North Sea
+central_europe,nordic,sea,Baltic
+iberia,maghreb,sea,Strait of Gibraltar
+italy,maghreb,sea,Strait of Sicily
+levant,southeast_europe,sea,Eastern Mediterranean
+eastern_europe,turkey,sea,Black Sea
+caribbean,usa,sea,Florida Straits
+caribbean,mexico,sea,Yucatan Channel
+caribbean,colombia,sea,Caribbean Sea
+caribbean,venezuela_guianas,sea,Lesser Antilles chain
+brazil,west_africa,sea,Atlantic narrows
+arabia,egypt,sea,Red Sea
+arabia,horn_of_africa,sea,Bab-el-Mandeb
+arabia,iran,sea,Gulf
+arabia,india,sea,Arabian Sea
+east_africa,india,sea,Indian Ocean monsoon lane
+india,sri_lanka,sea,Palk Strait
+malaysia,sri_lanka,sea,lane to the Strait of Malacca
+indochina,malaysia,sea,Gulf of Thailand
+china,south_korea,sea,Yellow Sea
+japan,south_korea,sea,Korea Strait
+china,japan,sea,East China Sea
+japan,taiwan,sea,Ryukyu chain
+china,taiwan,sea,Taiwan Strait
+philippines,taiwan,sea,Luzon Strait
+malaysia,philippines,sea,Sulu Sea
+indonesia,philippines,sea,Celebes Sea
+east_africa,madagascar,sea,Comoros lane
+madagascar,zambezi,sea,Mozambique Channel
+australia,indonesia,sea,Timor Sea
+australia,pacific_islands,sea,Coral Sea
+australia,new_zealand,sea,Tasman Sea
+britain_ireland,usa,air,transatlantic
+britain_ireland,canada,air,transatlantic north
+japan,usa,air,transpacific
+brazil,usa,air,Americas trunk
+china,usa,air,transpacific
+pacific_islands,usa,air,mid-Pacific stopovers
+france,west_africa,air,
+britain_ireland,nigeria,air,
+britain_ireland,southern_africa,air,
+britain_ireland,india,air,
+arabia,britain_ireland,air,Gulf hubs
+arabia,east_africa,air,Gulf hubs
+china,germany,air,
+germany,turkey,air,
+russia,turkey,air,
+central_asia,turkey,air,
+australia,china,air,
+china,malaysia,air,
+china,east_africa,air,
+australia,southern_africa,air,Indian Ocean crossing
+argentina_chile,new_zealand,air,South Pacific crossing
+britain_ireland,usa,network,transatlantic trunk
+germany,usa,network,transatlantic trunk
+japan,usa,network,transpacific trunk
+south_korea,usa,network,transpacific trunk
+australia,usa,network,transpacific trunk
+brazil,iberia,network,South Atlantic trunk
+france,india,network,Europe-Asia trunk
+india,malaysia,network,Bay of Bengal trunk
+japan,malaysia,network,East Asia trunk
+australia,malaysia,network,

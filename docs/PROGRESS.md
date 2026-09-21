@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D1.2 — World design: the ~60 regions** |
-| **Model for it** | **Fable** (`/model fable`) |
-| **After it** | `/clear`, **`/model opus`** → S0.1 |
-| **Last completed** | D1.1 — Core spec and coding standard |
-| **Milestone** | M1 design (ahead of the M0/M1 build block) |
+| **Next step** | **S0.1 — Project skeleton and settings** |
+| **Model for it** | **Opus** (`/model opus`) |
+| **After it** | `/clear` → S0.2 (Opus, no switch) |
+| **Last completed** | D1.2 — World design: 61 regions |
+| **Milestone** | M0 build |
 | **Branch** | `main` |
 | **Test suite** | not set up yet (arrives in S0.2) |
 
@@ -37,7 +37,7 @@ which file was being edited, and anything learned that the files do not show)*
 
 **Block 1 — design for M0/M1 · Fable**
 - [x] D1.1 [F] Core spec and coding standard
-- [ ] D1.2 [F] World design: the ~60 regions — ⇄ **then `/model opus`**
+- [x] D1.2 [F] World design: the ~60 regions — ⇄ **then `/model opus`**
 
 **Block 2 — M0 and M1 build · Opus**
 - [ ] S0.1 [O] Project skeleton and settings
@@ -157,6 +157,17 @@ without new information.
   retuning the game never breaks a test. `data/tech/placeholder.json` (`m1_` ids, no strings)
   stands in for the trees until D3.1 replaces it.
 
+- **2026-09-21** (D1.2) — **61 regions**, 11 of them islands reachable only by authored links; North
+  Korea is the one region that starts air-gapped. China and Russia have no `network` links on
+  purpose. Reasoning: `docs/specs/world.md`.
+- **2026-09-21** (D1.2) — Map projection is Equal Earth with **central meridian 11° E** (edge through
+  the Bering Strait). **Region anchors are authored** lon/lat, not `representative_point()`.
+  Crimea is drawn with Ukraine (UN General Assembly position); Antarctica is not drawn at all.
+- **2026-09-21** (D1.2) — `population_tiers` retuned to 5/30/100/300 M in `data/balance.json`; the old
+  values put 27 of 61 regions in tier 3+. The test fixture keeps its frozen copy.
+- **2026-09-21** (D1.2) — Pacific links are drawn across the map edge; D2.1 must specify the rule
+  (world.md §5.4).
+
 ## Design questions for Fable
 
 *(empty — Opus records here every design gap it hit while building: the question, where the
@@ -195,6 +206,13 @@ the world's link graph before it points to balance. Extinction is never chosen b
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-21 — D1.2 World design [F]
+Natural Earth 50m v5.1.1 committed under `tools/map/input/`. Authored `region_groups`,
+`part_overrides`, `region_attributes`, `extra_links` (69) and `expected_land_links` (82, derived from
+the geometry) in `tools/map/`, 67 strings in `data/loc/strings.csv`, spec `docs/specs/world.md`.
+Checked by throwaway script: all reachable, anchors ≥ 4 px inside, every vector ≥ 9 strong regions
+on ≥ 3 continents, smallest region ≈ 500 px. Next: S0.1 on Opus.
 
 ### 2026-09-21 — D1.1 Core spec and coding standard [F]
 Wrote `docs/specs/core.md` (S1.1–S1.5, S1.8), `data/SCHEMA.md` v1, `data/balance.json`, the fixture

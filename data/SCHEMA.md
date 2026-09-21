@@ -213,6 +213,7 @@ from content ids so that data files never carry text:
 | Content | Keys |
 | --- | --- |
 | region `fx_alder` | `REGION_FX_ALDER` |
+| continent `europe` | `CONTINENT_EUROPE` |
 | tech node `cloud_federation` | `TECH_CLOUD_FEDERATION_NAME` · `…_EFFECT` · `…_FLAVOUR` |
 | command failure `insufficient_compute` | `CMD_FAIL_INSUFFICIENT_COMPUTE` |
 | interface text | `UI_<SCREEN>_<ELEMENT>` |
