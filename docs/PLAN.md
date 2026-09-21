@@ -316,14 +316,22 @@ picking, no physics, and identical behaviour on desktop, mobile and web.
   and mixes the overlay colour. Hover highlight is an int uniform comparison.
 - **Presentation layers** on top: a separate higher-resolution base map and border texture for
   crispness at zoom, plus animated links.
-- **Data:** Natural Earth Admin-0 (public domain, no attribution required), at 110m or 50m scale.
-  Pipeline: simplify and reproject with mapshaper, rasterise the ID map with anti-aliasing off.
+- **Data:** Natural Earth Admin-0 at 50m scale (public domain, no attribution required), reprojected
+  to Equal Earth. The full pipeline and its several silent-failure modes are in
+  [VISUALS.md](VISUALS.md) §3.2.
 - **Region count:** merge microstates, as the source does — anything unclickable must not exist.
   Target roughly 60 regions at launch, with the data model supporting up to 200.
 
+> **Constraint:** the Compatibility renderer supports neither compute shaders nor `RenderingDevice`,
+> and it is the only renderer that can export to web. Every map technique here must therefore work as
+> a fragment shader. This rules out compute-shader-based province map implementations, including one
+> of the references below.
+
 **Reference implementations:** `Thomas-Holtvedt/opengs` (MIT, GDScript, selectable provinces, map
-modes, smooth borders) and its companion map tool; `Vercix/godot-grand-strategy-map`;
-`dementive/gsg`.
+modes, smooth borders) and its companion map tool — the directly usable one.
+`Vercix/godot-grand-strategy-map` uses a compute shader and **cannot be ported to our renderer**;
+`dementive/gsg` is a C++ engine module, so it is a design reference only. The published account of
+*Imperator: Rome*'s map rendering is the best description of the technique at production scale.
 
 ### 4.3 Architecture
 

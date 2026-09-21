@@ -25,9 +25,24 @@ region is about to close, where is containment funded, where is society collapsi
 half the planet at all times. Rotating to check the other side is not "immersion", it is a tax paid
 several times a minute for thirty minutes.
 
-This is why *Plague Inc.*, *Pandemic*, *Rebel Inc.* and *Bio Inc.* are all flat, and why the games
-that do use globes — *Civilization VI*, *Hearts of Iron* — are not about global comparison at a
-glance. They are about a front line, which is local.
+This is why *Plague Inc.*, *Pandemic*, *Rebel Inc.* and *Bio Inc.* are all flat — and it is not only
+the casual end of the genre. **Paradox ships flat too**, and has said why: their map is restricted to
+a cylindrical projection, so the question was only *which* one. The reason is architectural. A
+cylindrical projection makes the region map a **rectangular bitmap**, which is what makes the entire
+genre's tooling cheap — and it is why *Victoria 3* can ship more than forty map modes. Nobody gets
+forty overlays on a curved surface.
+
+The research literature points the same way: globes win distance and direction judgements, flat maps
+win **area comparison**, and the globe's inability to show the whole surface actively hindered users.
+Area comparison across all regions at once is, precisely, our game.
+
+And from people who shipped a globe: *Terra Invicta* players report the **night side is unreadable**
+and ask for a 2D mode. Mapbox's globe project enumerates the bill — label collision has to be redone
+on a tangent plane, symbols along lines cannot be pre-projected, and there are gaps at the poles.
+
+The contrary examples prove the rule. *Civilization VI* and *Hearts of Iron* are about a front line,
+which is local. *DEFCON* — thematically our closest relative — is a deliberately plain flat vector
+map with, in its own description, a purposeful lack of geographic detail.
 
 ### Why flat wins on cost
 
@@ -51,9 +66,19 @@ Both columns are achievable. The right column costs several weeks and buys a wor
   societal function stage. Nice to have, cuttable, and fakeable in 2D.
 
 Even these can be done **without a single 3D node**, by sampling an equirectangular map through
-inverse sphere projection in a 2D fragment shader. That gives a rotating globe with correct
-perspective, a controllable palette, and zero additions to the project's technical surface. Build it
-that way first; reach for a real `MeshInstance3D` only if the shader version is not beautiful enough.
+inverse sphere projection in a 2D fragment shader. This is a standard, closed-form technique — about
+six lines of maths, no raymarching — and **CC0 Godot implementations already exist**, including one
+with full three-axis rotation. A production-quality MIT reference set exists too, whose palette
+approach maps directly onto our per-region state colours.
+
+Better still: **the fake globe is analytically pickable.** Mirroring the same handful of float
+operations in GDScript against the cached ID image gives click detection with no collider and no
+frame latency — so even the menu globe could become interactive later at almost no cost.
+
+For completeness, had we gone the other way: a real 3D globe's picking is *not* solved by the physics
+engine, because ray results carry no UV coordinate. The workable route is analytic
+sphere-intersection plus a texture lookup — i.e. the same maths as the fake globe, with more
+machinery around it.
 
 **Decision: no 3D assets are commissioned or produced for this project until the menu globe is
 prototyped as a shader and judged insufficient.**
@@ -98,12 +123,34 @@ Sparse, technical, dark, legible — and increasingly wrong as the run progresse
 The map must encode several variables at once without becoming mud, and must work for colourblind
 players.
 
-- **Penetration:** a single-hue sequential ramp, dark to bright. Value carries the magnitude, so it
-  survives any form of colour blindness and greyscale screenshots alike.
-- **Societal collapse:** desaturation plus a hatching pattern, *not* a second hue. Two variables,
-  two different visual channels — the standard solution to a bivariate choropleth.
-- **The four containment factions:** a qualitative, colourblind-safe palette of four distinct hues,
-  each paired with its own icon so colour is never the only signal.
+**The rule: hue carries category, luminance carries magnitude.** Lightness survives all three forms
+of dichromacy, degrades gracefully to greyscale, and is the one channel that never lies. Everything
+below follows from that.
+
+- **Categories (the four containment factions, region states):** **Okabe–Ito without black** —
+  `#E69F00` `#56B4E9` `#009E73` `#F0E442` `#CC79A7`. Every one of these clears 5.6:1 contrast on our
+  dark ground. The IBM five (`#648FFF` `#785EF0` `#DC267F` `#FE6100` `#FFB000`) is the alternative
+  and arguably the better holographic fit, but its primary source could not be verified, whereas
+  Okabe–Ito traces to a published paper. Each faction also gets its own icon, so colour is never the
+  only signal.
+  - Note: **ColorBrewer cannot supply five colourblind-safe categories.** Its `blind` flag is
+    class-count dependent, and only Dark2/Set2 at three classes and Paired at three or four are ever
+    flagged safe. Do not reach for Set1.
+- **Magnitude (penetration, containment):** a single-hue sequential ramp — but **not viridis
+  unmodified.** Measured against our background, viridis's bottom two stops score 1.27 and 2.51,
+  meaning the lower ~35–40% of the ramp is invisible on a dark map. Magma and inferno start at
+  effectively the background colour. Use an **inverted single-hue ColorBrewer ramp** (every
+  sequential scheme is flagged safe at every class count) or **viridis truncated to its upper half**
+  from `#208F8C` upward.
+  - Cividis is *not* the dark-mode fix it appears to be: it was optimised for colour vision
+    deficiency by widening the brightness range, which pushes its low end darker still.
+- **Two variables at once:** cap at **2×2**. Cartographic consensus is that three classes per
+  variable is the practical ceiling, and a 4×4 bivariate scheme was abandoned in published work
+  because sixteen blended colours could not be told apart reliably. Across sixty small regions we
+  will not beat that.
+- **Not pattern or hatching.** An earlier draft proposed hatching as the second channel. There is no
+  modern endorsement of texture overlay for screen cartography — it is a print-era technique, and
+  across sixty small regions it reads as noise. Use luminance and alpha instead.
 - **Red is reserved.** It means "a thing is happening right now." If everything is red, nothing is.
 
 ### Shaders are the production value
@@ -116,6 +163,32 @@ ordered dithering · chromatic aberration on alerts · glow · noise and grain �
 the menu globe.
 
 This is the highest-leverage art budget in the project. Spend it here first.
+
+**Three constraints from the Compatibility renderer that shape all of this:**
+
+1. **Do not rely on `WorldEnvironment` glow.** Glow exists in Compatibility, but **2D HDR viewports
+   do not**, which means the usual trick of marking emitters with `modulate > 1.0` is unavailable.
+   The only built-in route is a global HDR threshold that makes *everything* bright glow — a blunt
+   instrument. Instead: bake glow into the art and use `CanvasItemMaterial` additive blending for
+   accents, plus our own bloom in the full-screen pass. This is renderer-agnostic and survives the
+   web export.
+2. **Compute shaders and `RenderingDevice` are unavailable.** Compatibility is also the *only*
+   renderer that supports web export, so this is not negotiable. Any map technique that depends on
+   compute shaders — including one of the reference implementations cited in PLAN.md — cannot be
+   used. Everything must work as a fragment shader.
+3. **2D debanding does not exist,** which is fine, because our dithering is a deliberate stylistic
+   choice and has to be a shader regardless.
+
+**The full-screen pass** is the canonical setup: a `CanvasLayer` holding a full-rect `ColorRect`
+with a `canvas_item` shader reading `hint_screen_texture`. Two details that cost an afternoon each
+if missed: `SCREEN_TEXTURE` was removed in Godot 4 and must be a declared uniform; and
+**`Window`-derived popups render on layer 1024**, so the post-processing layer must be set to 1025
+*from script*, because the inspector caps the field at 128.
+
+> **Licence trap.** Shader sharing sites let authors choose their licence per post, and **GPLv3
+> appears among the options**. A GPL shader in a commercial game is a serious problem. Check the
+> badge on every shader before adopting it, prefer CC0 and MIT, and record the source in
+> `docs/ASSET_LICENCES.md` like any other asset.
 
 ---
 
@@ -136,33 +209,89 @@ flat and geometric in the first place. The aesthetic and the budget agree.
 
 The map is **generated, not drawn**, so it is reproducible and diffable:
 
-1. Natural Earth Admin-0 (public domain) as the source, committed as input data.
-2. Merge microstates, simplify geometry, reproject to an equal-area projection.
-3. Rasterise the **ID map**: each region a unique flat colour encoding its index, with
-   anti-aliasing **off** — a single blended pixel on a border is a mis-click.
-4. Rasterise the **base map** separately, at higher resolution, with anti-aliasing **on**.
-5. Extract for free, from the same geometry: **region centroids** (label and marker anchors) and the
-   **land-border adjacency list**.
+1. **Natural Earth Admin-0 at 50m scale** (public domain, no attribution required), committed as
+   input data. Not 10m — we simplify the detail away anyway, and adjacency computation is far faster
+   at 50m.
+2. **Merge** microstates (`-dissolve`), then **compute adjacency and centroids** — see step 5 for
+   why this happens *before* simplification.
+3. **Simplify and reproject** to Equal Earth. Simplify to match the raster grid rather than to a
+   percentage.
+4. **Rasterise the ID map** with anti-aliasing off — a single blended pixel on a border is a
+   mis-click. The base map is rasterised separately, at higher resolution, with anti-aliasing on.
+5. **Extract centroids and the land-border adjacency list** from the same geometry.
 
-That last step matters. The adjacency graph — which regions border which — is the backbone of the
-spread simulation, and deriving it from the geometry rather than hand-authoring sixty regions of
-borders removes an entire category of tedious, error-prone work.
+Step 5 is the one that earns the pipeline its keep. The adjacency graph — which regions border which
+— is the backbone of the spread simulation, and deriving it from geometry rather than hand-authoring
+sixty regions of borders removes an entire category of tedious, error-prone work.
 
-The conversion script lives in `tools/` and is committed. The outputs are committed too, but any one
-of them can be regenerated from scratch.
+**Five gotchas, each of which silently produces a plausible-looking but wrong result:**
+
+- **Adjacency must be computed on the dissolved but *un-simplified* layer.** The `touches` predicate
+  requires exactly shared boundaries; once simplification drifts neighbouring edges apart it returns
+  *nothing*, quietly, with no error.
+- **Use `representative_point()`, not `centroid`,** for label anchors. A centroid is not guaranteed
+  to lie inside its own polygon and will place markers in the sea for Indonesia, Croatia, and Norway
+  with Svalbard attached. Reproject before computing either.
+- **The rasteriser must not anti-alias, and `gdal_rasterize` does not** — provided the "all touched"
+  flag stays off, so that the burn is a binary pixel-centre test. It also cannot write PNG directly,
+  so the ID map goes to GeoTIFF first and is converted after. Burn a single-band integer ID and map
+  ID to RGB afterwards. Never route the ID map through SVG: every SVG rasteriser anti-aliases.
+- **In Godot, `Detect 3D` is on by default** and will silently re-import the ID texture as
+  VRAM-compressed with mipmaps the moment it touches a 3D scene. Block compression interpolates
+  within each 4×4 block and *fabricates region IDs along every border*. Import as **Lossless, no
+  mipmaps, Detect 3D off**, with nearest filtering set on the material. Compare packed integers,
+  never `Color` floats.
+- **Cache the ID `Image` once at startup.** `Texture2D.get_image()` fetches from the GPU and must
+  never run per frame.
+
+The conversion script lives in `tools/` and is committed, with exact tool versions pinned — the
+relevant libraries have made breaking changes recently enough that most tutorials on the subject no
+longer run. The outputs are committed too, but any one of them can be regenerated from scratch.
 
 ### 3.3 Icons: vector sets plus custom silhouettes
 
 Roughly 120 technology nodes, plus interface icons. This is the largest bespoke art cost in the
 project.
 
-- **Baseline:** a permissive open icon set as SVG, recoloured at runtime. Several good ones are
-  MIT-licensed; at least one large set is game-themed specifically. Licences must be verified per set
-  before adoption, and attribution-required sets need that attribution shipped in-game.
-- **Custom:** the ~25 headline nodes — the ones a player will remember and screenshot — get bespoke
-  silhouettes drawn to a shared grid.
-- **Consistency beats quality.** One hundred and twenty icons that share a stroke weight and grid
-  look professional. Twenty beautiful icons among a hundred mismatched ones look broken.
+**Verified licences and set sizes:**
+
+| Set | Licence | Size | Use |
+| --- | --- | --- | --- |
+| **Phosphor** | MIT | 1,512 icons × 6 weights | **Functional chrome.** Six weights give a hierarchy for free — thin for ambient, bold for alerts. |
+| **Tabler** | MIT | 6,202 SVGs | The gap-filler. Largest permissive set in existence. |
+| **Lucide** | ISC | 1,853 SVGs | Alternative to Phosphor; cleaner, narrower. |
+| **Material Symbols** | Apache-2.0 | 4,284 | Attribution appreciated but not required. |
+| **Game-icons.net** | **CC BY 3.0** | 4,239 SVGs | **The illustrative tier** — technology, abilities, units. |
+| ~~Remix Icon~~ | ⚠️ **No longer Apache-2.0** | — | **Avoid.** Moved to a custom licence in January 2026 that forbids use as a logo or app icon — which would rule out our Steam capsule. |
+
+**Game-icons.net is worth the attribution.** Its licence is per-author: a handful of icons are CC0,
+the other ~4,100 are CC BY 3.0. Nothing else has that vocabulary for a game like this, and the cost
+is shipping its `license.txt` on a credits screen — which the project needs anyway.
+
+**Do not mix stroke and silhouette styles within a tier.** Functional chrome is one set; the
+illustrative tier is another; they are allowed to differ from each other but never from themselves.
+
+**Custom:** the ~25 headline nodes — the ones a player will remember and screenshot — get bespoke
+silhouettes drawn to a shared grid.
+
+**Consistency beats quality.** One hundred and twenty icons that share a stroke weight and grid look
+professional. Twenty beautiful icons among a hundred mismatched ones look broken.
+
+### Getting icons crisp at every size
+
+Godot **rasterises SVG at import time**, so a plain SVG import blurs when scaled at runtime — which
+matters for us, since the same interface runs at 400px and at 4K.
+
+Godot 4.7 has the answer: **`DPITexture`**, where SVG is the only format that can be imported as
+one. It rasterises at runtime to match the current oversampling factor, and it carries a
+**`color_map` property that remaps colours at runtime** — so one monochrome icon file serves every
+palette state and every phase shift without duplicate assets. That is close to purpose-built for
+this project.
+
+Two caveats: it is **marked experimental** and may change, and SVG support in general is limited —
+**text must be converted to paths** or it vanishes, and filters such as blur and drop-shadow are
+ignored. So: keep the source SVGs, so that falling back to a pre-rendered PNG atlas is a build step
+rather than a re-draw.
 
 ### 3.4 Illustration and key art: generated locally
 
@@ -194,9 +323,30 @@ transformation of it, rather than prompting each piece independently and hoping.
 
 ### 3.5 Fonts
 
-Two families: a technical monospace and a clean sans. Requirements are non-negotiable and easy to
-check: an open licence that permits embedding in a commercial product, and **full coverage of German
-diacritics** including ß. A font that fails on `Straße` is discovered late and hurts.
+**Pick: JetBrains Mono for data and body, Space Grotesk for display.** Both are OFL 1.1, both cover
+German completely including capital ẞ and the German quotation marks „ " » «, and — critically —
+**neither carries a Reserved Font Name**, so we can subset them to Latin + Latin Extended without
+renaming anything.
+
+**Two fonts that look right and fail on German:**
+
+- **Orbitron** — the obvious choice for a sci-fi console, and a trap. 207 glyphs, no ẞ, **no German
+  quotation marks at all**, no section sign, no arrows. Usable only for short hard-coded English
+  display strings, if at all.
+- **Roboto Mono** — no capital ẞ. In a console interface that shouts in capitals, `STRAẞE` breaks.
+
+IBM Plex is the better-toned alternative to JetBrains Mono, but it has a Reserved Font Name, so any
+subset must be renamed. Same for Source Code Pro.
+
+**OFL 1.1 explicitly permits shipping in a closed-source commercial game** — the FAQ names games and
+entertainment software directly, and only forbids selling the fonts by themselves. We ship the
+copyright line, the licence notice and the full OFL text for the weights we actually use.
+
+**Skip MSDF.** The documentation does not recommend it for interface text: it carries a higher
+baseline cost on mobile, and small text looks *worse* than rasterised because it has no hinting. Use
+dynamic fonts with **per-viewport oversampling** instead, which re-rasterises at the real viewport
+scale and gets us 4K crispness without the small-size penalty. For small interface text, disable
+subpixel positioning to cure irregular letter spacing.
 
 ### 3.6 Audio
 
@@ -229,9 +379,15 @@ cheap to control now and expensive to fix later.
 
 ## 5. Open questions
 
-1. Which projection? Equal-area is honest about population-carrying landmass, which this game is
-   literally about; the familiar-looking alternatives distort exactly the regions that matter most.
-2. Does the menu globe survive as a shader, or does it want real geometry? Prototype in M2.
+1. ~~Which projection?~~ **Resolved: Equal Earth.** It is equal-area, so region sizes read honestly,
+   and distortion carries no mechanical penalty for us — unlike *Hearts of Iron*, which simulates
+   range in map space and consequently has bombers that fly measurably further from some latitudes
+   than others. With sixty regions and authored adjacency, projection is purely aesthetic.
+   (Practical note: the tooling spells it `eqearth`; `equalearth` is not an alias and simply errors.)
+2. Does the menu globe survive as a shader, or does it want real geometry? Prototype in M2 — the
+   research says it should, and CC0 starting points exist.
 3. How far does the phase palette shift go before it stops being atmosphere and starts being
    unreadable? Cap it and test at the reduced-motion setting.
 4. Do region vignettes justify their cost, or is the map plus the ticker enough? Decide at M4.
+5. Is `DPITexture`'s experimental status acceptable for ~140 shipped icons, or do we keep a PNG
+   atlas fallback permanently in the build? Decide at M3, once the icon set is real.

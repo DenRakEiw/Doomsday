@@ -146,18 +146,43 @@ need no image assets at all, scale perfectly to any DPI, and can be recoloured a
 phase shifts. Texture-based nine-slices are reserved for the few places that genuinely need
 ornament.
 
-**Theme type variations** give us named variants (`Button/Danger`, `Panel/Modal`) without a
-combinatorial explosion of scenes.
+**Theme type variations** give us named variants (`ConsoleButton` extending `Button`) without a
+combinatorial explosion of scenes. One catch worth knowing before the theme is structured: **a
+variation only appears in the editor dropdown if it lives in the project-wide theme**, not in a
+locally assigned one.
+
+The theme is split into modular files — colours, typography, buttons, panels — and composed at load
+with `Theme.merge_with()`, rather than maintained as one enormous resource nobody can review.
+
+**Runtime theme swapping, for the phase shifts:** there is **no API to change the project theme at
+runtime**. The project-wide theme is read once at startup and `ThemeDB` is read-only. The working
+pattern is to assign the theme on the **session root Control**, which propagates to every descendant
+and fires a theme-changed notification down the tree. The phase shift is therefore one assignment on
+one node — which is exactly what we wanted anyway.
 
 ### Responsive layout
 
-- **Containers, always.** No hardcoded positions anywhere in the UI. Anchors and Containers only.
+- **Containers, always.** No hardcoded positions anywhere in the UI. Containers actively override
+  manual placement of their children, so fighting them is not merely bad practice, it does not work.
+  Anchors are for container-free roots only.
+- **Stretch mode `canvas_items` with aspect `expand`, base resolution 1920×1080.** This is the
+  documented recommendation for non-pixel-art games on both desktop and mobile. `viewport` mode is
+  for pixel art and would be wrong here. Fixed early and never touched again, because changing it
+  late invalidates every layout decision made before it.
 - One layout serves ~400px phones through 4K desktops. Rows collapse to columns below a breakpoint;
   the right dock becomes a bottom bar; the region panel becomes a bottom sheet.
-- Mobile safe areas are queried and applied as padding on one outer margin container, so notches and
-  gesture bars are handled in exactly one place.
-- Project stretch settings are fixed early and never touched again, because changing them late
-  invalidates every layout decision made before.
+- **Safe areas** are queried and applied as margins on a single outer `MarginContainer`, at startup
+  and on every orientation change, so notches and gesture bars are handled in exactly one place.
+  Display cutout queries are Android-only and return empty elsewhere. Both APIs have known bugs —
+  reporting a too-small area on some Android orientations, and counting the taskbar on Windows — so
+  this needs testing on a real device rather than trust.
+- **Touch targets: 48dp minimum** for anything tappable, following Material; the accessibility
+  floor is lower but 48 is the number that actually feels right on the map and in the tech tree.
+
+**Godot 4.7 gives us one thing worth designing around:** `Control.offset_transform_*` can translate,
+rotate and scale a Control *inside* a Container without the container resetting it, and it is purely
+visual by default, so hover and input regions stay put. Animated holographic panels that drift and
+settle are, as of this version, nearly free.
 
 ### Localisation
 
@@ -179,6 +204,9 @@ Not an afterthought — much of it is free if decided now, and expensive if retr
   atmosphere is exactly the kind of thing that causes problems.
 - **Pause is always available**, including inside modals.
 - No timed input anywhere. The game is real-time, but no decision requires reaction speed.
+- **Screen reader support** arrived in Godot 4.5 and works through the platform accessibility APIs.
+  For a game this text-heavy it is an unusually cheap win, provided controls are given sensible
+  names as they are built rather than retrofitted.
 
 ---
 
