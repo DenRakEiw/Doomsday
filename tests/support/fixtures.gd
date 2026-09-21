@@ -6,8 +6,8 @@ extends RefCounted
 ## write simulation state directly to arrange a situation; nothing outside
 ## `tests/` may.
 ##
-## The simulation helpers of `docs/specs/core.md` §9 — `sim`, `sim_with_origin`,
-## `grant`, `buy` — arrive with `Simulation` in S1.2.
+## `sim_with_origin` arrives with `ChooseOriginCommand` in S1.3, `buy` with
+## `PurchaseNodeCommand` in S1.4.
 
 ## A content root of the same shape as `res://data`, described in
 ## `docs/specs/core.md` §9. Frozen, its own `balance.json` included, so that
@@ -33,6 +33,17 @@ static func db() -> ContentDB:
 		assert(result.ok(), "the fixture content must load cleanly:\n%s" % result.error_text())
 		_db = result.db
 	return _db
+
+
+## A fresh simulation on the fixture world. Seed 1 unless a test needs another.
+static func sim(seed_value: int = 1) -> Simulation:
+	return Simulation.create(db(), seed_value)
+
+
+## Compute out of thin air, so that a test can buy what it wants to test. Only
+## `compute` grows: `compute_earned` records what the run actually earned.
+static func grant(simulation: Simulation, compute: float) -> void:
+	simulation.world.agent.compute += compute
 
 
 ## The fixture's files, parsed but not validated, as a fresh mutable copy per

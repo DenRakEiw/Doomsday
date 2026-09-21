@@ -14,13 +14,13 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S1.2 — World model, tick loop, RNG, state hash** |
+| **Next step** | **S1.3 — Spread** |
 | **Model for it** | **Opus** (no switch) |
-| **After it** | S1.3 (Opus, no switch) |
-| **Last completed** | S1.1 — Content schema, loaders, validation |
+| **After it** | S1.4 (Opus, no switch) |
+| **Last completed** | S1.2 — World model, tick loop, RNG, state hash |
 | **Milestone** | M1 build |
 | **Branch** | `main` |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 17 scripts compile, 72 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 31 scripts compile, 117 tests. The same command is all of CI. |
 
 > **Running without `/clear` from S1.2 on.** The user asked (2026-09-22) for the Opus block
 > S1.2–S1.8 to run in one continuous session, with context compression instead of a clear between
@@ -48,7 +48,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S0.2 [O] Test framework
 - [x] S0.3 [O] Continuous integration
 - [x] S1.1 [O] Content schema, loaders, validation
-- [ ] S1.2 [O] World model, tick loop, RNG, state hash
+- [x] S1.2 [O] World model, tick loop, RNG, state hash
 - [ ] S1.3 [O] Spread
 - [ ] S1.4 [O] Compute economy, modifiers, purchasing
 - [ ] S1.5 [O] Harm, single containment track, phases, outcomes
@@ -216,6 +216,15 @@ without new information.
   field. SCHEMA §5 tightened in the same commit where the validator was stricter than the document
   (`anomaly.spawn_chance`, the two discovery shares, N ≥ 1 regions).
 
+- **2026-09-22** (S1.2) — **`World.check_invariants` takes an optional `ContentDB`.** The spec gives
+  it no parameter, but three of its checks (anomaly count, owned nodes, the phase rule) need balance
+  values or the technology list, which `World` does not own. Without a `db` those three are skipped;
+  `check_invariants()` still reads as the spec writes it.
+- **2026-09-22** (S1.2) — **`World.from_dict` accepts an owned node the content no longer has** and
+  refuses everything else it cannot resolve. core.md §10 wants `save_content_missing` — not
+  `save_corrupt` — for missing content, so **S1.8's `WorldSerializer` checks the region ids and the
+  owned nodes against the content *before* it calls `from_dict`.**
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
@@ -292,6 +301,13 @@ the world's link graph before it points to balance. Extinction is never chosen b
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — S1.2 World model, tick loop, RNG, state hash [O]
+`core/model/` (`World`, `Region`, `Link`, `Agent`, `Faction`, `Anomaly`, `HistorySample`), `core/`
+(`Simulation` with the fixed system order as comment slots, `SimSystem`, `SimRng`, `SimEvent`,
+`Command`, `CommandResult`, `CommandCodec`) and `ModifierStack` as the shell S1.4 completes. 45 new
+tests. Learned: an int is not an enum in GDScript — phase and outcome ids convert through a written
+`match`, not a cast. Next: S1.3 on Opus.
 
 ### 2026-09-22 — S1.1 Content schema, loaders, validation [O]
 `core/content/`: eleven classes — the five `*Def` plus `MilestoneDef`, `ContentDB`,
