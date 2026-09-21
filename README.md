@@ -44,3 +44,8 @@ claude mcp add godot --scope local \
 
 `GODOT_MCP_ALLOWED_DIRS` confines the server's file access to this repository and should always be
 set.
+
+Headless runs (import, tests, batch simulation) use a `GODOT` environment variable pointing at the
+same executable — on Windows at the `_console.exe` build, otherwise the output never reaches the
+terminal. It is set per machine in `.claude/settings.local.json`, which is not committed. The
+commands themselves are listed in [IMPLEMENTATION.md](docs/IMPLEMENTATION.md) §2.

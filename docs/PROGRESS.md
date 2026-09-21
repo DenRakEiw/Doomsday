@@ -14,10 +14,10 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S0.1 — Project skeleton and settings** |
-| **Model for it** | **Opus** (`/model opus`) |
-| **After it** | `/clear` → S0.2 (Opus, no switch) |
-| **Last completed** | D1.2 — World design: 61 regions |
+| **Next step** | **S0.2 — Test framework** |
+| **Model for it** | **Opus** (no switch) |
+| **After it** | `/clear` → S0.3 (Opus, no switch) — S0.3 needs a push, ask first |
+| **Last completed** | S0.1 — Project skeleton and settings |
 | **Milestone** | M0 build |
 | **Branch** | `main` |
 | **Test suite** | not set up yet (arrives in S0.2) |
@@ -40,7 +40,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] D1.2 [F] World design: the ~60 regions — ⇄ **then `/model opus`**
 
 **Block 2 — M0 and M1 build · Opus**
-- [ ] S0.1 [O] Project skeleton and settings
+- [x] S0.1 [O] Project skeleton and settings
 - [ ] S0.2 [O] Test framework
 - [ ] S0.3 [O] Continuous integration *(needs a push — ask first)*
 - [ ] S1.1 [O] Content schema, loaders, validation
@@ -168,6 +168,15 @@ without new information.
 - **2026-09-21** (D1.2) — Pacific links are drawn across the map edge; D2.1 must specify the rule
   (world.md §5.4).
 
+- **2026-09-21** (S0.1) — The `unsafe_*` warning family in Godot 4.7 has **four** members
+  (`unsafe_property_access`, `unsafe_method_access`, `unsafe_cast`, `unsafe_call_argument`);
+  `unsafe_void_declaration` is a Godot 3 name and is rejected as invalid. All four are warnings,
+  `untyped_declaration` is an error, `inferred_declaration` stays off so `:=` is allowed.
+- **2026-09-21** (S0.1) — `tools/map/` carries a `.gdignore`: its CSVs are Python-pipeline inputs and
+  Godot was importing them as `Translation` resources. `tools/*.gd` stays visible so `-s` runs work.
+- **2026-09-21** (S0.1) — `assets/map/` added to the skeleton; world.md §2 puts the ID map and the
+  masks there, and PLAN §4.3's tree predates that.
+
 ## Design questions for Fable
 
 *(empty — Opus records here every design gap it hit while building: the question, where the
@@ -185,7 +194,20 @@ corrected in the same commit)*
 
 ## Known issues and carry-overs
 
-*(none yet)*
+- **godot-mcp's own helper scripts are untyped and trip `untyped_declaration=2`.** Two of the three
+  were patched locally in the server installation (outside this repository, so the patch is
+  machine-local and an update to godot-mcp will undo it): `scripts/validate_script.gd` was given
+  static types, `scripts/mcp_interaction_server.gd` a file-level `@warning_ignore_start`.
+  `validate_script(s)`, `run_project` and `game_screenshot` work again.
+- **`game_eval` is unusable** until the same fix is applied to its wrapper: it builds a script
+  containing `func execute():`, which the project setting rejects, and the running game drops into
+  the debugger. The patch is one line in `mcp_interaction_server.gd` (annotation after
+  `extends Node` in the `script_source` template, ~line 562) but writing it was refused by the
+  permission classifier — **ask the user to allow it**. Until then use `game_get_property`,
+  `game_set_property`, `game_call_method` and `game_get_scene_tree` instead.
+- `run_project` injects `McpInteractionServer` into `project.godot` and removes it on stop, leaving
+  an empty `[autoload]` section behind. Check `project.godot` before committing after a run.
+  The injected `mcp_interaction_server.gd` is gitignored in case a run crashes.
 
 ## Waiting on the user
 
@@ -206,6 +228,13 @@ the world's link graph before it points to balance. Extinction is never chosen b
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-21 — S0.1 Project skeleton and settings [O]
+Folder skeleton (`core/`, `game/`, `ui/`, `assets/map/`, `data/world|events/`, `tests/*`) with
+`.gdkeep`; `project.godot` with 1920×1080 `canvas_items`/`expand`, `untyped_declaration` as error
+and the four `unsafe_*` as warnings; `.editorconfig`; placeholder `game/main.tscn`; `GODOT` in
+`.claude/settings.local.json`. Learned: the strict warning setting breaks godot-mcp's own helper
+scripts — see *Known issues*. Import exits 0, the placeholder runs. Next: S0.2 on Opus.
 
 ### 2026-09-21 — D1.2 World design [F]
 Natural Earth 50m v5.1.1 committed under `tools/map/input/`. Authored `region_groups`,

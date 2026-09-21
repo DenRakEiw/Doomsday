@@ -14,6 +14,11 @@ export_credentials.cfg
 .mcp.json
 .claude/settings.local.json
 
+# godot-mcp injects this autoload into the project while a run is in progress
+# and removes it on stop; a crashed run can leave it behind.
+/mcp_interaction_server.gd
+/mcp_interaction_server.gd.uid
+
 # Node (MCP server, if placed inside the project)
 node_modules/
 
