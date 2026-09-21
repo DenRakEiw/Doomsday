@@ -17,11 +17,18 @@ config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [debug]
 
+; Addon scripts (GUT) are exempt from these; keep the default explicit so that
+; raising untyped_declaration to an error never takes third-party code with it.
+gdscript/warnings/exclude_addons=true
 gdscript/warnings/untyped_declaration=2
 gdscript/warnings/unsafe_property_access=1
 gdscript/warnings/unsafe_method_access=1
 gdscript/warnings/unsafe_cast=1
 gdscript/warnings/unsafe_call_argument=1
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gut/plugin.cfg")
 
 [display]
 

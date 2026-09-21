@@ -22,6 +22,7 @@ discover after a commercial release.
 | Asset | Source | Licence | Notes |
 | --- | --- | --- | --- |
 | godot-mcp v3.1.0 | github.com/tugcantopaloglu/godot-mcp | MIT | AI-assisted development tooling. Lives outside the repository; nothing ships. Builds on `Coding-Solo/godot-mcp` (MIT). |
+| GUT 9.7.1 | github.com/bitwes/Gut | MIT | Unit test framework, vendored at `addons/gut/` (source zip of tag `v9.7.1`, 2026-09-21). The 9.7 line is the Godot 4.7 line; 9.6.1 is the 4.5/4.6 line and is what GitHub marks "latest". Editor plugin and test runner only — excluded from exports before release. Its own bundled fonts (Anonymous Pro, Courier Prime, Lobster Two, Source Code Pro) are OFL and likewise never ship. |
 
 ## Engine
 

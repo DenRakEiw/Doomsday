@@ -124,10 +124,10 @@ next Opus block. An empty punch list skips the step.
 | --- | --- |
 | Godot executable | `$GODOT` (set per machine in `.claude/settings.local.json` → `env`, done in S0.1). On Windows point it at the `_console.exe` build, otherwise headless output is lost. |
 | Import assets | `"$GODOT" --headless --path . --import` — always first in CI and after adding assets |
-| Unit tests | `"$GODOT" --headless --path . -s addons/gut/gut_cmdln.gd -gconfig=.gutconfig.json -gexit` |
+| Unit tests | **`tools/test.sh`** (or `tools\test.ps1`) — imports, then runs `"$GODOT" --headless --path . -s addons/gut/gut_cmdln.gd -gconfig=.gutconfig.json -gexit`. Extra arguments go straight to GUT (`-gtest=…`, `-gunit_test_name=…`). In PowerShell the `-name=value` arguments must be quoted. |
 | One simulated game | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy` (from S1.8) |
 | Batch balance run | `... -s tools/sim_batch.gd -- --seeds=1..500 --policy=greedy --out=<csv>` (from S1.8) |
-| Script check | godot-mcp `validate_scripts` |
+| Script check | godot-mcp `validate_scripts` with `scriptPaths` as **project-relative** paths (`tests/unit/test_smoke.gd`); a `res://` prefix and the `directory` filter are both rejected, and without `scriptPaths` it tries the whole project including `addons/`. |
 | Look at the game | godot-mcp `run_project` → `game_screenshot` → `game_get_errors` → `stop_project` |
 | Drive the game | godot-mcp `game_click`, `game_key_press`, `game_get_ui`, `game_get_scene_tree` |
 | Map pipeline | `uv run --project tools/map python tools/map/build_map.py` (from S1.6) |

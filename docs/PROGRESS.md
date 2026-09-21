@@ -14,13 +14,13 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S0.2 — Test framework** |
+| **Next step** | **S0.3 — Continuous integration** *(needs a push — ask first)* |
 | **Model for it** | **Opus** (no switch) |
-| **After it** | `/clear` → S0.3 (Opus, no switch) — S0.3 needs a push, ask first |
-| **Last completed** | S0.1 — Project skeleton and settings |
+| **After it** | `/clear` → S1.1 (Opus, no switch) — **M0 is complete after S0.3** |
+| **Last completed** | S0.2 — Test framework |
 | **Milestone** | M0 build |
 | **Branch** | `main` |
-| **Test suite** | not set up yet (arrives in S0.2) |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — GUT 9.7.1, green: 1 script, 2 tests |
 
 **[F]** = Fable: design, specs, content, text, balance, gates. **[O]** = Opus: code, scenes,
 shaders, wiring, tooling, tests. `/clear` after every step. **⇄** marks a model switch before the
@@ -41,7 +41,7 @@ which file was being edited, and anything learned that the files do not show)*
 
 **Block 2 — M0 and M1 build · Opus**
 - [x] S0.1 [O] Project skeleton and settings
-- [ ] S0.2 [O] Test framework
+- [x] S0.2 [O] Test framework
 - [ ] S0.3 [O] Continuous integration *(needs a push — ask first)*
 - [ ] S1.1 [O] Content schema, loaders, validation
 - [ ] S1.2 [O] World model, tick loop, RNG, state hash
@@ -177,6 +177,16 @@ without new information.
 - **2026-09-21** (S0.1) — `assets/map/` added to the skeleton; world.md §2 puts the ID map and the
   masks there, and PLAN §4.3's tree predates that.
 
+- **2026-09-21** (S0.2) — **GUT 9.7.1**, vendored at `addons/gut/` from the source zip of the tag.
+  The **9.7 line is the Godot 4.7 line**; GitHub's "latest release" is 9.6.1 (the 4.5/4.6 line), so
+  never take `releases/latest` at face value. No prebuilt asset is published — take the zipball.
+- **2026-09-21** (S0.2) — `gdscript/warnings/exclude_addons=true` is written into `project.godot`
+  explicitly although it is the Godot default: it is the reason `untyped_declaration=2` does not
+  reject GUT's own untyped code, and nothing in the repository should depend on an invisible default.
+- **2026-09-21** (S0.2) — `.gutconfig.json` scans **`res://tests` with subdirectories**; the
+  `test_` prefix keeps `tests/support/` and `tests/fixtures/` out of the run on its own. `should_exit`
+  stays false in the config so the editor panel is unaffected — the wrappers pass `-gexit`.
+
 ## Design questions for Fable
 
 *(empty — Opus records here every design gap it hit while building: the question, where the
@@ -205,6 +215,13 @@ corrected in the same commit)*
   `extends Node` in the `script_source` template, ~line 562) but writing it was refused by the
   permission classifier — **ask the user to allow it**. Until then use `game_get_property`,
   `game_set_property`, `game_call_method` and `game_get_scene_tree` instead.
+- **godot-mcp `validate_scripts` takes project-relative paths only.** `res://tests/unit/x.gd` gives
+  "Script does not exist"; `tests/unit/x.gd` works. The `directory` argument does not narrow the
+  scope either — without an explicit `scriptPaths` list it tries all 88 scripts (GUT included) and
+  refuses at the 60-file limit.
+- **PowerShell splits `-name=value` arguments** passed to a native executable, so
+  `-gconfig=.gutconfig.json` reaches GUT as two tokens and is rejected. `tools/test.ps1` quotes
+  them; any hand-typed GUT command in PowerShell must do the same.
 - `run_project` injects `McpInteractionServer` into `project.godot` and removes it on stop, leaving
   an empty `[autoload]` section behind. Check `project.godot` before committing after a run.
   The injected `mcp_interaction_server.gd` is gitignored in case a run crashes.
@@ -228,6 +245,14 @@ the world's link graph before it points to balance. Extinction is never chosen b
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-21 — S0.2 Test framework [O]
+GUT 9.7.1 vendored into `addons/gut/` and enabled as a plugin, `.gutconfig.json`, smoke test
+`tests/unit/test_smoke.gd`, wrappers `tools/test.sh` (executable bit set for CI) and
+`tools/test.ps1`, GUT recorded in `ASSET_LICENCES.md`. Learned: 9.7 — not GitHub's "latest" 9.6.1 —
+is the 4.7 line; addons are exempt from the strict warnings; PowerShell splits `-gconfig=…`.
+Verified: import 0, suite green (2/2), a deliberate failure exits 1 and was removed. Next: S0.3 on
+Opus — **it needs a push, ask the user first**.
 
 ### 2026-09-21 — S0.1 Project skeleton and settings [O]
 Folder skeleton (`core/`, `game/`, `ui/`, `assets/map/`, `data/world|events/`, `tests/*`) with
