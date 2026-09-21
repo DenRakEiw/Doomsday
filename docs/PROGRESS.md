@@ -14,13 +14,14 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S1.6 — Map pipeline 1: geometry** *(timeboxed)* |
+| **Next step** | **S1.7 — Map pipeline 2: attributes and links** |
 | **Model for it** | **Opus** (no switch) |
-| **After it** | S1.7 (Opus, no switch) |
-| **Last completed** | S1.5 — Harm, containment, phases, outcomes — **the core simulation is complete** |
+| **After it** | S1.8 (Opus, no switch) — **then `/model fable`** for G1 |
+| **Last completed** | S1.6 — Map pipeline 1: geometry |
 | **Milestone** | M1 build |
 | **Branch** | `main` |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 45 scripts compile, 216 tests. The same command is all of CI. |
+| **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 55 scripts compile, 216 tests. The same command is all of CI. |
 
 > **Running without `/clear` from S1.2 on.** The user asked (2026-09-22) for the Opus block
 > S1.2–S1.8 to run in one continuous session, with context compression instead of a clear between
@@ -52,7 +53,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S1.3 [O] Spread
 - [x] S1.4 [O] Compute economy, modifiers, purchasing
 - [x] S1.5 [O] Harm, single containment track, phases, outcomes
-- [ ] S1.6 [O] Map pipeline 1: geometry *(timeboxed)*
+- [x] S1.6 [O] Map pipeline 1: geometry *(timeboxed — done inside it)*
 - [ ] S1.7 [O] Map pipeline 2: attributes and links
 - [ ] S1.8 [O] Save/load, headless runner, bots — ⇄ **then `/model fable`**
 
@@ -216,6 +217,13 @@ without new information.
   field. SCHEMA §5 tightened in the same commit where the validator was stricter than the document
   (`anomaly.spawn_chance`, the two discovery shares, N ≥ 1 regions).
 
+- **2026-09-22** (S1.6) — **The masks are anti-aliased by supersampling.** Neither `rasterio` nor
+  PIL draws an anti-aliased line, so both masks are drawn at twice their resolution and boxed down.
+  The ID map is never touched this way — one blended pixel there is a mis-click.
+- **2026-09-22** (S1.6) — **`detect_3d/compress_to=0` on all three map textures**, set in S1.6 with
+  the files rather than in S1.7 as the plan had it: the Godot default is 1, and the first time a
+  texture touches a 3D scene it silently re-imports VRAM-compressed and fabricates region ids along
+  every border. Lossless and no mipmaps are already the defaults.
 - **2026-09-22** (S1.2) — **`World.check_invariants` takes an optional `ContentDB`.** The spec gives
   it no parameter, but three of its checks (anomaly count, owned nodes, the phase rule) need balance
   values or the technology list, which `World` does not own. Without a `db` those three are skipped;
@@ -307,6 +315,13 @@ the world's link graph before it points to balance. Extinction is never chosen b
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — S1.6 Map pipeline 1: geometry [O]
+`tools/map/` as a `uv` project (wheels only, `uv.lock` committed); `build_map.py` runs in 3 s and
+writes `id_map.png`, `land_mask.png`, `border_mask.png` and `build/geometry.json`; `verify_map.py`
+checks all eight points of world.md §7 and passes. **The numbers match D1.2 exactly**: 82 land
+links, override matches 1/4/1/1/3/1, smallest regions taiwan 505, sri_lanka 925, benelux 986.
+Next: S1.7 on Opus.
 
 ### 2026-09-22 — S1.5 Harm, containment, phases, outcomes [O]
 `PopulationSystem`, `ContainmentSystem`, `PhaseSystem`, `OutcomeSystem`, `HistorySystem` — the seven

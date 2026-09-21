@@ -19,6 +19,12 @@ export_credentials.cfg
 /mcp_interaction_server.gd
 /mcp_interaction_server.gd.uid
 
+# Python: the map pipeline's environment and caches. uv.lock is committed, the
+# environment it describes is not.
+.venv/
+__pycache__/
+*.pyc
+
 # Node (MCP server, if placed inside the project)
 node_modules/
 

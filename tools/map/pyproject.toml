@@ -1,0 +1,23 @@
+[project]
+name = "doomsday-map"
+version = "1.0.0"
+description = "Builds the game's map from Natural Earth: ID map, masks, adjacency."
+requires-python = ">=3.12"
+
+# Pinned to the minor version, with uv.lock committed next to this file for the
+# exact build. The libraries below have all made breaking changes recently
+# enough that an unpinned environment silently produces a different map.
+dependencies = [
+    "geopandas~=1.1.1",
+    "shapely~=2.1.1",
+    "pyproj~=3.7.2",
+    "rasterio~=1.4.3",
+    "numpy~=2.3.3",
+    "pillow~=11.3.0",
+]
+
+[dependency-groups]
+dev = []
+
+[tool.uv]
+package = false

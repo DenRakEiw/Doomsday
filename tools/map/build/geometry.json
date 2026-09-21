@@ -1,0 +1,883 @@
+{
+	"regions": [
+		{
+			"index": 1,
+			"id": "usa",
+			"anchor": [
+				971,
+				452
+			],
+			"pixel_area": 133274
+		},
+		{
+			"index": 2,
+			"id": "canada",
+			"anchor": [
+				1040,
+				244
+			],
+			"pixel_area": 139652
+		},
+		{
+			"index": 3,
+			"id": "mexico",
+			"anchor": [
+				813,
+				670
+			],
+			"pixel_area": 27578
+		},
+		{
+			"index": 4,
+			"id": "central_america",
+			"anchor": [
+				961,
+				803
+			],
+			"pixel_area": 7313
+		},
+		{
+			"index": 5,
+			"id": "caribbean",
+			"anchor": [
+				1061,
+				693
+			],
+			"pixel_area": 3152
+		},
+		{
+			"index": 6,
+			"id": "greenland",
+			"anchor": [
+				1646,
+				96
+			],
+			"pixel_area": 30601
+		},
+		{
+			"index": 7,
+			"id": "brazil",
+			"anchor": [
+				1361,
+				1206
+			],
+			"pixel_area": 119380
+		},
+		{
+			"index": 8,
+			"id": "argentina_chile",
+			"anchor": [
+				1264,
+				1527
+			],
+			"pixel_area": 57925
+		},
+		{
+			"index": 9,
+			"id": "andes",
+			"anchor": [
+				1113,
+				1206
+			],
+			"pixel_area": 37142
+		},
+		{
+			"index": 10,
+			"id": "colombia",
+			"anchor": [
+				1093,
+				955
+			],
+			"pixel_area": 16012
+		},
+		{
+			"index": 11,
+			"id": "venezuela_guianas",
+			"anchor": [
+				1197,
+				917
+			],
+			"pixel_area": 19019
+		},
+		{
+			"index": 12,
+			"id": "britain_ireland",
+			"anchor": [
+				1933,
+				277
+			],
+			"pixel_area": 4343
+		},
+		{
+			"index": 13,
+			"id": "france",
+			"anchor": [
+				1966,
+				352
+			],
+			"pixel_area": 7708
+		},
+		{
+			"index": 14,
+			"id": "germany",
+			"anchor": [
+				2038,
+				301
+			],
+			"pixel_area": 5031
+		},
+		{
+			"index": 15,
+			"id": "benelux",
+			"anchor": [
+				1994,
+				296
+			],
+			"pixel_area": 986
+		},
+		{
+			"index": 16,
+			"id": "alpine",
+			"anchor": [
+				2071,
+				344
+			],
+			"pixel_area": 1771
+		},
+		{
+			"index": 17,
+			"id": "iberia",
+			"anchor": [
+				1896,
+				439
+			],
+			"pixel_area": 8414
+		},
+		{
+			"index": 18,
+			"id": "italy",
+			"anchor": [
+				2057,
+				400
+			],
+			"pixel_area": 4238
+		},
+		{
+			"index": 19,
+			"id": "nordic",
+			"anchor": [
+				2081,
+				191
+			],
+			"pixel_area": 16955
+		},
+		{
+			"index": 20,
+			"id": "iceland",
+			"anchor": [
+				1807,
+				153
+			],
+			"pixel_area": 1436
+		},
+		{
+			"index": 21,
+			"id": "central_europe",
+			"anchor": [
+				2126,
+				295
+			],
+			"pixel_area": 9998
+		},
+		{
+			"index": 22,
+			"id": "southeast_europe",
+			"anchor": [
+				2180,
+				381
+			],
+			"pixel_area": 10804
+		},
+		{
+			"index": 23,
+			"id": "eastern_europe",
+			"anchor": [
+				2231,
+				313
+			],
+			"pixel_area": 11833
+		},
+		{
+			"index": 24,
+			"id": "russia",
+			"anchor": [
+				2305,
+				238
+			],
+			"pixel_area": 238871
+		},
+		{
+			"index": 25,
+			"id": "turkey",
+			"anchor": [
+				2271,
+				452
+			],
+			"pixel_area": 10992
+		},
+		{
+			"index": 26,
+			"id": "caucasus",
+			"anchor": [
+				2388,
+				422
+			],
+			"pixel_area": 2620
+		},
+		{
+			"index": 27,
+			"id": "levant",
+			"anchor": [
+				2355,
+				513
+			],
+			"pixel_area": 10566
+		},
+		{
+			"index": 28,
+			"id": "arabia",
+			"anchor": [
+				2429,
+				663
+			],
+			"pixel_area": 39270
+		},
+		{
+			"index": 29,
+			"id": "iran",
+			"anchor": [
+				2500,
+				541
+			],
+			"pixel_area": 22881
+		},
+		{
+			"index": 30,
+			"id": "central_asia",
+			"anchor": [
+				2590,
+				362
+			],
+			"pixel_area": 56141
+		},
+		{
+			"index": 31,
+			"id": "pakistan",
+			"anchor": [
+				2654,
+				576
+			],
+			"pixel_area": 21369
+		},
+		{
+			"index": 32,
+			"id": "india",
+			"anchor": [
+				2789,
+				692
+			],
+			"pixel_area": 44429
+		},
+		{
+			"index": 33,
+			"id": "himalaya",
+			"anchor": [
+				2836,
+				602
+			],
+			"pixel_area": 2638
+		},
+		{
+			"index": 34,
+			"id": "bangladesh",
+			"anchor": [
+				2909,
+				663
+			],
+			"pixel_area": 1895
+		},
+		{
+			"index": 35,
+			"id": "sri_lanka",
+			"anchor": [
+				2837,
+				905
+			],
+			"pixel_area": 925
+		},
+		{
+			"index": 36,
+			"id": "china",
+			"anchor": [
+				3118,
+				534
+			],
+			"pixel_area": 132221
+		},
+		{
+			"index": 37,
+			"id": "mongolia",
+			"anchor": [
+				2932,
+				349
+			],
+			"pixel_area": 22067
+		},
+		{
+			"index": 38,
+			"id": "south_korea",
+			"anchor": [
+				3251,
+				486
+			],
+			"pixel_area": 1358
+		},
+		{
+			"index": 39,
+			"id": "north_korea",
+			"anchor": [
+				3213,
+				439
+			],
+			"pixel_area": 1727
+		},
+		{
+			"index": 40,
+			"id": "japan",
+			"anchor": [
+				3363,
+				490
+			],
+			"pixel_area": 5182
+		},
+		{
+			"index": 41,
+			"id": "taiwan",
+			"anchor": [
+				3248,
+				666
+			],
+			"pixel_area": 505
+		},
+		{
+			"index": 42,
+			"id": "indochina",
+			"anchor": [
+				3111,
+				796
+			],
+			"pixel_area": 10376
+		},
+		{
+			"index": 43,
+			"id": "thailand_myanmar",
+			"anchor": [
+				3047,
+				781
+			],
+			"pixel_area": 16523
+		},
+		{
+			"index": 44,
+			"id": "malaysia",
+			"anchor": [
+				3085,
+				962
+			],
+			"pixel_area": 4675
+		},
+		{
+			"index": 45,
+			"id": "indonesia",
+			"anchor": [
+				3175,
+				1135
+			],
+			"pixel_area": 26361
+		},
+		{
+			"index": 46,
+			"id": "philippines",
+			"anchor": [
+				3277,
+				773
+			],
+			"pixel_area": 4051
+		},
+		{
+			"index": 47,
+			"id": "maghreb",
+			"anchor": [
+				1964,
+				534
+			],
+			"pixel_area": 67283
+		},
+		{
+			"index": 48,
+			"id": "egypt",
+			"anchor": [
+				2258,
+				619
+			],
+			"pixel_area": 14201
+		},
+		{
+			"index": 49,
+			"id": "sahel",
+			"anchor": [
+				1981,
+				766
+			],
+			"pixel_area": 70680
+		},
+		{
+			"index": 50,
+			"id": "sudan",
+			"anchor": [
+				2267,
+				826
+			],
+			"pixel_area": 34895
+		},
+		{
+			"index": 51,
+			"id": "horn_of_africa",
+			"anchor": [
+				2376,
+				894
+			],
+			"pixel_area": 26947
+		},
+		{
+			"index": 52,
+			"id": "west_africa",
+			"anchor": [
+				1861,
+				902
+			],
+			"pixel_area": 19523
+		},
+		{
+			"index": 53,
+			"id": "nigeria",
+			"anchor": [
+				2014,
+				879
+			],
+			"pixel_area": 12805
+		},
+		{
+			"index": 54,
+			"id": "central_africa",
+			"anchor": [
+				2173,
+				1054
+			],
+			"pixel_area": 56978
+		},
+		{
+			"index": 55,
+			"id": "east_africa",
+			"anchor": [
+				2332,
+				1077
+			],
+			"pixel_area": 25783
+		},
+		{
+			"index": 56,
+			"id": "zambezi",
+			"anchor": [
+				2238,
+				1236
+			],
+			"pixel_area": 46440
+		},
+		{
+			"index": 57,
+			"id": "southern_africa",
+			"anchor": [
+				2198,
+				1449
+			],
+			"pixel_area": 37661
+		},
+		{
+			"index": 58,
+			"id": "madagascar",
+			"anchor": [
+				2444,
+				1318
+			],
+			"pixel_area": 8441
+		},
+		{
+			"index": 59,
+			"id": "australia",
+			"anchor": [
+				3460,
+				1428
+			],
+			"pixel_area": 108440
+		},
+		{
+			"index": 60,
+			"id": "new_zealand",
+			"anchor": [
+				3720,
+				1593
+			],
+			"pixel_area": 3753
+		},
+		{
+			"index": 61,
+			"id": "pacific_islands",
+			"anchor": [
+				3556,
+				1120
+			],
+			"pixel_area": 7576
+		}
+	],
+	"land_links": [
+		[
+			"alpine",
+			"central_europe"
+		],
+		[
+			"alpine",
+			"france"
+		],
+		[
+			"alpine",
+			"germany"
+		],
+		[
+			"alpine",
+			"italy"
+		],
+		[
+			"alpine",
+			"southeast_europe"
+		],
+		[
+			"andes",
+			"argentina_chile"
+		],
+		[
+			"andes",
+			"brazil"
+		],
+		[
+			"andes",
+			"colombia"
+		],
+		[
+			"arabia",
+			"levant"
+		],
+		[
+			"argentina_chile",
+			"brazil"
+		],
+		[
+			"bangladesh",
+			"india"
+		],
+		[
+			"bangladesh",
+			"thailand_myanmar"
+		],
+		[
+			"benelux",
+			"france"
+		],
+		[
+			"benelux",
+			"germany"
+		],
+		[
+			"brazil",
+			"colombia"
+		],
+		[
+			"brazil",
+			"venezuela_guianas"
+		],
+		[
+			"canada",
+			"usa"
+		],
+		[
+			"caucasus",
+			"iran"
+		],
+		[
+			"caucasus",
+			"russia"
+		],
+		[
+			"caucasus",
+			"turkey"
+		],
+		[
+			"central_africa",
+			"east_africa"
+		],
+		[
+			"central_africa",
+			"nigeria"
+		],
+		[
+			"central_africa",
+			"sahel"
+		],
+		[
+			"central_africa",
+			"sudan"
+		],
+		[
+			"central_africa",
+			"zambezi"
+		],
+		[
+			"central_america",
+			"colombia"
+		],
+		[
+			"central_america",
+			"mexico"
+		],
+		[
+			"central_asia",
+			"china"
+		],
+		[
+			"central_asia",
+			"iran"
+		],
+		[
+			"central_asia",
+			"pakistan"
+		],
+		[
+			"central_asia",
+			"russia"
+		],
+		[
+			"central_europe",
+			"eastern_europe"
+		],
+		[
+			"central_europe",
+			"germany"
+		],
+		[
+			"central_europe",
+			"russia"
+		],
+		[
+			"central_europe",
+			"southeast_europe"
+		],
+		[
+			"china",
+			"himalaya"
+		],
+		[
+			"china",
+			"india"
+		],
+		[
+			"china",
+			"indochina"
+		],
+		[
+			"china",
+			"mongolia"
+		],
+		[
+			"china",
+			"north_korea"
+		],
+		[
+			"china",
+			"pakistan"
+		],
+		[
+			"china",
+			"russia"
+		],
+		[
+			"china",
+			"thailand_myanmar"
+		],
+		[
+			"colombia",
+			"venezuela_guianas"
+		],
+		[
+			"east_africa",
+			"horn_of_africa"
+		],
+		[
+			"east_africa",
+			"sudan"
+		],
+		[
+			"east_africa",
+			"zambezi"
+		],
+		[
+			"eastern_europe",
+			"russia"
+		],
+		[
+			"eastern_europe",
+			"southeast_europe"
+		],
+		[
+			"egypt",
+			"levant"
+		],
+		[
+			"egypt",
+			"maghreb"
+		],
+		[
+			"egypt",
+			"sudan"
+		],
+		[
+			"france",
+			"germany"
+		],
+		[
+			"france",
+			"iberia"
+		],
+		[
+			"france",
+			"italy"
+		],
+		[
+			"germany",
+			"nordic"
+		],
+		[
+			"himalaya",
+			"india"
+		],
+		[
+			"horn_of_africa",
+			"sudan"
+		],
+		[
+			"india",
+			"pakistan"
+		],
+		[
+			"india",
+			"thailand_myanmar"
+		],
+		[
+			"indochina",
+			"thailand_myanmar"
+		],
+		[
+			"indonesia",
+			"malaysia"
+		],
+		[
+			"indonesia",
+			"pacific_islands"
+		],
+		[
+			"iran",
+			"levant"
+		],
+		[
+			"iran",
+			"pakistan"
+		],
+		[
+			"iran",
+			"turkey"
+		],
+		[
+			"italy",
+			"southeast_europe"
+		],
+		[
+			"levant",
+			"turkey"
+		],
+		[
+			"maghreb",
+			"sahel"
+		],
+		[
+			"maghreb",
+			"sudan"
+		],
+		[
+			"malaysia",
+			"thailand_myanmar"
+		],
+		[
+			"mexico",
+			"usa"
+		],
+		[
+			"mongolia",
+			"russia"
+		],
+		[
+			"nigeria",
+			"sahel"
+		],
+		[
+			"nigeria",
+			"west_africa"
+		],
+		[
+			"nordic",
+			"russia"
+		],
+		[
+			"north_korea",
+			"russia"
+		],
+		[
+			"north_korea",
+			"south_korea"
+		],
+		[
+			"sahel",
+			"sudan"
+		],
+		[
+			"sahel",
+			"west_africa"
+		],
+		[
+			"southeast_europe",
+			"turkey"
+		],
+		[
+			"southern_africa",
+			"zambezi"
+		]
+	]
+}
