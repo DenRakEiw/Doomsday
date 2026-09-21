@@ -14,13 +14,13 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S1.3 — Spread** |
+| **Next step** | **S1.4 — Compute economy, modifiers, purchasing** |
 | **Model for it** | **Opus** (no switch) |
-| **After it** | S1.4 (Opus, no switch) |
-| **Last completed** | S1.2 — World model, tick loop, RNG, state hash |
+| **After it** | S1.5 (Opus, no switch) |
+| **Last completed** | S1.3 — Spread |
 | **Milestone** | M1 build |
 | **Branch** | `main` |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 31 scripts compile, 117 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 35 scripts compile, 138 tests. The same command is all of CI. |
 
 > **Running without `/clear` from S1.2 on.** The user asked (2026-09-22) for the Opus block
 > S1.2–S1.8 to run in one continuous session, with context compression instead of a clear between
@@ -49,7 +49,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S0.3 [O] Continuous integration
 - [x] S1.1 [O] Content schema, loaders, validation
 - [x] S1.2 [O] World model, tick loop, RNG, state hash
-- [ ] S1.3 [O] Spread
+- [x] S1.3 [O] Spread
 - [ ] S1.4 [O] Compute economy, modifiers, purchasing
 - [ ] S1.5 [O] Harm, single containment track, phases, outcomes
 - [ ] S1.6 [O] Map pipeline 1: geometry *(timeboxed)*
@@ -301,6 +301,12 @@ the world's link graph before it points to balance. Extinction is never chosen b
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — S1.3 Spread [O]
+`SpreadSystem` (growth, then seeding, then control — in that order, so a region seeded today seeds
+nobody today) and `ChooseOriginCommand`, registered in the system list and in `CommandCodec`. 21 new
+tests. Learned: the phase invariant cannot hold until `PhaseSystem` exists, so S1.3's tests call
+`check_invariants()` without the content. Next: S1.4 on Opus.
 
 ### 2026-09-22 — S1.2 World model, tick loop, RNG, state hash [O]
 `core/model/` (`World`, `Region`, `Link`, `Agent`, `Faction`, `Anomaly`, `HistorySample`), `core/`

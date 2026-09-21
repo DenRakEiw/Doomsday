@@ -32,10 +32,15 @@ static func from_dict(d: Dictionary) -> Command:
 	return command
 
 
-## The command types, by id.
-@warning_ignore("unused_parameter")
+## The command types, by id. Each reads its own fields and returns null when one
+## of them is missing or of the wrong type.
 static func _make(type: String, d: Dictionary) -> Command:
-	# S1.3 adds "choose_origin"; S1.4 adds "purchase_node" and "collect_anomaly".
+	# S1.4 adds "purchase_node" and "collect_anomaly".
+	if type == ChooseOriginCommand.TYPE_ID:
+		var region: String = read_id(d, "region")
+		if region.is_empty():
+			return null
+		return ChooseOriginCommand.new(region)
 	return null
 
 

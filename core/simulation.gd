@@ -22,8 +22,9 @@ func _init() -> void:
 	# The fixed system order. It is part of the determinism contract: a system
 	# that moves changes every run. The comments are the slots M4 fills, so that
 	# a later step inserts rather than reorders.
-	systems = []
-	# SpreadSystem              S1.3
+	systems = [
+		SpreadSystem.new(),
+	]
 	# ComputeSystem             S1.4
 	# PopulationSystem          S1.5
 	# slot: SocietalFunctionSystem (M4)

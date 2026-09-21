@@ -6,8 +6,7 @@ extends RefCounted
 ## write simulation state directly to arrange a situation; nothing outside
 ## `tests/` may.
 ##
-## `sim_with_origin` arrives with `ChooseOriginCommand` in S1.3, `buy` with
-## `PurchaseNodeCommand` in S1.4.
+## `buy` arrives with `PurchaseNodeCommand` in S1.4.
 
 ## A content root of the same shape as `res://data`, described in
 ## `docs/specs/core.md` §9. Frozen, its own `balance.json` included, so that
@@ -38,6 +37,22 @@ static func db() -> ContentDB:
 ## A fresh simulation on the fixture world. Seed 1 unless a test needs another.
 static func sim(seed_value: int = 1) -> Simulation:
 	return Simulation.create(db(), seed_value)
+
+
+## A simulation whose origin is already chosen — day 0, one region seeded.
+static func sim_with_origin(region_id: String = "fx_alder", seed_value: int = 1) -> Simulation:
+	var simulation: Simulation = sim(seed_value)
+	var result: CommandResult = simulation.apply(ChooseOriginCommand.new(region_id))
+	assert(result.ok, "the origin %s must be acceptable: %s" % [region_id, result.reason])
+	return simulation
+
+
+## Grants `breakout` without buying anything, so that a spread test does not
+## depend on the purchasing of S1.4.
+static func allow_breakout(simulation: Simulation) -> void:
+	var none: Array[ModifierDef] = []
+	var flags: Array[String] = [ModifierDef.FLAG_BREAKOUT]
+	simulation.world.modifiers.add_source(SpreadSystem.TEST_SOURCE, none, flags)
 
 
 ## Compute out of thin air, so that a test can buy what it wants to test. Only

@@ -84,8 +84,10 @@ func test_systems_run_in_the_order_of_the_list() -> void:
 	assert_eq(second.ticks, 1)
 
 
-func test_the_system_list_starts_empty() -> void:
-	assert_eq(Fixtures.sim().systems.size(), 0, "S1.3 onwards fill it, in the fixed order")
+func test_the_system_list_is_the_fixed_order() -> void:
+	var systems: Array[SimSystem] = Fixtures.sim().systems
+	# The order is the determinism contract; later steps insert, never reorder.
+	assert_true(systems[0] is SpreadSystem, "spread runs first")
 
 
 func test_an_accepted_command_is_logged_with_its_day() -> void:
