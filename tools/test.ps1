@@ -9,7 +9,11 @@
 #   tools\test.ps1 -gtest=res://tests/unit/test_smoke.gd
 #   tools\test.ps1 -gunit_test_name=test_spread
 
-$ErrorActionPreference = "Stop"
+# "Continue", not "Stop": with "Stop", anything Godot writes to stderr — an
+# engine error, a `push_error` a test is *asserting* on — becomes a terminating
+# NativeCommandError and the run dies half-way through. The exit codes below are
+# what decides whether this script failed.
+$ErrorActionPreference = "Continue"
 
 $godot = if ($env:GODOT) { $env:GODOT } else { "godot" }
 $root = Split-Path -Parent $PSScriptRoot

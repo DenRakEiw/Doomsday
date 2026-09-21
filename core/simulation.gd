@@ -24,8 +24,8 @@ func _init() -> void:
 	# a later step inserts rather than reorders.
 	systems = [
 		SpreadSystem.new(),
+		ComputeSystem.new(),
 	]
-	# ComputeSystem             S1.4
 	# PopulationSystem          S1.5
 	# slot: SocietalFunctionSystem (M4)
 	# ContainmentSystem         S1.5

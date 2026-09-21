@@ -6,7 +6,6 @@ extends RefCounted
 ## write simulation state directly to arrange a situation; nothing outside
 ## `tests/` may.
 ##
-## `buy` arrives with `PurchaseNodeCommand` in S1.4.
 
 ## A content root of the same shape as `res://data`, described in
 ## `docs/specs/core.md` §9. Frozen, its own `balance.json` included, so that
@@ -59,6 +58,13 @@ static func allow_breakout(simulation: Simulation) -> void:
 ## `compute` grows: `compute_earned` records what the run actually earned.
 static func grant(simulation: Simulation, compute: float) -> void:
 	simulation.world.agent.compute += compute
+
+
+## Buys every node in order, asserting that each purchase is accepted.
+static func buy(simulation: Simulation, node_ids: Array[String]) -> void:
+	for node_id: String in node_ids:
+		var result: CommandResult = simulation.apply(PurchaseNodeCommand.new(node_id))
+		assert(result.ok, "buying %s must be accepted: %s" % [node_id, result.reason])
 
 
 ## The fixture's files, parsed but not validated, as a fresh mutable copy per

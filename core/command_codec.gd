@@ -35,12 +35,21 @@ static func from_dict(d: Dictionary) -> Command:
 ## The command types, by id. Each reads its own fields and returns null when one
 ## of them is missing or of the wrong type.
 static func _make(type: String, d: Dictionary) -> Command:
-	# S1.4 adds "purchase_node" and "collect_anomaly".
 	if type == ChooseOriginCommand.TYPE_ID:
 		var region: String = read_id(d, "region")
 		if region.is_empty():
 			return null
 		return ChooseOriginCommand.new(region)
+	if type == PurchaseNodeCommand.TYPE_ID:
+		var node: String = read_id(d, "node")
+		if node.is_empty():
+			return null
+		return PurchaseNodeCommand.new(node)
+	if type == CollectAnomalyCommand.TYPE_ID:
+		var anomaly: int = read_int(d, "anomaly")
+		if anomaly == INVALID:
+			return null
+		return CollectAnomalyCommand.new(anomaly)
 	return null
 
 

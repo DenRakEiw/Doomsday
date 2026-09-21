@@ -14,13 +14,13 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S1.4 — Compute economy, modifiers, purchasing** |
+| **Next step** | **S1.5 — Harm, single containment track, phases, outcomes** |
 | **Model for it** | **Opus** (no switch) |
-| **After it** | S1.5 (Opus, no switch) |
-| **Last completed** | S1.3 — Spread |
+| **After it** | S1.6 (Opus, no switch) — the map pipeline, timeboxed |
+| **Last completed** | S1.4 — Compute economy, modifiers, purchasing |
 | **Milestone** | M1 build |
 | **Branch** | `main` |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 35 scripts compile, 138 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 39 scripts compile, 174 tests. The same command is all of CI. |
 
 > **Running without `/clear` from S1.2 on.** The user asked (2026-09-22) for the Opus block
 > S1.2–S1.8 to run in one continuous session, with context compression instead of a clear between
@@ -50,7 +50,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S1.1 [O] Content schema, loaders, validation
 - [x] S1.2 [O] World model, tick loop, RNG, state hash
 - [x] S1.3 [O] Spread
-- [ ] S1.4 [O] Compute economy, modifiers, purchasing
+- [x] S1.4 [O] Compute economy, modifiers, purchasing
 - [ ] S1.5 [O] Harm, single containment track, phases, outcomes
 - [ ] S1.6 [O] Map pipeline 1: geometry *(timeboxed)*
 - [ ] S1.7 [O] Map pipeline 2: attributes and links
@@ -251,8 +251,10 @@ the head of the next Opus block)*
 
 ## Deviations from the plan or a spec
 
-*(none yet — anything built differently is listed here with the reason, and the plan or spec is
-corrected in the same commit)*
+- **2026-09-22** (S1.4) — **`ModifierStack.CLAMPS` is `Dictionary[String, Array]`, not
+  `Dictionary[String, Vector2]`** as core.md §8 writes it. `Vector2` holds 32-bit components, so the
+  lower bound of `node_cost` arrives as 0.10000000149 — against §3's "floats are 64-bit". The value
+  is now a `[min, max]` pair of ordinary floats.
 
 ## Known issues and carry-overs
 
@@ -275,6 +277,10 @@ corrected in the same commit)*
 - **The CI container prints `ERROR: Unable to load fontconfig` ten times per run** — the godot-ci
   image ships no fonts, and headless needs none. Harmless, but it is why CI judges the run by exit
   codes and never by grepping the log for `ERROR`.
+- **`tools/test.ps1` runs with `$ErrorActionPreference = "Continue"`.** Under `"Stop"` every line
+  Godot writes to stderr — an engine error, or a `push_error` a test asserts on — became a
+  terminating `NativeCommandError` and killed the run half-way through. Exit codes decide, not
+  stderr. `tools/test.sh` was never affected.
 - **PowerShell splits `-name=value` arguments** passed to a native executable, so
   `-gconfig=.gutconfig.json` reaches GUT as two tokens and is rejected. `tools/test.ps1` quotes
   them; any hand-typed GUT command in PowerShell must do the same.
@@ -301,6 +307,13 @@ the world's link graph before it points to balance. Extinction is never chosen b
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — S1.4 Compute economy, modifiers, purchasing [O]
+`ModifierStack` completed (per-target index, activation order), `ComputeSystem` (yield, expiry,
+spawning, milestones — in that order), `PurchaseNodeCommand`, `CollectAnomalyCommand`. 36 new tests,
+including the step's "done when": `fx_reach` measurably shortens the way to the second continent
+over 20 seeds. Learned: `Vector2` is 32-bit (see *Deviations*), and `tools/test.ps1` used to die on
+any stderr Godot wrote — fixed. Next: S1.5 on Opus.
 
 ### 2026-09-22 — S1.3 Spread [O]
 `SpreadSystem` (growth, then seeding, then control — in that order, so a region seeded today seeds
