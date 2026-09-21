@@ -13,7 +13,10 @@ Satirical science fiction in the tradition of *Plague Inc.*, *Pandemic* and *Uni
 
 ## Documentation
 
-- [Implementation plan](docs/PLAN.md) – game design, architecture, milestones
+- [Implementation plan](docs/PLAN.md) – concept, research basis, architecture, milestones
+- [Content design](docs/CONTENT.md) – technology trees, event chains, scenarios, endings
+- [Interface design](docs/UI.md) – screen flow, HUD, UI architecture
+- [Visual design](docs/VISUALS.md) – the 2D/3D decision, art direction, asset production
 
 ## Getting started
 

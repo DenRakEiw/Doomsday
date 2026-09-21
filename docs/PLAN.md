@@ -5,6 +5,10 @@
 **Engine:** Godot 4.7.2 stable, typed GDScript
 **Repository:** https://github.com/DenRakEiw/Doomsday
 
+**Companion documents:** [CONTENT.md](CONTENT.md) (technology trees, event chains, scenarios,
+endings) · [UI.md](UI.md) (screen flow, HUD, UI architecture) · [VISUALS.md](VISUALS.md) (the 2D/3D
+decision, art direction, asset production)
+
 ---
 
 ## 1. Concept
