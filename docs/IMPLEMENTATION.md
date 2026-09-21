@@ -133,7 +133,7 @@ next Opus block. An empty punch list skips the step.
 | Single script, while editing | godot-mcp `validate_script(s)` with `scriptPaths` as **project-relative** paths (`tests/unit/test_smoke.gd`); a `res://` prefix and the `directory` filter are both rejected, and without `scriptPaths` it tries the whole project including `addons/` and refuses at 60 files. For the whole project use the row above. |
 | Look at the game | godot-mcp `run_project` → `game_screenshot` → `game_get_errors` → `stop_project` |
 | Drive the game | godot-mcp `game_click`, `game_key_press`, `game_get_ui`, `game_get_scene_tree` |
-| Map pipeline | `uv run --project tools/map python tools/map/build_map.py` (from S1.6) |
+| Map pipeline | `uv run --project tools/map python tools/map/build_map.py` — geometry, masks, adjacency (S1.6); then `… build_world.py` — `data/world/*.json` (S1.7); `… verify_map.py` checks world.md §7. Environment: `uv sync --project tools/map`, wheels only |
 
 Screenshots and batch CSVs go to the session scratch directory, never into the repository.
 

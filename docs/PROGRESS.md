@@ -14,14 +14,14 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S1.7 — Map pipeline 2: attributes and links** |
+| **Next step** | **S1.8 — Save/load, headless runner, bots** |
 | **Model for it** | **Opus** (no switch) |
-| **After it** | S1.8 (Opus, no switch) — **then `/model fable`** for G1 |
-| **Last completed** | S1.6 — Map pipeline 1: geometry |
+| **After it** | **⇄ `/model fable`** → G1 + D2.1 |
+| **Last completed** | S1.7 — Map pipeline 2: attributes and links — **the real world runs** |
 | **Milestone** | M1 build |
 | **Branch** | `main` |
-| **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 55 scripts compile, 216 tests. The same command is all of CI. |
+| **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 56 scripts compile, 228 tests. The same command is all of CI. |
 
 > **Running without `/clear` from S1.2 on.** The user asked (2026-09-22) for the Opus block
 > S1.2–S1.8 to run in one continuous session, with context compression instead of a clear between
@@ -54,7 +54,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S1.4 [O] Compute economy, modifiers, purchasing
 - [x] S1.5 [O] Harm, single containment track, phases, outcomes
 - [x] S1.6 [O] Map pipeline 1: geometry *(timeboxed — done inside it)*
-- [ ] S1.7 [O] Map pipeline 2: attributes and links
+- [x] S1.7 [O] Map pipeline 2: attributes and links
 - [ ] S1.8 [O] Save/load, headless runner, bots — ⇄ **then `/model fable`**
 
 **Block 3 — M1 gate, M2 design · Fable**
@@ -315,6 +315,13 @@ the world's link graph before it points to balance. Extinction is never chosen b
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — S1.7 Map pipeline 2: attributes and links [O]
+`tools/map/build_world.py` joins the geometry, `region_attributes.csv`, Natural Earth's population
+and `extra_links.csv` into `data/world/regions.json` and `links.json`;
+`tests/integration/test_world_content.gd` checks the six points of world.md §7 for S1.7. Every
+number is the spec's: 61 regions, 82 land + 69 authored links, population 7 676 945 548, eleven
+island regions, `north_korea` alone air-gapped. Next: S1.8 on Opus.
 
 ### 2026-09-22 — S1.6 Map pipeline 1: geometry [O]
 `tools/map/` as a `uv` project (wheels only, `uv.lock` committed); `build_map.py` runs in 3 s and

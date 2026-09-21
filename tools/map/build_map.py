@@ -53,6 +53,8 @@ ASSETS = PROJECT / "assets" / "map"
 KEY = "ADM0_A3"
 FEATURE_COUNT = 242
 NO_REGION = "none"
+# The link kind the geometry produces; the others are authored.
+LAND_KIND = "land"
 
 # Equal Earth with the central meridian at 11° E, so that the map edge runs
 # through the Bering Strait and neither Chukotka nor Alaska is cut. `+over`
