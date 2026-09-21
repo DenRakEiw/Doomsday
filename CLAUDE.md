@@ -61,7 +61,42 @@ whatever a future session would need to know about it.
 
 ## Coding standard
 
-*(written in D1.1)*
+GDScript follows the official Godot style guide; what follows is what that guide leaves open or
+what we tighten.
+
+- **Files:** `snake_case.gd` / `.tscn`, **one class per file**, file name = snake_case of the
+  `class_name` (`SpreadSystem` → `spread_system.gd`). Never PascalCase file names — Windows forgives
+  a case mismatch, the exported game and Linux CI do not.
+- **`class_name`:** on every script in `core/` and on every reusable `ui/` component. Not on
+  autoloads (the autoload name is the global), not on scene-specific scripts, tools or tests.
+  Refer to classes by name, not by `preload` path.
+- **Naming:** classes `PascalCase`; functions, variables, signals `snake_case`; constants and enum
+  values `UPPER_SNAKE`; enum types `PascalCase`; private members `_leading_underscore`; booleans
+  read as a statement (`is_open`, `has_origin`, `discovered`). Content ids lower snake case,
+  localisation keys `UPPER_SNAKE` with a domain prefix (`data/SCHEMA.md` §6).
+- **Typing:** every variable, parameter and return type is declared, `-> void` included. `:=` is
+  allowed where the right-hand side makes the type obvious. Typed collections (`Array[Region]`,
+  `Dictionary[String, float]`). Loop variables are typed (`for i: int in …`). Values from JSON or a
+  `Dictionary` are cast at the boundary (`int(d["day"])`) and typed from then on.
+- **Signals:** past tense for what happened (`region_selected`, `phase_changed`), `_requested` for
+  what the interface asks for (`purchase_requested`). Typed parameters. Handlers are
+  `_on_<emitter>_<signal>`. `core/` has no signals — it has the event outbox.
+- **Constants:** anything a designer might tune lives in `data/balance.json` and is read through
+  `BalanceDef`; a numeric literal other than 0 or 1 in a system is a defect. Presentation constants
+  (durations, sizes) live in the theme or in one `const` block at the top of the script.
+  Identifiers shared between files (event types, failure reasons, flags) are `const` strings on the
+  class that owns them, never retyped literals.
+- **Order inside a script:** `class_name`/`extends`, doc comment, signals, enums, constants,
+  `@export`, public variables, private variables, `@onready`, `_init`/`_ready`, other virtuals,
+  public methods, private methods. Tabs.
+- **Comments** explain why, not what, in English. Public API of `core/` gets a `##` doc comment.
+  `# DESIGN?` marks a placeholder for a design gap and always has a matching entry in `PROGRESS.md`.
+- **Errors:** `core/` never crashes on bad data — loaders and the save reader return results with
+  reasons. `push_error` is for programming errors; `assert` only in tests and tools.
+- **Tests (GUT):** `tests/unit/test_<file under test>.gd`, `tests/integration/test_<behaviour>.gd`,
+  functions `test_<what>_<expected>` (`test_purchase_without_compute_is_rejected`). One behaviour
+  per test. Fixtures through `tests/support/fixtures.gd`; tests may set state directly to build a
+  situation, nothing else may. A test depending on randomness fixes its seed and says so.
 
 ## Tooling
 

@@ -1,0 +1,90 @@
+{
+	"_comment": "Every tunable constant of the simulation. Format and meaning: data/SCHEMA.md section 5. Formulas: docs/specs/core.md section 7. Values are starting points until G1.",
+	"stats": {
+		"spread_growth": 1.0,
+		"spread_seed": 1.0,
+		"seed_land": 1.0,
+		"seed_sea": 1.0,
+		"seed_air": 1.0,
+		"seed_network": 1.0,
+		"airgap_cross": 0.0,
+		"control_growth": 1.0,
+		"yield": 1.0,
+		"anomaly_value": 1.0,
+		"anomaly_rate": 1.0,
+		"harm": 0.0,
+		"footprint": 0.0,
+		"discovery": 1.0,
+		"containment_growth": 1.0,
+		"node_cost": 1.0
+	},
+	"population_tiers": [5000000, 20000000, 80000000, 300000000],
+	"spread": {
+		"base_growth": 0.04,
+		"origin_penetration": 0.05,
+		"seed_penetration": 0.01,
+		"saturation_snap": 0.999,
+		"seed_chance": {
+			"land": 0.04,
+			"sea": 0.015,
+			"air": 0.02,
+			"network": 0.03
+		}
+	},
+	"control": {
+		"threshold": 0.5,
+		"rate": 0.006,
+		"complete": 0.99
+	},
+	"compute": {
+		"start": 5.0,
+		"yield_scale": 0.02,
+		"hardware_by_tier": [0.0, 1.0, 2.0, 4.0, 7.0],
+		"cost_step": 1.0
+	},
+	"anomaly": {
+		"spawn_chance": 0.02,
+		"max_active": 5,
+		"lifetime_days": 20,
+		"base_value": 2.0,
+		"tier_bonus": 0.25,
+		"footprint_bonus": 0.5,
+		"footprint_reference": 10.0
+	},
+	"milestones": [
+		{"id": "regions_2", "kind": "regions_infected", "threshold": 2, "reward": 2.0},
+		{"id": "regions_5", "kind": "regions_infected", "threshold": 5, "reward": 3.0},
+		{"id": "regions_10", "kind": "regions_infected", "threshold": 10, "reward": 4.0},
+		{"id": "regions_25", "kind": "regions_infected", "threshold": 25, "reward": 6.0},
+		{"id": "regions_50", "kind": "regions_infected", "threshold": 50, "reward": 8.0},
+		{"id": "continent", "kind": "continent_foothold", "threshold": 1, "reward": 3.0},
+		{"id": "share_25", "kind": "world_share", "threshold": 0.25, "reward": 5.0},
+		{"id": "share_50", "kind": "world_share", "threshold": 0.5, "reward": 8.0},
+		{"id": "share_90", "kind": "world_share", "threshold": 0.9, "reward": 12.0}
+	],
+	"harm": {
+		"daily_rate": 0.002
+	},
+	"discovery": {
+		"scrutiny_per_day": 0.000012,
+		"per_footprint": 0.004,
+		"breadth_rate": 0.0015,
+		"breadth_free": 0.15,
+		"deaths_certain_share": 0.0001
+	},
+	"containment": {
+		"base_rate": 0.0012,
+		"per_footprint": 0.15,
+		"per_harm": 0.3,
+		"per_share": 1.0,
+		"research_weight_by_tier": [0.2, 0.5, 1.0, 2.0, 4.0],
+		"thresholds": [0.25, 0.5, 0.75]
+	},
+	"phase": {
+		"open_containment": 0.5,
+		"open_world_share": 0.6
+	},
+	"history": {
+		"interval_days": 7
+	}
+}

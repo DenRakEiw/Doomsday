@@ -1,0 +1,59 @@
+{
+	"_comment": "Fixture world for unit tests. Frozen: changing it breaks tests by design. Described in docs/specs/core.md section 9.",
+	"regions": [
+		{
+			"index": 1,
+			"id": "fx_alder",
+			"continent": "west",
+			"population": 60000000,
+			"air_gapped": false,
+			"anchor": [100, 100],
+			"attributes": {"compute": 4, "connectivity": 4, "wealth": 4, "regulation": 3, "research": 4, "manufacturing": 1, "industry": 2, "isolation": 0}
+		},
+		{
+			"index": 2,
+			"id": "fx_birch",
+			"continent": "west",
+			"population": 25000000,
+			"air_gapped": false,
+			"anchor": [200, 100],
+			"attributes": {"compute": 2, "connectivity": 3, "wealth": 3, "regulation": 2, "research": 1, "manufacturing": 3, "industry": 3, "isolation": 0}
+		},
+		{
+			"index": 3,
+			"id": "fx_cedar",
+			"continent": "west",
+			"population": 120000000,
+			"air_gapped": false,
+			"anchor": [200, 200],
+			"attributes": {"compute": 1, "connectivity": 1, "wealth": 1, "regulation": 0, "research": 0, "manufacturing": 2, "industry": 1, "isolation": 1}
+		},
+		{
+			"index": 4,
+			"id": "fx_dogwood",
+			"continent": "east",
+			"population": 40000000,
+			"air_gapped": false,
+			"anchor": [400, 100],
+			"attributes": {"compute": 3, "connectivity": 3, "wealth": 3, "regulation": 4, "research": 2, "manufacturing": 4, "industry": 4, "isolation": 0}
+		},
+		{
+			"index": 5,
+			"id": "fx_elm",
+			"continent": "east",
+			"population": 2000000,
+			"air_gapped": false,
+			"anchor": [500, 250],
+			"attributes": {"compute": 1, "connectivity": 1, "wealth": 2, "regulation": 1, "research": 0, "manufacturing": 0, "industry": 0, "isolation": 4}
+		},
+		{
+			"index": 6,
+			"id": "fx_fir",
+			"continent": "east",
+			"population": 8000000,
+			"air_gapped": true,
+			"anchor": [450, 50],
+			"attributes": {"compute": 3, "connectivity": 0, "wealth": 3, "regulation": 4, "research": 3, "manufacturing": 1, "industry": 1, "isolation": 3}
+		}
+	]
+}

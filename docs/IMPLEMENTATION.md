@@ -148,8 +148,9 @@ a result. The same interface drives the bot policies for balancing and, later, C
 Every applied command is appended to a log with its tick number, so any run can be replayed.
 
 **Events via an outbox, not signals.** Each tick the core appends plain `SimEvent` records
-(`region_seeded`, `node_purchased`, `phase_changed`, `headline`, …) to an outbox. The `Game` autoload
-drains it after the tick and re-emits on `EventBus`. The core therefore needs no signal wiring, and
+(`region_seeded`, `phase_changed`, `headline`, …) to an outbox that holds the latest tick only;
+events caused by a command travel in its `CommandResult`. The `Game` autoload reads both and
+re-emits on `EventBus`. The core therefore needs no signal wiring, and
 tests assert on the outbox directly.
 
 **Fixed system order per tick:** commands → spread → compute → harm/population → societal function →
@@ -359,8 +360,8 @@ tag (confirm the tag exists), import, run GUT, fail on any script error. CI badg
 **Build:** `core/content/`: `ContentLoader` (reads JSON via `FileAccess`, never `load()` of
 resources), `SchemaValidator` returning a list of `{file, path, message}` errors rather than
 failing on the first, `ContentDB` holding typed definitions (`RegionDef`, `LinkDef`, `TechNodeDef`,
-`ModifierDef`, `BalanceDef`). `data/SCHEMA.md` from the spec. `tests/fixtures/world_small/` exactly
-as specified.
+`ModifierDef`, `BalanceDef`). `data/SCHEMA.md`, `data/balance.json`, `data/tech/placeholder.json`
+and `tests/fixtures/world_small/` were delivered by D1.1 — build against them, do not rewrite them.
 **Tests:** valid fixture loads; each class of broken input (missing field, wrong type, dangling id,
 duplicate id, prerequisite cycle) produces the right error and does not crash.
 **Done when:** the fixture world loads into typed objects and bad data is rejected with a path.
@@ -368,7 +369,7 @@ duplicate id, prerequisite cycle) produces the right error and does not crash.
 ### S1.2 — World model, tick loop, RNG, state hash **[O]**
 **Read first:** `docs/specs/core.md` (model, simulation, determinism) · §3 of this file
 **Build:** `core/model/` — `World`, `Region`, `Link`, `Agent`, `Faction` (stub).
-`core/Simulation.gd` with `tick()`, the fixed system order as an explicit list, `apply(cmd)`, the
+`core/simulation.gd` with `tick()`, the fixed system order as an explicit list, `apply(cmd)`, the
 command log and the event outbox. `SimRng` wrapper exposing seed and state as strings.
 `World.to_dict()` / `state_hash()`.
 **Tests:** N ticks with no systems change only the day counter; same seed → same hash; different
@@ -377,7 +378,7 @@ seed → different stream; the outbox is cleared per tick.
 
 ### S1.3 — Spread **[O]**
 **Read first:** `docs/specs/core.md` (spread)
-**Build:** `core/systems/SpreadSystem.gd`: logistic growth within a region; per-link seeding chance
+**Build:** `core/systems/spread_system.gd`: logistic growth within a region; per-link seeding chance
 by link kind; closable links; air-gapped regions refuse network seeding unless a modifier allows
 it; archetype affinity via modifiers; `control` rising once penetration passes a threshold.
 **Tests:** penetration is monotone without countermeasures and bounded in [0, 1]; an unlinked
@@ -436,7 +437,7 @@ archetype coverage checks hold.
 
 ### S1.8 — Save/load, headless runner, bots **[O]**
 **Read first:** `docs/specs/core.md` (save format, policies) · §3 of this file "JSON traps"
-**Build:** `core/save/WorldSerializer.gd` (`version`, migrations table, RNG state as string,
+**Build:** `core/save/world_serializer.gd` (`version`, migrations table, RNG state as string,
 full-precision floats, command log included). `tools/sim_run.gd` and `tools/sim_batch.gd`.
 `core/policy/`: `Policy` interface plus the three specified policies, each with its own RNG. A CI
 job that runs seed 1 twice and compares hashes.
@@ -484,7 +485,7 @@ yields none; a long frame does not spiral (tick cap per frame).
 **Also read:** PLAN §4.2 · VISUALS §3.2 (last two gotchas)
 **Build:** `game/map/map_view.tscn` + `map.gdshader` (`canvas_item`): uniforms `id_map` (nearest
 filter), `base_map`, `borders`, `region_data` (256×1 RGBA8: penetration, control, collapse, flags),
-`hover_index`, `selected_index`, `overlay_mode`. `MapView.gd` caches the ID `Image` once, writes
+`hover_index`, `selected_index`, `overlay_mode`. `map_view.gd` caches the ID `Image` once, writes
 the data `Image` on tick and calls `ImageTexture.update()`. Compare decoded integers in the shader,
 never colours.
 **Verify:** run with the bot, screenshot at several days; no bleeding along borders when zoomed.

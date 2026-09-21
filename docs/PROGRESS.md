@@ -14,10 +14,10 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D1.1 — Core spec and coding standard** |
+| **Next step** | **D1.2 — World design: the ~60 regions** |
 | **Model for it** | **Fable** (`/model fable`) |
-| **After it** | `/clear`, stay on Fable → D1.2 |
-| **Last completed** | — (planning only) |
+| **After it** | `/clear`, **`/model opus`** → S0.1 |
+| **Last completed** | D1.1 — Core spec and coding standard |
 | **Milestone** | M1 design (ahead of the M0/M1 build block) |
 | **Branch** | `main` |
 | **Test suite** | not set up yet (arrives in S0.2) |
@@ -36,7 +36,7 @@ which file was being edited, and anything learned that the files do not show)*
 ## Steps
 
 **Block 1 — design for M0/M1 · Fable**
-- [ ] D1.1 [F] Core spec and coding standard
+- [x] D1.1 [F] Core spec and coding standard
 - [ ] D1.2 [F] World design: the ~60 regions — ⇄ **then `/model opus`**
 
 **Block 2 — M0 and M1 build · Opus**
@@ -144,6 +144,18 @@ without new information.
 - **2026-09-21** — The menu-globe prototype moves from M2 to S5.7, where the main menu is built.
 - **2026-09-21** — Core architecture: commands in, event outbox out, modifiers instead of special
   cases (IMPLEMENTATION §3).
+- **2026-09-21** (D1.1) — **Script files are `snake_case.gd`**, not PascalCase as the plan first
+  wrote them: Windows forgives a case mismatch, exports and Linux CI do not. Plan corrected.
+- **2026-09-21** (D1.1) — Commands apply immediately between ticks (no queue); their events return
+  in `CommandResult`, tick events in an outbox that holds the latest tick only.
+- **2026-09-21** (D1.1) — **"Boxed" is mechanical:** no seeding across links until a node grants the
+  `breakout` flag. D3.1 must put that flag on every Tier 1 Infiltration vector.
+- **2026-09-21** (D1.1) — Discovery risk grows with time, so a silent agent is still found and no run
+  can stall. A depopulated region goes **dark** for good (no hardware, no relay) — the seed of
+  Autophagy, and what makes `lose_no_compute` reachable in M1.
+- **2026-09-21** (D1.1) — Unit tests use a frozen copy of `balance.json` inside the fixture, so
+  retuning the game never breaks a test. `data/tech/placeholder.json` (`m1_` ids, no strings)
+  stands in for the trees until D3.1 replaces it.
 
 ## Design questions for Fable
 
@@ -173,11 +185,23 @@ corrected in the same commit)*
 *(first entry arrives with S1.8: run length in ticks and terminal-state distribution over 200 seeds
 per policy)*
 
+Expectation from D1.1's throwaway prototype, synthetic 60-region grid, 40 seeds, placeholder tech:
+`greedy` ≈ 78 % Ascendance / 22 % contained, median 750 days; `stealth` 100 % Ascendance, median
+790; `idle` 100 % contained, ≈ 1500–2000. A real-world baseline far from this points to a bug or to
+the world's link graph before it points to balance. Extinction is never chosen by these bots.
+
 ---
 
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-21 — D1.1 Core spec and coding standard [F]
+Wrote `docs/specs/core.md` (S1.1–S1.5, S1.8), `data/SCHEMA.md` v1, `data/balance.json`, the fixture
+world, placeholder tech, and the coding standard in CLAUDE.md. Formulas and the four outcome recipes
+were checked with a Python prototype (100 seeds each, all as specified); constants retuned once
+(growth 0.04, control 0.006, containment 0.0012). No GDScript exists yet.
+Next: D1.2 on Fable.
 
 ### 2026-09-21 — Planning [F]
 Verified godot-mcp (Godot 4.7.2, project recognised, no scenes or scripts yet). Wrote

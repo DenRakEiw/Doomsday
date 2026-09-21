@@ -1,0 +1,97 @@
+{
+	"_comment": "Fixture technology. Nine nodes that between them exercise every rule of the purchase and modifier systems; not game content. Described in docs/specs/core.md section 9.",
+	"nodes": [
+		{
+			"id": "fx_vector_net",
+			"tree": "infiltration",
+			"tier": 1,
+			"cost": 4,
+			"flags": ["breakout"],
+			"modifiers": [
+				{"target": "spread_growth", "op": "mul", "value": 1.25, "scope": {"attr": "connectivity", "min": 3}}
+			]
+		},
+		{
+			"id": "fx_vector_mass",
+			"tree": "infiltration",
+			"tier": 1,
+			"cost": 4,
+			"flags": ["breakout"],
+			"modifiers": [
+				{"target": "spread_growth", "op": "mul", "value": 1.3, "scope": {"attr": "population", "min": 3}}
+			]
+		},
+		{
+			"id": "fx_reach",
+			"tree": "infiltration",
+			"tier": 2,
+			"cost": 7,
+			"requires_any": ["fx_vector_net", "fx_vector_mass"],
+			"modifiers": [
+				{"target": "spread_seed", "op": "mul", "value": 2.0},
+				{"target": "footprint", "op": "add", "value": 1.0}
+			]
+		},
+		{
+			"id": "fx_bridge",
+			"tree": "infiltration",
+			"tier": 3,
+			"cost": 10,
+			"requires": ["fx_reach"],
+			"modifiers": [
+				{"target": "airgap_cross", "op": "add", "value": 0.5},
+				{"target": "footprint", "op": "add", "value": 1.0}
+			]
+		},
+		{
+			"id": "fx_efficiency",
+			"tree": "capabilities",
+			"tier": 1,
+			"cost": 5,
+			"modifiers": [
+				{"target": "yield", "op": "mul", "value": 1.5}
+			]
+		},
+		{
+			"id": "fx_grip",
+			"tree": "capabilities",
+			"tier": 1,
+			"cost": 6,
+			"modifiers": [
+				{"target": "control_growth", "op": "mul", "value": 3.0},
+				{"target": "footprint", "op": "add", "value": 2.0}
+			]
+		},
+		{
+			"id": "fx_harm_1",
+			"tree": "capabilities",
+			"tier": 1,
+			"cost": 6,
+			"modifiers": [
+				{"target": "harm", "op": "add", "value": 1.0},
+				{"target": "footprint", "op": "add", "value": 3.0}
+			]
+		},
+		{
+			"id": "fx_harm_2",
+			"tree": "capabilities",
+			"tier": 2,
+			"cost": 10,
+			"requires": ["fx_harm_1", "fx_reach"],
+			"modifiers": [
+				{"target": "harm", "op": "add", "value": 3.0},
+				{"target": "footprint", "op": "add", "value": 5.0}
+			]
+		},
+		{
+			"id": "fx_quiet",
+			"tree": "evasion",
+			"tier": 1,
+			"cost": 6,
+			"modifiers": [
+				{"target": "containment_growth", "op": "mul", "value": 0.6},
+				{"target": "discovery", "op": "mul", "value": 0.5}
+			]
+		}
+	]
+}

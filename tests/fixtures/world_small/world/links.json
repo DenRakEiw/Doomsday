@@ -1,0 +1,12 @@
+{
+	"_comment": "Fixture links. fx_elm is the island (sea and air only); fx_fir is air-gapped behind one land link. Every link kind occurs at least once.",
+	"links": [
+		{"a": "fx_alder", "b": "fx_birch", "kind": "land"},
+		{"a": "fx_birch", "b": "fx_cedar", "kind": "land"},
+		{"a": "fx_alder", "b": "fx_dogwood", "kind": "network"},
+		{"a": "fx_birch", "b": "fx_dogwood", "kind": "sea"},
+		{"a": "fx_dogwood", "b": "fx_elm", "kind": "sea"},
+		{"a": "fx_alder", "b": "fx_elm", "kind": "air"},
+		{"a": "fx_dogwood", "b": "fx_fir", "kind": "land"}
+	]
+}
