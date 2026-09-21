@@ -234,6 +234,9 @@ corrected in the same commit)*
   scope either — without an explicit `scriptPaths` list it tries all 88 scripts (GUT included) and
   refuses at the 60-file limit. Use it for one file while editing; the project-wide check is
   `tools/check_scripts.gd` (S0.3).
+- **The CI container prints `ERROR: Unable to load fontconfig` ten times per run** — the godot-ci
+  image ships no fonts, and headless needs none. Harmless, but it is why CI judges the run by exit
+  codes and never by grepping the log for `ERROR`.
 - **PowerShell splits `-name=value` arguments** passed to a native executable, so
   `-gconfig=.gutconfig.json` reaches GUT as two tokens and is rejected. `tools/test.ps1` quotes
   them; any hand-typed GUT command in PowerShell must do the same.
