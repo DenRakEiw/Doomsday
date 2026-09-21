@@ -25,16 +25,16 @@ func _init() -> void:
 	systems = [
 		SpreadSystem.new(),
 		ComputeSystem.new(),
+		PopulationSystem.new(),
+		# slot: SocietalFunctionSystem (M4)
+		ContainmentSystem.new(),
+		# slot: CounterActionSystem (M4)
+		# slot: BehaviourSystem (M4)
+		# slot: EventSystem (M4)
+		PhaseSystem.new(),
+		OutcomeSystem.new(),
+		HistorySystem.new(),
 	]
-	# PopulationSystem          S1.5
-	# slot: SocietalFunctionSystem (M4)
-	# ContainmentSystem         S1.5
-	# slot: CounterActionSystem (M4)
-	# slot: BehaviourSystem (M4)
-	# slot: EventSystem (M4)
-	# PhaseSystem               S1.5
-	# OutcomeSystem             S1.5
-	# HistorySystem             S1.5
 
 
 static func create(db: ContentDB, seed_value: int) -> Simulation:

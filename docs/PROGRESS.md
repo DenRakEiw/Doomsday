@@ -14,13 +14,13 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S1.5 — Harm, single containment track, phases, outcomes** |
+| **Next step** | **S1.6 — Map pipeline 1: geometry** *(timeboxed)* |
 | **Model for it** | **Opus** (no switch) |
-| **After it** | S1.6 (Opus, no switch) — the map pipeline, timeboxed |
-| **Last completed** | S1.4 — Compute economy, modifiers, purchasing |
+| **After it** | S1.7 (Opus, no switch) |
+| **Last completed** | S1.5 — Harm, containment, phases, outcomes — **the core simulation is complete** |
 | **Milestone** | M1 build |
 | **Branch** | `main` |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 39 scripts compile, 174 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 45 scripts compile, 216 tests. The same command is all of CI. |
 
 > **Running without `/clear` from S1.2 on.** The user asked (2026-09-22) for the Opus block
 > S1.2–S1.8 to run in one continuous session, with context compression instead of a clear between
@@ -51,7 +51,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S1.2 [O] World model, tick loop, RNG, state hash
 - [x] S1.3 [O] Spread
 - [x] S1.4 [O] Compute economy, modifiers, purchasing
-- [ ] S1.5 [O] Harm, single containment track, phases, outcomes
+- [x] S1.5 [O] Harm, single containment track, phases, outcomes
 - [ ] S1.6 [O] Map pipeline 1: geometry *(timeboxed)*
 - [ ] S1.7 [O] Map pipeline 2: attributes and links
 - [ ] S1.8 [O] Save/load, headless runner, bots — ⇄ **then `/model fable`**
@@ -307,6 +307,13 @@ the world's link graph before it points to balance. Extinction is never chosen b
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — S1.5 Harm, containment, phases, outcomes [O]
+`PopulationSystem`, `ContainmentSystem`, `PhaseSystem`, `OutcomeSystem`, `HistorySystem` — the seven
+systems now run in the fixed order. 42 new tests, `tests/integration/test_outcomes.gd` among them:
+all four recipes of core.md §9 end where they should, with the invariants checked after every tick.
+**The run lengths match D1.1's Python prototype** (seeds 1–3: ascendance 387–413, extinction
+414–476, no_compute 185, contained 1779–2180). Next: S1.6 on Opus.
 
 ### 2026-09-22 — S1.4 Compute economy, modifiers, purchasing [O]
 `ModifierStack` completed (per-target index, activation order), `ComputeSystem` (yield, expiry,
