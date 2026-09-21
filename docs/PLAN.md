@@ -376,7 +376,8 @@ test German text expansion early — our UI is dense and German strings run long
 for a pure-logic core, gdUnit4 has richer CI reporting. Run headless in GitHub Actions, always with
 `godot --headless --import` first.
 
-**CI:** `abarichello/godot-ci` (tag `4.7.2-stable`) for exports; iOS needs a macOS runner.
+**CI:** `abarichello/godot-ci`, as the Docker image `barichello/godot-ci:4.7.2` (the tags carry no
+`-stable` suffix), also for exports; iOS needs a macOS runner.
 
 ### 4.4 Publishing
 

@@ -17,6 +17,11 @@ $root = Split-Path -Parent $PSScriptRoot
 & $godot --headless --path $root --import
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+# --import does not parse scripts, and GUT only compiles what a test touches, so
+# every script is checked in between.
+& $godot --headless --path $root -s tools/check_scripts.gd
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
 # The GUT arguments are quoted: PowerShell otherwise splits `-name=value` into
 # two tokens and GUT rejects the value as an unknown argument.
 & $godot --headless --path $root -s addons/gut/gut_cmdln.gd "-gconfig=.gutconfig.json" "-gexit" @args

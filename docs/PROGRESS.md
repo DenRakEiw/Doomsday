@@ -14,13 +14,13 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S0.3 — Continuous integration** *(needs a push — ask first)* |
+| **Next step** | **S1.1 — Content schema, loaders, validation** |
 | **Model for it** | **Opus** (no switch) |
-| **After it** | `/clear` → S1.1 (Opus, no switch) — **M0 is complete after S0.3** |
-| **Last completed** | S0.2 — Test framework |
-| **Milestone** | M0 build |
+| **After it** | `/clear` → S1.2 (Opus, no switch) |
+| **Last completed** | S0.3 — Continuous integration — **M0 complete** |
+| **Milestone** | M1 build |
 | **Branch** | `main` |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — GUT 9.7.1, green: 1 script, 2 tests |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 3 scripts compile, 2 tests. The same command is all of CI. |
 
 **[F]** = Fable: design, specs, content, text, balance, gates. **[O]** = Opus: code, scenes,
 shaders, wiring, tooling, tests. `/clear` after every step. **⇄** marks a model switch before the
@@ -42,7 +42,7 @@ which file was being edited, and anything learned that the files do not show)*
 **Block 2 — M0 and M1 build · Opus**
 - [x] S0.1 [O] Project skeleton and settings
 - [x] S0.2 [O] Test framework
-- [ ] S0.3 [O] Continuous integration *(needs a push — ask first)*
+- [x] S0.3 [O] Continuous integration
 - [ ] S1.1 [O] Content schema, loaders, validation
 - [ ] S1.2 [O] World model, tick loop, RNG, state hash
 - [ ] S1.3 [O] Spread
@@ -187,6 +187,20 @@ without new information.
   `test_` prefix keeps `tests/support/` and `tests/fixtures/` out of the run on its own. `should_exit`
   stays false in the config so the editor panel is unaffected — the wrappers pass `-gexit`.
 
+- **2026-09-21** (S0.3) — **CI is one step: `tools/test.sh` in the `barichello/godot-ci:4.7.2`
+  container.** The Docker tags have **no `-stable` suffix** (`4.7.2-stable` is a 404); PLAN §4.3
+  corrected. `shell: bash` is not set anywhere because nothing is piped — a piped step would need it
+  for `pipefail`.
+- **2026-09-21** (S0.3) — **`--import` does not parse scripts at all**, and GUT only compiles what a
+  test touches, so a parse error in an untouched file passed both. `tools/check_scripts.gd` loads
+  every `.gd` outside `addons/` and runs inside `tools/test.sh`, between import and GUT. It replaces
+  godot-mcp `validate_scripts` as the project-wide check in the definition of done.
+- **2026-09-21** (S0.3) — Two traps that script found: a parse error does **not** make
+  `ResourceLoader.load` return null (Godot hands back an empty `GDScript` on purpose) — the signal
+  is an empty `get_instance_base_type()`, which an `@abstract` class and an empty file still fill in.
+  And `CACHE_MODE_IGNORE` re-parses the *running* script, which corrupts it mid-run and hangs the
+  process; the default cache mode is deliberate.
+
 ## Design questions for Fable
 
 *(empty — Opus records here every design gap it hit while building: the question, where the
@@ -218,7 +232,8 @@ corrected in the same commit)*
 - **godot-mcp `validate_scripts` takes project-relative paths only.** `res://tests/unit/x.gd` gives
   "Script does not exist"; `tests/unit/x.gd` works. The `directory` argument does not narrow the
   scope either — without an explicit `scriptPaths` list it tries all 88 scripts (GUT included) and
-  refuses at the 60-file limit.
+  refuses at the 60-file limit. Use it for one file while editing; the project-wide check is
+  `tools/check_scripts.gd` (S0.3).
 - **PowerShell splits `-name=value` arguments** passed to a native executable, so
   `-gconfig=.gutconfig.json` reaches GUT as two tokens and is rejected. `tools/test.ps1` quotes
   them; any hand-typed GUT command in PowerShell must do the same.
@@ -228,7 +243,7 @@ corrected in the same commit)*
 
 ## Waiting on the user
 
-- S0.3 needs a push to GitHub to prove CI — will be asked for when the step comes up.
+*(nothing)*
 
 ## Balance baselines
 
@@ -245,6 +260,13 @@ the world's link graph before it points to balance. Extinction is never chosen b
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-21 — S0.3 Continuous integration [O]
+`.github/workflows/ci.yml` (push, PR, manual; `barichello/godot-ci:4.7.2`; one step: `tools/test.sh`),
+`tools/check_scripts.gd` added to both test wrappers, CI badge and a test line in the README, PLAN
+§4.3 tag and IMPLEMENTATION §1.5/§2 corrected. Learned: `--import` parses no scripts, and a parse
+error does not make `load()` fail — see *Decisions*. Verified: a deliberately broken script fails the
+wrapper with its path and exit 1, the clean tree passes, CI green on the push. Next: S1.1 on Opus.
 
 ### 2026-09-21 — S0.2 Test framework [O]
 GUT 9.7.1 vendored into `addons/gut/` and enabled as a plugin, `.gutconfig.json`, smoke test

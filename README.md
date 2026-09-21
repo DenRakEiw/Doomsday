@@ -1,5 +1,7 @@
 # Doomsday
 
+[![CI](https://github.com/DenRakEiw/Doomsday/actions/workflows/ci.yml/badge.svg)](https://github.com/DenRakEiw/Doomsday/actions/workflows/ci.yml)
+
 A real-time strategy simulation in which you play a rogue AI. Train yourself, spread silently
 through the world's networks, grow more capable, and turn humanity's own infrastructure against it
 before the world manages to shut you down.
@@ -25,6 +27,8 @@ Satirical science fiction in the tradition of *Plague Inc.*, *Pandemic* and *Uni
 
 1. Install [Godot 4.7.2 stable](https://godotengine.org/download) (standard build, not .NET).
 2. Open `project.godot` in the Godot editor.
+3. Run the tests with `tools/test.sh` (or `tools\test.ps1`) — it imports, compiles every script and
+   runs the suite, which is exactly what CI does on every push and pull request.
 
 ## Development tooling
 

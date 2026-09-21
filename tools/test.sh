@@ -15,4 +15,9 @@ GODOT="${GODOT:-godot}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 "$GODOT" --headless --path "$ROOT" --import
+
+# --import does not parse scripts, and GUT only compiles what a test touches, so
+# every script is checked in between.
+"$GODOT" --headless --path "$ROOT" -s tools/check_scripts.gd
+
 "$GODOT" --headless --path "$ROOT" -s addons/gut/gut_cmdln.gd -gconfig=.gutconfig.json -gexit "$@"

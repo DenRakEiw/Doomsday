@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# A newer push to the same branch makes the running one pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Headless tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      # Same Godot version as project.godot. The tag carries no "-stable"
+      # suffix, and the image puts the binary on PATH as `godot`, which is what
+      # tools/test.sh falls back to when $GODOT is unset.
+      image: barichello/godot-ci:4.7.2
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Import, check every script, run the test suite
+        # The same one command a developer runs; it fails on a script that does
+        # not compile as well as on a failing test.
+        run: tools/test.sh

@@ -81,8 +81,10 @@ A step is finished only when all of this is true:
 ### 1.5 Definition of done
 
 **Build steps [O]:**
-- The headless test suite passes (from S0.2 on), and new logic has tests.
-- `validate_scripts` (godot-mcp) reports no errors; no untyped declarations anywhere.
+- The headless test suite passes (from S0.2 on), and new logic has tests. `tools/test.sh` covers
+  this and the next point together, and CI runs the same command.
+- Every script compiles (`tools/check_scripts.gd`, inside `tools/test.sh` from S0.3 on); no untyped
+  declarations anywhere.
 - `core/` still has zero node dependencies: no `Node`, no `get_tree()`, no global
   `randf()`/`randi()`, no autoload access.
 - Every player-visible string goes through `tr()`; keys missing from the spec's string table get an
@@ -124,10 +126,11 @@ next Opus block. An empty punch list skips the step.
 | --- | --- |
 | Godot executable | `$GODOT` (set per machine in `.claude/settings.local.json` → `env`, done in S0.1). On Windows point it at the `_console.exe` build, otherwise headless output is lost. |
 | Import assets | `"$GODOT" --headless --path . --import` — always first in CI and after adding assets |
-| Unit tests | **`tools/test.sh`** (or `tools\test.ps1`) — imports, then runs `"$GODOT" --headless --path . -s addons/gut/gut_cmdln.gd -gconfig=.gutconfig.json -gexit`. Extra arguments go straight to GUT (`-gtest=…`, `-gunit_test_name=…`). In PowerShell the `-name=value` arguments must be quoted. |
+| Unit tests | **`tools/test.sh`** (or `tools\test.ps1`) — imports, compiles every script, then runs `"$GODOT" --headless --path . -s addons/gut/gut_cmdln.gd -gconfig=.gutconfig.json -gexit`. Extra arguments go straight to GUT (`-gtest=…`, `-gunit_test_name=…`). In PowerShell the `-name=value` arguments must be quoted. This is also the whole of CI (S0.3). |
+| Script check | `"$GODOT" --headless --path . -s tools/check_scripts.gd` — loads every `.gd` outside `addons/` and exits 1 naming the ones that do not compile. `--import` parses no scripts at all and GUT only compiles what a test touches, so nothing else catches a parse error in a file no test uses. Part of `tools/test.sh`. |
 | One simulated game | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy` (from S1.8) |
 | Batch balance run | `... -s tools/sim_batch.gd -- --seeds=1..500 --policy=greedy --out=<csv>` (from S1.8) |
-| Script check | godot-mcp `validate_scripts` with `scriptPaths` as **project-relative** paths (`tests/unit/test_smoke.gd`); a `res://` prefix and the `directory` filter are both rejected, and without `scriptPaths` it tries the whole project including `addons/`. |
+| Single script, while editing | godot-mcp `validate_script(s)` with `scriptPaths` as **project-relative** paths (`tests/unit/test_smoke.gd`); a `res://` prefix and the `directory` filter are both rejected, and without `scriptPaths` it tries the whole project including `addons/` and refuses at 60 files. For the whole project use the row above. |
 | Look at the game | godot-mcp `run_project` → `game_screenshot` → `game_get_errors` → `stop_project` |
 | Drive the game | godot-mcp `game_click`, `game_key_press`, `game_get_ui`, `game_get_scene_tree` |
 | Map pipeline | `uv run --project tools/map python tools/map/build_map.py` (from S1.6) |
