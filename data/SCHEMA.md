@@ -51,7 +51,7 @@ Layout of a content root (`res://data` or a test fixture directory — both have
 
 | Field | Type | Required | Rule |
 | --- | --- | --- | --- |
-| `index` | int | yes | 1…65535, unique, and the set of indices is exactly 1…N with no gaps. **0 is reserved for "no region".** Equals the colour index in the ID map. Stable once published |
+| `index` | int | yes | 1…65535, unique, and the set of indices is exactly 1…N with no gaps, N ≥ 1. **0 is reserved for "no region".** Equals the colour index in the ID map. Stable once published |
 | `id` | id | yes | unique |
 | `continent` | id | yes | free vocabulary; used by scopes and the continent milestone |
 | `population` | int | yes | ≥ 1 |
@@ -186,11 +186,11 @@ as ≥ 0 unless stated. The meaning of each constant is defined by the formula t
 | `control.threshold` `.rate` `.complete` | float | `threshold` in [0, 1); `complete` in (0, 1] |
 | `compute.start` `.yield_scale` `.cost_step` | float | |
 | `compute.hardware_by_tier` | [float × 5] | index = `compute` tier |
-| `anomaly.spawn_chance` `.base_value` `.tier_bonus` `.footprint_bonus` `.footprint_reference` | float | `footprint_reference` > 0 |
+| `anomaly.spawn_chance` `.base_value` `.tier_bonus` `.footprint_bonus` `.footprint_reference` | float | `spawn_chance` in [0, 1]; `footprint_reference` > 0 |
 | `anomaly.max_active` `.lifetime_days` | int | ≥ 1 |
 | `milestones` | [milestone] | below |
 | `harm.daily_rate` | float | |
-| `discovery.scrutiny_per_day` `.per_footprint` `.breadth_rate` `.breadth_free` `.deaths_certain_share` | float | |
+| `discovery.scrutiny_per_day` `.per_footprint` `.breadth_rate` `.breadth_free` `.deaths_certain_share` | float | the last two are shares of the world, in [0, 1] |
 | `containment.base_rate` `.per_footprint` `.per_harm` `.per_share` | float | |
 | `containment.research_weight_by_tier` | [float × 5] | index = `research` tier; sum > 0 |
 | `containment.thresholds` | [float] | ascending, each in (0, 1); announced once when crossed |

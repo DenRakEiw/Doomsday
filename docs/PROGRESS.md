@@ -14,13 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S1.1 — Content schema, loaders, validation** |
+| **Next step** | **S1.2 — World model, tick loop, RNG, state hash** |
 | **Model for it** | **Opus** (no switch) |
-| **After it** | `/clear` → S1.2 (Opus, no switch) |
-| **Last completed** | S0.3 — Continuous integration — **M0 complete** |
+| **After it** | S1.3 (Opus, no switch) |
+| **Last completed** | S1.1 — Content schema, loaders, validation |
 | **Milestone** | M1 build |
 | **Branch** | `main` |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 3 scripts compile, 2 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 17 scripts compile, 72 tests. The same command is all of CI. |
+
+> **Running without `/clear` from S1.2 on.** The user asked (2026-09-22) for the Opus block
+> S1.2–S1.8 to run in one continuous session, with context compression instead of a clear between
+> steps. Everything a step needs is still written down here; the rule returns at the G1 switch.
 
 **[F]** = Fable: design, specs, content, text, balance, gates. **[O]** = Opus: code, scenes,
 shaders, wiring, tooling, tests. `/clear` after every step. **⇄** marks a model switch before the
@@ -43,7 +47,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S0.1 [O] Project skeleton and settings
 - [x] S0.2 [O] Test framework
 - [x] S0.3 [O] Continuous integration
-- [ ] S1.1 [O] Content schema, loaders, validation
+- [x] S1.1 [O] Content schema, loaders, validation
 - [ ] S1.2 [O] World model, tick loop, RNG, state hash
 - [ ] S1.3 [O] Spread
 - [ ] S1.4 [O] Compute economy, modifiers, purchasing
@@ -201,10 +205,35 @@ without new information.
   And `CACHE_MODE_IGNORE` re-parses the *running* script, which corrupts it mid-run and hangs the
   process; the default cache mode is deliberate.
 
+- **2026-09-22** (S1.1) — **Godot's JSON parser returns a float for every number**, integral ones
+  included, so "expected a whole number" is a value check, never a type check. `ValidationError`
+  says so at the one place it matters.
+- **2026-09-22** (S1.1) — `load_from_dicts` reports its errors under `memory/balance.json` and
+  friends, i.e. the label is used exactly like a root path, so a test can assert on `file` the same
+  way for content from memory and from disk.
+- **2026-09-22** (S1.1) — A **missing balance section reports once** (`spread: missing required
+  field`), not once per field inside it; a section that is present but incomplete reports field by
+  field. SCHEMA §5 tightened in the same commit where the validator was stricter than the document
+  (`anomaly.spawn_chance`, the two discovery shares, N ≥ 1 regions).
+
 ## Design questions for Fable
 
-*(empty — Opus records here every design gap it hit while building: the question, where the
-placeholder is (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
+*(Opus records here every design gap it hit while building: the question, where the placeholder is
+(`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
+
+- **2026-09-22 — Spectator and benchmark mode (user idea, decided in principle).** Besides the
+  human game there is to be a mode in which an **AI model plays and the player watches**, and out
+  of it a **benchmark**: different models are scored on how well they destroy the world, with a
+  leaderboard. Named as a candidate driver: [TypeSafe](https://docs.typesafe.ai/introduction) and
+  its model **Jev** — typed decisions (Choice / Score / Noul) with probabilities instead of free
+  text, which fits `Policy.next_command` exactly. **No code for it exists and none is to be written
+  before it is designed.** The architecture already has the hook: a model player is one more
+  `Policy` (core.md §11) and the headless runners of S1.8 are the harness. **For Fable to decide at
+  G1:** which milestone it belongs to; what a model is allowed to see per tick (a typed world
+  digest — and how it stays deterministic and replayable); which score makes a leaderboard
+  meaningful (days to Ascendance? Harm? runs survived?); whether the benchmark ships with the game
+  or stays a tool; and what the content rule (outcome, never method) means for prompts a model is
+  fed.
 
 ## Punch list for Opus
 
@@ -263,6 +292,13 @@ the world's link graph before it points to balance. Extinction is never chosen b
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — S1.1 Content schema, loaders, validation [O]
+`core/content/`: eleven classes — the five `*Def` plus `MilestoneDef`, `ContentDB`,
+`ContentLoader` (JSON through `FileAccess`), `SchemaValidator`, `ContentLoadResult`,
+`ValidationError`; `tests/support/fixtures.gd`; 70 tests, one per error class of core.md §4.2.
+Learned: Godot's JSON parser makes **every** number a float, and `DirAccess.get_files_at` pushes an
+engine error for a missing directory (which GUT counts as a failure). Next: S1.2 on Opus.
 
 ### 2026-09-21 — S0.3 Continuous integration [O]
 `.github/workflows/ci.yml` (push, PR, manual; `barichello/godot-ci:4.7.2`; one step: `tools/test.sh`),
