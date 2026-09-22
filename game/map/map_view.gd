@@ -4,24 +4,22 @@ extends Sprite2D
 ## paints, and the data texture it paints from.
 ##
 ## The node is the ID map at 1 : 1 and uncentred, so one map pixel is one world
-## unit and the top-left corner is the origin — `MapPicker` (S2.3) turns a screen
-## point into a region index on that assumption.
+## unit and the top-left corner is the origin — `MapPicker` turns a screen point
+## into a region index on that assumption.
+##
+## It is also where a hover and a selection land (§7.4): the camera decides that
+## a gesture was a tap, the layers above the map get first refusal, and what is
+## left is a region under a point.
 ##
 ## Everything this script owns is presentation. It reads `Game.sim.world` after a
 ## tick and writes 256 pixels; it never touches the simulation.
 ##
-## It carries a `class_name` although it is a scene script: S2.3's picking and
-## S2.6's marker and link layers all have to name the map they belong to, the
-## way `MapPicker` names `MapCamera`.
+## It carries a `class_name` although it is a scene script: S2.6's marker and
+## link layers have to name the map they belong to, the way `MapPicker` names
+## `MapCamera`.
 
 ## §7.2 overlays, in the order the picker (S2.5) lists them.
 enum Overlay { PENETRATION, CONTROL, POPULATION }
-
-## The ID map's size, in map pixels and world units at scale 1.
-const MAP_WIDTH: int = 4096
-const MAP_HEIGHT: int = 2048
-## §7.5: about 58° S — the empty south is never shown.
-const MAP_ROW_MAX: int = 1750
 
 ## §7.3's selection outline, in screen pixels.
 const OUTLINE_SCREEN_PX: float = 2.0
@@ -81,6 +79,9 @@ var _data_texture: ImageTexture = null
 ## The ID map as an `Image`, read once: `Texture2D.get_image()` copies from the
 ## GPU and must never happen per frame (§7.4).
 var _id_image: Image = null
+## The sibling that moves the map. Null in a test that instantiates the view on
+## its own; the map then draws at 1 : 1 and picks nothing.
+var _camera: MapCamera = null
 
 
 func _ready() -> void:
@@ -106,12 +107,40 @@ func _ready() -> void:
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.command_applied.connect(_on_command_applied)
 	EventBus.overlay_changed.connect(_on_overlay_changed)
-	get_viewport().size_changed.connect(_fit_without_camera)
-	_fit_without_camera()
+	_camera = _find_camera()
+	if _camera != null:
+		_camera.view_changed.connect(_on_camera_view_changed)
+		_on_camera_view_changed(_camera.position, _camera.zoom.x)
 	refresh()
 
 
-## The ID map as an `Image`, cached. S2.3's picking reads it for every click.
+## Hover follows the pointer (§7.4). Touch has none, and a drag is the camera's,
+## not a pass over the land.
+func _unhandled_input(event: InputEvent) -> void:
+	if _camera == null or OS.has_feature("mobile") or _camera.is_panning():
+		return
+	var motion: InputEventMouseMotion = event as InputEventMouseMotion
+	if motion == null:
+		return
+	var index: int = MapPicker.region_at(motion.position, _camera, id_image())
+	if index == hover_index:
+		return
+	hover_index = index
+	EventBus.region_hovered.emit(index)
+
+
+## The tap the camera offers after the layers above the map have passed on it
+## (`MapCamera.TAP_METHOD`). The map is the bottom of that stack and always
+## answers: a tap on the ocean deselects.
+func try_tap(screen: Vector2) -> bool:
+	var index: int = MapPicker.region_at(screen, _camera, id_image())
+	if index != selected_index:
+		selected_index = index
+		EventBus.region_selected.emit(index)
+	return true
+
+
+## The ID map as an `Image`, cached. Picking reads it for every click.
 func id_image() -> Image:
 	if _id_image == null and texture != null:
 		_id_image = texture.get_image()
@@ -174,25 +203,19 @@ func _overlay_from_int(mode: int) -> Overlay:
 	return Overlay.PENETRATION
 
 
-## Until S2.3 builds `MapCamera` nothing frames the map, and at scale 1 the
-## viewport would show a corner of the Atlantic. This fits the drawn rows into
-## the viewport and centres them; it is dropped when the camera arrives.
-func _fit_without_camera() -> void:
-	if _has_camera():
-		return
-	var view: Vector2 = get_viewport_rect().size
-	if view.x <= 0.0 or view.y <= 0.0:
-		return
-	var factor: float = minf(view.x / float(MAP_WIDTH), view.y / float(MAP_ROW_MAX))
-	scale = Vector2(factor, factor)
-	position = Vector2(
-		(view.x - float(MAP_WIDTH) * factor) * 0.5,
-		(view.y - float(MAP_ROW_MAX) * factor) * 0.5)
-	outline_px = OUTLINE_SCREEN_PX / factor
+## §7.3's outline is a reach in map pixels, so it has to shrink as the camera
+## zooms in to stay two screen pixels wide.
+func _on_camera_view_changed(_center: Vector2, zoom_level: float) -> void:
+	if zoom_level > 0.0:
+		outline_px = OUTLINE_SCREEN_PX / zoom_level
 
 
-func _has_camera() -> bool:
+func _find_camera() -> MapCamera:
 	var parent: Node = get_parent()
 	if parent == null:
-		return false
-	return not parent.find_children("", "Camera2D", false, false).is_empty()
+		return null
+	for child: Node in parent.get_children():
+		var camera: MapCamera = child as MapCamera
+		if camera != null:
+			return camera
+	return null

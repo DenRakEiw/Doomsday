@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S2.3 — picking, camera, backdrop** |
+| **Next step** | **S2.4 — theme and component library** |
 | **Model for it** | **Opus** — no switch |
-| **After it** | `/clear` → S2.4 (Opus, no switch) |
-| **Last completed** | S2.2 — map rendering; the spread is visible on the world map |
+| **After it** | `/clear` → S2.5 (Opus, no switch) |
+| **Last completed** | S2.3 — picking, camera, backdrop; any region can be hovered and selected at any zoom |
 | **Milestone** | M1 gated; M2 build under way |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
 | **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 87 scripts compile, 316 tests. The same command is all of CI. |
-| **Run it** | `run_project` → **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes). M2 only. |
-| **Look at the map** | No camera before S2.3, so `game_set_property` on `/root/Session/MapLayer/MapView`: `overlay_mode` 0/1/2, `hover_index`, `selected_index`, `outline_px`, and `scale`/`position` to zoom. Vectors go as `{"x": …, "y": …}` — an array arrives as zero. |
+| **Run it** | `run_project` → **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region. M2 only. |
+| **Look at the map** | `game_click`, `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Session/MapLayer/MapView`, `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead. |
 
 **[F]** = Fable: design, specs, content, text, balance, gates. **[O]** = Opus: code, scenes,
 shaders, wiring, tooling, tests. `/clear` after every step. **⇄** marks a model switch before the
@@ -63,7 +63,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S1.P [O] Punch list from G1 — exact floats in saves
 - [x] S2.1 [O] Autoloads and session driver
 - [x] S2.2 [O] Map rendering
-- [ ] S2.3 [O] Picking, camera, backdrop
+- [x] S2.3 [O] Picking, camera, backdrop
 - [ ] S2.4 [O] Theme and component library
 - [ ] S2.5 [O] HUD and region panel
 - [ ] S2.6 [O] Anomalies and links — ⇄ **then `/model fable`**
@@ -291,6 +291,19 @@ without new information.
 - **2026-09-22** (D2.1) — **`TICKS_PER_SECOND = 1.0` at 1×** as the starting value (a `greedy` run
   is ~6 min at 1×, 1.5 min at 4×); G3 tunes it against the 25–40 minute target.
 
+- **2026-09-22** (S2.3) — **The map's `CanvasLayer` carries `follow_viewport_enabled = true`.**
+  A `Camera2D` writes the *viewport's* canvas transform, and a `CanvasLayer` ignores that unless it
+  is told to follow — without the flag the camera moves nothing at all. §5.1's tree does not
+  mention it; every later map layer belongs in `MapLayer` for the same reason.
+- **2026-09-22** (S2.3) — **`MapCamera.canvas_transform()` is computed from the camera's own centre
+  and zoom**, not read from `get_canvas_transform()`: a click is then answered with the view the
+  player just caused, not with the one the last frame drew. The engine's agreement with that formula
+  is an assertion in `tests/integration/test_map_camera.gd`, so the two cannot drift apart.
+- **2026-09-22** (S2.3) — **A tap is dispatched by the camera to its siblings in reverse tree
+  order**, through a duck-typed `try_tap(screen) -> bool` (`MapCamera.TAP_METHOD`). §7.7 wants
+  markers asked before the land and Godot gives signals no priority; reverse tree order is the same
+  rule the engine uses for input. **S2.6's marker layer implements `try_tap` and needs no wiring.**
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
@@ -317,6 +330,27 @@ without new information.
 
 ## Deviations from the plan or a spec
 
+- **2026-09-22** (S2.3) — **The map's dimensions moved from `MapView` to `MapCamera`**
+  (`MAP_WIDTH`, `MAP_HEIGHT`, `MAP_ROW_MAX`). `MapView` names `MapCamera`, and **two classes that
+  name each other cannot be resolved**, so the camera restates the extent it clamps to instead of
+  reading it off the quad. `MapView` needed none of the three once `_fit_without_camera` was
+  deleted, as §7.5 says it would be.
+- **2026-09-22** (S2.3) — **`MapPicker` has a second entry point.** §7.4 gives it
+  `region_at(screen, camera, id_image)`, which it has; everything below it takes a `Transform2D`
+  (`region_at_transform`, `map_pixel`, `index_at`), and that is what the tests use — a pure function
+  over values needs no node at all.
+- **2026-09-22** (S2.3) — **Three keys §10.2 does not list:** `+`/`−` zoom a notch about the centre
+  and **`F` focuses the selected region** — §7.5 says `focus_region` has a debug key in M2 without
+  saying which. Arrow-key panning is §7.5's own.
+- **2026-09-22** (S2.3) — **Pinch is `InputEventMagnifyGesture`** (macOS trackpad, Android with the
+  gesture setting on); a one-finger drag arrives as an emulated mouse drag, so it needs no second
+  path. **Hover is skipped on mobile** by `OS.has_feature("mobile")`: §7.4 wants it on desktop only
+  and a touch-emulated motion event is not otherwise distinguishable.
+- **2026-09-22** (S2.3) — **The backdrop names no camera.** It reads the viewport's canvas transform,
+  which is what the camera writes, so it keeps working in a scene that has none — the test suite
+  included. Its §7.6 metrics are a `const` block in `backdrop.gd` and reach the shader as uniforms,
+  the way the map's colours do.
+
 - **2026-09-22** (S2.2) — **`game/map/region_data.gd` (`RegionData`) is a file §2 does not list.**
   The §7.2 encoding is the only part of the map that can be judged without a viewport, so it is
   pure and static like `MapPicker`, and `MapView` only owns the `Image` and the upload.
@@ -325,11 +359,6 @@ without new information.
   `MapPicker` names `MapCamera`. It also has `data_image()`, which nothing in the game calls —
   **headless, `ImageTexture.get_image()` returns the image the texture was created with, never the
   one `update()` uploaded**, so a test cannot read the row back through the material.
-- **2026-09-22** (S2.2) — **`MapView` fits itself into the viewport while there is no camera.**
-  At scale 1 the map is 4096 × 2048 in a 1920 × 1080 window. `_fit_without_camera()` scales and
-  centres the drawn rows and sets `outline_px`; it does nothing once a `Camera2D` is a sibling, and
-  **S2.3 deletes it**.
-
 - **2026-09-22** (S2.1) — **`Game` has four members ui-foundation.md §10.2 does not list:**
   `advance(count)` (the day loop the accumulator, the debug keys and the tests all go through),
   `stop_run()`, `adopt_loaded(sim)` (what `SaveManager.load` hands the run back through) and
@@ -372,6 +401,14 @@ without new information.
   files as *judged by the test suite*, and `tests/unit/test_scripts_compile.gd` compiles the whole
   project inside the tree, where the autoloads exist. A failed compile is told from a good one by
   `can_instantiate()` — **the day a class is `@abstract`, `script_scan.gd` must exempt it.**
+- **The headless viewport is 1920 × 1920, not 16 : 9** — the window the test suite runs in is
+  square, so `zoom_min` is 1.097 and the camera clamps far harder in y than in any real window. A
+  test that puts a point at the centre of the viewport must leave room for that (S2.3's open-water
+  tap is 55 map pixels from the nearest coast for exactly this reason).
+- **godot-mcp `game_call_method` cannot pass a `Vector2`.** The `{"x": …, "y": …}` form converts for
+  `game_set_property` only; through `callv` it arrives as a `Dictionary` and the call fails with
+  "Cannot convert argument 1" — visible in `game_get_errors`, but the tool still reports success.
+  Pass ints (`focus_region(index)`) or set the property instead.
 - **godot-mcp `validate_scripts` takes project-relative paths only.** `res://tests/unit/x.gd` gives
   "Script does not exist"; `tests/unit/x.gd` works. The `directory` argument does not narrow the
   scope either — without an explicit `scriptPaths` list it tries all 88 scripts (GUT included) and
@@ -430,6 +467,15 @@ takes an OS path, which is worth knowing).
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — S2.3 Picking, camera, backdrop [O]
+`map_picker.gd` (pure, §7.4), `map_camera.gd` (pan, wheel and pinch zoom to the cursor, inertia,
+clamp, `focus_region`, §7.5) and `backdrop.tscn`/`.gd`/`.gdshader` (§7.6); `MapView` lost its
+stand-in fit and gained hover and `try_tap`. **The map's `CanvasLayer` has to follow the viewport**
+and **two map classes may not name each other** (see *Decisions*, *Deviations*). Verified in the
+running game: `usa`, `germany` and `japan` are picked from a click at two zoom levels, a drag pans
+and selects nothing, the wheel zooms to the cursor, the outline holds. 32 new tests, suite green
+(348). Next: **S2.4 on Opus** — `/clear`.
 
 ### 2026-09-22 — S2.2 Map rendering [O]
 `game/map/map_view.tscn` + `map_view.gd` + `map.gdshader` (§7.1–§7.3) and `region_data.gd` for the
