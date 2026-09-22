@@ -409,6 +409,11 @@ without new information.
   Persistence* → **Host Persistence**, *Federated Training Poisoning* → **Model Update Channels**.
 - **2026-09-22** (D3.1) — German for Footprint in node text is **Signatur** (`UI_TERM_FOOTPRINT`),
   never *Fußabdruck*; effect lines carry no digits, fractions in words are allowed.
+- **2026-09-22** — **The benchmark mode (M6) talks to models through OpenRouter**: one
+  OpenAI-compatible endpoint, many models, so "Doomsday benchmark" can rank models rather than
+  test one API. Consequence for the M6 design: the model policy is an HTTP adapter over one chat
+  schema, the key comes from the environment (never the repo, never a save), and every run
+  records model id + parameters next to seed and score. (User decision.)
 
 ## Design questions for Fable
 
@@ -434,7 +439,11 @@ change either way. (S2.4's second question — the dark chip — was answered at
   command log already is — only new runs are non-deterministic); the score (proposal: mean over a
   fixed seed set of `max_days − days` for wins, 0 for losses); decisions every history interval
   rather than every day, to bound model calls; and the content rule for prompts (feed the game's
-  own outcome-language strings, never method).
+  own outcome-language strings, never method). **Provider: OpenRouter** (decision above) — the
+  Godot side is `HTTPRequest` against one chat-completions schema, outside `core/`; the headless
+  runner needs the same call without a scene tree, so the adapter must not depend on a node either
+  (`HTTPClient` or a Python driver over the S1.8 runners — decide in M6). Cost control: a per-run
+  call budget and a cache of digest → answer keyed by model, so a replay costs nothing.
 - **D5.2 endings** must distinguish Ascendance by deaths share (decision above).
 - **D3.3** delivers the `"open"` token set for `ThemeBuilder` (ui-foundation.md §3.7) and the
   strings for tech tree, containment, analysis and events (§8.3).
