@@ -276,6 +276,11 @@ the head of the next Opus block)*
 
 ## Deviations from the plan or a spec
 
+- **2026-09-22** (S1.8) — The CI container (Linux) produced **the same state hash as the dev
+  machine** (Windows) for seed 1, `32456421de9c…`. Pleasant, and not something to rely on: the
+  determinism contract is still "same build, same platform" (IMPLEMENTATION §3). If a later run
+  ever differs across platforms, that is not a regression.
+
 - **2026-09-22** (S1.8) — **A save does not round-trip a 64-bit float, and no Godot 4.7 API does.**
   `JSON.stringify(…, full_precision = true)` writes every digit, but **the parser cannot read them
   back**: measured over 20 000 computed doubles, 91 % of values below 0.1 come back one bit off.
@@ -365,7 +370,8 @@ Newest first. Five lines at most per entry: what was done, what was learned, wha
 ### 2026-09-22 — S1.8 Save/load, headless runner, bots [O]
 `WorldSerializer` + `LoadResult`, the three policies, `tools/sim_run.gd` / `sim_batch.gd` /
 `sim_harness.gd`, and a second CI job that plays seed 1 twice with `--check --replay` and compares
-the hashes. 32 new tests. **Found: Godot cannot read a 64-bit float back out of JSON** — see
+the hashes — **CI green on the push, both jobs**. 32 new tests. **Found: Godot cannot read a 64-bit
+float back out of JSON** — see
 *Deviations*; the save format is unchanged and the question goes to G1. Baselines recorded above.
 Next: **G1 + D2.1 on Fable** — `/clear`, then `/model fable`.
 
