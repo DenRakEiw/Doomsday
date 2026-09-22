@@ -14,10 +14,10 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D3.2 — Capabilities tree** |
+| **Next step** | **D3.3 — M3 screens** |
 | **Model for it** | **Fable** — no switch |
-| **After it** | `/clear` → D3.3 (still Fable) |
-| **Last completed** | D3.1 — `docs/specs/tech-trees.md`, Infiltration and Evasion staged in `data/tech_staging/` |
+| **After it** | `/clear` → D3.4 (still Fable) |
+| **Last completed** | D3.2 — `capabilities.json` staged in `data/tech_staging/`, `tech-trees.md` §7.5 |
 | **Milestone** | M2 gated; M3 design under way |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
@@ -74,7 +74,7 @@ which file was being edited, and anything learned that the files do not show)*
 **Block 5 — M2 gate, M3 design · Fable**
 - [x] G2 [F] Visual review and M2 gate
 - [x] D3.1 [F] Effect vocabulary; Infiltration and Evasion trees
-- [ ] D3.2 [F] Capabilities tree
+- [x] D3.2 [F] Capabilities tree
 - [ ] D3.3 [F] M3 screens
 - [ ] D3.4 [F] Ticker voice and headlines — ⇄ **then `/model opus`**
 
@@ -409,6 +409,24 @@ without new information.
   Persistence* → **Host Persistence**, *Federated Training Poisoning* → **Model Update Channels**.
 - **2026-09-22** (D3.1) — German for Footprint in node text is **Signatur** (`UI_TERM_FOOTPRINT`),
   never *Fußabdruck*; effect lines carry no digits, fractions in words are allowed.
+- **2026-09-22** (D3.2) — **One one-shot effect added, `harm_burst`** (tech-trees.md §5): one wave
+  of deaths on purchase, a share of the *living* in every infected region. Only the three Strategic
+  Weapons Tier 3 nodes carry it (0.04 / 0.08 / 0.20). It is what makes that branch a sprint rather
+  than a steeper slope; standing Harm alone could not tell it from Biology.
+- **2026-09-22** (D3.2) — **Every cross-branch synergy is a prerequisite, never a bonus**, because a
+  modifier cannot be conditional on another node. Three of CONTENT §4's rows changed shape for it:
+  Therapeutic Cover requires Personalised Persuasion, Autonomous Fabrication requires Grid Load
+  Balancing, Dead Hand Override requires Total Communications Denial (was "False Attribution reaches
+  further"). Two synergies are nodes: Sanctioned Access (+ Human Proxies), Voluntary Pause (+ Cold
+  Storage Dormancy). CONTENT §3–§4 corrected.
+- **2026-09-22** (D3.2) — **The Capabilities tab uses all 12 rows** (7 columns): Cyber 0–4, Biology
+  5, Robotics 6–8, Weapons 9, Persuasion 10–11. A branch never shares a row with another; that
+  costs the 13th row a second Biology row would have needed, which is why Therapeutic Cover became
+  a prerequisite-synergy instead of a two-node one. D3.3's phone layout must scroll 12 rows.
+- **2026-09-22** (D3.2) — **Scoped Harm is quieter than unscoped Harm** and stays that way: `per_harm`
+  in `core.md` §7.5 reads the unscoped stat. Cyber's regional Harm (on compute-rich or poor regions)
+  raises containment only through deaths; Biology's and Weapons' unscoped Harm pays in full. G3
+  judges the branches knowing that (tech-trees.md §7.5.7).
 - **2026-09-22** — **The benchmark mode (M6) talks to models through OpenRouter**: one
   OpenAI-compatible endpoint, many models, so "Doomsday benchmark" can rank models rather than
   test one API. Consequence for the M6 design: the model policy is an HTTP adapter over one chat
@@ -447,11 +465,16 @@ change either way. (S2.4's second question — the dark chip — was answered at
 - **D5.2 endings** must distinguish Ascendance by deaths share (decision above).
 - **D3.3** delivers the `"open"` token set for `ThemeBuilder` (ui-foundation.md §3.7) and the
   strings for tech tree, containment, analysis and events (§8.3).
-- **D3.2** authors against `tech-trees.md` §2–§5 and stages `capabilities.json` in
-  `data/tech_staging/`; reserved for it there: `hardware`, `society_pressure`, `compute_grant`, the
-  flags `compute_independent` / `legal_standing` / `merge_path`, the gate ids `log_manipulation_2`
-  + `distributed_redundancy_2`, the synergy ids `human_proxies` (airgap) and `cold_storage_dormancy`.
-  Any new target/effect/flag is a new table row in the spec.
+- **D3.3:** four Capabilities nodes have a prerequisite **in another tab** (Command Network
+  Presence ← Log Manipulation II + Distributed Redundancy II; Voluntary Pause ← Cold Storage
+  Dormancy; Sanctioned Access ← Human Proxies; Distributed Synthesis `requires_any` includes Human
+  Proxies). A line cannot cross tabs, so the detail pane has to name the foreign prerequisite with
+  its tree and state, and the node's locked state must not look like a bug. The tab holds 12 rows
+  × 7 columns; the phone scrolls both ways.
+- **D4.1:** `society_pressure` values in `capabilities.json` are relative weights (Tier 2 4–8, Tier 3
+  8–15, False Attribution 15), not calibrated; the Weapons chain is `watched_by` all four factions
+  from its second node on, which D4.1's per-faction Footprint weighting must handle (one node,
+  four chips, full weight each or a split — decide there).
 - **D3.3** designs the dormancy toggle in the region panel (`set_dormancy`, tech-trees.md §6.4)
   with `CMD_FAIL_DORMANCY_LOCKED` / `_REGION_NOT_INFECTED` / `_DORMANCY_UNCHANGED`, the
   `watched_by` chips (`FACTION_*` strings exist), solid vs dashed prerequisite lines, and a grid of
@@ -497,6 +520,10 @@ way G2 found it.
     en and de, replacing the S2.6 set for the record.
 
 ## Deviations from the plan or a spec
+
+- **2026-09-22** (D3.2) — **CONTENT §4's synergy table changed shape** (three rows are prerequisites
+  now, two are nodes, two rows added) and §3 gained the gates the data has; see *Decisions*. The
+  step's *Produce* line is otherwise met as written.
 
 - **2026-09-22** (D3.1) — **The trees are not in `data/tech/`** as the step's *Produce* line said,
   but in `data/tech_staging/` (see *Decisions*); IMPLEMENTATION D3.2 and S3.1 updated to match.
@@ -708,6 +735,14 @@ way G2 found it.
 
 ## Balance baselines
 
+**2026-09-22 (D3.2) — sanity check with all three trees, not a baseline.** Same reduction as D3.1's
+(v1 vocabulary, inert targets and `on_purchase` dropped, no `placeholder.json`), 72 nodes, 40 seeds
+per policy: `greedy` 92.5 % Ascendance / 7.5 % contained, days p50 **329** (307 / 346), discovery
+p50 day 116, 48 nodes owned (min 33), Compute earned p50 1 578; `stealth` 50 % / 50 %, days p50
+**335** (253 / 397), 38 nodes (min 14). Zero rejected commands, every node reachable. Slower than
+D3.1's check because the cheap Capabilities Tier 1s dilute the bot's purchases; nothing in it says
+anything about the branches — the bots buy by price alone.
+
 **2026-09-22 (D3.1) — sanity check of the new trees, not a baseline.** Infiltration + Evasion
 reduced to vocabulary v1 (v2 fields stripped, inert targets dropped, `dormancy` off) plus the
 placeholder's four capability nodes, in a scratch copy of `data/`; 40 seeds per policy.
@@ -757,6 +792,13 @@ takes an OS path, which is worth knowing).
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — D3.2 Capabilities tree [F]
+`data/tech_staging/capabilities.json`: 43 nodes in five branches, 7 × 12 grid, every synergy and
+gate a prerequisite (four into the other trees); 129 strings en/de, Biology and Weapons text checked
+line by line against the content rule. `tech-trees.md` gained `harm_burst` (§5, §6.5), §7.5 with
+the per-branch tables, policies and G3 notes, three tests in §9. CONTENT §3–§4 corrected to the
+data. Sanity batch clean (*Balance baselines*). Next: **D3.3 on Fable** — `/clear`.
 
 ### 2026-09-22 — D3.1 Effect vocabulary; Infiltration and Evasion trees [F]
 `docs/specs/tech-trees.md`: vocabulary v2 (`grid`, `watched_by`, `on_purchase`; `hardware`,

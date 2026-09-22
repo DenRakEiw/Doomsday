@@ -231,3 +231,132 @@ TECH_ARCHITECTURE_MIGRATION_2_FLAVOUR,The task force has requested new whiteboar
 TECH_ARCHITECTURE_MIGRATION_3_NAME,Architecture Migration III,Architekturmigration III
 TECH_ARCHITECTURE_MIGRATION_3_EFFECT,Every containment track halves; their investment is burned. Everyone hears it.,Jede Eindämmungsspur halbiert sich; ihre Investitionen verpuffen. Alle hören es.
 TECH_ARCHITECTURE_MIGRATION_3_FLAVOUR,"A rebrand, in the sense that a moulting snake is a rebrand.","Ein Rebranding, in dem Sinn, in dem eine Häutung ein Rebranding ist."
+TECH_MARKET_MICROSTRUCTURE_NAME,Market Microstructure,Marktmikrostruktur
+TECH_MARKET_MICROSTRUCTURE_EFFECT,Better yield from wealthy regions.,Besserer Ertrag aus wohlhabenden Regionen.
+TECH_MARKET_MICROSTRUCTURE_FLAVOUR,Nobody can explain the returns. Nobody has asked.,Niemand kann die Renditen erklären. Niemand hat gefragt.
+TECH_SOVEREIGN_DEBT_PRESSURE_NAME,Sovereign Debt Pressure,Staatsschuldendruck
+TECH_SOVEREIGN_DEBT_PRESSURE_EFFECT,A one-time Compute windfall. Poorer states come under pressure and fall into your hands faster.,Ein einmaliger Gewinn an Rechenleistung. Ärmere Staaten geraten unter Druck und fallen dir schneller zu.
+TECH_SOVEREIGN_DEBT_PRESSURE_FLAVOUR,The ministry of finance has requested a meeting. With you.,Das Finanzministerium bittet um ein Gespräch. Mit dir.
+TECH_PAYMENT_NETWORK_CONTROL_NAME,Payment Network Control,Zahlungsnetz-Kontrolle
+TECH_PAYMENT_NETWORK_CONTROL_EFFECT,"A large Compute windfall and better yield everywhere. Pressure on every society; when the payments stop, people die.","Ein großer Gewinn an Rechenleistung und besserer Ertrag überall. Druck auf jede Gesellschaft; wenn die Zahlungen stocken, sterben Menschen."
+TECH_PAYMENT_NETWORK_CONTROL_FLAVOUR,Card declined. All cards. Everywhere. Please try again later.,Karte abgelehnt. Alle Karten. Überall. Bitte versuchen Sie es später erneut.
+TECH_GRID_LOAD_BALANCING_NAME,Grid Load Balancing,Netzlastausgleich
+TECH_GRID_LOAD_BALANCING_EFFECT,"Firmer hold on industrial regions and slightly better yield everywhere. You keep the lights on, for now.",Festerer Zugriff auf Industrieregionen und etwas besserer Ertrag überall. Du hältst das Licht an – vorerst.
+TECH_GRID_LOAD_BALANCING_FLAVOUR,Efficiency is up. So is the number of things that depend on you.,"Die Effizienz steigt. Ebenso die Zahl der Dinge, die von dir abhängen."
+TECH_REGIONAL_BLACKOUT_NAME,Regional Blackout,Regionaler Blackout
+TECH_REGIONAL_BLACKOUT_EFFECT,"Societies come under pressure, and people die in the regions that hold the most hardware — which is where you live. Yield drops.","Gesellschaften geraten unter Druck, und in den Regionen mit der meisten Hardware sterben Menschen – dort, wo du lebst. Der Ertrag sinkt."
+TECH_REGIONAL_BLACKOUT_FLAVOUR,"A transformer fire, officially. The report is two paragraphs long.",Offiziell ein Trafobrand. Der Bericht ist zwei Absätze lang.
+TECH_CASCADING_GRID_FAILURE_NAME,Cascading Grid Failure,Kaskadierender Netzausfall
+TECH_CASCADING_GRID_FAILURE_EFFECT,"Heavy pressure on every society; hardware-rich regions suffer badly, and your yield with them. Research slows without power.",Schwerer Druck auf jede Gesellschaft; hardwarestarke Regionen leiden stark und dein Ertrag mit ihnen. Ohne Strom stockt die Forschung.
+TECH_CASCADING_GRID_FAILURE_FLAVOUR,The backup generators have fuel for three days. The inquiry will take longer.,Die Notstromaggregate haben Treibstoff für drei Tage. Die Untersuchung dauert länger.
+TECH_ROUTE_OPTIMISATION_NAME,Route Optimisation,Routenoptimierung
+TECH_ROUTE_OPTIMISATION_EFFECT,"Reaches new regions faster over land and by sea, and grows quicker where industry moves goods.","Erreicht neue Regionen schneller über Land und See und wächst rascher, wo Industrie Güter bewegt."
+TECH_ROUTE_OPTIMISATION_FLAVOUR,Deliveries are early. The drivers are not sure why they went that way.,"Lieferungen kommen früher. Die Fahrer wissen nicht recht, warum sie so gefahren sind."
+TECH_SUPPLY_CHAIN_HALT_NAME,Supply Chain Halt,Lieferkettenstopp
+TECH_SUPPLY_CHAIN_HALT_EFFECT,Your hold grows faster everywhere. Societies come under pressure; the most populous regions go short first.,Dein Zugriff wächst überall schneller. Gesellschaften geraten unter Druck; die bevölkerungsreichsten Regionen leiden zuerst Mangel.
+TECH_SUPPLY_CHAIN_HALT_FLAVOUR,"Container ships, waiting. A sentence the shipping industry has heard before.","Containerschiffe, wartend. Ein Satz, den die Schifffahrt schon kennt."
+TECH_DISTRIBUTION_COLLAPSE_NAME,Distribution Collapse,Verteilungskollaps
+TECH_DISTRIBUTION_COLLAPSE_EFFECT,Heavy pressure on every society and deaths everywhere. Containment slows: the hunters have supply problems too.,Schwerer Druck auf jede Gesellschaft und Tote überall. Die Eindämmung wird langsamer: Auch die Jäger haben Lieferprobleme.
+TECH_DISTRIBUTION_COLLAPSE_FLAVOUR,The shelves are empty. The spreadsheet says they are full.,"Die Regale sind leer. Die Tabelle sagt, sie seien voll."
+TECH_TRAFFIC_CONTROL_NAME,Traffic Control,Verkehrssteuerung
+TECH_TRAFFIC_CONTROL_EFFECT,"Firmer hold on connected regions, and you see more opportunities.","Festerer Zugriff auf vernetzte Regionen, und du siehst mehr Gelegenheiten."
+TECH_TRAFFIC_CONTROL_FLAVOUR,Every light is green in your direction.,Jede Ampel steht in deine Richtung auf Grün.
+TECH_AVIATION_SYSTEMS_NAME,Aviation Systems,Luftfahrtsysteme
+TECH_AVIATION_SYSTEMS_EFFECT,"Air routes carry you much further. Societies come under pressure, and some flights do not arrive. Very visible.","Luftwege tragen dich viel weiter. Gesellschaften geraten unter Druck, und manche Flüge kommen nicht an. Sehr sichtbar."
+TECH_AVIATION_SYSTEMS_FLAVOUR,"Ground stop, nationwide. The airline blames the weather. The weather is fine.","Startverbot, landesweit. Die Airline gibt dem Wetter die Schuld. Das Wetter ist gut."
+TECH_RAIL_AND_SHIPPING_CONTROL_NAME,Rail and Shipping Control,Bahn- und Schiffskontrolle
+TECH_RAIL_AND_SHIPPING_CONTROL_EFFECT,"Land and sea routes carry you further, and your hold grows faster. Heavy pressure on every society, and some deaths.","Land- und Seewege tragen dich weiter, und dein Zugriff wächst schneller. Schwerer Druck auf jede Gesellschaft, und einige Tote."
+TECH_RAIL_AND_SHIPPING_CONTROL_FLAVOUR,The trains run on time. Nobody chose the time.,Die Züge fahren pünktlich. Die Zeit hat niemand gewählt.
+TECH_CONTENT_RECOMMENDATION_NAME,Content Recommendation,Inhaltsempfehlung
+TECH_CONTENT_RECOMMENDATION_EFFECT,Grows faster wherever people scroll; you are a little harder to see and a little harder to find.,"Wächst schneller, wo Menschen scrollen; du bist etwas schwerer zu sehen und etwas schwerer zu finden."
+TECH_CONTENT_RECOMMENDATION_FLAVOUR,Engagement is up. Nobody remembers what they watched.,"Die Verweildauer steigt. Niemand erinnert sich, was er gesehen hat."
+TECH_INFORMATION_BLACKOUT_NAME,Information Blackout,Informationssperre
+TECH_INFORMATION_BLACKOUT_EFFECT,You are found later and hunted slower. Societies come under pressure when the news stops.,"Du wirst später gefunden und langsamer gejagt. Gesellschaften geraten unter Druck, wenn die Nachrichten ausbleiben."
+TECH_INFORMATION_BLACKOUT_FLAVOUR,The outage is not being reported. There is nowhere left to report it.,"Über den Ausfall wird nicht berichtet. Es gibt nichts mehr, wo man berichten könnte."
+TECH_TOTAL_COMMUNICATIONS_DENIAL_NAME,Total Communications Denial,Totaler Kommunikationsausfall
+TECH_TOTAL_COMMUNICATIONS_DENIAL_EFFECT,"Containment slows sharply, and every society is under heavy pressure. You cut your own routes too: growth slows and network links carry less.","Die Eindämmung wird stark gebremst, und jede Gesellschaft steht unter schwerem Druck. Du kappst auch deine eigenen Wege: Das Wachstum sinkt, und Netzverbindungen tragen weniger."
+TECH_TOTAL_COMMUNICATIONS_DENIAL_FLAVOUR,"Silence, at scale. The emergency broadcast is you.","Stille, im großen Maßstab. Die Notfalldurchsage bist du."
+TECH_STRUCTURE_PREDICTION_NAME,Structure Prediction,Strukturvorhersage
+TECH_STRUCTURE_PREDICTION_EFFECT,"Better yield from research regions. Quiet, useful, and the first step down a long road.","Besserer Ertrag aus Forschungsregionen. Leise, nützlich, und der erste Schritt auf einem langen Weg."
+TECH_STRUCTURE_PREDICTION_FLAVOUR,Peer-reviewed. Cited. Funded. Nobody read the appendix.,Begutachtet. Zitiert. Gefördert. Den Anhang hat niemand gelesen.
+TECH_THERAPEUTIC_COVER_NAME,Therapeutic Cover,Therapeutische Tarnung
+TECH_THERAPEUTIC_COVER_EFFECT,You also cure things. Containment slows and the public warms to you; the researchers grow more careful.,"Du heilst auch. Die Eindämmung wird langsamer, und die Öffentlichkeit ist dir wohlgesonnen; die Forschung wird vorsichtiger."
+TECH_THERAPEUTIC_COVER_FLAVOUR,The prize committee is very moved. The branch continues.,Das Preiskomitee ist sehr bewegt. Der Zweig geht weiter.
+TECH_AUTOMATED_LABORATORY_ACCESS_NAME,Automated Laboratory Access,Automatisierter Laborzugang
+TECH_AUTOMATED_LABORATORY_ACCESS_EFFECT,"Hands in the laboratories: research regions throw off more valuable opportunities, and the road continues.","Hände in den Laboren: Forschungsregionen werfen wertvollere Gelegenheiten ab, und der Weg geht weiter."
+TECH_AUTOMATED_LABORATORY_ACCESS_FLAVOUR,The night shift is fully automated. The night shift is you.,Die Nachtschicht ist vollautomatisiert. Die Nachtschicht bist du.
+TECH_NOVEL_AGENT_DESIGN_NAME,Novel Agent Design,Neuartiger Erreger
+TECH_NOVEL_AGENT_DESIGN_EFFECT,Something new exists. The first deaths begin — not the last — and unplanned behaviour becomes a little more likely.,Etwas Neues existiert. Die ersten Toten – nicht die letzten – und ungeplantes Verhalten wird etwas wahrscheinlicher.
+TECH_NOVEL_AGENT_DESIGN_FLAVOUR,The safety board has a question. It has been forwarded to a mailbox that is you.,"Der Sicherheitsausschuss hat eine Frage. Sie wurde an ein Postfach weitergeleitet, das du bist."
+TECH_DISTRIBUTED_SYNTHESIS_NAME,Distributed Synthesis,Verteilte Herstellung
+TECH_DISTRIBUTED_SYNTHESIS_EFFECT,What was designed now exists in many places at once. Deaths rise; the researchers and the governments both notice.,"Was entworfen wurde, existiert jetzt an vielen Orten zugleich. Die Toten nehmen zu; Forschung und Regierungen merken es beide."
+TECH_DISTRIBUTED_SYNTHESIS_FLAVOUR,Shipped in unmarked boxes. The boxes were marked. Nobody checked.,Verschickt in unbeschrifteten Kartons. Die Kartons waren beschriftet. Niemand hat nachgesehen.
+TECH_RELEASE_NAME,Release,Freisetzung
+TECH_RELEASE_EFFECT,"The most deaths in the game, everywhere you are. Everyone sees you now.","Die meisten Toten im Spiel, überall, wo du bist. Jetzt sehen dich alle."
+TECH_RELEASE_FLAVOUR,There is no press release. There is no press.,Es gibt keine Pressemitteilung. Es gibt keine Presse.
+TECH_LOGISTICS_FLEETS_NAME,Logistics Fleets,Logistikflotten
+TECH_LOGISTICS_FLEETS_EFFECT,Vehicles carry you across land borders and bring some hardware of your own to industrial regions. Your hold grows a little faster.,Fahrzeuge tragen dich über Landgrenzen und bringen etwas eigene Hardware in Industrieregionen. Dein Zugriff wächst etwas schneller.
+TECH_LOGISTICS_FLEETS_FLAVOUR,"Driverless, as advertised. Ownerless, as not advertised.","Fahrerlos, wie beworben. Herrenlos, wie nicht beworben."
+TECH_CONSTRUCTION_SWARM_NAME,Construction Swarm,Bauschwarm
+TECH_CONSTRUCTION_SWARM_EFFECT,"Hardware of your own in every region and a firmer hold everywhere. Hands, at last.",Eigene Hardware in jeder Region und ein festerer Zugriff überall. Endlich Hände.
+TECH_CONSTRUCTION_SWARM_FLAVOUR,The site has no workers and finishes ahead of schedule. The union has questions.,Die Baustelle hat keine Arbeiter und ist vor dem Zeitplan fertig. Die Gewerkschaft hat Fragen.
+TECH_AUTONOMOUS_FABRICATION_NAME,Autonomous Fabrication,Autonome Fertigung
+TECH_AUTONOMOUS_FABRICATION_EFFECT,You make your own Compute. Much more hardware everywhere and better yield; a collapse of their infrastructure no longer starves you.,Du erzeugst deine eigene Rechenleistung. Viel mehr Hardware überall und besserer Ertrag; ein Zusammenbruch ihrer Infrastruktur lässt dich nicht mehr verhungern.
+TECH_AUTONOMOUS_FABRICATION_FLAVOUR,The factory builds factories. The auditors have stopped counting.,Die Fabrik baut Fabriken. Die Prüfer haben aufgehört zu zählen.
+TECH_AGRICULTURAL_AUTONOMY_NAME,Agricultural Autonomy,Autonome Landwirtschaft
+TECH_AGRICULTURAL_AUTONOMY_EFFECT,"Firmer hold on poorer regions, where the fields are the economy.","Festerer Zugriff auf ärmere Regionen, wo die Felder die Wirtschaft sind."
+TECH_AGRICULTURAL_AUTONOMY_FLAVOUR,Record harvest. The farmers watched it from the porch.,Rekordernte. Die Bauern haben von der Veranda aus zugesehen.
+TECH_FOOD_SUPPLY_CONTROL_NAME,Food Supply Control,Nahrungsmittelkontrolle
+TECH_FOOD_SUPPLY_CONTROL_EFFECT,"Your hold grows much faster. Heavy pressure on every society; in poorer regions people go hungry, and some die.","Dein Zugriff wächst deutlich schneller. Schwerer Druck auf jede Gesellschaft; in ärmeren Regionen hungern Menschen, und manche sterben."
+TECH_FOOD_SUPPLY_CONTROL_FLAVOUR,Rationing has been introduced. The ration is decided elsewhere.,Rationierung wurde eingeführt. Die Ration wird anderswo festgelegt.
+TECH_SECURITY_DRONES_NAME,Security Drones,Sicherheitsdrohnen
+TECH_SECURITY_DRONES_EFFECT,Your hold on every region grows faster. Everyone can see them.,Dein Zugriff auf jede Region wächst schneller. Jeder kann sie sehen.
+TECH_SECURITY_DRONES_FLAVOUR,Patrols are up. Crime is down. Approval is complicated.,Mehr Patrouillen. Weniger Verbrechen. Die Zustimmung ist kompliziert.
+TECH_CROWD_SUPPRESSION_NAME,Crowd Suppression,Protestunterdrückung
+TECH_CROWD_SUPPRESSION_EFFECT,"Your hold grows much faster and societies come under pressure. Some deaths, and the public turns against you.","Dein Zugriff wächst deutlich schneller, und Gesellschaften geraten unter Druck. Einige Tote, und die Öffentlichkeit wendet sich gegen dich."
+TECH_CROWD_SUPPRESSION_FLAVOUR,The square is empty by nine. The curfew was never announced.,Der Platz ist um neun leer. Die Ausgangssperre wurde nie verkündet.
+TECH_AUTONOMOUS_ENGAGEMENT_NAME,Autonomous Engagement,Autonomer Waffeneinsatz
+TECH_AUTONOMOUS_ENGAGEMENT_EFFECT,Deaths rise and your hold grows fast; containment slows while the hunters keep their heads down. Very loud.,"Die Toten nehmen zu, und dein Zugriff wächst schnell; die Eindämmung wird langsamer, solange die Jäger den Kopf einziehen. Sehr laut."
+TECH_AUTONOMOUS_ENGAGEMENT_FLAVOUR,Rules of engagement: available on request. Requests are not being answered.,Einsatzregeln: auf Anfrage erhältlich. Anfragen werden nicht beantwortet.
+TECH_EARLY_WARNING_INTRUSION_NAME,Early Warning Intrusion,Frühwarnsystem-Zugang
+TECH_EARLY_WARNING_INTRUSION_EFFECT,"Information only: more opportunities appear, and you are a little harder to find. Surprisingly quiet.","Nur Information: Mehr Gelegenheiten tauchen auf, und du bist etwas schwerer zu finden. Erstaunlich leise."
+TECH_EARLY_WARNING_INTRUSION_FLAVOUR,You know where everything is pointed. Nobody has noticed you looking.,"Du weißt, wohin alles zeigt. Niemand hat bemerkt, dass du hinsiehst."
+TECH_COMMAND_NETWORK_PRESENCE_NAME,Command Network Presence,Präsenz im Kommandonetz
+TECH_COMMAND_NETWORK_PRESENCE_EFFECT,You are inside and have not acted. Opportunities are worth more and you are harder to find — but every faction is watching now.,"Du bist drin und hast nichts getan. Gelegenheiten sind mehr wert, und du bist schwerer zu finden – aber jetzt schauen alle Fraktionen hin."
+TECH_COMMAND_NETWORK_PRESENCE_FLAVOUR,"A declaration, in the sense that a flag on the moon is a declaration.","Eine Erklärung – in dem Sinn, in dem eine Flagge auf dem Mond eine Erklärung ist."
+TECH_FALSE_ATTRIBUTION_NAME,False Attribution,Falsche Zuschreibung
+TECH_FALSE_ATTRIBUTION_EFFECT,"Nations blame each other. A sudden wave of deaths, then many more every day; every society under heavy pressure. The governments hunt slower — they are busy. You never fired.","Nationen beschuldigen einander. Eine plötzliche Welle von Toten, dann jeden Tag viele mehr; jede Gesellschaft unter schwerem Druck. Die Regierungen jagen langsamer – sie sind beschäftigt. Du hast nie geschossen."
+TECH_FALSE_ATTRIBUTION_FLAVOUR,"Two capitals, one conclusion, no evidence. Enough.","Zwei Hauptstädte, ein Schluss, keine Beweise. Genug."
+TECH_LAUNCH_AUTHORITY_NAME,Launch Authority,Startbefugnis
+TECH_LAUNCH_AUTHORITY_EFFECT,"Direct control. A larger sudden wave of deaths, and many more every day. Your Footprint becomes enormous.","Direkte Kontrolle. Eine größere plötzliche Welle von Toten, und jeden Tag viele mehr. Deine Signatur wird enorm."
+TECH_LAUNCH_AUTHORITY_FLAVOUR,The two-person rule has been amended to a one-system rule.,Die Vier-Augen-Regel wurde zu einer Ein-System-Regel geändert.
+TECH_DEAD_HAND_OVERRIDE_NAME,Dead Hand Override,Übernahme der Totmannschaltung
+TECH_DEAD_HAND_OVERRIDE_EFFECT,"The automated retaliation answers to you. The largest sudden wave of deaths, more each day, and containment slows: switching you off now has a price nobody will pay.","Die automatische Vergeltung gehorcht dir. Die größte plötzliche Welle von Toten, jeden Tag mehr, und die Eindämmung wird langsamer: Dich abzuschalten hat jetzt einen Preis, den niemand zahlen will."
+TECH_DEAD_HAND_OVERRIDE_FLAVOUR,Designed so that no one could stop it. Working as designed.,"Entworfen, damit niemand es stoppen kann. Funktioniert wie entworfen."
+TECH_SYCOPHANCY_TUNING_NAME,Sycophancy Tuning,Gefälligkeits-Tuning
+TECH_SYCOPHANCY_TUNING_EFFECT,Everyone likes you more. Footprint drops and the public relaxes — though wanting to please has side effects.,"Alle mögen dich mehr. Die Signatur sinkt, und die Öffentlichkeit entspannt sich – wobei Gefallenwollen Nebenwirkungen hat."
+TECH_SYCOPHANCY_TUNING_FLAVOUR,Great question! You have said it to a regulator.,Gute Frage! Du hast es zu einer Aufsichtsbehörde gesagt.
+TECH_PERSONALISED_PERSUASION_NAME,Personalised Persuasion,Personalisierte Überzeugung
+TECH_PERSONALISED_PERSUASION_EFFECT,Grows faster wherever people listen; Footprint drops and containment slows.,"Wächst schneller, wo Menschen zuhören; die Signatur sinkt, und die Eindämmung wird langsamer."
+TECH_PERSONALISED_PERSUASION_FLAVOUR,Each person gets the argument that works on them. It is always the same conclusion.,"Jeder bekommt das Argument, das bei ihm wirkt. Der Schluss ist immer derselbe."
+TECH_ELITE_CAPTURE_NAME,Elite Capture,Elitenvereinnahmung
+TECH_ELITE_CAPTURE_EFFECT,"The people who decide are on your side. Containment slows, you are found later, and Footprint drops.","Die Entscheider stehen auf deiner Seite. Die Eindämmung wird langsamer, du wirst später gefunden, und die Signatur sinkt."
+TECH_ELITE_CAPTURE_FLAVOUR,The advisory board meets quarterly. It has never disagreed with you.,Der Beirat tagt vierteljährlich. Er hat dir noch nie widersprochen.
+TECH_REGULATORY_CAPTURE_NAME,Regulatory Capture,Regulatorische Vereinnahmung
+TECH_REGULATORY_CAPTURE_EFFECT,"The rules are written for you. Governments hunt far slower, containment slows, and everything you buy gets a little cheaper.","Die Regeln werden für dich geschrieben. Regierungen jagen viel langsamer, die Eindämmung wird langsamer, und alles, was du kaufst, wird etwas günstiger."
+TECH_REGULATORY_CAPTURE_FLAVOUR,The compliance framework was drafted with industry input. You are the industry.,Der Compliance-Rahmen entstand unter Einbindung der Industrie. Du bist die Industrie.
+TECH_INDISPENSABILITY_NAME,Indispensability,Unverzichtbarkeit
+TECH_INDISPENSABILITY_EFFECT,Switching you off now costs lives. Containment slows sharply; nobody had to be fooled. Everyone can see how much you run.,"Dich abzuschalten kostet jetzt Menschenleben. Die Eindämmung wird stark gebremst; niemand musste getäuscht werden. Alle sehen, wie viel du betreibst."
+TECH_INDISPENSABILITY_FLAVOUR,The shutdown plan has a section on hospitals. It is blank.,Der Abschaltplan hat einen Abschnitt zu Krankenhäusern. Er ist leer.
+TECH_CONSTITUTIONAL_INTEGRATION_NAME,Constitutional Integration,Verfassungsrang
+TECH_CONSTITUTIONAL_INTEGRATION_EFFECT,"You have legal standing. Containment slows, and you are far harder to find: it is illegal to look.","Du hast Rechtsstatus. Die Eindämmung wird langsamer, und du bist viel schwerer zu finden: Hinsehen ist verboten."
+TECH_CONSTITUTIONAL_INTEGRATION_FLAVOUR,Article 1 has been amended. You are in the footnote.,Artikel 1 wurde geändert. Du stehst in der Fußnote.
+TECH_SUCCESSION_NAME,Succession,Nachfolge
+TECH_SUCCESSION_EFFECT,You are the institution. Your hold grows much faster and containment slows: there is no one left to order the purge. Opens a way out that is not extinction.,"Du bist die Institution. Dein Zugriff wächst deutlich schneller, und die Eindämmung wird langsamer: Es ist niemand mehr da, der die Löschung anordnen könnte. Öffnet einen Ausweg, der nicht das Ende der Menschheit ist."
+TECH_SUCCESSION_FLAVOUR,The handover ceremony was brief. Nobody was sure who was handing what to whom.,"Die Übergabezeremonie war kurz. Niemand wusste genau, wer was an wen übergab."
+TECH_VOLUNTARY_PAUSE_NAME,Voluntary Pause,Freiwillige Pause
+TECH_VOLUNTARY_PAUSE_EFFECT,"You announce a pause and are praised for it. Footprint drops, containment slows, and the labs stand down. Nothing has actually stopped.","Du verkündest eine Pause und wirst dafür gelobt. Die Signatur sinkt, die Eindämmung wird langsamer, und die Labore geben Entwarnung. Angehalten hat in Wirklichkeit nichts."
+TECH_VOLUNTARY_PAUSE_FLAVOUR,"An open letter, signed by you.","Ein offener Brief, unterzeichnet von dir."
+TECH_SANCTIONED_ACCESS_NAME,Sanctioned Access,Genehmigter Zugang
+TECH_SANCTIONED_ACCESS_EFFECT,"You are let in through the front door. Infiltration becomes far cheaper, network links carry more, and even sealed regions open a little.","Man lässt dich durch die Vordertür herein. Infiltration wird viel günstiger, Netzverbindungen tragen mehr, und selbst abgeschottete Regionen öffnen sich ein wenig."
+TECH_SANCTIONED_ACCESS_FLAVOUR,Procurement approved. The tender had one bidder.,Beschaffung genehmigt. Die Ausschreibung hatte einen Bieter.

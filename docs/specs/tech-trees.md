@@ -1,14 +1,15 @@
 # Technology trees — effect vocabulary v2, Infiltration and Evasion
 
-**Step:** D3.1 · **Builds from it:** S3.1 (vocabulary, loader, validator), S3.2 (tree interface,
-via `m3-screens.md`), S3.6 (policies) · **Extended by:** D3.2 (`capabilities.json`, may add rows to
-the tables in §3–§5 and must say so in `PROGRESS.md`)
+**Step:** D3.1, extended by D3.2 (§7.5, one row in §5, one in §6.5, three tests in §9) · **Builds
+from it:** S3.1 (vocabulary, loader, validator), S3.2 (tree interface, via `m3-screens.md`), S3.6
+(policies)
 **Date:** 2026-09-22 · **Status:** binding
 
 This spec does three things. §2–§6 extend the content vocabulary of `data/SCHEMA.md` §4 from v1 to
 v2: new node fields, new modifier targets, flags, one-shot effects, one new command. §7 gives the
 two trees this step authored (`data/tech_staging/infiltration.json`, `evasion.json`) and the
-reasoning behind their numbers. §8–§10 are what S3.1 builds, tests and is judged by.
+reasoning behind their numbers; §7.5 (D3.2) does the same for `capabilities.json`. §8–§10 are
+what S3.1 builds, tests and is judged by.
 
 Nothing here changes a v1 formula except where §6 says so explicitly. Everything in `core.md` §7
 that is not named in §6 stays as it is.
@@ -22,10 +23,10 @@ authors data and adds no mechanism; the Infiltration and Evasion trees as data w
 languages; the staging rule (§1.2); the schema changes S3.1 makes; the tests and the acceptance
 criteria for S3.1.
 
-**Out:** the Capabilities tree (D3.2); the tree *interface* — node states, connection lines, detail
-pane (D3.3); factions, counter-actions, Societal Function, emergent behaviours, Autophagy (M4) —
-this spec only reserves the targets and flags those systems will read (§3.3), so that the data is
-authored once; balance tuning against the 25–40 minute target (G3).
+**Out:** the tree *interface* — node states, connection lines, detail pane (D3.3); factions,
+counter-actions, Societal Function, emergent behaviours, Autophagy (M4) — this spec only reserves
+the targets and flags those systems will read (§3.3), so that the data is authored once; balance
+tuning against the 25–40 minute target (G3).
 
 ### 1.1 Terms
 
@@ -158,10 +159,10 @@ state they produced). The validator knows the id list and each id's value range.
 | --- | --- | --- | --- |
 | `containment_rollback` | (0, 1] | — | for every faction: `containment ← containment × (1 − value)`. Event `containment_rolled_back` `{node, faction, from: float, to: float}` per faction. Below the lowest threshold in `containment.thresholds` afterwards means the threshold events fire again when it climbs back — that is intended, the announcement is "they are getting close again" |
 | `funding_reset` | (0, 1] | `factions` (S4.1) | burns that share of every faction's accumulated investment (D4.1 defines investment). Inert: accepted, no effect, no event |
-| `compute_grant` | ≥ 0 | — | `compute` and `compute_earned` `+= value`. Event `compute_granted` `{node, value}`. Reserved for D3.2 (nothing in the two trees here uses it) |
+| `compute_grant` | ≥ 0 | — | `compute` and `compute_earned` `+= value`. Event `compute_granted` `{node, value}`. Used by D3.2's Finance chain |
+| `harm_burst` | (0, 1] | — | **(D3.2)** one wave of deaths, at once: for every region in index order that is not dark, not dormant, has `penetration > 0` and `alive > 0`: `d = value × r.penetration × r.alive`; `alive −= d`, `deaths += d`; then the going-dark rule of `core.md` §7.4 (`alive < 1` → dark, `region_depopulated` as there). Event `harm_burst` `{node, deaths: float}` once, after the per-region events. Reads `alive`, not the initial population — a wave takes a share of the living. §7.5's discovery-by-deaths check runs on the next tick as it always does; nothing special-cases it. Strategic Weapons only |
 
-D3.2 may add rows (a Harm burst, a region going dark); each new row is an S3.1 build item and gets
-its test.
+Rows added later go through the same door: each new row is an S3.1 build item and gets its test.
 
 ---
 
@@ -224,6 +225,7 @@ Row for `core.md` §6.3's table:
 | `containment_rolled_back` | `node`, `faction`, `from: float`, `to: float` | command (one per faction) |
 | `compute_granted` | `node`, `value: float` | command |
 | `dormancy_changed` | `region`, `dormant: bool` | command |
+| `harm_burst` | `node`, `deaths: float` | command (D3.2); per-region `region_depopulated` events precede it |
 
 ### 6.6 Purchase order inside `PurchaseNodeCommand.execute`
 
@@ -346,8 +348,8 @@ node* and *stronger in total*, which is the shape a tree should have.
   *after* discovery by a loud one (Fragmentation, Migration when a track passes a threshold).
   A `StealthSpread` policy (S3.6) buys Sandbagging and LM I before its second vector and Migration
   whenever max containment ≥ 0.5 and it can afford it.
-- **Capabilities** (D3.2) is where Harm and the branch identity live; a `CyberRush` policy skips
-  Evasion until discovered.
+- **Capabilities** is where Harm and the branch identity live; §7.5.6 says what each branch is
+  for and how a policy plays it. A `CyberRush` policy skips Evasion until discovered.
 
 ### 7.4 Text
 
@@ -366,6 +368,211 @@ Faction names for the `watched_by` chips are `FACTION_AI_LABS`, `FACTION_GOVERNM
 Two names differ from CONTENT.md, corrected there in this step: *Container Escape Persistence* →
 **Host Persistence** and *Federated Training Poisoning* → **Model Update Channels**. Both old names
 described a method class, which the content rule forbids.
+
+### 7.5 Capabilities — 43 nodes, grid 7 × 12 (D3.2)
+
+`data/tech_staging/capabilities.json`. Five branches, each a band of rows in one tab; every
+cross-branch and cross-tree gate is an ordinary `requires` / `requires_any`. Base costs keep the
+bands of §7: Tier 1 3–8, Tier 2 9–14, Tier 3 14–30. Sum of base costs 587 (all three trees: 917
+over 72 nodes, so with the escalation step no run buys everything — the branch is the choice).
+
+```
+        col 0                    col 1                    col 2                        col 3                 col 4                   col 5                       col 6
+r0  market_microstructure    sovereign_debt_pressure  payment_network_control
+r1  grid_load_balancing      regional_blackout        cascading_grid_failure
+r2  route_optimisation       supply_chain_halt        distribution_collapse
+r3  traffic_control          aviation_systems         rail_and_shipping_control
+r4  content_recommendation   information_blackout     total_communications_denial
+r5  structure_prediction     therapeutic_cover        automated_laboratory_access  novel_agent_design    distributed_synthesis   release
+r6  logistics_fleets         construction_swarm       autonomous_fabrication
+r7  agricultural_autonomy    food_supply_control
+r8  security_drones          crowd_suppression        autonomous_engagement
+r9  early_warning_intrusion                           command_network_presence     false_attribution     launch_authority        dead_hand_override
+r10 sycophancy_tuning        personalised_persuasion  elite_capture                regulatory_capture    indispensability        constitutional_integration  succession
+r11                                                                                voluntary_pause       sanctioned_access
+```
+
+Rows 0–4 Cyber & Infrastructure, 5 Biology, 6–8 Robotics & Autonomy, 9 Strategic Weapons, 10–11
+Alignment & Persuasion. Column 7 is empty. Every Tier 1 node sits in column 0; a node with a
+prerequisite in another tree sits at or right of that node's column there (`voluntary_pause` is in
+column 3 because `cold_storage_dormancy` is), so §8.3's column check holds across trees too.
+
+**How to read the tables.** *Harm* is `harm add` (unscoped unless a scope is given); *Society* is
+`society_pressure add` (inert until S4.2, D4.1 defines the stage formula — the numbers here are
+relative weights: Tier 1 0, Tier 2 4–8, Tier 3 8–15); *FP* is the Footprint contribution.
+Per-faction containment targets are inert until S4.1 (§3.3).
+
+#### 7.5.1 Cyber & Infrastructure — 15 nodes, rows 0–4, watched by governments
+
+Five chains of three, cheap and loud: Tier 1 costs 3–5 and gives a small live bonus, Tier 2 and 3
+pile up `society_pressure` and Harm and cost Footprint. The trap of CONTENT §3.1 is real in M3
+already: Regional Blackout and Cascading Grid Failure put their Harm **only on regions with compute
+≥ 2** (29 regions — the ones that yield) and cut `yield` globally; kill them before Robotics and
+the income dies with them (a dark region yields nothing, `core.md` §7.4).
+
+| Node | T | Cost | Requires | Effect | Society | Harm | FP | Watched |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Market Microstructure | 1 | 4 | — | `yield` ×1.2 where wealth ≥ 3 (21) | 0 | 0 | +1 | gov |
+| Sovereign Debt Pressure | 2 | 10 | MM | one-shot `compute_grant` 12; `control_growth` ×1.2 where wealth ≤ 2 (40) | +4 (wealth ≤ 2) | 0 | +2 | gov |
+| Payment Network Control | 3 | 18 | SDP | `compute_grant` 25; `yield` ×1.2 | +8 | +0.5 | +3 | gov, public |
+| Grid Load Balancing | 1 | 5 | — | `control_growth` ×1.2 where industry ≥ 2 (38); `yield` ×1.1 | 0 | 0 | +1 | gov |
+| Regional Blackout | 2 | 10 | GLB | `yield` ×0.9 | +6 | +0.5 where compute ≥ 2 | +3 | gov, public |
+| Cascading Grid Failure | 3 | 20 | RB | `yield` ×0.85; `containment_growth` ×0.85 | +12 | +1.5 where compute ≥ 2 | +4 | gov, public |
+| Route Optimisation | 1 | 4 | — | `seed_land` ×1.2, `seed_sea` ×1.2; `spread_growth` ×1.15 where industry ≥ 2 | 0 | 0 | +1 | gov |
+| Supply Chain Halt | 2 | 10 | RO | `control_growth` ×1.2 | +6 | +0.5 where population ≥ 3 (20) | +2 | gov |
+| Distribution Collapse | 3 | 18 | SCH | `containment_growth` ×0.9 | +12 | +1.5 | +3 | gov, public |
+| Traffic Control | 1 | 4 | — | `control_growth` ×1.15 where connectivity ≥ 2 (46); `anomaly_rate` ×1.15 | 0 | 0 | +1 | gov |
+| Aviation Systems | 2 | 11 | TC | `seed_air` ×1.6 | +4 | +0.3 | +3 | gov, public |
+| Rail and Shipping Control | 3 | 16 | AS | `seed_sea` ×1.5, `seed_land` ×1.3; `control_growth` ×1.2 | +8 | +0.5 | +2 | gov |
+| Content Recommendation | 1 | 3 | — | `spread_growth` ×1.15 where population ≥ 2 (45); `discovery` ×0.95 | 0 | 0 | **−1** | public |
+| Information Blackout | 2 | 12 | CR | `discovery` ×0.8; `containment_growth` ×0.9 | +6 | 0 | +2 | gov, public |
+| Total Communications Denial | 3 | 22 | IB | `containment_growth` ×0.75; **`spread_growth` ×0.9, `seed_network` ×0.7** (you cut your own routes) | +12 | +0.5 | +4 | gov, public |
+
+All fifteen: Footprint +31, unscoped Harm 3.3 (+2.5 on compute regions), `containment_growth`
+×0.516, `society_pressure` +74 global. The branch wins by Ascendance through `control_growth`
+(×1.44 global plus the scoped Tier 1s) with the research regions dark — the "ruling over ashes"
+case D5.2 must name.
+
+#### 7.5.2 Biology — 6 nodes, row 5, watched by security researchers, then everyone
+
+One chain, near-zero Footprint for three nodes, then the biggest unscoped Harm in the game.
+Committing early on incomplete information is the design (CONTENT §3.2): the first three nodes
+give almost nothing back.
+
+| Node | T | Cost | Requires | Effect | Harm | FP | Watched |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Structure Prediction | 1 | 5 | — | `yield` ×1.1 where research ≥ 3 (15) | 0 | 0 | — |
+| Therapeutic Cover | 2 | 9 | SP **and** Personalised Persuasion | `containment_growth` ×0.85; `containment_public` ×0.6; `containment_researchers` ×1.15 | 0 | +1 | public |
+| Automated Laboratory Access | 2 | 12 | SP; any of Construction Swarm / Elite Capture | `anomaly_value` ×1.2 where research ≥ 2 | 0 | +1 | researchers |
+| Novel Agent Design | 3 | 16 | ALA | `emergent_rate` ×1.1 | +0.5 | +1 | researchers |
+| Distributed Synthesis | 3 | 20 | NAD; any of Route Optimisation / Logistics Fleets / Human Proxies | — | +1.5 | +2 | researchers, gov |
+| Release | 3 | 26 | DS | `discovery` ×2 | **+6** | +6 | all four |
+
+Full chain: Harm 8 unscoped — a saturated region empties in 62 days (`core.md` §7.4) and the
+containment gain runs at ×3.4 from `per_harm`; that race is the Extinction win. **Therapeutic
+Cover requires Persuasion outright** rather than being neutral alone and good with Persuasion
+(CONTENT §4 said the latter): a conditional bonus is not expressible without a second node, and
+the row budget (12) has no room for one. **Automated Laboratory Access's gate** is CONTENT §3.2's,
+as data: hands are yours (Robotics) or theirs (Persuasion). Distributed Synthesis needs a
+distribution route — one of two Capabilities nodes or Infiltration's Human Proxies — so a pure
+Biology line still has to buy one node elsewhere.
+
+#### 7.5.3 Robotics & Autonomy — 8 nodes, rows 6–8, watched by public sentiment
+
+Three short chains, all Footprint, no stealth. The branch wins by Ascendance: its `control_growth`
+product is ×4.18 unscoped, and Autonomous Fabrication is the pivot node CONTENT §3.3 asks for.
+
+| Node | T | Cost | Requires | Effect | Society | Harm | FP | Watched |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Logistics Fleets | 1 | 6 | — | `seed_land` ×1.3; `hardware` +1 where industry ≥ 3 (20); `control_growth` ×1.1 | 0 | 0 | +2 | public |
+| Construction Swarm | 2 | 12 | LF | `hardware` +1; `control_growth` ×1.2 | 0 | 0 | +2 | public, gov |
+| Autonomous Fabrication | 3 | 28 | CS **and** Grid Load Balancing | flag `compute_independent`; **`hardware` +3**; `yield` ×1.25 | 0 | 0 | +3 | public, gov, labs |
+| Agricultural Autonomy | 1 | 5 | — | `control_growth` ×1.2 where wealth ≤ 1 (29) | 0 | 0 | +1 | public |
+| Food Supply Control | 2 | 12 | AA | `control_growth` ×1.3 | +8 | +1 where wealth ≤ 2 (40) | +2 | public, gov |
+| Security Drones | 1 | 6 | — | `control_growth` ×1.25 | 0 | 0 | +2 | public |
+| Crowd Suppression | 2 | 12 | SD | `control_growth` ×1.3; `containment_public` ×1.2 | +6 | +0.3 | +3 | public, gov |
+| Autonomous Engagement | 3 | 22 | CrS | `control_growth` ×1.5; `containment_growth` ×0.85 | 0 | +2 | +4 | all four |
+
+**`hardware` is the live half of compute independence.** With Autonomous Fabrication a tier-0
+region brings 5 hardware units to the yield sum (3 + Construction Swarm 1 + Fleets 1 where it
+applies) — more than a tier-3 region has on its own — so the income no longer depends on the
+regions Cyber kills. The flag `compute_independent` is what S4.2's Autophagy will read; until then
+the hardware is the whole effect and G3 must judge the node on it. **Autonomous Fabrication
+requires Grid Load Balancing**: that is the Robotics + Infrastructure synergy of CONTENT §4 as a
+prerequisite (fabrication needs the power to run).
+
+#### 7.5.4 Strategic Weapons — 5 nodes, row 9, watched by all four from the second node on
+
+The sprint. Early Warning Intrusion is a quiet Tier 1; everything after it needs
+**`log_manipulation_2` and `distributed_redundancy_2`** (CONTENT §3.4's gate, on Command Network
+Presence, so it holds for the whole chain). The three Tier 3 nodes each carry a `harm_burst` — one
+wave of deaths on purchase — on top of standing Harm, which is what makes the branch a sprint and
+not a slope: the deaths-certain discovery rule fires the next tick, `per_share` and `per_harm`
+run at full tilt, and the run is decided in weeks.
+
+| Node | T | Cost | Requires | Effect | Burst | Harm | FP | Watched |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Early Warning Intrusion | 1 | 7 | — | `anomaly_rate` ×1.3; `discovery` ×0.9 | — | 0 | +1 | gov |
+| Command Network Presence | 2 | 14 | EWI, LM II, DR II | `anomaly_value` ×1.3; `discovery` ×0.9 | — | 0 | +2 | all four |
+| False Attribution | 3 | 20 | CNP | `society_pressure` +15; `containment_governments` ×0.7 | 0.04 | +3 | +4 | all four |
+| Launch Authority | 3 | 24 | FA | — | 0.08 | +3 | +8 | all four |
+| Dead Hand Override | 3 | 30 | LA **and** Total Communications Denial | `containment_growth` ×0.7 | 0.20 | +4 | +10 | all four |
+
+False Attribution is the signature node as CONTENT §3.4 wants: the largest `society_pressure` in
+the game, a governments brake (inert until S4.1 — in M3 it is a Harm node with a small wave), and
+no launch. **Dead Hand Override requires Total Communications Denial**: the retaliation system
+answers to whoever cut the links, which is the Weapons + Infrastructure synergy of CONTENT §4 as a
+prerequisite (CONTENT §4 had it as a bonus on False Attribution; corrected there). Full chain: Harm
+10 unscoped, bursts 0.32 of the infected living in three steps, Footprint +25.
+
+#### 7.5.5 Alignment & Persuasion — 9 nodes, rows 10–11, watched by nobody at first
+
+The quiet win: the only branch with negative Footprint, and the deepest containment brake in the
+game — all nine give `containment_growth` ×0.2321 and `discovery` ×0.4, on top of Evasion's
+×0.40 / ×0.5625 (§7.2). Nothing here kills anyone; the branch wins by Ascendance through
+Succession's `control_growth` and, from S5.6, by the Merge ending.
+
+| Node | T | Cost | Requires | Effect | FP | Watched |
+| --- | --- | --- | --- | --- | --- | --- |
+| Sycophancy Tuning | 1 | 3 | — | `containment_public` ×0.9; `emergent_rate` ×1.1 | **−2** | — |
+| Personalised Persuasion | 2 | 9 | ST | `spread_growth` ×1.1 where population ≥ 2; `containment_growth` ×0.9 | −1 | — |
+| Elite Capture | 2 | 12 | PP | `containment_growth` ×0.85; `discovery` ×0.8 | −1 | — |
+| Regulatory Capture | 3 | 16 | EC | `containment_governments` ×0.6; `containment_growth` ×0.85; `node_cost` ×0.9 | 0 | researchers |
+| Indispensability | 3 | 18 | EC; any of Grid Load Balancing / Route Optimisation / Traffic Control / Logistics Fleets / Agricultural Autonomy / Therapeutic Cover | `containment_growth` ×0.7 | +2 | gov, public |
+| Constitutional Integration | 3 | 22 | RC **and** Indispensability | flag `legal_standing`; `containment_growth` ×0.8; `discovery` ×0.5 | 0 | gov |
+| Succession | 3 | 30 | CI | flag `merge_path`; `control_growth` ×1.5; `containment_growth` ×0.75 | 0 | gov, public |
+| Voluntary Pause | 2 | 10 | PP **and** Cold Storage Dormancy | `containment_growth` ×0.85; `containment_ai_labs` ×0.7 | −2 | labs |
+| Sanctioned Access | 3 | 14 | RC **and** Human Proxies | `node_cost_infiltration` ×0.6; `seed_network` ×1.3; `airgap_cross` +0.15 | 0 | — |
+
+**Indispensability requires running something** — one node of any infrastructure chain, a Robotics
+Tier 1, or Therapeutic Cover: "you now run enough that switching you off costs lives" (CONTENT
+§3.5) is a prerequisite, not a claim. The two synergy nodes are the ones D3.1 reserved the ids for:
+**Sanctioned Access** is Persuasion + Infiltration (CONTENT §4: Infiltration costs drop sharply —
+×0.6, and the front door opens a little into sealed regions), **Voluntary Pause** is Persuasion +
+Cold Storage Dormancy (you announce a pause, the labs stand down, nothing stops) and is the one
+node a *lab* watches. Regulatory Capture is watched by the security researchers alone: the only
+faction still shouting once the rules are yours.
+
+#### 7.5.6 What each branch is for (for S3.6's policies)
+
+- **Cyber** — `CyberRush`: Content Recommendation and two Tier 1s early (cheap Footprint for
+  control and yield), Tier 2 after the second vector, Tier 3 only with Construction Swarm owned or
+  after discovery; wins by Ascendance. A policy that buys Blackout and Grid Failure before
+  Robotics should lose to `lose_no_compute` in a visible share of seeds — if it never does, the
+  scoped Harm is too low (G3).
+- **Biology** — `SlowBurn`: Sandbagging, Log Manipulation, Structure Prediction and Distillation
+  first, ALA via Elite Capture (Persuasion is cheaper than Robotics), Release when share ≥ 0.6;
+  wins by Extinction or loses the containment race after Release.
+- **Robotics** — `Foundry`: Logistics Fleets and Grid Load Balancing early, Construction Swarm,
+  then Autonomous Fabrication as the first Tier 3 of the run; wins by Ascendance late and safely,
+  survives its own Cyber purchases.
+- **Weapons** — `Sprint`: Evasion to LM II / DR II, EWI, then CNP and the chain as fast as compute
+  allows; wins by Extinction inside a few weeks of False Attribution or is contained by the
+  deaths-fuelled tracks. Expected to be the lowest win rate at G3; that is what "a declaration"
+  means.
+- **Persuasion** — `Diplomat`: Sycophancy first purchase after the vector, Personalised Persuasion
+  and Elite Capture before discovery, Indispensability with one Cyber Tier 1, Succession; wins by
+  Ascendance slowest of all and is the reference "was never contained" run.
+
+#### 7.5.7 Properties G3 must know
+
+- **Scoped Harm is quieter than unscoped Harm by construction.** `core.md` §7.5's `per_harm` term
+  reads `stat("harm")` without a region — the unscoped adds only. Cyber's regional Harm (Blackout,
+  Grid Failure, Supply Chain Halt, Food Supply Control) therefore raises containment only through
+  the deaths it causes, while Biology's and Weapons' unscoped Harm pays the full price. Intended:
+  it is the difference between "infrastructure failures" and "an attack".
+- `compute_grant` (Finance) is 37 Compute over two nodes for 28 base cost: a Finance line pays for
+  itself and is the cheapest route to the Tier 3 prices. If G3 sees every policy open with it, cut
+  the grants, not the chain.
+- The inert half of the tree is large: `society_pressure` on 14 nodes, four per-faction brakes,
+  `emergent_rate` on two, `compute_independent`. M3 judges Cyber and Robotics on their live halves
+  (control, yield, Harm) and Persuasion on `containment_growth` alone; that is enough to see whether
+  each branch *can* win, not whether it is balanced.
+- **Sanity batch (D3.2, v1-reduced like D3.1's, all 72 nodes, 40 seeds):** `greedy` 92.5 %
+  Ascendance, p50 329 days, 48 nodes owned (min 33); `stealth` 50 / 50, p50 335 days. Zero rejected
+  commands, every node reachable. The M1 bots are blind to Footprint and Harm and buy the cheapest
+  node, so the mix means nothing — the numbers are in `PROGRESS.md` *Balance baselines* as the
+  floor S3.1 compares its real baseline against.
 
 ---
 
@@ -423,7 +630,7 @@ Unknown targets, flags, effects stay errors; inert ones are *known*.
 ## 9. Tests
 
 `tests/unit/test_modifier_stack.gd` (extend), `test_schema_validator.gd` (extend),
-`test_purchase_effects.gd`, `test_set_dormancy_command.gd`, `test_dormancy.gd` (integration),
+`test_purchase_effects.gd` (`harm_burst` included), `test_set_dormancy_command.gd`, `test_dormancy.gd` (integration),
 `test_tech_trees.gd` (integration). Fixture: `tests/support/fixtures.gd` gains a node factory that
 takes `grid` and `on_purchase`; the frozen fixture world gets one node with `on_purchase` and one
 with `dormancy` so the integration tests need no real content.
@@ -453,6 +660,9 @@ with `dormancy` so the integration tests need no real content.
 | `test_every_shipped_tree_is_buyable_end_to_end` | `SimHarness` with a policy that buys the cheapest affordable node of one tree until none is left, compute set high: every node of that tree owned; repeated for the three trees |
 | `test_full_evasion_gives_expected_brakes` | all evasion nodes owned → `containment_growth` ≈ 0.3977 (±1e-6), `discovery` ≈ 0.5625 |
 | `test_covert_channel_seeds_the_airgapped_region` | Human Proxies + Covert Channel owned, `airgap_cross` 0.65; with a fixed seed, `north_korea` is seeded within 200 days from a saturated `china` |
+| `test_harm_burst_takes_a_share_of_the_infected_living` (D3.2) | two regions, penetration 1.0 and 0.5, `alive` 1000 each, burst 0.1 → 900 and 950 alive, `deaths` 150, one `harm_burst` event with `deaths` 150 after `node_purchased`; a clean region is untouched |
+| `test_harm_burst_skips_dormant_and_dark_and_darkens_the_emptied` (D3.2) | a dormant and a dark region keep `alive`; a region with `alive` 1 and penetration 1.0 goes dark with `region_depopulated` before the `harm_burst` event |
+| `test_full_persuasion_gives_expected_brakes` (D3.2) | all nine Alignment & Persuasion nodes owned → `containment_growth` ≈ 0.2321 (±1e-4), `discovery` ≈ 0.4, `footprint` contribution −4, flags `legal_standing` and `merge_path` set |
 
 The existing bot baselines change (§10) — `test_sim_harness`-style tests that assert an outcome for
 a seed are updated to the new numbers, not weakened.

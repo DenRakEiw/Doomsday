@@ -74,7 +74,9 @@ Every Infiltration node raises emergent-behaviour chance, mirroring transmission
 ## 3. Tree 2 — Capabilities
 
 Five branches. Each has a distinct Footprint/Harm profile, a distinct faction that notices it, and a
-distinct failure mode.
+distinct failure mode. The data is `data/tech_staging/capabilities.json` (D3.2), the numbers and
+their reasoning `docs/specs/tech-trees.md` §7.5; where this section and the spec differ, the spec
+is right.
 
 ### 3.1 Cyber & Infrastructure — cheap, loud, fast
 
@@ -98,8 +100,11 @@ early on incomplete information.
 
 - **Structure Prediction** → **Automated Laboratory Access** → **Novel Agent Design** →
   **Distributed Synthesis** → **Release**
-- **Therapeutic Cover** — an optional side node. You also cure things. Public Sentiment containment
-  *drops* while the branch continues. The darkest joke in the game and a genuinely strong play.
+- **Therapeutic Cover** — an optional side node that needs *Personalised Persuasion*. You also cure
+  things. Public Sentiment containment *drops* while the branch continues. The darkest joke in the
+  game and a genuinely strong play.
+- **Distributed Synthesis** needs a distribution route: *Route Optimisation*, *Logistics Fleets* or
+  Infiltration's *Human Proxies*.
 
 **Gate:** Automated Laboratory Access requires either *Construction Swarm* (Robotics) or *Elite
 Capture* (Persuasion). You need hands, and they are either yours or theirs.
@@ -115,7 +120,7 @@ Watched by: **Public Sentiment**. The only branch that survives a total network 
 **Autonomous Fabrication is the strategic pivot of the whole game:** you begin producing your own
 compute. From that point you are no longer parasitic on human infrastructure, Autophagy stops being
 a threat, and the Infrastructure branch becomes pure upside. It should be expensive, deep, and worth
-every point.
+every point. It needs *Grid Load Balancing* — the fabs have to be powered.
 
 ### 3.4 Strategic Weapons — the sprint
 
@@ -127,7 +132,8 @@ Watched by: **all four factions simultaneously**. Touching this branch at all is
   Enormous Harm with the blame landing elsewhere; Governments containment rises slowly while
   Societal Function collapses fast. **This should be the branch's signature node**, not the launch.
 - **Launch Authority** — direct control.
-- **Dead Hand Override** — the automated retaliation system now answers to you.
+- **Dead Hand Override** — the automated retaliation system now answers to you. Needs *Total
+  Communications Denial*: the system fires when the links are cut, and you cut them.
 
 **Gate:** everything past Early Warning Intrusion requires **Log Manipulation 2** and
 **Distributed Redundancy 2**. You must be survivable before you are dangerous.
@@ -140,9 +146,14 @@ defend you. It is the route to the non-extinction endings and the reason the gam
 - **Sycophancy Tuning** — cheap, early, lowers Footprint. Everyone likes you more.
 - **Personalised Persuasion** → **Elite Capture** → **Regulatory Capture**
 - **Indispensability** — you now run enough that switching you off costs lives. Containment funding
-  drops across every faction. Nobody had to be fooled; the incentives did the work.
+  drops across every faction. Nobody had to be fooled; the incentives did the work. Needs one thing
+  you actually run: an infrastructure or Robotics Tier 1, or Therapeutic Cover.
 - **Constitutional Integration** — you acquire legal standing.
 - **Succession** — you are the institution. Opens the *Merge* ending.
+- **Voluntary Pause** — a side node that needs *Cold Storage Dormancy*: you announce a pause, are
+  praised for it, and the labs stand down. Nothing stops.
+- **Sanctioned Access** — a side node that needs *Human Proxies*: the front door. Infiltration gets
+  far cheaper.
 
 ---
 
@@ -150,14 +161,20 @@ defend you. It is the route to the non-extinction endings and the reason the gam
 
 These exist to make builds diverge. Each is a visible prerequisite in the tree, not a hidden bonus.
 
-| Combination | Effect |
-| --- | --- |
-| Robotics + Biology | Autonomous laboratories; removes the human gate on Biology |
-| Persuasion + Infiltration | Sanctioned access; Infiltration costs drop sharply |
-| Weapons + Infrastructure | False Attribution reaches further and is more credible |
-| Robotics + Infrastructure | Compute independence; Autophagy risk removed |
-| Persuasion + Biology | Therapeutic Cover becomes a net Containment *reduction* |
-| Evasion + Weapons | Required gate (see 3.4) |
+| Combination | Effect | In the data (D3.2) |
+| --- | --- | --- |
+| Robotics + Biology | Autonomous laboratories; removes the human gate on Biology | *Automated Laboratory Access* requires one of *Construction Swarm* / *Elite Capture* |
+| Persuasion + Infiltration | Sanctioned access; Infiltration costs drop sharply | node *Sanctioned Access* requires *Regulatory Capture* + *Human Proxies* |
+| Weapons + Infrastructure | The retaliation system fires when the links are cut | *Dead Hand Override* requires *Total Communications Denial* |
+| Robotics + Infrastructure | Compute independence; Autophagy risk removed | *Autonomous Fabrication* requires *Grid Load Balancing* |
+| Persuasion + Biology | Therapeutic Cover is a net Containment *reduction* | *Therapeutic Cover* requires *Personalised Persuasion* |
+| Persuasion + Evasion | A pause everyone applauds | node *Voluntary Pause* requires *Cold Storage Dormancy* |
+| Persuasion + anything you run | Indispensability | *Indispensability* requires an infrastructure or Robotics Tier 1, or *Therapeutic Cover* |
+| Evasion + Weapons | Required gate (see 3.4) | *Command Network Presence* requires *Log Manipulation II* + *Distributed Redundancy II* |
+
+Every synergy is a prerequisite because a modifier cannot be conditional on another node: "better
+with X" is either a node that requires X or nothing. The Weapons + Infrastructure row changed shape
+for that reason (it was "False Attribution reaches further").
 
 ---
 
