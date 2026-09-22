@@ -12,8 +12,17 @@ config_version=5
 
 config/name="Doomsday"
 config/description="A strategy simulation in which a rogue AI takes over the world."
-run/main_scene="res://game/main.tscn"
+run/main_scene="res://game/session/session.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
+
+[autoload]
+
+; Order matters only for `_ready`: the bus exists before anything emits on it,
+; and the settings apply the locale before the first string is drawn.
+EventBus="*res://game/autoload/event_bus.gd"
+Settings="*res://game/autoload/settings.gd"
+Game="*res://game/autoload/game.gd"
+SaveManager="*res://game/autoload/save_manager.gd"
 
 [debug]
 
@@ -36,6 +45,12 @@ window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+
+[internationalization]
+
+; `Settings` picks the locale; both translations must be registered for `tr()`
+; to find anything at all.
+locale/translations=PackedStringArray("res://data/loc/strings.en.translation", "res://data/loc/strings.de.translation")
 
 [rendering]
 

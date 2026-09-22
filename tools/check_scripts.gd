@@ -7,29 +7,36 @@ extends SceneTree
 ## the test suite; see docs/IMPLEMENTATION.md §2.
 ##
 ##     "$GODOT" --headless --path . -s tools/check_scripts.gd
+##
+## `-s` starts no autoloads, so every script that names `Game` or `EventBus`
+## fails here for a reason that is not a defect. Those are reported and skipped;
+## `tests/unit/test_scripts_compile.gd` judges them inside the tree, where the
+## autoloads exist.
 
-## Third-party code, exempt from our warning levels (`exclude_addons` in project.godot).
-const SKIPPED_DIRS: PackedStringArray = ["res://addons"]
+const Scan := preload("res://tools/script_scan.gd")
+
+## Names of the autoloads, which are identifiers no script can resolve in this
+## main loop.
+const AUTOLOAD_PREFIX: String = "autoload/"
 
 
 func _init() -> void:
-	var paths: PackedStringArray = _collect_scripts("res://")
-	paths.sort()
+	var paths: PackedStringArray = Scan.collect()
+	var autoloads: PackedStringArray = _autoload_names()
 
 	var failed: PackedStringArray = []
+	var deferred: PackedStringArray = []
 	for path: String in paths:
-		# The default cache mode, deliberately: CACHE_MODE_IGNORE re-parses this
-		# very script while it is running, which corrupts the running function.
-		# A script that is already cached compiled, which is all we ask.
-		var script: GDScript = ResourceLoader.load(path, "GDScript") as GDScript
-		# A parse error does not make the load fail — Godot hands back an empty
-		# GDScript instead. The empty one has no native base type; every script
-		# that compiled has one, an `@abstract` or an empty file included.
-		if script == null or script.get_instance_base_type().is_empty():
+		if Scan.compiles(path):
+			continue
+		if _names_an_autoload(path, autoloads):
+			deferred.append(path)
+		else:
 			failed.append(path)
 
 	if failed.is_empty():
-		print("check_scripts: %d scripts compile." % paths.size())
+		print("check_scripts: %d scripts compile, %d judged by the test suite."
+			% [paths.size() - deferred.size(), deferred.size()])
 		quit(0)
 		return
 
@@ -39,23 +46,21 @@ func _init() -> void:
 	quit(1)
 
 
-func _collect_scripts(dir_path: String) -> PackedStringArray:
-	var found: PackedStringArray = []
-	var dir: DirAccess = DirAccess.open(dir_path)
-	if dir == null:
-		push_error("check_scripts: cannot open %s" % dir_path)
-		return found
+func _autoload_names() -> PackedStringArray:
+	var names: PackedStringArray = []
+	for setting: Dictionary in ProjectSettings.get_property_list():
+		var key: String = str(setting.get("name", ""))
+		if key.begins_with(AUTOLOAD_PREFIX):
+			names.append(key.substr(AUTOLOAD_PREFIX.length()))
+	return names
 
-	dir.list_dir_begin()  # Hidden entries are skipped, which keeps .godot/ out.
-	var entry: String = dir.get_next()
-	while entry != "":
-		var path: String = dir_path.path_join(entry)
-		if dir.current_is_dir():
-			if not SKIPPED_DIRS.has(path):
-				found.append_array(_collect_scripts(path))
-		elif entry.ends_with(".gd"):
-			found.append(path)
-		entry = dir.get_next()
-	dir.list_dir_end()
 
-	return found
+## Whether the file mentions an autoload by name, which is the one failure this
+## main loop cannot tell from a defect. Text, not parsing: the script did not
+## compile, so there is nothing to ask.
+func _names_an_autoload(path: String, autoloads: PackedStringArray) -> bool:
+	var source: String = FileAccess.get_file_as_string(path)
+	for singleton_name: String in autoloads:
+		if source.contains(singleton_name):
+			return true
+	return false

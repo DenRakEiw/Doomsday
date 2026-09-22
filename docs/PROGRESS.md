@@ -14,15 +14,16 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S2.1 — autoloads and session driver** (first step of the M2 build) |
+| **Next step** | **S2.2 — map rendering** |
 | **Model for it** | **Opus** — no switch |
-| **After it** | `/clear` → S2.2 (Opus, no switch) |
-| **Last completed** | S1.P — floats in saves are exact; the G1 punch list is empty |
-| **Milestone** | M1 gated; M2 build begins |
+| **After it** | `/clear` → S2.3 (Opus, no switch) |
+| **Last completed** | S2.1 — autoloads, session scene, debug keys; the game ticks |
+| **Milestone** | M1 gated; M2 build under way |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 74 scripts compile, 274 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 84 scripts compile, 299 tests. The same command is all of CI. |
+| **Run it** | `run_project` → **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes). M2 only. |
 
 **[F]** = Fable: design, specs, content, text, balance, gates. **[O]** = Opus: code, scenes,
 shaders, wiring, tooling, tests. `/clear` after every step. **⇄** marks a model switch before the
@@ -59,7 +60,7 @@ which file was being edited, and anything learned that the files do not show)*
 
 **Block 4 — M2 build · Opus**
 - [x] S1.P [O] Punch list from G1 — exact floats in saves
-- [ ] S2.1 [O] Autoloads and session driver
+- [x] S2.1 [O] Autoloads and session driver
 - [ ] S2.2 [O] Map rendering
 - [ ] S2.3 [O] Picking, camera, backdrop
 - [ ] S2.4 [O] Theme and component library
@@ -265,6 +266,19 @@ without new information.
 - **2026-09-22** (S1.P) — The day loop moved into `SimHarness.advance(sim, policy, until_day, …)`
   and `play` calls it, so a test can carry a *loaded* save on with the same policy through the same
   loop the runners use. `policy_seed(seed)` is public for the same reason.
+- **2026-09-22** (S2.1) — **The session scene is the main scene** (`run/main_scene` →
+  `game/session/session.tscn`). `game/main.tscn` stays as the M0 placeholder until S5.7 builds the
+  real entry point; nothing references it, and M2 needs a run to be one keystroke away.
+- **2026-09-22** (S2.1) — **The policy registry moved into `core/policy/policy.gd`**
+  (`Policy.create`, `ids`, `seed_for`, `MAX_COMMANDS_PER_DAY`); `tools/sim_harness.gd` delegates.
+  Shipped code must not preload anything from `tools/`, and `Game` plays bots by the same rules the
+  runners do. No cyclic-reference problem: the base class may name its subclasses.
+- **2026-09-22** (S2.1) — **The accumulator compares with a 1e-9 tolerance.** Sixty frames of 1/60
+  fall a hair short of a quarter second fifteen times over, so an exact `>=` drops one tick in four
+  at 4× — the spec's own §10.3 test fails without it.
+- **2026-09-22** (S2.1) — Both `.translation` files are registered in `project.godot`
+  (`internationalization/locale/translations`). Until that line existed `tr()` returned the key.
+
 - **2026-09-22** (D2.1) — **`TICKS_PER_SECOND = 1.0` at 1×** as the starting value (a `greedy` run
   is ~6 min at 1×, 1.5 min at 4×); G3 tunes it against the 25–40 minute target.
 
@@ -294,6 +308,17 @@ without new information.
 
 ## Deviations from the plan or a spec
 
+- **2026-09-22** (S2.1) — **`Game` has four members ui-foundation.md §10.2 does not list:**
+  `advance(count)` (the day loop the accumulator, the debug keys and the tests all go through),
+  `stop_run()`, `adopt_loaded(sim)` (what `SaveManager.load` hands the run back through) and
+  `debug_log`. The spec's signatures are unchanged; `set_speed`'s parameter is called `value`
+  because `speed` would shadow the member.
+- **2026-09-22** (S2.1) — **`session.gd` sets the safe-area margins as theme constant overrides**
+  on `SafeArea` — the only per-node override in the project. A `MarginContainer` takes runtime
+  margins no other way, and these are the display's numbers, not the design's.
+- **2026-09-22** (S2.1) — **A loaded run stays paused** (`adopt_loaded`), as §10.4 implies; the
+  debug key F10 resumes it at 1× on top of that, because there is no speed control until S2.5.
+
 - **2026-09-22** (S1.8) — The CI container (Linux) produced **the same state hash as the dev
   machine** (Windows) for seed 1. Pleasant, and not something to rely on: the determinism contract
   is still "same build, same platform" (IMPLEMENTATION §3). If a later run ever differs across
@@ -318,6 +343,13 @@ without new information.
   `extends Node` in the `script_source` template, ~line 562) but writing it was refused by the
   permission classifier — **ask the user to allow it**. Until then use `game_get_property`,
   `game_set_property`, `game_call_method` and `game_get_scene_tree` instead.
+- **A script that names an autoload cannot be compiled by `tools/check_scripts.gd`.** `-s` runs it
+  as the main loop, which starts no autoloads, so `Game` and `EventBus` are identifiers the compiler
+  cannot find — and Godot still hands back a class with its base type, so the failure was silently
+  counted as a pass. Since S2.1 the scan is `tools/script_scan.gd`, `check_scripts` reports those
+  files as *judged by the test suite*, and `tests/unit/test_scripts_compile.gd` compiles the whole
+  project inside the tree, where the autoloads exist. A failed compile is told from a good one by
+  `can_instantiate()` — **the day a class is `@abstract`, `script_scan.gd` must exempt it.**
 - **godot-mcp `validate_scripts` takes project-relative paths only.** `res://tests/unit/x.gd` gives
   "Script does not exist"; `tests/unit/x.gd` works. The `directory` argument does not narrow the
   scope either — without an explicit `scriptPaths` list it tries all 88 scripts (GUT included) and
@@ -376,6 +408,13 @@ takes an OS path, which is worth knowing).
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — S2.1 Autoloads and session driver [O]
+`EventBus`, `Settings`, `Game`, `SaveManager` under `game/autoload/` and `game/session/session.tscn`
+with the layer stack of §5.1; the session scene is now the main scene and F5 plays a `greedy` bot at
+one day per second, printing every event and day. **The accumulator needs a tolerance** (see
+*Decisions*) and **`check_scripts` was blind to any script naming an autoload** (see *Known issues*)
+— both found by their tests. 25 new tests, suite green (299). Next: **S2.2 on Opus** — `/clear`.
 
 ### 2026-09-22 — S1.P Exact floats in saves [O]
 `core/save/float_bits.gd` (16 hex characters, big-endian, both forms readable) wired into

@@ -10,12 +10,9 @@ const EXIT_BAD_INPUT: int = 1
 const EXIT_INVARIANT: int = 2
 const EXIT_REPLAY_MISMATCH: int = 3
 
-## A policy that wants more than this in one day is looping, not playing.
-const MAX_COMMANDS_PER_DAY: int = 64
-## `seed` is the world's; the policy gets its own stream derived from it, far
-## enough away that neighbouring seeds do not give neighbouring policies.
-const POLICY_SEED_FACTOR: int = 7919
-const POLICY_SEED_OFFSET: int = 17
+## Both live on `Policy` now, because the `Game` autoload plays bots through the
+## same rules and must not reach into `tools/` for them.
+const MAX_COMMANDS_PER_DAY: int = Policy.MAX_COMMANDS_PER_DAY
 
 const DEFAULT_DATA: String = "res://data"
 const DEFAULT_MAX_DAYS: int = 5000
@@ -43,23 +40,15 @@ static func parse_args(args: PackedStringArray) -> Dictionary[String, String]:
 
 
 static func make_policy(id: String) -> Policy:
-	if id == IdlePolicy.ID:
-		return IdlePolicy.new()
-	if id == GreedyPolicy.ID:
-		return GreedyPolicy.new()
-	if id == StealthPolicy.ID:
-		return StealthPolicy.new()
-	return null
+	return Policy.create(id)
 
 
 static func policy_ids() -> Array[String]:
-	return [IdlePolicy.ID, GreedyPolicy.ID, StealthPolicy.ID]
+	return Policy.ids()
 
 
-## The stream a policy gets for a world seed. Far enough from the seed that
-## neighbouring seeds do not give neighbouring policies.
 static func policy_seed(seed_value: int) -> int:
-	return seed_value * POLICY_SEED_FACTOR + POLICY_SEED_OFFSET
+	return Policy.seed_for(seed_value)
 
 
 ## Plays one run to its end. `problems` is filled with the first invariant
