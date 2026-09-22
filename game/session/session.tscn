@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://game/session/session.gd" id="1_session"]
 [ext_resource type="PackedScene" path="res://game/map/map_view.tscn" id="2_map_view"]
@@ -12,6 +12,9 @@
 [ext_resource type="PackedScene" path="res://ui/panels/tech_tree.tscn" id="10_tech_tree"]
 [ext_resource type="PackedScene" path="res://ui/panels/containment_panel.tscn" id="11_containment"]
 [ext_resource type="PackedScene" path="res://ui/modals/discovery_modal.tscn" id="12_discovery"]
+[ext_resource type="PackedScene" path="res://ui/modals/pause_menu.tscn" id="13_pause_menu"]
+[ext_resource type="PackedScene" path="res://ui/screens/results.tscn" id="14_results"]
+[ext_resource type="PackedScene" path="res://ui/hud/menu_sheet.tscn" id="15_menu_sheet"]
 
 [node name="Session" type="Control"]
 layout_mode = 3
@@ -32,6 +35,7 @@ layer = -2
 follow_viewport_enabled = true
 
 [node name="MapCamera" type="Camera2D" parent="MapLayer"]
+unique_name_in_owner = true
 script = ExtResource("4_map_camera")
 
 [node name="MapView" parent="MapLayer" instance=ExtResource("2_map_view")]
@@ -67,6 +71,9 @@ unique_name_in_owner = true
 [node name="ContainmentPanel" parent="PanelLayer" instance=ExtResource("11_containment")]
 unique_name_in_owner = true
 
+[node name="MenuSheet" parent="PanelLayer" instance=ExtResource("15_menu_sheet")]
+unique_name_in_owner = true
+
 [node name="ModalLayer" type="CanvasLayer" parent="."]
 layer = 30
 
@@ -84,5 +91,13 @@ unique_name_in_owner = true
 visible = false
 
 [node name="DiscoveryModal" parent="ModalLayer/ModalHost" instance=ExtResource("12_discovery")]
+unique_name_in_owner = true
+visible = false
+
+[node name="PauseMenu" parent="ModalLayer/ModalHost" instance=ExtResource("13_pause_menu")]
+unique_name_in_owner = true
+visible = false
+
+[node name="Results" parent="ModalLayer/ModalHost" instance=ExtResource("14_results")]
 unique_name_in_owner = true
 visible = false

@@ -377,6 +377,9 @@ static func _build_balance(d: Dictionary) -> BalanceDef:
 	def.phase_open_containment = float(phase["open_containment"])
 	def.phase_open_world_share = float(phase["open_world_share"])
 
+	var results: Dictionary = d["results"]
+	def.results_ashes_share = float(results["ashes_share"])
+
 	var history: Dictionary = d["history"]
 	def.history_interval_days = int(history["interval_days"])
 	return def

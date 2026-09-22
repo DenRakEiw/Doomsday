@@ -20,6 +20,10 @@ const REASON_NO_RUN: String = "save_no_run"
 const REASON_NO_CONTENT: String = "save_no_content"
 const REASON_WRITE_FAILED: String = "save_write_failed"
 const REASON_NOT_FOUND: String = "save_not_found"
+## What `peek_day` answers for a slot it cannot read a day out of.
+const NO_DAY: int = -1
+## The slot the run writes itself into (m3-screens §7.5).
+const AUTOSAVE: String = "autosave"
 const REASON_READ_FAILED: String = "save_read_failed"
 
 
@@ -90,6 +94,32 @@ func delete(slot: String) -> String:
 	if DirAccess.remove_absolute(path) != OK:
 		return REASON_WRITE_FAILED
 	return ""
+
+
+## The day a slot stands at, without loading the run (m3-screens §7.1). −1 for a
+## missing, unreadable or broken file: the title shows no caption then.
+func peek_day(slot: String) -> int:
+	var path: String = path_for(slot)
+	if not FileAccess.file_exists(path):
+		return NO_DAY
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return NO_DAY
+	var json: JSON = JSON.new()
+	if json.parse(file.get_as_text()) != OK or typeof(json.data) != TYPE_DICTIONARY:
+		return NO_DAY
+	var save: Dictionary = json.data
+	if typeof(save.get("world")) != TYPE_DICTIONARY:
+		return NO_DAY
+	var world: Dictionary = save["world"]
+	var day: Variant = world.get("day")
+	if typeof(day) != TYPE_FLOAT and typeof(day) != TYPE_INT:
+		return NO_DAY
+	return int(day)
+
+
+func has_slot(slot: String) -> bool:
+	return FileAccess.file_exists(path_for(slot))
 
 
 func path_for(slot: String) -> String:

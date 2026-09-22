@@ -28,6 +28,9 @@ const TICK_EPSILON: float = 1e-9
 ## Why `apply` refused without ever reaching the simulation.
 const FAIL_NO_RUN: String = "no_run"
 
+## A seed is never 0: a player reporting "seed 0" would be reporting "no seed".
+const MIN_SEED: int = 1
+
 ## The debug run of §10.2. M2 only — the keys and this constant go in M6.
 const DEBUG_SEED: int = 1
 const DEBUG_SAVE_SLOT: String = "debug"
@@ -54,6 +57,17 @@ var _last_outcome: World.Outcome = World.Outcome.NONE
 ## last reason goes (m3-screens §10.2).
 var _holds: Dictionary[StringName, bool] = {}
 var _speed_before_hold: int = 0
+
+
+## The seed a new run gets (m3-screens §7.2). Presentation may draw from the
+## global generator; `core/` may not, which is why it happens here.
+func new_run_seed() -> int:
+	return maxi(MIN_SEED, absi(int(randi())))
+
+
+## The seed the run is playing, for the pause menu and the results screen.
+func run_seed() -> int:
+	return 0 if sim == null else int(sim.world.rng.seed_string().to_int())
 
 
 # ------------------------------------------------------------------ the clock

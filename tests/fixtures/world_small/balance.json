@@ -95,6 +95,9 @@
 		"open_containment": 0.5,
 		"open_world_share": 0.6
 	},
+	"results": {
+		"ashes_share": 0.5
+	},
 	"history": {
 		"interval_days": 7
 	}

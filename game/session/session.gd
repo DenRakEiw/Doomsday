@@ -35,9 +35,14 @@ const DOCK: GDScript = preload("res://ui/hud/dock.gd")
 const TechTree: GDScript = preload("res://ui/panels/tech_tree.gd")
 const ContainmentPanel: GDScript = preload("res://ui/panels/containment_panel.gd")
 const DiscoveryModal: GDScript = preload("res://ui/modals/discovery_modal.gd")
+const PauseMenu: GDScript = preload("res://ui/modals/pause_menu.gd")
+const Results: GDScript = preload("res://ui/screens/results.gd")
 
-## The hold the discovery modal takes (m3-screens §5).
+## The holds of m3-screens §10.2 this screen takes.
 const HOLD_DISCOVERY: StringName = &"discovery"
+const HOLD_PAUSE: StringName = &"pause"
+const HOLD_RESULTS: StringName = &"results"
+const HOLD_ORIGIN: StringName = &"origin"
 
 @onready var _safe_area: MarginContainer = %SafeArea
 @onready var _hud: Control = %Hud
@@ -46,9 +51,15 @@ const HOLD_DISCOVERY: StringName = &"discovery"
 @onready var _tech_tree: TechTree = %TechTree
 @onready var _containment: ContainmentPanel = %ContainmentPanel
 @onready var _discovery: DiscoveryModal = %DiscoveryModal
+@onready var _pause_menu: PauseMenu = %PauseMenu
+@onready var _results: Results = %Results
+@onready var _camera: MapCamera = %MapCamera
+@onready var _menu_sheet: SlidePanel = %MenuSheet
 
 ## The speed `Space` toggles against; the last one the player ran at.
 var _last_speed: int = SPEED_DEFAULT
+## §7.5: a failed autosave is reported once, not once a second.
+var _autosave_warned: bool = false
 
 
 func _ready() -> void:
@@ -62,6 +73,11 @@ func _ready() -> void:
 	_hud.connect(&"layout_changed", _on_hud_layout_changed)
 	_hud.connect(&"destination_requested", _on_destination_requested)
 	_hud.connect(&"phase_reached", _on_phase_reached)
+	_hud.connect(&"menu_requested", _open_pause_menu)
+	_hud.connect(&"sheet_requested", _on_sheet_requested)
+	_hud.call(&"set_menu_sheet", _menu_sheet)
+	_menu_sheet.connect(&"destination_requested", _on_destination_requested)
+	_menu_sheet.connect(&"pause_requested", _open_pause_menu)
 	_tech_tree.closed.connect(_on_tech_tree_closed)
 	_discovery.dismissed.connect(_on_discovery_dismissed)
 	_discovery.containment_requested.connect(_on_discovery_containment)
@@ -69,7 +85,14 @@ func _ready() -> void:
 	EventBus.region_selected.connect(_on_region_selected)
 	EventBus.sim_event.connect(_on_sim_event)
 	EventBus.run_started.connect(_on_run_started)
+	EventBus.run_ended.connect(_on_run_ended)
+	EventBus.command_applied.connect(_on_command_applied)
+	_pause_menu.closed.connect(_on_pause_closed)
+	_pause_menu.quit_requested.connect(_on_quit_requested)
+	_results.again_requested.connect(_on_again_requested)
+	_results.title_requested.connect(_on_results_title_requested)
 	EventBus.speed_changed.connect(_on_speed_changed)
+	EventBus.tick_advanced.connect(_on_tick_advanced)
 	_apply_logical_scale()
 	_apply_safe_area()
 
@@ -103,10 +126,13 @@ func _input(event: InputEvent) -> void:
 				_containment.close()
 				get_viewport().set_input_as_handled()
 				return
-			if not _region_panel.is_open:
+			if _region_panel.is_open:
+				# One door (§5.6): the map clears its outline on the same signal.
+				EventBus.region_selected.emit(0)
+				get_viewport().set_input_as_handled()
 				return
-			# One door (§5.6): the map clears its outline on the same signal.
-			EventBus.region_selected.emit(0)
+			# §7.3: with nothing else open, `Escape` is the pause menu.
+			_open_pause_menu()
 		_:
 			return
 	get_viewport().set_input_as_handled()
@@ -139,9 +165,18 @@ func _toggle_containment() -> void:
 	_containment.open()
 
 
+## §9.2: the sheet is a panel like the others, so it never shares the screen
+## with them.
+func _on_sheet_requested(_with_bars: bool) -> void:
+	EventBus.region_selected.emit(0)
+	_containment.close()
+	_menu_sheet.open()
+
+
 func _on_region_selected(index: int) -> void:
-	if index > 0 and _containment.is_open:
+	if index > 0:
 		_containment.close()
+		_menu_sheet.close()
 
 
 func _on_destination_requested(index: int) -> void:
@@ -154,6 +189,47 @@ func _on_destination_requested(index: int) -> void:
 
 func _on_tech_tree_closed() -> void:
 	_modals.close()
+
+
+## §7.3: the menu holds the clock while it is up.
+func _open_pause_menu() -> void:
+	if Game.sim == null or _modals.is_open():
+		return
+	Game.hold(HOLD_PAUSE)
+	_pause_menu.open_menu()
+	_modals.open(_pause_menu)
+
+
+func _on_pause_closed() -> void:
+	_modals.close()
+	Game.release(HOLD_PAUSE)
+
+
+func _on_quit_requested() -> void:
+	_on_pause_closed()
+	ScreenRouter.go_to_title()
+
+
+## §7.4: the results wait a beat, so the last frame and the outcome line are
+## seen before the modal covers them.
+func _on_run_ended(_outcome: String) -> void:
+	Game.hold(HOLD_RESULTS)
+	SaveManager.delete(SaveManager.AUTOSAVE)
+	await get_tree().create_timer(UiTokens.seconds(UiTokens.RESULTS_DELAY)).timeout
+	if not is_inside_tree() or Game.sim == null:
+		return
+	_results.show_result(Game.sim)
+	_modals.open(_results)
+
+
+func _on_again_requested() -> void:
+	_modals.close()
+	ScreenRouter.start_new_run()
+
+
+func _on_results_title_requested() -> void:
+	_modals.close()
+	ScreenRouter.go_to_title()
 
 
 ## §5: the moment they find you. A bot run is narrated by the ticker alone, and
@@ -185,11 +261,47 @@ func _on_phase_reached(phase: World.Phase) -> void:
 
 ## A run starts cold, and a *loaded* run starts in whatever phase it is in — the
 ## palette follows the state like every other revealed thing (§6.1).
+## A run that has no origin yet holds the clock: §7.2's speed lock is the same
+## hold the keys and the buttons already respect.
 func _on_run_started(_seed_value: int) -> void:
 	var phase: World.Phase = World.Phase.BOXED
 	if Game.sim != null:
 		phase = Game.sim.world.phase
 	_on_phase_reached(phase)
+	_autosave_warned = false
+	# A bot chooses its own origin on the first tick, so the lock is the
+	# player's alone (§7.2).
+	if Game.sim != null and Game.policy == null and Game.sim.world.agent.origin == 0:
+		Game.hold(HOLD_ORIGIN)
+
+
+## §7.2 and §7.5: the origin starts the run moving and writes the first
+## autosave; every later player command writes one too.
+func _on_command_applied(command: Command, result: CommandResult) -> void:
+	if not result.ok or Game.policy != null:
+		return
+	if command is ChooseOriginCommand:
+		Game.release(HOLD_ORIGIN)
+		Game.set_speed(SPEED_DEFAULT)
+		_camera.focus_region(Game.sim.world.agent.origin)
+	_autosave()
+
+
+## Slot `autosave` (§7.5): after every player command and every seventh day.
+## Never on a bot run, never before the origin, never after the run is over.
+func _autosave() -> void:
+	if Game.sim == null or Game.policy != null:
+		return
+	var world: World = Game.sim.world
+	if world.agent.origin == 0 or world.outcome != World.Outcome.NONE:
+		return
+	var reason: String = SaveManager.save(SaveManager.AUTOSAVE)
+	if reason.is_empty() or _autosave_warned:
+		return
+	# Once per run: the autosave is a convenience, the manual slots are the
+	# promise, and a warning per write would be a warning per second.
+	_autosave_warned = true
+	push_warning("autosave failed: %s" % reason)
 
 
 func _apply_variant(variant: StringName) -> void:
@@ -219,6 +331,12 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 
+## Every seventh day, the cadence the history sample already uses (§7.5).
+func _on_tick_advanced(day: int) -> void:
+	if day % UiTokens.AUTOSAVE_INTERVAL_DAYS == 0:
+		_autosave()
+
+
 func _on_speed_changed(speed: int) -> void:
 	if speed > 0:
 		_last_speed = speed
@@ -237,7 +355,7 @@ func _on_hud_layout_changed(compact: bool) -> void:
 	# §4.1: the containment panel comes in from the right, and from the bottom on
 	# a phone like every other panel.
 	_containment.edge = SlidePanel.Edge.BOTTOM if compact else SlidePanel.Edge.RIGHT
-	for panel: SlidePanel in [_region_panel, _containment]:
+	for panel: SlidePanel in [_region_panel, _containment, _menu_sheet]:
 		panel.top_inset = float(_hud.call(&"top_inset"))
 		panel.bottom_inset = float(_hud.call(&"bottom_inset"))
 

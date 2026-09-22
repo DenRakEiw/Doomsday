@@ -60,4 +60,6 @@ var containment_thresholds: Array[float] = []
 var phase_open_containment: float
 var phase_open_world_share: float
 
+## m3-screens §7.4: Ascendance over this share of the world dead reads as ashes.
+var results_ashes_share: float = 0.5
 var history_interval_days: int

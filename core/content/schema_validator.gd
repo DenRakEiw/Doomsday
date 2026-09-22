@@ -26,7 +26,7 @@ const TIER_TABLE_SIZE: int = 5
 const INTEGER_MAX: int = 9007199254740992
 
 const BALANCE_KEYS: Array[String] = ["stats", "population_tiers", "spread", "control", "compute",
-	"anomaly", "milestones", "harm", "discovery", "containment", "phase", "history"]
+	"anomaly", "milestones", "harm", "discovery", "containment", "phase", "results", "history"]
 const REGION_KEYS: Array[String] = ["index", "id", "continent", "population", "air_gapped",
 	"anchor", "attributes"]
 const LINK_KEYS: Array[String] = ["a", "b", "kind"]
@@ -75,6 +75,8 @@ static func validate_balance(file: String, raw: Variant, errors: Array[Validatio
 		_balance_containment(d["containment"], file, errors)
 	if _require(d, "phase", file, "", errors):
 		_balance_phase(d["phase"], file, errors)
+	if _require(d, "results", file, "", errors):
+		_balance_results(d["results"], file, errors)
 	if _require(d, "history", file, "", errors):
 		_balance_history(d["history"], file, errors)
 
@@ -278,6 +280,16 @@ static func _balance_phase(raw: Variant, file: String, errors: Array[ValidationE
 	_check_keys(d, ["open_containment", "open_world_share"], file, path, errors)
 	_number(d, "open_containment", file, path, errors, 0.0, 1.0, true)
 	_number(d, "open_world_share", file, path, errors, 0.0, 1.0, true)
+
+
+## m3-screens §7.4: the deaths share above which Ascendance reads as ashes.
+static func _balance_results(raw: Variant, file: String, errors: Array[ValidationError]) -> void:
+	var path: String = "results"
+	if not _is_object(raw, file, path, errors):
+		return
+	var d: Dictionary = raw
+	_check_keys(d, ["ashes_share"], file, path, errors)
+	_number(d, "ashes_share", file, path, errors, 0.0, 1.0, true)
 
 
 static func _balance_history(raw: Variant, file: String, errors: Array[ValidationError]) -> void:

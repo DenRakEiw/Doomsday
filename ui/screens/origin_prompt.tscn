@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/screens/origin_prompt.gd" id="1_origin_prompt"]
+
+[node name="OriginPrompt" type="PanelContainer"]
+custom_minimum_size = Vector2(640, 0)
+size_flags_horizontal = 4
+theme_type_variation = &"ConsolePanelRaised"
+script = ExtResource("1_origin_prompt")
+
+[node name="Body" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="OriginPrompt" type="Label" parent="Body"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelHeading"
+
+[node name="OriginDetail" type="Label" parent="Body"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelCaption"

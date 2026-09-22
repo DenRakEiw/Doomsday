@@ -71,6 +71,26 @@ layout_mode = 2
 autowrap_mode = 3
 theme_type_variation = &"LabelCaption"
 
+[node name="OriginRow" type="VBoxContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="OriginButton" type="Button" parent="Panel/Scroll/Body/OriginRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsoleButtonPrimary"
+script = ExtResource("6_console_button")
+primary = true
+
+[node name="OriginNote" type="Label" parent="Panel/Scroll/Body/OriginRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelCaption"
+
 [node name="DormantDetail" type="Label" parent="Panel/Scroll/Body"]
 unique_name_in_owner = true
 visible = false

@@ -11,6 +11,9 @@ extends PanelContainer
 ##
 ## Scene-specific, so no `class_name`.
 
+## m3-screens §7.3: the pause menu, from the bar itself.
+signal menu_requested
+
 const KEY_COMPUTE_RATE: String = "UI_HUD_COMPUTE_RATE"
 const KEY_DAY: String = "UI_HUD_DAY"
 const PLACEHOLDER_RATE: String = "rate"
@@ -56,12 +59,14 @@ var compact: bool = false:
 @onready var _spacer: Control = %Spacer
 @onready var _paused: Chip = %PausedChip
 @onready var _speed_group: HBoxContainer = %SpeedGroup
+@onready var _menu_button: IconButton = %MenuButton
 
 var _speed_buttons: Array[IconButton] = []
 
 
 func _ready() -> void:
 	_build_speed_buttons()
+	_menu_button.pressed.connect(menu_requested.emit)
 	_apply_compact()
 	EventBus.run_started.connect(_on_run_started)
 	EventBus.tick_advanced.connect(_on_tick_advanced)
@@ -123,6 +128,12 @@ func _apply_compact() -> void:
 	var second: HBoxContainer = _row_second if compact else _row_main
 	for node: Control in [_spacer, _paused, _speed_group]:
 		_move(node, second)
+	# §9.3 puts the menu button in the compact top bar too, but neither row has
+	# 48 px to spare in German (row 1 needs 397 of 400, row 2 389). On a phone
+	# the status strip's own MENU button and the sheet's pause entry are the two
+	# routes to the menu, so the bar's button is a desktop control
+	# (PROGRESS.md, *Deviations*).
+	_menu_button.visible = not compact
 	var cell_flags: int = int(Control.SIZE_EXPAND_FILL) if compact else int(Control.SIZE_FILL)
 	for cell: Control in [_compute_cell, _phase_cell, _day_cell]:
 		cell.size_flags_horizontal = cell_flags

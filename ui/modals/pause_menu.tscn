@@ -1,0 +1,118 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://ui/modals/pause_menu.gd" id="1_pause"]
+[ext_resource type="Script" path="res://ui/components/console_button.gd" id="2_console_button"]
+[ext_resource type="Script" path="res://ui/components/caps_label.gd" id="3_caps_label"]
+[ext_resource type="PackedScene" path="res://ui/modals/confirm_modal.tscn" id="4_confirm"]
+
+[node name="PauseMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_pause")
+
+[node name="Centre" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PausePanel" type="PanelContainer" parent="Centre"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+theme_type_variation = &"ConsolePanel"
+
+[node name="Scroll" type="ScrollContainer" parent="Centre/PausePanel"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Body" type="VBoxContainer" parent="Centre/PausePanel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"PanelContent"
+
+[node name="PauseTitle" type="Label" parent="Centre/PausePanel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelDisplay"
+
+[node name="PauseCaption" type="Label" parent="Centre/PausePanel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+
+[node name="ResumeButton" type="Button" parent="Centre/PausePanel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsoleButtonPrimary"
+script = ExtResource("2_console_button")
+label_key = "UI_PAUSE_RESUME"
+primary = true
+
+[node name="SaveBlock" type="VBoxContainer" parent="Centre/PausePanel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="SaveTitle" type="Label" parent="Centre/PausePanel/Scroll/Body/SaveBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelCaps"
+script = ExtResource("3_caps_label")
+
+[node name="SaveRow" type="HBoxContainer" parent="Centre/PausePanel/Scroll/Body/SaveBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"Row"
+
+[node name="LoadBlock" type="VBoxContainer" parent="Centre/PausePanel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="LoadTitle" type="Label" parent="Centre/PausePanel/Scroll/Body/LoadBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelCaps"
+script = ExtResource("3_caps_label")
+
+[node name="LoadRow" type="HBoxContainer" parent="Centre/PausePanel/Scroll/Body/LoadBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"Row"
+
+[node name="PauseFailure" type="Label" parent="Centre/PausePanel/Scroll/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelCaptionAlert"
+
+[node name="SettingsTitle" type="Label" parent="Centre/PausePanel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelCaps"
+script = ExtResource("3_caps_label")
+
+[node name="SettingsRows" type="VBoxContainer" parent="Centre/PausePanel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="QuitButton" type="Button" parent="Centre/PausePanel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsoleButton"
+script = ExtResource("2_console_button")
+label_key = "UI_PAUSE_QUIT"
+
+[node name="PauseConfirm" parent="." instance=ExtResource("4_confirm")]
+unique_name_in_owner = true
+visible = false

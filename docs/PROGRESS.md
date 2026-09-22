@@ -14,20 +14,20 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S3.4 — Run flow: origin, outcome, results** |
+| **Next step** | **S3.5 — Ticker component and headline system** |
 | **Model for it** | **Opus** — no switch |
-| **After it** | `/clear` → S3.5 (no switch) |
-| **Last completed** | S3.3 — containment panel, discovery moment, phase reveal, the Open palette, dormancy |
+| **After it** | `/clear` → S3.6 (no switch) |
+| **Last completed** | S3.4 — title, origin select, results, pause menu, the phone’s bottom |
 | **Milestone** | M2 gated; M3 building |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 129 scripts compile (30 judged by the suite), 618 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 120 scripts compile (51 judged by the suite), 636 tests. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
-| **Run it** | `run_project` → **T** tech tree · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
+| **Run it** | `run_project` starts at the **title** (`game/main.tscn`); New run → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
 | **Compact layout** | Below 1100 px the interface switches (§5.7). A desktop window narrower than that lays out one logical pixel per window pixel, **`game_window set_size 400 860` resized correctly in S2.P** — try it first; `game_set_property /root size {"x":400,"y":860}` is the fallback and in S2.P it rendered a blank frame. After any resize at runtime the camera keeps a zoom from the old viewport: write `zoom` and give it one `game_scroll` notch down to settle it at `zoom_min`. |
-| **Look at the map** | `game_click` (**`button: 1`, never `"left"`** — see *Known issues*), `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Session/MapLayer/MapView`, `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead — but a property write emits no `view_changed`, so links and markers keep the old zoom until the next real camera movement (**one `game_scroll` notch fixes it**). |
+| **Look at the map** | `game_click` (**`button: 1`, never `"left"`** — see *Known issues*), `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Main/ScreenSlot/Session/MapLayer/MapView` (the router’s slot is in the path now), `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead — but a property write emits no `view_changed`, so links and markers keep the old zoom until the next real camera movement (**one `game_scroll` notch fixes it**). |
 
 **[F]** = Fable: design, specs, content, text, balance, gates. **[O]** = Opus: code, scenes,
 shaders, wiring, tooling, tests. `/clear` after every step. **⇄** marks a model switch before the
@@ -83,7 +83,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S3.1 [O] Effect vocabulary in the core; load the trees
 - [x] S3.2 [O] Tech tree interface
 - [x] S3.3 [O] Containment and phases in the interface
-- [ ] S3.4 [O] Run flow: origin, outcome, results
+- [x] S3.4 [O] Run flow: origin, outcome, results
 - [ ] S3.5 [O] Ticker component and headline system
 - [ ] S3.6 [O] Strategy bots and batch reporting — ⇄ **then `/model fable`**
 
@@ -564,6 +564,25 @@ or a rate cell that is simply empty until it rounds up — that is one line in `
 
 ## Deviations from the plan or a spec
 
+- **2026-09-23** (S3.4) — **The MENU button is a desktop control.** §7.3 puts an `IconButton` at
+  the right end of the top bar and §9.3 keeps it in the compact bar. At 400 px neither row has the
+  room: with the button the main row measures 457 px and the whole bar is pushed off the screen.
+  The phone reaches the menu twice over without it — the status strip's own button opens the sheet,
+  and the sheet's first entry is the pause menu (§9.2) — so `_menu_button.visible = not compact`.
+  If the button has to be there, the second row needs a spot of its own for it.
+- **2026-09-23** (S3.4) — **The M2 dock bar is gone below the breakpoint, not merely hidden behind
+  the strip.** §9.1 makes the phone's bottom a 56 px strip and a 40 px ticker, and §9.2 puts the
+  three destinations in the sheet — so `DockBar` is never visible now. It stays in `hud.tscn`
+  because the full layout's dock (§6.5, the pulsing Capabilities button) is the same scene.
+- **2026-09-23** (S3.4) — **`application/config/version` is `0.3.0-dev`.** §7.1 reads the build
+  version out of the setting and the setting had never been written, so the title's corner label
+  read "Build " with nothing after it. `0.3.0-dev` for M3 in progress; a release step owns the
+  number from here.
+- **2026-09-23** (S3.4) — **The menu sheet borrows the HUD's stat row instead of holding bars of
+  its own** (§9.2 asks for "the bars"). One `StatRow` means one place where a reveal, a value and
+  a variation are decided; two would drift. It is re-parented on the switch and handed back when
+  the layout leaves compact — and because taking a node out of the tree clears its owner, the row's
+  `unique_name_in_owner` is set again at home (the `%StatRow` trap of S2.5, third sighting).
 - **2026-09-22** (S3.3) — **The containment drivers add up to the gain; they do not multiply.**
   §4.1 item 4 shows the three pressure rows as factors (`1 + per_footprint × fp` …) and §12.2 asks
   the six to multiply to the gain — but `core.md` §7.5, which is the binding formula, *sums* them
@@ -792,19 +811,19 @@ or a rate cell that is simply empty until it rounds up — that is one line in `
 
 ## Known issues and carry-overs
 
-- **A hand purchase in a running game could not be photographed at S3.2.** Every run the debug keys
-  start is a bot run, and the bot buys whatever becomes affordable within a tick — so the Buy
-  button is never enabled for long enough to click. The purchase path is covered by
-  `tests/integration/test_tech_tree_modal.gd` (command applied, Compute reduced, node owned, event
-  on the bus). S3.4 brings the title screen and with it a player run, where the shot is trivial.
-- **godot-mcp leaves `[autoload] McpInteractionServer` in `project.godot` when a run is killed**
-  (or when the project is restarted while it still holds the file). The next run then dies with
-  "Failed to instantiate an autoload" and the interaction server never connects. `git checkout
-  project.godot` before every commit and before re-running — and never `git checkout` it *during*
-  a run, which is what causes it.
+- **`game_eval` stops the game in the debugger.** The server wraps the snippet in an untyped
+  `execute()`, and this project treats `untyped_declaration` as an error — so the run breaks with
+  *Parser Error: Function "execute()" has no static return type*, every later command times out,
+  and the only way on is `stop_project`. **Read state with `game_get_property` and
+  `game_call_method` instead**; `game_script` has the same problem for the same reason.
+- **godot-mcp edits `project.godot` while it runs** — it adds its `McpInteractionServer` autoload
+  and leaves blank lines behind under `[autoload]` when a run is killed. A run that dies with
+  "Failed to instantiate an autoload" is that. **Strip only the injected lines; never
+  `git checkout project.godot`** — at S3.4 that silently reverted the new `ScreenRouter` autoload
+  and `run/main_scene` along with them, and nothing said so.
 
 - **`tools/check_scripts.gd` segfaults at shutdown once in every three or four runs** (exit 139,
-  *after* it has printed "114 scripts compile" — the scan itself succeeded). It is not
+  *after* it has printed its "N scripts compile" line — the scan itself succeeded). It is not
   deterministic and not tied to any file: the same command on the same tree exits 0 twice and 139
   the third time. `tools/test.sh` runs under `set -e`, so a red run whose last line is
   `Segmentation fault` after that message is this, not a broken script — **run it again**. If CI
@@ -969,6 +988,16 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — S3.4 Run flow: origin, outcome, results [O]
+`game/main.tscn` is the main scene now: a backdrop, a screen slot and `ScreenRouter` between the
+title (§7.1) and the session. New: the origin prompt and the *Choose origin* row (§7.2), the pause
+menu with three save slots, three settings rows and the awaitable `ConfirmModal` (§7.3), the
+results modal (§7.4), the autosave (§7.5), and the phone's bottom — status strip plus menu sheet
+(§9). 18 new tests (636 green). Two numbers: an autosave is **3 ms and 24 KB** at day 120, so the
+4× cadence of §7.5 costs nothing; and the compact top bar is 457 px wide with the MENU button, which
+is why it is not there (see *Deviations*). The whole flow was walked by hand — title → China as the
+origin → speed 1 → a node bought in the tree, which is also the shot S3.2 could not get.
 
 ### 2026-09-22 — S3.3 Containment and phases in the interface [O]
 The containment panel (§4) with the risk before discovery and the drivers after it, `FactionTrack`

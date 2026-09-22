@@ -139,6 +139,7 @@ const VARIATIONS: Dictionary[String, String] = {
 	"LabelCaption": LABEL,
 	"LabelDisplay": LABEL,
 	"LabelDisplayXL": LABEL,
+	"LabelDisplayXLWin": "LabelDisplayXL",
 	"LabelHeading": LABEL,
 	"ChipLabel": "LabelCaps",
 	"ChipLabelAccent": "LabelCaps",
@@ -200,6 +201,9 @@ static func _colours() -> Theme:
 	theme.set_color(COLOR_FONT, "LabelCaptionAlert", UiTokens.color(&"ALERT"))
 	theme.set_color(COLOR_FONT, "LabelDisplay", UiTokens.color(&"TEXT_0"))
 	theme.set_color(COLOR_FONT, "LabelDisplayXL", UiTokens.color(&"TEXT_0"))
+	# m3-screens §7.4: a win is lit, a loss is not — and neither is `ALERT`,
+	# because nothing is happening any more.
+	theme.set_color(COLOR_FONT, "LabelDisplayXLWin", UiTokens.color(&"ACCENT"))
 	theme.set_color(COLOR_FONT, "LabelHeading", UiTokens.color(&"TEXT_0"))
 	theme.set_color(COLOR_FONT, "ChipLabel", UiTokens.color(&"TEXT_1"))
 	theme.set_color(COLOR_FONT, "ChipLabelAccent", UiTokens.color(&"ACCENT"))
@@ -253,6 +257,7 @@ static func _typography() -> Theme:
 	_type(theme, "MapTooltipLabel", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
 	_type(theme, "LabelDisplay", display, UiTokens.TYPE_DISPLAY, UiTokens.LINE_DISPLAY)
 	_type(theme, "LabelDisplayXL", display, UiTokens.TYPE_DISPLAY_XL, UiTokens.LINE_DISPLAY_XL)
+	_type(theme, "LabelDisplayXLWin", display, UiTokens.TYPE_DISPLAY_XL, UiTokens.LINE_DISPLAY_XL)
 	_type(theme, "LabelHeading", heading, UiTokens.TYPE_HEADING, UiTokens.LINE_HEADING)
 	for chip: String in ["ChipLabel", "ChipLabelAccent", "ChipLabelAlert"]:
 		_type(theme, chip, caps, UiTokens.TYPE_LABEL, UiTokens.LINE_LABEL)

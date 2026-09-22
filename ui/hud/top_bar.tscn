@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://ui/hud/top_bar.gd" id="1_top_bar"]
 [ext_resource type="Script" path="res://ui/components/caps_label.gd" id="2_caps_label"]
 [ext_resource type="Script" path="res://ui/components/value_label.gd" id="3_value_label"]
 [ext_resource type="Script" path="res://ui/components/chip.gd" id="4_chip"]
+[ext_resource type="Script" path="res://ui/components/icon_button.gd" id="5_icon_button"]
 
 [node name="TopBar" type="PanelContainer"]
 anchors_preset = 10
@@ -108,6 +109,16 @@ layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 4
 theme_type_variation = &"RowTight"
+
+[node name="MenuButton" type="Button" parent="Rows/RowMain"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 4
+theme_type_variation = &"IconButton"
+script = ExtResource("5_icon_button")
+glyph = 12
+tooltip_key = "UI_PAUSE_TITLE"
 
 [node name="RowSecond" type="HBoxContainer" parent="Rows"]
 unique_name_in_owner = true

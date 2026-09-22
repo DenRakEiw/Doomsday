@@ -1,0 +1,89 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://ui/screens/results.gd" id="1_results"]
+[ext_resource type="Script" path="res://ui/components/console_button.gd" id="2_console_button"]
+
+[node name="Results" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_results")
+
+[node name="Centre" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ResultsPanel" type="PanelContainer" parent="Centre"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+theme_type_variation = &"ConsolePanel"
+
+[node name="Scroll" type="ScrollContainer" parent="Centre/ResultsPanel"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Body" type="VBoxContainer" parent="Centre/ResultsPanel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"PanelContent"
+
+[node name="ResultKicker" type="Label" parent="Centre/ResultsPanel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelCaps"
+
+[node name="ResultOutcome" type="Label" parent="Centre/ResultsPanel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelDisplayXL"
+
+[node name="ResultVerdict" type="Label" parent="Centre/ResultsPanel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="ResultGrid" type="GridContainer" parent="Centre/ResultsPanel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 2
+theme_type_variation = &"Grid"
+
+[node name="DeathsDetail" type="Label" parent="Centre/ResultsPanel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+
+[node name="ResultSeed" type="Label" parent="Centre/ResultsPanel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+
+[node name="Buttons" type="HBoxContainer" parent="Centre/ResultsPanel/Scroll/Body"]
+layout_mode = 2
+alignment = 2
+theme_type_variation = &"Row"
+
+[node name="ResultTitleButton" type="Button" parent="Centre/ResultsPanel/Scroll/Body/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsoleButton"
+script = ExtResource("2_console_button")
+label_key = "UI_RESULT_TITLE"
+
+[node name="ResultAgainButton" type="Button" parent="Centre/ResultsPanel/Scroll/Body/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsoleButtonPrimary"
+script = ExtResource("2_console_button")
+label_key = "UI_RESULT_AGAIN"
+primary = true

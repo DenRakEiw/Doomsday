@@ -266,3 +266,41 @@ func _chip_texts() -> String:
 			if label != null:
 				text += label.text + " "
 	return text
+
+
+# ------------------------------------------------ m3-screens §7.2 the origin
+
+
+func test_origin_row_replaces_presence_until_chosen() -> void:
+	Game.start_run(SEED)
+	var row: Control = _panel.get_node("%OriginRow") as Control
+	var button: ConsoleButton = _panel.get_node("%OriginButton") as ConsoleButton
+	var note: Label = _panel.get_node("%OriginNote") as Label
+
+	# An eligible region: the button, and no presence bars to speak of yet.
+	var eligible: int = _select("usa")
+	assert_true(row.visible, "the panel asks the one question there is")
+	assert_true(button.visible)
+	assert_false((_panel.get_node("%Presence") as Control).visible)
+
+	# The sealed one and a region without hardware answer instead.
+	_select("north_korea")
+	assert_false(button.visible)
+	assert_eq(note.text, tr("UI_ORIGIN_INELIGIBLE_AIRGAP"))
+	_select(_tier_zero_region())
+	assert_false(button.visible)
+	assert_eq(note.text, tr("UI_ORIGIN_INELIGIBLE_COMPUTE"))
+
+	_select("usa")
+	button.emit_signal("pressed")
+	assert_eq(Game.sim.world.agent.origin, eligible)
+	assert_false(row.visible, "and the panel goes back to being a region panel")
+	assert_true((_panel.get_node("%Presence") as Control).visible)
+
+
+## The first region the content gives no hardware at all.
+func _tier_zero_region() -> String:
+	for i: int in range(1, Game.db.regions.size()):
+		if Game.db.regions[i].attr("compute") == 0 and not Game.db.regions[i].air_gapped:
+			return Game.db.regions[i].id
+	return "usa"

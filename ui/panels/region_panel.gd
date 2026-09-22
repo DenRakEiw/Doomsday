@@ -49,6 +49,13 @@ const KEY_STATE_DORMANT: String = "UI_REGION_STATE_DORMANT"
 const KEY_DORMANT_DETAIL: String = "UI_REGION_DORMANT_DETAIL"
 const PREFIX_FAIL: String = "CMD_FAIL_"
 
+## m3-screens §7.2: the origin row, shown instead of the presence bars until
+## there is an origin.
+const KEY_ORIGIN_CHOOSE: String = "UI_ORIGIN_CHOOSE"
+const KEY_ORIGIN_AIRGAP: String = "UI_ORIGIN_INELIGIBLE_AIRGAP"
+const KEY_ORIGIN_COMPUTE: String = "UI_ORIGIN_INELIGIBLE_COMPUTE"
+const ATTRIBUTE_COMPUTE: String = "compute"
+
 ## §5.6's profile, in the order it lists: attribute name → its label key.
 const ATTRIBUTE_KEYS: Dictionary[String, String] = {
 	"compute": "UI_ATTR_COMPUTE",
@@ -103,6 +110,9 @@ const STAT_BAR_SCENE: String = "res://ui/components/stat_bar.tscn"
 @onready var _dormancy_button: ConsoleButton = %DormancyButton
 @onready var _dormancy_failure: Label = %DormancyFailure
 @onready var _dormant_detail: Label = %DormantDetail
+@onready var _origin_row: Control = %OriginRow
+@onready var _origin_button: ConsoleButton = %OriginButton
+@onready var _origin_note: Label = %OriginNote
 
 ## The region on show; 0 when the panel is closed.
 var _index: int = 0
@@ -121,6 +131,7 @@ func _ready() -> void:
 	_close_button.pressed.connect(_on_close_pressed)
 	_collect_button.pressed.connect(_on_collect_pressed)
 	_dormancy_button.pressed.connect(_on_dormancy_pressed)
+	_origin_button.pressed.connect(_on_origin_pressed)
 	EventBus.region_selected.connect(_on_region_selected)
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.command_applied.connect(_on_command_applied)
@@ -159,6 +170,7 @@ func refresh() -> void:
 	_name_label.text = tr(KEY_REGION + region.def.id.to_upper())
 	_continent.text = tr(KEY_CONTINENT + region.def.continent.to_upper())
 	_refresh_chips(region)
+	_refresh_origin(region, world)
 	_refresh_dormancy(region)
 	_refresh_presence(region)
 	_refresh_population(region)
@@ -202,9 +214,26 @@ func _refresh_chips(region: Region) -> void:
 	_dormant_detail.text = tr(KEY_DORMANT_DETAIL)
 
 
+## §7.2: before there is an origin, every region answers one question — can the
+## run start here? Eligibility is the command's rule, asked through the command.
+func _refresh_origin(region: Region, world: World) -> void:
+	var choosing: bool = world.agent.origin == 0
+	_origin_row.visible = choosing
+	_dormancy_row.visible = _dormancy_row.visible and not choosing
+	if not choosing:
+		return
+	var reason: String = Game.sim.can_apply(ChooseOriginCommand.new(region.def.id))
+	_origin_button.visible = reason.is_empty()
+	_origin_button.label_key = KEY_ORIGIN_CHOOSE
+	_origin_note.visible = not reason.is_empty()
+	_origin_note.text = tr(KEY_ORIGIN_AIRGAP if region.air_gapped else KEY_ORIGIN_COMPUTE)
+
+
 func _refresh_presence(region: Region) -> void:
-	# Nothing is there yet, so there is nothing to measure (§5.6).
-	_presence.visible = region.seeded_day >= 0 or region.dark
+	# Nothing is there yet, so there is nothing to measure (§5.6). While the
+	# origin is being chosen the row above answers instead (§7.2).
+	_presence.visible = (region.seeded_day >= 0 or region.dark) \
+		and Game.sim.world.agent.origin != 0
 	_penetration_bar.set_value(region.penetration)
 	_control_bar.set_value(region.control)
 	# §8.1: a held region's numbers are frozen, and say so by being muted.
@@ -389,6 +418,13 @@ func _on_dormancy_pressed() -> void:
 	if not result.ok:
 		_dormancy_failure.text = tr(PREFIX_FAIL + result.reason.to_upper())
 		return
+	refresh()
+
+
+func _on_origin_pressed() -> void:
+	if _index <= 0:
+		return
+	Game.apply(ChooseOriginCommand.new(Game.sim.world.regions[_index].def.id))
 	refresh()
 
 

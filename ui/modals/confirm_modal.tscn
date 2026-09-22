@@ -1,0 +1,58 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://ui/modals/confirm_modal.gd" id="1_confirm"]
+[ext_resource type="Script" path="res://ui/components/console_button.gd" id="2_console_button"]
+
+[node name="ConfirmModal" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_confirm")
+
+[node name="Centre" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ConfirmPanel" type="PanelContainer" parent="Centre"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+theme_type_variation = &"ConsolePanelRaised"
+
+[node name="Body" type="VBoxContainer" parent="Centre/ConfirmPanel"]
+layout_mode = 2
+theme_type_variation = &"PanelContent"
+
+[node name="ConfirmQuestion" type="Label" parent="Centre/ConfirmPanel/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelHeading"
+
+[node name="Buttons" type="HBoxContainer" parent="Centre/ConfirmPanel/Body"]
+layout_mode = 2
+alignment = 2
+theme_type_variation = &"Row"
+
+[node name="CancelButton" type="Button" parent="Centre/ConfirmPanel/Body/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsoleButton"
+script = ExtResource("2_console_button")
+label_key = "UI_COMMON_CANCEL"
+
+[node name="ConfirmButton" type="Button" parent="Centre/ConfirmPanel/Body/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsoleButtonPrimary"
+script = ExtResource("2_console_button")
+label_key = "UI_COMMON_CONFIRM"
+primary = true

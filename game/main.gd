@@ -1,17 +1,15 @@
 extends Control
+## The entry point (spec m3-screens.md §7.0): the backdrop that is always there,
+## and the slot the router puts the title or the session in.
+##
+## Scene-specific, so no `class_name`.
 
-## Placeholder main scene for M0. It exists so the project runs and so headless
-## and windowed smoke checks have something to look at. The real entry point is
-## the boot sequence and title screen built in S3.4.
-
-@onready var _build_label: Label = %BuildLabel
+@onready var _slot: Control = %ScreenSlot
 
 
 func _ready() -> void:
-	var version: Dictionary = Engine.get_version_info()
-	var renderer: String = str(ProjectSettings.get_setting("rendering/renderer/rendering_method"))
-	var base_size: Vector2i = get_window().content_scale_size
-	# Technical values only — no player-facing prose that would need tr() here.
-	_build_label.text = "Godot %s · %s · %d×%d" % [
-		str(version["string"]), renderer, base_size.x, base_size.y
-	]
+	# The title and the session share this theme; the session assigns its own on
+	# top when the palette changes (§6.2).
+	theme = ThemeBuilder.build(ThemeBuilder.VARIANT_COLD)
+	ScreenRouter.slot = _slot
+	ScreenRouter.go_to_title()

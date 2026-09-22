@@ -105,7 +105,9 @@ func _draw() -> void:
 	if not button.visible:
 		return
 	var colour: Color = UiTokens.color(&"LINE_1").lerp(UiTokens.color(&"ACCENT"), _pulse)
-	draw_rect(Rect2(button.position, button.size), colour, false,
+	# The button sits inside the dock's own padding, so its rect is taken in the
+	# dock's coordinates rather than its parent's.
+	draw_rect(Rect2(button.global_position - global_position, button.size), colour, false,
 		float(UiTokens.BORDER_FOCUS))
 
 

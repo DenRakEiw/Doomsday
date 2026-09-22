@@ -282,8 +282,14 @@ const SCRIM_ALPHA: float = 0.85
 const MODAL_MAX_WIDTH: int = 560
 ## m3-screens §5: the red wash of the discovery moment, and how long it lasts.
 const ALERT_FLASH_ALPHA: float = 0.25
-## §4.2: how tall one containment track is.
+## m3-screens §7.4: how long the last frame is left alone before the results
+## cover it, and §7.5's autosave cadence in days.
+const RESULTS_DELAY: int = 800
+const AUTOSAVE_INTERVAL_DAYS: int = 7
+
+## §4.2: how tall one containment track is, and §9.1's strip.
 const TRACK_HEIGHT: int = 72
+const STATUS_STRIP_HEIGHT: int = 56
 
 ## §3.6, §9.2: how much of the screen a sheet takes. The region panel keeps its
 ## own 0.5 (`SlidePanel.HEIGHT_SHARE`).
