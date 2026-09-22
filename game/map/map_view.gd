@@ -34,13 +34,15 @@ const PARAM_HOVER_GAIN: String = "hover_gain"
 const PARAM_OVERLAY_MIX: String = "overlay_mix"
 
 ## Colour uniform → token, so the shader's palette has exactly one source.
-const COLOR_PARAMS: Dictionary[String, Color] = {
-	"map_land": UiTokens.MAP_LAND,
-	"map_dark": UiTokens.MAP_DARK,
-	"map_border": UiTokens.MAP_BORDER,
-	"map_border_dark": UiTokens.MAP_BORDER_DARK,
-	"map_select": UiTokens.MAP_SELECT,
-	"map_death": UiTokens.MAP_DEATH,
+## Uniform → the token it takes its colour from. A function rather than a table
+## of colours, because the values follow the palette (m3-screens §6.2).
+const COLOR_TOKENS: Dictionary[String, StringName] = {
+	"map_land": &"MAP_LAND",
+	"map_dark": &"MAP_DARK",
+	"map_border": &"MAP_BORDER",
+	"map_border_dark": &"MAP_BORDER_DARK",
+	"map_select": &"MAP_SELECT",
+	"map_death": &"MAP_DEATH",
 }
 
 ## 0 means none. Written by S2.3's picking, read by the shader.
@@ -98,13 +100,13 @@ func _ready() -> void:
 	_shader.set_shader_parameter(PARAM_RAMP, UiTokens.ramp_texture())
 	_shader.set_shader_parameter(PARAM_HOVER_GAIN, UiTokens.MAP_HOVER_GAIN)
 	_shader.set_shader_parameter(PARAM_OVERLAY_MIX, UiTokens.MAP_OVERLAY_MIX)
-	for param: String in COLOR_PARAMS:
-		_shader.set_shader_parameter(param, COLOR_PARAMS[param])
+	_send_colours()
 	_set_param(PARAM_HOVER, hover_index)
 	_set_param(PARAM_SELECTED, selected_index)
 	_set_param(PARAM_OVERLAY, int(overlay_mode))
 	_set_param(PARAM_OUTLINE, outline_px)
 
+	EventBus.theme_variant_changed.connect(_on_theme_variant_changed)
 	EventBus.run_started.connect(_on_run_started)
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.command_applied.connect(_on_command_applied)
@@ -174,6 +176,18 @@ func refresh() -> void:
 		return
 	# Never a new texture: the shader keeps the one it was given.
 	_data_texture.update(_data_image)
+
+
+## The palette is the shader's too: the land, the borders and the outline are
+## drawn there, not here.
+func _send_colours() -> void:
+	for param: String in COLOR_TOKENS:
+		_shader.set_shader_parameter(param, UiTokens.color(COLOR_TOKENS[param]))
+
+
+func _on_theme_variant_changed(_variant: StringName) -> void:
+	if _shader != null:
+		_send_colours()
 
 
 func _on_run_started(_seed_value: int) -> void:

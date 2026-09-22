@@ -40,6 +40,15 @@ const KEY_ANOMALY: String = "UI_REGION_ANOMALY"
 const KEY_ANOMALY_EXPIRES: String = "UI_REGION_ANOMALY_EXPIRES"
 const KEY_COLLECT: String = "UI_REGION_COLLECT"
 
+## m3-screens §8.1: the dormancy row, which exists once the branch is owned.
+const KEY_DORMANCY: String = "UI_REGION_DORMANCY"
+const KEY_DORMANCY_TIP: String = "UI_REGION_DORMANCY_TIP"
+const KEY_DORMANT_ON: String = "UI_REGION_DORMANT_ON"
+const KEY_DORMANT_OFF: String = "UI_REGION_DORMANT_OFF"
+const KEY_STATE_DORMANT: String = "UI_REGION_STATE_DORMANT"
+const KEY_DORMANT_DETAIL: String = "UI_REGION_DORMANT_DETAIL"
+const PREFIX_FAIL: String = "CMD_FAIL_"
+
 ## §5.6's profile, in the order it lists: attribute name → its label key.
 const ATTRIBUTE_KEYS: Dictionary[String, String] = {
 	"compute": "UI_ATTR_COMPUTE",
@@ -89,6 +98,11 @@ const STAT_BAR_SCENE: String = "res://ui/components/stat_bar.tscn"
 @onready var _anomaly_label: Label = %AnomalyLabel
 @onready var _anomaly_expires: Label = %AnomalyExpires
 @onready var _collect_button: ConsoleButton = %CollectButton
+@onready var _dormancy_row: Control = %DormancyRow
+@onready var _dormancy_label: CapsLabel = %DormancyLabel
+@onready var _dormancy_button: ConsoleButton = %DormancyButton
+@onready var _dormancy_failure: Label = %DormancyFailure
+@onready var _dormant_detail: Label = %DormantDetail
 
 ## The region on show; 0 when the panel is closed.
 var _index: int = 0
@@ -106,6 +120,7 @@ func _ready() -> void:
 	_build_links()
 	_close_button.pressed.connect(_on_close_pressed)
 	_collect_button.pressed.connect(_on_collect_pressed)
+	_dormancy_button.pressed.connect(_on_dormancy_pressed)
 	EventBus.region_selected.connect(_on_region_selected)
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.command_applied.connect(_on_command_applied)
@@ -144,6 +159,7 @@ func refresh() -> void:
 	_name_label.text = tr(KEY_REGION + region.def.id.to_upper())
 	_continent.text = tr(KEY_CONTINENT + region.def.continent.to_upper())
 	_refresh_chips(region)
+	_refresh_dormancy(region)
 	_refresh_presence(region)
 	_refresh_population(region)
 	_refresh_profile(region)
@@ -176,7 +192,14 @@ func _refresh_chips(region: Region) -> void:
 		gapped.kind = Chip.Kind.ALERT
 		gapped.set_label(KEY_AIR_GAPPED)
 		_chips.add_child(gapped)
+	if region.dormant:
+		var held: Chip = Chip.new()
+		held.kind = Chip.Kind.ACCENT
+		held.set_label(KEY_STATE_DORMANT)
+		_chips.add_child(held)
 	_dark_detail.visible = region.dark
+	_dormant_detail.visible = region.dormant
+	_dormant_detail.text = tr(KEY_DORMANT_DETAIL)
 
 
 func _refresh_presence(region: Region) -> void:
@@ -184,6 +207,24 @@ func _refresh_presence(region: Region) -> void:
 	_presence.visible = region.seeded_day >= 0 or region.dark
 	_penetration_bar.set_value(region.penetration)
 	_control_bar.set_value(region.control)
+	# §8.1: a held region's numbers are frozen, and say so by being muted.
+	var muted: StringName = &"ValueLabelMuted" if region.dormant else &"ValueLabel"
+	for bar: StatBar in [_penetration_bar, _control_bar]:
+		(bar.get_node("%Value") as ValueLabel).variation_base = muted
+
+
+## §8.1: the row appears with the `dormancy` flag and says which state the region
+## is in — never which action the button would take.
+func _refresh_dormancy(region: Region) -> void:
+	var world: World = Game.sim.world
+	_dormancy_row.visible = world.modifiers.has_flag(ModifierDef.FLAG_DORMANCY)
+	if not _dormancy_row.visible:
+		_dormancy_failure.visible = false
+		return
+	_dormancy_label.label_key = KEY_DORMANCY
+	_dormancy_button.label_key = KEY_DORMANT_ON if region.dormant else KEY_DORMANT_OFF
+	_dormancy_button.tooltip_key = KEY_DORMANCY_TIP
+	_dormancy_button.disabled = region.dark or region.penetration <= 0.0
 
 
 func _refresh_population(region: Region) -> void:
@@ -334,6 +375,21 @@ func _on_run_started(_seed_value: int) -> void:
 
 func _on_close_pressed() -> void:
 	_close()
+
+
+## The one action on this panel that can be refused, so the reason goes under the
+## row rather than nowhere (§8.1).
+func _on_dormancy_pressed() -> void:
+	if Game.sim == null or _index <= 0:
+		return
+	var region: Region = Game.sim.world.regions[_index]
+	var result: CommandResult = Game.apply(
+		SetDormancyCommand.new(region.def.id, not region.dormant))
+	_dormancy_failure.visible = not result.ok
+	if not result.ok:
+		_dormancy_failure.text = tr(PREFIX_FAIL + result.reason.to_upper())
+		return
+	refresh()
 
 
 func _on_collect_pressed() -> void:

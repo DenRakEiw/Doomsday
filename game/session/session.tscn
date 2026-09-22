@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://game/session/session.gd" id="1_session"]
 [ext_resource type="PackedScene" path="res://game/map/map_view.tscn" id="2_map_view"]
@@ -10,6 +10,8 @@
 [ext_resource type="Script" path="res://game/map/marker_layer.gd" id="8_marker_layer"]
 [ext_resource type="Script" path="res://ui/modals/modal_host.gd" id="9_modal_host"]
 [ext_resource type="PackedScene" path="res://ui/panels/tech_tree.tscn" id="10_tech_tree"]
+[ext_resource type="PackedScene" path="res://ui/panels/containment_panel.tscn" id="11_containment"]
+[ext_resource type="PackedScene" path="res://ui/modals/discovery_modal.tscn" id="12_discovery"]
 
 [node name="Session" type="Control"]
 layout_mode = 3
@@ -62,6 +64,9 @@ layer = 20
 [node name="RegionPanel" parent="PanelLayer" instance=ExtResource("6_region_panel")]
 unique_name_in_owner = true
 
+[node name="ContainmentPanel" parent="PanelLayer" instance=ExtResource("11_containment")]
+unique_name_in_owner = true
+
 [node name="ModalLayer" type="CanvasLayer" parent="."]
 layer = 30
 
@@ -75,5 +80,9 @@ grow_vertical = 2
 script = ExtResource("9_modal_host")
 
 [node name="TechTree" parent="ModalLayer/ModalHost" instance=ExtResource("10_tech_tree")]
+unique_name_in_owner = true
+visible = false
+
+[node name="DiscoveryModal" parent="ModalLayer/ModalHost" instance=ExtResource("12_discovery")]
 unique_name_in_owner = true
 visible = false

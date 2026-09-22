@@ -32,10 +32,11 @@ const PARAM_GRID_OFFSET: String = "grid_offset"
 const PARAM_GRID_SCALE: String = "grid_scale"
 
 ## Uniform → token, so the backdrop's palette has exactly one source.
-const COLOR_PARAMS: Dictionary[String, Color] = {
-	"bg": UiTokens.BG_0,
-	"grid_color": UiTokens.BACKDROP_GRID,
-	"star_color": UiTokens.BACKDROP_STAR,
+## Uniform → the token it takes its colour from (m3-screens §6.2).
+const COLOR_TOKENS: Dictionary[String, StringName] = {
+	"bg": &"BG_0",
+	"grid_color": &"BACKDROP_GRID",
+	"star_color": &"BACKDROP_STAR",
 }
 
 ## Uniform → metric, for the same reason.
@@ -60,8 +61,8 @@ func _ready() -> void:
 	if _shader == null:
 		push_error("backdrop: the scene must carry the backdrop shader material")
 		return
-	for param: String in COLOR_PARAMS:
-		_shader.set_shader_parameter(param, COLOR_PARAMS[param])
+	_send_colours()
+	EventBus.theme_variant_changed.connect(_on_theme_variant_changed)
 	for param: String in METRIC_PARAMS:
 		_shader.set_shader_parameter(param, METRIC_PARAMS[param])
 	_apply()
@@ -69,6 +70,16 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	_apply()
+
+
+func _send_colours() -> void:
+	for param: String in COLOR_TOKENS:
+		_shader.set_shader_parameter(param, UiTokens.color(COLOR_TOKENS[param]))
+
+
+func _on_theme_variant_changed(_variant: StringName) -> void:
+	if _shader != null:
+		_send_colours()
 
 
 ## The parallax offset and the grid's scale for a camera view. Static and pure:

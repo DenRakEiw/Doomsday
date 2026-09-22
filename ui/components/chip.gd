@@ -42,6 +42,16 @@ func set_label(key: String, args: Dictionary = {}) -> void:
 	_label.set_key(key, args)
 
 
+## A chip whose text is a formatted number and has no key of its own
+## (m3-screens §4.3's glance readout). It does not re-render on a locale change,
+## so whoever sets it writes it again — which the readouts do every tick.
+func set_text(text: String) -> void:
+	_build_label()
+	label_key = ""
+	_label.label_key = ""
+	_label.text = Format.caps(text)
+
+
 func _build_label() -> void:
 	if _label != null:
 		return

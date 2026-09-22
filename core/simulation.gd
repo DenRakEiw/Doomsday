@@ -159,5 +159,16 @@ func rebuild_modifiers() -> void:
 			node.flags)
 
 
+## The two pure queries of the containment system (`m3-screens.md` §10.5),
+## exposed here because presentation talks to the simulation and not to a system.
+## Neither touches the RNG, and both answer for the world as it stands.
+func discovery_risk() -> Dictionary:
+	return ContainmentSystem.discovery_risk(world, db)
+
+
+func containment_breakdown() -> Dictionary:
+	return ContainmentSystem.containment_breakdown(world, db)
+
+
 func state_hash() -> String:
 	return world.state_hash()

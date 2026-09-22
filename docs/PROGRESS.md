@@ -14,18 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S3.3 — Containment and phases in the interface** |
+| **Next step** | **S3.4 — Run flow: origin, outcome, results** |
 | **Model for it** | **Opus** — no switch |
-| **After it** | `/clear` → S3.4 (no switch) |
-| **Last completed** | S3.2 — the tech tree modal: board, lines, detail pane, buying, the phone sheet |
+| **After it** | `/clear` → S3.5 (no switch) |
+| **Last completed** | S3.3 — containment panel, discovery moment, phase reveal, the Open palette, dormancy |
 | **Milestone** | M2 gated; M3 building |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 121 scripts compile (26 judged by the suite), 595 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 129 scripts compile (30 judged by the suite), 618 tests. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
-| **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
-| **Run it** | `run_project` → **T** opens the tech tree (`Escape`/`T` closes it) · **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
+| **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
+| **Run it** | `run_project` → **T** tech tree · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
 | **Compact layout** | Below 1100 px the interface switches (§5.7). A desktop window narrower than that lays out one logical pixel per window pixel, **`game_window set_size 400 860` resized correctly in S2.P** — try it first; `game_set_property /root size {"x":400,"y":860}` is the fallback and in S2.P it rendered a blank frame. After any resize at runtime the camera keeps a zoom from the old viewport: write `zoom` and give it one `game_scroll` notch down to settle it at `zoom_min`. |
 | **Look at the map** | `game_click` (**`button: 1`, never `"left"`** — see *Known issues*), `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Session/MapLayer/MapView`, `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead — but a property write emits no `view_changed`, so links and markers keep the old zoom until the next real camera movement (**one `game_scroll` notch fixes it**). |
 
@@ -82,7 +82,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S2.P [O] Punch list from G2
 - [x] S3.1 [O] Effect vocabulary in the core; load the trees
 - [x] S3.2 [O] Tech tree interface
-- [ ] S3.3 [O] Containment and phases in the interface
+- [x] S3.3 [O] Containment and phases in the interface
 - [ ] S3.4 [O] Run flow: origin, outcome, results
 - [ ] S3.5 [O] Ticker component and headline system
 - [ ] S3.6 [O] Strategy bots and batch reporting — ⇄ **then `/model fable`**
@@ -487,6 +487,22 @@ without new information.
 
 ## Design questions for Fable
 
+**New at S3.3 — do the three containment drivers multiply or add?** `core.md` §7.5 sums them
+(`pressure = 1 + a + b + c`); `m3-screens.md` §4.1 and §12.2 read as if they multiplied
+(`(1+a)(1+b)(1+c)`). The build kept the sum (see *Deviations*) because the alternative is a balance
+change. Multiplying would make a loud, harmful, widespread run escalate far faster — at Footprint
+20, Harm 4 and share 0.5 the gain would be 4.5× the summed one — which is a G3 question, not a
+build one. Whichever way G3 decides, `ContainmentSystem.containment_breakdown` and the panel follow
+in one line each.
+
+**New at S3.3 — a scoped Harm node leaves the Harm bar at zero.** §6.1 reveals the bar once
+`stat("harm") > 0`, and §5.3 shows the same unscoped number. Half the Harm nodes of
+`capabilities.json` are scoped (Regional Blackout is `compute` ≥ 2, Supply Chain Halt is
+`population` ≥ 3), and an unscoped read of a scoped modifier is 0 — so a player who buys only
+those sees no Harm bar and no Harm number while people die. Three ways out: the bar reads the
+maximum over the regions, the reveal reads that while the bar keeps the global stat, or the content
+stops scoping Harm. This is a real hole in the HUD's promise, not a nicety.
+
 **New at S3.2 — seven English node names need three lines in a cell built for two.**
 §3.4 promises two lines and no ellipsis at `TECH_CELL` 200 × 96 and `TECH_CELL_COMPACT` 160 × 88.
 Every **German** name holds at both sizes. In English `total_communications_denial` needs three
@@ -547,6 +563,24 @@ or a rate cell that is simply empty until it rounds up — that is one line in `
 *(empty — S2.P closed the twelve items from G2 on 2026-09-22. The next one comes from G3.)*
 
 ## Deviations from the plan or a spec
+
+- **2026-09-22** (S3.3) — **The containment drivers add up to the gain; they do not multiply.**
+  §4.1 item 4 shows the three pressure rows as factors (`1 + per_footprint × fp` …) and §12.2 asks
+  the six to multiply to the gain — but `core.md` §7.5, which is the binding formula, *sums* them
+  into one pressure. Changing the simulation to match a UI spec would be a balance change made in
+  an interface step, so the formula stays and `containment_breakdown` reports the same three terms
+  with the identity `(footprint + harm + share − 2) × capacity × brakes × base_rate = gain`.
+  The panel is unchanged — it shows each row as a factor either way. Recorded as a design question.
+- **2026-09-22** (S3.3) — **A revealed block fades in; its border does not flash.** §6.1 asks for
+  both. A border flash needs a drawn border, which a `StatBar` and a dock button do not have and
+  which a per-node override is banned from adding; the fade is in one place (`Reveal`) and reads as
+  the arrival it is. If the flash matters, it is a theme variation for the revealed frame — one
+  line in `ThemeBuilder` and a G3 decision.
+- **2026-09-22** (S3.3) — **`StatBar` gained `show_head`.** A `FactionTrack` carries the name and
+  the number in a row of its own (§4.2), and the bar's own head under it read as a second bar.
+- **2026-09-22** (S3.3) — **`Chip.set_text` for a badge whose text is a number** (§4.3's dock
+  readout), and **`SlidePanel.height_share`** so the tech detail sheet can take the 0.55 of §6.3
+  while the region panel keeps its 0.5.
 
 - **2026-09-22** (S3.2) — **`ModalHost` (§10.4) and the `"open"`-free part of §6.3 were built
   here, not in S3.3.** The tech tree is a modal, so the host, `SCRIM_ALPHA`, `MODAL_MAX_WIDTH`,
@@ -935,6 +969,16 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-22 — S3.3 Containment and phases in the interface [O]
+The containment panel (§4) with the risk before discovery and the drivers after it, `FactionTrack`
+with its bands and threshold ticks, the discovery moment (§5) with the alert flash and its modal,
+the phase-reveal schedule (§6.1), the Open palette (§6.2) and the dormancy toggle (§8.1) with the
+map's half-strength overlay. The two pure queries of §10.5 are extracted out of `ContainmentSystem`
+and `tick` calls them, so the panel and the simulation cannot drift apart — the suite's unchanged
+state hashes are the proof that the extraction changed nothing.
+22 new tests (618 green). The palette is the wide change: every colour that is drawn rather than
+themed now goes through `UiTokens.color(&"TOKEN")` and redraws on `EventBus.theme_variant_changed`.
 
 ### 2026-09-22 — S3.2 Tech tree interface [O]
 The modal of `m3-screens.md` §3: tabs with their count chips, a grid built from the data, the

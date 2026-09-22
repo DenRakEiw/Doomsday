@@ -8,6 +8,10 @@ extends GutTest
 ## session's key and is tested in `test_session_keys.gd`.
 
 const PANEL_SCENE: PackedScene = preload("res://ui/panels/region_panel.tscn")
+## The shortest way to the `dormancy` flag (m3-screens §8.1): a vector, the node
+## that keeps it alive, and Cold Storage on top.
+const DORMANCY_CHAIN: Array[String] = ["consumer_devices", "edge_caching",
+	"cold_storage_dormancy"]
 
 const SEED: int = 1
 ## `greedy` starts in the USA, so by then there is presence, population loss and
@@ -204,3 +208,61 @@ func test_an_anomaly_can_be_collected_from_the_panel() -> void:
 	assert_almost_eq(Game.sim.world.agent.compute, before + value, 0.001)
 	assert_null(Game.sim.world.anomaly_in_region(index), "the anomaly was taken")
 	assert_false((_node("AnomalyBox") as Control).visible, "and the offer is gone")
+
+
+# ----------------------------------------------- m3-screens §8.1 dormancy
+
+
+func test_dormancy_toggle_sends_the_command() -> void:
+	Game.start_run(SEED)
+	Game.apply(ChooseOriginCommand.new(Game.db.regions[1].id))
+	var row: Control = _panel.get_node("%DormancyRow") as Control
+	EventBus.region_selected.emit(1)
+	assert_false(row.visible, "without the branch there is nothing to hold")
+
+	Game.sim.world.agent.compute += 400.0
+	for node_id: String in DORMANCY_CHAIN:
+		assert_true(Game.apply(PurchaseNodeCommand.new(node_id)).ok, node_id)
+	_panel.refresh()
+	assert_true(row.visible)
+
+	var button: ConsoleButton = _panel.get_node("%DormancyButton") as ConsoleButton
+	button.emit_signal("pressed")
+	assert_true(Game.sim.world.regions[1].dormant, "the region is held")
+	assert_string_contains(_chip_texts(), tr("UI_REGION_STATE_DORMANT").to_upper())
+
+	button.emit_signal("pressed")
+	assert_false(Game.sim.world.regions[1].dormant, "and woken again")
+
+
+func test_the_dormancy_row_is_disabled_where_there_is_no_presence() -> void:
+	Game.start_run(SEED)
+	Game.apply(ChooseOriginCommand.new(Game.db.regions[1].id))
+	Game.sim.world.agent.compute += 400.0
+	for node_id: String in DORMANCY_CHAIN:
+		Game.apply(PurchaseNodeCommand.new(node_id))
+	# A region the agent has never reached.
+	var clean: int = _index_of_clean_region()
+	EventBus.region_selected.emit(clean)
+	_panel.refresh()
+	var button: ConsoleButton = _panel.get_node("%DormancyButton") as ConsoleButton
+	assert_true(button.disabled)
+
+
+func _index_of_clean_region() -> int:
+	for i: int in range(1, Game.sim.world.regions.size()):
+		if Game.sim.world.regions[i].penetration <= 0.0:
+			return i
+	return 1
+
+
+## Every chip's text, as one string — the panel builds its chips in code.
+func _chip_texts() -> String:
+	var chips: HFlowContainer = _panel.get_node("%Chips") as HFlowContainer
+	var text: String = ""
+	for child: Node in chips.get_children():
+		for inner: Node in child.get_children():
+			var label: Label = inner as Label
+			if label != null:
+				text += label.text + " "
+	return text

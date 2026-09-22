@@ -12,12 +12,18 @@ extends Control
 ##
 ## Scene-specific, so no `class_name`.
 
+## The stat the harm bar appears with (§6.1).
+const TARGET_HARM: String = "harm"
+
 ## Emitted when the layout changed, so that the region panel can take the edge
 ## and the insets that go with it (§5.6, §4.6).
 signal layout_changed(compact: bool)
 ## A dock button was pressed (`dock.gd`'s `DESTINATION_*`). The HUD only passes
 ## it on: which screen that is belongs to the session.
 signal destination_requested(index: int)
+## The run reached a phase whose palette is another one's (§6.2). The session
+## owns the theme, so it is told rather than reaching in here.
+signal phase_reached(phase: World.Phase)
 
 @onready var _top_bar: PanelContainer = %TopBar
 @onready var _overlay_picker: PanelContainer = %OverlayPicker
@@ -28,6 +34,8 @@ signal destination_requested(index: int)
 @onready var _ticker: PanelContainer = %Ticker
 
 var _compact: bool = false
+## The phase the HUD last laid itself out for.
+var _phase: World.Phase = World.Phase.BOXED
 ## False until the first layout pass, so that the first one always applies.
 var _has_layout: bool = false
 
@@ -35,7 +43,35 @@ var _has_layout: bool = false
 func _ready() -> void:
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
 	_dock.connect(&"destination_requested", _on_destination_requested)
+	EventBus.tick_advanced.connect(_on_tick_advanced)
+	EventBus.run_started.connect(_on_run_started)
 	_apply_layout()
+	apply_reveal()
+
+
+## m3-screens §6.1: what the interface shows is a function of the state, not of
+## the events that got there — so a loaded run shows the right HUD at once.
+func apply_reveal() -> void:
+	var world: World = Game.sim.world if Game.sim != null else null
+	if world == null:
+		return
+	var phase: World.Phase = world.phase
+	_stat_row.call(&"apply_reveal", phase, world.modifiers.value(TARGET_HARM))
+	_overlay_picker.call(&"apply_reveal", phase)
+	_dock.call(&"apply_reveal", phase, world.max_containment(), world.discovered,
+		Game.db.balance.containment_thresholds)
+	if phase != _phase:
+		_phase = phase
+		phase_reached.emit(phase)
+
+
+func _on_tick_advanced(_day: int) -> void:
+	apply_reveal()
+
+
+func _on_run_started(_seed_value: int) -> void:
+	_phase = World.Phase.BOXED
+	apply_reveal()
 
 
 func _on_destination_requested(index: int) -> void:

@@ -50,6 +50,13 @@ func _ready() -> void:
 		_camera.view_changed.connect(_on_camera_view_changed)
 		_zoom = _camera.zoom.x
 	rebuild()
+	# The palette can change mid-run (m3-screens §6.2); a drawn colour is not
+	# a theme item and has to be asked for again.
+	EventBus.theme_variant_changed.connect(_on_theme_variant_changed)
+
+
+func _on_theme_variant_changed(_variant: StringName) -> void:
+	queue_redraw()
 
 
 ## Hover is the desktop's (§7.4): touch has no pointer to rest, and a drag is
@@ -152,9 +159,9 @@ func _draw() -> void:
 	var stroke: float = DARK_STROKE_PX / _zoom
 	for anchor: Vector2 in _dark_anchors:
 		draw_line(anchor + Vector2(-arm, -arm), anchor + Vector2(arm, arm),
-			UiTokens.MAP_DARK_MARK, stroke)
+			UiTokens.color(&"MAP_DARK_MARK"), stroke)
 		draw_line(anchor + Vector2(-arm, arm), anchor + Vector2(arm, -arm),
-			UiTokens.MAP_DARK_MARK, stroke)
+			UiTokens.color(&"MAP_DARK_MARK"), stroke)
 
 
 func _on_run_started(_seed_value: int) -> void:

@@ -54,6 +54,27 @@ func _build_buttons() -> void:
 	_buttons[mode].set_pressed_no_signal(true)
 
 
+## §6.1: nothing to compare in Boxed, two modes in Covert, the population from
+## Emergent on. A mode that is no longer offered falls back to penetration.
+func apply_reveal(phase: World.Phase) -> void:
+	var allowed: int = _modes_for(phase)
+	visible = allowed > 0
+	for i: int in _buttons.size():
+		_buttons[i].visible = i < allowed
+	if mode >= allowed:
+		_set_mode(int(MapView.Overlay.PENETRATION))
+
+
+static func _modes_for(phase: World.Phase) -> int:
+	match phase:
+		World.Phase.BOXED:
+			return 0
+		World.Phase.COVERT:
+			return 2
+		_:
+			return MODE_KEYS.size()
+
+
 func _apply_compact() -> void:
 	_row.visible = not compact
 	_cycle.visible = compact

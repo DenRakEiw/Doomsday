@@ -40,6 +40,24 @@ func _ready() -> void:
 
 ## Re-reads the run. A purchase moves footprint and harm between two ticks, so
 ## this is called after a command as well as after a day.
+## m3-screens §6.1: Footprint appears with the Covert phase, Harm the moment
+## there is any. A hidden bar takes no space, and the rest share the row.
+func apply_reveal(phase: World.Phase, harm: float) -> void:
+	_show(_footprint, phase >= World.Phase.COVERT)
+	_show(_harm, phase >= World.Phase.EMERGENT or (phase >= World.Phase.COVERT and harm > 0.0))
+
+
+## Revealing is not just `visible`: the block fades in and its border flashes, so
+## the player sees that the interface grew rather than that it jumped (§6.1).
+func _show(bar: StatBar, shown: bool) -> void:
+	if bar.visible == shown:
+		return
+	bar.visible = shown
+	if not shown:
+		return
+	Reveal.play(bar)
+
+
 func refresh() -> void:
 	var world: World = Game.sim.world if Game.sim != null else null
 	if world == null or Game.db == null:

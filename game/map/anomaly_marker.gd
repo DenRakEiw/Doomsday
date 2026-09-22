@@ -50,6 +50,13 @@ var _fading: bool = false
 
 func _ready() -> void:
 	EventBus.reduced_motion_changed.connect(_on_reduced_motion_changed)
+	# The palette can change mid-run (m3-screens §6.2); a drawn colour is not
+	# a theme item and has to be asked for again.
+	EventBus.theme_variant_changed.connect(_on_theme_variant_changed)
+
+
+func _on_theme_variant_changed(_variant: StringName) -> void:
+	queue_redraw()
 
 
 func _process(delta: float) -> void:
@@ -78,11 +85,11 @@ static func ring_for(phase: float, reduced: bool) -> Array:
 ## simply `ALERT`, because "now" still has to be visible.
 static func disc_color(days: int, elapsed: float, reduced: bool) -> Color:
 	if days > BLINK_DAYS:
-		return UiTokens.ACCENT
+		return UiTokens.color(&"ACCENT")
 	if reduced:
-		return UiTokens.ALERT
+		return UiTokens.color(&"ALERT")
 	var period: float = 1.0 / BLINK_HZ
-	return UiTokens.ACCENT if fmod(elapsed, period) < period * 0.5 else UiTokens.ALERT
+	return UiTokens.color(&"ACCENT") if fmod(elapsed, period) < period * 0.5 else UiTokens.color(&"ALERT")
 
 
 ## Whether a tap at `point` (both in map pixels) hits a marker at `at`. The
@@ -96,7 +103,7 @@ static func hits(at: Vector2, point: Vector2, zoom: float) -> bool:
 func _draw() -> void:
 	var reduced: bool = UiTokens.reduced_motion()
 	var ring: Array = ring_for(_phase(), reduced)
-	var color: Color = UiTokens.ACCENT
+	var color: Color = UiTokens.color(&"ACCENT")
 	color.a = float(ring[1])
 	draw_arc(Vector2.ZERO, float(ring[0]), 0.0, TAU, RING_SEGMENTS, color,
 		RING_STROKE, true)

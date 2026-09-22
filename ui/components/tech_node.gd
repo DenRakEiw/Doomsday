@@ -70,6 +70,13 @@ func _ready() -> void:
 	resized.connect(queue_redraw)
 	pressed.connect(_on_pressed)
 	_apply_state()
+	# The palette can change mid-run (m3-screens §6.2); a drawn colour is not
+	# a theme item and has to be asked for again.
+	EventBus.theme_variant_changed.connect(_on_theme_variant_changed)
+
+
+func _on_theme_variant_changed(_variant: StringName) -> void:
+	queue_redraw()
 
 
 func _notification(what: int) -> void:
@@ -147,9 +154,9 @@ func glyph() -> int:
 func _draw() -> void:
 	_draw_glyph()
 	if _is_selected:
-		_draw_border(UiTokens.MAP_SELECT, float(UiTokens.BORDER_FOCUS))
+		_draw_border(UiTokens.color(&"MAP_SELECT"), float(UiTokens.BORDER_FOCUS))
 	if _flash_alpha > 0.0:
-		_draw_border(Color(UiTokens.ACCENT, _flash_alpha), float(UiTokens.BORDER_FOCUS))
+		_draw_border(Color(UiTokens.color(&"ACCENT"), _flash_alpha), float(UiTokens.BORDER_FOCUS))
 
 
 func _draw_glyph() -> void:
@@ -161,7 +168,7 @@ func _draw_glyph() -> void:
 
 
 func _glyph_colour() -> Color:
-	return UiTokens.ACCENT if state == State.OWNED else UiTokens.TEXT_2
+	return UiTokens.color(&"ACCENT") if state == State.OWNED else UiTokens.color(&"TEXT_2")
 
 
 func _draw_border(colour: Color, width: float) -> void:

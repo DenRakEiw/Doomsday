@@ -33,6 +33,13 @@ var _gap: Vector2 = Vector2(float(UiTokens.SPACE_3), float(UiTokens.SPACE_3))
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# The palette can change mid-run (m3-screens §6.2); a drawn colour is not
+	# a theme item and has to be asked for again.
+	EventBus.theme_variant_changed.connect(_on_theme_variant_changed)
+
+
+func _on_theme_variant_changed(_variant: StringName) -> void:
+	queue_redraw()
 
 
 ## The geometry of the grid beside it: one cell, and the gap between two.
@@ -85,12 +92,12 @@ func _draw_edge(item: Edge) -> void:
 ## line the player cannot walk yet (§3.5).
 func _edge_colour(item: Edge) -> Color:
 	if item.selected:
-		return UiTokens.MAP_SELECT
+		return UiTokens.color(&"MAP_SELECT")
 	if item.from_owned and item.to_owned:
-		return UiTokens.ACCENT
+		return UiTokens.color(&"ACCENT")
 	if item.from_owned:
-		return UiTokens.ACCENT_DIM
-	return UiTokens.LINE_1
+		return UiTokens.color(&"ACCENT_DIM")
+	return UiTokens.color(&"LINE_1")
 
 
 ## Right side to left side across columns, facing sides within one column. The
@@ -126,4 +133,4 @@ func _draw_dashed(from: Vector2, to: Vector2, colour: Color, width: float) -> vo
 ## line already says which way the dependency runs.
 func _draw_ring(cell: Vector2i) -> void:
 	var rect: Rect2 = cell_rect(cell).grow(float(UiTokens.SPACE_1))
-	draw_rect(rect, UiTokens.MAP_SELECT, false, float(UiTokens.BORDER_FOCUS))
+	draw_rect(rect, UiTokens.color(&"MAP_SELECT"), false, float(UiTokens.BORDER_FOCUS))

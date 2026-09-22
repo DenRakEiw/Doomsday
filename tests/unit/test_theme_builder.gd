@@ -43,9 +43,45 @@ func test_a_variation_varies_the_type_the_spec_says() -> void:
 
 
 func test_an_unknown_variant_falls_back_to_cold() -> void:
-	var theme: Theme = ThemeBuilder.build("open")
+	var theme: Theme = ThemeBuilder.build("warm")
 	assert_eq(theme.get_color("font_color", "Label"), UiTokens.TEXT_0,
 		"an unknown variant is the cold set, not an empty theme")
+	assert_eq(String(UiTokens.variant), ThemeBuilder.VARIANT_COLD,
+		"and building one leaves the live palette alone")
+
+
+## m3-screens §6.2: the same builder produces both sets, and the open one is
+## made of open values and cold ones — never of a colour from somewhere else.
+func test_open_variant_uses_only_open_or_cold_tokens() -> void:
+	var theme: Theme = ThemeBuilder.build(ThemeBuilder.VARIANT_OPEN)
+	var allowed: Array[Color] = _token_colours()
+	for value: Color in UiTokens.OPEN.values():
+		allowed.append(value)
+	allowed.append(_wash(UiTokens.VARIANT_OPEN, false))
+	allowed.append(_wash(UiTokens.VARIANT_OPEN, true))
+	for type: String in theme.get_color_type_list():
+		for name: String in theme.get_color_list(type):
+			var colour: Color = theme.get_color(name, type)
+			assert_true(allowed.has(colour),
+				"%s/%s is %s, which is in neither set" % [type, name, colour.to_html()])
+
+
+func test_the_open_variant_is_a_different_theme() -> void:
+	var cold: Theme = ThemeBuilder.build(ThemeBuilder.VARIANT_COLD)
+	var open: Theme = ThemeBuilder.build(ThemeBuilder.VARIANT_OPEN)
+	assert_eq(cold.get_color("font_color", "Label"), UiTokens.TEXT_0)
+	assert_eq(open.get_color("font_color", "Label"), UiTokens.OPEN[&"TEXT_0"])
+	assert_eq(open.get_color("font_color", "ValueLabelDown"), UiTokens.MAP_DEATH,
+		"a colour the open set does not change keeps its cold value")
+
+
+## The pressed surface in one palette, without leaving the live one switched.
+func _wash(variant: StringName, raised: bool) -> Color:
+	var previous: StringName = UiTokens.variant
+	UiTokens.variant = variant
+	var colour: Color = UiTokens.accent_wash_raised() if raised else UiTokens.accent_wash()
+	UiTokens.variant = previous
+	return colour
 
 
 func test_no_colour_comes_from_outside_the_tokens() -> void:

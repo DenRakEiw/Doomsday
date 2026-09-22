@@ -19,6 +19,8 @@ const FLAG_DARK: int = 2
 const FLAG_AIR_GAPPED: int = 4
 const FLAG_CONTROLLED: int = 8
 const FLAG_ANOMALY: int = 16
+## m3-screens §8.1: a held region keeps its colour at half strength.
+const FLAG_DORMANT: int = 32
 
 
 ## An all-zero row: no region, no flags. Every pixel is overwritten by `write`
@@ -60,6 +62,8 @@ static func encode(region: Region, control_complete: float, has_anomaly: bool) -
 		flags |= FLAG_CONTROLLED
 	if has_anomaly:
 		flags |= FLAG_ANOMALY
+	if region.dormant:
+		flags |= FLAG_DORMANT
 	return Color(
 		clampf(region.penetration, 0.0, 1.0),
 		clampf(region.control, 0.0, 1.0),

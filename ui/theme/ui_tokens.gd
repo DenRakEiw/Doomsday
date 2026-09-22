@@ -102,6 +102,74 @@ const BACKDROP_GRID: Color = Color("#121A22")
 const BACKDROP_STAR: Color = Color("#2C3D4C")
 
 
+# ------------------------------------------------------ §6.2 the token sets
+
+
+## The two palettes the game has. Everything above is the **cold** set; `OPEN`
+## holds the rows m3-screens.md §6.2 changes for the Open phase, and nothing
+## else — the ramp, the categorical colours, `ALERT`, `MAP_SELECT`, `MAP_DEATH`
+## and the stat colours stay as they are in both, because data has to keep
+## reading the same and red has to keep meaning "now".
+const VARIANT_COLD: StringName = &"cold"
+const VARIANT_OPEN: StringName = &"open"
+
+const OPEN: Dictionary[StringName, Color] = {
+	&"BG_0": Color("#0C0608"),
+	&"BG_1": Color("#150A0D"),
+	&"BG_2": Color("#1E1014"),
+	&"BG_3": Color("#28161B"),
+	&"BG_4": Color("#331C22"),
+	&"LINE_0": Color("#33202A"),
+	&"LINE_1": Color("#4A2E38"),
+	&"LINE_2": Color("#70485A"),
+	&"TEXT_0": Color("#F2E4E1"),
+	&"TEXT_1": Color("#C9A29E"),
+	&"TEXT_2": Color("#87646A"),
+	&"ACCENT": Color("#FFB35C"),
+	&"ACCENT_DIM": Color("#8F5E2A"),
+	&"ACCENT_HOVER": Color("#FFC985"),
+	&"ACCENT_PRESSED": Color("#E39A46"),
+	&"INK": Color("#0C0608"),
+	&"MAP_LAND": Color("#2C1B22"),
+	&"MAP_DARK": Color("#120A0D"),
+	&"MAP_BORDER": Color("#5C3C48"),
+	&"MAP_BORDER_DARK": Color("#33202A"),
+	&"MAP_DARK_MARK": Color("#87646A"),
+	&"BACKDROP_GRID": Color("#1F1116"),
+	&"BACKDROP_STAR": Color("#4A2E38"),
+}
+
+## Which set `color()` answers from. The session sets it when the phase turns
+## Open and back to cold for a new run; everything that draws asks `color()` and
+## redraws on `EventBus.theme_variant_changed`.
+static var variant: StringName = VARIANT_COLD
+
+## The cold constants by name, read once out of the script itself so that the
+## table above stays the only place a colour is written.
+static var _cold: Dictionary[StringName, Color] = {}
+
+
+## The value of a colour token in the set that is active. An unknown token is a
+## programming error and comes back as magenta rather than as a crash.
+static func color(token: StringName) -> Color:
+	if variant == VARIANT_OPEN and OPEN.has(token):
+		return OPEN[token]
+	if _cold.is_empty():
+		_read_cold()
+	if not _cold.has(token):
+		push_error("unknown colour token \"%s\"" % token)
+		return Color.MAGENTA
+	return _cold[token]
+
+
+static func _read_cold() -> void:
+	var script: GDScript = UiTokens
+	for name: String in script.get_script_constant_map():
+		var value: Variant = script.get_script_constant_map()[name]
+		if typeof(value) == TYPE_COLOR:
+			_cold[StringName(name)] = value
+
+
 # ---------------------------------------------------------------- §3.2 typography
 
 
@@ -212,6 +280,11 @@ const TECH_DASH: Vector2 = Vector2(8, 6)
 const SCRIM_ALPHA: float = 0.85
 ## §5, §7.3, §7.4: a modal never grows wider than this.
 const MODAL_MAX_WIDTH: int = 560
+## m3-screens §5: the red wash of the discovery moment, and how long it lasts.
+const ALERT_FLASH_ALPHA: float = 0.25
+## §4.2: how tall one containment track is.
+const TRACK_HEIGHT: int = 72
+
 ## §3.6, §9.2: how much of the screen a sheet takes. The region panel keeps its
 ## own 0.5 (`SlidePanel.HEIGHT_SHARE`).
 const SHEET_HEIGHT_RATIO: float = 0.55
@@ -229,6 +302,11 @@ const MOTION_BAR: int = 250
 const MOTION_FLASH: int = 400
 ## M3, reserved.
 const MOTION_MODAL: int = 160
+## m3-screens §5: the discovery flash, slower than anything else because it is
+## the one moment the game stops for.
+const MOTION_ALERT: int = 600
+## m3-screens §6.5: one full breath of the Boxed pulse.
+const PULSE_PERIOD: int = 1600
 const ANOMALY_PULSE_PERIOD: int = 1200
 ## How long a static ticker item stays before the next one replaces it (§5.5).
 ## It is a timeout, not a movement: reduced motion shortens nothing about it.
@@ -254,13 +332,13 @@ const PRESSED_WASH: float = 0.2
 ## The pressed surface of §4.2 — a blend of two tokens, which a `const` cannot
 ## hold. Everything that needs the colour asks here, so it still has one source.
 static func accent_wash() -> Color:
-	return BG_3.lerp(ACCENT, PRESSED_WASH)
+	return color(&"BG_3").lerp(color(&"ACCENT"), PRESSED_WASH)
 
 
 ## The same wash one surface step lighter, for the hover state of something that
 ## is already washed (an owned tech node, m3-screens §3.4).
 static func accent_wash_raised() -> Color:
-	return BG_4.lerp(ACCENT, PRESSED_WASH)
+	return color(&"BG_4").lerp(color(&"ACCENT"), PRESSED_WASH)
 
 
 ## A motion token as tween seconds, or 0 while `Settings.reduced_motion` is on.

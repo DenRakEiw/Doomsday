@@ -33,12 +33,19 @@ const SPEED_DEFAULT: int = 1
 const DOCK: GDScript = preload("res://ui/hud/dock.gd")
 ## The tech tree's script, so that the calls to it stay type-checked (§3.1).
 const TechTree: GDScript = preload("res://ui/panels/tech_tree.gd")
+const ContainmentPanel: GDScript = preload("res://ui/panels/containment_panel.gd")
+const DiscoveryModal: GDScript = preload("res://ui/modals/discovery_modal.gd")
+
+## The hold the discovery modal takes (m3-screens §5).
+const HOLD_DISCOVERY: StringName = &"discovery"
 
 @onready var _safe_area: MarginContainer = %SafeArea
 @onready var _hud: Control = %Hud
 @onready var _region_panel: SlidePanel = %RegionPanel
 @onready var _modals: ModalHost = %ModalHost
 @onready var _tech_tree: TechTree = %TechTree
+@onready var _containment: ContainmentPanel = %ContainmentPanel
+@onready var _discovery: DiscoveryModal = %DiscoveryModal
 
 ## The speed `Space` toggles against; the last one the player ran at.
 var _last_speed: int = SPEED_DEFAULT
@@ -54,7 +61,14 @@ func _ready() -> void:
 	# which edge it comes in from and how much of the screen it must leave alone.
 	_hud.connect(&"layout_changed", _on_hud_layout_changed)
 	_hud.connect(&"destination_requested", _on_destination_requested)
+	_hud.connect(&"phase_reached", _on_phase_reached)
 	_tech_tree.closed.connect(_on_tech_tree_closed)
+	_discovery.dismissed.connect(_on_discovery_dismissed)
+	_discovery.containment_requested.connect(_on_discovery_containment)
+	# §4.1: the two side panels never overlap — opening one closes the other.
+	EventBus.region_selected.connect(_on_region_selected)
+	EventBus.sim_event.connect(_on_sim_event)
+	EventBus.run_started.connect(_on_run_started)
 	EventBus.speed_changed.connect(_on_speed_changed)
 	_apply_logical_scale()
 	_apply_safe_area()
@@ -79,9 +93,15 @@ func _input(event: InputEvent) -> void:
 			Game.set_speed(4)
 		KEY_T:
 			_toggle_tech_tree()
+		KEY_C:
+			_toggle_containment()
 		KEY_ESCAPE:
 			if _modals.is_open():
 				# The modal host answers `Escape` itself (m3-screens §10.4).
+				return
+			if _containment.is_open:
+				_containment.close()
+				get_viewport().set_input_as_handled()
 				return
 			if not _region_panel.is_open:
 				return
@@ -107,13 +127,77 @@ func _toggle_tech_tree() -> void:
 	_tech_tree.open()
 
 
+## §4.1: the containment panel is not a modal — the game keeps running behind
+## it — and it never shares the screen with the region panel.
+func _toggle_containment() -> void:
+	if _containment.is_open:
+		_containment.close()
+		return
+	if Game.sim == null:
+		return
+	EventBus.region_selected.emit(0)
+	_containment.open()
+
+
+func _on_region_selected(index: int) -> void:
+	if index > 0 and _containment.is_open:
+		_containment.close()
+
+
 func _on_destination_requested(index: int) -> void:
-	if index == int(DOCK.get_script_constant_map()["DESTINATION_CAPABILITIES"]):
+	var constants: Dictionary = DOCK.get_script_constant_map()
+	if index == int(constants["DESTINATION_CAPABILITIES"]):
 		_toggle_tech_tree()
+	elif index == int(constants["DESTINATION_CONTAINMENT"]):
+		_toggle_containment()
 
 
 func _on_tech_tree_closed() -> void:
 	_modals.close()
+
+
+## §5: the moment they find you. A bot run is narrated by the ticker alone, and
+## a save that was already discovered emits no event to react to.
+func _on_sim_event(event: SimEvent) -> void:
+	if event.type != SimEvent.DISCOVERED or Game.policy != null:
+		return
+	_modals.flash_alert()
+	Game.hold(HOLD_DISCOVERY)
+	_discovery.show_discovery(str(event.data.get("cause", "")), event.day)
+	_modals.open(_discovery)
+
+
+func _on_discovery_dismissed() -> void:
+	_modals.close()
+	Game.release(HOLD_DISCOVERY)
+
+
+func _on_discovery_containment() -> void:
+	_on_discovery_dismissed()
+	_toggle_containment()
+
+
+## §6.2: the palette is the one thing the Open phase changes about the frame.
+func _on_phase_reached(phase: World.Phase) -> void:
+	_apply_variant(UiTokens.VARIANT_OPEN if phase == World.Phase.OPEN \
+		else UiTokens.VARIANT_COLD)
+
+
+## A run starts cold, and a *loaded* run starts in whatever phase it is in — the
+## palette follows the state like every other revealed thing (§6.1).
+func _on_run_started(_seed_value: int) -> void:
+	var phase: World.Phase = World.Phase.BOXED
+	if Game.sim != null:
+		phase = Game.sim.world.phase
+	_on_phase_reached(phase)
+
+
+func _apply_variant(variant: StringName) -> void:
+	if UiTokens.variant == variant:
+		return
+	UiTokens.variant = variant
+	theme = ThemeBuilder.build(String(variant))
+	EventBus.theme_variant_changed.emit(variant)
 
 
 func _text_has_focus() -> bool:
@@ -150,8 +234,12 @@ func _on_window_size_changed() -> void:
 func _on_hud_layout_changed(compact: bool) -> void:
 	_tech_tree.set_compact(compact)
 	_region_panel.edge = SlidePanel.Edge.BOTTOM if compact else SlidePanel.Edge.LEFT
-	_region_panel.top_inset = float(_hud.call(&"top_inset"))
-	_region_panel.bottom_inset = float(_hud.call(&"bottom_inset"))
+	# §4.1: the containment panel comes in from the right, and from the bottom on
+	# a phone like every other panel.
+	_containment.edge = SlidePanel.Edge.BOTTOM if compact else SlidePanel.Edge.RIGHT
+	for panel: SlidePanel in [_region_panel, _containment]:
+		panel.top_inset = float(_hud.call(&"top_inset"))
+		panel.bottom_inset = float(_hud.call(&"bottom_inset"))
 
 
 ## Mobile lays out in dp, so that `HIT_MIN` is 48 dp and the compact breakpoint

@@ -28,6 +28,13 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	custom_minimum_size = _wanted_size()
 	_refresh_strings()
+	# The palette can change mid-run (m3-screens §6.2); a drawn colour is not
+	# a theme item and has to be asked for again.
+	EventBus.theme_variant_changed.connect(_on_theme_variant_changed)
+
+
+func _on_theme_variant_changed(_variant: StringName) -> void:
+	queue_redraw()
 
 
 func _notification(what: int) -> void:
@@ -44,12 +51,12 @@ func _draw() -> void:
 		var box: Rect2 = Rect2(Vector2(float(i) * float(UiTokens.PIP_SIZE + UiTokens.PIP_GAP),
 			top), Vector2(side, side))
 		if i < tier:
-			draw_rect(box, UiTokens.TEXT_0)
+			draw_rect(box, UiTokens.color(&"TEXT_0"))
 		else:
 			# An empty pip is an outline: the row keeps its shape at every tier.
 			# `LINE_2` and not the default border — on `BG_2` `LINE_1` vanished
 			# and the row read as fewer pips than it has (G2).
-			draw_rect(box, UiTokens.LINE_2, false, float(UiTokens.BORDER))
+			draw_rect(box, UiTokens.color(&"LINE_2"), false, float(UiTokens.BORDER))
 
 
 func _wanted_size() -> Vector2:

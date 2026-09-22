@@ -134,9 +134,9 @@ func flash() -> void:
 func _flash_modulate() -> Color:
 	var base: Color = get_theme_color(COLOR_FONT)
 	return Color(
-		_ratio(UiTokens.TEXT_0.r, base.r),
-		_ratio(UiTokens.TEXT_0.g, base.g),
-		_ratio(UiTokens.TEXT_0.b, base.b))
+		_ratio(UiTokens.color(&"TEXT_0").r, base.r),
+		_ratio(UiTokens.color(&"TEXT_0").g, base.g),
+		_ratio(UiTokens.color(&"TEXT_0").b, base.b))
 
 
 static func _ratio(target: float, base: float) -> float:

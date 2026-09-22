@@ -193,8 +193,8 @@ static func width_of(link_kind: String) -> float:
 ## §7.8's rest, flow and closed colours.
 static func color_for(open: bool, flowing: bool) -> Color:
 	if not open:
-		return UiTokens.LINE_2
-	return UiTokens.ACCENT if flowing else UiTokens.ACCENT_DIM
+		return UiTokens.color(&"LINE_2")
+	return UiTokens.color(&"ACCENT") if flowing else UiTokens.color(&"ACCENT_DIM")
 
 
 # ------------------------------------------------------------------- the node
@@ -275,6 +275,13 @@ func apply_zoom(zoom_level: float) -> void:
 
 func _ready() -> void:
 	set_process(_flowing)
+	# The palette can change mid-run (m3-screens §6.2); a drawn colour is not
+	# a theme item and has to be asked for again.
+	EventBus.theme_variant_changed.connect(_on_theme_variant_changed)
+
+
+func _on_theme_variant_changed(_variant: StringName) -> void:
+	queue_redraw()
 
 
 func _process(delta: float) -> void:
@@ -299,9 +306,9 @@ func _draw() -> void:
 	var stroke: float = WIDTH_PX / _zoom
 	for point: Vector2 in _midpoints:
 		draw_line(point + Vector2(-arm, -arm), point + Vector2(arm, arm),
-			UiTokens.ALERT, stroke)
+			UiTokens.color(&"ALERT"), stroke)
 		draw_line(point + Vector2(-arm, arm), point + Vector2(arm, -arm),
-			UiTokens.ALERT, stroke)
+			UiTokens.color(&"ALERT"), stroke)
 
 
 func _build_lines() -> void:

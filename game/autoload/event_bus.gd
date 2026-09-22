@@ -24,6 +24,9 @@ signal overlay_changed(mode: int)
 signal locale_changed(locale: String)
 signal reduced_motion_changed(enabled: bool)
 signal tree_pauses_changed(enabled: bool)
+## The palette changed (m3-screens §6.2). Everything that draws a token colour
+## of its own redraws on this; a theme item follows the new `Theme` by itself.
+signal theme_variant_changed(variant: StringName)
 ## Whether the interface is holding the clock (m3-screens §10.2). The speed group
 ## and the paused badge read it; the speed itself is still `speed_changed`.
 signal hold_changed(held: bool)

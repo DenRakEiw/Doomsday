@@ -1,0 +1,121 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://ui/panels/containment_panel.gd" id="1_containment"]
+[ext_resource type="Script" path="res://ui/components/icon_button.gd" id="2_icon_button"]
+[ext_resource type="Script" path="res://ui/components/chip.gd" id="3_chip"]
+[ext_resource type="Script" path="res://ui/components/console_panel.gd" id="4_console_panel"]
+
+[node name="ContainmentPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_containment")
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_right = 400.0
+offset_bottom = 600.0
+theme_type_variation = &"ConsolePanel"
+
+[node name="Scroll" type="ScrollContainer" parent="Panel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Body" type="VBoxContainer" parent="Panel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"PanelContent"
+
+[node name="Header" type="HBoxContainer" parent="Panel/Scroll/Body"]
+layout_mode = 2
+theme_type_variation = &"Row"
+
+[node name="ContainmentTitle" type="Label" parent="Panel/Scroll/Body/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+autowrap_mode = 3
+theme_type_variation = &"LabelDisplay"
+
+[node name="ContainmentClose" type="Button" parent="Panel/Scroll/Body/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"IconButton"
+script = ExtResource("2_icon_button")
+glyph = 4
+tooltip_key = "UI_COMMON_CLOSE"
+
+[node name="StatusChip" type="PanelContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+theme_type_variation = &"Chip"
+script = ExtResource("3_chip")
+
+[node name="RiskLine" type="Label" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="RiskRows" type="VBoxContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="Cause" type="Label" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelCaption"
+
+[node name="TracksTitle" type="Label" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelHeading"
+
+[node name="Tracks" type="VBoxContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="NotYet" type="Label" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelCaption"
+
+[node name="DriversBlock" type="VBoxContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="DriversTitle" type="Label" parent="Panel/Scroll/Body/DriversBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelHeading"
+
+[node name="Drivers" type="VBoxContainer" parent="Panel/Scroll/Body/DriversBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="ThresholdsHint" type="Label" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelCaption"
+
+[node name="Extra" type="VBoxContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StackTight"

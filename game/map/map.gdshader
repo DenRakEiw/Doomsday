@@ -15,6 +15,10 @@ shader_type canvas_item;
 const float BORDER_STRENGTH = 0.9;
 
 const int FLAG_DARK = 2;
+// m3-screens §8.1: `RegionData.FLAG_DORMANT`, and how much of the overlay a
+// held region keeps.
+const int FLAG_DORMANT = 32;
+const float DORMANT_MIX = 0.5;
 
 const int OVERLAY_PENETRATION = 0;
 const int OVERLAY_CONTROL = 1;
@@ -60,16 +64,20 @@ void fragment() {
 		vec4 data = texelFetch(region_data, ivec2(idx, 0), 0);
 		int flags = int(round(data.a * 255.0));
 		bool dark = (flags & FLAG_DARK) != 0;
+		// m3-screens §8.1: a held region is drawn at half the overlay strength.
+		// Never colour alone — the region panel's chip is the second channel.
+		float mix_strength = (flags & FLAG_DORMANT) != 0 ? overlay_mix * DORMANT_MIX
+			: overlay_mix;
 
 		vec3 col = map_land.rgb;
 		if (dark) {
 			col = map_dark.rgb;
 		} else if (overlay_mode == OVERLAY_POPULATION) {
-			col = mix(map_land.rgb, map_death.rgb, 1.0 - data.b);
+			col = mix(map_land.rgb, map_death.rgb, (1.0 - data.b) * (mix_strength / overlay_mix));
 		} else {
 			float v = overlay_mode == OVERLAY_CONTROL ? data.g : data.r;
 			if (v > 0.0) {
-				col = mix(map_land.rgb, texture(ramp, vec2(v, 0.5)).rgb, overlay_mix);
+				col = mix(map_land.rgb, texture(ramp, vec2(v, 0.5)).rgb, mix_strength);
 			}
 		}
 

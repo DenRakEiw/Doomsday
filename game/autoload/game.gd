@@ -40,6 +40,9 @@ var speed: int = 0
 ## Compute after the last tick minus before it — yield and rewards, never
 ## purchases, which happen between ticks.
 var compute_rate: float = 0.0
+## Faction id → its containment after the last tick minus before it, so that a
+## track can show a rate without keeping a history of its own (m3-screens §10.3).
+var containment_rates: Dictionary[String, float] = {}
 ## Null unless a bot drives the run.
 var policy: Policy = null
 ## Set by the debug keys: prints every tick and every event to the console.
@@ -198,9 +201,11 @@ func advance(count: int) -> void:
 			return
 		_run_policy()
 		var compute_before: float = sim.world.agent.compute
+		var containment_before: Dictionary[String, float] = _containment_now()
 		if not sim.tick():
 			return
 		compute_rate = sim.world.agent.compute - compute_before
+		_measure_containment(containment_before)
 		EventBus.tick_advanced.emit(sim.world.day)
 		for event: SimEvent in sim.outbox:
 			_report(event)
@@ -224,9 +229,24 @@ func _ensure_content() -> bool:
 	return true
 
 
+## Containment per faction right now, as the reference the next tick measures
+## against.
+func _containment_now() -> Dictionary[String, float]:
+	var values: Dictionary[String, float] = {}
+	for faction: Faction in sim.world.factions:
+		values[faction.id] = faction.containment
+	return values
+
+
+func _measure_containment(before: Dictionary[String, float]) -> void:
+	for faction: Faction in sim.world.factions:
+		containment_rates[faction.id] = faction.containment - float(before.get(faction.id, 0.0))
+
+
 func _adopt(new_sim: Simulation, seed_value: int) -> void:
 	sim = new_sim
 	compute_rate = 0.0
+	containment_rates.clear()
 	_accumulator = 0.0
 	_last_outcome = sim.world.outcome
 	EventBus.run_started.emit(seed_value)

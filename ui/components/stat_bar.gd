@@ -37,6 +37,22 @@ const CONST_COMPACT_HEIGHT: StringName = &"compact_height"
 @onready var _value_label: ValueLabel = %Value
 @onready var _fill: StatBarFill = %Fill
 
+## Whether the bar carries its own name and number. A `FactionTrack` has both in
+## a row of its own, and two of each would read as two bars (m3-screens §4.2).
+@export var show_head: bool = true:
+	set(value):
+		show_head = value
+		if _head != null:
+			_apply_compact()
+
+## Marks drawn on the trough, as shares in 0…1 (m3-screens §4.2). Empty for the
+## three HUD bars, which have nothing to escalate at.
+var ticks: Array[float] = []:
+	set(value):
+		ticks = value
+		if _fill != null:
+			_fill.ticks = value
+
 var _value: float = 0.0
 ## The number the label reads out and the form it takes. Kept because the
 ## separators belong to the locale (§8.5): a bar the run is not updating still
@@ -47,6 +63,7 @@ var _tween: Tween = null
 
 
 func _ready() -> void:
+	_fill.ticks = ticks
 	if theme_type_variation == &"":
 		theme_type_variation = VARIATION
 	_name_label.label_key = label_key
@@ -101,6 +118,12 @@ func _set_value(share: float, shown: float, kind: Format.Kind) -> void:
 
 ## Moves the same three nodes between the two rows of §5.7.
 func _apply_compact() -> void:
+	if not show_head:
+		_head.visible = false
+		_compact_row.visible = false
+		_move(_fill, _rows)
+		_apply_heights()
+		return
 	_rows.visible = not compact
 	_compact_row.visible = compact
 	if compact:

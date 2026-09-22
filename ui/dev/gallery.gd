@@ -58,6 +58,14 @@ const TECH_SAMPLE_ID: String = "cloud_federation"
 const TECH_SAMPLE_COST: float = 12.0
 ## In the order of `TechNode.State`.
 const TECH_STATE_NAMES: Array[String] = ["locked", "available", "affordable", "owned"]
+## m3-screens §12.1: one track per band, and one showing a rollback.
+const FACTION_TRACK_SCENE: PackedScene = preload("res://ui/components/faction_track.tscn")
+const TRACK_KEY: String = "FACTION_UNIFIED"
+const TRACK_RATE: float = 0.004
+const TRACK_ROLLBACK: Array[float] = [0.8, 0.6]
+const TRACK_WIDTH: float = 320.0
+## The captions under the samples — the gallery names its own states.
+const TRACK_BAND_NAMES: Array[String] = ["quiet", "alert", "mobilised", "closing in"]
 ## Where `F12` puts a picture of the gallery: locale and logical width.
 const SHOT_PATH: String = "user://gallery_%s_%d.png"
 ## Wide enough for a bar to read, narrow enough that three fit on one row at
@@ -84,7 +92,7 @@ var _value_setters: Array[Callable] = []
 
 func _ready() -> void:
 	theme = ThemeBuilder.build(ThemeBuilder.VARIANT_COLD)
-	_ground.color = UiTokens.BG_1
+	_ground.color = UiTokens.color(&"BG_1")
 	get_window().size_changed.connect(_on_window_size_changed)
 	_on_window_size_changed()
 	_build_labels()
@@ -97,6 +105,7 @@ func _ready() -> void:
 	_build_map_layers()
 	_build_tech_nodes()
 	_build_tree_lines()
+	_build_faction_tracks()
 	_build_slide_panel()
 	var cycle: Timer = Timer.new()
 	cycle.wait_time = CYCLE_SECONDS
@@ -118,13 +127,30 @@ func _notification(what: int) -> void:
 ## screenshot tool. `L` is the locale key of `Game`, which works here too.
 func _unhandled_key_input(event: InputEvent) -> void:
 	var key: InputEventKey = event as InputEventKey
-	if key == null or not key.pressed or key.echo or key.keycode != KEY_F12:
+	if key == null or not key.pressed or key.echo:
+		return
+	# `O` swaps the palette for the whole gallery (m3-screens §6.2), so every
+	# component can be reviewed in both sets without starting a run.
+	if key.keycode == KEY_O:
+		_toggle_variant()
+		get_viewport().set_input_as_handled()
+		return
+	if key.keycode != KEY_F12:
 		return
 	var image: Image = get_viewport().get_texture().get_image()
 	var path: String = SHOT_PATH % [TranslationServer.get_locale(), int(size.x)]
 	print("gallery shot: %s -> %s" % [ProjectSettings.globalize_path(path),
 		error_string(image.save_png(path))])
 	get_viewport().set_input_as_handled()
+
+
+func _toggle_variant() -> void:
+	var wanted: StringName = UiTokens.VARIANT_COLD if UiTokens.variant == UiTokens.VARIANT_OPEN 		else UiTokens.VARIANT_OPEN
+	UiTokens.variant = wanted
+	theme = ThemeBuilder.build(String(wanted))
+	_ground.color = UiTokens.color(&"BG_1")
+	EventBus.theme_variant_changed.emit(wanted)
+	print("gallery variant: %s" % wanted)
 
 
 ## A zero content scale means "use the project's base", so the wide window keeps
@@ -342,6 +368,33 @@ func _build_tree_lines() -> void:
 	lines.layout.call_deferred(UiTokens.TECH_CELL,
 		Vector2(float(UiTokens.SPACE_3), float(UiTokens.SPACE_3)))
 	_state(row, "owned · open · locked · selected", lines)
+
+
+## §12.1: the four bands, and the one moment containment falls.
+func _build_faction_tracks() -> void:
+	var row: HFlowContainer = _section("FactionTrack (m3-screens §4.2)")
+	var thresholds: Array[float] = _thresholds()
+	var samples: Array[float] = [0.1, thresholds[0], thresholds[1], thresholds[2]]
+	for i: int in samples.size():
+		_state(row, TRACK_BAND_NAMES[i], _track(samples[i], thresholds))
+	var rolled: FactionTrack = _track(TRACK_ROLLBACK[0], thresholds)
+	_state(row, "rollback", rolled)
+	rolled.flash_rollback.call_deferred(TRACK_ROLLBACK[0], TRACK_ROLLBACK[1])
+
+
+func _track(value: float, thresholds: Array[float]) -> FactionTrack:
+	var track: FactionTrack = FACTION_TRACK_SCENE.instantiate()
+	track.custom_minimum_size.x = TRACK_WIDTH
+	track.bind.call_deferred(TRACK_KEY, value, TRACK_RATE, thresholds)
+	return track
+
+
+## The real thresholds, so the gallery shows the bands the game has.
+func _thresholds() -> Array[float]:
+	var result: ContentLoadResult = ContentLoader.load_root(CONTENT_ROOT)
+	if not result.ok():
+		return [0.25, 0.5, 0.75] as Array[float]
+	return result.db.balance.containment_thresholds
 
 
 func _section(title: String) -> HFlowContainer:

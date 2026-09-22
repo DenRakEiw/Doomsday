@@ -17,6 +17,9 @@ signal closed
 const METHOD_ESCAPE: StringName = &"on_escape"
 
 var _scrim: ColorRect = null
+## The red wash of §5, over everything, once.
+var _alert: ColorRect = null
+var _alert_tween: Tween = null
 var _slot: Control = null
 var _current: Control = null
 var _queued: Array[Control] = []
@@ -71,6 +74,30 @@ func close() -> void:
 		open(next)
 
 
+## One red wash over the whole screen, fading out (§5). The host shows it even
+## when no modal is open, because the flash is the moment and the modal is only
+## what follows it. Reduced motion skips it entirely.
+func flash_alert() -> void:
+	if UiTokens.reduced_motion():
+		return
+	if _alert_tween != null and _alert_tween.is_valid():
+		_alert_tween.kill()
+	visible = true
+	_alert.visible = true
+	_alert.color = Color(UiTokens.color(&"ALERT"), UiTokens.ALERT_FLASH_ALPHA)
+	_alert_tween = create_tween()
+	_alert_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	_alert_tween.tween_property(_alert, "color:a", 0.0,
+		UiTokens.duration(UiTokens.MOTION_ALERT))
+	_alert_tween.tween_callback(_end_flash)
+
+
+func _end_flash() -> void:
+	_alert.visible = false
+	if _current == null:
+		visible = false
+
+
 func is_open() -> bool:
 	return _current != null
 
@@ -95,7 +122,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 func _build() -> void:
 	_scrim = ColorRect.new()
 	_scrim.name = "Scrim"
-	_scrim.color = Color(UiTokens.BG_0, UiTokens.SCRIM_ALPHA)
+	_scrim.color = Color(UiTokens.color(&"BG_0"), UiTokens.SCRIM_ALPHA)
 	_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_scrim)
@@ -104,11 +131,19 @@ func _build() -> void:
 	_slot.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_slot)
+	_alert = ColorRect.new()
+	_alert.name = "AlertFlash"
+	_alert.color = Color(UiTokens.color(&"ALERT"), 0.0)
+	_alert.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_alert.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_alert.visible = false
+	add_child(_alert)
 
 
-## Nothing below the host receives anything while a modal is up (§1.1).
+## Nothing below the host receives anything while a modal is up (§1.1). The
+## flash keeps the host visible on its own while it lasts.
 func _set_shown(shown: bool) -> void:
-	visible = shown
+	visible = shown or (_alert != null and _alert.visible)
 	mouse_filter = Control.MOUSE_FILTER_STOP if shown else Control.MOUSE_FILTER_IGNORE
 
 

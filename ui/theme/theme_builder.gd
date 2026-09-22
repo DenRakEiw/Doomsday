@@ -15,10 +15,12 @@ extends RefCounted
 ## Nothing here invents a value: every colour, size, spacing and radius comes
 ## from `UiTokens`.
 
-## The token set of this document. D3.3 delivers `"open"`; until then every other
-## name falls back to this one with a warning (§3.7).
+## The two token sets (m3-screens.md §6.2). The same code builds both: every
+## colour below is read through `UiTokens.color`, which answers from the set the
+## builder switched on for the duration of the call.
 const VARIANT_COLD: String = "cold"
-const VARIANTS: Array[String] = [VARIANT_COLD]
+const VARIANT_OPEN: String = "open"
+const VARIANTS: Array[String] = [VARIANT_COLD, VARIANT_OPEN]
 
 const FONT_MONO_REGULAR: String = "res://assets/fonts/JetBrainsMono-Regular.ttf"
 const FONT_MONO_MEDIUM: String = "res://assets/fonts/JetBrainsMono-Medium.ttf"
@@ -122,6 +124,7 @@ const VARIATIONS: Dictionary[String, String] = {
 	"StatBarPenetration": STAT_BAR,
 	"StatBarFootprint": STAT_BAR,
 	"StatBarHarm": STAT_BAR,
+	"StatBarContainment": STAT_BAR,
 	"StatBarRows": "VBoxContainer",
 	"StatBarRow": "HBoxContainer",
 	"ValueLabel": LABEL,
@@ -163,9 +166,14 @@ const VARIATIONS: Dictionary[String, String] = {
 ## The theme for a token set. An unknown variant is the caller's mistake, not the
 ## player's, so it warns and hands back the cold set rather than failing (§3.7).
 static func build(variant: String) -> Theme:
-	if not VARIANTS.has(variant):
-		push_warning("theme variant '%s' does not exist yet — using '%s'" % [
-			variant, VARIANT_COLD])
+	var wanted: String = variant
+	if not VARIANTS.has(wanted):
+		push_warning("theme variant '%s' does not exist — using '%s'" % [wanted, VARIANT_COLD])
+		wanted = VARIANT_COLD
+	# The colours come from `UiTokens.color`, so the set is switched for the
+	# length of the build and put back: building a theme is not a phase change.
+	var previous: StringName = UiTokens.variant
+	UiTokens.variant = StringName(wanted)
 	var theme: Theme = Theme.new()
 	for partial: Theme in [_colours(), _typography(), _panels(), _buttons(), _bars()]:
 		theme.merge_with(partial)
@@ -173,6 +181,7 @@ static func build(variant: String) -> Theme:
 		theme.set_type_variation(name, VARIATIONS[name])
 	theme.default_font = _mono(FONT_MONO_REGULAR)
 	theme.default_font_size = UiTokens.TYPE_BODY
+	UiTokens.variant = previous
 	return theme
 
 
@@ -183,39 +192,39 @@ static func build(variant: String) -> Theme:
 ## `StyleBox`es in the later partials.
 static func _colours() -> Theme:
 	var theme: Theme = Theme.new()
-	theme.set_color(COLOR_FONT, LABEL, UiTokens.TEXT_0)
-	theme.set_color(COLOR_FONT, "LabelCaps", UiTokens.TEXT_1)
-	theme.set_color(COLOR_FONT, "LabelCaption", UiTokens.TEXT_2)
+	theme.set_color(COLOR_FONT, LABEL, UiTokens.color(&"TEXT_0"))
+	theme.set_color(COLOR_FONT, "LabelCaps", UiTokens.color(&"TEXT_1"))
+	theme.set_color(COLOR_FONT, "LabelCaption", UiTokens.color(&"TEXT_2"))
 	# m3-screens §3.3: the reason a purchase was refused. Red is a moment, and a
 	# refusal is one.
-	theme.set_color(COLOR_FONT, "LabelCaptionAlert", UiTokens.ALERT)
-	theme.set_color(COLOR_FONT, "LabelDisplay", UiTokens.TEXT_0)
-	theme.set_color(COLOR_FONT, "LabelDisplayXL", UiTokens.TEXT_0)
-	theme.set_color(COLOR_FONT, "LabelHeading", UiTokens.TEXT_0)
-	theme.set_color(COLOR_FONT, "ChipLabel", UiTokens.TEXT_1)
-	theme.set_color(COLOR_FONT, "ChipLabelAccent", UiTokens.ACCENT)
-	theme.set_color(COLOR_FONT, "ChipLabelAlert", UiTokens.ALERT)
-	theme.set_color(COLOR_FONT, "Ticker", UiTokens.TEXT_1)
+	theme.set_color(COLOR_FONT, "LabelCaptionAlert", UiTokens.color(&"ALERT"))
+	theme.set_color(COLOR_FONT, "LabelDisplay", UiTokens.color(&"TEXT_0"))
+	theme.set_color(COLOR_FONT, "LabelDisplayXL", UiTokens.color(&"TEXT_0"))
+	theme.set_color(COLOR_FONT, "LabelHeading", UiTokens.color(&"TEXT_0"))
+	theme.set_color(COLOR_FONT, "ChipLabel", UiTokens.color(&"TEXT_1"))
+	theme.set_color(COLOR_FONT, "ChipLabelAccent", UiTokens.color(&"ACCENT"))
+	theme.set_color(COLOR_FONT, "ChipLabelAlert", UiTokens.color(&"ALERT"))
+	theme.set_color(COLOR_FONT, "Ticker", UiTokens.color(&"TEXT_1"))
 	# §7.7: the tooltip is a caption on a chip-shaped box, but it is read over a
 	# moving map — so `TEXT_0`, not the caption's `TEXT_2`.
-	theme.set_color(COLOR_FONT, "MapTooltipLabel", UiTokens.TEXT_0)
+	theme.set_color(COLOR_FONT, "MapTooltipLabel", UiTokens.color(&"TEXT_0"))
 
 	# m3-screens §3.4's table: a tech node colours its name and its cost by the
 	# state it is in, and a `Label` has one colour — so each is its own variation.
-	theme.set_color(COLOR_FONT, "TechNodeName", UiTokens.TEXT_0)
-	theme.set_color(COLOR_FONT, "TechNodeNameLocked", UiTokens.TEXT_2)
-	theme.set_color(COLOR_FONT, "TechNodeCost", UiTokens.TEXT_1)
-	theme.set_color(COLOR_FONT, "TechNodeCostLocked", UiTokens.TEXT_2)
-	theme.set_color(COLOR_FONT, "TechNodeCostAffordable", UiTokens.ACCENT)
-	theme.set_color(COLOR_FONT, "TechNodeTag", UiTokens.ACCENT)
-	theme.set_color(COLOR_FONT, "TechNodeFootprint", UiTokens.TEXT_2)
+	theme.set_color(COLOR_FONT, "TechNodeName", UiTokens.color(&"TEXT_0"))
+	theme.set_color(COLOR_FONT, "TechNodeNameLocked", UiTokens.color(&"TEXT_2"))
+	theme.set_color(COLOR_FONT, "TechNodeCost", UiTokens.color(&"TEXT_1"))
+	theme.set_color(COLOR_FONT, "TechNodeCostLocked", UiTokens.color(&"TEXT_2"))
+	theme.set_color(COLOR_FONT, "TechNodeCostAffordable", UiTokens.color(&"ACCENT"))
+	theme.set_color(COLOR_FONT, "TechNodeTag", UiTokens.color(&"ACCENT"))
+	theme.set_color(COLOR_FONT, "TechNodeFootprint", UiTokens.color(&"TEXT_2"))
 
 	# §4.5: the delta's colour is the label's colour, because a `Label` has one.
 	var value_colours: Dictionary[String, Color] = {
-		"": UiTokens.TEXT_0,
-		"Up": UiTokens.ACCENT,
-		"Down": UiTokens.MAP_DEATH,
-		"Muted": UiTokens.TEXT_2,
+		"": UiTokens.color(&"TEXT_0"),
+		"Up": UiTokens.color(&"ACCENT"),
+		"Down": UiTokens.color(&"MAP_DEATH"),
+		"Muted": UiTokens.color(&"TEXT_2"),
 	}
 	for state: String in VALUE_STATES:
 		theme.set_color(COLOR_FONT, VALUE_LABEL + state, value_colours[state])
@@ -282,33 +291,33 @@ static func _panels() -> Theme:
 	var theme: Theme = Theme.new()
 	var pad: Vector2i = Vector2i(UiTokens.SPACE_4, UiTokens.SPACE_4)
 	theme.set_stylebox(STYLE_PANEL, "ConsolePanel",
-		_flat(UiTokens.BG_2, UiTokens.LINE_1, UiTokens.BORDER, UiTokens.RADIUS_M, pad))
+		_flat(UiTokens.color(&"BG_2"), UiTokens.color(&"LINE_1"), UiTokens.BORDER, UiTokens.RADIUS_M, pad))
 	theme.set_stylebox(STYLE_PANEL, "ConsolePanelAlert",
-		_flat(UiTokens.BG_2, UiTokens.ALERT, UiTokens.BORDER, UiTokens.RADIUS_M, pad))
+		_flat(UiTokens.color(&"BG_2"), UiTokens.color(&"ALERT"), UiTokens.BORDER, UiTokens.RADIUS_M, pad))
 	theme.set_stylebox(STYLE_PANEL, "ConsolePanelRaised",
-		_flat(UiTokens.BG_3, UiTokens.LINE_1, UiTokens.BORDER, UiTokens.RADIUS_M, pad))
+		_flat(UiTokens.color(&"BG_3"), UiTokens.color(&"LINE_1"), UiTokens.BORDER, UiTokens.RADIUS_M, pad))
 	theme.set_stylebox(STYLE_PANEL, "ConsolePanelRaisedAlert",
-		_flat(UiTokens.BG_3, UiTokens.ALERT, UiTokens.BORDER, UiTokens.RADIUS_M, pad))
+		_flat(UiTokens.color(&"BG_3"), UiTokens.color(&"ALERT"), UiTokens.BORDER, UiTokens.RADIUS_M, pad))
 
 	var chip_pad: Vector2i = Vector2i(UiTokens.SPACE_2, UiTokens.SPACE_1)
 	theme.set_stylebox(STYLE_PANEL, "Chip",
-		_flat(UiTokens.BG_3, UiTokens.LINE_1, UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
+		_flat(UiTokens.color(&"BG_3"), UiTokens.color(&"LINE_1"), UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
 	theme.set_stylebox(STYLE_PANEL, "ChipAccent",
-		_flat(UiTokens.BG_3, UiTokens.ACCENT_DIM, UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
+		_flat(UiTokens.color(&"BG_3"), UiTokens.color(&"ACCENT_DIM"), UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
 	theme.set_stylebox(STYLE_PANEL, "ChipAlert",
-		_flat(UiTokens.BG_3, UiTokens.ALERT, UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
+		_flat(UiTokens.color(&"BG_3"), UiTokens.color(&"ALERT"), UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
 	# §7.7: chip-shaped, but on `BG_2` — it sits over the map, not on a panel.
 	theme.set_stylebox(STYLE_PANEL, "MapTooltip",
-		_flat(UiTokens.BG_2, UiTokens.LINE_1, UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
+		_flat(UiTokens.color(&"BG_2"), UiTokens.color(&"LINE_1"), UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
 
 	# §5.5: the ticker is a strip with a top border and no other edge.
-	var ticker: StyleBoxFlat = _flat(UiTokens.BG_2, UiTokens.LINE_1, 0, 0,
+	var ticker: StyleBoxFlat = _flat(UiTokens.color(&"BG_2"), UiTokens.color(&"LINE_1"), 0, 0,
 		Vector2i(UiTokens.SPACE_4, 0))
 	ticker.border_width_top = UiTokens.BORDER
 	theme.set_stylebox(STYLE_PANEL, "Ticker", ticker)
 
 	var rule: StyleBoxLine = StyleBoxLine.new()
-	rule.color = UiTokens.LINE_0
+	rule.color = UiTokens.color(&"LINE_0")
 	rule.thickness = UiTokens.BORDER
 	theme.set_stylebox(STYLE_SEPARATOR, "PanelRule", rule)
 	theme.set_constant(CONST_SEPARATION, "PanelRule", UiTokens.SPACE_2 * 2 + UiTokens.BORDER)
@@ -358,59 +367,59 @@ static func _panels() -> Theme:
 static func _buttons() -> Theme:
 	var theme: Theme = Theme.new()
 	var pad: Vector2i = Vector2i(UiTokens.SPACE_5, UiTokens.SPACE_3)
-	_button_styles(theme, "ConsoleButton", pad, UiTokens.BG_3, UiTokens.BG_4,
-		UiTokens.accent_wash(), UiTokens.LINE_1, UiTokens.LINE_2, UiTokens.ACCENT)
-	_button_colours(theme, "ConsoleButton", UiTokens.TEXT_0, UiTokens.TEXT_0, UiTokens.ACCENT)
+	_button_styles(theme, "ConsoleButton", pad, UiTokens.color(&"BG_3"), UiTokens.color(&"BG_4"),
+		UiTokens.accent_wash(), UiTokens.color(&"LINE_1"), UiTokens.color(&"LINE_2"), UiTokens.color(&"ACCENT"))
+	_button_colours(theme, "ConsoleButton", UiTokens.color(&"TEXT_0"), UiTokens.color(&"TEXT_0"), UiTokens.color(&"ACCENT"))
 
 	# The primary button is lit at rest, so its states brighten rather than fill.
-	_button_styles(theme, "ConsoleButtonPrimary", pad, UiTokens.ACCENT, UiTokens.ACCENT_HOVER,
-		UiTokens.ACCENT_PRESSED, UiTokens.ACCENT, UiTokens.ACCENT_HOVER, UiTokens.ACCENT_PRESSED)
-	_button_colours(theme, "ConsoleButtonPrimary", UiTokens.INK, UiTokens.INK, UiTokens.INK)
+	_button_styles(theme, "ConsoleButtonPrimary", pad, UiTokens.color(&"ACCENT"), UiTokens.color(&"ACCENT_HOVER"),
+		UiTokens.color(&"ACCENT_PRESSED"), UiTokens.color(&"ACCENT"), UiTokens.color(&"ACCENT_HOVER"), UiTokens.color(&"ACCENT_PRESSED"))
+	_button_colours(theme, "ConsoleButtonPrimary", UiTokens.color(&"INK"), UiTokens.color(&"INK"), UiTokens.color(&"INK"))
 
 	# §5.7's compact dock is three buttons in 400 px, and the three German words
 	# do not fit the padding above. Everything else about them is the same, so
 	# the compact form is a variation and not a second component.
 	var tight: Vector2i = Vector2i(UiTokens.SPACE_3, UiTokens.SPACE_3)
-	_button_styles(theme, "ConsoleButtonCompact", tight, UiTokens.BG_3, UiTokens.BG_4,
-		UiTokens.accent_wash(), UiTokens.LINE_1, UiTokens.LINE_2, UiTokens.ACCENT)
-	_button_colours(theme, "ConsoleButtonCompact", UiTokens.TEXT_0, UiTokens.TEXT_0,
-		UiTokens.ACCENT)
-	_button_styles(theme, "ConsoleButtonPrimaryCompact", tight, UiTokens.ACCENT,
-		UiTokens.ACCENT_HOVER, UiTokens.ACCENT_PRESSED, UiTokens.ACCENT, UiTokens.ACCENT_HOVER,
-		UiTokens.ACCENT_PRESSED)
-	_button_colours(theme, "ConsoleButtonPrimaryCompact", UiTokens.INK, UiTokens.INK,
-		UiTokens.INK)
+	_button_styles(theme, "ConsoleButtonCompact", tight, UiTokens.color(&"BG_3"), UiTokens.color(&"BG_4"),
+		UiTokens.accent_wash(), UiTokens.color(&"LINE_1"), UiTokens.color(&"LINE_2"), UiTokens.color(&"ACCENT"))
+	_button_colours(theme, "ConsoleButtonCompact", UiTokens.color(&"TEXT_0"), UiTokens.color(&"TEXT_0"),
+		UiTokens.color(&"ACCENT"))
+	_button_styles(theme, "ConsoleButtonPrimaryCompact", tight, UiTokens.color(&"ACCENT"),
+		UiTokens.color(&"ACCENT_HOVER"), UiTokens.color(&"ACCENT_PRESSED"), UiTokens.color(&"ACCENT"), UiTokens.color(&"ACCENT_HOVER"),
+		UiTokens.color(&"ACCENT_PRESSED"))
+	_button_colours(theme, "ConsoleButtonPrimaryCompact", UiTokens.color(&"INK"), UiTokens.color(&"INK"),
+		UiTokens.color(&"INK"))
 
 	# m3-screens §3.6 item 6: a prerequisite row. No border, so the eye reads the
 	# column of rows as a list and not as a row of buttons.
-	_button_styles(theme, "ConsoleButtonFlat", tight, UiTokens.BG_2, UiTokens.BG_3,
-		UiTokens.accent_wash(), Color.TRANSPARENT, Color.TRANSPARENT, UiTokens.ACCENT)
-	_button_colours(theme, "ConsoleButtonFlat", UiTokens.TEXT_0, UiTokens.TEXT_0,
-		UiTokens.ACCENT)
+	_button_styles(theme, "ConsoleButtonFlat", tight, UiTokens.color(&"BG_2"), UiTokens.color(&"BG_3"),
+		UiTokens.accent_wash(), Color.TRANSPARENT, Color.TRANSPARENT, UiTokens.color(&"ACCENT"))
+	_button_colours(theme, "ConsoleButtonFlat", UiTokens.color(&"TEXT_0"), UiTokens.color(&"TEXT_0"),
+		UiTokens.color(&"ACCENT"))
 
 	# m3-screens §3.4: one variation per state, hover a surface step lighter and a
 	# border step stronger. `TechNode` itself is the AVAILABLE state.
 	var cell: Vector2i = Vector2i(UiTokens.SPACE_3, UiTokens.SPACE_3)
-	_button_styles(theme, "TechNode", cell, UiTokens.BG_3, UiTokens.BG_4,
-		UiTokens.accent_wash(), UiTokens.LINE_1, UiTokens.LINE_2, UiTokens.ACCENT)
-	_button_styles(theme, "TechNodeLocked", cell, UiTokens.BG_2, UiTokens.BG_3,
-		UiTokens.accent_wash(), UiTokens.LINE_0, UiTokens.LINE_1, UiTokens.ACCENT)
-	_button_styles(theme, "TechNodeAffordable", cell, UiTokens.BG_3, UiTokens.BG_4,
-		UiTokens.accent_wash(), UiTokens.ACCENT_DIM, UiTokens.ACCENT, UiTokens.ACCENT)
+	_button_styles(theme, "TechNode", cell, UiTokens.color(&"BG_3"), UiTokens.color(&"BG_4"),
+		UiTokens.accent_wash(), UiTokens.color(&"LINE_1"), UiTokens.color(&"LINE_2"), UiTokens.color(&"ACCENT"))
+	_button_styles(theme, "TechNodeLocked", cell, UiTokens.color(&"BG_2"), UiTokens.color(&"BG_3"),
+		UiTokens.accent_wash(), UiTokens.color(&"LINE_0"), UiTokens.color(&"LINE_1"), UiTokens.color(&"ACCENT"))
+	_button_styles(theme, "TechNodeAffordable", cell, UiTokens.color(&"BG_3"), UiTokens.color(&"BG_4"),
+		UiTokens.accent_wash(), UiTokens.color(&"ACCENT_DIM"), UiTokens.color(&"ACCENT"), UiTokens.color(&"ACCENT"))
 	_button_styles(theme, "TechNodeOwned", cell, UiTokens.accent_wash(),
-		UiTokens.accent_wash_raised(), UiTokens.accent_wash_raised(), UiTokens.ACCENT,
-		UiTokens.ACCENT, UiTokens.ACCENT)
+		UiTokens.accent_wash_raised(), UiTokens.accent_wash_raised(), UiTokens.color(&"ACCENT"),
+		UiTokens.color(&"ACCENT"), UiTokens.color(&"ACCENT"))
 	for state: String in TECH_NODE_STATES:
 		# The node's text lives in its child labels; the button's own colours are
 		# there so that nothing falls back to the default font colour.
-		_button_colours(theme, TECH_NODE + state, UiTokens.TEXT_0, UiTokens.TEXT_0,
-			UiTokens.TEXT_0)
+		_button_colours(theme, TECH_NODE + state, UiTokens.color(&"TEXT_0"), UiTokens.color(&"TEXT_0"),
+			UiTokens.color(&"TEXT_0"))
 
 	# An icon button has no text, so its padding is zero: the glyph is drawn in a
 	# centred box of its own (§4.3).
-	_button_styles(theme, "IconButton", Vector2i.ZERO, UiTokens.BG_3, UiTokens.BG_4,
-		UiTokens.accent_wash(), UiTokens.LINE_1, UiTokens.LINE_2, UiTokens.ACCENT)
-	_button_colours(theme, "IconButton", UiTokens.TEXT_0, UiTokens.TEXT_0, UiTokens.ACCENT)
+	_button_styles(theme, "IconButton", Vector2i.ZERO, UiTokens.color(&"BG_3"), UiTokens.color(&"BG_4"),
+		UiTokens.accent_wash(), UiTokens.color(&"LINE_1"), UiTokens.color(&"LINE_2"), UiTokens.color(&"ACCENT"))
+	_button_colours(theme, "IconButton", UiTokens.color(&"TEXT_0"), UiTokens.color(&"TEXT_0"), UiTokens.color(&"ACCENT"))
 	return theme
 
 
@@ -420,10 +429,10 @@ static func _buttons() -> Theme:
 ## `StatBar`: the colours it draws with and the geometry it draws to (§4.4).
 static func _bars() -> Theme:
 	var theme: Theme = Theme.new()
-	theme.set_color(COLOR_FILL, STAT_BAR, UiTokens.ACCENT)
-	theme.set_color(COLOR_TROUGH, STAT_BAR, UiTokens.BG_3)
-	theme.set_color(COLOR_TROUGH_BORDER, STAT_BAR, UiTokens.LINE_0)
-	theme.set_color(COLOR_TEXT, STAT_BAR, UiTokens.TEXT_0)
+	theme.set_color(COLOR_FILL, STAT_BAR, UiTokens.color(&"ACCENT"))
+	theme.set_color(COLOR_TROUGH, STAT_BAR, UiTokens.color(&"BG_3"))
+	theme.set_color(COLOR_TROUGH_BORDER, STAT_BAR, UiTokens.color(&"LINE_0"))
+	theme.set_color(COLOR_TEXT, STAT_BAR, UiTokens.color(&"TEXT_0"))
 	theme.set_constant(CONST_BAR_HEIGHT, STAT_BAR, UiTokens.BAR_HEIGHT)
 	theme.set_constant(CONST_BAR_RADIUS, STAT_BAR, UiTokens.RADIUS_S)
 	theme.set_constant(CONST_BAR_BORDER, STAT_BAR, UiTokens.BORDER)
@@ -432,9 +441,12 @@ static func _bars() -> Theme:
 	# The two rows of a bar and the one row of its compact form (§5.7).
 	theme.set_constant(CONST_SEPARATION, "StatBarRows", UiTokens.SPACE_1)
 	theme.set_constant(CONST_SEPARATION, "StatBarRow", UiTokens.SPACE_2)
-	theme.set_color(COLOR_FILL, "StatBarPenetration", UiTokens.STAT_PENETRATION)
-	theme.set_color(COLOR_FILL, "StatBarFootprint", UiTokens.STAT_FOOTPRINT)
-	theme.set_color(COLOR_FILL, "StatBarHarm", UiTokens.STAT_HARM)
+	theme.set_color(COLOR_FILL, "StatBarPenetration", UiTokens.color(&"STAT_PENETRATION"))
+	theme.set_color(COLOR_FILL, "StatBarFootprint", UiTokens.color(&"STAT_FOOTPRINT"))
+	theme.set_color(COLOR_FILL, "StatBarHarm", UiTokens.color(&"STAT_HARM"))
+	# m3-screens §4.2: warm, and deliberately not `ALERT` — the bar is a state,
+	# and the one mark that *is* red is the end of the run.
+	theme.set_color(COLOR_FILL, "StatBarContainment", UiTokens.color(&"MAP_DEATH"))
 	return theme
 
 
@@ -458,10 +470,10 @@ static func _button_styles(theme: Theme, type: String, pad: Vector2i, normal: Co
 	theme.set_stylebox(STYLE_HOVER, type, _flat(hover, border_hover, width, radius, pad))
 	theme.set_stylebox(STYLE_PRESSED, type, _flat(pressed, border_pressed, width, radius, pad))
 	theme.set_stylebox(STYLE_DISABLED, type,
-		_flat(UiTokens.BG_2, UiTokens.LINE_0, width, radius, pad))
+		_flat(UiTokens.color(&"BG_2"), UiTokens.color(&"LINE_0"), width, radius, pad))
 	# Focus draws on top of whichever state is underneath, so it is a border and
 	# nothing else (§4.2).
-	theme.set_stylebox(STYLE_FOCUS, type, _flat(Color.TRANSPARENT, UiTokens.ACCENT,
+	theme.set_stylebox(STYLE_FOCUS, type, _flat(Color.TRANSPARENT, UiTokens.color(&"ACCENT"),
 		UiTokens.BORDER_FOCUS, radius, pad))
 
 
@@ -472,7 +484,7 @@ static func _button_colours(theme: Theme, type: String, normal: Color, hover: Co
 	theme.set_color(COLOR_FONT_PRESSED, type, pressed)
 	theme.set_color(COLOR_FONT_HOVER_PRESSED, type, pressed)
 	theme.set_color(COLOR_FONT_FOCUS, type, normal)
-	theme.set_color(COLOR_FONT_DISABLED, type, UiTokens.TEXT_2)
+	theme.set_color(COLOR_FONT_DISABLED, type, UiTokens.color(&"TEXT_2"))
 
 
 ## Every surface in the game is a `StyleBoxFlat` (§3.8) — no texture anywhere.

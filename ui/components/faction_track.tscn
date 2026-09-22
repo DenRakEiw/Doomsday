@@ -1,0 +1,44 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://ui/components/faction_track.gd" id="1_faction_track"]
+[ext_resource type="Script" path="res://ui/components/caps_label.gd" id="2_caps_label"]
+[ext_resource type="Script" path="res://ui/components/chip.gd" id="3_chip"]
+[ext_resource type="Script" path="res://ui/components/value_label.gd" id="4_value_label"]
+[ext_resource type="PackedScene" path="res://ui/components/stat_bar.tscn" id="5_stat_bar"]
+
+[node name="FactionTrack" type="VBoxContainer"]
+custom_minimum_size = Vector2(0, 72)
+theme_type_variation = &"StackTight"
+script = ExtResource("1_faction_track")
+
+[node name="Head" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"Row"
+
+[node name="TrackName" type="Label" parent="Head"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"LabelCaps"
+script = ExtResource("2_caps_label")
+
+[node name="Band" type="PanelContainer" parent="Head"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"Chip"
+script = ExtResource("3_chip")
+
+[node name="TrackValue" type="Label" parent="Head"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"ValueLabel"
+script = ExtResource("4_value_label")
+
+[node name="TrackBar" parent="." instance=ExtResource("5_stat_bar")]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StatBarContainment"
+show_head = false
