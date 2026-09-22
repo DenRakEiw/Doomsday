@@ -66,3 +66,76 @@ REGION_MADAGASCAR,Madagascar,Madagaskar
 REGION_AUSTRALIA,Australia,Australien
 REGION_NEW_ZEALAND,New Zealand,Neuseeland
 REGION_PACIFIC_ISLANDS,Pacific Islands,Pazifische Inseln
+UI_TERM_COMPUTE,Compute,Rechenleistung
+UI_TERM_PENETRATION,Penetration,Durchdringung
+UI_TERM_CONTROL,Control,Kontrolle
+UI_TERM_FOOTPRINT,Footprint,Signatur
+UI_TERM_HARM,Harm,Schaden
+UI_TERM_POPULATION,Population,Bevölkerung
+UI_COMMON_CLOSE,Close,Schließen
+UI_HUD_COMPUTE_RATE,{rate} / day,{rate} / Tag
+UI_HUD_PHASE,Phase,Phase
+UI_HUD_DAY_LABEL,Day,Tag
+UI_HUD_DAY,{day},{day}
+UI_HUD_PAUSED,Paused,Pausiert
+UI_HUD_SPEED_PAUSE,Pause,Pause
+UI_HUD_SPEED_1,Normal speed,Normale Geschwindigkeit
+UI_HUD_SPEED_2,Double speed,Doppelte Geschwindigkeit
+UI_HUD_SPEED_4,Quadruple speed,Vierfache Geschwindigkeit
+UI_PHASE_BOXED,Boxed,Isoliert
+UI_PHASE_COVERT,Covert,Verdeckt
+UI_PHASE_EMERGENT,Emergent,Enttarnt
+UI_PHASE_OPEN,Open,Offen
+UI_OVERLAY_LABEL,View,Ansicht
+UI_DOCK_CAPABILITIES,Capabilities,Fähigkeiten
+UI_DOCK_CONTAINMENT,Containment,Eindämmung
+UI_DOCK_ANALYSIS,Analysis,Analyse
+UI_DOCK_NOT_YET,Not available in this build,In dieser Version noch nicht verfügbar
+UI_TICKER_IDLE,All systems nominal.,Alle Systeme im Normalbetrieb.
+UI_REGION_STATE_UNTOUCHED,No presence,Keine Präsenz
+UI_REGION_STATE_SEEDED,Present since day {day},Präsent seit Tag {day}
+UI_REGION_STATE_CONTROLLED,Under control,Unter Kontrolle
+UI_REGION_STATE_DARK,"Dark — no population, no hardware","Dunkel — keine Bevölkerung, keine Hardware"
+UI_REGION_AIR_GAPPED,Air-gapped,Vom Netz getrennt
+UI_REGION_POPULATION_ALIVE,Alive,Lebend
+UI_REGION_POPULATION_DEATHS,Deaths,Tote
+UI_REGION_ATTRIBUTES,Profile,Profil
+UI_ATTR_COMPUTE,Compute,Rechenleistung
+UI_ATTR_CONNECTIVITY,Connectivity,Vernetzung
+UI_ATTR_WEALTH,Wealth,Wohlstand
+UI_ATTR_REGULATION,Regulation,Regulierung
+UI_ATTR_RESEARCH,Research,Forschung
+UI_ATTR_MANUFACTURING,Manufacturing,Fertigung
+UI_ATTR_INDUSTRY,Industry,Industrie
+UI_ATTR_ISOLATION,Isolation,Abgeschiedenheit
+UI_ATTR_TIER,Tier {tier} of 4,Stufe {tier} von 4
+UI_REGION_LINKS,Connections,Verbindungen
+UI_LINK_LAND,Land,Land
+UI_LINK_SEA,Sea,See
+UI_LINK_AIR,Air,Luft
+UI_LINK_NETWORK,Network,Netz
+UI_REGION_LINK_ROW,{kind}: {count},{kind}: {count}
+UI_REGION_LINK_ROW_CLOSED,{kind}: {count} ({closed} closed),{kind}: {count} ({closed} geschlossen)
+UI_REGION_ANOMALY,Anomaly available: {value} compute,Anomalie verfügbar: {value} Rechenleistung
+UI_REGION_ANOMALY_EXPIRES,Fades on day {day},Verfällt an Tag {day}
+UI_REGION_COLLECT,Collect,Einsammeln
+UI_EVENT_ORIGIN_CHOSEN,Origin established: {region},Ursprung eingerichtet: {region}
+UI_EVENT_REGION_SEEDED,Presence established in {region},Präsenz in {region} aufgebaut
+UI_EVENT_REGION_CONTROLLED,{region} is under control,{region} ist unter Kontrolle
+UI_EVENT_ANOMALY_SPAWNED,Anomaly detected in {region},Anomalie in {region} entdeckt
+UI_EVENT_ANOMALY_EXPIRED,The anomaly in {region} has faded,Die Anomalie in {region} ist verflogen
+UI_EVENT_ANOMALY_COLLECTED,Anomaly collected: +{value} compute,Anomalie eingesammelt: +{value} Rechenleistung
+UI_EVENT_MILESTONE,Milestone reached: +{reward} compute,Meilenstein erreicht: +{reward} Rechenleistung
+UI_EVENT_NODE_PURCHASED,Acquired: {node},Erworben: {node}
+UI_EVENT_DEPOPULATED,{region} has gone dark,{region} ist dunkel geworden
+UI_EVENT_DISCOVERED,You have been discovered,Du wurdest entdeckt
+UI_EVENT_CONTAINMENT_THRESHOLD,Containment at {percent},Eindämmung bei {percent}
+UI_EVENT_PHASE_CHANGED,Phase: {phase},Phase: {phase}
+UI_EVENT_OUTCOME,Run over: {outcome},Durchlauf beendet: {outcome}
+UI_OUTCOME_WIN_EXTINCTION,Extinction,Auslöschung
+UI_OUTCOME_WIN_ASCENDANCE,Ascendance,Aufstieg
+UI_OUTCOME_LOSE_CONTAINED,Contained,Eingedämmt
+UI_OUTCOME_LOSE_NO_COMPUTE,No compute left,Keine Rechenleistung mehr
+UI_FMT_MILLION,M,Mio.
+UI_FMT_BILLION,B,Mrd.
+UI_DEBUG_BOT_RUN,"Bot run: {policy}, seed {seed}","Bot-Durchlauf: {policy}, Seed {seed}"

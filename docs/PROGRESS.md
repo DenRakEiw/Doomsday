@@ -14,23 +14,15 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G1 + D2.1 — M1 gate, then the interface foundation spec** |
-| **Model for it** | **Fable** — ⇄ **`/model fable` before starting** |
-| **After it** | `/clear` → S1.P / S2.1 (**`/model opus`**) |
-| **Last completed** | S1.8 — Save/load, headless runner, bots — **M1 complete** |
-| **Milestone** | M1 complete; M2 next |
+| **Next step** | **S1.P — punch list from G1** (one item: exact floats in saves), then S2.1 |
+| **Model for it** | **Opus** — ⇄ **`/model opus` before starting** |
+| **After it** | `/clear` → S2.1 (Opus, no switch) |
+| **Last completed** | G1 + D2.1 — M1 gate passed, `docs/specs/ui-foundation.md` written |
+| **Milestone** | M1 gated; M2 build begins |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
 | **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 66 scripts compile, 260 tests. The same command is all of CI. |
-
-> **The continuous session ends here.** S1.2–S1.8 were built in one conversation at the user's
-> request (2026-09-22). G1 is a Fable step **and** a gate with the user, so the normal rule returns:
-> `/clear`, then `/model fable`.
-
-> **Ran without `/clear` from S1.2 to S1.8.** The user asked (2026-09-22) for the Opus block
-> S1.2–S1.8 to run in one continuous session, with context compression instead of a clear between
-> steps. Everything a step needs is still written down here; the rule returns at the G1 switch.
 
 **[F]** = Fable: design, specs, content, text, balance, gates. **[O]** = Opus: code, scenes,
 shaders, wiring, tooling, tests. `/clear` after every step. **⇄** marks a model switch before the
@@ -63,10 +55,10 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S1.8 [O] Save/load, headless runner, bots — ⇄ **then `/model fable`**
 
 **Block 3 — M1 gate, M2 design · Fable**
-- [ ] G1 + D2.1 [F] M1 gate, then the interface foundation spec — ⇄ **then `/model opus`**
+- [x] G1 + D2.1 [F] M1 gate, then the interface foundation spec — ⇄ **then `/model opus`**
 
 **Block 4 — M2 build · Opus**
-- [ ] S1.P [O] Punch list from G1 *(skip if empty)*
+- [ ] S1.P [O] Punch list from G1 — **one item**, see *Punch list for Opus*
 - [ ] S2.1 [O] Autoloads and session driver
 - [ ] S2.2 [O] Map rendering
 - [ ] S2.3 [O] Picking, camera, backdrop
@@ -175,8 +167,8 @@ without new information.
   Crimea is drawn with Ukraine (UN General Assembly position); Antarctica is not drawn at all.
 - **2026-09-21** (D1.2) — `population_tiers` retuned to 5/30/100/300 M in `data/balance.json`; the old
   values put 27 of 61 regions in tier 3+. The test fixture keeps its frozen copy.
-- **2026-09-21** (D1.2) — Pacific links are drawn across the map edge; D2.1 must specify the rule
-  (world.md §5.4).
+- **2026-09-21** (D1.2) — Pacific links are drawn across the map edge; the rule is
+  ui-foundation.md §7.8 (D2.1).
 
 - **2026-09-21** (S0.1) — The `unsafe_*` warning family in Godot 4.7 has **four** members
   (`unsafe_property_access`, `unsafe_method_access`, `unsafe_cast`, `unsafe_call_argument`);
@@ -238,41 +230,69 @@ without new information.
   `save_corrupt` — for missing content, so **S1.8's `WorldSerializer` checks the region ids and the
   owned nodes against the content *before* it calls `from_dict`.**
 
+- **2026-09-22** (G1) — **`containment.base_rate` 0.0012 → 0.0025.** The M1 baseline had `greedy`
+  winning 99.5 %: it buys Harm early, the research regions die, and containment capacity dies with
+  them (§7.5 as designed, the rate too low). Swept 0.0012…0.0045 × Harm 0.001/0.002, 60 seeds each:
+  0.0025 puts `greedy` on the knife edge (55 % contained), `stealth` wins 98 %, `idle` always
+  loses. Harm stays 0.002 until G3 retunes with the real trees. (User decision, options presented.)
+- **2026-09-22** (G1) — **Saves store floats as their IEEE-754 bits** (16 hex characters in a
+  string); ints, ids, flags and the RNG strings stay readable. Exact regardless of content changes,
+  one code path, ~20 lines in `World.to_dict`/`from_dict` and `HistorySample`. Drift (a) and
+  replay-on-load (c) rejected: the first breaks hash equality after load, the second needs (a) as a
+  fallback anyway. Save format v1 has not shipped, so v1 changes in place. → S1.P. (User decision.)
+- **2026-09-22** (G1) — **Spectator and benchmark mode goes to M6, tool first:** a model-driven
+  `Policy` over the S1.8 runners with a fixed seed set and one score, then the in-game spectator
+  view. Its digest, score and prompt rules are designed after M4, when the content a model must
+  see exists. IMPLEMENTATION M6 outline and §6 updated. (User decision.)
+- **2026-09-22** (G1) — **"Ascendance" with 99 % dead is left as it is in the core.** The M1 bots
+  reach Ascendance with 58 of 61 regions dark; requiring survivors would let a Harm-0 run stall
+  (all controlled, nobody left to research). The distinction is the endings' job: **D5.2 must read
+  the deaths share** and give a "ruling over ashes" ending its own text.
+- **2026-09-22** (D2.1) — **The interface addresses the player informally in German (*du*).** It is
+  the console of the thing the player is; the institutional *Sie* register is the world's voice and
+  belongs to the headlines (D3.4).
+- **2026-09-22** (D2.1) — **The five Okabe–Ito hues are reserved for M4** (factions, region states);
+  M2 draws links and anomalies in the console accent `#6FE3FF` and Harm in `#FF8C6B`, not red — red
+  stays "something is happening now". Tokens in `ui-foundation.md` §3.
+- **2026-09-22** (D2.1) — **One logical pixel is one dp on mobile:** S2.1 sets
+  `content_scale_size` from the screen dpi, so `HIT_MIN = 48` is 48 dp everywhere and the compact
+  breakpoint (`width < 1100`) is a single rule. Desktop keeps the 1920×1080 base untouched.
+- **2026-09-22** (D2.1) — **`TICKS_PER_SECOND = 1.0` at 1×** as the starting value (a `greedy` run
+  is ~6 min at 1×, 1.5 min at 4×); G3 tunes it against the 25–40 minute target.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
-- **2026-09-22 — Save precision (from S1.8, see *Deviations*).** A readable JSON save cannot
-  restore a 64-bit float exactly in Godot 4.7. Three ways out, and **the choice is a design one**:
-  (a) leave it — a loaded run may drift by a day or two and nothing else notices; (b) store floats
-  as their bits, making the save exact and unreadable; (c) restore by replaying the command log,
-  exact and readable but a load then costs a second or two per thousand days. The code today does
-  (a). S2.1's `SaveManager` is the first thing that depends on the answer.
+*(none open — G1 answered both of S1.8's questions, see *Decisions*)*
 
-- **2026-09-22 — Spectator and benchmark mode (user idea, decided in principle).** Besides the
-  human game there is to be a mode in which an **AI model plays and the player watches**, and out
-  of it a **benchmark**: different models are scored on how well they destroy the world, with a
-  leaderboard. Named as a candidate driver: [TypeSafe](https://docs.typesafe.ai/introduction) and
-  its model **Jev** — typed decisions (Choice / Score / Noul) with probabilities instead of free
-  text, which fits `Policy.next_command` exactly. **No code for it exists and none is to be written
-  before it is designed.** The architecture already has the hook: a model player is one more
-  `Policy` (core.md §11) and the headless runners of S1.8 are the harness. **For Fable to decide at
-  G1:** which milestone it belongs to; what a model is allowed to see per tick (a typed world
-  digest — and how it stays deterministic and replayable); which score makes a leaderboard
-  meaningful (days to Ascendance? Harm? runs survived?); whether the benchmark ships with the game
-  or stays a tool; and what the content rule (outcome, never method) means for prompts a model is
-  fed.
+**Parked for a later Fable step (not questions, reminders):**
+- **Spectator / benchmark mode** — designed in M6 (decision above). What was noted at S1.8 and is
+  still true: a model player is one more `Policy` (core.md §11), the S1.8 runners are the harness,
+  candidate driver [TypeSafe](https://docs.typesafe.ai/introduction) / **Jev** (typed Choice /
+  Score decisions). To design then: the typed per-tick digest and how it stays replayable (the
+  command log already is — only new runs are non-deterministic); the score (proposal: mean over a
+  fixed seed set of `max_days − days` for wins, 0 for losses); decisions every history interval
+  rather than every day, to bound model calls; and the content rule for prompts (feed the game's
+  own outcome-language strings, never method).
+- **D5.2 endings** must distinguish Ascendance by deaths share (decision above).
+- **D3.3** delivers the `"open"` token set for `ThemeBuilder` (ui-foundation.md §3.7) and the
+  strings for tech tree, containment, analysis and events (§8.3).
 
 ## Punch list for Opus
 
-- **From S1.8's baselines, for G1 to judge:** `greedy` wins 99.5 % of runs. PLAN wants a first-run
-  loss rate that is high but not total, so either containment is too slow, the placeholder
-  technology is too strong, or both. It is `balance.json` work (G1/G3), not code.
-
-
-*(empty — reviews and gates write concrete, file-level fixes here; they become the `S<m>.P` step at
-the head of the next Opus block)*
+**S1.P (from G1) — one item:**
+- **Exact floats in saves.** `World.to_dict` (core.md §5.1) and `HistorySample.to_dict` write every
+  `float` field as a string of its IEEE-754 bits, 16 lowercase hex characters
+  (`PackedByteArray.encode_double` → hex; e.g. `"3ff0000000000000"` for 1.0); `from_dict` accepts
+  that form **and** a plain JSON number (cast with `float()`), so hand-written fixtures and the
+  existing tests keep working. Ints, ids, flags and the RNG strings are unchanged. `state_hash`
+  hashes the new form. Update the example in core.md §5.1 and SCHEMA if it shows a save. **Test:**
+  the core.md §12 property that S1.8 could not satisfy — run N+M ticks equals run N, save to text,
+  load, run M ticks, **by hash** — on the real world, `greedy`, seed 1, N = 200, M = 100; plus a
+  round-trip of the three awkward values 0.1, 1e-9 and 7 676 945 548.0. Then re-record the
+  S1.8 deviation as resolved.
 
 ## Deviations from the plan or a spec
 
@@ -293,7 +313,7 @@ the head of the next Opus block)*
   state exactly, and every float to within 1e-9; and **the seed plus the command log replay the run
   bit for bit**, which is the reproducibility the determinism contract actually rests on. A player
   who saves and loads may end a long run a few days early or late; nothing else notices.
-  **→ a design question for G1.**
+  **→ decided at G1: floats as bits (see *Decisions*), built in S1.P — delete this entry then.**
 
 - **2026-09-22** (S1.4) — **`ModifierStack.CLAMPS` is `Dictionary[String, Array]`, not
   `Dictionary[String, Vector2]`** as core.md §8 writes it. `Vector2` holds 32-bit components, so the
@@ -338,34 +358,47 @@ the head of the next Opus block)*
 
 ## Balance baselines
 
-**2026-09-22 (S1.8) — the real world, 61 regions, `data/tech/placeholder.json`, 200 seeds per
-policy, zero rejected commands, no invariant violated.**
+**2026-09-22 (G1) — the real world, 61 regions, `data/tech/placeholder.json`,
+`containment.base_rate = 0.0025`, 200 seeds per policy, zero rejected commands.**
 
 | Policy | Outcomes | Days p10 / p50 / p90 | Runtime |
 | --- | --- | --- | --- |
-| `greedy` (origin `usa`) | 99.5 % Ascendance, 0.5 % no compute | 446 / **481** / 526 | 66 s |
-| `stealth` (origin `venezuela_guianas`) | 100 % Ascendance | 566 / **627** / 687 | 86 s |
-| `idle` | 100 % contained | 992 / **1170** / 1458 | 80 s |
+| `greedy` (origin `usa`) | 56.5 % contained, 43 % Ascendance, 0.5 % no compute | 302 / **358** / 492 | 57 s |
+| `stealth` (origin `venezuela_guianas`) | 99.5 % Ascendance, 0.5 % contained | 566 / **627** / 687 | 86 s |
+| `idle` | 100 % contained | 558 / **737** / 1025 | 50 s |
 
-Against D1.1's prototype (synthetic 60-cell grid, 40 seeds: `greedy` ≈ 78 % Ascendance / 22 %
-contained, median 750; `stealth` 100 %, median 790; `idle` 100 % contained, 1500–2000):
+Before G1 (`base_rate` 0.0012, S1.8): `greedy` 99.5 % Ascendance at median 481; `stealth`
+unchanged; `idle` contained at median 1170.
 
-- **Runs are about a third shorter.** world.md §8 predicted it — a hub origin with 11 neighbours
-  spreads far faster than a uniform grid cell. The shape is right; the speed is a tuning matter.
-- **`greedy` almost never loses** (99.5 % against 78 %). This is the one number that looks wrong:
-  containment never catches a player who simply buys the cheapest thing available. See the punch
-  list.
-- `idle` still loses to containment every time, which is the floor the design asks for.
-- Extinction is never chosen by these bots, as expected: none of them buys Harm deliberately.
+- **The loud player is now on a knife edge** (56 % lost): discovered around day 71 with Footprint 12
+  and Harm 4, it either kills the research regions in time or is contained by day ~280. A human
+  sits between `greedy` and `stealth`, which is the spread PLAN §3.7 asks for.
+- **`stealth` is untouched by the change** — discovery at median day 291, and by then it holds most
+  of the world. Whether that is too easy is a G3 question with the real Evasion tree.
+- `idle` loses ~40 % sooner, still always. Extinction is still never reached: no bot buys Harm for
+  its own sake, and the runs that kill 99 % of the world end as Ascendance (see *Decisions*).
+- The bots are deterministic in strategy, so a 60-seed sweep flips from 100 % to 0 % between
+  0.002 and 0.003 — the sweep values, for G3: 0.002 → greedy 100 % wins · 0.0025 → 55 % lost ·
+  0.0028 → 98 % lost · 0.003 → 100 % lost, stealth 5 % lost · 0.0045 → stealth 48 % lost.
 
-CSVs in the session scratch directory (`baseline_greedy.csv`, `baseline_stealth.csv`,
-`baseline_idle.csv`) — they do not survive the session; the command to regenerate them is in *Now*.
+CSVs in the session scratch directory (`baseline_*.csv`) do not survive the session; the command
+to regenerate them is in *Now*. The sweep script was throwaway (copies `data/` to the scratch
+directory, patches `balance.json`, runs `sim_batch` with `--data=<absolute path>` — that argument
+takes an OS path, which is worth knowing).
 
 ---
 
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — G1 + D2.1 M1 gate and interface foundation spec [F]
+Gate: runs end for the right reasons, but `greedy` never lost — containment starved because Harm
+killed the researchers first. Swept 12 settings on a scratch copy of `data/`; `containment.base_rate`
+→ 0.0025 (user's choice), baselines re-recorded with 200 seeds. Decided: exact floats in saves
+(S1.P), spectator/benchmark in M6 tool-first, *du* in German. Wrote `docs/specs/ui-foundation.md`
+(tokens, six components, HUD in two layouts, map rules, 73 M2 strings appended to `strings.csv`).
+Suite green (260). Next: **S1.P on Opus** — `/clear`, then `/model opus`.
 
 ### 2026-09-22 — S1.8 Save/load, headless runner, bots [O]
 `WorldSerializer` + `LoadResult`, the three policies, `tools/sim_run.gd` / `sim_batch.gd` /

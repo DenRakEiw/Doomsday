@@ -515,8 +515,8 @@ overrides.
 
 ### S2.5 — HUD and region panel **[O]**
 **Build:** top bar, core stat bars, right dock, ticker placeholder, region panel, all bound to live
-state. `data/loc/strings.csv` starts here from the spec's string table; locale switch in
-`Settings`. Safe-area `MarginContainer` at the root. Both breakpoint layouts.
+state. The M2 keys are already in `data/loc/strings.csv` (D2.1 wrote them, spec §8); S2.5 wires
+them; locale switch in `Settings`. Safe-area `MarginContainer` at the root. Both breakpoint layouts.
 **Verify:** screenshots in both locales and both layouts; German strings do not clip.
 **Done when:** the HUD reflects live simulation state and never fully covers the map.
 
@@ -721,7 +721,11 @@ Post-processing pass (layer 1025 from script), scanlines, dither, aberration, ow
 phase-shift theme variants · icon pipeline (sets, DPITexture or PNG atlas, ~25 custom silhouettes)
 · audio · tutorial · accessibility · performance on a low-end target · `PlatformService`,
 GodotSteam, achievements · credits and licences screen · export presets and release CI · final
-balance. **Gate: shippable on Steam.** Expect art direction, tutorial script, icon briefs and audio
+balance · **spectator and benchmark mode** (decided at G1, 2026-09-22): first a headless tool — a
+model-driven `Policy` over the S1.8 runners, a fixed seed set, one score, a leaderboard file —
+then the in-game spectator mode that watches such a run; its digest, score and prompt rules are a
+**[F]** step designed after M4, when the trees, factions and events the model must see exist.
+**Gate: shippable on Steam.** Expect art direction, tutorial script, icon briefs and audio
 direction as **[F]**; shaders, integration and export as **[O]**.
 
 ## M7 — Platforms (outline)
@@ -745,3 +749,4 @@ demo (single-threaded Compatibility build, size budget) · store pages and marke
 | CONTENT q1, q2 — chain persistence, chains per run | D4.2, confirmed G4 |
 | CONTENT q3 — Value Drift | D5.1, playtested G5 |
 | CONTENT q4 — Containment mode | G5 |
+| Spectator / benchmark mode (user idea, G1) | designed in M6, after M4's content exists; the `Policy` hook and the headless runners already fit it |
