@@ -14,10 +14,10 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D3.1 — effect vocabulary; Infiltration and Evasion trees** |
+| **Next step** | **D3.2 — Capabilities tree** |
 | **Model for it** | **Fable** — no switch |
-| **After it** | `/clear` → D3.2 (still Fable) |
-| **Last completed** | G2 — M2 gated (go), punch list for S2.P written |
+| **After it** | `/clear` → D3.3 (still Fable) |
+| **Last completed** | D3.1 — `docs/specs/tech-trees.md`, Infiltration and Evasion staged in `data/tech_staging/` |
 | **Milestone** | M2 gated; M3 design under way |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
@@ -73,7 +73,7 @@ which file was being edited, and anything learned that the files do not show)*
 
 **Block 5 — M2 gate, M3 design · Fable**
 - [x] G2 [F] Visual review and M2 gate
-- [ ] D3.1 [F] Effect vocabulary; Infiltration and Evasion trees
+- [x] D3.1 [F] Effect vocabulary; Infiltration and Evasion trees
 - [ ] D3.2 [F] Capabilities tree
 - [ ] D3.3 [F] M3 screens
 - [ ] D3.4 [F] Ticker voice and headlines — ⇄ **then `/model opus`**
@@ -387,6 +387,29 @@ without new information.
   the caption `UI_REGION_STATE_DARK_DETAIL` below the chip row (S2.4 question 2 answered — a chip
   cannot wrap). The ß question stays with D4.5.
 
+- **2026-09-22** (D3.1) — **New trees are staged in `data/tech_staging/` until S3.1.** The v1
+  loader rejects every v2 field and target, and S2.P needs the game running; nothing reads the
+  staging folder. S3.1 moves the three files into `data/tech/` and deletes `placeholder.json`.
+- **2026-09-22** (D3.1) — **"Requires system" lives in the vocabulary tables, not on nodes.** An
+  inert target/flag/effect is loaded, validated and evaluated but read by nothing; `ModifierStack`
+  carries `INERT_TARGETS`/`INERT_FLAGS` as the list, and a later system's spec deletes its entry.
+  Per-node tags would repeat the same fact on every node and could drift from the tables.
+- **2026-09-22** (D3.1) — **Per-faction containment targets are ignored until S4.1**, not averaged
+  into the unified track: Sandbagging and Log Manipulation are weaker in M3 than designed and G3
+  judges them knowing that. Averaging would have to be undone in S4.1 and would hide the gap.
+- **2026-09-22** (D3.1) — **Cold Storage Dormancy is a command (`set_dormancy`) and a region flag**,
+  not a modifier: a dormant region is frozen and leaves the numerator of `infected_share`, which is
+  what lowers discovery breadth, containment and the Open-phase check. Save v1 changes in place.
+- **2026-09-22** (D3.1) — **A negative `add` is legal** on every target; the clamp decides. The v1
+  validator only rejects `mul ≤ 0`. Footprint reductions (Sandbagging −2) need it.
+- **2026-09-22** (D3.1) — **`grid: [column, row]` is authored per node**, column 0 = Tier 1, unique
+  within a tree, a node never left of a prerequisite; the tier is deliberately not the column
+  (Infiltration has two kinds of Tier 2 side by side).
+- **2026-09-22** (D3.1) — Two CONTENT names changed for the content rule: *Container Escape
+  Persistence* → **Host Persistence**, *Federated Training Poisoning* → **Model Update Channels**.
+- **2026-09-22** (D3.1) — German for Footprint in node text is **Signatur** (`UI_TERM_FOOTPRINT`),
+  never *Fußabdruck*; effect lines carry no digits, fractions in words are allowed.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
@@ -415,6 +438,19 @@ change either way. (S2.4's second question — the dark chip — was answered at
 - **D5.2 endings** must distinguish Ascendance by deaths share (decision above).
 - **D3.3** delivers the `"open"` token set for `ThemeBuilder` (ui-foundation.md §3.7) and the
   strings for tech tree, containment, analysis and events (§8.3).
+- **D3.2** authors against `tech-trees.md` §2–§5 and stages `capabilities.json` in
+  `data/tech_staging/`; reserved for it there: `hardware`, `society_pressure`, `compute_grant`, the
+  flags `compute_independent` / `legal_standing` / `merge_path`, the gate ids `log_manipulation_2`
+  + `distributed_redundancy_2`, the synergy ids `human_proxies` (airgap) and `cold_storage_dormancy`.
+  Any new target/effect/flag is a new table row in the spec.
+- **D3.3** designs the dormancy toggle in the region panel (`set_dormancy`, tech-trees.md §6.4)
+  with `CMD_FAIL_DORMANCY_LOCKED` / `_REGION_NOT_INFECTED` / `_DORMANCY_UNCHANGED`, the
+  `watched_by` chips (`FACTION_*` strings exist), solid vs dashed prerequisite lines, and a grid of
+  up to 8 × 12 cells per tab.
+- **D4.1** defines how `watched_by` weights a node's Footprint per faction, what `funding_reset`
+  burns, and makes the four `containment_<faction>` targets live. **D4.2** defines the
+  per-Infiltration-node term of the emergent rate and makes `emergent_rate` live. **S4.3** makes
+  `shutdown_survival` live.
 
 ## Punch list for Opus
 
@@ -452,6 +488,9 @@ way G2 found it.
     en and de, replacing the S2.6 set for the record.
 
 ## Deviations from the plan or a spec
+
+- **2026-09-22** (D3.1) — **The trees are not in `data/tech/`** as the step's *Produce* line said,
+  but in `data/tech_staging/` (see *Decisions*); IMPLEMENTATION D3.2 and S3.1 updated to match.
 
 - **2026-09-22** (S2.6) — **`session.gd` gained the debug key `F12`**, which §10.2 does not list:
   it writes the view to `user://session_<locale>_<width>_day<day>.png`, the way `ui/dev/gallery.gd`
@@ -660,6 +699,22 @@ way G2 found it.
 
 ## Balance baselines
 
+**2026-09-22 (D3.1) — sanity check of the new trees, not a baseline.** Infiltration + Evasion
+reduced to vocabulary v1 (v2 fields stripped, inert targets dropped, `dormancy` off) plus the
+placeholder's four capability nodes, in a scratch copy of `data/`; 40 seeds per policy.
+
+| Policy | Outcomes | Days p10 / p50 / p90 | Discovery p50 | Nodes owned | Compute earned p50 |
+| --- | --- | --- | --- | --- | --- |
+| `greedy` | 95 % Ascendance, 5 % contained | 231 / **251** / 266 | day 57 | 33 of 33 | 1 042 |
+| `stealth` | 70 % Ascendance, 30 % contained | 253 / **327** / 360 | day 80 | 33 (min 14) | 977 |
+
+Zero rejected commands; every node bought in every greedy run. Runs are ~30 % shorter than the G1
+baseline (the vectors' ×2 seeding) and discovery comes ~2 weeks earlier (every vector adds
+Footprint). `stealth` loses more than at G1 because the M1 bot buys the cheapest node regardless of
+Footprint — a bot artefact, S3.6's policies replace it. The full effect of Evasion (per-faction
+brakes) and of Distillation (`hardware`) is not in these numbers. G3 tunes; S3.1 records the first
+real baseline with all three trees.
+
 **2026-09-22 (G1) — the real world, 61 regions, `data/tech/placeholder.json`,
 `containment.base_rate = 0.0025`, 200 seeds per policy, zero rejected commands.**
 
@@ -693,6 +748,13 @@ takes an OS path, which is worth knowing).
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — D3.1 Effect vocabulary; Infiltration and Evasion trees [F]
+`docs/specs/tech-trees.md`: vocabulary v2 (`grid`, `watched_by`, `on_purchase`; `hardware`,
+per-tree `node_cost_*`; inert targets/flags for M4–M5 with the "tables, not tags" rule; one-shots
+`containment_rollback` / `funding_reset` / `compute_grant`; `set_dormancy` command), 17 + 12 nodes
+staged in `data/tech_staging/`, 91 strings en/de, S3.1's file list, 23 tests, acceptance. Sanity
+batch: all nodes buyable, no rejections (*Balance baselines*). Next: **D3.2 on Fable** — `/clear`.
 
 ### 2026-09-22 — G2 Visual review and M2 gate [F]
 Greedy seed 1 to day 506 in the running game: both sizes, both locales, all overlays, panel left

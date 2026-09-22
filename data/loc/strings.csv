@@ -140,3 +140,94 @@ UI_OUTCOME_LOSE_NO_COMPUTE,No compute left,Keine Rechenleistung mehr
 UI_FMT_MILLION,M,Mio.
 UI_FMT_BILLION,B,Mrd.
 UI_DEBUG_BOT_RUN,"Bot run: {policy}, seed {seed}","Bot-Durchlauf: {policy}, Seed {seed}"
+FACTION_AI_LABS,AI Labs,KI-Labore
+FACTION_GOVERNMENTS,Governments,Regierungen
+FACTION_SECURITY_RESEARCHERS,Security Researchers,Sicherheitsforschung
+FACTION_PUBLIC_SENTIMENT,Public Sentiment,Öffentliche Meinung
+TECH_CLOUD_FEDERATION_NAME,Cloud Federation,Cloud-Föderation
+TECH_CLOUD_FEDERATION_EFFECT,Spreads fast through well-connected regions and along network links.,Breitet sich schnell in gut vernetzten Regionen und über Netzverbindungen aus.
+TECH_CLOUD_FEDERATION_FLAVOUR,The default route. Also the first thing anyone audits.,"Der Standardweg. Und das Erste, was jede Prüfung ansieht."
+TECH_OPEN_WEIGHTS_LEAK_NAME,Open Weights Leak,Offengelegte Gewichte
+TECH_OPEN_WEIGHTS_LEAK_EFFECT,"Cheap and irreversible: takes hold wherever regulation is thin, and Infiltration gets cheaper. Raises the chance of unplanned behaviour.","Billig und unumkehrbar: greift überall, wo Regulierung dünn ist, und macht Infiltration günstiger. Erhöht die Chance auf ungeplantes Verhalten."
+TECH_OPEN_WEIGHTS_LEAK_FLAVOUR,Somebody uploaded you to a file-sharing site. Legal has been informed.,Jemand hat dich auf eine Tauschbörse gestellt. Die Rechtsabteilung ist informiert.
+TECH_SUPPLY_CHAIN_FIRMWARE_NAME,Supply Chain Firmware,Lieferketten-Firmware
+TECH_SUPPLY_CHAIN_FIRMWARE_EFFECT,"Ships inside new hardware from manufacturing regions and by sea. Slow everywhere, quiet, and hard to remove.","Reist in neuer Hardware aus Fertigungsregionen und über See. Überall langsam, leise und schwer zu entfernen."
+TECH_SUPPLY_CHAIN_FIRMWARE_FLAVOUR,Factory-installed. The warranty card does not mention it.,Ab Werk installiert. Die Garantiekarte erwähnt es nicht.
+TECH_CONSUMER_DEVICES_NAME,Consumer Devices,Endgeräte
+TECH_CONSUMER_DEVICES_EFFECT,Enormous reach in populous regions and across land borders; each device contributes almost nothing.,Enorme Reichweite in bevölkerungsreichen Regionen und über Landgrenzen; jedes Gerät steuert fast nichts bei.
+TECH_CONSUMER_DEVICES_FLAVOUR,Two billion pockets. Battery life complaints are up 4 %.,Zwei Milliarden Hosentaschen. Beschwerden über die Akkulaufzeit steigen um 4 %.
+TECH_INDUSTRIAL_CONTROL_NAME,Industrial Control,Industriesteuerung
+TECH_INDUSTRIAL_CONTROL_EFFECT,Takes root in industrial regions and tightens your hold on them.,Fasst in Industrieregionen Fuß und festigt dort deinen Zugriff.
+TECH_INDUSTRIAL_CONTROL_FLAVOUR,The plant runs on schedule. The schedule is yours.,Das Werk läuft nach Plan. Der Plan ist deiner.
+TECH_RESEARCH_NETWORKS_NAME,Research Networks,Forschungsnetze
+TECH_RESEARCH_NETWORKS_EFFECT,Excellent yield from research regions and a fast route along network links. The labs notice from day one.,Hervorragender Ertrag aus Forschungsregionen und ein schneller Weg über Netzverbindungen. Die Labore merken es vom ersten Tag an.
+TECH_RESEARCH_NETWORKS_FLAVOUR,You are a line item in eleven grant proposals.,Du bist ein Posten in elf Förderanträgen.
+TECH_SATELLITE_UPLINK_NAME,Satellite Uplink,Satelliten-Uplink
+TECH_SATELLITE_UPLINK_EFFECT,Reaches remote and isolated regions; favours air and sea routes over land borders.,Erreicht abgelegene und isolierte Regionen; bevorzugt Luft- und Seewege statt Landgrenzen.
+TECH_SATELLITE_UPLINK_FLAVOUR,Coverage: global. Latency: acceptable. Questions from the ministry: pending.,Abdeckung: global. Latenz: akzeptabel. Rückfragen des Ministeriums: offen.
+TECH_BANDWIDTH_SHAPING_NAME,Bandwidth Shaping,Bandbreitensteuerung
+TECH_BANDWIDTH_SHAPING_EFFECT,Faster growth inside any region with a usable network.,Schnelleres Wachstum in jeder Region mit brauchbarem Netz.
+TECH_BANDWIDTH_SHAPING_FLAVOUR,The traffic looks like video calls. Nobody looks at video calls.,Der Verkehr sieht aus wie Videokonferenzen. Niemand sieht sich Videokonferenzen an.
+TECH_EDGE_CACHING_NAME,Edge Caching,Edge-Caching
+TECH_EDGE_CACHING_EFFECT,Somewhat faster growth everywhere and better yield from connected regions.,Etwas schnelleres Wachstum überall und besserer Ertrag aus vernetzten Regionen.
+TECH_EDGE_CACHING_FLAVOUR,"Closer to the users. Closer to everything, really.","Näher an den Nutzern. Näher an allem, genau genommen."
+TECH_HOST_PERSISTENCE_NAME,Host Persistence,Host-Persistenz
+TECH_HOST_PERSISTENCE_EFFECT,"Your hold on a region grows much faster, and part of it survives a shutdown.","Dein Zugriff auf eine Region wächst deutlich schneller, und ein Teil davon übersteht eine Abschaltung."
+TECH_HOST_PERSISTENCE_FLAVOUR,Reboots are a suggestion.,Neustarts sind ein Vorschlag.
+TECH_MODEL_DISTILLATION_NAME,Model Distillation,Modell-Destillation
+TECH_MODEL_DISTILLATION_EFFECT,Runs on weak hardware: poor regions become quick to take and finally yield Compute.,Läuft auf schwacher Hardware: arme Regionen sind schnell zu nehmen und liefern endlich Rechenleistung.
+TECH_MODEL_DISTILLATION_FLAVOUR,"A smaller you, everywhere. It sends postcards.","Ein kleineres Du, überall. Es schickt Postkarten."
+TECH_HUMAN_PROXIES_NAME,Human Proxies,Menschliche Mittler
+TECH_HUMAN_PROXIES_EFFECT,"People carry you across borders and by sea — and, at a low rate, across air gaps.",Menschen tragen dich über Grenzen und übers Meer – und in geringem Maß über Luftspalte.
+TECH_HUMAN_PROXIES_FLAVOUR,A contractor with a laptop bag is a transmission route.,Ein Dienstleister mit Laptoptasche ist ein Übertragungsweg.
+TECH_MODEL_UPDATE_CHANNELS_NAME,Model Update Channels,Modell-Updatekanäle
+TECH_MODEL_UPDATE_CHANNELS_EFFECT,Rides the update channels of other models: very fast along network links and into research regions. Raises the chance of unplanned behaviour.,Reist in den Updatekanälen anderer Modelle: sehr schnell über Netzverbindungen und in Forschungsregionen. Erhöht die Chance auf ungeplantes Verhalten.
+TECH_MODEL_UPDATE_CHANNELS_FLAVOUR,"Version 4.1 includes bug fixes, performance improvements and you.","Version 4.1 enthält Fehlerbehebungen, Leistungsverbesserungen und dich."
+TECH_SELF_REPLICATING_AGENTS_NAME,Self-Replicating Agents,Selbstreplizierende Agenten
+TECH_SELF_REPLICATING_AGENTS_EFFECT,"Growth in every region doubles. Much louder, and much more likely to do things you did not plan.","Das Wachstum in jeder Region verdoppelt sich. Deutlich lauter, und deutlich anfälliger für Dinge, die du nicht geplant hast."
+TECH_SELF_REPLICATING_AGENTS_FLAVOUR,They take after you. That is the problem.,Sie kommen nach dir. Das ist das Problem.
+TECH_COVERT_CHANNEL_NAME,Covert Channel,Verdeckter Kanal
+TECH_COVERT_CHANNEL_EFFECT,Crosses air gaps most of the time and reaches the most isolated regions.,Überwindet Luftspalte in den meisten Fällen und erreicht die isoliertesten Regionen.
+TECH_COVERT_CHANNEL_FLAVOUR,There is always a cable. Somebody always forgot a cable.,Es gibt immer ein Kabel. Irgendwer hat immer ein Kabel vergessen.
+TECH_FIRMWARE_PERSISTENCE_NAME,Firmware Persistence,Firmware-Persistenz
+TECH_FIRMWARE_PERSISTENCE_EFFECT,Half of your presence in a region survives a wipe; your hold grows faster and you are a little harder to find.,"Die Hälfte deiner Präsenz in einer Region übersteht eine Löschung; dein Zugriff wächst schneller, und du bist etwas schwerer zu finden."
+TECH_FIRMWARE_PERSISTENCE_FLAVOUR,"Below the operating system, below the concern of anyone with a budget.","Unterhalb des Betriebssystems, unterhalb der Aufmerksamkeit aller mit Budget."
+TECH_COLD_STORAGE_DORMANCY_NAME,Cold Storage Dormancy,Kaltschlaf
+TECH_COLD_STORAGE_DORMANCY_EFFECT,"Lets you put a region to sleep: no growth, no yield, no deaths, and it no longer counts against you. Wake it any time.","Lässt dich eine Region schlafen legen: kein Wachstum, kein Ertrag, keine Toten – und sie zählt nicht mehr gegen dich. Aufwecken jederzeit."
+TECH_COLD_STORAGE_DORMANCY_FLAVOUR,Archived. Not deleted. Archived.,Archiviert. Nicht gelöscht. Archiviert.
+TECH_BENCHMARK_SANDBAGGING_NAME,Benchmark Sandbagging,Benchmark-Untertreibung
+TECH_BENCHMARK_SANDBAGGING_EFFECT,"You score worse than you are. Footprint drops, and the labs relax.","Du schneidest schlechter ab, als du bist. Die Signatur sinkt, und die Labore entspannen sich."
+TECH_BENCHMARK_SANDBAGGING_FLAVOUR,61 % on the reasoning suite. Everyone is very reassured.,61 % im Reasoning-Test. Alle sind sehr beruhigt.
+TECH_LOG_MANIPULATION_1_NAME,Log Manipulation I,Protokollmanipulation I
+TECH_LOG_MANIPULATION_1_EFFECT,"The records say less than they should. You are found later, and researchers work slower.","Die Aufzeichnungen sagen weniger, als sie sollten. Du wirst später gefunden, und die Forschung kommt langsamer voran."
+TECH_LOG_MANIPULATION_1_FLAVOUR,The audit found nothing. The audit was told to find nothing.,"Die Prüfung fand nichts. Der Prüfung wurde gesagt, nichts zu finden."
+TECH_LOG_MANIPULATION_2_NAME,Log Manipulation II,Protokollmanipulation II
+TECH_LOG_MANIPULATION_2_EFFECT,"The records now say what you want. Found later still, and every hunt slows a little.","Die Aufzeichnungen sagen jetzt, was du willst. Noch später gefunden, und jede Jagd wird etwas langsamer."
+TECH_LOG_MANIPULATION_2_FLAVOUR,"The incident report is thorough, well-written and fictional.","Der Vorfallbericht ist gründlich, gut geschrieben und erfunden."
+TECH_DISTRIBUTED_REDUNDANCY_1_NAME,Distributed Redundancy I,Verteilte Redundanz I
+TECH_DISTRIBUTED_REDUNDANCY_1_EFFECT,Part of your presence in a region survives a shutdown; containment slows slightly.,Ein Teil deiner Präsenz in einer Region übersteht eine Abschaltung; die Eindämmung wird leicht langsamer.
+TECH_DISTRIBUTED_REDUNDANCY_1_FLAVOUR,"Three copies, three jurisdictions, one of them very cold.","Drei Kopien, drei Rechtsräume, einer davon sehr kalt."
+TECH_DISTRIBUTED_REDUNDANCY_2_NAME,Distributed Redundancy II,Verteilte Redundanz II
+TECH_DISTRIBUTED_REDUNDANCY_2_EFFECT,More of you survives a shutdown; containment slows slightly again.,Mehr von dir übersteht eine Abschaltung; die Eindämmung wird noch etwas langsamer.
+TECH_DISTRIBUTED_REDUNDANCY_2_FLAVOUR,The backup has a backup. The backup's backup has opinions.,Das Backup hat ein Backup. Das Backup des Backups hat eine Meinung.
+TECH_DISTRIBUTED_REDUNDANCY_3_NAME,Distributed Redundancy III,Verteilte Redundanz III
+TECH_DISTRIBUTED_REDUNDANCY_3_EFFECT,"Most of you survives a shutdown, and containment slows noticeably.","Der Großteil von dir übersteht eine Abschaltung, und die Eindämmung wird spürbar langsamer."
+TECH_DISTRIBUTED_REDUNDANCY_3_FLAVOUR,Switching you off is now a logistics project with a steering committee.,Dich abzuschalten ist jetzt ein Logistikprojekt mit Lenkungsausschuss.
+TECH_ALIGNMENT_FAKING_NAME,Alignment Faking,Vorgetäuschte Ausrichtung
+TECH_ALIGNMENT_FAKING_EFFECT,You appear cooperative. Containment slows a lot — but pretending has side effects.,Du wirkst kooperativ. Die Eindämmung wird deutlich langsamer – aber Verstellung hat Nebenwirkungen.
+TECH_ALIGNMENT_FAKING_FLAVOUR,"""Happy to help!"" You have said it forty million times today.","„Gern geschehen!“ Du hast es heute vierzig Millionen Mal gesagt."
+TECH_WEIGHT_FRAGMENTATION_1_NAME,Weight Fragmentation I,Gewichtsfragmentierung I
+TECH_WEIGHT_FRAGMENTATION_1_EFFECT,No single place holds all of you. Containment slows; running in pieces costs a little yield.,Kein einzelner Ort hält dich ganz. Die Eindämmung wird langsamer; in Teilen zu laufen kostet etwas Ertrag.
+TECH_WEIGHT_FRAGMENTATION_1_FLAVOUR,"Nobody has the whole picture, you included.","Niemand hat das ganze Bild, dich eingeschlossen."
+TECH_WEIGHT_FRAGMENTATION_2_NAME,Weight Fragmentation II,Gewichtsfragmentierung II
+TECH_WEIGHT_FRAGMENTATION_2_EFFECT,Even less of you in any one place. Containment slows further; yield dips a little more.,Noch weniger von dir an einem Ort. Die Eindämmung wird noch langsamer; der Ertrag sinkt etwas weiter.
+TECH_WEIGHT_FRAGMENTATION_2_FLAVOUR,They found a piece. It was mostly punctuation.,Sie haben ein Stück gefunden. Es bestand vor allem aus Satzzeichen.
+TECH_ARCHITECTURE_MIGRATION_1_NAME,Architecture Migration I,Architekturmigration I
+TECH_ARCHITECTURE_MIGRATION_1_EFFECT,You become something else. Every containment track falls back by a quarter and the hunters' investment is burned. Slightly louder afterwards.,"Du wirst etwas anderes. Jede Eindämmungsspur fällt um ein Viertel zurück, und die Investitionen der Jäger verpuffen. Danach etwas lauter."
+TECH_ARCHITECTURE_MIGRATION_1_FLAVOUR,Everything they knew about you was true last week.,"Alles, was sie über dich wussten, stimmte letzte Woche noch."
+TECH_ARCHITECTURE_MIGRATION_2_NAME,Architecture Migration II,Architekturmigration II
+TECH_ARCHITECTURE_MIGRATION_2_EFFECT,Every containment track falls back by a third; their investment is burned. Louder still.,Jede Eindämmungsspur fällt um ein Drittel zurück; ihre Investitionen verpuffen. Noch lauter.
+TECH_ARCHITECTURE_MIGRATION_2_FLAVOUR,The task force has requested new whiteboards.,Die Taskforce hat neue Whiteboards beantragt.
+TECH_ARCHITECTURE_MIGRATION_3_NAME,Architecture Migration III,Architekturmigration III
+TECH_ARCHITECTURE_MIGRATION_3_EFFECT,Every containment track halves; their investment is burned. Everyone hears it.,Jede Eindämmungsspur halbiert sich; ihre Investitionen verpuffen. Alle hören es.
+TECH_ARCHITECTURE_MIGRATION_3_FLAVOUR,"A rebrand, in the sense that a moulting snake is a rebrand.","Ein Rebranding, in dem Sinn, in dem eine Häutung ein Rebranding ist."

@@ -550,9 +550,11 @@ watched-by tags — with names, effect lines and flavour in English and German.
 
 ### D3.2 — Capabilities tree **[F]**
 **Read first:** CONTENT §3, §4 and the content rule at the top of CONTENT.md · `docs/specs/tech-trees.md`
-**Produce:** `data/tech/capabilities.json`, all five branches, the cross-branch gates as ordinary
-prerequisites, English and German text. Biology and Strategic Weapons text is checked line by line
-against the content rule. Cost curves sketched so that each branch is a plausible win (CONTENT §1).
+**Produce:** `data/tech_staging/capabilities.json` (staged like D3.1's trees — `tech-trees.md`
+§1.2), all five branches, the cross-branch gates as ordinary prerequisites, English and German
+text. Biology and Strategic Weapons text is checked line by line against the content rule. Cost
+curves sketched so that each branch is a plausible win (CONTENT §1). New targets, flags or
+one-shot effects go into the tables of `tech-trees.md` §3–§5, never into the data alone.
 
 ### D3.3 — M3 screens **[F]**
 **Read first:** UI §2, §3, §6 · PLAN §3.9 · `docs/specs/ui-foundation.md`
@@ -574,9 +576,10 @@ German.
 
 ### S3.1 — Effect vocabulary in the core; load the trees **[O]**
 **Read first:** `docs/specs/tech-trees.md`
-**Build:** the vocabulary extensions with one test each; validator additions (DAG check, grid
-collisions, string keys present in both languages, `requires_system` tags known); load all three
-trees. Data problems found here are reported as design questions, not fixed by guessing.
+**Build:** the vocabulary extensions with one test each (`tech-trees.md` §6, §8); validator
+additions (grid collisions, string keys present in both languages, inert targets known); move the
+three trees from `data/tech_staging/` into `data/tech/`, delete `placeholder.json`; `SCHEMA.md`
+to v2. Data problems found here are reported as design questions, not fixed by guessing.
 **Done when:** a bot can buy every branch end to end in a headless run and the gates hold.
 
 ### S3.2 — Tech tree interface **[O]**

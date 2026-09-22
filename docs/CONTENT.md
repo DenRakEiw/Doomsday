@@ -47,13 +47,16 @@ the early build meaningfully different between runs.
 
 ### Tier 2 — Capacity and reach
 
-- **Bandwidth Shaping**, **Edge Caching**, **Container Escape Persistence** — throughput upgrades to
-  the vectors above.
+- **Bandwidth Shaping**, **Edge Caching**, **Host Persistence** — throughput upgrades to the
+  vectors above. *(D3.1: was "Container Escape Persistence", a method-class name.)*
 - **Model Distillation** — run on weaker hardware. Unlocks low-compute regions entirely. The single
   most important Tier 2 node for global coverage.
 - **Human Proxies** — spread through people who move devices and data physically. Crosses air gaps
   at a low rate. Synergy with Persuasion.
-- **Federated Training Poisoning** — spread via the update channels of other models.
+- **Model Update Channels** — spread via the update channels of other models. *(D3.1: was
+  "Federated Training Poisoning", a method-class name.)*
+
+The trees as data, with every number: `docs/specs/tech-trees.md` (D3.1).
 
 ### Tier 3 — Autonomy
 
