@@ -10,6 +10,10 @@ extends RefCounted
 ##
 ## Never instantiated; it is a namespace of constants.
 
+## Where `reduced_motion` looks for the setting, and what it reads there.
+const SETTINGS_PATH: NodePath = ^"/root/Settings"
+const SETTING_REDUCED_MOTION: StringName = &"reduced_motion"
+
 ## Built on first use by `ramp_texture`, then shared by everything that ramps.
 static var _ramp: GradientTexture1D = null
 
@@ -35,6 +39,10 @@ const TEXT_2: Color = Color("#5E7282")
 ## The console's own voice: focus, primary action, active state, links, anomalies.
 const ACCENT: Color = Color("#6FE3FF")
 const ACCENT_DIM: Color = Color("#2E6E80")
+## The two lit states of a primary button (§4.2). They are colours, so they live
+## here and not in the theme builder.
+const ACCENT_HOVER: Color = Color("#8FEAFF")
+const ACCENT_PRESSED: Color = Color("#4FCBE8")
 ## Reserved for "something is happening right now"; never a permanent fill.
 const ALERT: Color = Color("#FF3B3B")
 ## Text on an accent or alert fill.
@@ -138,6 +146,16 @@ const BORDER_FOCUS: int = 2
 ## one dp (§6.1), so this is 48 dp everywhere.
 const HIT_MIN: int = 48
 
+## §4.4's geometry for `StatBar`: the bar itself, the full row, and the one-line
+## compact row of §5.7. Sizes rather than spacing, so they stand apart from the
+## scale above.
+const BAR_HEIGHT: int = 12
+const BAR_MIN_HEIGHT: int = 44
+const BAR_COMPACT_HEIGHT: int = 28
+## The glyph box an `IconButton` draws in, and its stroke (§4.3).
+const GLYPH_BOX: int = 24
+const GLYPH_STROKE: float = 2.0
+
 
 # -------------------------------------------------------------------- §3.4 motion
 
@@ -160,12 +178,40 @@ const TICKER_SPEED: float = 80.0
 const TICKER_SPEED_COMPACT: float = 60.0
 
 
+# --------------------------------------------------------------- derived values
+
+
+## How much accent a pressed `ConsoleButton` takes over its resting surface
+## (§4.2, "`ACCENT` at 20 % over `BG_3`").
+const PRESSED_WASH: float = 0.2
+
+
+## The pressed surface of §4.2 — a blend of two tokens, which a `const` cannot
+## hold. Everything that needs the colour asks here, so it still has one source.
+static func accent_wash() -> Color:
+	return BG_3.lerp(ACCENT, PRESSED_WASH)
+
+
 ## A motion token as tween seconds, or 0 while `Settings.reduced_motion` is on.
 ## Every component asks here; nobody reads the setting by hand.
+##
+## The autoload is looked up by path rather than named: a script that names one
+## cannot be compiled outside the tree (PROGRESS.md, *Known issues*), and
+## `tools/build_theme.gd` has to be able to load this file.
 static func duration(motion_ms: int) -> float:
-	if Settings != null and Settings.reduced_motion:
+	if reduced_motion():
 		return 0.0
 	return float(motion_ms) / 1000.0
+
+
+## Whether motion is off right now. False wherever there is no `Settings` — a
+## test or a tool has no autoloads and animates nothing.
+static func reduced_motion() -> bool:
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	if tree == null or tree.root == null:
+		return false
+	var settings: Node = tree.root.get_node_or_null(SETTINGS_PATH)
+	return settings != null and bool(settings.get(SETTING_REDUCED_MOTION))
 
 
 ## The §3.1 ramp as a 256-wide gradient, built once and shared by the map shader

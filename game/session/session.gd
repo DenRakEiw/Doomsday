@@ -19,6 +19,10 @@ const MARGIN_CONSTANTS: Array[String] = ["margin_left", "margin_top", "margin_ri
 
 
 func _ready() -> void:
+	# §5.1: the session root carries the theme. `project.godot` names the same
+	# theme so the editor knows the type variations, but only an assignment here
+	# can be swapped at runtime — which is what D3.3's phase palette needs.
+	theme = ThemeBuilder.build(ThemeBuilder.VARIANT_COLD)
 	get_window().size_changed.connect(_on_window_size_changed)
 	_apply_logical_scale()
 	_apply_safe_area()

@@ -14,15 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S2.4 — theme and component library** |
+| **Next step** | **S2.5 — HUD and region panel** |
 | **Model for it** | **Opus** — no switch |
-| **After it** | `/clear` → S2.5 (Opus, no switch) |
-| **Last completed** | S2.3 — picking, camera, backdrop; any region can be hovered and selected at any zoom |
+| **After it** | `/clear` → S2.6 (Opus, no switch) |
+| **Last completed** | S2.4 — theme, fonts, the eight components and the gallery |
 | **Milestone** | M1 gated; M2 build under way |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 87 scripts compile, 316 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 102 scripts compile (10 judged by the suite), 412 tests. The same command is all of CI. |
+| **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
+| **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Run it** | `run_project` → **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region. M2 only. |
 | **Look at the map** | `game_click`, `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Session/MapLayer/MapView`, `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead. |
 
@@ -64,7 +66,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S2.1 [O] Autoloads and session driver
 - [x] S2.2 [O] Map rendering
 - [x] S2.3 [O] Picking, camera, backdrop
-- [ ] S2.4 [O] Theme and component library
+- [x] S2.4 [O] Theme and component library
 - [ ] S2.5 [O] HUD and region panel
 - [ ] S2.6 [O] Anomalies and links — ⇄ **then `/model fable`**
 
@@ -304,12 +306,44 @@ without new information.
   markers asked before the land and Godot gives signals no priority; reverse tree order is the same
   rule the engine uses for input. **S2.6's marker layer implements `try_tap` and needs no wiring.**
 
+- **2026-09-22** (S2.4) — **Space Grotesk ships as the variable font.** Release 2.0.0 has static
+  Light/Regular/Medium/Bold and **no SemiBold**, which §3.2 asks for, so `ThemeBuilder` cuts weight
+  500 (heading) and 600 (display) out of `SpaceGrotesk-Variable.ttf` with a `FontVariation`. The
+  OpenType tag is written as the packed constant `0x77676874`; a `TextServer` lookup would need a
+  server that a `-s` run does not have.
+- **2026-09-22** (S2.4) — **Font import is written out, not left to the defaults**: hinting *Light*,
+  antialiasing *Grayscale*, subpixel positioning **off on JetBrains Mono** and *Auto* on Space
+  Grotesk, no MSDF, no mipmaps. The importer's own numbers are not the resource's enum values
+  (`hinting=3` in the `.import` file is `Light` on the `FontFile`) — read them back before trusting
+  them. JetBrains Mono has ▲ ▼ − ä Ü ×, so §4.5's sign-only fallback is not needed.
+- **2026-09-22** (S2.4) — **A `ValueLabel`'s delta colours the whole label.** §4.5 wants the arrow
+  in `ACCENT` and the value in `TEXT_0`, but a `Label` draws in one colour and a per-node override
+  is banned — so up/down/zero are the theme variations `ValueLabelUp/Down/Muted` (× `Large`). The
+  §4.4 flash is the one thing a variation cannot do and rides on `self_modulate`, chosen so the
+  label renders exactly `TEXT_0` at the start and exactly its state colour at the end.
+- **2026-09-22** (S2.4) — **`UiTokens` no longer names the `Settings` autoload**; `reduced_motion()`
+  looks it up at `/root/Settings` instead. A script that names an autoload cannot be compiled by a
+  `-s` run (*Known issues*), and `tools/build_theme.gd` has to load the tokens.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
-*(none open — G1 answered both of S1.8's questions, see *Decisions*)*
+**S2.4 — two, both with a conservative placeholder already in place:**
+
+1. **How does German uppercase spell ß?** §3.2 says `TYPE_LABEL` is uppercased with
+   `String.to_upper()`, and Godot's leaves ß alone: `SCHLIEßEN`. `Format.caps()` (`ui/components/format.gd`)
+   therefore maps ß → SS first, which is the standard German capital and what `UI_COMMON_CLOSE`
+   now reads as (`SCHLIESSEN`). The alternative is the capital ẞ (U+1E9E), which both fonts do
+   carry. **Decide at D4.5 (German review in context)** — a one-line change either way.
+2. **`UI_REGION_STATE_DARK` is too long for a chip.** "Dunkel — keine Bevölkerung, keine Hardware"
+   is ~390 logical px as a `Chip` and only just fits a 400 px screen; §5.6 puts exactly that string
+   in the region panel's chip row, and in the compact layout the panel is that wide. A chip may not
+   wrap (an `HFlowContainer` lays children out at their minimum size, and a wrapping label's
+   minimum is its longest word — a row of chips becomes a column of syllables), and it does not
+   clip. **Shorten the chip to a badge ("Dunkel") and move the explanation to a caption line?**
+   Until then the long string stands and overflows on a narrower screen.
 
 **Parked for a later Fable step (not questions, reminders):**
 - **Spectator / benchmark mode** — designed in M6 (decision above). What was noted at S1.8 and is
@@ -329,6 +363,33 @@ without new information.
 *(empty — S1.P cleared the G1 list)*
 
 ## Deviations from the plan or a spec
+
+- **2026-09-22** (S2.4) — **Four files §2 does not list, each because a theme cannot reach where the
+  spec needs it to:** `ui/components/caps_label.gd` (`CapsLabel` — §4.4's `label_key` label, the
+  uppercasing of §3.2 and the locale refresh in one place), `stat_bar_fill.gd` (`StatBarFill` — a
+  type variation applies to the node it is set on, not to its children, so the bar has to *be* the
+  `StatBar` type to read `fill`), `chip.gd` (`Chip` — §4.7 gives it no script, but its variants
+  colour the *text* and a `PanelContainer` variation cannot reach a child label) and
+  `ui/dev/gallery.gd` (the gallery is built in code, not authored).
+- **2026-09-22** (S2.4) — **Theme type variations beyond §3.8's list**, all forced by the same rule
+  — a state is a variation, never a node override: `ConsolePanelAlert` / `ConsolePanelRaisedAlert`
+  (§4.1's alert state), `ChipLabel` / `ChipLabelAccent` / `ChipLabelAlert` (§4.7's text colours),
+  `ValueLabelUp/Down/Muted` and the four `ValueLabelLarge*` (see *Decisions*), `LabelDisplayXL`,
+  `PanelRule`, `PanelContent`, `StatBarRows`, `StatBarRow`, and the three layout primitives
+  `Gutter`, `Stack`, `Row` / `Flow` that every screen needs for margins and gaps. 39 in total.
+- **2026-09-22** (S2.4) — **Tokens added to `UiTokens`**, because §4.2 and §4.4 state values that
+  §3 has no name for: `ACCENT_HOVER` `#8FEAFF`, `ACCENT_PRESSED` `#4FCBE8`, `PRESSED_WASH` 0.2 with
+  `accent_wash()` (the "`ACCENT` at 20 % over `BG_3`" blend a `const` cannot hold), `BAR_HEIGHT` 12,
+  `BAR_MIN_HEIGHT` 44, `BAR_COMPACT_HEIGHT` 28, `GLYPH_BOX` 24, `GLYPH_STROKE` 2.
+- **2026-09-22** (S2.4) — **`StatBar` has `set_value_raw(share, shown, kind)`** next to §4.4's
+  `set_value(v)`: §5.3's footprint and harm bars fill against a presentation maximum but read out
+  the raw number, which the spec's single method cannot express. `ConsolePanel` likewise has
+  `raised` instead of a second class, and moves whatever a scene authored inside it into a
+  `Content` box so that the title and its rule can sit above.
+- **2026-09-22** (S2.4) — **The gallery emulates the phone scale.** A desktop window is scaled from
+  the 1920 base, so a 400 px window would show the wide layout shrunk; below the §5.7 breakpoint
+  `gallery.gd` sets `content_scale_size` to the window size, which is what §6.1 gives on mobile.
+  `F12` writes the view to `user://gallery_<locale>_<width>.png`.
 
 - **2026-09-22** (S2.3) — **The map's dimensions moved from `MapView` to `MapCamera`**
   (`MAP_WIDTH`, `MAP_HEIGHT`, `MAP_ROW_MAX`). `MapView` names `MapCamera`, and **two classes that
@@ -467,6 +528,16 @@ takes an OS path, which is worth knowing).
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — S2.4 Theme and component library [O]
+JetBrains Mono 2.304 and Space Grotesk 2.0.0 under `assets/fonts/` (import settings written out,
+licence rows added); `ThemeBuilder` composes five partials into 39 type variations,
+`tools/build_theme.gd` writes `ui/theme/doomsday.tres`, `project.godot` names it and the session
+root assigns it. Eight components (`ConsolePanel`, `ConsoleButton`, `IconButton` with nine drawn
+glyphs, `StatBar`, `ValueLabel`, `SlidePanel`, `Chip`, `CapsLabel`) plus `Format`, and
+`ui/dev/gallery.tscn` showing every state. Verified in both locales at 1920 × 1080 and 400 × 860:
+reference shots at `C:/Users/schoeneberg/AppData/Roaming/Godot/app_userdata/Doomsday/gallery_{en,de}_{1920,400}.png`
+(for G2; F12 remakes them). 64 new tests, suite green (412). Next: **S2.5 on Opus** — `/clear`.
 
 ### 2026-09-22 — S2.3 Picking, camera, backdrop [O]
 `map_picker.gd` (pure, §7.4), `map_camera.gd` (pan, wheel and pinch zoom to the cursor, inertia,

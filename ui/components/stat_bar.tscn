@@ -1,0 +1,65 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://ui/components/stat_bar.gd" id="1_stat_bar"]
+[ext_resource type="Script" path="res://ui/components/caps_label.gd" id="2_caps_label"]
+[ext_resource type="Script" path="res://ui/components/value_label.gd" id="3_value_label"]
+[ext_resource type="Script" path="res://ui/components/stat_bar_fill.gd" id="4_stat_bar_fill"]
+
+[node name="StatBar" type="Control"]
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_type_variation = &"StatBar"
+script = ExtResource("1_stat_bar")
+
+[node name="Rows" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_type_variation = &"StatBarRows"
+
+[node name="Head" type="HBoxContainer" parent="Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"StatBarRow"
+
+[node name="NameLabel" type="Label" parent="Rows/Head"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_type_variation = &"LabelCaps"
+script = ExtResource("2_caps_label")
+
+[node name="Value" type="Label" parent="Rows/Head"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"ValueLabel"
+script = ExtResource("3_value_label")
+
+[node name="Fill" type="Control" parent="Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+script = ExtResource("4_stat_bar_fill")
+
+[node name="CompactRow" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_type_variation = &"StatBarRow"
