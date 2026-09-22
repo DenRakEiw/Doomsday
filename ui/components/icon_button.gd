@@ -2,12 +2,13 @@ class_name IconButton
 extends Button
 ## A square button with a drawn glyph and no text (spec ui-foundation.md §4.3).
 ##
-## M2 ships no icon assets, so every glyph is drawn here inside a centred 24 × 24
-## box in the text colour of the button's current state. The icon pipeline is M6;
-## until then this file is the whole icon set, and its shapes are the spec's.
+## The shapes live in `Glyphs` (m3-screens.md §3.4.1) so that a tech node and a
+## chip can draw the same ones; this button only decides where the box sits and
+## which colour the current state is.
 
-enum Glyph { PAUSE, PLAY, FAST_2, FAST_4, CLOSE, CHEVRON_LEFT, CHEVRON_RIGHT, CHEVRON_DOWN,
-	OVERLAY }
+## The shapes are `Glyphs`', the name stays here: `IconButton.Glyph.CLOSE` reads
+## the way it always did.
+const Glyph = Glyphs.Glyph
 
 const VARIATION: StringName = &"IconButton"
 
@@ -16,20 +17,8 @@ const COLOR_FONT_HOVER: StringName = &"font_hover_color"
 const COLOR_FONT_PRESSED: StringName = &"font_pressed_color"
 const COLOR_FONT_DISABLED: StringName = &"font_disabled_color"
 
-# §4.3's shapes, in the coordinates of the 24 box.
-const PAUSE_BAR: Vector2 = Vector2(6.0, 20.0)
-const PAUSE_GAP: float = 4.0
-const PLAY_SIZE: Vector2 = Vector2(18.0, 20.0)
-const FAST_2_SIZE: Vector2 = Vector2(10.0, 16.0)
-const FAST_4_SIZE: Vector2 = Vector2(8.0, 14.0)
-const FAST_OVERLAP: float = 2.0
-const CLOSE_INSET: float = 4.0
-const CHEVRON_DEPTH: float = 12.0
-const OVERLAY_SLAB: Vector2 = Vector2(20.0, 4.0)
-const OVERLAY_TOPS: Array[float] = [3.0, 10.0, 17.0]
-
 ## The glyph this button draws.
-@export var glyph: Glyph = Glyph.CLOSE:
+@export var glyph: Glyphs.Glyph = Glyphs.Glyph.CLOSE:
 	set(value):
 		glyph = value
 		queue_redraw()
@@ -64,23 +53,7 @@ func _notification(what: int) -> void:
 
 
 func _draw() -> void:
-	var box: Rect2 = _glyph_box()
-	var color: Color = _state_color()
-	match glyph:
-		Glyph.PAUSE:
-			_draw_pause(box, color)
-		Glyph.PLAY:
-			_draw_triangles(box, 1, PLAY_SIZE, color)
-		Glyph.FAST_2:
-			_draw_triangles(box, 2, FAST_2_SIZE, color)
-		Glyph.FAST_4:
-			_draw_triangles(box, 3, FAST_4_SIZE, color)
-		Glyph.CLOSE:
-			_draw_close(box, color)
-		Glyph.OVERLAY:
-			_draw_overlay(box, color)
-		_:
-			_draw_chevron(box, color)
+	Glyphs.draw(self, glyph, _glyph_box(), _state_color(), UiTokens.GLYPH_STROKE)
 
 
 ## Where the 24 box sits inside the button, whatever size the layout gave it.
@@ -101,59 +74,6 @@ func _state_color() -> Color:
 			return get_theme_color(COLOR_FONT_HOVER)
 		_:
 			return get_theme_color(COLOR_FONT)
-
-
-func _draw_pause(box: Rect2, color: Color) -> void:
-	var total: float = PAUSE_BAR.x * 2.0 + PAUSE_GAP
-	var left: float = box.position.x + (box.size.x - total) * 0.5
-	var top: float = box.position.y + (box.size.y - PAUSE_BAR.y) * 0.5
-	for i: int in 2:
-		var x: float = left + float(i) * (PAUSE_BAR.x + PAUSE_GAP)
-		draw_rect(Rect2(Vector2(x, top), PAUSE_BAR), color)
-
-
-## One, two or three triangles pointing right, overlapping by `FAST_OVERLAP`.
-func _draw_triangles(box: Rect2, count: int, triangle: Vector2, color: Color) -> void:
-	var step: float = triangle.x - FAST_OVERLAP
-	var total: float = triangle.x + step * float(count - 1)
-	var left: float = box.position.x + (box.size.x - total) * 0.5
-	var top: float = box.position.y + (box.size.y - triangle.y) * 0.5
-	for i: int in count:
-		var x: float = left + step * float(i)
-		draw_colored_polygon(PackedVector2Array([
-			Vector2(x, top),
-			Vector2(x + triangle.x, top + triangle.y * 0.5),
-			Vector2(x, top + triangle.y),
-		]), color)
-
-
-func _draw_close(box: Rect2, color: Color) -> void:
-	var a: Vector2 = box.position + Vector2(CLOSE_INSET, CLOSE_INSET)
-	var b: Vector2 = box.end - Vector2(CLOSE_INSET, CLOSE_INSET)
-	draw_line(a, b, color, UiTokens.GLYPH_STROKE)
-	draw_line(Vector2(b.x, a.y), Vector2(a.x, b.y), color, UiTokens.GLYPH_STROKE)
-
-
-## A two-segment chevron pointing the way its glyph name says.
-func _draw_chevron(box: Rect2, color: Color) -> void:
-	var centre: Vector2 = box.get_center()
-	var half: float = CHEVRON_DEPTH * 0.5
-	var direction: Vector2 = Vector2.LEFT
-	if glyph == Glyph.CHEVRON_RIGHT:
-		direction = Vector2.RIGHT
-	elif glyph == Glyph.CHEVRON_DOWN:
-		direction = Vector2.DOWN
-	var across: Vector2 = Vector2(direction.y, direction.x)
-	var tip: Vector2 = centre + direction * half
-	var back: Vector2 = centre - direction * half
-	draw_line(back + across * CHEVRON_DEPTH, tip, color, UiTokens.GLYPH_STROKE)
-	draw_line(back - across * CHEVRON_DEPTH, tip, color, UiTokens.GLYPH_STROKE)
-
-
-func _draw_overlay(box: Rect2, color: Color) -> void:
-	var left: float = box.position.x + (box.size.x - OVERLAY_SLAB.x) * 0.5
-	for top: float in OVERLAY_TOPS:
-		draw_rect(Rect2(Vector2(left, box.position.y + top), OVERLAY_SLAB), color)
 
 
 func _on_toggled(_pressed: bool) -> void:

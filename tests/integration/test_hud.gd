@@ -164,13 +164,30 @@ func test_the_compact_picker_cycles_through_the_three_modes() -> void:
 # --------------------------------------------------------------------- dock
 
 
-func test_every_dock_button_is_disabled_and_says_why() -> void:
-	var column: VBoxContainer = _block("Dock").get_node("%Column") as VBoxContainer
+## The dock grows a live button per M3 step: S3.2 opened Capabilities, S3.3 takes
+## Containment, S4.7 Analysis. A button whose screen is not there yet stays
+## disabled and says why.
+func test_a_dock_button_without_its_screen_is_disabled_and_says_why() -> void:
+	var dock: Node = _block("Dock")
+	var column: VBoxContainer = dock.get_node("%Column") as VBoxContainer
 	assert_eq(column.get_child_count(), 3)
-	for child: Node in column.get_children():
-		var button: ConsoleButton = child as ConsoleButton
+	var live: Array = dock.get_script().get_script_constant_map()["LIVE_DESTINATIONS"]
+	for i: int in column.get_child_count():
+		var button: ConsoleButton = column.get_child(i) as ConsoleButton
+		if live.has(i):
+			assert_false(button.disabled, "%s has its screen and is disabled" % button.text)
+			continue
 		assert_true(button.disabled, "%s is not disabled" % button.text)
 		assert_eq(button.tooltip_text, tr("UI_DOCK_NOT_YET"))
+
+
+func test_the_capabilities_button_asks_for_the_tree() -> void:
+	var dock: Node = _block("Dock")
+	var column: VBoxContainer = dock.get_node("%Column") as VBoxContainer
+	var asked: Array[int] = []
+	dock.connect(&"destination_requested", func(index: int) -> void: asked.append(index))
+	(column.get_child(0) as ConsoleButton).emit_signal("pressed")
+	assert_eq(asked, [0] as Array[int])
 
 
 # ------------------------------------------------------------------- layout

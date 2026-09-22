@@ -19,8 +19,8 @@ const PLACEHOLDER_DAY: String = "day"
 ## §5.2's four speed buttons, in the order they sit in: the speed each one sets
 ## and the glyph and tooltip it carries.
 const SPEED_VALUES: Array[int] = [0, 1, 2, 4]
-const SPEED_GLYPHS: Array[IconButton.Glyph] = [IconButton.Glyph.PAUSE, IconButton.Glyph.PLAY,
-	IconButton.Glyph.FAST_2, IconButton.Glyph.FAST_4]
+const SPEED_GLYPHS: Array[Glyphs.Glyph] = [Glyphs.Glyph.PAUSE, Glyphs.Glyph.PLAY,
+	Glyphs.Glyph.FAST_2, Glyphs.Glyph.FAST_4]
 const SPEED_KEYS: Array[String] = ["UI_HUD_SPEED_PAUSE", "UI_HUD_SPEED_1", "UI_HUD_SPEED_2",
 	"UI_HUD_SPEED_4"]
 ## The phase the chip is drawn for, by `World.Phase`. Emergent is the moment the

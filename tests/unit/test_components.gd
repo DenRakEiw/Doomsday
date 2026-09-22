@@ -6,6 +6,9 @@ extends GutTest
 ## once `_ready` has run. Motion is switched off through `Settings`, so a tween
 ## finishes in the same frame and a test never waits on a clock.
 
+## The nine glyphs of ui-foundation §4.3 plus the five of m3-screens §3.4.1.
+const GLYPH_COUNT: int = 14
+
 const STAT_BAR: PackedScene = preload("res://ui/components/stat_bar.tscn")
 
 var _root: Control = null
@@ -106,8 +109,10 @@ func test_an_icon_button_is_a_square_of_the_minimum_target() -> void:
 
 
 func test_every_glyph_of_the_spec_draws() -> void:
-	# §4.3 lists nine; drawing each one is what proves there is no unhandled case.
-	assert_eq(IconButton.Glyph.size(), 9)
+	# ui-foundation §4.3 lists nine, m3-screens §3.4.1 five more; drawing each one
+	# is what proves there is no unhandled case.
+	assert_eq(IconButton.Glyph.size(), GLYPH_COUNT)
+	assert_eq(Glyphs.Glyph.size(), GLYPH_COUNT, "the button's alias is the same enum")
 	for glyph: int in IconButton.Glyph.values():
 		var button: IconButton = IconButton.new()
 		button.glyph = glyph
@@ -115,7 +120,7 @@ func test_every_glyph_of_the_spec_draws() -> void:
 		_add(button)
 		button.queue_redraw()
 	_root.queue_redraw()
-	assert_eq(_root.get_child_count(), 9)
+	assert_eq(_root.get_child_count(), GLYPH_COUNT)
 
 
 func test_an_icon_button_is_named_by_its_tooltip() -> void:

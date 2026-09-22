@@ -79,6 +79,10 @@ const H_SEPARATOR: String = "HSeparator"
 
 const STAT_BAR: String = "StatBar"
 const VALUE_LABEL: String = "ValueLabel"
+## m3-screens §3.4: the node of a technology tree, and the three states that
+## vary it. A state is a variation, never a per-node override.
+const TECH_NODE: String = "TechNode"
+const TECH_NODE_STATES: Array[String] = ["", "Locked", "Affordable", "Owned"]
 ## The four colour states a `ValueLabel` can take (§4.5), as suffixes on both the
 ## normal and the large variation. A `Label` has one colour, so the state is the
 ## whole label's, not just the delta's.
@@ -98,12 +102,15 @@ const VARIATIONS: Dictionary[String, String] = {
 	"PanelRule": H_SEPARATOR,
 	"PanelContent": "VBoxContainer",
 	"Gutter": "MarginContainer",
+	"GutterTight": "MarginContainer",
 	"Stack": "VBoxContainer",
 	"StackTight": "VBoxContainer",
 	"Flush": "VBoxContainer",
 	"Row": "HBoxContainer",
 	"RowWide": "HBoxContainer",
 	"RowTight": "HBoxContainer",
+	"RowSnug": "HBoxContainer",
+	"FlowSnug": "HFlowContainer",
 	"Flow": "HFlowContainer",
 	"Grid": "GridContainer",
 	"ConsoleButton": BUTTON,
@@ -135,6 +142,21 @@ const VARIATIONS: Dictionary[String, String] = {
 	"ChipLabelAlert": "LabelCaps",
 	"MapTooltip": PANEL_CONTAINER,
 	"MapTooltipLabel": "LabelCaption",
+	"LabelCaptionAlert": "LabelCaption",
+	"ConsoleButtonFlat": BUTTON,
+	"TechGrid": "GridContainer",
+	"TechGridCompact": "GridContainer",
+	"TechNode": BUTTON,
+	"TechNodeLocked": TECH_NODE,
+	"TechNodeAffordable": TECH_NODE,
+	"TechNodeOwned": TECH_NODE,
+	"TechNodeName": "LabelCaps",
+	"TechNodeNameLocked": "LabelCaps",
+	"TechNodeCost": VALUE_LABEL,
+	"TechNodeCostLocked": VALUE_LABEL,
+	"TechNodeCostAffordable": VALUE_LABEL,
+	"TechNodeTag": "LabelCaption",
+	"TechNodeFootprint": "LabelCaption",
 }
 
 
@@ -164,6 +186,9 @@ static func _colours() -> Theme:
 	theme.set_color(COLOR_FONT, LABEL, UiTokens.TEXT_0)
 	theme.set_color(COLOR_FONT, "LabelCaps", UiTokens.TEXT_1)
 	theme.set_color(COLOR_FONT, "LabelCaption", UiTokens.TEXT_2)
+	# m3-screens §3.3: the reason a purchase was refused. Red is a moment, and a
+	# refusal is one.
+	theme.set_color(COLOR_FONT, "LabelCaptionAlert", UiTokens.ALERT)
 	theme.set_color(COLOR_FONT, "LabelDisplay", UiTokens.TEXT_0)
 	theme.set_color(COLOR_FONT, "LabelDisplayXL", UiTokens.TEXT_0)
 	theme.set_color(COLOR_FONT, "LabelHeading", UiTokens.TEXT_0)
@@ -174,6 +199,16 @@ static func _colours() -> Theme:
 	# §7.7: the tooltip is a caption on a chip-shaped box, but it is read over a
 	# moving map — so `TEXT_0`, not the caption's `TEXT_2`.
 	theme.set_color(COLOR_FONT, "MapTooltipLabel", UiTokens.TEXT_0)
+
+	# m3-screens §3.4's table: a tech node colours its name and its cost by the
+	# state it is in, and a `Label` has one colour — so each is its own variation.
+	theme.set_color(COLOR_FONT, "TechNodeName", UiTokens.TEXT_0)
+	theme.set_color(COLOR_FONT, "TechNodeNameLocked", UiTokens.TEXT_2)
+	theme.set_color(COLOR_FONT, "TechNodeCost", UiTokens.TEXT_1)
+	theme.set_color(COLOR_FONT, "TechNodeCostLocked", UiTokens.TEXT_2)
+	theme.set_color(COLOR_FONT, "TechNodeCostAffordable", UiTokens.ACCENT)
+	theme.set_color(COLOR_FONT, "TechNodeTag", UiTokens.ACCENT)
+	theme.set_color(COLOR_FONT, "TechNodeFootprint", UiTokens.TEXT_2)
 
 	# §4.5: the delta's colour is the label's colour, because a `Label` has one.
 	var value_colours: Dictionary[String, Color] = {
@@ -205,6 +240,7 @@ static func _typography() -> Theme:
 	_type(theme, LABEL, mono_regular, UiTokens.TYPE_BODY, UiTokens.LINE_BODY)
 	_type(theme, "LabelCaps", caps, UiTokens.TYPE_LABEL, UiTokens.LINE_LABEL)
 	_type(theme, "LabelCaption", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
+	_type(theme, "LabelCaptionAlert", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
 	_type(theme, "MapTooltipLabel", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
 	_type(theme, "LabelDisplay", display, UiTokens.TYPE_DISPLAY, UiTokens.LINE_DISPLAY)
 	_type(theme, "LabelDisplayXL", display, UiTokens.TYPE_DISPLAY_XL, UiTokens.LINE_DISPLAY_XL)
@@ -223,6 +259,18 @@ static func _typography() -> Theme:
 		theme.set_font(ITEM_FONT, button, caps)
 		theme.set_font_size(ITEM_FONT_SIZE, button, UiTokens.TYPE_LABEL)
 	_type(theme, "Ticker", mono_regular, UiTokens.TYPE_BODY, UiTokens.LINE_BODY)
+
+	# A tech node's own labels: the name tracks like every `LabelCaps`, the cost
+	# is data, the two captions are captions (m3-screens §3.4).
+	for name: String in ["TechNodeName", "TechNodeNameLocked"]:
+		_type(theme, name, caps, UiTokens.TYPE_LABEL, UiTokens.LINE_LABEL)
+	for cost: String in ["TechNodeCost", "TechNodeCostLocked", "TechNodeCostAffordable"]:
+		_type(theme, cost, mono_medium, UiTokens.TYPE_DATA, UiTokens.LINE_DATA)
+	for caption: String in ["TechNodeTag", "TechNodeFootprint"]:
+		_type(theme, caption, mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
+	# §3.6 item 6: a row that reads as a line of text, not as a shouted label.
+	theme.set_font(ITEM_FONT, "ConsoleButtonFlat", mono_regular)
+	theme.set_font_size(ITEM_FONT_SIZE, "ConsoleButtonFlat", UiTokens.TYPE_BODY)
 	return theme
 
 
@@ -270,6 +318,9 @@ static func _panels() -> Theme:
 	# edge (§3.3) and the gap between two blocks.
 	for side: String in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
 		theme.set_constant(side, "Gutter", UiTokens.GUTTER)
+		# m3-screens §3.4: a tech node's content sits `SPACE_3` inside its cell,
+		# which is what leaves 176 px for the longest German name.
+		theme.set_constant(side, "GutterTight", UiTokens.SPACE_3)
 	theme.set_constant(CONST_SEPARATION, "Stack", UiTokens.SPACE_5)
 	theme.set_constant(CONST_SEPARATION, "Row", UiTokens.SPACE_3)
 	# §5 asks for three more gaps than §3.8 named: between the cells of the top
@@ -277,6 +328,11 @@ static func _panels() -> Theme:
 	# speed group (`SPACE_1`), and between the dock's destinations (`SPACE_2`).
 	theme.set_constant(CONST_SEPARATION, "RowWide", UiTokens.SPACE_5)
 	theme.set_constant(CONST_SEPARATION, "RowTight", UiTokens.SPACE_1)
+	# m3-screens §3.2's tab row sits between the two: closer than blocks, wider
+	# than the buttons of a speed group.
+	theme.set_constant(CONST_SEPARATION, "RowSnug", UiTokens.SPACE_2)
+	for axis: String in ["h_separation", "v_separation"]:
+		theme.set_constant(axis, "FlowSnug", UiTokens.SPACE_2)
 	theme.set_constant(CONST_SEPARATION, "StackTight", UiTokens.SPACE_2)
 	# §5.7's strips touch: a gap between the stat row and the ticker would be a
 	# stripe of map between two panels.
@@ -287,6 +343,11 @@ static func _panels() -> Theme:
 	theme.set_constant("v_separation", "Flow", UiTokens.SPACE_3)
 	theme.set_constant("h_separation", "Grid", UiTokens.SPACE_4)
 	theme.set_constant("v_separation", "Grid", UiTokens.SPACE_2)
+	# m3-screens §3.2: the gap between two cells of a tree, in both layouts. The
+	# lines control is given the same numbers, so the two never drift apart.
+	for axis: String in ["h_separation", "v_separation"]:
+		theme.set_constant(axis, "TechGrid", UiTokens.SPACE_3)
+		theme.set_constant(axis, "TechGridCompact", UiTokens.SPACE_2)
 	return theme
 
 
@@ -319,6 +380,31 @@ static func _buttons() -> Theme:
 		UiTokens.ACCENT_PRESSED)
 	_button_colours(theme, "ConsoleButtonPrimaryCompact", UiTokens.INK, UiTokens.INK,
 		UiTokens.INK)
+
+	# m3-screens §3.6 item 6: a prerequisite row. No border, so the eye reads the
+	# column of rows as a list and not as a row of buttons.
+	_button_styles(theme, "ConsoleButtonFlat", tight, UiTokens.BG_2, UiTokens.BG_3,
+		UiTokens.accent_wash(), Color.TRANSPARENT, Color.TRANSPARENT, UiTokens.ACCENT)
+	_button_colours(theme, "ConsoleButtonFlat", UiTokens.TEXT_0, UiTokens.TEXT_0,
+		UiTokens.ACCENT)
+
+	# m3-screens §3.4: one variation per state, hover a surface step lighter and a
+	# border step stronger. `TechNode` itself is the AVAILABLE state.
+	var cell: Vector2i = Vector2i(UiTokens.SPACE_3, UiTokens.SPACE_3)
+	_button_styles(theme, "TechNode", cell, UiTokens.BG_3, UiTokens.BG_4,
+		UiTokens.accent_wash(), UiTokens.LINE_1, UiTokens.LINE_2, UiTokens.ACCENT)
+	_button_styles(theme, "TechNodeLocked", cell, UiTokens.BG_2, UiTokens.BG_3,
+		UiTokens.accent_wash(), UiTokens.LINE_0, UiTokens.LINE_1, UiTokens.ACCENT)
+	_button_styles(theme, "TechNodeAffordable", cell, UiTokens.BG_3, UiTokens.BG_4,
+		UiTokens.accent_wash(), UiTokens.ACCENT_DIM, UiTokens.ACCENT, UiTokens.ACCENT)
+	_button_styles(theme, "TechNodeOwned", cell, UiTokens.accent_wash(),
+		UiTokens.accent_wash_raised(), UiTokens.accent_wash_raised(), UiTokens.ACCENT,
+		UiTokens.ACCENT, UiTokens.ACCENT)
+	for state: String in TECH_NODE_STATES:
+		# The node's text lives in its child labels; the button's own colours are
+		# there so that nothing falls back to the default font colour.
+		_button_colours(theme, TECH_NODE + state, UiTokens.TEXT_0, UiTokens.TEXT_0,
+			UiTokens.TEXT_0)
 
 	# An icon button has no text, so its padding is zero: the glyph is drawn in a
 	# centred box of its own (§4.3).

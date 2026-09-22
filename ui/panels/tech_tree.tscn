@@ -1,0 +1,160 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://ui/panels/tech_tree.gd" id="1_tech_tree"]
+[ext_resource type="Script" path="res://ui/panels/tech_board.gd" id="2_tech_board"]
+[ext_resource type="Script" path="res://ui/components/tree_lines.gd" id="3_tree_lines"]
+[ext_resource type="Script" path="res://ui/components/caps_label.gd" id="4_caps_label"]
+[ext_resource type="Script" path="res://ui/components/value_label.gd" id="5_value_label"]
+[ext_resource type="PackedScene" path="res://ui/panels/tech_detail.tscn" id="6_tech_detail"]
+[ext_resource type="Script" path="res://ui/components/chip.gd" id="7_chip"]
+[ext_resource type="Script" path="res://ui/components/icon_button.gd" id="8_icon_button"]
+[ext_resource type="Script" path="res://ui/components/slide_panel.gd" id="9_slide_panel"]
+
+[node name="TechTree" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_tech_tree")
+
+[node name="Safe" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"Gutter"
+
+[node name="Panel" type="PanelContainer" parent="Safe"]
+layout_mode = 2
+theme_type_variation = &"ConsolePanel"
+
+[node name="Layout" type="VBoxContainer" parent="Safe/Panel"]
+layout_mode = 2
+theme_type_variation = &"PanelContent"
+
+[node name="Header" type="HBoxContainer" parent="Safe/Panel/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"RowWide"
+
+[node name="Title" type="Label" parent="Safe/Panel/Layout/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"LabelDisplay"
+
+[node name="Gap" type="Control" parent="Safe/Panel/Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Readouts" type="HFlowContainer" parent="Safe/Panel/Layout/Header"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"FlowSnug"
+
+[node name="ComputeCell" type="VBoxContainer" parent="Safe/Panel/Layout/Header/Readouts"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"StackTight"
+
+[node name="ComputeLabel" type="Label" parent="Safe/Panel/Layout/Header/Readouts/ComputeCell"]
+layout_mode = 2
+theme_type_variation = &"LabelCaps"
+script = ExtResource("4_caps_label")
+label_key = "UI_TERM_COMPUTE"
+
+[node name="Compute" type="Label" parent="Safe/Panel/Layout/Header/Readouts/ComputeCell"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ValueLabelLarge"
+script = ExtResource("5_value_label")
+large = true
+
+[node name="PausedChip" type="PanelContainer" parent="Safe/Panel/Layout/Header/Readouts"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"ChipAlert"
+script = ExtResource("7_chip")
+kind = 2
+label_key = "UI_HUD_PAUSED"
+
+[node name="CloseButton" type="Button" parent="Safe/Panel/Layout/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"IconButton"
+script = ExtResource("8_icon_button")
+glyph = 4
+tooltip_key = "UI_COMMON_CLOSE"
+
+[node name="Tabs" type="HFlowContainer" parent="Safe/Panel/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"FlowSnug"
+
+[node name="Body" type="HBoxContainer" parent="Safe/Panel/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"Row"
+
+[node name="BoardScroll" type="ScrollContainer" parent="Safe/Panel/Layout/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+follow_focus = true
+
+[node name="Board" type="Control" parent="Safe/Panel/Layout/Body/BoardScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_tech_board")
+
+[node name="TreeLines" type="Control" parent="Safe/Panel/Layout/Body/BoardScroll/Board"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_tree_lines")
+
+[node name="Grid" type="GridContainer" parent="Safe/Panel/Layout/Body/BoardScroll/Board"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_type_variation = &"TechGrid"
+
+[node name="TechDetail" parent="Safe/Panel/Layout/Body" instance=ExtResource("6_tech_detail")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="DetailSheet" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("9_slide_panel")
+edge = 2
+height_share = 0.55

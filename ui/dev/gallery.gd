@@ -51,6 +51,13 @@ const MARKER_CELL: Vector2 = Vector2(56.0, 56.0)
 const MARKER_DAYS_LEFT: int = 12
 
 const STAT_BAR_SCENE: String = "res://ui/components/stat_bar.tscn"
+## m3-screens §12.1: the tech node section shows a real node of the real content.
+const TECH_NODE_SCENE: PackedScene = preload("res://ui/components/tech_node.tscn")
+const CONTENT_ROOT: String = "res://data"
+const TECH_SAMPLE_ID: String = "cloud_federation"
+const TECH_SAMPLE_COST: float = 12.0
+## In the order of `TechNode.State`.
+const TECH_STATE_NAMES: Array[String] = ["locked", "available", "affordable", "owned"]
 ## Where `F12` puts a picture of the gallery: locale and logical width.
 const SHOT_PATH: String = "user://gallery_%s_%d.png"
 ## Wide enough for a bar to read, narrow enough that three fit on one row at
@@ -88,6 +95,8 @@ func _ready() -> void:
 	_build_value_labels()
 	_build_stat_bars()
 	_build_map_layers()
+	_build_tech_nodes()
+	_build_tree_lines()
 	_build_slide_panel()
 	var cycle: Timer = Timer.new()
 	cycle.wait_time = CYCLE_SECONDS
@@ -271,6 +280,70 @@ func _build_slide_panel() -> void:
 
 ## A titled section: a heading and the flow row its states go into. The row wraps,
 ## so the same gallery reads at 1920 and at 400.
+## m3-screens §12.1: the four states of a tech node, plus the two a variation
+## cannot show — the white selection border and the external-prerequisite glyph.
+func _build_tech_nodes() -> void:
+	var row: HFlowContainer = _section("TechNode (m3-screens §3.4)")
+	var definition: TechNodeDef = _sample_node()
+	if definition == null:
+		return
+	for state: int in TechNode.State.size():
+		var node: TechNode = _tech_node(definition, state as TechNode.State, false)
+		_state(row, TECH_STATE_NAMES[state], node)
+	var selected: TechNode = _tech_node(definition, TechNode.State.AFFORDABLE, false)
+	_state(row, "selected", selected)
+	selected.set_selected(true)
+	_state(row, "external", _tech_node(definition, TechNode.State.LOCKED, true))
+
+
+func _tech_node(definition: TechNodeDef, state: TechNode.State, external: bool) -> TechNode:
+	var node: TechNode = TECH_NODE_SCENE.instantiate()
+	node.custom_minimum_size = UiTokens.TECH_CELL
+	node.bind.call_deferred(definition, TECH_SAMPLE_COST, state, external)
+	return node
+
+
+## A node of the shipped content, so the gallery shows a real name in both
+## languages. Without content there is nothing to draw and the section is empty.
+func _sample_node() -> TechNodeDef:
+	var result: ContentLoadResult = ContentLoader.load_root(CONTENT_ROOT)
+	if not result.ok():
+		return null
+	for definition: TechNodeDef in result.db.tech_nodes:
+		if definition.id == TECH_SAMPLE_ID:
+			return definition
+	return null
+
+
+## §12.1: a 3 × 2 sample of edges — solid and dashed, the three colours, and one
+## selection with its rings.
+func _build_tree_lines() -> void:
+	var row: HFlowContainer = _section("TreeLines (m3-screens §3.5)")
+	var lines: TreeLines = TreeLines.new()
+	lines.custom_minimum_size = Vector2(
+		UiTokens.TECH_CELL.x * 3.0 + float(UiTokens.SPACE_3) * 2.0,
+		UiTokens.TECH_CELL.y * 2.0 + float(UiTokens.SPACE_3))
+	var edges: Array[TreeLines.Edge] = []
+	# Cells two columns apart, so the line between them is long enough to show
+	# its colour and its dash pattern.
+	var owned: TreeLines.Edge = TreeLines.edge(Vector2i(0, 0), Vector2i(2, 0), false)
+	owned.from_owned = true
+	owned.to_owned = true
+	edges.append(owned)
+	var open_edge: TreeLines.Edge = TreeLines.edge(Vector2i(0, 1), Vector2i(2, 1), true)
+	open_edge.from_owned = true
+	edges.append(open_edge)
+	edges.append(TreeLines.edge(Vector2i(0, 0), Vector2i(0, 1), false))
+	var selected: TreeLines.Edge = TreeLines.edge(Vector2i(2, 0), Vector2i(2, 1), true)
+	selected.selected = true
+	edges.append(selected)
+	var rings: Array[Vector2i] = [Vector2i(2, 0)]
+	lines.set_edges(edges, rings)
+	lines.layout.call_deferred(UiTokens.TECH_CELL,
+		Vector2(float(UiTokens.SPACE_3), float(UiTokens.SPACE_3)))
+	_state(row, "owned · open · locked · selected", lines)
+
+
 func _section(title: String) -> HFlowContainer:
 	var heading: Label = Label.new()
 	heading.theme_type_variation = &"LabelHeading"

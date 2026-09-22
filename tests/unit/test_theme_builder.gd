@@ -113,7 +113,8 @@ func test_every_tappable_type_is_at_least_the_minimum_target() -> void:
 ## Every colour `UiTokens` defines, plus the ones it derives: the wash of §4.2
 ## and the transparent ground of a focus ring, which is the absence of a colour.
 func _token_colours() -> Array[Color]:
-	var colours: Array[Color] = [UiTokens.accent_wash(), Color.TRANSPARENT]
+	var colours: Array[Color] = [UiTokens.accent_wash(), UiTokens.accent_wash_raised(),
+		Color.TRANSPARENT]
 	var script: GDScript = UiTokens
 	for value: Variant in script.get_script_constant_map().values():
 		if typeof(value) == TYPE_COLOR:

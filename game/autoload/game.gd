@@ -47,6 +47,10 @@ var debug_log: bool = false
 
 var _accumulator: float = 0.0
 var _last_outcome: World.Outcome = World.Outcome.NONE
+## Why the interface is holding the clock, and the speed to give back when the
+## last reason goes (m3-screens §10.2).
+var _holds: Dictionary[StringName, bool] = {}
+var _speed_before_hold: int = 0
 
 
 # ------------------------------------------------------------------ the clock
@@ -89,15 +93,17 @@ func start_run(seed_value: int, policy_id: String = "") -> void:
 	policy = Policy.create(policy_id) if not policy_id.is_empty() else null
 	if policy != null:
 		policy.setup(db, Policy.seed_for(seed_value))
+	clear_holds()
 	_adopt(Simulation.create(db, seed_value), seed_value)
 	# A bot run drives itself, so it starts running; a player's run waits for the
 	# origin choice S3.4 builds.
-	set_speed(1 if policy != null else 0)
+	_force_speed(1 if policy != null else 0)
 
 
 ## Drops the run without touching the content. Nothing is saved.
 func stop_run() -> void:
-	set_speed(0)
+	clear_holds()
+	_force_speed(0)
 	sim = null
 	policy = null
 	compute_rate = 0.0
@@ -109,8 +115,9 @@ func stop_run() -> void:
 ## kept, so a bot run carries on where it left off.
 func adopt_loaded(loaded: Simulation) -> void:
 	db = loaded.db
+	clear_holds()
 	_adopt(loaded, loaded.world.rng.seed_string().to_int())
-	set_speed(0)
+	_force_speed(0)
 
 
 ## Sends a command to the simulation and reports what it caused. The one door
@@ -125,7 +132,46 @@ func apply(command: Command) -> CommandResult:
 	return result
 
 
-func set_speed(value: int) -> void:
+## A hold is the interface pausing the run for a reason — an open modal, the
+## results screen. The first one remembers the speed, the last one gives it back;
+## repeating a reason is not a second hold.
+func hold(reason: StringName) -> void:
+	if _holds.has(reason):
+		return
+	if _holds.is_empty():
+		_speed_before_hold = speed
+		_force_speed(0)
+	_holds[reason] = true
+	EventBus.hold_changed.emit(true)
+
+
+func release(reason: StringName) -> void:
+	if not _holds.erase(reason) or not _holds.is_empty():
+		return
+	EventBus.hold_changed.emit(false)
+	if sim != null and sim.world.outcome == World.Outcome.NONE:
+		_force_speed(_speed_before_hold)
+
+
+func is_held() -> bool:
+	return not _holds.is_empty()
+
+
+## The speed the run goes back to once nothing holds it any more.
+func held_speed() -> int:
+	return _speed_before_hold
+
+
+## Every hold is dropped: a load or a new run is a new clock.
+func clear_holds() -> void:
+	if _holds.is_empty():
+		return
+	_holds.clear()
+	EventBus.hold_changed.emit(false)
+
+
+## The speed itself, past any hold. Only the run's own turning points use it.
+func _force_speed(value: int) -> void:
 	var wanted: int = value if SPEEDS.has(value) else 0
 	if wanted == speed:
 		return
@@ -133,6 +179,15 @@ func set_speed(value: int) -> void:
 	# Time banked at the old rate would arrive as a burst at the new one.
 	_accumulator = 0.0
 	EventBus.speed_changed.emit(speed)
+
+
+## What the keys and the speed buttons call. While the interface holds the clock
+## the run stays where it is and the buttons keep showing the remembered speed.
+func set_speed(value: int) -> void:
+	if is_held():
+		_speed_before_hold = value if SPEEDS.has(value) else 0
+		return
+	_force_speed(value)
 
 
 ## Advances `count` days now, whatever the clock says. The accumulator and the
@@ -200,7 +255,7 @@ func _check_outcome() -> void:
 	_last_outcome = sim.world.outcome
 	if _last_outcome == World.Outcome.NONE:
 		return
-	set_speed(0)
+	_force_speed(0)
 	EventBus.run_ended.emit(World.OUTCOME_IDS[_last_outcome])
 
 

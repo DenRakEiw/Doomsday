@@ -18,7 +18,9 @@ enum State { CLOSED, OPENING, OPEN, CLOSING }
 const WIDTH_SHARE: float = 0.3
 const WIDTH_MIN: float = 360.0
 const WIDTH_MAX: float = 480.0
-## A bottom sheet takes half the height.
+## A bottom sheet takes half the height. m3-screens §6.3 gives the tech detail
+## and the menu sheet a little more, so the share is a property with this
+## default rather than a number the caller cannot reach.
 const HEIGHT_SHARE: float = 0.5
 
 ## Which edge the panel comes in from. §5.7 swaps it at the breakpoint, so it is
@@ -46,6 +48,13 @@ var bottom_inset: float = 0.0:
 		if _panel != null:
 			_layout()
 
+## How much of the height a bottom sheet takes.
+@export var height_share: float = HEIGHT_SHARE:
+	set(value):
+		height_share = value
+		if _panel != null:
+			_layout()
+
 ## Whether the panel is open or on its way there.
 var is_open: bool = false
 
@@ -57,13 +66,27 @@ var _tween: Tween = null
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_preset(Control.PRESET_FULL_RECT)
-	_panel = _find_panel()
-	if _panel == null:
-		push_error("SlidePanel has no Control child to slide")
+	_adopt_child()
+
+
+## A panel may arrive after `_ready` — m3-screens §3.6 moves the tech detail into
+## a sheet only when the layout turns compact.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_CHILD_ORDER_CHANGED and is_node_ready():
+		_adopt_child()
+
+
+## The child this panel slides. A panel that starts empty is not an error: the
+## tech detail moves in only when the layout turns compact.
+func _adopt_child() -> void:
+	var found: Control = _find_panel()
+	if found == null or found == _panel:
 		return
+	_panel = found
 	_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	_panel.visible = false
-	get_viewport().size_changed.connect(_layout)
+	if not get_viewport().size_changed.is_connected(_layout):
+		get_viewport().size_changed.connect(_layout)
 	_layout()
 
 
@@ -115,7 +138,7 @@ func _layout() -> void:
 		return
 	var view: Vector2 = get_viewport_rect().size
 	if edge == Edge.BOTTOM:
-		_panel.size = Vector2(view.x, floorf(view.y * HEIGHT_SHARE))
+		_panel.size = Vector2(view.x, floorf(view.y * height_share))
 	else:
 		var width: float = clampf(view.x * WIDTH_SHARE, WIDTH_MIN, WIDTH_MAX)
 		_panel.size = Vector2(floorf(width), maxf(view.y - top_inset - bottom_inset, 0.0))

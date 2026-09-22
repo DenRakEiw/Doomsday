@@ -196,6 +196,27 @@ const FOOTPRINT_BAR_MAX: float = 20.0
 const HARM_BAR_MAX: float = 8.0
 
 
+# ------------------------------------------------------- §6.3 M3 geometry
+
+
+## m3-screens §3.2: one cell of a tree grid, in the wide and the compact layout.
+const TECH_CELL: Vector2 = Vector2(200, 96)
+const TECH_CELL_COMPACT: Vector2 = Vector2(160, 88)
+## §3.5: the width of a prerequisite line, and of the selected node's own.
+const TECH_LINE: float = 2.0
+const TECH_LINE_SELECTED: float = 3.0
+## Dash on, dash off.
+const TECH_DASH: Vector2 = Vector2(8, 6)
+
+## §10.4: how much of the scene behind a modal the scrim keeps.
+const SCRIM_ALPHA: float = 0.85
+## §5, §7.3, §7.4: a modal never grows wider than this.
+const MODAL_MAX_WIDTH: int = 560
+## §3.6, §9.2: how much of the screen a sheet takes. The region panel keeps its
+## own 0.5 (`SlidePanel.HEIGHT_SHARE`).
+const SHEET_HEIGHT_RATIO: float = 0.55
+
+
 # -------------------------------------------------------------------- §3.4 motion
 
 
@@ -234,6 +255,12 @@ const PRESSED_WASH: float = 0.2
 ## hold. Everything that needs the colour asks here, so it still has one source.
 static func accent_wash() -> Color:
 	return BG_3.lerp(ACCENT, PRESSED_WASH)
+
+
+## The same wash one surface step lighter, for the hover state of something that
+## is already washed (an owned tech node, m3-screens §3.4).
+static func accent_wash_raised() -> Color:
+	return BG_4.lerp(ACCENT, PRESSED_WASH)
 
 
 ## A motion token as tween seconds, or 0 while `Settings.reduced_motion` is on.

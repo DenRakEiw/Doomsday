@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://game/session/session.gd" id="1_session"]
 [ext_resource type="PackedScene" path="res://game/map/map_view.tscn" id="2_map_view"]
@@ -8,6 +8,8 @@
 [ext_resource type="PackedScene" path="res://ui/panels/region_panel.tscn" id="6_region_panel"]
 [ext_resource type="Script" path="res://game/map/link_layer.gd" id="7_link_layer"]
 [ext_resource type="Script" path="res://game/map/marker_layer.gd" id="8_marker_layer"]
+[ext_resource type="Script" path="res://ui/modals/modal_host.gd" id="9_modal_host"]
+[ext_resource type="PackedScene" path="res://ui/panels/tech_tree.tscn" id="10_tech_tree"]
 
 [node name="Session" type="Control"]
 layout_mode = 3
@@ -62,3 +64,16 @@ unique_name_in_owner = true
 
 [node name="ModalLayer" type="CanvasLayer" parent="."]
 layer = 30
+
+[node name="ModalHost" type="Control" parent="ModalLayer"]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("9_modal_host")
+
+[node name="TechTree" parent="ModalLayer/ModalHost" instance=ExtResource("10_tech_tree")]
+unique_name_in_owner = true
+visible = false

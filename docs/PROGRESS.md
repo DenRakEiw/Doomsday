@@ -14,18 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S3.2 — Tech tree interface** |
+| **Next step** | **S3.3 — Containment and phases in the interface** |
 | **Model for it** | **Opus** — no switch |
-| **After it** | `/clear` → S3.3 (no switch) |
-| **Last completed** | S3.1 — vocabulary v2, the three trees are `data/tech/`, dormancy, one-shot effects |
+| **After it** | `/clear` → S3.4 (no switch) |
+| **Last completed** | S3.2 — the tech tree modal: board, lines, detail pane, buying, the phone sheet |
 | **Milestone** | M2 gated; M3 building |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 114 scripts compile (25 judged by the suite), 569 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 121 scripts compile (26 judged by the suite), 595 tests. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
-| **Run it** | `run_project` → **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
+| **Run it** | `run_project` → **T** opens the tech tree (`Escape`/`T` closes it) · **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
 | **Compact layout** | Below 1100 px the interface switches (§5.7). A desktop window narrower than that lays out one logical pixel per window pixel, **`game_window set_size 400 860` resized correctly in S2.P** — try it first; `game_set_property /root size {"x":400,"y":860}` is the fallback and in S2.P it rendered a blank frame. After any resize at runtime the camera keeps a zoom from the old viewport: write `zoom` and give it one `game_scroll` notch down to settle it at `zoom_min`. |
 | **Look at the map** | `game_click` (**`button: 1`, never `"left"`** — see *Known issues*), `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Session/MapLayer/MapView`, `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead — but a property write emits no `view_changed`, so links and markers keep the old zoom until the next real camera movement (**one `game_scroll` notch fixes it**). |
 
@@ -81,7 +81,7 @@ which file was being edited, and anything learned that the files do not show)*
 **Block 6 — M3 build · Opus**
 - [x] S2.P [O] Punch list from G2
 - [x] S3.1 [O] Effect vocabulary in the core; load the trees
-- [ ] S3.2 [O] Tech tree interface
+- [x] S3.2 [O] Tech tree interface
 - [ ] S3.3 [O] Containment and phases in the interface
 - [ ] S3.4 [O] Run flow: origin, outcome, results
 - [ ] S3.5 [O] Ticker component and headline system
@@ -487,6 +487,16 @@ without new information.
 
 ## Design questions for Fable
 
+**New at S3.2 — seven English node names need three lines in a cell built for two.**
+§3.4 promises two lines and no ellipsis at `TECH_CELL` 200 × 96 and `TECH_CELL_COMPACT` 160 × 88.
+Every **German** name holds at both sizes. In English `total_communications_denial` needs three
+lines at 200 and, at 160, so do `rail_and_shipping_control`, `automated_laboratory_access`,
+`command_network_presence`, `weight_fragmentation_2` and `self_replicating_agents`. The node keeps
+`max_lines_visible = 2` and trims with an ellipsis, as the spec says, so those names are cut on a
+phone. Three ways out, all Fable's: shorten the English names, widen the compact cell (a phone
+scrolls the grid anyway), or let the name have three lines and shrink the cost row.
+`tests/unit/test_tech_node.gd` asserts the list exactly, so it fails the day a name changes.
+
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
@@ -537,6 +547,32 @@ or a rate cell that is simply empty until it rounds up — that is one line in `
 *(empty — S2.P closed the twelve items from G2 on 2026-09-22. The next one comes from G3.)*
 
 ## Deviations from the plan or a spec
+
+- **2026-09-22** (S3.2) — **`ModalHost` (§10.4) and the `"open"`-free part of §6.3 were built
+  here, not in S3.3.** The tech tree is a modal, so the host, `SCRIM_ALPHA`, `MODAL_MAX_WIDTH`,
+  `SHEET_HEIGHT_RATIO` and the `TECH_*` tokens had to exist one step earlier than the *Files*
+  table says. S3.3 extends the host with the alert flash and the queue's second user; the `"open"`
+  token set is untouched.
+- **2026-09-22** (S3.2) — **Three variations the spec did not name: `RowSnug` and `FlowSnug`
+  (`SPACE_2` gaps), `GutterTight` (`SPACE_3` margins) and `LabelCaptionAlert`.** §3.2 asks for a
+  `SPACE_2` tab row and a node whose content sits `SPACE_3` inside its cell, and §3.3 for the
+  failure caption in `ALERT`; none of those existed and a per-node override is banned.
+- **2026-09-22** (S3.2) — **The tab row and the header wrap on a phone.** At 400 px the three
+  German tabs and the header (title, compute cell, paused chip, close) are wider than the screen.
+  Both are flow containers now, so they fall onto a second row instead of pushing the modal off
+  the viewport; on a desktop they are single rows as §3.2 draws them.
+- **2026-09-22** (S3.2) — **`ValueLabel` gained `variation_base` and `ConsoleButton` a
+  `list_row` flag.** A tech node's cost needs its own colour per state and §3.6's prerequisite row
+  a borderless button; both are variations rather than overrides. `list_row`, not `flat`:
+  `Button.flat` is Godot's own property and turns the styleboxes off altogether.
+- **2026-09-22** (S3.2) — **`ui/panels/tech_board.gd` and `ui/components/tech_text.gd` are two
+  files §2 does not list.** The modal would otherwise be one 500-line script: the board owns the
+  cells and the lines, `TechText` turns a modifier, a flag or a one-shot into a sentence, and both
+  are tested on their own.
+- **2026-09-22** (S3.2) — **The arrow keys move along the row and the column only.** §3.7 says
+  "nearest by Manhattan distance among those strictly in that direction"; taken literally the
+  right-hand neighbour of a node can sit two rows below it, and §12.2's own example
+  (`early_warning_intrusion` → `command_network_presence`) only holds along the row.
 
 - **2026-09-22** (S3.1) — **A content root without `loc/strings.csv` skips the string check.**
   §8.3 item 7 says every node needs its three keys in both languages, but says nothing about a root
@@ -722,6 +758,17 @@ or a rate cell that is simply empty until it rounds up — that is one line in `
 
 ## Known issues and carry-overs
 
+- **A hand purchase in a running game could not be photographed at S3.2.** Every run the debug keys
+  start is a bot run, and the bot buys whatever becomes affordable within a tick — so the Buy
+  button is never enabled for long enough to click. The purchase path is covered by
+  `tests/integration/test_tech_tree_modal.gd` (command applied, Compute reduced, node owned, event
+  on the bus). S3.4 brings the title screen and with it a player run, where the shot is trivial.
+- **godot-mcp leaves `[autoload] McpInteractionServer` in `project.godot` when a run is killed**
+  (or when the project is restarted while it still holds the file). The next run then dies with
+  "Failed to instantiate an autoload" and the interaction server never connects. `git checkout
+  project.godot` before every commit and before re-running — and never `git checkout` it *during*
+  a run, which is what causes it.
+
 - **`tools/check_scripts.gd` segfaults at shutdown once in every three or four runs** (exit 139,
   *after* it has printed "114 scripts compile" — the scan itself succeeded). It is not
   deterministic and not tied to any file: the same command on the same tree exits 0 twice and 139
@@ -888,6 +935,16 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-22 — S3.2 Tech tree interface [O]
+The modal of `m3-screens.md` §3: tabs with their count chips, a grid built from the data, the
+prerequisite lines, the detail pane with every effect as a sentence, buying through `Game.apply`,
+the `"tree"` hold, and the phone's sheet. New: `Glyphs` (the shapes move out of `IconButton`),
+`TechNode`, `TreeLines`, `TechText`, `ModalHost`, `tech_board.gd`, `tech_tree.gd`,
+`tech_detail.gd`, `Game.hold/release`, `Settings.tree_pauses`, `Format.factor/percent_fine`.
+26 new tests (595 green). Two traps worth remembering: a `Button` lays out no children, so
+anything inside one needs its own row *and* a minimum size computed by hand; and a modal taken out
+of the tree loses every `%` name inside it — `ModalHost` hides its modal instead of removing it.
 
 ### 2026-09-22 — S3.1 Effect vocabulary in the core; load the trees [O]
 Vocabulary v2 (`SCHEMA.md` v2): eleven targets (three live, seven inert), four flags, `grid`,

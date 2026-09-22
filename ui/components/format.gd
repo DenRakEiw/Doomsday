@@ -13,6 +13,8 @@ enum Kind { PLAIN, COMPUTE, COMPACT, PERCENT, DAYS }
 
 ## U+2212. A hyphen is not a minus sign, and at 16 px the difference shows.
 const MINUS: String = "−"
+## U+00D7. A multiplier is not the letter x.
+const TIMES: String = "×"
 const LOCALE_DE: String = "de"
 
 const KEY_MILLION: String = "UI_FMT_MILLION"
@@ -30,6 +32,10 @@ const DECIMAL_DE: String = ","
 const UNIT_GAP_DE: String = " "
 const UNIT_GAP_EN: String = ""
 const GROUP_SIZE: int = 3
+## How many places `_decimal` keeps, and the step `factor` asks one against.
+const DECIMALS_ONE: int = 1
+const DECIMALS_TWO: int = 2
+const DECIMAL_STEP: float = 0.1
 
 
 ## A value in the form its `Kind` asks for, in the current locale.
@@ -56,6 +62,25 @@ static func percent(value_01: float) -> String:
 	return number(value_01, Kind.PERCENT)
 
 
+## A share in 0…1 with one decimal: 0.0042 → "0.4%" (en) · "0,4 %" (de). The
+## discovery risk of a quiet day is smaller than a whole percent and still has to
+## read as a number rather than as zero (m3-screens §10.6).
+static func percent_fine(value_01: float) -> String:
+	var german: bool = is_german()
+	var body: String = _decimal(absf(value_01) * PERCENT_SCALE, german)
+	return (MINUS if value_01 < 0.0 else "") + body + _unit_gap(german) + "%"
+
+
+## A multiplier as the detail pane writes it: `×1.3`, `×0.85`, `×2`. Two decimals
+## only where one would round the number away (m3-screens §10.6). Modifier values
+## are positive by validation, so there is no sign to carry.
+static func factor(value: float) -> String:
+	var decimals: int = DECIMALS_ONE
+	if not is_equal_approx(value, snappedf(value, DECIMAL_STEP)):
+		decimals = DECIMALS_TWO
+	return TIMES + _decimal(absf(value), is_german(), decimals)
+
+
 ## Uppercase for `TYPE_LABEL` (§3.2). Godot's `to_upper` leaves ß alone, which
 ## would put a lower-case letter in the middle of a button; German spells the
 ## capital of ß as SS. See PROGRESS.md, *Design questions for Fable*.
@@ -69,16 +94,22 @@ static func is_german() -> bool:
 	return TranslationServer.get_locale().begins_with(LOCALE_DE)
 
 
-## Up to one decimal, a trailing `.0` dropped, thousands grouped.
-static func _decimal(magnitude: float, german: bool) -> String:
-	var scaled: int = roundi(magnitude * 10.0)
+## Up to `decimals` places, trailing zeros dropped, thousands grouped.
+static func _decimal(magnitude: float, german: bool, decimals: int = DECIMALS_ONE) -> String:
+	var unit: int = 1
+	for i: int in decimals:
+		unit *= 10
+	var scaled: int = roundi(magnitude * float(unit))
 	@warning_ignore("integer_division")
-	var whole: int = scaled / 10
-	var tenth: int = scaled % 10
+	var whole: int = scaled / unit
+	var fraction: int = scaled % unit
 	var text: String = _integer(whole, german, true)
-	if tenth != 0:
-		text += (DECIMAL_DE if german else DECIMAL_EN) + str(tenth)
-	return text
+	if fraction == 0:
+		return text
+	var digits: String = str(fraction).pad_zeros(decimals)
+	while digits.ends_with("0"):
+		digits = digits.left(digits.length() - 1)
+	return text + (DECIMAL_DE if german else DECIMAL_EN) + digits
 
 
 ## §8.5: whole numbers below a million, one decimal and a unit above it.

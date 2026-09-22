@@ -2,15 +2,26 @@ extends PanelContainer
 ## The three destinations of the run (spec ui-foundation.md §5.5): capabilities,
 ## containment, analysis.
 ##
-## All three are disabled in M2 and say so in their tooltip — the screens behind
-## them are M3's. The dock exists now because its shape decides the HUD's, and a
-## button that appears later would move everything around it.
+## A button whose screen does not exist yet is disabled and says so in its
+## tooltip; `LIVE_DESTINATIONS` is what changes as the screens land. The dock
+## exists in full from M2 because its shape decides the HUD's, and a button that
+## appeared later would move everything around it.
 ##
 ## Scene-specific, so no `class_name`.
+
+## One of these was pressed; the index is a `DESTINATION_*`.
+signal destination_requested(index: int)
 
 const BUTTON_KEYS: Array[String] = ["UI_DOCK_CAPABILITIES", "UI_DOCK_CONTAINMENT",
 	"UI_DOCK_ANALYSIS"]
 const KEY_NOT_YET: String = "UI_DOCK_NOT_YET"
+
+const DESTINATION_CAPABILITIES: int = 0
+const DESTINATION_CONTAINMENT: int = 1
+const DESTINATION_ANALYSIS: int = 2
+## The screens that exist. S3.3 adds containment, S4.7 analysis; until then the
+## button is a promise with `UI_DOCK_NOT_YET` in its tooltip.
+const LIVE_DESTINATIONS: Array[int] = [DESTINATION_CAPABILITIES]
 
 ## §5.7: an island of three stacked buttons, or a full-width bar of three.
 var compact: bool = false:
@@ -33,16 +44,22 @@ func _ready() -> void:
 
 
 func _build_buttons() -> void:
-	for key: String in BUTTON_KEYS:
+	for i: int in BUTTON_KEYS.size():
 		var button: ConsoleButton = ConsoleButton.new()
-		button.label_key = key
-		button.tooltip_key = KEY_NOT_YET
-		# M3 enables these; until then the dock is a promise, not a control.
-		button.disabled = true
+		button.label_key = BUTTON_KEYS[i]
+		var live: bool = LIVE_DESTINATIONS.has(i)
+		button.disabled = not live
+		if not live:
+			button.tooltip_key = KEY_NOT_YET
 		button.custom_minimum_size = Vector2(float(UiTokens.DOCK_BUTTON_WIDTH),
 			float(UiTokens.DOCK_BUTTON_HEIGHT))
+		button.pressed.connect(_on_button_pressed.bind(i))
 		_column.add_child(button)
 		_buttons.append(button)
+
+
+func _on_button_pressed(index: int) -> void:
+	destination_requested.emit(index)
 
 
 func _apply_compact() -> void:

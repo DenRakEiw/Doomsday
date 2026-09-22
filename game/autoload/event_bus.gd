@@ -23,3 +23,7 @@ signal region_selected(index: int)
 signal overlay_changed(mode: int)
 signal locale_changed(locale: String)
 signal reduced_motion_changed(enabled: bool)
+signal tree_pauses_changed(enabled: bool)
+## Whether the interface is holding the clock (m3-screens §10.2). The speed group
+## and the paused badge read it; the speed itself is still `speed_changed`.
+signal hold_changed(held: bool)

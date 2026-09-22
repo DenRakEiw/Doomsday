@@ -28,10 +28,17 @@ const SHOT_PATH: String = "user://session_%s_%d_day%04d.png"
 
 ## §5.2: the speed `Space` returns to when nothing else was chosen.
 const SPEED_DEFAULT: int = 1
+## The dock's script is scene-specific and carries no `class_name`, so its
+## destination constants are reached through the file itself.
+const DOCK: GDScript = preload("res://ui/hud/dock.gd")
+## The tech tree's script, so that the calls to it stay type-checked (§3.1).
+const TechTree: GDScript = preload("res://ui/panels/tech_tree.gd")
 
 @onready var _safe_area: MarginContainer = %SafeArea
 @onready var _hud: Control = %Hud
 @onready var _region_panel: SlidePanel = %RegionPanel
+@onready var _modals: ModalHost = %ModalHost
+@onready var _tech_tree: TechTree = %TechTree
 
 ## The speed `Space` toggles against; the last one the player ran at.
 var _last_speed: int = SPEED_DEFAULT
@@ -46,6 +53,8 @@ func _ready() -> void:
 	# The HUD owns the breakpoint (§5.7); the panel beside it only has to be told
 	# which edge it comes in from and how much of the screen it must leave alone.
 	_hud.connect(&"layout_changed", _on_hud_layout_changed)
+	_hud.connect(&"destination_requested", _on_destination_requested)
+	_tech_tree.closed.connect(_on_tech_tree_closed)
 	EventBus.speed_changed.connect(_on_speed_changed)
 	_apply_logical_scale()
 	_apply_safe_area()
@@ -68,7 +77,12 @@ func _input(event: InputEvent) -> void:
 			Game.set_speed(2)
 		KEY_3:
 			Game.set_speed(4)
+		KEY_T:
+			_toggle_tech_tree()
 		KEY_ESCAPE:
+			if _modals.is_open():
+				# The modal host answers `Escape` itself (m3-screens §10.4).
+				return
 			if not _region_panel.is_open:
 				return
 			# One door (§5.6): the map clears its outline on the same signal.
@@ -76,6 +90,30 @@ func _input(event: InputEvent) -> void:
 		_:
 			return
 	get_viewport().set_input_as_handled()
+
+
+## §3.1: `T` opens the tree and `T` closes it again. While it is open the modal
+## host owns the keyboard, so the key has to reach this handler first — which it
+## does, because `_input` runs ahead of the GUI.
+func _toggle_tech_tree() -> void:
+	if _tech_tree.is_open():
+		_tech_tree.close()
+		return
+	if Game.sim == null or _modals.is_open():
+		return
+	# The host first: the board builds its cells, and a cell outside the tree has
+	# no path for the arrow keys to point at.
+	_modals.open(_tech_tree)
+	_tech_tree.open()
+
+
+func _on_destination_requested(index: int) -> void:
+	if index == int(DOCK.get_script_constant_map()["DESTINATION_CAPABILITIES"]):
+		_toggle_tech_tree()
+
+
+func _on_tech_tree_closed() -> void:
+	_modals.close()
 
 
 func _text_has_focus() -> bool:
@@ -110,6 +148,7 @@ func _on_window_size_changed() -> void:
 ## §5.7: a side panel in the wide layout, a bottom sheet in the compact one. The
 ## insets are the HUD's measured strips, not a repeat of their design heights.
 func _on_hud_layout_changed(compact: bool) -> void:
+	_tech_tree.set_compact(compact)
 	_region_panel.edge = SlidePanel.Edge.BOTTOM if compact else SlidePanel.Edge.LEFT
 	_region_panel.top_inset = float(_hud.call(&"top_inset"))
 	_region_panel.bottom_inset = float(_hud.call(&"bottom_inset"))

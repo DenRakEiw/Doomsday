@@ -15,6 +15,9 @@ extends Control
 ## Emitted when the layout changed, so that the region panel can take the edge
 ## and the insets that go with it (§5.6, §4.6).
 signal layout_changed(compact: bool)
+## A dock button was pressed (`dock.gd`'s `DESTINATION_*`). The HUD only passes
+## it on: which screen that is belongs to the session.
+signal destination_requested(index: int)
 
 @onready var _top_bar: PanelContainer = %TopBar
 @onready var _overlay_picker: PanelContainer = %OverlayPicker
@@ -31,7 +34,12 @@ var _has_layout: bool = false
 
 func _ready() -> void:
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
+	_dock.connect(&"destination_requested", _on_destination_requested)
 	_apply_layout()
+
+
+func _on_destination_requested(index: int) -> void:
+	destination_requested.emit(index)
 
 
 ## Whether the compact layout is in force.

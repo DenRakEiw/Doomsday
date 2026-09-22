@@ -116,3 +116,30 @@ func test_caps_spells_the_capital_of_the_sharp_s() -> void:
 
 func test_caps_leaves_an_umlaut_alone() -> void:
 	assert_eq(Format.caps("Fähigkeiten"), "FÄHIGKEITEN")
+
+
+# --------------------------------------------------------- m3-screens §10.6
+
+
+func test_factor_reads_as_a_multiplier() -> void:
+	_english()
+	assert_eq(Format.factor(1.3), "×1.3")
+	assert_eq(Format.factor(0.85), "×0.85", "two places where one would round it away")
+	assert_eq(Format.factor(2.0), "×2", "and none where there is nothing to say")
+
+
+func test_factor_follows_the_locale() -> void:
+	_german()
+	assert_eq(Format.factor(0.85), "×0,85")
+
+
+func test_percent_fine_keeps_the_first_decimal() -> void:
+	_english()
+	assert_eq(Format.percent_fine(0.0042), "0.4%")
+	_german()
+	assert_eq(Format.percent_fine(0.0042), "0,4 %")
+
+
+func test_percent_fine_drops_a_decimal_that_is_zero() -> void:
+	_english()
+	assert_eq(Format.percent_fine(0.25), "25%")

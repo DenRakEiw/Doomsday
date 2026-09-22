@@ -36,6 +36,16 @@ const CHANNEL_FLOOR: float = 0.001
 		large = value
 		_apply_variation()
 
+## The variation family this label takes its look from. A component whose
+## numbers have a colour of their own (m3-screens §3.4's tech node) points this
+## at its own family instead of reaching for a per-node override. The family
+## needs an entry per state it can reach; a label that never carries a delta
+## needs only the plain one.
+@export var variation_base: StringName = VARIATION:
+	set(value):
+		variation_base = value
+		_apply_variation()
+
 var _value_text: String = ""
 var _delta_text: String = ""
 var _state: State = State.NEUTRAL
@@ -139,4 +149,4 @@ func _apply_text() -> void:
 
 func _apply_variation() -> void:
 	var size_part: String = VARIATION_LARGE if large else ""
-	theme_type_variation = StringName(VARIATION + size_part + STATE_SUFFIX[_state])
+	theme_type_variation = StringName(String(variation_base) + size_part + STATE_SUFFIX[_state])
