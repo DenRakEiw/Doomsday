@@ -1,0 +1,164 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://ui/panels/region_panel.gd" id="1_region_panel"]
+[ext_resource type="Script" path="res://ui/components/icon_button.gd" id="3_icon_button"]
+[ext_resource type="Script" path="res://ui/components/caps_label.gd" id="4_caps_label"]
+[ext_resource type="Script" path="res://ui/components/value_label.gd" id="5_value_label"]
+[ext_resource type="Script" path="res://ui/components/console_button.gd" id="6_console_button"]
+
+[node name="RegionPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_region_panel")
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_right = 400.0
+offset_bottom = 600.0
+theme_type_variation = &"ConsolePanel"
+
+[node name="Scroll" type="ScrollContainer" parent="Panel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Body" type="VBoxContainer" parent="Panel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"PanelContent"
+
+[node name="Header" type="HBoxContainer" parent="Panel/Scroll/Body"]
+layout_mode = 2
+theme_type_variation = &"Row"
+
+[node name="RegionName" type="Label" parent="Panel/Scroll/Body/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+autowrap_mode = 3
+theme_type_variation = &"LabelDisplay"
+
+[node name="CloseButton" type="Button" parent="Panel/Scroll/Body/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+theme_type_variation = &"IconButton"
+script = ExtResource("3_icon_button")
+glyph = 4
+tooltip_key = "UI_COMMON_CLOSE"
+
+[node name="Continent" type="Label" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+
+[node name="Chips" type="HFlowContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"Flow"
+
+[node name="Presence" type="VBoxContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="Population" type="VBoxContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="AliveRow" type="HBoxContainer" parent="Panel/Scroll/Body/Population"]
+layout_mode = 2
+theme_type_variation = &"Row"
+
+[node name="AliveLabel" type="Label" parent="Panel/Scroll/Body/Population/AliveRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"LabelCaps"
+script = ExtResource("4_caps_label")
+label_key = "UI_REGION_POPULATION_ALIVE"
+
+[node name="AliveValue" type="Label" parent="Panel/Scroll/Body/Population/AliveRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ValueLabel"
+script = ExtResource("5_value_label")
+
+[node name="DeathsRow" type="HBoxContainer" parent="Panel/Scroll/Body/Population"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"Row"
+
+[node name="DeathsLabel" type="Label" parent="Panel/Scroll/Body/Population/DeathsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"LabelCaps"
+script = ExtResource("4_caps_label")
+label_key = "UI_REGION_POPULATION_DEATHS"
+
+[node name="DeathsValue" type="Label" parent="Panel/Scroll/Body/Population/DeathsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ValueLabel"
+script = ExtResource("5_value_label")
+
+[node name="ProfileTitle" type="Label" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelHeading"
+
+[node name="Profile" type="GridContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"Grid"
+columns = 2
+
+[node name="LinksTitle" type="Label" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelHeading"
+
+[node name="Links" type="VBoxContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="AnomalyBox" type="PanelContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"ConsolePanel"
+
+[node name="AnomalyContent" type="VBoxContainer" parent="Panel/Scroll/Body/AnomalyBox"]
+layout_mode = 2
+theme_type_variation = &"PanelContent"
+
+[node name="AnomalyLabel" type="Label" parent="Panel/Scroll/Body/AnomalyBox/AnomalyContent"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="AnomalyExpires" type="Label" parent="Panel/Scroll/Body/AnomalyBox/AnomalyContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+
+[node name="CollectButton" type="Button" parent="Panel/Scroll/Body/AnomalyBox/AnomalyContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsoleButtonPrimary"
+script = ExtResource("6_console_button")
+label_key = "UI_REGION_COLLECT"
+primary = true
+
+[node name="Extra" type="VBoxContainer" parent="Panel/Scroll/Body"]
+layout_mode = 2
+theme_type_variation = &"StackTight"

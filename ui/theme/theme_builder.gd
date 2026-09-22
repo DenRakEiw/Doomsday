@@ -99,10 +99,17 @@ const VARIATIONS: Dictionary[String, String] = {
 	"PanelContent": "VBoxContainer",
 	"Gutter": "MarginContainer",
 	"Stack": "VBoxContainer",
+	"StackTight": "VBoxContainer",
+	"Flush": "VBoxContainer",
 	"Row": "HBoxContainer",
+	"RowWide": "HBoxContainer",
+	"RowTight": "HBoxContainer",
 	"Flow": "HFlowContainer",
+	"Grid": "GridContainer",
 	"ConsoleButton": BUTTON,
 	"ConsoleButtonPrimary": BUTTON,
+	"ConsoleButtonCompact": BUTTON,
+	"ConsoleButtonPrimaryCompact": BUTTON,
 	"IconButton": BUTTON,
 	"StatBar": CONTROL,
 	"StatBarPenetration": STAT_BAR,
@@ -205,7 +212,8 @@ static func _typography() -> Theme:
 
 	# A button's label is `TYPE_LABEL` (§4.2); the icon buttons carry no text but
 	# inherit the same entry so that nothing falls back to the default font.
-	for button: String in ["ConsoleButton", "ConsoleButtonPrimary", "IconButton"]:
+	for button: String in ["ConsoleButton", "ConsoleButtonPrimary", "ConsoleButtonCompact",
+			"ConsoleButtonPrimaryCompact", "IconButton"]:
 		theme.set_font(ITEM_FONT, button, caps)
 		theme.set_font_size(ITEM_FONT_SIZE, button, UiTokens.TYPE_LABEL)
 	_type(theme, "Ticker", mono_regular, UiTokens.TYPE_BODY, UiTokens.LINE_BODY)
@@ -255,9 +263,21 @@ static func _panels() -> Theme:
 		theme.set_constant(side, "Gutter", UiTokens.GUTTER)
 	theme.set_constant(CONST_SEPARATION, "Stack", UiTokens.SPACE_5)
 	theme.set_constant(CONST_SEPARATION, "Row", UiTokens.SPACE_3)
-	# A flow row wraps, so it has a gap in both directions.
+	# §5 asks for three more gaps than §3.8 named: between the cells of the top
+	# bar and the bars of the stat row (`SPACE_5`), between the buttons of a
+	# speed group (`SPACE_1`), and between the dock's destinations (`SPACE_2`).
+	theme.set_constant(CONST_SEPARATION, "RowWide", UiTokens.SPACE_5)
+	theme.set_constant(CONST_SEPARATION, "RowTight", UiTokens.SPACE_1)
+	theme.set_constant(CONST_SEPARATION, "StackTight", UiTokens.SPACE_2)
+	# §5.7's strips touch: a gap between the stat row and the ticker would be a
+	# stripe of map between two panels.
+	theme.set_constant(CONST_SEPARATION, "Flush", 0)
+	# A flow row wraps, so it has a gap in both directions — and so does §5.6's
+	# two-column attribute grid.
 	theme.set_constant("h_separation", "Flow", UiTokens.SPACE_3)
 	theme.set_constant("v_separation", "Flow", UiTokens.SPACE_3)
+	theme.set_constant("h_separation", "Grid", UiTokens.SPACE_4)
+	theme.set_constant("v_separation", "Grid", UiTokens.SPACE_2)
 	return theme
 
 
@@ -276,6 +296,20 @@ static func _buttons() -> Theme:
 	_button_styles(theme, "ConsoleButtonPrimary", pad, UiTokens.ACCENT, UiTokens.ACCENT_HOVER,
 		UiTokens.ACCENT_PRESSED, UiTokens.ACCENT, UiTokens.ACCENT_HOVER, UiTokens.ACCENT_PRESSED)
 	_button_colours(theme, "ConsoleButtonPrimary", UiTokens.INK, UiTokens.INK, UiTokens.INK)
+
+	# §5.7's compact dock is three buttons in 400 px, and the three German words
+	# do not fit the padding above. Everything else about them is the same, so
+	# the compact form is a variation and not a second component.
+	var tight: Vector2i = Vector2i(UiTokens.SPACE_3, UiTokens.SPACE_3)
+	_button_styles(theme, "ConsoleButtonCompact", tight, UiTokens.BG_3, UiTokens.BG_4,
+		UiTokens.accent_wash(), UiTokens.LINE_1, UiTokens.LINE_2, UiTokens.ACCENT)
+	_button_colours(theme, "ConsoleButtonCompact", UiTokens.TEXT_0, UiTokens.TEXT_0,
+		UiTokens.ACCENT)
+	_button_styles(theme, "ConsoleButtonPrimaryCompact", tight, UiTokens.ACCENT,
+		UiTokens.ACCENT_HOVER, UiTokens.ACCENT_PRESSED, UiTokens.ACCENT, UiTokens.ACCENT_HOVER,
+		UiTokens.ACCENT_PRESSED)
+	_button_colours(theme, "ConsoleButtonPrimaryCompact", UiTokens.INK, UiTokens.INK,
+		UiTokens.INK)
 
 	# An icon button has no text, so its padding is zero: the glyph is drawn in a
 	# centred box of its own (§4.3).

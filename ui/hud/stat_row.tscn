@@ -1,0 +1,45 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://ui/hud/stat_row.gd" id="1_stat_row"]
+[ext_resource type="PackedScene" path="res://ui/components/stat_bar.tscn" id="2_stat_bar"]
+
+[node name="StatRow" type="PanelContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+theme_type_variation = &"ConsolePanelRaised"
+script = ExtResource("1_stat_row")
+
+[node name="Row" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"RowWide"
+
+[node name="Penetration" parent="Row" instance=ExtResource("2_stat_bar")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StatBarPenetration"
+label_key = "UI_TERM_PENETRATION"
+
+[node name="Footprint" parent="Row" instance=ExtResource("2_stat_bar")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StatBarFootprint"
+label_key = "UI_TERM_FOOTPRINT"
+
+[node name="Harm" parent="Row" instance=ExtResource("2_stat_bar")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StatBarHarm"
+label_key = "UI_TERM_HARM"
+
+[node name="Column" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"StackTight"

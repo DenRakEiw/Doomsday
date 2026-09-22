@@ -14,10 +14,10 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S2.5 — HUD and region panel** |
+| **Next step** | **S2.6 — anomalies and links** |
 | **Model for it** | **Opus** — no switch |
-| **After it** | `/clear` → S2.6 (Opus, no switch) |
-| **Last completed** | S2.4 — theme, fonts, the eight components and the gallery |
+| **After it** | `/clear` → **`/model fable`** → G2 |
+| **Last completed** | S2.5 — HUD, region panel, ticker, both layouts |
 | **Milestone** | M1 gated; M2 build under way |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
@@ -25,7 +25,8 @@ rather than struck through.
 | **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 102 scripts compile (10 judged by the suite), 412 tests. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
-| **Run it** | `run_project` → **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region. M2 only. |
+| **Run it** | `run_project` → **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region. M2 only. |
+| **Compact layout** | Below 1100 px the interface switches (§5.7). A desktop window narrower than that lays out one logical pixel per window pixel, so `game_set_property /root size {"x":400,"y":860}` really shows the phone layout — **`game_window set_size` does not work**, it maximises the window instead. |
 | **Look at the map** | `game_click`, `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Session/MapLayer/MapView`, `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead. |
 
 **[F]** = Fable: design, specs, content, text, balance, gates. **[O]** = Opus: code, scenes,
@@ -67,7 +68,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S2.2 [O] Map rendering
 - [x] S2.3 [O] Picking, camera, backdrop
 - [x] S2.4 [O] Theme and component library
-- [ ] S2.5 [O] HUD and region panel
+- [x] S2.5 [O] HUD and region panel
 - [ ] S2.6 [O] Anomalies and links — ⇄ **then `/model fable`**
 
 **Block 5 — M2 gate, M3 design · Fable**
@@ -325,6 +326,20 @@ without new information.
   looks it up at `/root/Settings` instead. A script that names an autoload cannot be compiled by a
   `-s` run (*Known issues*), and `tools/build_theme.gd` has to load the tokens.
 
+- **2026-09-22** (S2.5) — **A desktop window narrower than the breakpoint lays out 1 : 1.**
+  §6.1 gives the dp rule to mobile only, which would make §5.7's compact layout unreachable on
+  desktop: under `canvas_items` the viewport never falls below the 1920 base, so the wide layout
+  would only ever be *shrunk* — at 800 px the body text renders at 6 px. `session.gd` therefore
+  sets `content_scale_size` to the window size below `COMPACT_WIDTH` and back to the project base
+  above it, exactly as `ui/dev/gallery.gd` does. A headless run is exempt (see *Known issues*).
+- **2026-09-22** (S2.5) — **The event → ticker line mapping is `ui/hud/event_text.gd`**
+  (`EventText.for_event`, pure and static), read by the ticker off `EventBus.sim_event`. §8.4 puts
+  it in `Game`; an autoload that owns interface strings is the wrong home, and `Game` already
+  drains the outbox onto the bus. S3.5 replaces this one file with D3.4's headlines.
+- **2026-09-22** (S2.5) — **`Escape` is handled in `_shortcut_input`, not `_unhandled_key_input`.**
+  Verified in the running game: with a focused button in the HUD the key never reaches unhandled
+  input, so the panel would not close. The shortcut layer runs before the focus system.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
@@ -363,6 +378,41 @@ without new information.
 *(empty — S1.P cleared the G1 list)*
 
 ## Deviations from the plan or a spec
+
+- **2026-09-22** (S2.5) — **Two files §2 does not list:** `ui/hud/event_text.gd` (`EventText`, see
+  *Decisions*) and `ui/panels/attribute_pips.gd` (`AttributePips`). §5.6 asks for the pips as "a
+  tiny `_draw` in the panel script", but a cell of a `GridContainer` is a node, so the drawing has
+  to be one. Each HUD block of §5.2–§5.6 has the scene script its `.tscn` implies.
+- **2026-09-22** (S2.5) — **A HUD strip is a `PanelContainer` carrying the `ConsolePanelRaised`
+  variation, not the `ConsolePanel` component** — see *Known issues*: the component re-parents its
+  children and that unregisters every `%UniqueName` below it. The look is identical; the variation
+  is where it comes from either way.
+- **2026-09-22** (S2.5) — **`ValueLabel` gained `set_number_in` and `set_delta_in`**, which wrap the
+  formatted number in a string-table sentence (`UI_HUD_DAY` "{day}", `UI_HUD_COMPUTE_RATE`
+  "{rate} / day"). §4.5's two methods produce a bare number, and §5.2 asks for both keys.
+  `SlidePanel.edge`, `top_inset` and `bottom_inset` became setters, because §5.7 swaps the edge at
+  runtime.
+- **2026-09-22** (S2.5) — **Seven theme variations beyond S2.4's 39 (46 in the built theme):** the
+  gaps §5 asks for that §3.8 has no name for — `RowWide` (`SPACE_5`, the top bar and stat row),
+  `RowTight` (`SPACE_1`, the speed group), `StackTight` (`SPACE_2`, the dock), `Flush` (0, the
+  strips touch), `Grid` (§5.6's two columns) — and `ConsoleButtonCompact` /
+  `ConsoleButtonPrimaryCompact` (`SPACE_3` padding). The last two are why the compact dock fits:
+  FÄHIGKEITEN · EINDÄMMUNG · ANALYSE with §4.2's padding come to 414 px on a 400 px screen.
+  `ConsoleButton` took a `compact` flag to reach them.
+- **2026-09-22** (S2.5) — **The compact top bar shrinks more than §5.7 says:** the compute cell
+  gives up its 200 px minimum, the gap drops to `SPACE_3`, and the compute readout drops from
+  `TYPE_DATA_LG` to `TYPE_DATA`. A row of 48 has no room for the big figure over its caption, and
+  the German "17,8 ▲ +0,5 / Tag" does not fit a third of 400 px at 24 px. Guarded by
+  `test_the_compact_top_bar_fits_a_four_hundred_pixel_row_in_german`.
+- **2026-09-22** (S2.5) — **Tokens added to `UiTokens`:** `COMPACT_WIDTH` 1100, the §5.7 heights
+  (`TOP_BAR_HEIGHT` 56, `TOP_BAR_ROW_HEIGHT` 48, `STAT_ROW_HEIGHT` 64, `STAT_ROW_COMPACT_HEIGHT`
+  84, `TICKER_HEIGHT` 40, `DOCK_BUTTON_HEIGHT` 56, `DOCK_BUTTON_WIDTH` 200, `CELL_MIN_WIDTH` 200),
+  the pip geometry, §5.3's `FOOTPRINT_BAR_MAX` 20 and `HARM_BAR_MAX` 8 (the spec puts them here),
+  `TICKER_STATIC_PERIOD` 4000 and `seconds()` — a timeout that must still elapse while reduced
+  motion holds `duration()` at 0.
+- **2026-09-22** (S2.5) — **`MapView` listens to `EventBus.region_selected`.** S2.3 wrote the
+  outline only in `try_tap`, so closing the panel from its own button or `Escape` left the region
+  outlined. The selection now belongs to the bus, and the map follows it.
 
 - **2026-09-22** (S2.4) — **Four files §2 does not list, each because a theme cannot reach where the
   spec needs it to:** `ui/components/caps_label.gd` (`CapsLabel` — §4.4's `label_key` label, the
@@ -444,6 +494,22 @@ without new information.
 
 ## Known issues and carry-overs
 
+- **`ConsolePanel` destroys `%UniqueName` for everything inside it.** `_build_content` moves the
+  authored children into its `Content` box, and taking a node out of the tree clears the owner of
+  its whole subtree — every unique name registered below it is gone, and `@onready var x = %X`
+  fails with "Node not found". It cost half of S2.5's first test run. **A scene that addresses its
+  contents by `%` must not put them inside a `ConsolePanel`**: use a `PanelContainer` with the
+  `ConsolePanel`/`ConsolePanelRaised` variation and author the content box yourself (`PanelContent`
+  is the variation for it). The component is still right for a panel filled in code, and for one
+  with a `title_key`.
+- **A headless run must not touch `content_scale_size`.** `session.gd` scales a narrow desktop
+  window 1 : 1 (see *Decisions*); under `--headless` `DisplayServer` reports a window that is not
+  one, and every test that put the session scene in the tree silently re-scaled the shared viewport
+  — `test_map_camera` failed on a zoom of 1.097 against 0.0366. The guard is
+  `DisplayServer.get_name() == "headless"`.
+- **godot-mcp `game_window` with `set_size` maximises the window instead of resizing it** (and the
+  next screenshot comes back at the desktop's resolution). `game_set_property` on `/root` with
+  `size = {"x": …, "y": …}` does the right thing — that is how the 400 × 860 layout was reviewed.
 - **godot-mcp's own helper scripts are untyped and trip `untyped_declaration=2`.** Two of the three
   were patched locally in the server installation (outside this repository, so the patch is
   machine-local and an update to godot-mcp will undo it): `scripts/validate_script.gd` was given
@@ -528,6 +594,15 @@ takes an OS path, which is worth knowing).
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — S2.5 HUD and region panel [O]
+`ui/hud/` (top bar with the speed group and the phase chip, stat row, overlay picker, dock, ticker,
+`hud.tscn` with both layouts of §5.7) and `ui/panels/region_panel.tscn` — every value read from
+`Game.sim.world`, every string through `tr()`; `EventText` narrates the outbox (§8.4). Verified in
+the running game at 1920 × 1080 and 400 × 860, English and German, nothing clipped: the German
+compact dock needed a tighter button padding and the compact compute cell a smaller type (see
+*Deviations*). **`ConsolePanel` unregisters every `%` name inside it** (see *Known issues*).
+42 new tests, suite green (454). Next: **S2.6 on Opus** — `/clear`.
 
 ### 2026-09-22 — S2.4 Theme and component library [O]
 JetBrains Mono 2.304 and Space Grotesk 2.0.0 under `assets/fonts/` (import settings written out,

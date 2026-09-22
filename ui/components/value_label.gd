@@ -53,19 +53,43 @@ func set_number(value: float, kind: Format.Kind) -> void:
 	_apply_text()
 
 
+## The same number inside a sentence from the string table: §5.2's day cell is
+## `UI_HUD_DAY` (`{day}`), not a bare figure. The caller names the placeholder,
+## because the key owns its own wording.
+func set_number_in(key: String, placeholder: String, value: float,
+		kind: Format.Kind) -> void:
+	_value_text = tr(key).format({placeholder: Format.number(value, kind)})
+	_apply_text()
+
+
 ## Appends the change since the last reading: `" ▲ +12"`, `" ▼ −3"`, or the bare
 ## number when it is zero. The direction colours the label.
 func set_delta(delta: float, kind: Format.Kind) -> void:
+	_set_delta(delta, kind, "", "")
+
+
+## §5.2: the compute cell's delta is a rate — a sentence around the arrow and the
+## number (`UI_HUD_COMPUTE_RATE`), coloured by the same three states.
+func set_delta_in(key: String, placeholder: String, delta: float,
+		kind: Format.Kind) -> void:
+	_set_delta(delta, kind, key, placeholder)
+
+
+func _set_delta(delta: float, kind: Format.Kind, key: String, placeholder: String) -> void:
 	var formatted: String = Format.number(delta, kind)
+	var body: String = ""
 	if delta > 0.0:
 		_state = State.UP
-		_delta_text = " %s %s%s" % [ARROW_UP, PLUS, formatted]
+		body = "%s %s%s" % [ARROW_UP, PLUS, formatted]
 	elif delta < 0.0:
 		_state = State.DOWN
-		_delta_text = " %s %s" % [ARROW_DOWN, formatted]
+		body = "%s %s" % [ARROW_DOWN, formatted]
 	else:
 		_state = State.MUTED
-		_delta_text = " %s" % formatted
+		body = formatted
+	if not key.is_empty():
+		body = tr(key).format({placeholder: body})
+	_delta_text = " " + body
 	_apply_variation()
 	_apply_text()
 

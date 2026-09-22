@@ -107,6 +107,9 @@ func _ready() -> void:
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.command_applied.connect(_on_command_applied)
 	EventBus.overlay_changed.connect(_on_overlay_changed)
+	# A selection can also be cleared from the panel (§5.6: the close button and
+	# `Escape`), and the outline has to follow it there too.
+	EventBus.region_selected.connect(_on_region_selected)
 	_camera = _find_camera()
 	if _camera != null:
 		_camera.view_changed.connect(_on_camera_view_changed)
@@ -186,6 +189,12 @@ func _on_command_applied(_command: Command, result: CommandResult) -> void:
 
 func _on_overlay_changed(mode: int) -> void:
 	overlay_mode = _overlay_from_int(mode)
+
+
+## The selection is the bus's, not the map's: `try_tap` announces one, the region
+## panel clears one, and both end here.
+func _on_region_selected(index: int) -> void:
+	selected_index = index
 
 
 func _set_param(param: String, value: Variant) -> void:

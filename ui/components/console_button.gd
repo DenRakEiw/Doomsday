@@ -9,6 +9,9 @@ extends Button
 
 const VARIATION: StringName = &"ConsoleButton"
 const VARIATION_PRIMARY: StringName = &"ConsoleButtonPrimary"
+## §5.7: the same button with tighter padding, for a row that has to hold three
+## German labels in 400 px.
+const SUFFIX_COMPACT: String = "Compact"
 
 ## The `data/loc/strings.csv` key of the label.
 @export var label_key: String = "":
@@ -28,6 +31,13 @@ const VARIATION_PRIMARY: StringName = &"ConsoleButtonPrimary"
 		primary = value
 		_apply_variation()
 
+## The tighter padding of §5.7's compact bar. Everything else is unchanged — a
+## narrow screen gets the same button, not a different one.
+@export var compact: bool = false:
+	set(value):
+		compact = value
+		_apply_variation()
+
 
 func _ready() -> void:
 	_apply_variation()
@@ -42,7 +52,8 @@ func _notification(what: int) -> void:
 
 
 func _apply_variation() -> void:
-	theme_type_variation = VARIATION_PRIMARY if primary else VARIATION
+	var base: StringName = VARIATION_PRIMARY if primary else VARIATION
+	theme_type_variation = StringName(base + SUFFIX_COMPACT) if compact else base
 
 
 ## The label is uppercased, the accessible name is not: a screen reader should

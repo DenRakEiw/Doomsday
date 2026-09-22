@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/hud/ticker.gd" id="1_ticker"]
+
+[node name="Ticker" type="PanelContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_type_variation = &"Ticker"
+script = ExtResource("1_ticker")
+
+[node name="Clip" type="Control" parent="."]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Line" type="Label" parent="Clip"]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_bottom = 1.0
+offset_right = 400.0
+grow_vertical = 2
+mouse_filter = 2
+theme_type_variation = &"Ticker"
+vertical_alignment = 1

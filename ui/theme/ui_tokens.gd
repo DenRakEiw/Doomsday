@@ -157,6 +157,38 @@ const GLYPH_BOX: int = 24
 const GLYPH_STROKE: float = 2.0
 
 
+# ------------------------------------------------------------- §5 HUD geometry
+
+
+## Below this the interface lays itself out compact (§5.7). One logical pixel is
+## one dp (§6.1), so the same number is the rule on every device.
+const COMPACT_WIDTH: int = 1100
+
+## The heights of §5.7's table: the strips the HUD puts against the edges, and
+## the two forms of the top bar.
+const TOP_BAR_HEIGHT: int = 56
+const TOP_BAR_ROW_HEIGHT: int = 48
+const STAT_ROW_HEIGHT: int = 64
+const STAT_ROW_COMPACT_HEIGHT: int = 84
+const TICKER_HEIGHT: int = 40
+
+## §5.5: a dock button is bigger than `HIT_MIN` because it is a destination, not
+## a control.
+const DOCK_BUTTON_HEIGHT: int = 56
+const DOCK_BUTTON_WIDTH: int = 200
+## §5.2: the compute cell keeps its width while the number under it changes.
+const CELL_MIN_WIDTH: int = 200
+
+## §5.6's attribute pips: four squares of this size, this far apart.
+const PIP_SIZE: int = 10
+const PIP_GAP: int = 4
+
+## §5.3: footprint and harm have no natural 100 %, so the bar fills against a
+## presentation maximum while the label reads the raw number.
+const FOOTPRINT_BAR_MAX: float = 20.0
+const HARM_BAR_MAX: float = 8.0
+
+
 # -------------------------------------------------------------------- §3.4 motion
 
 
@@ -170,6 +202,11 @@ const MOTION_FLASH: int = 400
 ## M3, reserved.
 const MOTION_MODAL: int = 160
 const ANOMALY_PULSE_PERIOD: int = 1200
+## How long a static ticker item stays before the next one replaces it (§5.5).
+## It is a timeout, not a movement: reduced motion shortens nothing about it.
+const TICKER_STATIC_PERIOD: int = 4000
+
+const MS_PER_SECOND: float = 1000.0
 
 ## Pixels per second, not milliseconds: these are speeds, and reduced motion
 ## stops the movement rather than shortening it.
@@ -201,7 +238,13 @@ static func accent_wash() -> Color:
 static func duration(motion_ms: int) -> float:
 	if reduced_motion():
 		return 0.0
-	return float(motion_ms) / 1000.0
+	return seconds(motion_ms)
+
+
+## A motion token as plain seconds, whatever the setting says — for a timeout
+## that still has to elapse when nothing moves (§5.5's static ticker).
+static func seconds(motion_ms: int) -> float:
+	return float(motion_ms) / MS_PER_SECOND
 
 
 ## Whether motion is off right now. False wherever there is no `Settings` — a

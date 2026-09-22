@@ -21,13 +21,30 @@ const WIDTH_MAX: float = 480.0
 ## A bottom sheet takes half the height.
 const HEIGHT_SHARE: float = 0.5
 
-## Which edge the panel comes in from.
-@export var edge: Edge = Edge.LEFT
+## Which edge the panel comes in from. §5.7 swaps it at the breakpoint, so it is
+## a setter: the panel re-measures and, while closed, moves out of sight on the
+## new edge instead of staying parked outside the old one.
+@export var edge: Edge = Edge.LEFT:
+	set(value):
+		if value == edge:
+			return
+		edge = value
+		if _panel != null:
+			_layout()
 
 ## How much room the panel leaves at the top and the bottom for the HUD strips
-## it must not cover (§4.6). Set by the screen that owns the panel.
-var top_inset: float = 0.0
-var bottom_inset: float = 0.0
+## it must not cover (§4.6). Set by the screen that owns the panel, which knows
+## how tall its own strips came out.
+var top_inset: float = 0.0:
+	set(value):
+		top_inset = value
+		if _panel != null:
+			_layout()
+var bottom_inset: float = 0.0:
+	set(value):
+		bottom_inset = value
+		if _panel != null:
+			_layout()
 
 ## Whether the panel is open or on its way there.
 var is_open: bool = false

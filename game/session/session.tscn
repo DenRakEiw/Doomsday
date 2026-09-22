@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://game/session/session.gd" id="1_session"]
 [ext_resource type="PackedScene" path="res://game/map/map_view.tscn" id="2_map_view"]
 [ext_resource type="PackedScene" path="res://game/map/backdrop.tscn" id="3_backdrop"]
 [ext_resource type="Script" path="res://game/map/map_camera.gd" id="4_map_camera"]
+[ext_resource type="PackedScene" path="res://ui/hud/hud.tscn" id="5_hud"]
+[ext_resource type="PackedScene" path="res://ui/panels/region_panel.tscn" id="6_region_panel"]
 
 [node name="Session" type="Control"]
 layout_mode = 3
@@ -40,8 +42,15 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="Hud" parent="HudLayer/SafeArea" instance=ExtResource("5_hud")]
+unique_name_in_owner = true
+layout_mode = 2
+
 [node name="PanelLayer" type="CanvasLayer" parent="."]
 layer = 20
+
+[node name="RegionPanel" parent="PanelLayer" instance=ExtResource("6_region_panel")]
+unique_name_in_owner = true
 
 [node name="ModalLayer" type="CanvasLayer" parent="."]
 layer = 30

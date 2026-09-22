@@ -1,0 +1,117 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://ui/hud/top_bar.gd" id="1_top_bar"]
+[ext_resource type="Script" path="res://ui/components/caps_label.gd" id="2_caps_label"]
+[ext_resource type="Script" path="res://ui/components/value_label.gd" id="3_value_label"]
+[ext_resource type="Script" path="res://ui/components/chip.gd" id="4_chip"]
+
+[node name="TopBar" type="PanelContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+theme_type_variation = &"ConsolePanelRaised"
+script = ExtResource("1_top_bar")
+
+[node name="Rows" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"StackTight"
+
+[node name="RowMain" type="HBoxContainer" parent="Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"RowWide"
+
+[node name="ComputeCell" type="VBoxContainer" parent="Rows/RowMain"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ComputeLabel" type="Label" parent="Rows/RowMain/ComputeCell"]
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"LabelCaps"
+script = ExtResource("2_caps_label")
+label_key = "UI_TERM_COMPUTE"
+
+[node name="ComputeValue" type="Label" parent="Rows/RowMain/ComputeCell"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"ValueLabelLarge"
+script = ExtResource("3_value_label")
+large = true
+
+[node name="PhaseCell" type="VBoxContainer" parent="Rows/RowMain"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="PhaseLabel" type="Label" parent="Rows/RowMain/PhaseCell"]
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"LabelCaps"
+script = ExtResource("2_caps_label")
+label_key = "UI_HUD_PHASE"
+
+[node name="PhaseChip" type="PanelContainer" parent="Rows/RowMain/PhaseCell"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_type_variation = &"Chip"
+script = ExtResource("4_chip")
+label_key = "UI_PHASE_BOXED"
+
+[node name="DayCell" type="VBoxContainer" parent="Rows/RowMain"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="DayLabel" type="Label" parent="Rows/RowMain/DayCell"]
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"LabelCaps"
+script = ExtResource("2_caps_label")
+label_key = "UI_HUD_DAY_LABEL"
+
+[node name="DayValue" type="Label" parent="Rows/RowMain/DayCell"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"ValueLabel"
+script = ExtResource("3_value_label")
+
+[node name="Spacer" type="Control" parent="Rows/RowMain"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="PausedChip" type="PanelContainer" parent="Rows/RowMain"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_type_variation = &"ChipAlert"
+script = ExtResource("4_chip")
+kind = 2
+label_key = "UI_HUD_PAUSED"
+
+[node name="SpeedGroup" type="HBoxContainer" parent="Rows/RowMain"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 4
+theme_type_variation = &"RowTight"
+
+[node name="RowSecond" type="HBoxContainer" parent="Rows"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"RowWide"
