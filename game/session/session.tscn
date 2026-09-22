@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://game/session/session.gd" id="1_session"]
+[ext_resource type="PackedScene" path="res://game/map/map_view.tscn" id="2_map_view"]
 
 [node name="Session" type="Control"]
 layout_mode = 3
@@ -16,6 +17,8 @@ script = ExtResource("1_session")
 layer = -2
 
 [node name="MapLayer" type="CanvasLayer" parent="."]
+
+[node name="MapView" parent="MapLayer" instance=ExtResource("2_map_view")]
 
 [node name="HudLayer" type="CanvasLayer" parent="."]
 layer = 10

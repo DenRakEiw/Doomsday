@@ -1,0 +1,24 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://game/map/map_view.gd" id="1_view"]
+[ext_resource type="Shader" path="res://game/map/map.gdshader" id="2_shader"]
+[ext_resource type="Texture2D" path="res://assets/map/id_map.png" id="3_id"]
+[ext_resource type="Texture2D" path="res://assets/map/land_mask.png" id="4_land"]
+[ext_resource type="Texture2D" path="res://assets/map/border_mask.png" id="5_border"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_map"]
+shader = ExtResource("2_shader")
+shader_parameter/id_map = ExtResource("3_id")
+shader_parameter/land_mask = ExtResource("4_land")
+shader_parameter/border_mask = ExtResource("5_border")
+shader_parameter/hover_index = 0
+shader_parameter/selected_index = 0
+shader_parameter/overlay_mode = 0
+shader_parameter/outline_px = 2.0
+shader_parameter/hover_gain = 1.0
+
+[node name="MapView" type="Sprite2D"]
+material = SubResource("ShaderMaterial_map")
+centered = false
+texture = ExtResource("3_id")
+script = ExtResource("1_view")

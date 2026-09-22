@@ -14,16 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S2.2 — map rendering** |
+| **Next step** | **S2.3 — picking, camera, backdrop** |
 | **Model for it** | **Opus** — no switch |
-| **After it** | `/clear` → S2.3 (Opus, no switch) |
-| **Last completed** | S2.1 — autoloads, session scene, debug keys; the game ticks |
+| **After it** | `/clear` → S2.4 (Opus, no switch) |
+| **Last completed** | S2.2 — map rendering; the spread is visible on the world map |
 | **Milestone** | M1 gated; M2 build under way |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 84 scripts compile, 299 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 87 scripts compile, 316 tests. The same command is all of CI. |
 | **Run it** | `run_project` → **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes). M2 only. |
+| **Look at the map** | No camera before S2.3, so `game_set_property` on `/root/Session/MapLayer/MapView`: `overlay_mode` 0/1/2, `hover_index`, `selected_index`, `outline_px`, and `scale`/`position` to zoom. Vectors go as `{"x": …, "y": …}` — an array arrives as zero. |
 
 **[F]** = Fable: design, specs, content, text, balance, gates. **[O]** = Opus: code, scenes,
 shaders, wiring, tooling, tests. `/clear` after every step. **⇄** marks a model switch before the
@@ -61,7 +62,7 @@ which file was being edited, and anything learned that the files do not show)*
 **Block 4 — M2 build · Opus**
 - [x] S1.P [O] Punch list from G1 — exact floats in saves
 - [x] S2.1 [O] Autoloads and session driver
-- [ ] S2.2 [O] Map rendering
+- [x] S2.2 [O] Map rendering
 - [ ] S2.3 [O] Picking, camera, backdrop
 - [ ] S2.4 [O] Theme and component library
 - [ ] S2.5 [O] HUD and region panel
@@ -279,6 +280,14 @@ without new information.
 - **2026-09-22** (S2.1) — Both `.translation` files are registered in `project.godot`
   (`internationalization/locale/translations`). Until that line existed `tr()` returned the key.
 
+- **2026-09-22** (S2.2) — **`UiTokens` was built in S2.2, not S2.4.** §7.3 forbids a colour in the
+  shader, so the map needs the tokens before the theme exists. The file holds all of §3 (colours,
+  ramp stops, type scale, spacing, motion) plus `duration()` and `ramp_texture()`; **S2.4 builds the
+  theme from it and hands out the same ramp**, rather than defining either again.
+- **2026-09-22** (S2.2) — **The selection outline cannot be thinner than one ID-map texel.** §7.5's
+  `outline_px = 2 / zoom` is a map-pixel reach, and the shader takes `max(1, round(outline_px))`, so
+  from zoom 2 on the outline grows with the zoom (about 4 screen px at zoom 4) instead of staying at
+  two. Sub-texel taps would land on the same texel and draw no outline at all.
 - **2026-09-22** (D2.1) — **`TICKS_PER_SECOND = 1.0` at 1×** as the starting value (a `greedy` run
   is ~6 min at 1×, 1.5 min at 4×); G3 tunes it against the 25–40 minute target.
 
@@ -307,6 +316,19 @@ without new information.
 *(empty — S1.P cleared the G1 list)*
 
 ## Deviations from the plan or a spec
+
+- **2026-09-22** (S2.2) — **`game/map/region_data.gd` (`RegionData`) is a file §2 does not list.**
+  The §7.2 encoding is the only part of the map that can be judged without a viewport, so it is
+  pure and static like `MapPicker`, and `MapView` only owns the `Image` and the upload.
+- **2026-09-22** (S2.2) — **`map_view.gd` carries `class_name MapView`** although the spec gives a
+  scene script none: S2.3's picking and S2.6's two layers all have to name the map, the way
+  `MapPicker` names `MapCamera`. It also has `data_image()`, which nothing in the game calls —
+  **headless, `ImageTexture.get_image()` returns the image the texture was created with, never the
+  one `update()` uploaded**, so a test cannot read the row back through the material.
+- **2026-09-22** (S2.2) — **`MapView` fits itself into the viewport while there is no camera.**
+  At scale 1 the map is 4096 × 2048 in a 1920 × 1080 window. `_fit_without_camera()` scales and
+  centres the drawn rows and sets `outline_px`; it does nothing once a `Camera2D` is a sibling, and
+  **S2.3 deletes it**.
 
 - **2026-09-22** (S2.1) — **`Game` has four members ui-foundation.md §10.2 does not list:**
   `advance(count)` (the day loop the accumulator, the debug keys and the tests all go through),
@@ -408,6 +430,14 @@ takes an OS path, which is worth knowing).
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — S2.2 Map rendering [O]
+`game/map/map_view.tscn` + `map_view.gd` + `map.gdshader` (§7.1–§7.3) and `region_data.gd` for the
+256 × 1 row; `ui/theme/ui_tokens.gd` came with them, because the shader may hold no colour (see
+*Decisions*). Verified in the running game: `greedy` spreads teal → yellow across the world, all
+three overlays read, dark regions go void, and at 4× zoom there is **no bleeding along any border**
+— the ID map is compared as decoded integers, never as colour. 17 new tests, suite green (316).
+Next: **S2.3 on Opus** — `/clear`.
 
 ### 2026-09-22 — S2.1 Autoloads and session driver [O]
 `EventBus`, `Settings`, `Game`, `SaveManager` under `game/autoload/` and `game/session/session.tscn`
