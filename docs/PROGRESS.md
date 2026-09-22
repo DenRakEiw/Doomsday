@@ -14,20 +14,20 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S2.6 — anomalies and links** |
-| **Model for it** | **Opus** — no switch |
-| **After it** | `/clear` → **`/model fable`** → G2 |
-| **Last completed** | S2.5 — HUD, region panel, ticker, both layouts |
+| **Next step** | **G2 — visual review and M2 gate** |
+| **Model for it** | **Fable** — `/model fable` first |
+| **After it** | `/clear` → D3.1 (still Fable) |
+| **Last completed** | S2.6 — anomaly markers, link layer, both in the gallery |
 | **Milestone** | M1 gated; M2 build under way |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 102 scripts compile (10 judged by the suite), 412 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 107 scripts compile (21 judged by the suite), 504 tests. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
-| **Run it** | `run_project` → **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region. M2 only. |
+| **Run it** | `run_project` → **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
 | **Compact layout** | Below 1100 px the interface switches (§5.7). A desktop window narrower than that lays out one logical pixel per window pixel, so `game_set_property /root size {"x":400,"y":860}` really shows the phone layout — **`game_window set_size` does not work**, it maximises the window instead. |
-| **Look at the map** | `game_click`, `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Session/MapLayer/MapView`, `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead. |
+| **Look at the map** | `game_click` (**`button: 1`, never `"left"`** — see *Known issues*), `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Session/MapLayer/MapView`, `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead — but a property write emits no `view_changed`, so links and markers keep the old zoom until the next real camera movement (**one `game_scroll` notch fixes it**). |
 
 **[F]** = Fable: design, specs, content, text, balance, gates. **[O]** = Opus: code, scenes,
 shaders, wiring, tooling, tests. `/clear` after every step. **⇄** marks a model switch before the
@@ -69,7 +69,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S2.3 [O] Picking, camera, backdrop
 - [x] S2.4 [O] Theme and component library
 - [x] S2.5 [O] HUD and region panel
-- [ ] S2.6 [O] Anomalies and links — ⇄ **then `/model fable`**
+- [x] S2.6 [O] Anomalies and links — ⇄ **then `/model fable`**
 
 **Block 5 — M2 gate, M3 design · Fable**
 - [ ] G2 [F] Visual review and M2 gate
@@ -340,6 +340,27 @@ without new information.
   Verified in the running game: with a focused button in the HUD the key never reaches unhandled
   input, so the panel would not close. The shortcut layer runs before the focus system.
 
+- **2026-09-22** (S2.6) — **A `Line2D` carries no UVs unless it has a texture.** The dash pattern of
+  §7.8 is laid out along `UV.x`, and Godot's line builder only computes UVs when `texture_mode` is
+  not *none* — so every link line carries one shared white pixel in stretch mode, which the shader
+  never samples. The ruler is `length_px` (the line's length **in screen pixels**, re-sent on every
+  zoom), so dash, gap, the bright segment and the closed link's gap are all in screen pixels and
+  keep their size as the camera moves.
+- **2026-09-22** (S2.6) — **A flowing *solid* link is dimmed accent with a lit head**, not a second
+  colour: §7.8 asks for "a moving 24 px bright segment" and §3.1 has no token for a brighter accent
+  (`ACCENT_HOVER` belongs to the button). The line drops to `FLOW_SOLID_BASE_ALPHA` 0.55 and the
+  segment stands at 1.0 — brightness over the dark ground, one token.
+- **2026-09-22** (S2.6) — **A `LinkLine` animates itself and only while it flows**
+  (`set_process(flowing)`), rather than the layer stepping a list every frame. 151 idle `_process`
+  calls a frame is a cost with no picture, and it is what lets the gallery show a flowing link
+  without a run.
+- **2026-09-22** (S2.6) — **`MapCamera.find_beside(node)`** is now the one copy of "the camera among
+  my siblings"; `MapView` was switched over to it. Every map layer needs the camera and none of them
+  may be named by it (S2.3's decision), so the search belongs to the camera.
+- **2026-09-22** (S2.6) — **The dark regions' crosses are drawn by the marker layer itself**, not one
+  node each: they never move and never animate, and a depopulated world would otherwise be sixty
+  nodes doing nothing. The anomaly markers are nodes, because each one has its own clock.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
@@ -378,6 +399,21 @@ without new information.
 *(empty — S1.P cleared the G1 list)*
 
 ## Deviations from the plan or a spec
+
+- **2026-09-22** (S2.6) — **`session.gd` gained the debug key `F12`**, which §10.2 does not list:
+  it writes the view to `user://session_<locale>_<width>_day<day>.png`, the way `ui/dev/gallery.gd`
+  does. The step has to leave a set of screenshots for G2 and godot-mcp's `game_screenshot` returns
+  an image but cannot write a file. M2 only, like the rest of the debug keys.
+- **2026-09-22** (S2.6) — **The gallery gained two sections**, "Link kinds" and "Anomaly marker"
+  (§7.8 asks for the closed link to be shown there, and nothing in M2 closes one). Both samples are
+  the real nodes inside a fixed-size `Control`, so the four kinds can be compared side by side.
+- **2026-09-22** (S2.6) — **`MarkerLayer` has `hover(screen)` and `tooltip()`** next to §7.7's tap:
+  §7.7 gives the tooltip no API, and a test has to be able to say "the pointer rests here" without
+  an event queue. The tooltip is a `LabelCaption` the layer owns, counter-scaled by `1 / zoom` like
+  the markers — it lives in map coordinates and has to land on the screen at its authored size.
+- **2026-09-22** (S2.6) — **`LinkLine.set_flowing(flowing, forward)` takes a direction.** §7.8 says
+  the pattern moves "from `from` to `region`", and a link is drawn from its first anchor to its
+  second — which may be the other way round. The layer reads the direction off the seeding event.
 
 - **2026-09-22** (S2.5) — **Two files §2 does not list:** `ui/hud/event_text.gd` (`EventText`, see
   *Decisions*) and `ui/panels/attribute_pips.gd` (`AttributePips`). §5.6 asks for the pips as "a
@@ -507,6 +543,16 @@ without new information.
   one, and every test that put the session scene in the tree silently re-scaled the shared viewport
   — `test_map_camera` failed on a zoom of 1.097 against 0.0366. The guard is
   `DisplayServer.get_name() == "headless"`.
+- **godot-mcp `game_click` wants a *number*: `button: 1`, never `"left"`.** The server does
+  `int(params.get("button", MOUSE_BUTTON_LEFT))`, so the string becomes 0 — `MouseButton::NONE` —
+  and the click silently does nothing: no selection, no tap, and the only trace is
+  `ERROR: Condition "button == MouseButton::NONE" is true` in `game_get_errors`. With `button: 1`
+  the whole tap path works (an anomaly was collected by hand that way).
+- **Writing `MapCamera.position` or `zoom` as a property does not move the layers with the camera.**
+  Only `set_view` emits `view_changed`, and that is what keeps link widths, dash patterns and marker
+  scales at their screen size — a camera moved by `game_set_property` draws them at the *old* zoom
+  until the next real movement. One `game_scroll` notch puts it right. (The game itself never
+  bypasses `set_view`.)
 - **godot-mcp `game_window` with `set_size` maximises the window instead of resizing it** (and the
   next screenshot comes back at the desktop's resolution). `game_set_property` on `/root` with
   `size = {"x": …, "y": …}` does the right thing — that is how the 400 × 860 layout was reviewed.
@@ -594,6 +640,17 @@ takes an OS path, which is worth knowing).
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — S2.6 Anomalies and links [O]
+`marker_layer.gd` + `anomaly_marker.gd` (§7.7), `link_layer.gd` + `link_line.gd` + `link.gdshader`
+(§7.8), both in `session.tscn`; the gallery gained the four link kinds, a closed link and the
+marker's two states. **A `Line2D` has no UVs without a texture**, and `game_click` needs
+`button: 1` (see *Decisions*, *Known issues*). Verified in the running game: dashed sea / dotted
+air / doubled network links, Pacific links across the map edge, flow pulses, a dark region's ×,
+**an anomaly collected by hand**. 51 new tests, suite green (505).
+**Shots for G2** (F12, both locales, both layouts, days 39 / 84 / 234):
+`C:/Users/schoeneberg/AppData/Roaming/Godot/app_userdata/Doomsday/session_{en,de}_{1920,400}_day*.png`.
+Next: **G2 on Fable** — `/clear`, then `/model fable`.
 
 ### 2026-09-22 — S2.5 HUD and region panel [O]
 `ui/hud/` (top bar with the speed group and the phase chip, stat row, overlay picker, dock, ticker,

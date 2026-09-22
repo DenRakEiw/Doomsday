@@ -128,6 +128,20 @@ static func center_keeping_point(world_point: Vector2, screen_point: Vector2,
 # ------------------------------------------------------------------- the node
 
 
+## The camera among a node's siblings, or null. Every layer of the map needs the
+## camera and none of them may be named by it, so the search lives here — one
+## copy, and a layer that is tested on its own simply gets nothing.
+static func find_beside(node: Node) -> MapCamera:
+	var parent: Node = node.get_parent()
+	if parent == null:
+		return null
+	for child: Node in parent.get_children():
+		var camera: MapCamera = child as MapCamera
+		if camera != null:
+			return camera
+	return null
+
+
 func _ready() -> void:
 	anchor_mode = Camera2D.ANCHOR_MODE_DRAG_CENTER
 	position_smoothing_enabled = false

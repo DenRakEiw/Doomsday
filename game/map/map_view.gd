@@ -110,7 +110,7 @@ func _ready() -> void:
 	# A selection can also be cleared from the panel (§5.6: the close button and
 	# `Escape`), and the outline has to follow it there too.
 	EventBus.region_selected.connect(_on_region_selected)
-	_camera = _find_camera()
+	_camera = MapCamera.find_beside(self)
 	if _camera != null:
 		_camera.view_changed.connect(_on_camera_view_changed)
 		_on_camera_view_changed(_camera.position, _camera.zoom.x)
@@ -217,14 +217,3 @@ func _overlay_from_int(mode: int) -> Overlay:
 func _on_camera_view_changed(_center: Vector2, zoom_level: float) -> void:
 	if zoom_level > 0.0:
 		outline_px = OUTLINE_SCREEN_PX / zoom_level
-
-
-func _find_camera() -> MapCamera:
-	var parent: Node = get_parent()
-	if parent == null:
-		return null
-	for child: Node in parent.get_children():
-		var camera: MapCamera = child as MapCamera
-		if camera != null:
-			return camera
-	return null

@@ -20,6 +20,11 @@ const SETTING_BASE_WIDTH: String = "display/window/size/viewport_width"
 const SETTING_BASE_HEIGHT: String = "display/window/size/viewport_height"
 ## What `DisplayServer.get_name()` answers when there is no window at all.
 const HEADLESS_DRIVER: String = "headless"
+## Where `F12` puts a picture of the session: locale, logical width and day, the
+## way `ui/dev/gallery.gd` names its own. A review (G2) needs the same view in
+## both languages and both layouts, and `game_screenshot` cannot write a file.
+## M2 only, like the rest of the debug keys (§10.2).
+const SHOT_PATH: String = "user://session_%s_%d_day%04d.png"
 
 @onready var _safe_area: MarginContainer = %SafeArea
 @onready var _hud: Control = %Hud
@@ -37,6 +42,20 @@ func _ready() -> void:
 	_hud.connect(&"layout_changed", _on_hud_layout_changed)
 	_apply_logical_scale()
 	_apply_safe_area()
+
+
+## `F12` writes the view to `user://`, named after the locale, the logical width
+## and the day it was taken on.
+func _unhandled_key_input(event: InputEvent) -> void:
+	var key: InputEventKey = event as InputEventKey
+	if key == null or not key.pressed or key.echo or key.keycode != KEY_F12:
+		return
+	var image: Image = get_viewport().get_texture().get_image()
+	var day: int = Game.sim.world.day if Game.sim != null else 0
+	var path: String = SHOT_PATH % [TranslationServer.get_locale(), int(size.x), day]
+	print("session shot: %s -> %s" % [ProjectSettings.globalize_path(path),
+		error_string(image.save_png(path))])
+	get_viewport().set_input_as_handled()
 
 
 func _on_window_size_changed() -> void:

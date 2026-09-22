@@ -42,6 +42,14 @@ const SHARE_NAMES: Array[String] = ["zero", "partial", "full"]
 const CYCLE_SHARES: Array[float] = [0.2, 0.55, 0.9, 0.35]
 const CYCLE_SECONDS: float = 1.2
 
+## §7.8's link states, side by side: a run shows one kind at a time and never a
+## closed link at all, so this is the only place the four can be compared.
+const LINK_CELL: Vector2 = Vector2(160.0, 56.0)
+## §7.7's marker in its two states; the box is wide enough for the ring at its
+## widest.
+const MARKER_CELL: Vector2 = Vector2(56.0, 56.0)
+const MARKER_DAYS_LEFT: int = 12
+
 const STAT_BAR_SCENE: String = "res://ui/components/stat_bar.tscn"
 ## Where `F12` puts a picture of the gallery: locale and logical width.
 const SHOT_PATH: String = "user://gallery_%s_%d.png"
@@ -75,6 +83,7 @@ func _ready() -> void:
 	_build_chips()
 	_build_value_labels()
 	_build_stat_bars()
+	_build_map_layers()
 	_build_slide_panel()
 	var cycle: Timer = Timer.new()
 	cycle.wait_time = CYCLE_SECONDS
@@ -209,6 +218,22 @@ func _build_stat_bars() -> void:
 			SAMPLE_SHARES[i], true))
 
 
+## The two things the map draws that are not components (§7.7, §7.8). They are
+## in the gallery because a run shows them one at a time and, in the case of a
+## closed link, never: nothing in M2 closes one.
+func _build_map_layers() -> void:
+	var links: HFlowContainer = _section("Link kinds (§7.8)")
+	for kind: String in LinkDef.KINDS:
+		_state(links, kind, _link_cell(kind, true, false))
+	_state(links, "land flowing", _link_cell(LinkDef.KIND_LAND, true, true))
+	_state(links, "sea flowing", _link_cell(LinkDef.KIND_SEA, true, true))
+	_state(links, "closed", _link_cell(LinkDef.KIND_LAND, false, false))
+
+	var markers: HFlowContainer = _section("Anomaly marker (§7.7)")
+	_state(markers, "collectable", _marker_cell(MARKER_DAYS_LEFT))
+	_state(markers, "last days", _marker_cell(AnomalyMarker.BLINK_DAYS))
+
+
 ## The slide panel lives over everything else, so it is a child of the root and
 ## a button in its section opens it.
 func _build_slide_panel() -> void:
@@ -299,6 +324,30 @@ func _value(value: float, kind: Format.Kind, delta: float, large: bool) -> Value
 	if not is_nan(delta):
 		label.set_delta(delta, Format.Kind.COMPUTE)
 	return label
+
+
+## A link drawn across a box of its own. The map's layers are `Node2D`s, so the
+## sample sits inside a `Control` that gives the flow row something to lay out.
+func _link_cell(kind: String, is_open: bool, flowing: bool) -> Control:
+	var cell: Control = Control.new()
+	cell.custom_minimum_size = LINK_CELL
+	var line: LinkLine = LinkLine.new()
+	cell.add_child(line)
+	line.setup(Vector2(0.0, LINK_CELL.y * 0.5), Vector2(LINK_CELL.x, LINK_CELL.y * 0.5),
+		kind)
+	line.set_open(is_open)
+	line.set_flowing(flowing, true)
+	return cell
+
+
+func _marker_cell(days_left: int) -> Control:
+	var cell: Control = Control.new()
+	cell.custom_minimum_size = MARKER_CELL
+	var marker: AnomalyMarker = AnomalyMarker.new()
+	marker.position = MARKER_CELL * 0.5
+	cell.add_child(marker)
+	marker.days_left = days_left
+	return cell
 
 
 func _bar(variation: String, key: String, share: float, compact: bool) -> StatBar:
