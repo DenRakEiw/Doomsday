@@ -21,6 +21,9 @@ const FAIL_ALREADY_OWNED: String = "already_owned"
 const FAIL_MISSING_PREREQUISITE: String = "missing_prerequisite"
 const FAIL_INSUFFICIENT_COMPUTE: String = "insufficient_compute"
 const FAIL_UNKNOWN_ANOMALY: String = "unknown_anomaly"
+const FAIL_DORMANCY_LOCKED: String = "dormancy_locked"
+const FAIL_REGION_NOT_INFECTED: String = "region_not_infected"
+const FAIL_DORMANCY_UNCHANGED: String = "dormancy_unchanged"
 
 ## Set by `Simulation.apply` when the command is accepted; -1 until then.
 var day: int = -1

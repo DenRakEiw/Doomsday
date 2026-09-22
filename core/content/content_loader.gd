@@ -17,6 +17,12 @@ const REGIONS_FILE: String = "world/regions.json"
 const LINKS_FILE: String = "world/links.json"
 const TECH_DIR: String = "tech"
 const TECH_SUFFIX: String = ".json"
+## The localisation table, read here as plain rows so that the string check of
+## `docs/specs/tech-trees.md` §8.3 works in a `-s` run and in CI, where the
+## imported `.translation` resources may not exist.
+const STRINGS_FILE: String = "loc/strings.csv"
+## Columns of `strings.csv`: the key, then one per language.
+const STRINGS_LANGUAGES: int = 2
 ## Stands in for the root in the errors of `load_from_dicts`.
 const MEMORY_LABEL: String = "memory"
 
@@ -45,7 +51,10 @@ static func load_root(root: String) -> ContentLoadResult:
 		tech_files.append(path)
 		tech_raws.append(_read(path, errors))
 
-	return _finish(root, balance_raw, regions_raw, links_raw, tech_files, tech_raws, errors)
+	var strings: Dictionary[String, bool] = {}
+	var strings_known: bool = _read_strings(root.path_join(STRINGS_FILE), strings)
+	return _finish(root, balance_raw, regions_raw, links_raw, tech_files, tech_raws, strings,
+		strings_known, errors)
 
 
 ## Loads content that is already parsed — for tests, and for anything that builds
@@ -58,7 +67,10 @@ static func load_from_dicts(balance: Dictionary, regions: Dictionary, links: Dic
 	for i: int in tech_files.size():
 		names.append(label.path_join("%s[%d]" % [TECH_DIR, i]))
 		raws.append(tech_files[i])
-	return _finish(label, balance, regions, links, names, raws, errors)
+	# Content built in memory carries no string table, so the string check is
+	# skipped rather than reported against a file that does not exist.
+	var strings: Dictionary[String, bool] = {}
+	return _finish(label, balance, regions, links, names, raws, strings, false, errors)
 
 
 # --------------------------------------------------------------------- reading
@@ -92,9 +104,29 @@ static func _read(path: String, errors: Array[ValidationError]) -> Variant:
 	return json.data
 
 
+## Keys whose `en` and `de` cells are both non-empty, and whether the table was
+## there at all. A root without one — every test fixture — is not an error: the
+## fixtures deliberately have no strings (`data/SCHEMA.md` §6).
+static func _read_strings(path: String, into: Dictionary[String, bool]) -> bool:
+	if not FileAccess.file_exists(path):
+		return false
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return false
+	# The header is a row like any other; a key named "keys" is not a real one.
+	while not file.eof_reached():
+		var row: PackedStringArray = file.get_csv_line()
+		if row.size() < 1 + STRINGS_LANGUAGES or row[0].is_empty():
+			continue
+		if row[1].strip_edges().is_empty() or row[2].strip_edges().is_empty():
+			continue
+		into[row[0]] = true
+	return true
+
+
 static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, links_raw: Variant,
-		tech_files: PackedStringArray, tech_raws: Array,
-		errors: Array[ValidationError]) -> ContentLoadResult:
+		tech_files: PackedStringArray, tech_raws: Array, strings: Dictionary[String, bool],
+		strings_known: bool, errors: Array[ValidationError]) -> ContentLoadResult:
 	# The order is SCHEMA's: balance, regions, links, technology, and the
 	# cross-file checks inside the validators that need an earlier file.
 	SchemaValidator.validate_balance(root.path_join(BALANCE_FILE), balance_raw, errors)
@@ -106,7 +138,8 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 	var regions_known: bool = typeof(regions_raw) == TYPE_DICTIONARY
 	SchemaValidator.validate_links(root.path_join(LINKS_FILE), links_raw, regions, regions_known,
 		errors)
-	SchemaValidator.validate_tech(tech_files, tech_raws, regions, regions_known, errors)
+	SchemaValidator.validate_tech(tech_files, tech_raws, regions, regions_known, strings,
+		strings_known, errors)
 
 	var result: ContentLoadResult = ContentLoadResult.new()
 	result.errors = errors
@@ -195,12 +228,27 @@ static func _build_tech(db: ContentDB, tech_raws: Array) -> void:
 			def.requires = _string_array(n, "requires")
 			def.requires_any = _string_array(n, "requires_any")
 			def.flags = _string_array(n, "flags")
+			def.watched_by = _string_array(n, "watched_by")
+			var grid: Array = n["grid"]
+			def.grid = Vector2i(int(grid[0]), int(grid[1]))
 			if n.has("modifiers"):
 				var modifiers: Array = n["modifiers"]
 				for modifier: Variant in modifiers:
 					def.modifiers.append(_build_modifier(db, modifier))
+			if n.has("on_purchase"):
+				var effects: Array = n["on_purchase"]
+				for effect: Variant in effects:
+					def.on_purchase.append(_build_effect(effect))
 			db.tech_nodes.append(def)
 			db.tech_by_id[def.id] = def
+
+
+static func _build_effect(raw: Variant) -> PurchaseEffectDef:
+	var e: Dictionary = raw
+	var def: PurchaseEffectDef = PurchaseEffectDef.new()
+	def.effect = str(e["effect"])
+	def.value = float(e["value"])
+	return def
 
 
 static func _build_modifier(db: ContentDB, raw: Variant) -> ModifierDef:

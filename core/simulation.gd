@@ -116,7 +116,10 @@ func node_cost(node_id: String) -> float:
 		return -1.0
 	var escalated: float = float(node.cost) \
 		+ db.balance.compute_cost_step * float(world.agent.owned_nodes.size())
-	return maxf(1.0, ceilf(escalated * world.modifiers.value("node_cost")))
+	# The tree's own multiplier sits on top of the global one, so a discount can
+	# be bought for one tree without cheapening the others.
+	return maxf(1.0, ceilf(escalated * world.modifiers.value("node_cost")
+		* world.modifiers.value(ModifierDef.node_cost_target(node.tree))))
 
 
 ## Nodes that are not owned and whose prerequisites are met, in content order.

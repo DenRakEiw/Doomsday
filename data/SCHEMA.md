@@ -5,7 +5,9 @@ changes a loader, a format or the vocabulary changes this file in the same commi
 `SchemaValidator` enforces everything stated here; where this file and the validator disagree, that
 is a bug in one of them.
 
-Version: **v1** (D1.1 — regions, links, technology nodes, balance). Later specs add sections.
+Version: **v2** (D1.1 — regions, links, technology nodes, balance; D3.1 — the node grid, the
+factions that watch a node, one-shot effects, the targets and flags of the three trees). Later
+specs add sections.
 
 ## 1. General rules
 
@@ -91,7 +93,10 @@ order is the iteration order of the simulation and therefore part of the determi
 			"tree": "infiltration",
 			"tier": 2,
 			"cost": 7,
+			"grid": [1, 0],
 			"requires_any": ["fx_vector_net", "fx_vector_mass"],
+			"watched_by": ["public_sentiment"],
+			"on_purchase": [],
 			"modifiers": [
 				{"target": "spread_seed", "op": "mul", "value": 2.0},
 				{"target": "footprint", "op": "add", "value": 1.0}
@@ -107,13 +112,19 @@ order is the iteration order of the simulation and therefore part of the determi
 | `tree` | string | yes | `infiltration` · `capabilities` · `evasion` |
 | `tier` | int | yes | 1…3 |
 | `cost` | int | yes | ≥ 1; the base cost before escalation |
+| `grid` | [int, int] | yes | `[column, row]`, column 0…7, row 0…11, **unique within the tree**; a node's column is ≥ the column of every prerequisite, so the interface's lines run left to right. Tier 1 sits in column 0 |
 | `requires` | [node id] | no (`[]`) | all must be owned; ids exist (any tree); no self-reference |
 | `requires_any` | [node id] | no (`[]`) | if non-empty, at least one must be owned |
+| `watched_by` | [faction id] | no (`[]`) | which factions notice the node: `ai_labs` · `governments` · `security_researchers` · `public_sentiment`, no duplicates. Shown as chips; carries no mechanism before M4 |
+| `on_purchase` | [effect] | no (`[]`) | §4.4 |
 | `modifiers` | [modifier] | no (`[]`) | §4.1 |
 | `flags` | [flag] | no (`[]`) | §4.3 |
 
 The prerequisite graph over `requires` ∪ `requires_any` must be acyclic. How a file groups nodes is
 free; the `tree` field, not the file name, decides the tree.
+
+**`breakout` is a tier 1 Infiltration node's job:** every one of them grants it, and no node of
+another tree may.
 
 ### 4.1 Modifier
 
@@ -144,8 +155,25 @@ floating-point summation order, which is fixed (activation order).
 | `containment_growth` | global | 1 | 0…20 | multiplier on containment gain |
 | `node_cost` | global | 1 | 0.1…10 | multiplier on every node's cost |
 
+**Targets v2** (D3.1). The *System* column names the step that makes the target live; until then it
+is **inert**: loaded, validated and evaluated by `ModifierStack`, read by nothing. `ModifierStack`
+lists the inert ones in `INERT_TARGETS`, and a system's spec deletes its row from there.
+
+| Target | Kind | Base | Clamp | System | Meaning |
+| --- | --- | --- | --- | --- | --- |
+| `hardware` | regional | 0 | 0…10 | live | hardware the agent brings to the region; added to the region's hardware in the **yield** sum only, never to `infected_share` |
+| `node_cost_infiltration` `node_cost_capabilities` `node_cost_evasion` | global | 1 | 0.1…10 | live | multiplier on the cost of that tree's nodes, on top of `node_cost` |
+| `shutdown_survival` | regional | 0 | 0…1 | `counter_actions` (S4.3) | share of penetration the region keeps when a shutdown hits it |
+| `emergent_rate` | global | 1 | 0…20 | `emergent` (S4.4) | multiplier on the daily chance of an emergent behaviour |
+| `containment_ai_labs` `containment_governments` `containment_researchers` `containment_public` | global | 1 | 0…20 | `factions` (S4.1) | multiplier on that faction's containment gain, after `containment_growth`. The unified M1–M3 track ignores them |
+| `society_pressure` | regional | 0 | 0…100 | `society` (S4.2) | daily pressure on Societal Function in the region |
+
+An `add` may be negative — the clamp decides what comes of it; only a `mul` of 0 or less is an
+error.
+
 Adding a target means: a row here, a base in `balance.stats`, the clamp in `ModifierStack`, and the
-one place in a system that reads it. Content must never need a new `if` in a system.
+one place in a system that reads it. Content must never need a new `if` in a system. Adding an
+*inert* target means the same but with an entry in `INERT_TARGETS` and no read site at all.
 
 ### 4.2 Scope
 
@@ -162,13 +190,37 @@ affinity field.
 
 ### 4.3 Flags
 
-Boolean unlocks that a source grants while it is active. v1 vocabulary:
+Boolean unlocks that a source grants while it is active.
 
-| Flag | Effect |
-| --- | --- |
-| `breakout` | ends the Boxed phase: seeding across links becomes possible |
+| Flag | System | Effect |
+| --- | --- | --- |
+| `breakout` | live | ends the Boxed phase: seeding across links becomes possible |
+| `dormancy` | live | unlocks `set_dormancy` (§4.5) |
+| `compute_independent` | `autophagy` (S4.2) | the agent no longer starves when the infrastructure it runs on collapses |
+| `legal_standing` | `endings` (S5.6) | reserved |
+| `merge_path` | `endings` (S5.6) | reserved: opens the Merge ending |
 
-An unknown flag is a validation error.
+An unknown flag is a validation error. An inert flag is answered truthfully by
+`ModifierStack.has_flag` and asked by nobody; `INERT_FLAGS` names them.
+
+### 4.4 One-shot effects
+
+`"on_purchase": [{"effect": <effect>, "value": <number>}]` — applied once, in list order, when the
+node is bought, after its modifiers become active. Never undone, never part of the modifier stack,
+never re-applied on load: a save carries the state they produced.
+
+| Effect | `value` | System | Does |
+| --- | --- | --- | --- |
+| `containment_rollback` | (0, 1] | live | every faction: `containment ← containment × (1 − value)`. A threshold that is crossed again is announced again |
+| `compute_grant` | ≥ 0 | live | `compute` and `compute_earned` both rise by `value` |
+| `harm_burst` | (0, 1] | live | one wave of deaths at once: every region that is not dark, not dormant and infected loses `value × penetration × alive` people; a region that empties goes dark as in `docs/specs/core.md` §7.4 |
+| `funding_reset` | (0, 1] | `factions` (S4.1) | burns that share of every faction's accumulated investment. Inert: accepted, no effect |
+
+### 4.5 Commands the content unlocks
+
+`set_dormancy` (`{"region": <region id>, "dormant": <bool>}`) needs the `dormancy` flag. A dormant
+region is frozen — no growth, no control, no seeding out, no yield, no anomalies, no deaths — and
+leaves the numerator of the infected share while staying in its denominator.
 
 ## 5. `balance.json`
 
@@ -214,9 +266,10 @@ from content ids so that data files never carry text:
 | --- | --- |
 | region `fx_alder` | `REGION_FX_ALDER` |
 | continent `europe` | `CONTINENT_EUROPE` |
-| tech node `cloud_federation` | `TECH_CLOUD_FEDERATION_NAME` · `…_EFFECT` · `…_FLAVOUR` |
+| tech node `cloud_federation` | `TECH_CLOUD_FEDERATION_NAME` · `…_EFFECT` · `…_FLAVOUR` — all three required, in `en` **and** `de`, for every shipped node |
 | command failure `insufficient_compute` | `CMD_FAIL_INSUFFICIENT_COMPUTE` |
 | interface text | `UI_<SCREEN>_<ELEMENT>` |
 
-Placeholders are named: `{region}`, `{count}` — never positional. The test fixture and the M1
-placeholder technology have no strings; nothing displays them.
+Placeholders are named: `{region}`, `{count}` — never positional. A content root without a
+`loc/strings.csv` — every test fixture — skips the string check entirely: the fixtures have no
+strings and nothing displays them.

@@ -18,7 +18,9 @@ const TEMP_ROOT: String = "user://test_content"
 
 const REGION_COUNT: int = 6
 const LINK_COUNT: int = 7
-const TECH_NODE_COUNT: int = 9
+const TECH_NODE_COUNT: int = 13
+## The fixture nodes a dormancy test needs, in purchase order.
+const DORMANCY_NODES: Array[String] = ["fx_quiet", "fx_hold"]
 
 ## Loaded once: the database is immutable, so every test may share it.
 static var _db: ContentDB = null
@@ -52,6 +54,36 @@ static func allow_breakout(simulation: Simulation) -> void:
 	var none: Array[ModifierDef] = []
 	var flags: Array[String] = [ModifierDef.FLAG_BREAKOUT]
 	simulation.world.modifiers.add_source(SpreadSystem.TEST_SOURCE, none, flags)
+
+
+## One node in the shape a `tech/*.json` file holds it, so that a validator test
+## can break exactly one field of a sound node. A tier 1 infiltration node
+## carries `breakout`, because the validator insists that it does.
+static func tech_node(id: String, tree: String, grid: Vector2i, tier: int = 1, cost: int = 1,
+		on_purchase: Array = []) -> Dictionary:
+	var flags: Array = []
+	if tree == TechNodeDef.TREE_INFILTRATION and tier == TechNodeDef.TIER_MIN:
+		flags.append(ModifierDef.FLAG_BREAKOUT)
+	return {
+		"id": id,
+		"tree": tree,
+		"tier": tier,
+		"cost": cost,
+		"grid": [grid.x, grid.y],
+		"flags": flags,
+		"modifiers": [],
+		"on_purchase": on_purchase,
+	}
+
+
+## Buys the dormancy branch and holds `region_id`. Returns the command's result
+## so that a test can assert on the event.
+static func hold(simulation: Simulation, region_id: String,
+		dormant: bool = true) -> CommandResult:
+	if not simulation.world.modifiers.has_flag(ModifierDef.FLAG_DORMANCY):
+		grant(simulation, 100.0)
+		buy(simulation, DORMANCY_NODES)
+	return simulation.apply(SetDormancyCommand.new(region_id, dormant))
 
 
 ## Compute out of thin air, so that a test can buy what it wants to test. Only

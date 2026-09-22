@@ -36,7 +36,27 @@ const CLAMPS: Dictionary[String, Array] = {
 	"discovery": [0.0, 20.0],
 	"containment_growth": [0.0, 20.0],
 	"node_cost": [0.1, 10.0],
+	"hardware": [0.0, 10.0],
+	"shutdown_survival": [0.0, 1.0],
+	"society_pressure": [0.0, 100.0],
+	"node_cost_infiltration": [0.1, 10.0],
+	"node_cost_capabilities": [0.1, 10.0],
+	"node_cost_evasion": [0.1, 10.0],
+	"emergent_rate": [0.0, 20.0],
+	"containment_ai_labs": [0.0, 20.0],
+	"containment_governments": [0.0, 20.0],
+	"containment_researchers": [0.0, 20.0],
+	"containment_public": [0.0, 20.0],
 }
+
+## Targets that are loaded, validated and evaluated here, and read by no system
+## yet (`docs/specs/tech-trees.md` §3.3). Each leaves this list in the step that
+## makes its system live; the content is authored once, now.
+const INERT_TARGETS: Array[String] = ["shutdown_survival", "society_pressure", "emergent_rate",
+	"containment_ai_labs", "containment_governments", "containment_researchers",
+	"containment_public"]
+## The same for flags: `has_flag` answers truthfully, nobody asks yet.
+const INERT_FLAGS: Array[String] = ["compute_independent", "legal_standing", "merge_path"]
 
 ## The prefix of a technology source id.
 const SOURCE_TECH: String = "tech"

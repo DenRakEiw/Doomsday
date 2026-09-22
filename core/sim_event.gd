@@ -20,6 +20,10 @@ const DISCOVERED: String = "discovered"
 const CONTAINMENT_THRESHOLD: String = "containment_threshold"
 const PHASE_CHANGED: String = "phase_changed"
 const OUTCOME_REACHED: String = "outcome_reached"
+const CONTAINMENT_ROLLED_BACK: String = "containment_rolled_back"
+const COMPUTE_GRANTED: String = "compute_granted"
+const HARM_BURST: String = "harm_burst"
+const DORMANCY_CHANGED: String = "dormancy_changed"
 
 ## Causes of `DISCOVERED`.
 const CAUSE_SCRUTINY: String = "scrutiny"

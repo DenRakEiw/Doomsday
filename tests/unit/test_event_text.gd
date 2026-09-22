@@ -5,6 +5,10 @@ extends GutTest
 ## region, a phase and an outcome all arrive as ids and must leave as words, in
 ## the language that is set.
 
+## `SimEvent` constants the M3 headline system narrates instead of this table.
+const NARRATED_BY_HEADLINES: Array[String] = ["CONTAINMENT_ROLLED_BACK", "COMPUTE_GRANTED",
+	"HARM_BURST", "DORMANCY_CHANGED"]
+
 var _locale: String = ""
 
 
@@ -68,10 +72,13 @@ func test_compute_values_go_through_the_formatter() -> void:
 
 func test_every_event_type_of_the_core_has_a_line() -> void:
 	# The vocabulary is core.md §6.4; §8.4 says an unlisted type is silent, and
-	# in M2 there is no type that should be.
+	# of the M2 types there is none that should be. The four S3.1 added belong to
+	# the headline system D3.4 wrote (`data/headlines.json` already narrates
+	# `dormancy_changed` and every node purchase), and S3.5 replaces this class
+	# with it rather than giving them a `UI_EVENT_*` key of their own.
 	var script: GDScript = SimEvent
 	for name: String in script.get_script_constant_map():
-		if name.begins_with("CAUSE_"):
+		if name.begins_with("CAUSE_") or NARRATED_BY_HEADLINES.has(name):
 			continue
 		var value: Variant = script.get_script_constant_map()[name]
 		if typeof(value) != TYPE_STRING:

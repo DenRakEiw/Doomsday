@@ -136,3 +136,13 @@ func _mean_day_of_dogwood(extra: Array[String]) -> float:
 				break
 		total += float(day)
 	return total / float(_SEEDS)
+
+
+func test_tree_cost_multiplier_applies_to_its_tree_only() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	var infiltration: float = sim.node_cost("fx_vector_net")
+	var evasion: float = sim.node_cost("fx_quiet")
+	_force(sim, ModifierDef.node_cost_target(TechNodeDef.TREE_INFILTRATION),
+		ModifierDef.Op.MUL, 0.5)
+	assert_eq(sim.node_cost("fx_vector_net"), ceilf(infiltration * 0.5))
+	assert_eq(sim.node_cost("fx_quiet"), evasion, "the other trees are untouched")

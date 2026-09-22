@@ -159,9 +159,14 @@ func test_the_flow_lasts_the_ten_days_the_spec_gives_it() -> void:
 
 func test_a_seeding_across_a_link_the_world_does_not_have_is_ignored() -> void:
 	_start()
+	# What the warm-up itself set flowing is not this test's business — with the
+	# real trees the bot does reach a neighbour inside the flow window.
+	var before: Array[bool] = []
+	for i: int in _layer.line_count():
+		before.append(_layer.line_at(i).is_flowing())
 	_seed("germany", "japan", LinkDef.KIND_LAND)
 	for i: int in _layer.line_count():
-		assert_false(_layer.line_at(i).is_flowing(), "line %d" % i)
+		assert_eq(_layer.line_at(i).is_flowing(), before[i], "line %d" % i)
 
 
 func test_the_lines_keep_their_screen_width_when_the_camera_zooms() -> void:

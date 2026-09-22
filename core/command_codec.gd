@@ -4,7 +4,7 @@ extends RefCounted
 ##
 ## The one place that knows every command type. Each build step that adds a
 ## command adds its line to `_make` — S1.3 `choose_origin`, S1.4 `purchase_node`
-## and `collect_anomaly` — and nothing else changes.
+## and `collect_anomaly`, S3.1 `set_dormancy` — and nothing else changes.
 
 ## What `read_int` returns for a field it could not read. No command field is
 ## negative, so it cannot collide with a real value.
@@ -45,6 +45,13 @@ static func _make(type: String, d: Dictionary) -> Command:
 		if node.is_empty():
 			return null
 		return PurchaseNodeCommand.new(node)
+	if type == SetDormancyCommand.TYPE_ID:
+		var dormancy_region: String = read_id(d, "region")
+		if dormancy_region.is_empty():
+			return null
+		if not d.has("dormant") or typeof(d["dormant"]) != TYPE_BOOL:
+			return null
+		return SetDormancyCommand.new(dormancy_region, bool(d["dormant"]))
 	if type == CollectAnomalyCommand.TYPE_ID:
 		var anomaly: int = read_int(d, "anomaly")
 		if anomaly == INVALID:

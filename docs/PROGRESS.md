@@ -14,15 +14,15 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S3.1 — Effect vocabulary in the core; load the trees** |
+| **Next step** | **S3.2 — Tech tree interface** |
 | **Model for it** | **Opus** — no switch |
-| **After it** | `/clear` → S3.2 (no switch) |
-| **Last completed** | S2.P — the twelve G2 items; the punch list is empty |
-| **Milestone** | M2 gated; M3 design complete, build starts |
+| **After it** | `/clear` → S3.3 (no switch) |
+| **Last completed** | S3.1 — vocabulary v2, the three trees are `data/tech/`, dormancy, one-shot effects |
+| **Milestone** | M2 gated; M3 building |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 108 scripts compile (24 judged by the suite), 526 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 114 scripts compile (25 judged by the suite), 569 tests. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Run it** | `run_project` → **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
@@ -80,7 +80,7 @@ which file was being edited, and anything learned that the files do not show)*
 
 **Block 6 — M3 build · Opus**
 - [x] S2.P [O] Punch list from G2
-- [ ] S3.1 [O] Effect vocabulary in the core; load the trees
+- [x] S3.1 [O] Effect vocabulary in the core; load the trees
 - [ ] S3.2 [O] Tech tree interface
 - [ ] S3.3 [O] Containment and phases in the interface
 - [ ] S3.4 [O] Run flow: origin, outcome, results
@@ -538,6 +538,29 @@ or a rate cell that is simply empty until it rounds up — that is one line in `
 
 ## Deviations from the plan or a spec
 
+- **2026-09-22** (S3.1) — **A content root without `loc/strings.csv` skips the string check.**
+  §8.3 item 7 says every node needs its three keys in both languages, but says nothing about a root
+  that has no table at all — and every test fixture is such a root (`SCHEMA` §6 says so). The
+  loader reads `<root>/loc/strings.csv` when it is there and reports nothing when it is not, the
+  way `regions_known` already works for cross-references. `res://data` has one, so the shipped
+  content is checked; `load_from_dicts` never is.
+- **2026-09-22** (S3.1) — **`PopulationSystem._go_dark` became `static func go_dark`.**
+  `harm_burst` empties regions outside the tick and must use the same rule (§5), so the rule is
+  written once and called from both. No behaviour changed.
+- **2026-09-22** (S3.1) — **`test_event_text.gd` exempts the four new event types.**
+  `EventText` is M2's stop-gap and S3.5 deletes it; `data/headlines.json` already narrates
+  `dormancy_changed` and every node purchase, so giving the four types a `UI_EVENT_*` key with
+  placeholder German would be text written to be thrown away. The exemption is a named constant
+  with the reason next to it.
+- **2026-09-22** (S3.1) — **`test_a_seeding_across_a_link_the_world_does_not_have_is_ignored`
+  now compares against the flow state before the event.** With the real trees the greedy bot does
+  reach a neighbour inside the ten-day flow window of the 40-day warm-up, so "no line flows" was
+  a claim about the content, not about the phantom link. The test is stricter now, not weaker.
+- **2026-09-22** (S3.1) — **The fixture world gained four nodes and a `grid` on every node**
+  (`fx_grant`, `fx_burst`, `fx_rollback`, `fx_hold`; thirteen in all, `core.md` §9 updated). §9 of
+  the spec asks for one node with `on_purchase` and one with `dormancy`; the effects need a value
+  range each, so they are three nodes rather than one.
+
 - **2026-09-22** (S2.P) — **`Escape` left the region panel.** §5.2 gives the session every key of
   the run, so `region_panel.gd` lost its `_shortcut_input` and `session.gd` `_input` closes the
   panel by emitting `region_selected(0)` — one owner, and the text-field guard in one place.
@@ -699,6 +722,14 @@ or a rate cell that is simply empty until it rounds up — that is one line in `
 
 ## Known issues and carry-overs
 
+- **`tools/check_scripts.gd` segfaults at shutdown once in every three or four runs** (exit 139,
+  *after* it has printed "114 scripts compile" — the scan itself succeeded). It is not
+  deterministic and not tied to any file: the same command on the same tree exits 0 twice and 139
+  the third time. `tools/test.sh` runs under `set -e`, so a red run whose last line is
+  `Segmentation fault` after that message is this, not a broken script — **run it again**. If CI
+  starts flaking on it, the fix is to judge the step by its printed result rather than by the exit
+  code.
+
 - **An anomaly marker is hard to catch in a live run.** Every bot collects an anomaly within a tick
   or two of its spawning, so `marker_count()` is 0 almost always and the hover tooltip of §7.7 could
   not be photographed at S2.P — its box, its text and the push back inside the viewport are covered
@@ -784,6 +815,24 @@ or a rate cell that is simply empty until it rounds up — that is one line in `
 
 ## Balance baselines
 
+**2026-09-22 (S3.1) — the first real baseline with all three trees**, `res://data` with
+`infiltration.json`, `capabilities.json` and `evasion.json` (72 nodes), vocabulary v2 complete,
+40 seeds per policy, **zero rejected commands**, `check_invariants` clean through a 600-day run of
+each policy.
+
+| Policy | Outcomes | Days p10 / p50 / p90 | Discovery p50 | Nodes p50 (min) | Compute p50 | Deaths p50 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `greedy` | 92.5 % Ascendance, 7.5 % contained | 271 / **294** / 310 | day 113 | 48 (33) | 1 560 | 21 % |
+| `stealth` | 62.5 % Ascendance, 37.5 % contained | 248 / **337** / 374 | day 79 | 43 (16) | 1 272 | 5 % |
+
+Against D3.2's reduced check (the same content without the v2 vocabulary): `greedy` is ~35 days
+faster — Distillation's `hardware` and the per-tree cost multipliers pay for themselves — and
+`stealth` wins more often (62.5 % against 50 %) because Evasion's brakes are now real. Both are
+still far below the 25–40 minute target at one day per tick; **G3 tunes**. What the numbers do not
+contain: the per-faction containment multipliers (inert until S4.1), `society_pressure`,
+`emergent_rate` and `shutdown_survival`, so Sandbagging, Log Manipulation and the whole
+Infrastructure branch are weaker here than they will be at M4.
+
 **2026-09-22 (D3.2) — sanity check with all three trees, not a baseline.** Same reduction as D3.1's
 (v1 vocabulary, inert targets and `on_purchase` dropped, no `placeholder.json`), 72 nodes, 40 seeds
 per policy: `greedy` 92.5 % Ascendance / 7.5 % contained, days p50 **329** (307 / 346), discovery
@@ -839,6 +888,14 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-22 — S3.1 Effect vocabulary in the core; load the trees [O]
+Vocabulary v2 (`SCHEMA.md` v2): eleven targets (three live, seven inert), four flags, `grid`,
+`watched_by`, `on_purchase` with four effects, `SetDormancyCommand`, four events. The three trees
+moved from `data/tech_staging/` to `data/tech/`, `placeholder.json` deleted — **the validator found
+no problem in them**, so there is no design question from the data. 43 new tests (569 green).
+Dormancy touches six systems; the one place it is easy to get wrong is `infected_share`, where a
+held region leaves the numerator and stays in the denominator.
 
 ### 2026-09-22 — S2.P Punch list from G2 [O]
 All twelve items (§3.1/§4.5/§4.8/§5.2/§5.6/§7.3/§7.5/§7.7): the speed group is written whole on every

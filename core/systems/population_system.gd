@@ -12,7 +12,8 @@ func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 		return
 	for i: int in range(1, world.regions.size()):
 		var region: Region = world.regions[i]
-		if region.dark or region.alive <= 0.0:
+		# Nothing runs in a held region, so nobody there dies.
+		if region.dark or region.dormant or region.alive <= 0.0:
 			continue
 		var harm: float = world.modifiers.value("harm", region.def)
 		var dead: float = minf(region.alive, db.balance.harm_daily_rate * harm
@@ -23,13 +24,16 @@ func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 		if region.alive < 1.0:
 			region.deaths += region.alive
 			region.alive = 0.0
-			_go_dark(world, region, i, events)
+			go_dark(world, region, i, events)
 
 
 ## A dark region is inert for good: no hardware, no relay, no yield, no
 ## anomalies, out of the world share, and counted as satisfied for Ascendance.
 ## Killing a region before the infection has moved on is how a route is lost.
-func _go_dark(world: World, region: Region, index: int, events: Array[SimEvent]) -> void:
+##
+## Static and public because a one-shot `harm_burst` empties regions outside the
+## tick as well, and the rule must be written once.
+static func go_dark(world: World, region: Region, index: int, events: Array[SimEvent]) -> void:
 	region.dark = true
 	region.penetration = 0.0
 	var anomaly: Anomaly = world.anomaly_in_region(index)

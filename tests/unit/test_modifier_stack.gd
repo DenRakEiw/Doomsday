@@ -132,3 +132,46 @@ func test_an_unknown_target_is_a_programming_error() -> void:
 	var stack: ModifierStack = _stack()
 	assert_eq(stack.value("no_such_target"), 0.0)
 	assert_push_error_count(1)
+
+
+# ------------------------------------------------------------ vocabulary v2
+
+
+func test_a_negative_add_is_clamped_at_zero() -> void:
+	var stack: ModifierStack = _stack()
+	_add(stack, "a", [_modifier("footprint", ModifierDef.Op.ADD, -2.0)])
+	assert_eq(stack.value("footprint"), 0.0, "the clamp absorbs it")
+	_add(stack, "b", [_modifier("footprint", ModifierDef.Op.ADD, 3.0)])
+	assert_eq(stack.value("footprint"), 1.0, "0 + 3 - 2")
+
+
+func test_an_inert_target_is_evaluated_and_read_by_nothing() -> void:
+	# A multiplier says nothing about a target whose base is 0, so the one the
+	# spec names is the one used: a containment track S4.1 will read.
+	var target: String = "containment_ai_labs"
+	assert_true(ModifierStack.INERT_TARGETS.has(target))
+	var stack: ModifierStack = _stack()
+	_add(stack, "a", [_modifier(target, ModifierDef.Op.MUL, 0.5)])
+	assert_eq(stack.value(target), 0.5, "%s is evaluated like any other" % target)
+
+	# And no system asks: a tick with it and a tick without it are the same run.
+	var plain: Simulation = Fixtures.sim_with_origin()
+	var marked: Simulation = Fixtures.sim_with_origin()
+	var modifiers: Array[ModifierDef] = []
+	for inert: String in ModifierStack.INERT_TARGETS:
+		modifiers.append(_modifier(inert, ModifierDef.Op.MUL, 0.5))
+	var no_flags: Array[String] = []
+	marked.world.modifiers.add_source("inert", modifiers, no_flags)
+	for day: int in 50:
+		plain.tick()
+		marked.tick()
+	assert_eq(marked.state_hash(), plain.state_hash())
+
+
+func test_an_inert_flag_is_answered_truthfully() -> void:
+	var flag: String = ModifierStack.INERT_FLAGS[0]
+	var stack: ModifierStack = _stack()
+	var none: Array[ModifierDef] = []
+	var flags: Array[String] = [flag]
+	stack.add_source("a", none, flags)
+	assert_true(stack.has_flag(flag))

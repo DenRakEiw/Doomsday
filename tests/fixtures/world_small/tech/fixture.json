@@ -1,11 +1,12 @@
 {
-	"_comment": "Fixture technology. Nine nodes that between them exercise every rule of the purchase and modifier systems; not game content. Described in docs/specs/core.md section 9.",
+	"_comment": "Fixture technology. Thirteen nodes that between them exercise every rule of the purchase and modifier systems; not game content. Described in docs/specs/core.md section 9, extended in S3.1 with the one-shot effects and the dormancy flag.",
 	"nodes": [
 		{
 			"id": "fx_vector_net",
 			"tree": "infiltration",
 			"tier": 1,
 			"cost": 4,
+			"grid": [0, 0],
 			"flags": ["breakout"],
 			"modifiers": [
 				{"target": "spread_growth", "op": "mul", "value": 1.25, "scope": {"attr": "connectivity", "min": 3}}
@@ -16,6 +17,7 @@
 			"tree": "infiltration",
 			"tier": 1,
 			"cost": 4,
+			"grid": [0, 1],
 			"flags": ["breakout"],
 			"modifiers": [
 				{"target": "spread_growth", "op": "mul", "value": 1.3, "scope": {"attr": "population", "min": 3}}
@@ -26,6 +28,7 @@
 			"tree": "infiltration",
 			"tier": 2,
 			"cost": 7,
+			"grid": [1, 0],
 			"requires_any": ["fx_vector_net", "fx_vector_mass"],
 			"modifiers": [
 				{"target": "spread_seed", "op": "mul", "value": 2.0},
@@ -37,6 +40,7 @@
 			"tree": "infiltration",
 			"tier": 3,
 			"cost": 10,
+			"grid": [2, 0],
 			"requires": ["fx_reach"],
 			"modifiers": [
 				{"target": "airgap_cross", "op": "add", "value": 0.5},
@@ -48,6 +52,7 @@
 			"tree": "capabilities",
 			"tier": 1,
 			"cost": 5,
+			"grid": [0, 0],
 			"modifiers": [
 				{"target": "yield", "op": "mul", "value": 1.5}
 			]
@@ -57,6 +62,7 @@
 			"tree": "capabilities",
 			"tier": 1,
 			"cost": 6,
+			"grid": [0, 1],
 			"modifiers": [
 				{"target": "control_growth", "op": "mul", "value": 3.0},
 				{"target": "footprint", "op": "add", "value": 2.0}
@@ -67,6 +73,7 @@
 			"tree": "capabilities",
 			"tier": 1,
 			"cost": 6,
+			"grid": [0, 2],
 			"modifiers": [
 				{"target": "harm", "op": "add", "value": 1.0},
 				{"target": "footprint", "op": "add", "value": 3.0}
@@ -77,6 +84,7 @@
 			"tree": "capabilities",
 			"tier": 2,
 			"cost": 10,
+			"grid": [1, 2],
 			"requires": ["fx_harm_1", "fx_reach"],
 			"modifiers": [
 				{"target": "harm", "op": "add", "value": 3.0},
@@ -88,10 +96,54 @@
 			"tree": "evasion",
 			"tier": 1,
 			"cost": 6,
+			"grid": [0, 0],
 			"modifiers": [
 				{"target": "containment_growth", "op": "mul", "value": 0.6},
 				{"target": "discovery", "op": "mul", "value": 0.5}
 			]
+		},
+		{
+			"id": "fx_grant",
+			"tree": "capabilities",
+			"tier": 1,
+			"cost": 5,
+			"grid": [0, 3],
+			"on_purchase": [
+				{"effect": "compute_grant", "value": 6.0}
+			]
+		},
+		{
+			"id": "fx_burst",
+			"tree": "capabilities",
+			"tier": 2,
+			"cost": 12,
+			"grid": [1, 3],
+			"requires": ["fx_harm_1"],
+			"on_purchase": [
+				{"effect": "harm_burst", "value": 0.1}
+			]
+		},
+		{
+			"id": "fx_rollback",
+			"tree": "evasion",
+			"tier": 2,
+			"cost": 9,
+			"grid": [1, 0],
+			"requires": ["fx_quiet"],
+			"watched_by": ["governments", "ai_labs"],
+			"on_purchase": [
+				{"effect": "containment_rollback", "value": 0.25},
+				{"effect": "funding_reset", "value": 0.25}
+			]
+		},
+		{
+			"id": "fx_hold",
+			"tree": "evasion",
+			"tier": 2,
+			"cost": 7,
+			"grid": [1, 1],
+			"requires": ["fx_quiet"],
+			"flags": ["dormancy"]
 		}
 	]
 }

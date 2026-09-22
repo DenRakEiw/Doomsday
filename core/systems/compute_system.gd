@@ -18,13 +18,17 @@ func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 
 
 ## Passive yield: hardware, weighted by how much of it the agent holds.
+##
+## The `hardware` stat is the hardware the agent brings with it, so it counts
+## here and nowhere else — `infected_share` measures the humans' own machines.
 func _income(world: World, db: ContentDB) -> void:
 	var income: float = 0.0
 	for i: int in range(1, world.regions.size()):
 		var region: Region = world.regions[i]
-		if region.dark:
+		if region.dark or region.dormant:
 			continue
-		var hardware: float = db.balance.compute_hardware_by_tier[region.def.attr("compute")]
+		var hardware: float = db.balance.compute_hardware_by_tier[region.def.attr("compute")] \
+			+ world.modifiers.value("hardware", region.def)
 		income += hardware * region.penetration * world.modifiers.value("yield", region.def)
 	income *= db.balance.compute_yield_scale
 	world.agent.compute += income
@@ -54,7 +58,9 @@ func _spawn(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 		if world.anomalies.size() >= db.balance.anomaly_max_active:
 			return
 		var region: Region = world.regions[i]
-		if region.dark or region.penetration <= 0.0:
+		# A held region spawns nothing; an anomaly already there lives on and can
+		# still be collected.
+		if region.dark or region.dormant or region.penetration <= 0.0:
 			continue
 		if world.anomaly_in_region(i) != null:
 			continue

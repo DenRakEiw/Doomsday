@@ -213,3 +213,21 @@ func test_nothing_happens_before_an_origin_is_chosen() -> void:
 	_run(sim)
 	assert_eq(sim.world.agent.compute, sim.db.balance.compute_start)
 	assert_eq(events.size(), 0)
+
+
+func test_hardware_adds_to_yield_not_to_share() -> void:
+	# The fixture's smallest compute tier is 1, so what the test pins down is the
+	# rule rather than a tier-0 region: the stat feeds the yield sum and leaves
+	# `infected_share` — the humans' own hardware — alone.
+	var sim: Simulation = Fixtures.sim_with_origin()
+	sim.world.regions[3].penetration = 1.0
+	var share: float = sim.world.infected_share(sim.db)
+	_run(sim)
+	var plain: float = sim.world.agent.compute_earned
+
+	var richer: Simulation = Fixtures.sim_with_origin()
+	richer.world.regions[3].penetration = 1.0
+	_force(richer, "hardware", ModifierDef.Op.ADD, 1.0)
+	_run(richer)
+	assert_gt(richer.world.agent.compute_earned, plain, "the agent brought its own")
+	assert_eq(richer.world.infected_share(richer.db), share, "and the share is unchanged")

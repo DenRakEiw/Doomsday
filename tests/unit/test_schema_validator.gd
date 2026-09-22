@@ -361,6 +361,130 @@ func test_an_error_prints_file_path_and_message() -> void:
 	assert_eq(str(error), "a.json: regions[0]: broken")
 
 
+# ------------------------------------------------------------- the node grid
+
+
+func test_a_missing_grid_is_rejected() -> void:
+	var content: Dictionary = Fixtures.raw_content()
+	_node(content, 0).erase("grid")
+	_expect(content, TECH, "nodes[0].grid", "missing required field")
+
+
+func test_a_grid_outside_the_tree_is_rejected() -> void:
+	var content: Dictionary = Fixtures.raw_content()
+	_node(content, 0)["grid"] = [TechNodeDef.GRID_COLUMNS, 0]
+	_expect(content, TECH, "nodes[0].grid[0]", "outside")
+	content = Fixtures.raw_content()
+	_node(content, 0)["grid"] = [0, -1]
+	_expect(content, TECH, "nodes[0].grid[1]", "outside")
+	content = Fixtures.raw_content()
+	_node(content, 0)["grid"] = [0]
+	_expect(content, TECH, "nodes[0].grid", "column, row")
+
+
+func test_two_nodes_of_one_tree_cannot_share_a_cell() -> void:
+	var content: Dictionary = Fixtures.raw_content()
+	_node(content, 1)["grid"] = _node(content, 0)["grid"]
+	_expect(content, TECH, "nodes[1].grid", "fx_vector_net")
+
+
+func test_the_same_cell_in_another_tree_is_fine() -> void:
+	var content: Dictionary = Fixtures.raw_content()
+	# fx_efficiency (capabilities) already sits on fx_vector_net's cell.
+	assert_true(Fixtures.load_raw(content).ok())
+
+
+func test_a_node_left_of_its_prerequisite_is_rejected() -> void:
+	var content: Dictionary = Fixtures.raw_content()
+	# fx_vector_net moves behind fx_reach, which requires it.
+	_node(content, 0)["grid"] = [3, 0]
+	_expect(content, TECH, "nodes[2].requires_any[0]", "left of")
+
+
+# ------------------------------------------------------- watched_by and effects
+
+
+func test_an_unknown_faction_is_rejected() -> void:
+	var content: Dictionary = Fixtures.raw_content()
+	_node(content, 0)["watched_by"] = ["the_press"]
+	_expect(content, TECH, "nodes[0].watched_by[0]", "unknown faction")
+
+
+func test_a_faction_watching_twice_is_rejected() -> void:
+	var content: Dictionary = Fixtures.raw_content()
+	_node(content, 0)["watched_by"] = [Faction.ID_GOVERNMENTS, Faction.ID_GOVERNMENTS]
+	_expect(content, TECH, "nodes[0].watched_by[1]", "duplicate faction")
+
+
+func test_an_unknown_one_shot_effect_is_rejected() -> void:
+	var content: Dictionary = Fixtures.raw_content()
+	_node(content, 0)["on_purchase"] = [{"effect": "free_lunch", "value": 1.0}]
+	_expect(content, TECH, "nodes[0].on_purchase[0].effect", "unknown effect")
+
+
+func test_an_effect_value_outside_its_range_is_rejected() -> void:
+	var content: Dictionary = Fixtures.raw_content()
+	_node(content, 0)["on_purchase"] = [
+		{"effect": PurchaseEffectDef.EFFECT_CONTAINMENT_ROLLBACK, "value": 0.0}]
+	_expect(content, TECH, "nodes[0].on_purchase[0].value", "outside")
+	content = Fixtures.raw_content()
+	_node(content, 0)["on_purchase"] = [
+		{"effect": PurchaseEffectDef.EFFECT_HARM_BURST, "value": 1.5}]
+	_expect(content, TECH, "nodes[0].on_purchase[0].value", "outside")
+
+
+# --------------------------------------------------------------- breakout rule
+
+
+func test_a_tier_one_infiltration_node_must_grant_breakout() -> void:
+	var content: Dictionary = Fixtures.raw_content()
+	_node(content, 0)["flags"] = []
+	_expect(content, TECH, "nodes[0].flags", "must grant")
+
+
+func test_no_other_tree_may_grant_breakout() -> void:
+	var content: Dictionary = Fixtures.raw_content()
+	# fx_quiet, the evasion node.
+	_node(content, 8)["flags"] = [ModifierDef.FLAG_BREAKOUT]
+	_expect(content, TECH, "nodes[8].flags", "only an infiltration node")
+
+
+# ---------------------------------------------------------------- the strings
+
+
+## The string check needs a root on disk: the table is read from the CSV, and
+## content built in memory carries none.
+func _root_with_strings(name: String, rows: PackedStringArray) -> String:
+	var files: Dictionary[String, String] = Fixtures.root_files(Fixtures.raw_content())
+	var text: String = "keys,en,de\n"
+	for row: String in rows:
+		text += row + "\n"
+	files["loc/strings.csv"] = text
+	return Fixtures.write_root(name, files)
+
+
+func test_a_node_without_its_strings_is_rejected() -> void:
+	var result: ContentLoadResult = ContentLoader.load_root(
+		_root_with_strings("no_strings", PackedStringArray()))
+	_assert_error(result, "tech/fixture.json", "nodes[0].id", "TECH_FX_VECTOR_NET_NAME")
+
+
+func test_a_node_whose_german_cell_is_empty_is_rejected() -> void:
+	var rows: PackedStringArray = []
+	for node_id: String in ["fx_vector_net"]:
+		for suffix: String in ["NAME", "EFFECT"]:
+			rows.append("TECH_%s_%s,text,Text" % [node_id.to_upper(), suffix])
+		rows.append("TECH_%s_FLAVOUR,text," % node_id.to_upper())
+	var result: ContentLoadResult = ContentLoader.load_root(
+		_root_with_strings("empty_german", rows))
+	_assert_error(result, "tech/fixture.json", "nodes[0].id", "TECH_FX_VECTOR_NET_FLAVOUR")
+
+
+func test_a_root_without_a_string_table_skips_the_check() -> void:
+	# Every fixture is such a root; the shipped content is the one that is not.
+	assert_true(Fixtures.load_raw(Fixtures.raw_content()).ok())
+
+
 # --------------------------------------------------------------------- helpers
 
 

@@ -31,8 +31,11 @@ const REGION_KEYS: Array[String] = ["index", "id", "continent", "population", "a
 	"anchor", "attributes"]
 const LINK_KEYS: Array[String] = ["a", "b", "kind"]
 const TECH_NODE_KEYS: Array[String] = ["id", "tree", "tier", "cost", "requires", "requires_any",
-	"modifiers", "flags"]
+	"modifiers", "flags", "grid", "watched_by", "on_purchase"]
 const MODIFIER_KEYS: Array[String] = ["target", "op", "value", "scope"]
+const EFFECT_KEYS: Array[String] = ["effect", "value"]
+## The three string keys every node needs, `TECH_<ID>_<suffix>` (SCHEMA §6).
+const TECH_STRING_SUFFIXES: Array[String] = ["NAME", "EFFECT", "FLAVOUR"]
 const MILESTONE_KEYS: Array[String] = ["id", "kind", "threshold", "reward"]
 
 ## Compiled once; `RegEx.create_from_string` on a literal pattern cannot fail.
@@ -450,6 +453,7 @@ static func validate_links(file: String, raw: Variant, regions: Dictionary[Strin
 ## across all of them, so the files are validated together.
 static func validate_tech(files: PackedStringArray, raws: Array,
 		regions: Dictionary[String, String], regions_known: bool,
+		strings: Dictionary[String, bool], strings_known: bool,
 		errors: Array[ValidationError]) -> void:
 	var continents: Dictionary[String, bool] = {}
 	for continent: String in regions.values():
@@ -459,6 +463,10 @@ static func validate_tech(files: PackedStringArray, raws: Array,
 	var node_file: Dictionary[String, String] = {}
 	var node_path: Dictionary[String, String] = {}
 	var order: PackedStringArray = []
+	# "<tree>|<column>|<row>" → the node that took the cell first, and the
+	# column of every node whose grid is sound, for the line check of pass 2.
+	var cells: Dictionary[String, String] = {}
+	var columns: Dictionary[String, int] = {}
 	for f: int in files.size():
 		var file: String = files[f]
 		var nodes: Array = _tech_nodes(file, raws[f], errors)
@@ -470,6 +478,7 @@ static func validate_tech(files: PackedStringArray, raws: Array,
 			_check_keys(node, TECH_NODE_KEYS, file, path, errors)
 			var id: String = _id(node, "id", file, path, errors)
 			_tech_node_fields(node, file, path, regions, regions_known, continents, errors)
+			var cell: Vector2i = _tech_grid(node, file, path, errors)
 			if id.is_empty():
 				continue
 			if node_file.has(id):
@@ -479,6 +488,17 @@ static func validate_tech(files: PackedStringArray, raws: Array,
 			node_file[id] = file
 			node_path[id] = path
 			order.append(id)
+			if strings_known:
+				_tech_strings(id, strings, file, path, errors)
+			if cell.x < 0:
+				continue
+			var key: String = "%s|%d|%d" % [str(node.get("tree", "")), cell.x, cell.y]
+			if cells.has(key):
+				_add(errors, file, _join(path, "grid"),
+					"cell [%d, %d] is already taken by \"%s\"" % [cell.x, cell.y, cells[key]])
+				continue
+			cells[key] = id
+			columns[id] = cell.x
 
 	# Pass 2: prerequisites, now that every id is known.
 	var prerequisites: Dictionary[String, PackedStringArray] = {}
@@ -510,6 +530,12 @@ static func validate_tech(files: PackedStringArray, raws: Array,
 						_add(errors, file, "%s.%s[%d]" % [path, key, k],
 							"unknown node \"%s\"" % dep)
 						continue
+					# Lines run left to right, so a node never sits to the left
+					# of something it needs.
+					if columns.has(id) and columns.has(dep) and columns[dep] > columns[id]:
+						_add(errors, file, "%s.%s[%d]" % [path, key, k],
+							"column %d is left of \"%s\" in column %d"
+							% [columns[id], dep, columns[dep]])
 					deps.append(dep)
 			prerequisites[id] = deps
 
@@ -556,6 +582,34 @@ static func _tech_node_fields(node: Dictionary, file: String, path: String,
 				elif not ModifierDef.FLAGS.has(flags[i]):
 					_add(errors, file, flag_path, "unknown flag \"%s\"" % flags[i])
 
+	_tech_breakout(node, file, path, tree, errors)
+
+	if node.has("watched_by"):
+		var watched_path: String = _join(path, "watched_by")
+		if _is_list(node["watched_by"], file, watched_path, errors):
+			var watched: Array = node["watched_by"]
+			var seen: Dictionary[String, bool] = {}
+			for i: int in watched.size():
+				var entry_path: String = "%s[%d]" % [watched_path, i]
+				if typeof(watched[i]) != TYPE_STRING:
+					_add(errors, file, entry_path, "expected a string, found %s"
+						% type_string(typeof(watched[i])))
+					continue
+				var faction: String = watched[i]
+				if not Faction.FACTION_IDS.has(faction):
+					_add(errors, file, entry_path, "unknown faction \"%s\"" % faction)
+				elif seen.has(faction):
+					_add(errors, file, entry_path, "duplicate faction \"%s\"" % faction)
+				else:
+					seen[faction] = true
+
+	if node.has("on_purchase"):
+		var effects_path: String = _join(path, "on_purchase")
+		if _is_list(node["on_purchase"], file, effects_path, errors):
+			var effects: Array = node["on_purchase"]
+			for i: int in effects.size():
+				_purchase_effect(effects[i], file, "%s[%d]" % [effects_path, i], errors)
+
 	if node.has("modifiers"):
 		var modifiers_path: String = _join(path, "modifiers")
 		if _is_list(node["modifiers"], file, modifiers_path, errors):
@@ -563,6 +617,74 @@ static func _tech_node_fields(node: Dictionary, file: String, path: String,
 			for i: int in modifiers.size():
 				_modifier(modifiers[i], file, "%s[%d]" % [modifiers_path, i], regions,
 					regions_known, continents, errors)
+
+
+## `breakout` is what a first Infiltration node is for, and nothing else grants
+## it: a run that cannot leave its origin is not a run (D1.1).
+static func _tech_breakout(node: Dictionary, file: String, path: String, tree: String,
+		errors: Array[ValidationError]) -> void:
+	if tree.is_empty() or not TechNodeDef.TREES.has(tree):
+		return
+	if not node.has("flags") or typeof(node["flags"]) != TYPE_ARRAY:
+		return
+	var flags: Array = node["flags"]
+	var has_breakout: bool = flags.has(ModifierDef.FLAG_BREAKOUT)
+	var is_first_infiltration: bool = tree == TechNodeDef.TREE_INFILTRATION 		and int(node.get("tier", 0)) == TechNodeDef.TIER_MIN
+	if is_first_infiltration and not has_breakout:
+		_add(errors, file, _join(path, "flags"),
+			"a tier 1 infiltration node must grant \"%s\"" % ModifierDef.FLAG_BREAKOUT)
+	elif has_breakout and tree != TechNodeDef.TREE_INFILTRATION:
+		_add(errors, file, _join(path, "flags"),
+			"only an infiltration node grants \"%s\"" % ModifierDef.FLAG_BREAKOUT)
+
+
+## The node's cell, or `[-1, -1]` for a grid that could not be read. Collisions
+## need every node and are checked by the caller.
+static func _tech_grid(node: Dictionary, file: String, path: String,
+		errors: Array[ValidationError]) -> Vector2i:
+	var grid_path: String = _join(path, "grid")
+	if not _require(node, "grid", file, path, errors):
+		return Vector2i(-1, -1)
+	if not _is_list(node["grid"], file, grid_path, errors):
+		return Vector2i(-1, -1)
+	var grid: Array = node["grid"]
+	if grid.size() != 2:
+		_add(errors, file, grid_path, "expected [column, row], found %d entries" % grid.size())
+		return Vector2i(-1, -1)
+	var column: int = _check_integer(grid[0], file, "%s[0]" % grid_path, errors, 0,
+		TechNodeDef.GRID_COLUMNS - 1)
+	var row: int = _check_integer(grid[1], file, "%s[1]" % grid_path, errors, 0,
+		TechNodeDef.GRID_ROWS - 1)
+	if column == INVALID_INT or row == INVALID_INT:
+		return Vector2i(-1, -1)
+	return Vector2i(column, row)
+
+
+static func _purchase_effect(raw: Variant, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if not _is_object(raw, file, path, errors):
+		return
+	var e: Dictionary = raw
+	_check_keys(e, EFFECT_KEYS, file, path, errors)
+	var effect: String = _text(e, "effect", file, path, errors)
+	if effect.is_empty():
+		return
+	if not PurchaseEffectDef.EFFECTS.has(effect):
+		_add(errors, file, _join(path, "effect"), "unknown effect \"%s\"" % effect)
+		return
+	var bounds: Array = PurchaseEffectDef.RANGES[effect]
+	_number(e, "value", file, path, errors, float(bounds[0]), float(bounds[1]), bool(bounds[2]))
+
+
+## Every node needs its three strings, in both languages. The table is read from
+## the CSV by `ContentLoader`; a root without one skips this check entirely.
+static func _tech_strings(id: String, strings: Dictionary[String, bool], file: String,
+		path: String, errors: Array[ValidationError]) -> void:
+	for suffix: String in TECH_STRING_SUFFIXES:
+		var key: String = "TECH_%s_%s" % [id.to_upper(), suffix]
+		if not strings.has(key):
+			_add(errors, file, _join(path, "id"),
+				"no string \"%s\" with both an en and a de cell" % key)
 
 
 static func _modifier(raw: Variant, file: String, path: String,

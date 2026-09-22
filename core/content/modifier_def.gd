@@ -16,18 +16,31 @@ const OP_NAMES: Array[String] = ["add", "mul"]
 ## Evaluated for one region; these accept a scope.
 const TARGETS_REGIONAL: Array[String] = ["spread_growth", "spread_seed", "seed_land", "seed_sea",
 	"seed_air", "seed_network", "airgap_cross", "control_growth", "yield", "anomaly_value",
-	"anomaly_rate", "harm"]
+	"anomaly_rate", "harm", "hardware", "shutdown_survival", "society_pressure"]
 ## Evaluated once for the whole world; a scope on one of these is an error.
-const TARGETS_GLOBAL: Array[String] = ["footprint", "discovery", "containment_growth", "node_cost"]
+const TARGETS_GLOBAL: Array[String] = ["footprint", "discovery", "containment_growth", "node_cost",
+	"node_cost_infiltration", "node_cost_capabilities", "node_cost_evasion", "emergent_rate",
+	"containment_ai_labs", "containment_governments", "containment_researchers",
+	"containment_public"]
 ## Both lists together, written out because GDScript constants cannot be built
 ## from other constants. The key set of `balance.stats` is exactly this list.
 const TARGETS_ALL: Array[String] = ["spread_growth", "spread_seed", "seed_land", "seed_sea",
 	"seed_air", "seed_network", "airgap_cross", "control_growth", "yield", "anomaly_value",
-	"anomaly_rate", "harm", "footprint", "discovery", "containment_growth", "node_cost"]
+	"anomaly_rate", "harm", "hardware", "shutdown_survival", "society_pressure", "footprint",
+	"discovery", "containment_growth", "node_cost", "node_cost_infiltration",
+	"node_cost_capabilities", "node_cost_evasion", "emergent_rate", "containment_ai_labs",
+	"containment_governments", "containment_researchers", "containment_public"]
+
+## The prefix of the per-tree cost multipliers, so `node_cost_infiltration` and
+## friends stay derived from `TechNodeDef.TREES` instead of being retyped.
+const TARGET_NODE_COST_PREFIX: String = "node_cost_"
 
 ## Ends the Boxed phase: seeding across links becomes possible.
 const FLAG_BREAKOUT: String = "breakout"
-const FLAGS: Array[String] = ["breakout"]
+## Unlocks `SetDormancyCommand`.
+const FLAG_DORMANCY: String = "dormancy"
+const FLAGS: Array[String] = ["breakout", "dormancy", "compute_independent", "legal_standing",
+	"merge_path"]
 
 var target: String
 var op: Op
@@ -63,6 +76,11 @@ func matches(region: RegionDef) -> bool:
 ## derived from `LinkDef.KINDS` instead of being retyped.
 static func seed_target(kind: String) -> String:
 	return "seed_%s" % kind
+
+
+## The cost multiplier belonging to one tree (`tech-trees.md` §3.1).
+static func node_cost_target(tree: String) -> String:
+	return "%s%s" % [TARGET_NODE_COST_PREFIX, tree]
 
 
 ## The operator an authored name stands for. Unknown names are rejected at load,

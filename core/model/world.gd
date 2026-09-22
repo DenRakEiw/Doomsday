@@ -63,6 +63,10 @@ static func create(db: ContentDB, seed_value: int) -> World:
 
 ## Σ hardware × penetration over the regions that are not dark, as a share of the
 ## hardware that is still there. 0 when there is none left.
+##
+## A dormant region leaves the numerator and stays in the denominator: hiding is
+## the whole point of the node, and what it costs is the share that drives
+## discovery, containment and the Open phase.
 func infected_share(db: ContentDB) -> float:
 	var infected: float = 0.0
 	var total: float = 0.0
@@ -72,6 +76,8 @@ func infected_share(db: ContentDB) -> float:
 			continue
 		var hardware: float = db.balance.compute_hardware_by_tier[region.def.attr("compute")]
 		total += hardware
+		if region.dormant:
+			continue
 		infected += hardware * region.penetration
 	if total <= 0.0:
 		return 0.0
@@ -140,6 +146,7 @@ func to_dict() -> Dictionary:
 			"seeded_day": region.seeded_day,
 			"air_gapped": region.air_gapped,
 			"dark": region.dark,
+			"dormant": region.dormant,
 		})
 
 	var closed_links: Array = []
@@ -299,6 +306,10 @@ static func _read_regions(world: World, raw: Variant, db: ContentDB) -> bool:
 			return false
 		if not _flag(entry, "air_gapped") or not _flag(entry, "dark"):
 			return false
+		# `dormant` arrived with the trees; a save written before them is read
+		# as a world where nothing is held.
+		if entry.has("dormant") and typeof(entry["dormant"]) != TYPE_BOOL:
+			return false
 		var region: Region = Region.create(db.regions[i + 1])
 		region.penetration = FloatBits.from_variant(entry["penetration"])
 		region.control = FloatBits.from_variant(entry["control"])
@@ -307,6 +318,7 @@ static func _read_regions(world: World, raw: Variant, db: ContentDB) -> bool:
 		region.seeded_day = int(entry["seeded_day"])
 		region.air_gapped = bool(entry["air_gapped"])
 		region.dark = bool(entry["dark"])
+		region.dormant = bool(entry.get("dormant", false))
 		world.regions[i + 1] = region
 	return true
 
@@ -452,6 +464,8 @@ func check_invariants(db: ContentDB = null) -> Array[String]:
 				% [where, region.alive + region.deaths, region.def.population])
 		if region.dark and (region.penetration != 0.0 or region.alive != 0.0):
 			problems.append("%s: dark but not empty" % where)
+		if region.dormant and (region.dark or region.penetration <= 0.0):
+			problems.append("%s: dormant without the agent in it" % where)
 
 	for faction: Faction in factions:
 		if not is_finite(faction.containment) or faction.containment < 0.0 \

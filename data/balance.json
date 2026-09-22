@@ -13,10 +13,21 @@
 		"anomaly_value": 1.0,
 		"anomaly_rate": 1.0,
 		"harm": 0.0,
+		"hardware": 0.0,
+		"shutdown_survival": 0.0,
+		"society_pressure": 0.0,
 		"footprint": 0.0,
 		"discovery": 1.0,
 		"containment_growth": 1.0,
-		"node_cost": 1.0
+		"node_cost": 1.0,
+		"node_cost_infiltration": 1.0,
+		"node_cost_capabilities": 1.0,
+		"node_cost_evasion": 1.0,
+		"emergent_rate": 1.0,
+		"containment_ai_labs": 1.0,
+		"containment_governments": 1.0,
+		"containment_researchers": 1.0,
+		"containment_public": 1.0
 	},
 	"population_tiers": [5000000, 30000000, 100000000, 300000000],
 	"spread": {

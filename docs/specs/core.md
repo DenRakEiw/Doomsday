@@ -205,6 +205,7 @@ var deaths: float = 0.0
 var seeded_day: int = -1       # day of first infection; -1 = never
 var air_gapped: bool           # starts at def.air_gapped
 var dark: bool = false         # depopulated: no hardware, no people, inert (§7.4)
+var dormant: bool = false      # held: frozen and out of the share (tech-trees.md §6.3)
 
 class_name Link
 var def: LinkDef
@@ -289,7 +290,8 @@ the denominator is 0. **`seeded_count`** = regions with `seeded_day >= 0`. `aliv
 		"origin": "fx_alder", "owned_nodes": ["fx_vector_net"]},
 	"regions": [{"id": "fx_alder", "penetration": "3fed1eb851eb851f",
 		"control": "3fc999999999999a", "alive": "418c9c3800000000",
-		"deaths": "0000000000000000", "seeded_day": 0, "air_gapped": false, "dark": false}],
+		"deaths": "0000000000000000", "seeded_day": 0, "air_gapped": false, "dark": false,
+		"dormant": false}],
 	"closed_links": ["fx_alder|fx_elm|air"],
 	"factions": [{"id": "unified", "containment": "0000000000000000"}],
 	"anomalies": [{"id": 3, "region": "fx_alder", "value": "4008000000000000",
@@ -442,8 +444,9 @@ Checks run in the order listed; the first failure is the reason.
 | Command · `type_id` · fields | Checks → reason | Effect |
 | --- | --- | --- |
 | `ChooseOriginCommand` · `choose_origin` · `region: String` (region id) | origin already set → `origin_already_chosen` · unknown id → `invalid_region` · region air-gapped or `compute` tier 0 → `region_not_eligible` | `agent.origin`, `world.origin_day = day`; region: `penetration = spread_origin_penetration`, `seeded_day = day`. Event `origin_chosen` |
-| `PurchaseNodeCommand` · `purchase_node` · `node: String` | no origin → `no_origin` · unknown → `unknown_node` · owned → `already_owned` · any `requires` missing, or `requires_any` non-empty with none owned → `missing_prerequisite` · `compute < node_cost` → `insufficient_compute` | `compute -= cost`; append to `owned_nodes`; `modifiers.add_source("tech:<id>", node.modifiers, node.flags)`. Event `node_purchased` |
+| `PurchaseNodeCommand` · `purchase_node` · `node: String` | no origin → `no_origin` · unknown → `unknown_node` · owned → `already_owned` · any `requires` missing, or `requires_any` non-empty with none owned → `missing_prerequisite` · `compute < node_cost` → `insufficient_compute` | `compute -= cost`; append to `owned_nodes`; `modifiers.add_source("tech:<id>", node.modifiers, node.flags)`; then the node's `on_purchase` effects in list order (S3.1, `tech-trees.md` §5). Event `node_purchased` **first**, the effects' events after it |
 | `CollectAnomalyCommand` · `collect_anomaly` · `anomaly: int` | no origin → `no_origin` · no such active anomaly (never existed, expired, collected) → `unknown_anomaly` | `compute` and `compute_earned` `+= value`; remove the anomaly. Event `anomaly_collected` |
+| `SetDormancyCommand` · `set_dormancy` · `region: String`, `dormant: bool` (S3.1) | no origin → `no_origin` · unknown id → `invalid_region` · no `dormancy` flag → `dormancy_locked` · region dark or `penetration == 0` → `region_not_infected` · already in that state → `dormancy_unchanged` | `region.dormant = dormant`. Event `dormancy_changed` |
 
 Constructors take the fields (`ChooseOriginCommand.new("fx_alder")`). Commands carry ids, not
 indices, so logs survive a re-indexed world.
@@ -467,6 +470,10 @@ indices, so logs survive a re-indexed world.
 | `containment_threshold` | `faction`, `threshold: float` | Containment |
 | `phase_changed` | `from`, `to` (phase ids) | Phase |
 | `outcome_reached` | `outcome` (outcome id) | Outcome |
+| `containment_rolled_back` | `node`, `faction`, `from: float`, `to: float` | command (one per faction, S3.1) |
+| `compute_granted` | `node`, `value: float` | command (S3.1) |
+| `harm_burst` | `node`, `deaths: float` | command (S3.1); per-region `region_depopulated` events precede it |
+| `dormancy_changed` | `region`, `dormant: bool` | command (S3.1) |
 
 ## 7. Systems and formulas
 
@@ -692,13 +699,18 @@ vector; `spread_seed` ×2) · `fx_bridge` (requires `fx_reach`; `airgap_cross` +
 `fx_efficiency` (`yield` ×1.5) · `fx_grip` (`control_growth` ×3) · `fx_harm_1` (`harm` +1) ·
 `fx_harm_2` (**cross-tree**: requires `fx_harm_1` and `fx_reach`; `harm` +3) · `fx_quiet`
 (`containment_growth` ×0.6, `discovery` ×0.5). Footprint adds: reach 1, bridge 1, grip 2, harm_1 3,
-harm_2 5.
+harm_2 5. **S3.1 added four:** `fx_grant` (`compute_grant` 6) · `fx_burst` (requires
+`fx_harm_1`; `harm_burst` 0.1) · `fx_rollback` (requires `fx_quiet`; `containment_rollback`
+0.25 and the inert `funding_reset`) · `fx_hold` (requires `fx_quiet`; flag `dormancy`), and
+every node has its `grid` cell. Thirteen nodes in all.
 
 `tests/support/fixtures.gd` (`class_name Fixtures`): `static func db() -> ContentDB` (loads once,
 asserts no errors), `static func sim(seed_value: int = 1) -> Simulation`,
 `static func sim_with_origin(region_id: String = "fx_alder", seed_value: int = 1) -> Simulation`,
 `static func grant(sim: Simulation, compute: float) -> void`, `static func buy(sim: Simulation,
-node_ids: Array[String]) -> void` (asserts each purchase is accepted). Tests may write state
+node_ids: Array[String]) -> void` (asserts each purchase is accepted), and from S3.1
+`static func tech_node(...) -> Dictionary` (one authored node, for the validator tests) and
+`static func hold(sim: Simulation, region_id: String, dormant: bool = true) -> CommandResult`. Tests may write state
 directly to set up a situation; nothing outside `tests/` may.
 
 **Outcome recipes** — checked with a throwaway prototype of §7 on 100 seeds each, every seed gave

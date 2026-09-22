@@ -16,6 +16,9 @@ var seeded_day: int = -1
 var air_gapped: bool = false
 ## Depopulated: no hardware, no people, inert for good (core.md §7.4).
 var dark: bool = false
+## Held rather than active: the agent is there and frozen, and the region is out
+## of the infected share (`tech-trees.md` §6.3). Waking resumes everything.
+var dormant: bool = false
 
 
 static func create(definition: RegionDef) -> Region:

@@ -24,7 +24,7 @@ func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 func _grow(world: World, db: ContentDB) -> void:
 	for i: int in range(1, world.regions.size()):
 		var region: Region = world.regions[i]
-		if region.dark or region.penetration <= 0.0:
+		if region.dark or region.dormant or region.penetration <= 0.0:
 			continue
 		var p: float = region.penetration
 		var growth: float = db.balance.spread_base_growth \
@@ -69,6 +69,10 @@ func _try_pair(world: World, db: ContentDB, link: Link, source_index: int, targe
 	var target: Region = world.regions[target_index]
 	if source.dark or target.dark:
 		return
+	# A held region relays nothing. As a target the question never arises: it
+	# only becomes dormant once the agent is already in it.
+	if source.dormant:
+		return
 	if source.penetration <= 0.0 or target.penetration != 0.0:
 		return
 
@@ -95,7 +99,7 @@ func _control(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 	var threshold: float = db.balance.control_threshold
 	for i: int in range(1, world.regions.size()):
 		var region: Region = world.regions[i]
-		if region.dark or region.penetration <= threshold:
+		if region.dark or region.dormant or region.penetration <= threshold:
 			continue
 		var before: float = region.control
 		var gain: float = db.balance.control_rate * (region.penetration - threshold) \
