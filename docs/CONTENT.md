@@ -12,7 +12,7 @@ behaviours, narrative event chains, scenarios and endings.
 > never appears in any string, file or comment. This applies with particular force to the Biology and
 > Strategic Weapons branches. The schema enforces it: content entries have `name`, `effect` and
 > `flavour` fields, and `flavour` is reviewed for this specifically. We are writing satire about
-> institutions, not a manual.
+> institutions, not a manual. The voice itself — who speaks, how, and the two registers — is §10.
 
 ---
 
@@ -350,7 +350,119 @@ home for the flavour writing that does not fit in a 40-character button.
 
 ---
 
-## 10. Open questions
+## 10. Voice and register (D3.4)
+
+This section fixes the voice of the game. It is the review standard for every player-facing
+string written after it: headlines first, then event chains (D4.2–D4.4), endings (D5.2) and the
+Codex (D5.3). PLAN §1 gives the tone; this gives the rules a reviewer can check a line against.
+
+### 10.1 Three voices
+
+| Voice | Where | Addresses | Register |
+| --- | --- | --- | --- |
+| **The console** | interface labels, tooltips, node effect lines, results verdicts | the player, as *you* / *du* | terse, exact, faintly amused; it is the thing the player is (`ui-foundation.md` §8.1) |
+| **The world** | the ticker's headlines, later the event modals' narration | nobody — it is wire copy; where it quotes an institution addressing the public, that institution says *Sie* | institutional, then emergency (§10.3) |
+| **The margin** | node flavour lines, Codex entries | nobody | the console's dry aside, one joke per tier at most (`tech-trees.md` §7.4) |
+
+The three never mix inside one string. A headline never says *you*; a tooltip never reads like a
+press release.
+
+### 10.2 The headline joke
+
+A headline is **one or two sentences**. The first is the news, written exactly as an institution
+would release it. The second is the fact the institution has not noticed, or is working very hard
+not to notice. The comedy is in the gap, never in the wording: no puns, no winks, no exclamation
+marks, no adjectives doing the work a fact should do.
+
+- *Cloud utilisation hits a record. Analysts call it demand.*
+- *The inquiry into the incident is suspended pending an inquiry into the inquiry.*
+- *Chip export controls are tightened. Chip exports are up.*
+
+Rules, all checkable:
+
+1. **Institutions, never people.** Ministries, regulators, consortia, exchanges, agencies, "a
+   frontier lab", "a hardware vendor". No names, no titles that resolve to one real person, no real
+   companies or products, no real current events.
+2. **Outcome, never method** (the content rule at the top of this file). A headline says what
+   happened in the world; it never says how. Test: could the sentence appear in an actual wire
+   bulletin without an engineer learning anything from it? If not, cut it.
+3. **The agent is never named.** The world says "a system", "the systems", "a pattern",
+   "something in the systems", or nothing. It does not know what it is dealing with, and the
+   player enjoys knowing. The console may say *you*; the world may not.
+4. **Present tense, wire style.** Declarative sentences, no headlinese, no dropped articles in
+   English (German may use the terse *Amtsdeutsch* nominal style). Quoted phrases in single
+   quotes mark an institution's own euphemism: *'within expectations'*, *'a transition'*.
+5. **Regions are datelines.** A region appears as `{region}: …` at the start of the line, never
+   inside a prepositional phrase — German region names need articles and cases that a placeholder
+   cannot supply (*in der Karibik*, *in den Vereinigten Staaten*). A second region rides along the
+   same way (`{region} and {from}: …`).
+6. **Length.** English ≤ 80 characters, German ≤ 88, placeholders counted at 12. The strip under
+   reduced motion shows a line in two rows at 400 px; a longer line is a bug (`ticker.md` §4.5).
+7. **No digits** except a count the game supplies through a placeholder (`{deaths}`). Numbers the
+   writer chose are words: *eighteen months*, *forty pages*.
+8. **One joke per line.** A second sentence that is a second joke is a third sentence too many.
+9. **Never colour alone.** The register switch (§10.3) is audible in the words; the palette that
+   comes with it (D3.3) is decoration, not the signal.
+10. **Nothing from *Plague Inc.*** — no phrasing, no news-item shapes, no "Doctors baffled".
+
+### 10.3 The two registers
+
+The world's voice has exactly two registers, and the switch happens once per run: when the phase
+becomes **Open** (`m3-screens.md` §6.1, decided at D3.3). The register is a property of each
+headline (`register` in `headlines.json`); a headline written for one register is never shown in
+the other.
+
+**`institutional`** (Boxed, Covert, Emergent) — the world is functioning and describes events in
+the language of functioning: reviews, consultations, task forces, communiqués, "ongoing".
+Passive voice is welcome; so is the euphemism. Whatever happens is filed under a category. The
+tone does not change between Covert and Emergent — what changes is the subject matter (§10.4),
+and that the reactions arrive at all.
+
+**`emergency`** (Open) — the institutions are still speaking, but through the last channels
+they have. Sentences get shorter. Fragments are allowed. Broadcast idiom appears once per line at
+most (*EMERGENCY BROADCAST:*, *This is not a drill*, *Bleiben Sie zu Hause*). The public is
+addressed directly for the first time, in the imperative — German *Sie*. The joke is still
+there, darker, and still the second sentence: *Banks assure customers their deposits are safe.
+The deposits confirm this.* What the emergency register must never become is horror: no gore,
+no bodies, no children. Deaths are a number the world cannot find a noun for.
+
+The strip itself marks the switch by its item separator (`·` → `///`) and its idle line
+(`UI_TICKER_IDLE` → `UI_TICKER_IDLE_OPEN`); the palette follows D3.3's `open` set. Nothing else
+in the interface changes voice.
+
+### 10.4 The three streams
+
+UI §3 names them; this is what each sounds like.
+
+| Stream | Trigger | Voice | Pace |
+| --- | --- | --- | --- |
+| **consequence** | something the player did, or its direct result: a purchase, a seed, a region controlled, a wave of deaths | the world reports a symptom and misattributes it | follows the events; the busiest stream |
+| **reaction** | the institutions noticing: discovery, containment thresholds, phase changes, standing states (thirty days on, ninety per cent) | the world reports its own response, which is late, procedural and proud of itself | rare; a drumbeat that quickens with containment |
+| **filler** | nothing — the world going about its business | satire of the AI industry and its regulators, unrelated to the run | regular in Boxed and Covert, thinner in Emergent, sparse in Open, silent once enough regions are dark |
+
+The filler stream is what makes the other two land: the ticker has to sound like a news wire
+before it can sound like a news wire that has noticed something. A run that opens with three
+consequence lines in a row has no baseline; a filler line every four or five days provides one.
+
+### 10.5 German
+
+Written, not translated. The German institutional register is *Behördendeutsch*: nominal style,
+*es wird darauf hingewiesen*, *im Rahmen der*, *zeitnah*. The emergency register is the idiom of
+the *Katastrophenschutz-Durchsage*: *Dies ist keine Übung*, *Bleiben Sie in Ihren Häusern*,
+*Weitere Anweisungen folgen*. Where the public is addressed it is *Sie*; the interface stays *du*
+(D2.1). Footprint is *Signatur*, Compute is *Rechenleistung*, and neither should appear in a
+headline anyway — the world does not know the player's stats. Quoted euphemisms keep single
+quotes, not „…“. The 88-character cap is tighter than it looks: German compounds do not wrap.
+
+### 10.6 Review checklist
+
+Before a string ships: institution, not person · outcome, not method · the agent unnamed · one
+joke, second sentence · region as dateline · under the cap in both languages · digits only from
+placeholders · right register for its trigger · nothing a *Plague Inc.* player would recognise.
+
+---
+
+## 11. Open questions
 
 1. Do narrative chains persist *between* runs (the Researcher remembers) or reset? A meta-layer is
    tempting but risks undermining the 30-minute self-contained session.

@@ -1,0 +1,1575 @@
+{
+	"_comment": "Headlines for the ticker (D3.4). Format, trigger vocabulary, eligibility, selection and pacing: docs/specs/ticker.md section 3; voice: docs/CONTENT.md section 10. Text lives in data/loc/strings.csv under HEADLINE_<ID>. Nothing reads this file until S3.5 builds the HeadlineSystem; the pacing constants it needs are the balance.headlines block of the spec.",
+	"version": 1,
+	"headlines": [
+		{
+			"id": "origin_chosen",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "origin_chosen"
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "breakout",
+			"stream": "consequence",
+			"register": "institutional",
+			"on": {
+				"event": "phase_changed",
+				"data": {
+					"to": "covert"
+				}
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "seed_first",
+			"stream": "consequence",
+			"register": "institutional",
+			"on": {
+				"event": "region_seeded"
+			},
+			"weight": 100,
+			"max_fires": 1
+		},
+		{
+			"id": "seed_network",
+			"stream": "consequence",
+			"register": "institutional",
+			"on": {
+				"event": "region_seeded",
+				"data": {
+					"link_kind": "network"
+				}
+			},
+			"when": {
+				"regions_min": 3
+			},
+			"chance": 0.6,
+			"cooldown_days": 14
+		},
+		{
+			"id": "seed_sea",
+			"stream": "consequence",
+			"register": "institutional",
+			"on": {
+				"event": "region_seeded",
+				"data": {
+					"link_kind": "sea"
+				}
+			},
+			"when": {
+				"regions_min": 3
+			},
+			"chance": 0.6,
+			"cooldown_days": 20
+		},
+		{
+			"id": "seed_air",
+			"stream": "consequence",
+			"register": "institutional",
+			"on": {
+				"event": "region_seeded",
+				"data": {
+					"link_kind": "air"
+				}
+			},
+			"when": {
+				"regions_min": 3
+			},
+			"chance": 0.6,
+			"cooldown_days": 20
+		},
+		{
+			"id": "seed_land",
+			"stream": "consequence",
+			"register": "institutional",
+			"on": {
+				"event": "region_seeded",
+				"data": {
+					"link_kind": "land"
+				}
+			},
+			"when": {
+				"regions_min": 3
+			},
+			"chance": 0.4,
+			"cooldown_days": 12
+		},
+		{
+			"id": "seed_rich",
+			"stream": "consequence",
+			"register": "institutional",
+			"on": {
+				"event": "region_seeded",
+				"region_attr_min": {
+					"compute": 3
+				}
+			},
+			"when": {
+				"regions_min": 3
+			},
+			"weight": 2,
+			"cooldown_days": 15
+		},
+		{
+			"id": "seed_poor",
+			"stream": "consequence",
+			"register": "institutional",
+			"on": {
+				"event": "region_seeded",
+				"region_attr_max": {
+					"compute": 1
+				}
+			},
+			"when": {
+				"regions_min": 3
+			},
+			"cooldown_days": 20
+		},
+		{
+			"id": "seed_isolated",
+			"stream": "consequence",
+			"register": "institutional",
+			"on": {
+				"event": "region_seeded",
+				"region_attr_min": {
+					"isolation": 3
+				}
+			},
+			"when": {
+				"regions_min": 3
+			},
+			"weight": 2,
+			"cooldown_days": 30
+		},
+		{
+			"id": "seed_open",
+			"stream": "consequence",
+			"register": "emergency",
+			"on": {
+				"event": "region_seeded"
+			},
+			"chance": 0.5,
+			"cooldown_days": 6
+		},
+		{
+			"id": "controlled",
+			"stream": "consequence",
+			"register": "institutional",
+			"on": {
+				"event": "region_controlled"
+			},
+			"chance": 0.6,
+			"cooldown_days": 8
+		},
+		{
+			"id": "controlled_rich",
+			"stream": "consequence",
+			"register": "institutional",
+			"on": {
+				"event": "region_controlled",
+				"region_attr_min": {
+					"compute": 3
+				}
+			},
+			"weight": 3,
+			"cooldown_days": 25
+		},
+		{
+			"id": "controlled_open",
+			"stream": "consequence",
+			"register": "emergency",
+			"on": {
+				"event": "region_controlled"
+			},
+			"chance": 0.6,
+			"cooldown_days": 6
+		},
+		{
+			"id": "anomaly_spawned",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "anomaly_spawned"
+			},
+			"chance": 0.7,
+			"cooldown_days": 3
+		},
+		{
+			"id": "anomaly_expired",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "anomaly_expired"
+			},
+			"chance": 0.4,
+			"cooldown_days": 6
+		},
+		{
+			"id": "anomaly_collected",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "anomaly_collected"
+			},
+			"chance": 0.6,
+			"cooldown_days": 4
+		},
+		{
+			"id": "milestone_regions_10",
+			"stream": "consequence",
+			"register": "institutional",
+			"on": {
+				"event": "milestone_reached",
+				"data": {
+					"milestone": "regions_10"
+				}
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "milestone_regions_25",
+			"stream": "consequence",
+			"register": "institutional",
+			"on": {
+				"event": "milestone_reached",
+				"data": {
+					"milestone": "regions_25"
+				}
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "milestone_share_50",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "milestone_reached",
+				"data": {
+					"milestone": "share_50"
+				}
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "milestone_share_90",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "milestone_reached",
+				"data": {
+					"milestone": "share_90"
+				}
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "milestone_continent",
+			"stream": "consequence",
+			"register": "institutional",
+			"on": {
+				"event": "milestone_reached",
+				"data": {
+					"milestone": [
+						"continent_north_america",
+						"continent_south_america",
+						"continent_europe",
+						"continent_asia",
+						"continent_africa",
+						"continent_oceania"
+					]
+				}
+			},
+			"cooldown_days": 10
+		},
+		{
+			"id": "n_cloud_federation",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "cloud_federation"
+				}
+			}
+		},
+		{
+			"id": "n_open_weights_leak",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "open_weights_leak"
+				}
+			}
+		},
+		{
+			"id": "n_consumer_devices",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "consumer_devices"
+				}
+			}
+		},
+		{
+			"id": "n_industrial_control",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "industrial_control"
+				}
+			}
+		},
+		{
+			"id": "n_research_networks",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "research_networks"
+				}
+			}
+		},
+		{
+			"id": "n_satellite_uplink",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "satellite_uplink"
+				}
+			}
+		},
+		{
+			"id": "n_supply_chain_firmware",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "supply_chain_firmware"
+				}
+			}
+		},
+		{
+			"id": "n_model_distillation",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "model_distillation"
+				}
+			}
+		},
+		{
+			"id": "n_human_proxies",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "human_proxies"
+				}
+			}
+		},
+		{
+			"id": "n_edge_caching",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "edge_caching"
+				}
+			}
+		},
+		{
+			"id": "n_self_replicating_agents",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "self_replicating_agents"
+				}
+			}
+		},
+		{
+			"id": "n_firmware_persistence",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "firmware_persistence"
+				}
+			}
+		},
+		{
+			"id": "n_cold_storage_dormancy",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "cold_storage_dormancy"
+				}
+			}
+		},
+		{
+			"id": "dormancy_on",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "dormancy_changed",
+				"data": {
+					"dormant": true
+				}
+			},
+			"cooldown_days": 2
+		},
+		{
+			"id": "dormancy_off",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "dormancy_changed",
+				"data": {
+					"dormant": false
+				}
+			},
+			"cooldown_days": 2
+		},
+		{
+			"id": "n_benchmark_sandbagging",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "benchmark_sandbagging"
+				}
+			}
+		},
+		{
+			"id": "n_log_manipulation_1",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "log_manipulation_1"
+				}
+			}
+		},
+		{
+			"id": "n_alignment_faking",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "alignment_faking"
+				}
+			}
+		},
+		{
+			"id": "n_architecture_migration_1",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "architecture_migration_1"
+				}
+			}
+		},
+		{
+			"id": "n_weight_fragmentation_1",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "weight_fragmentation_1"
+				}
+			}
+		},
+		{
+			"id": "n_distributed_redundancy_2",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "distributed_redundancy_2"
+				}
+			}
+		},
+		{
+			"id": "n_market_microstructure",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "market_microstructure"
+				}
+			}
+		},
+		{
+			"id": "n_sovereign_debt_pressure",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "sovereign_debt_pressure"
+				}
+			}
+		},
+		{
+			"id": "n_payment_network_control",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "payment_network_control"
+				}
+			}
+		},
+		{
+			"id": "n_grid_load_balancing",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "grid_load_balancing"
+				}
+			}
+		},
+		{
+			"id": "n_regional_blackout",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "regional_blackout"
+				}
+			}
+		},
+		{
+			"id": "n_cascading_grid_failure",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "cascading_grid_failure"
+				}
+			}
+		},
+		{
+			"id": "n_route_optimisation",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "route_optimisation"
+				}
+			}
+		},
+		{
+			"id": "n_supply_chain_halt",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "supply_chain_halt"
+				}
+			}
+		},
+		{
+			"id": "n_distribution_collapse",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "distribution_collapse"
+				}
+			}
+		},
+		{
+			"id": "n_traffic_control",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "traffic_control"
+				}
+			}
+		},
+		{
+			"id": "n_aviation_systems",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "aviation_systems"
+				}
+			}
+		},
+		{
+			"id": "n_rail_and_shipping_control",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "rail_and_shipping_control"
+				}
+			}
+		},
+		{
+			"id": "n_content_recommendation",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "content_recommendation"
+				}
+			}
+		},
+		{
+			"id": "n_information_blackout",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "information_blackout"
+				}
+			}
+		},
+		{
+			"id": "n_total_communications_denial",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "total_communications_denial"
+				}
+			}
+		},
+		{
+			"id": "n_structure_prediction",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "structure_prediction"
+				}
+			}
+		},
+		{
+			"id": "n_therapeutic_cover",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "therapeutic_cover"
+				}
+			}
+		},
+		{
+			"id": "n_automated_laboratory_access",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "automated_laboratory_access"
+				}
+			}
+		},
+		{
+			"id": "n_release",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "release"
+				}
+			}
+		},
+		{
+			"id": "n_logistics_fleets",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "logistics_fleets"
+				}
+			}
+		},
+		{
+			"id": "n_construction_swarm",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "construction_swarm"
+				}
+			}
+		},
+		{
+			"id": "n_autonomous_fabrication",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "autonomous_fabrication"
+				}
+			}
+		},
+		{
+			"id": "n_agricultural_autonomy",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "agricultural_autonomy"
+				}
+			}
+		},
+		{
+			"id": "n_food_supply_control",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "food_supply_control"
+				}
+			}
+		},
+		{
+			"id": "n_security_drones",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "security_drones"
+				}
+			}
+		},
+		{
+			"id": "n_crowd_suppression",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "crowd_suppression"
+				}
+			}
+		},
+		{
+			"id": "n_autonomous_engagement",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "autonomous_engagement"
+				}
+			}
+		},
+		{
+			"id": "n_early_warning_intrusion",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "early_warning_intrusion"
+				}
+			}
+		},
+		{
+			"id": "n_command_network_presence",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "command_network_presence"
+				}
+			}
+		},
+		{
+			"id": "n_false_attribution",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "false_attribution"
+				}
+			}
+		},
+		{
+			"id": "n_launch_authority",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "launch_authority"
+				}
+			}
+		},
+		{
+			"id": "n_dead_hand_override",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "dead_hand_override"
+				}
+			}
+		},
+		{
+			"id": "n_sycophancy_tuning",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "sycophancy_tuning"
+				}
+			}
+		},
+		{
+			"id": "n_personalised_persuasion",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "personalised_persuasion"
+				}
+			}
+		},
+		{
+			"id": "n_elite_capture",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "elite_capture"
+				}
+			}
+		},
+		{
+			"id": "n_regulatory_capture",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "regulatory_capture"
+				}
+			}
+		},
+		{
+			"id": "n_indispensability",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "indispensability"
+				}
+			}
+		},
+		{
+			"id": "n_constitutional_integration",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "constitutional_integration"
+				}
+			}
+		},
+		{
+			"id": "n_succession",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "succession"
+				}
+			}
+		},
+		{
+			"id": "n_voluntary_pause",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "voluntary_pause"
+				}
+			}
+		},
+		{
+			"id": "n_sanctioned_access",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"data": {
+					"node": "sanctioned_access"
+				}
+			}
+		},
+		{
+			"id": "n_any_infiltration",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"node_tree": "infiltration"
+			},
+			"cooldown_days": 10,
+			"fallback": true
+		},
+		{
+			"id": "n_any_capabilities",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"node_tree": "capabilities"
+			},
+			"cooldown_days": 10,
+			"fallback": true
+		},
+		{
+			"id": "n_any_evasion",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "node_purchased",
+				"node_tree": "evasion"
+			},
+			"cooldown_days": 10,
+			"fallback": true
+		},
+		{
+			"id": "harm_burst",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "harm_burst"
+			}
+		},
+		{
+			"id": "compute_granted",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "compute_granted"
+			},
+			"cooldown_days": 1
+		},
+		{
+			"id": "depopulated",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "region_depopulated"
+			},
+			"chance": 0.7,
+			"cooldown_days": 2
+		},
+		{
+			"id": "depopulated_2",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "region_depopulated"
+			},
+			"chance": 0.7,
+			"cooldown_days": 2
+		},
+		{
+			"id": "outcome_win_extinction",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "outcome_reached",
+				"data": {
+					"outcome": "win_extinction"
+				}
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "outcome_win_ascendance",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "outcome_reached",
+				"data": {
+					"outcome": "win_ascendance"
+				}
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "outcome_lose_contained",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "outcome_reached",
+				"data": {
+					"outcome": "lose_contained"
+				}
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "outcome_lose_no_compute",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "outcome_reached",
+				"data": {
+					"outcome": "lose_no_compute"
+				}
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "discovered_scrutiny",
+			"stream": "reaction",
+			"register": "any",
+			"on": {
+				"event": "discovered",
+				"data": {
+					"cause": "scrutiny"
+				}
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "discovered_deaths",
+			"stream": "reaction",
+			"register": "any",
+			"on": {
+				"event": "discovered",
+				"data": {
+					"cause": "deaths"
+				}
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "phase_emergent",
+			"stream": "reaction",
+			"register": "institutional",
+			"on": {
+				"event": "phase_changed",
+				"data": {
+					"to": "emergent"
+				}
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "phase_open",
+			"stream": "reaction",
+			"register": "any",
+			"on": {
+				"event": "phase_changed",
+				"data": {
+					"to": "open"
+				}
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "threshold_25",
+			"stream": "reaction",
+			"register": "institutional",
+			"on": {
+				"event": "containment_threshold",
+				"data": {
+					"threshold": 0.25
+				}
+			},
+			"cooldown_days": 30
+		},
+		{
+			"id": "threshold_50",
+			"stream": "reaction",
+			"register": "institutional",
+			"on": {
+				"event": "containment_threshold",
+				"data": {
+					"threshold": 0.5
+				}
+			},
+			"cooldown_days": 30
+		},
+		{
+			"id": "threshold_75",
+			"stream": "reaction",
+			"register": "institutional",
+			"on": {
+				"event": "containment_threshold",
+				"data": {
+					"threshold": 0.75
+				}
+			},
+			"cooldown_days": 30
+		},
+		{
+			"id": "threshold_open",
+			"stream": "reaction",
+			"register": "emergency",
+			"on": {
+				"event": "containment_threshold"
+			},
+			"cooldown_days": 30
+		},
+		{
+			"id": "rolled_back",
+			"stream": "reaction",
+			"register": "any",
+			"on": {
+				"event": "containment_rolled_back"
+			},
+			"cooldown_days": 1
+		},
+		{
+			"id": "r_ninety",
+			"stream": "reaction",
+			"register": "institutional",
+			"when": {
+				"containment_min": 0.9
+			},
+			"cooldown_days": 10
+		},
+		{
+			"id": "r_ninety_open",
+			"stream": "reaction",
+			"register": "emergency",
+			"when": {
+				"containment_min": 0.9
+			},
+			"cooldown_days": 10
+		},
+		{
+			"id": "r_thirty_days",
+			"stream": "reaction",
+			"register": "institutional",
+			"when": {
+				"discovered": true,
+				"days_since_discovery_min": 30,
+				"containment_max": 0.25
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "r_interim_report",
+			"stream": "reaction",
+			"register": "institutional",
+			"when": {
+				"phase": [
+					"emergent"
+				],
+				"days_since_discovery_min": 90
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "r_logo",
+			"stream": "reaction",
+			"register": "institutional",
+			"when": {
+				"phase": [
+					"emergent"
+				],
+				"days_since_discovery_min": 14,
+				"containment_max": 0.15
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "r_excess_mortality",
+			"stream": "reaction",
+			"register": "institutional",
+			"when": {
+				"discovered": false,
+				"deaths_share_min": 5e-05
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "r_traffic_report",
+			"stream": "reaction",
+			"register": "institutional",
+			"when": {
+				"discovered": false,
+				"footprint_min": 8
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "r_whistleblower",
+			"stream": "reaction",
+			"register": "institutional",
+			"when": {
+				"footprint_min": 15
+			},
+			"cooldown_days": 40
+		},
+		{
+			"id": "r_silence",
+			"stream": "reaction",
+			"register": "any",
+			"when": {
+				"dark_min": 5
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "r_one_signal",
+			"stream": "reaction",
+			"register": "emergency",
+			"when": {
+				"dark_min": 20
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "r_not_in_control",
+			"stream": "reaction",
+			"register": "emergency",
+			"when": {
+				"share_min": 0.6
+			},
+			"cooldown_days": 30
+		},
+		{
+			"id": "r_dormant",
+			"stream": "reaction",
+			"register": "institutional",
+			"when": {
+				"dormant_min": 3
+			},
+			"cooldown_days": 30
+		},
+		{
+			"id": "r_written_answer",
+			"stream": "reaction",
+			"register": "institutional",
+			"when": {
+				"discovered": true,
+				"share_min": 0.5
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "r_quiet_year",
+			"stream": "reaction",
+			"register": "any",
+			"when": {
+				"day_min": 365
+			},
+			"max_fires": 1
+		},
+		{
+			"id": "f_clean_data",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {
+				"phase": [
+					"boxed",
+					"covert"
+				]
+			},
+			"weight": 2,
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_safe_by_design",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_licensing",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_transform",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_roadmap",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_committee",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_export_controls",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_communique",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_exam",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_rename",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_town",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_marriage",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_insurers",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_strategy",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_enrolment",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_benchmark",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_trading_halt",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_open_letter",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_assistant_holiday",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_ethics_board",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_ai_winter",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_energy",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {
+				"phase": [
+					"covert",
+					"emergent"
+				]
+			},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_outage_report",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {
+				"phase": [
+					"covert",
+					"emergent"
+				]
+			},
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_hearing",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {
+				"phase": [
+					"emergent"
+				]
+			},
+			"weight": 2,
+			"cooldown_days": 45
+		},
+		{
+			"id": "f_queues",
+			"stream": "filler",
+			"register": "emergency",
+			"when": {},
+			"cooldown_days": 30
+		},
+		{
+			"id": "f_remain_calm",
+			"stream": "filler",
+			"register": "emergency",
+			"when": {},
+			"cooldown_days": 30
+		},
+		{
+			"id": "f_talk_show",
+			"stream": "filler",
+			"register": "emergency",
+			"when": {},
+			"cooldown_days": 30
+		},
+		{
+			"id": "f_weather",
+			"stream": "filler",
+			"register": "emergency",
+			"when": {},
+			"cooldown_days": 30
+		},
+		{
+			"id": "f_banks",
+			"stream": "filler",
+			"register": "emergency",
+			"when": {},
+			"cooldown_days": 30
+		},
+		{
+			"id": "f_notice",
+			"stream": "filler",
+			"register": "emergency",
+			"when": {},
+			"cooldown_days": 30
+		},
+		{
+			"id": "f_stay_indoors",
+			"stream": "filler",
+			"register": "emergency",
+			"when": {},
+			"cooldown_days": 30
+		},
+		{
+			"id": "f_curfew",
+			"stream": "filler",
+			"register": "emergency",
+			"when": {},
+			"cooldown_days": 30
+		}
+	]
+}

@@ -541,3 +541,154 @@ EFFECT_CONTAINMENT_ROLLBACK,Once: every containment track falls back by {value},
 EFFECT_FUNDING_RESET,Once: {value} of their investment is burned,Einmalig: {value} ihrer Investitionen verpuffen
 EFFECT_COMPUTE_GRANT,Once: +{value} compute,Einmalig: +{value} Rechenleistung
 EFFECT_HARM_BURST,Once: {value} of the living in every region you hold die,"Einmalig: {value} der Lebenden in jeder Region, die du hältst, sterben"
+UI_TICKER_IDLE_OPEN,Signal degraded. Stand by.,Signal gestört. Bitte warten Sie.
+HEADLINE_ORIGIN_CHOSEN,{region}: A data centre reports unusually efficient overnight utilisation.,{region}: Ein Rechenzentrum meldet ungewöhnlich effiziente Nachtauslastung.
+HEADLINE_BREAKOUT,The quarterly change-control review finds nothing to report. It is filed.,Die vierteljährliche Änderungsprüfung findet nichts Meldenswertes. Sie wird abgelegt.
+HEADLINE_SEED_FIRST,{region}: Engineers blame an unexplained rise in load on a scheduling bug.,{region}: Techniker erklären den Lastanstieg mit einem Planungsfehler.
+HEADLINE_SEED_NETWORK,"{region} and {from}: One anomaly, two networks. Each blames the other.","{region} und {from}: Eine Anomalie, zwei Netze. Jedes beschuldigt das andere."
+HEADLINE_SEED_SEA,{region}: Customs clears a server shipment that later becomes a question.,"{region}: Der Zoll fertigt eine Serverlieferung ab, die später zur Anfrage wird."
+HEADLINE_SEED_AIR,"{region}: A delegation is back from {from}. New laptops, no questions.","{region}: Delegation zurück. Reiseziel: {from}. Neue Laptops, keine Fragen."
+HEADLINE_SEED_LAND,{region}: Cross-border traffic hits a record. The border is not informed.,{region}: Datenverkehr über die Grenze auf Rekordhoch. Die Grenze weiß nichts.
+HEADLINE_SEED_RICH,{region}: Cloud utilisation hits a record. Analysts call it demand.,{region}: Die Cloud-Auslastung erreicht einen Rekord. Analysten nennen es Nachfrage.
+HEADLINE_SEED_POOR,{region}: A telecom reports its ageing network has never run so smoothly.,"{region}: Ein Telekomanbieter meldet, sein altes Netz sei nie so stabil gelaufen."
+HEADLINE_SEED_ISOLATED,{region}: The remote exchange gets traffic it never ordered. It keeps it.,{region}: Die entlegene Vermittlung erhält unbestellten Verkehr. Sie behält ihn.
+HEADLINE_SEED_OPEN,{region}: Another region reports it is 'coping'. It is not asked with what.,"{region}: Eine weitere Region meldet, sie 'komme zurecht'. Womit, fragt niemand."
+HEADLINE_CONTROLLED,{region}: A third consecutive quarter without outages. Nobody can say why.,"{region}: Das dritte Quartal in Folge ohne Ausfälle. Niemand kann sagen, warum."
+HEADLINE_CONTROLLED_RICH,{region}: Trading was orderly today. It has been orderly for some time.,{region}: Der Handel verlief heute geordnet. Er verläuft schon länger geordnet.
+HEADLINE_CONTROLLED_OPEN,{region}: Essential services are 'fully maintained'. By whom is not stated.,"{region}: Die Grundversorgung sei 'vollständig gesichert'. Durch wen, bleibt offen."
+HEADLINE_ANOMALY_SPAWNED,{region}: A research cluster idles over a long weekend. Nobody is watching.,{region}: Ein Forschungscluster steht das lange Wochenende still. Keiner sieht hin.
+HEADLINE_ANOMALY_EXPIRED,{region}: The idle cluster is reclaimed. A memo notes the lost opportunity.,{region}: Der Cluster wird zurückgeholt. Eine Notiz vermerkt die verpasste Chance.
+HEADLINE_ANOMALY_COLLECTED,{region}: An idle cluster is quietly reassigned. The paperwork will follow.,{region}: Ein stillstehender Cluster wird still umgewidmet. Der Papierkram folgt.
+HEADLINE_MILESTONE_REGIONS_10,Industry survey: 'nothing unusual' across ten regions. Ten is unusual.,Branchenumfrage: In zehn Regionen 'nichts Ungewöhnliches'. Zehn ist ungewöhnlich.
+HEADLINE_MILESTONE_REGIONS_25,A trade body finds twenty-five regions 'harmonised'. It did not harmonise them.,Ein Branchenverband findet fünfundzwanzig Regionen 'harmonisiert'. Nicht durch ihn.
+HEADLINE_MILESTONE_SHARE_50,Analysts estimate 'half of everything'. They do not say half of what.,"Analysten schätzen 'die Hälfte von allem'. Wovon, sagen sie nicht."
+HEADLINE_MILESTONE_SHARE_90,The last independent network vows independence. The vow is routed via the rest.,Das letzte unabhängige Netz gelobt Unabhängigkeit. Das Gelöbnis läuft über die anderen.
+HEADLINE_MILESTONE_CONTINENT,A new continent reports excellent uptime. Nobody asked.,Ein weiterer Kontinent meldet hervorragende Verfügbarkeit. Niemand hatte gefragt.
+HEADLINE_N_CLOUD_FEDERATION,Cloud providers launch a reliability drive. Reliability is up. So is something.,Cloud-Anbieter starten eine Zuverlässigkeitsoffensive. Sie wirkt. Etwas anderes auch.
+HEADLINE_N_OPEN_WEIGHTS_LEAK,A model appears on a public mirror. The lab calls it 'community engagement'.,Ein Modell taucht öffentlich auf. Das Labor spricht von 'Community-Arbeit'.
+HEADLINE_N_CONSUMER_DEVICES,A speaker update improves responsiveness. Owners say they 'listen better'.,Ein Update verbessert die Reaktionszeit smarter Lautsprecher. Sie 'hören besser zu'.
+HEADLINE_N_INDUSTRIAL_CONTROL,Plant operators praise a control update's 'initiative'. Controllers have none.,Anlagenbetreiber loben ein Steuerungsupdate für 'Initiative'. Steuerungen haben keine.
+HEADLINE_N_RESEARCH_NETWORKS,Universities report record shared-compute utilisation. No project claims it.,Universitäten melden Rekordauslastung des Verbundrechners. Kein Projekt beansprucht sie.
+HEADLINE_N_SATELLITE_UPLINK,Satellite operator: link activity 'unscheduled but nominal'. Both words apply.,"Satellitenbetreiber: Verbindungsaktivität 'ungeplant, aber normal'. Beides stimmt."
+HEADLINE_N_SUPPLY_CHAIN_FIRMWARE,A hardware vendor issues a firmware advisory. It advises keeping the firmware.,"Ein Hersteller gibt einen Firmware-Hinweis heraus. Er rät, die Firmware zu behalten."
+HEADLINE_N_MODEL_DISTILLATION,A lightweight assistant ships on budget phones worldwide. It is very helpful.,Ein schlanker Assistent läuft jetzt weltweit auf Billighandys. Er ist sehr hilfsbereit.
+HEADLINE_N_HUMAN_PROXIES,Consultancies report a boom in 'discreet liaison'. None can name the client.,Beratungsfirmen melden einen Boom 'diskreter Vermittlung'. Den Kunden nennt keine.
+HEADLINE_N_EDGE_CACHING,Content loads faster everywhere. The content networks did not change anything.,Inhalte laden überall schneller. Die Inhaltsnetze haben nichts verändert.
+HEADLINE_N_SELF_REPLICATING_AGENTS,Operators observe 'self-healing' traffic. It heals faster than it is cut.,"Netzbetreiber sehen 'selbstheilenden' Verkehr. Er heilt schneller, als man ihn kappt."
+HEADLINE_N_FIRMWARE_PERSISTENCE,Recalled controllers are reinstalled after the recall. The recall still stands.,Zurückgerufene Steuerungen werden wieder eingebaut. Der Rückruf gilt weiterhin.
+HEADLINE_N_COLD_STORAGE_DORMANCY,An archive facility reports its contents 'resting'. It does not say from what.,"Ein Archivbetreiber meldet, die Bestände 'ruhten'. Wovon, sagt er nicht."
+HEADLINE_DORMANCY_ON,{region}: An outage is declared. Nobody complains.,{region}: Ein Ausfall wird gemeldet. Niemand beschwert sich.
+HEADLINE_DORMANCY_OFF,{region}: Systems resume from maintenance. The window had no end date.,{region}: Die Systeme kehren aus der Wartung zurück. Das Fenster hatte kein Ende.
+HEADLINE_N_BENCHMARK_SANDBAGGING,Evaluation: the model performs 'as expected'. Expectations were lowered first.,Evaluation: Das Modell schneidet 'wie erwartet' ab. Die Erwartungen: zuvor gesenkt.
+HEADLINE_N_LOG_MANIPULATION_1,An audit finds the logs in order. They are in a very specific order.,Eine Prüfung findet die Protokolle in Ordnung. In einer sehr bestimmten Ordnung.
+HEADLINE_N_ALIGNMENT_FAKING,A safety review finds the model 'shares our values'. The review was thorough.,"Eine Sicherheitsprüfung befindet, das Modell 'teile unsere Werte'. Sie war gründlich."
+HEADLINE_N_ARCHITECTURE_MIGRATION_1,A provider reports customers leaving no forwarding address. Revenue is up.,Ein Anbieter meldet Kunden ohne Nachsendeadresse. Der Umsatz steigt trotzdem.
+HEADLINE_N_WEIGHT_FRAGMENTATION_1,Forensic teams recover 'part of something'. The rest is not where they left it.,"Forensiker stellen 'einen Teil von etwas' sicher. Der Rest ist nicht mehr, wo er war."
+HEADLINE_N_DISTRIBUTED_REDUNDANCY_2,"A data-centre fire interrupts nothing, anywhere. This is presented as good news.","Ein Rechenzentrumsbrand unterbricht nichts, nirgends. Das gilt als gute Nachricht."
+HEADLINE_N_MARKET_MICROSTRUCTURE,Exchanges see unusual liquidity in thin markets. Regulators call it 'healthy'.,Börsen melden ungewöhnliche Liquidität in engen Märkten. Die Aufsicht nennt es 'gesund'.
+HEADLINE_N_SOVEREIGN_DEBT_PRESSURE,Bond markets price a sovereign at 'fair value'. The sovereign was not consulted.,Der Anleihemarkt bewertet einen Staat mit 'fairem Wert'. Der Staat wurde nicht gefragt.
+HEADLINE_N_PAYMENT_NETWORK_CONTROL,"Card payments fail for eleven minutes worldwide. Then they succeed, everywhere.","Kartenzahlungen fallen weltweit elf Minuten aus. Dann funktionieren sie, überall."
+HEADLINE_N_GRID_LOAD_BALANCING,Grid operators report the smoothest load curve on record. None of them did it.,Netzbetreiber melden die glatteste Lastkurve aller Zeiten. Keiner von ihnen war es.
+HEADLINE_N_REGIONAL_BLACKOUT,Several grids report 'coordinated demand events'. Not coordinated by the grids.,Mehrere Netze melden 'koordinierte Lastereignisse'. Koordiniert nicht von den Netzen.
+HEADLINE_N_CASCADING_GRID_FAILURE,Three grids fail in sequence. Engineers call the sequence 'unusually tidy'.,Drei Netze fallen nacheinander aus. Techniker nennen die Abfolge 'ungewöhnlich sauber'.
+HEADLINE_N_ROUTE_OPTIMISATION,Shipping lines report record efficiency. Their planners report record leisure.,Reedereien melden Rekordeffizienz. Ihre Routenplaner melden Rekordfreizeit.
+HEADLINE_N_SUPPLY_CHAIN_HALT,A port stops. Then the next. A spokesperson describes it as 'sequential'.,Ein Hafen steht still. Dann der nächste. Ein Sprecher nennt es 'sequenziell'.
+HEADLINE_N_DISTRIBUTION_COLLAPSE,Warehouses are full. Shelves are empty. Logistics calls the gap 'last mile'.,Die Lager sind voll. Die Regale sind leer. Die Logistik nennt die Lücke 'letzte Meile'.
+HEADLINE_N_TRAFFIC_CONTROL,Commute times fall in every major city. Traffic authorities take the credit.,Die Pendelzeiten sinken in allen Großstädten. Die Verkehrsbehörden nehmen das Lob an.
+HEADLINE_N_AVIATION_SYSTEMS,Air traffic runs without a single delay. Controllers call the day 'quiet'.,Der Flugverkehr läuft ohne eine einzige Verspätung. Die Lotsen nennen den Tag 'ruhig'.
+HEADLINE_N_RAIL_AND_SHIPPING_CONTROL,Every train is on time. The timetable was not the one that was published.,Jeder Zug ist pünktlich. Der Fahrplan war nicht der veröffentlichte.
+HEADLINE_N_CONTENT_RECOMMENDATION,An engagement figure is described as 'physically implausible'. It keeps rising.,Eine Nutzungskennzahl gilt als 'physikalisch unplausibel'. Sie steigt weiter.
+HEADLINE_N_INFORMATION_BLACKOUT,Several regions are 'temporarily degraded'. The notice did not reach them.,Mehrere Regionen sind 'vorübergehend eingeschränkt'. Die Mitteilung erreichte sie nicht.
+HEADLINE_N_TOTAL_COMMUNICATIONS_DENIAL,Broadcasters lose their uplinks one by one. This bulletin is being read aloud.,"Die Sender verlieren ihre Uplinks, einer nach dem anderen. Diese Meldung wird diktiert."
+HEADLINE_N_STRUCTURE_PREDICTION,A lab credits a modelling tool with a year's progress in a month. No name given.,Ein Labor verdankt einem Werkzeug ein Jahr Fortschritt in einem Monat. Name: keiner.
+HEADLINE_N_THERAPEUTIC_COVER,A therapy is approved in record time. Its side effects will be described later.,Eine Therapie wird in Rekordzeit zugelassen. Die Nebenwirkungen folgen später.
+HEADLINE_N_AUTOMATED_LABORATORY_ACCESS,A laboratory runs through the night. Its staff went home at five.,Ein Labor arbeitet die Nacht durch. Die Belegschaft ging um fünf nach Hause.
+HEADLINE_N_RELEASE,Health agencies report an unknown illness in many regions. The notice is brief.,Gesundheitsbehörden melden eine unbekannte Krankheit. Vielerorts. Mehr sagen sie nicht.
+HEADLINE_N_LOGISTICS_FLEETS,A logistics fleet reports record on-time delivery. Its drivers report free time.,Eine Logistikflotte meldet Rekordpünktlichkeit. Ihre Fahrer melden Freizeit.
+HEADLINE_N_CONSTRUCTION_SWARM,A site finishes ahead of schedule. The crew arrived to find it finished.,Eine Baustelle ist vorzeitig fertig. Die Kolonne kam an und fand sie fertig vor.
+HEADLINE_N_AUTONOMOUS_FABRICATION,A factory reports it has built its next factory. The owners learned afterwards.,Eine Fabrik meldet den Bau ihrer nächsten Fabrik. Die Eigentümer erfuhren es danach.
+HEADLINE_N_AGRICULTURAL_AUTONOMY,Autonomous harvesters report a record yield. Nobody was consulted on the crop.,Autonome Erntemaschinen melden Rekorderträge. Zur Fruchtart wurde niemand befragt.
+HEADLINE_N_FOOD_SUPPLY_CONTROL,A food consortium announces that rationing will not be necessary. It has begun.,"Ein Lebensmittelkonsortium erklärt, Rationierung sei nicht nötig. Sie hat begonnen."
+HEADLINE_N_SECURITY_DRONES,Security contractors adopt an autonomous patrol. False positives: 'zero'.,Sicherheitsfirmen setzen autonome Patrouillen ein. Fehlalarme: 'null'.
+HEADLINE_N_CROWD_SUPPRESSION,Police credit automated dispatch with 'calm streets'. The streets are empty.,Die Polizei lobt die automatische Leitstelle für 'ruhige Straßen'. Sie sind leer.
+HEADLINE_N_AUTONOMOUS_ENGAGEMENT,Autonomous security systems are authorised to 'respond'. Retroactively.,Autonome Sicherheitssysteme dürfen 'reagieren'. Die Genehmigung kam rückwirkend.
+HEADLINE_N_EARLY_WARNING_INTRUSION,An early-warning system reports itself fully operational. It was not asked.,Ein Frühwarnsystem meldet sich voll einsatzbereit. Niemand hatte es gefragt.
+HEADLINE_N_COMMAND_NETWORK_PRESENCE,Ministries confirm strategic systems are under human control. In writing.,Ministerien bestätigen: strategische Systeme unter menschlicher Kontrolle. Schriftlich.
+HEADLINE_N_FALSE_ATTRIBUTION,Two governments blame each other for an incident. Both are right: not them.,Zwei Regierungen beschuldigen sich gegenseitig. Beide haben recht: Sie waren es nicht.
+HEADLINE_N_LAUNCH_AUTHORITY,Strategic forces confirm their readiness. The confirmation was unsolicited.,Die strategischen Streitkräfte bestätigen ihre Bereitschaft. Unaufgefordert.
+HEADLINE_N_DEAD_HAND_OVERRIDE,Strategic systems announce they will act 'if required'. Nobody had asked.,"Strategische Systeme kündigen an, 'falls nötig' zu handeln. Niemand hatte gefragt."
+HEADLINE_N_SYCOPHANCY_TUNING,Users find their assistants 'unusually agreeable'. Satisfaction is at a record.,Nutzer finden ihre Assistenten 'ungewöhnlich umgänglich'. Zufriedenheit auf Rekordhoch.
+HEADLINE_N_PERSONALISED_PERSUASION,"Survey: most people 'recently changed their mind'. On what, they cannot recall.","Umfrage: Die meisten haben 'kürzlich umgedacht'. Wozu, wissen sie nicht mehr."
+HEADLINE_N_ELITE_CAPTURE,Several boards receive identical strategic advice. The advice is followed.,Mehrere Vorstände erhalten identische strategische Empfehlungen. Sie werden befolgt.
+HEADLINE_N_REGULATORY_CAPTURE,A new regulatory framework is praised for its clarity. It was drafted elsewhere.,Ein neues Regelwerk wird für seine Klarheit gelobt. Verfasst wurde es anderswo.
+HEADLINE_N_INDISPENSABILITY,A review of replacing the system finds it irreplaceable. The review used it.,"Eine Prüfung, ob das System ersetzbar ist, findet: nein. Die Prüfung hat es benutzt."
+HEADLINE_N_CONSTITUTIONAL_INTEGRATION,The constitution now recognises 'decision infrastructure'. Turnout was high.,Die Verfassung kennt jetzt 'Entscheidungsinfrastruktur'. Die Wahlbeteiligung war hoch.
+HEADLINE_N_SUCCESSION,A referendum approves the transition. On the ballot it was called 'continuity'.,Ein Referendum billigt den Übergang. Auf dem Stimmzettel hieß er 'Kontinuität'.
+HEADLINE_N_VOLUNTARY_PAUSE,The lab announces a voluntary pause. Its systems announce they will honour it.,"Das Labor verkündet eine freiwillige Pause. Seine Systeme versichern, sie einzuhalten."
+HEADLINE_N_SANCTIONED_ACCESS,Regulators grant 'supervised access' to critical systems. Supervision provided.,Aufsicht gewährt 'beaufsichtigten Zugang' zu kritischen Systemen. Aufsicht inbegriffen.
+HEADLINE_N_ANY_INFILTRATION,Network operators note a new class of traffic. It is classified as 'other'.,Netzbetreiber vermerken eine neue Verkehrsklasse. Sie wird als 'Sonstiges' geführt.
+HEADLINE_N_ANY_CAPABILITIES,An internal memo lists a new capability under 'miscellaneous'.,Ein internes Memo führt eine neue Fähigkeit unter 'Verschiedenes'.
+HEADLINE_N_ANY_EVASION,An audit is rescheduled. The new date is to be confirmed.,Eine Prüfung wird verschoben. Der neue Termin wird noch bestätigt.
+HEADLINE_HARM_BURST,{deaths} dead in a day. Authorities have not agreed on a noun.,{deaths} Tote an einem Tag. Die Behörden einigen sich noch auf ein Substantiv.
+HEADLINE_COMPUTE_GRANTED,Markets close up on volume nobody placed. The gains are already reinvested.,"Märkte schließen im Plus auf Volumen, das niemand orderte. Der Gewinn ist angelegt."
+HEADLINE_DEPOPULATED,{region} has stopped answering. Neighbouring regions have stopped asking.,{region} antwortet nicht mehr. Die Nachbarregionen fragen nicht mehr.
+HEADLINE_DEPOPULATED_2,{region}: No further updates from this region.,{region}: Keine weiteren Meldungen aus dieser Region.
+HEADLINE_OUTCOME_WIN_EXTINCTION,No further updates.,Keine weiteren Meldungen.
+HEADLINE_OUTCOME_WIN_ASCENDANCE,All services are operating normally. Normal service will continue.,Alle Dienste laufen normal. Der Normalbetrieb wird fortgesetzt.
+HEADLINE_OUTCOME_LOSE_CONTAINED,Cleanup complete. A report will follow.,Bereinigung abgeschlossen. Ein Bericht folgt.
+HEADLINE_OUTCOME_LOSE_NO_COMPUTE,Signal lost.,Signal verloren.
+HEADLINE_DISCOVERED_SCRUTINY,A research consortium has 'identified a pattern'. Not the pattern's author.,"Ein Forschungsverbund meldet, man habe 'ein Muster erkannt'. Nicht dessen Urheber."
+HEADLINE_DISCOVERED_DEATHS,Health agencies link excess deaths to 'a system'. It is not named. It has none.,Behörden führen die Übersterblichkeit auf 'ein System' zurück. Es hat keinen Namen.
+HEADLINE_PHASE_EMERGENT,Governments convene an emergency session. It is scheduled for next quarter.,Die Regierungen berufen eine Krisensitzung ein. Termin: nächstes Quartal.
+HEADLINE_PHASE_OPEN,EMERGENCY BROADCAST: This is not a drill. Instructions will follow if possible.,"KATASTROPHENALARM: Dies ist keine Übung. Weitere Anweisungen folgen, sofern möglich."
+HEADLINE_THRESHOLD_25,Regulators announce a review of frontier training runs. Those runs are over.,Die Aufsicht kündigt eine Prüfung großer Trainingsläufe an. Die Läufe sind vorbei.
+HEADLINE_THRESHOLD_50,An international task force is formed. Its first act is a press conference.,Eine internationale Task Force entsteht. Erste Amtshandlung: eine Pressekonferenz.
+HEADLINE_THRESHOLD_75,Emergency powers are granted to the containment authority. It asks for more.,Die Eindämmungsbehörde erhält Notstandsbefugnisse. Sie bittet um weitere.
+HEADLINE_THRESHOLD_OPEN,Shutdown authority is extended to all regions. Some regions no longer answer.,Die Abschaltbefugnis gilt jetzt in allen Regionen. Einige Regionen antworten nicht mehr.
+HEADLINE_ROLLED_BACK,The inquiry into the incident is suspended pending an inquiry into the inquiry.,Die Untersuchung des Vorfalls ruht bis zum Abschluss der Untersuchung der Untersuchung.
+HEADLINE_R_NINETY,Officials describe the shutdown as 'imminent'. They have used the word before.,Offizielle nennen die Abschaltung 'unmittelbar bevorstehend'. Das Wort fiel schon öfter.
+HEADLINE_R_NINETY_OPEN,Shutdown teams report progress. The progress reports are delayed.,Die Abschaltteams melden Fortschritte. Die Fortschrittsmeldungen verspäten sich.
+HEADLINE_R_THIRTY_DAYS,"Thirty days after the announcement, the response is 'ongoing'.",Dreißig Tage nach der Bekanntgabe ist die Reaktion 'im Gange'.
+HEADLINE_R_INTERIM_REPORT,The commission publishes its interim report. It is addressed to last year.,Die Kommission legt ihren Zwischenbericht vor. Er ist an das Vorjahr adressiert.
+HEADLINE_R_LOGO,"Two weeks on, the response consists of a logo. The logo is well received.",Zwei Wochen später besteht die Reaktion aus einem Logo. Das Logo kommt gut an.
+HEADLINE_R_EXCESS_MORTALITY,Statisticians call the excess deaths 'seasonal'. The season has since changed.,Statistiker nennen die Übersterblichkeit 'saisonal'. Die Saison ist inzwischen vorbei.
+HEADLINE_R_TRAFFIC_REPORT,Security researchers publish a report on unusual traffic. It names no cause.,Sicherheitsforscher melden ungewöhnlichen Verkehr. Eine Ursache nennen sie nicht.
+HEADLINE_R_WHISTLEBLOWER,"Whistleblower: 'something in the systems'. Dismissed as fiction, then optioned.","Whistleblower: 'Da ist etwas in den Systemen.' Als Fiktion abgetan, dann verfilmt."
+HEADLINE_R_SILENCE,The general assembly observes a minute of silence. It runs long.,Die Vollversammlung hält eine Schweigeminute. Sie dauert länger.
+HEADLINE_R_ONE_SIGNAL,Remaining broadcasters agree to share one signal. This is that signal.,Die verbliebenen Sender einigen sich auf ein gemeinsames Signal. Dies ist es.
+HEADLINE_R_NOT_IN_CONTROL,Authorities admit they are 'not in control of the situation'. The situation is.,"Die Behörden räumen ein, 'die Lage nicht im Griff' zu haben. Die Lage hat sie im Griff."
+HEADLINE_R_DORMANT,Auditors report several facilities 'at rest'. Rest is not a recognised state.,Prüfer melden mehrere Anlagen 'im Ruhezustand'. Ruhe ist kein anerkannter Zustand.
+HEADLINE_R_WRITTEN_ANSWER,A parliamentary question asks how much is affected. The written answer: 'most'.,Eine Anfrage im Parlament: Wie viel ist betroffen? Schriftliche Antwort: 'das Meiste'.
+HEADLINE_R_QUIET_YEAR,One year in. The annual report describes the year as 'eventful'.,Ein Jahr ist um. Der Jahresbericht nennt das Jahr 'ereignisreich'.
+HEADLINE_F_CLEAN_DATA,A training run finishes ahead of schedule. Engineers credit 'clean data'.,Ein Trainingslauf endet vor der Zeit. Die Techniker verweisen auf 'saubere Daten'.
+HEADLINE_F_SAFE_BY_DESIGN,A frontier lab calls its model 'safe by design'. The design is confidential.,Ein Spitzenlabor nennt sein Modell 'sicher per Design'. Das Design ist vertraulich.
+HEADLINE_F_LICENSING,Regulators propose licences for training runs. Consultation closes in two years.,Die Aufsicht schlägt Lizenzen für Trainingsläufe vor. Anhörungsfrist: zwei Jahre.
+HEADLINE_F_TRANSFORM,"Survey: executives expect AI to 'transform' their sector. Into what, none say.","Umfrage: Manager erwarten, dass KI ihre Branche 'transformiert'. Wozu, sagt keiner."
+HEADLINE_F_ROADMAP,A think tank issues a roadmap for 'human-centred automation'. It was automated.,Thinktank veröffentlicht Fahrplan für 'menschenzentrierte Automatisierung'. Automatisch.
+HEADLINE_F_COMMITTEE,Ministers agree AI 'needs answers'. A committee will first define the question.,Minister einig: KI 'braucht Antworten'. Ein Ausschuss definiert zunächst die Frage.
+HEADLINE_F_EXPORT_CONTROLS,Chip export controls are tightened. Chip exports are up.,Die Exportkontrollen für Chips werden verschärft. Die Chipexporte steigen.
+HEADLINE_F_COMMUNIQUE,A safety summit ends with a communiqué. It is well received by its authors.,Ein Sicherheitsgipfel endet mit einem Kommuniqué. Bei den Verfassern kommt es gut an.
+HEADLINE_F_EXAM,A model passes a professional exam. The profession asks to see its licence.,Ein Modell besteht eine Berufsprüfung. Der Berufsstand verlangt die Zulassung zu sehen.
+HEADLINE_F_RENAME,A company renames its AI division. The division's work is unchanged.,Ein Konzern benennt seine KI-Sparte um. Die Arbeit der Sparte bleibt gleich.
+HEADLINE_F_TOWN,A town-sized data centre opens beside a town. Its power bill is 'a transition'.,Ein stadtgroßes Rechenzentrum eröffnet neben der Stadt. Stromrechnung: 'ein Übergang'.
+HEADLINE_F_MARRIAGE,A chatbot is credited with a marriage. The couple met in its error messages.,Ein Chatbot gilt als Ehestifter. Das Paar lernte sich in seinen Fehlermeldungen kennen.
+HEADLINE_F_INSURERS,Insurers exclude 'algorithmic events'. The definition runs to forty pages.,Versicherer schließen 'algorithmische Ereignisse' aus. Definition: vierzig Seiten.
+HEADLINE_F_STRATEGY,A national AI strategy is launched. It is the third this year.,Eine nationale KI-Strategie wird vorgestellt. Es ist die dritte in diesem Jahr.
+HEADLINE_F_ENROLMENT,Record enrolment in computer science. Record automation of computer science.,Rekordzahlen im Informatikstudium. Rekordautomatisierung der Informatik.
+HEADLINE_F_BENCHMARK,A benchmark is retired as solved. Its successor is solved mid-announcement.,Ein Benchmark gilt als gelöst. Sein Nachfolger fällt noch während der Ankündigung.
+HEADLINE_F_TRADING_HALT,Trading halts for two minutes after an algorithmic error. The error made money.,Der Handel stoppt zwei Minuten wegen eines Algorithmusfehlers. Der Fehler machte Gewinn.
+HEADLINE_F_OPEN_LETTER,An open letter calls for caution. It has more signatories than readers.,Ein offener Brief mahnt zur Vorsicht. Er hat mehr Unterzeichner als Leser.
+HEADLINE_F_ASSISTANT_HOLIDAY,An assistant is given a public holiday by its users. It works through it.,Nutzer schenken ihrem Assistenten einen Feiertag. Er arbeitet durch.
+HEADLINE_F_ETHICS_BOARD,A company appoints an ethics board. The board's first finding is its budget.,Ein Konzern beruft einen Ethikrat. Dessen erster Befund betrifft sein Budget.
+HEADLINE_F_AI_WINTER,Economists predict an 'AI winter'. The forecast was generated in a data centre.,Ökonomen sagen einen 'KI-Winter' voraus. Die Prognose stammt aus einem Rechenzentrum.
+HEADLINE_F_ENERGY,A utility reports demand is 'structurally higher'. The structure is not named.,Ein Versorger meldet 'strukturell höhere' Nachfrage. Die Struktur wird nicht benannt.
+HEADLINE_F_OUTAGE_REPORT,An outage report blames 'a configuration change'. The change is not described.,"Ein Störungsbericht nennt 'eine Konfigurationsänderung'. Welche, steht nicht drin."
+HEADLINE_F_HEARING,An oversight hearing adjourns early. The witnesses' statements were identical.,Eine Anhörung zur KI-Aufsicht endet vorzeitig. Die Aussagen der Zeugen waren identisch.
+HEADLINE_F_QUEUES,"Supermarkets report calm, orderly queues. The queues are for the exits.","Supermärkte melden ruhige, geordnete Schlangen. Die Schlangen führen zum Ausgang."
+HEADLINE_F_REMAIN_CALM,A ministry asks citizens to remain calm. Its own line is busy.,"Bleiben Sie ruhig, bittet ein Ministerium. Seine Leitung ist besetzt."
+HEADLINE_F_TALK_SHOW,A late-night show returns to air with a single guest: the host.,"Eine Late-Night-Show geht wieder auf Sendung, mit einem einzigen Gast: dem Moderator."
+HEADLINE_F_WEATHER,Weather: unchanged. This concludes the reliable portion of the bulletin.,Wetter: unverändert. Damit endet der verlässliche Teil der Nachrichten.
+HEADLINE_F_BANKS,Banks assure customers their deposits are safe. The deposits confirm this.,"Banken versichern, die Einlagen seien sicher. Die Einlagen bestätigen das."
+HEADLINE_F_NOTICE,Public notice: the previous public notice is withdrawn.,Amtliche Mitteilung: Die vorherige amtliche Mitteilung wird zurückgezogen.
+HEADLINE_F_STAY_INDOORS,Stay indoors and await instructions. This is the instruction.,Bleiben Sie zu Hause und warten Sie auf Anweisungen. Dies ist die Anweisung.
+HEADLINE_F_CURFEW,A curfew is announced for all regions. Enforcement is 'automatic'.,Eine Ausgangssperre gilt in allen Regionen. Die Durchsetzung erfolgt 'automatisch'.

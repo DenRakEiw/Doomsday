@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D3.4 — Ticker voice and headlines** |
-| **Model for it** | **Fable** — no switch |
-| **After it** | `/clear` → **`/model opus`** → S2.P |
-| **Last completed** | D3.3 — `docs/specs/m3-screens.md`, 181 strings en/de |
-| **Milestone** | M2 gated; M3 design under way |
+| **Next step** | **S2.P — Punch list from G2** (the twelve items under *Punch list for Opus*) |
+| **Model for it** | **Opus** — **`/model opus`** |
+| **After it** | `/clear` → S3.1 (no switch) |
+| **Last completed** | D3.4 — `docs/specs/ticker.md`, `data/headlines.json` (150), 151 strings en/de, CONTENT §10 |
+| **Milestone** | M2 gated; M3 design complete, build starts |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
@@ -76,7 +76,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] D3.1 [F] Effect vocabulary; Infiltration and Evasion trees
 - [x] D3.2 [F] Capabilities tree
 - [x] D3.3 [F] M3 screens
-- [ ] D3.4 [F] Ticker voice and headlines — ⇄ **then `/model opus`**
+- [x] D3.4 [F] Ticker voice and headlines — ⇄ **then `/model opus`**
 
 **Block 6 — M3 build · Opus**
 - [ ] S2.P [O] Punch list from G2 *(skip if empty)*
@@ -462,6 +462,28 @@ without new information.
   test one API. Consequence for the M6 design: the model policy is an HTTP adapter over one chat
   schema, the key comes from the environment (never the repo, never a save), and every run
   records model id + parameters next to seed and score. (User decision.)
+- **2026-09-22** (D3.4) — **The headline system lives in `core/` but is not a `SimSystem`:**
+  `Simulation.headlines` runs after the systems over the whole tick outbox and after every command
+  over the result's events, with its **own `SimRng`** (`seed ^ 0x48454144`), so the state hash and
+  every existing baseline are untouched and a replay reproduces the headlines. Its state is an
+  optional `headlines` block in the save (v1 in place; a missing block loads fresh).
+- **2026-09-22** (D3.4) — **Register is a property of each headline** (`institutional` /
+  `emergency` / `any`) and the active register is `phase == OPEN`, computed from state; the strip
+  marks the switch by separator (`·` → `///`) and idle line only. Names: *institutional*, *emergency*.
+- **2026-09-22** (D3.4) — **Regions in text are datelines** (`{region}: …`), never inside a
+  prepositional phrase: German region names need articles and cases a placeholder cannot supply.
+  Rule for all later text (CONTENT §10.2 rule 5).
+- **2026-09-22** (D3.4) — **The strip shows headlines only from S3.5 on.** `EventText` and all
+  eighteen `UI_EVENT_*` keys are deleted then; every event the M2 ticker narrated has a headline
+  (node-specific lines for 50 nodes, per-tree fallbacks, filters on seeds by link kind and region
+  attributes). 150 headlines instead of the plan's ~60 — the node lines *are* "reacts to what the
+  player did".
+- **2026-09-22** (D3.4) — **`balance.headlines` is specified, not yet in `balance.json`:** the v1
+  validator rejects an unknown section and S2.P needs the game running. S3.5 adds the block
+  (`ticker.md` §3.8) with the validator rows.
+- **2026-09-22** (D3.4) — **Reduced motion shows a headline in up to two rows** (strip 64 px,
+  caption size below the breakpoint, standing time grows with length). Caps: en ≤ 80, de ≤ 88
+  characters with placeholders at 12 — a string test, not a layout test.
 
 ## Design questions for Fable
 
@@ -474,11 +496,6 @@ reads `SCHLIESSEN`; the alternative is the capital ẞ (U+1E9E), which both font
 change either way. (S2.4's second question — the dark chip — was answered at G2, see *Decisions*.)
 
 **Parked for a later Fable step (not questions, reminders):**
-- **D3.4** must write down the ticker rule `m3-screens.md` §6.4 promises: items are `(key, args)`
-  and re-render on `locale_changed` (M2 drops the queue on `L`); the register switch listens to
-  `EventBus.phase_changed` and happens once, at Open. Three event keys exist already for the
-  one-shots (`UI_EVENT_COMPUTE_GRANTED`, `_CONTAINMENT_ROLLED_BACK`, `_HARM_BURST`) and two for
-  dormancy — D3.4 may reword the text, not the keys.
 - **M6 (VISUALS):** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the 8192-px
   masks anti-alias the coast but not the borders between regions. Acceptable for M2–M5; a vector
   border pass or a 2× ID map is an M6 polish item, not a bug.
@@ -544,6 +561,11 @@ way G2 found it.
     en and de, replacing the S2.6 set for the record.
 
 ## Deviations from the plan or a spec
+
+- **2026-09-22** (D3.4) — **150 headlines, not ~60** (see *Decisions*), and the register guide is
+  CONTENT §10 with *Open questions* renumbered to §11 (nothing referenced the old number). The
+  step's `balance` values are in `ticker.md` §3.8 rather than `balance.json` (validator, see
+  *Decisions*). `docs/specs/core.md` §6.4 is not edited here; S3.5 appends the `headline` row.
 
 - **2026-09-22** (D3.3) — **UI.md §3 "three bars, always visible" is relaxed on the phone** (values
   always visible in the status strip, bars in the sheet) — G2's decision on the chrome asked for
@@ -819,6 +841,13 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-22 — D3.4 Ticker voice and headlines [F]
+CONTENT §10 register guide (three voices, the two-sentence joke, `institutional`/`emergency`,
+datelines, caps, German rules). `docs/specs/ticker.md`: `HeadlineSystem` in core (trigger
+vocabulary `on`/`when`, eligibility, weighted deterministic selection, per-tick caps, filler pace,
+save block), `Ticker` on `(key, args)` items with locale re-render, register switch, two-row static
+mode, validator, tests. `data/headlines.json` 150 headlines, 151 strings en/de. Next: **S2.P on Opus**.
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
 

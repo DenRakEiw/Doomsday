@@ -604,9 +604,14 @@ strip and menu sheet, `m3-screens.md` §9); `balance.results.ashes_share`.
 and at 400 × 860 the bottom is the strip plus the ticker.
 
 ### S3.5 — Ticker component and headline system **[O]**
-**Read first:** `docs/specs/ticker.md`
-**Build:** `Ticker` component; `HeadlineSystem` in core, deterministic; load `headlines.json`.
-**Done when:** a full run produces a ticker that reacts to what the player actually did.
+**Read first:** `docs/specs/ticker.md` (and `CONTENT.md` §10 for what the strings are doing)
+**Build:** `HeadlineSystem` in core (`ticker.md` §3: `on`/`when` vocabulary, eligibility, weighted
+deterministic selection with its own RNG, per-tick caps, filler pace, the `headline` event, save
+block); `headlines.json` loader, `HeadlineDef`, validator; `balance.headlines`; `Ticker` rewritten
+around `(key, args)` items with `HeadlineText`, locale re-render, register switch, two-row static
+mode; `sim_run --headlines` and the batch columns; delete `EventText` and every `UI_EVENT_*` key.
+**Done when:** `ticker.md` §8.3 — a `greedy` run prints 40–200 headline lines from all three
+streams, first the origin's, last the outcome's; the strip re-renders on `L` and shows `///` in Open.
 
 ### S3.6 — Strategy bots and batch reporting **[O]**
 **Read first:** `docs/specs/core.md` (policies) · `docs/specs/tech-trees.md` (branch overview)
