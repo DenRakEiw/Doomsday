@@ -559,7 +559,9 @@ against the content rule. Cost curves sketched so that each branch is a plausibl
 **Produce:** `docs/specs/m3-screens.md`: tech tree modal (tabs, `TechNode` states, connection
 lines, detail pane, focus order, pause-on-open default — UI question 1); containment panel; the
 discovery moment; the phase-reveal schedule, capped as in UI §6 question 3; title, origin select,
-pause menu, results screen; autosave rule. String table in both languages.
+pause menu, results screen; autosave rule; the phone's bottom — status strip and menu sheet in
+place of the dock bar (UI §6 question 2, decided at G2, `ui-foundation.md` §5.7). String table in
+both languages.
 
 ### D3.4 — Ticker voice and headlines **[F]**
 **Read first:** PLAN §1 "Tone", §6 (register risk) · UI §3 (ticker)

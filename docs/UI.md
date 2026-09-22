@@ -214,7 +214,8 @@ Not an afterthought — much of it is free if decided now, and expensive if retr
 
 1. Does the tech tree pause the game on desktop? Pausing is kinder; not pausing preserves tension.
    Probably a setting, defaulting to pause.
-2. Is the right dock the correct shape on a phone, or does mobile need a genuinely different HUD?
-   Decide with a real device in M2, not in a mockup.
+2. *Decided at G2 (2026-09-22):* the dock shape stays for M3 — nothing clips at 400 px, but the
+   chrome takes 41 % of the height. D3.3 designs the phone's bottom anew (a status strip plus a
+   menu sheet for the dock's destinations, `ui-foundation.md` §5.7); M7 judges it on a real device.
 3. How much of the phase shift is worth building? The idea is strong; the cost is unbounded. Cap it
    at: revealed controls, one palette change, one ticker register change.

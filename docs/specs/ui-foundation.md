@@ -126,6 +126,8 @@ the map shader and the stat bars.
 | `MAP_DARK` | `#0E1318` | a dark region (depopulated) |
 | `MAP_BORDER` | `#3A4B5C` | borders and coastlines, drawn at 90 % |
 | `MAP_BORDER_DARK` | `#1F2C38` | border of a dark region |
+| `MAP_DARK_MARK` | `#5E7282` | the × at a dark region's anchor (= `TEXT_2`; G2: in the border colour it was invisible) |
+| `MAP_OVERLAY_MIX` | 0.70 | weight of the ramp colour over `MAP_LAND` (G2: at 0.85 a half-taken world outshone the HUD) |
 | `MAP_HOVER_GAIN` | 1.15 | multiplier on the region's colour while hovered |
 | `MAP_SELECT` | `#FFFFFF` | selection outline |
 | `MAP_DEATH` | `#FF8C6B` | the population overlay's end colour (alive share → 0) |
@@ -308,7 +310,8 @@ between them, `compact = true`).
 `TYPE_DATA`, right-aligned, colour `TEXT_0`. `func set_number(value: float, kind: Format.Kind)
 -> void` formats via `Format` (§8.5). Optional delta: `func set_delta(delta: float, kind) -> void`
 appends `" ▲ +12"` / `" ▼ −3"` (the arrows are U+25B2 / U+25BC) in `ACCENT` for positive,
-`MAP_DEATH` for negative, `TEXT_2` and no arrow for zero. S2.4 checks `Font.has_char(0x25B2)` on
+`MAP_DEATH` for negative, `TEXT_2` and no arrow for zero — zero meaning the *formatted* delta
+reads 0, so a rate of 0.03 shows `0`, never `▲ +0` (G2). S2.4 checks `Font.has_char(0x25B2)` on
 the imported JetBrains Mono; if it is missing, the label uses the sign alone (`+12` / `−3`) and
 `PROGRESS.md` records it — a system-font fallback glyph is not acceptable. States: **neutral**
 · **up** · **down** · **large** (`TYPE_DATA_LG`, the compute readout — a type variation
@@ -341,7 +344,8 @@ A `ScrollContainer` with one titled section per component, each state side by si
 its state name in `LabelCaption`. It is the visual regression target: S2.4 screenshots it at
 1920×1080 and at a 400 × 860 window (compact), in both locales (§9), and the screenshots go into the
 scratch directory with their paths listed in `PROGRESS.md` for G2. Text in the gallery uses the
-real string table, not lorem ipsum, so that German lengths are seen.
+real string table, not lorem ipsum, so that German lengths are seen, and every number is
+re-formatted on a locale change (G2: `L` left `1,284.5` under German labels).
 
 ---
 
@@ -379,14 +383,18 @@ A `ConsolePanelRaised` strip, full width, min height 56, content in an `HBox` wi
    `ValueLabelLarge` showing `agent.compute` as `Format.Kind.COMPUTE` (§8.5) with the delta
    `Game.compute_rate` formatted as `UI_HUD_COMPUTE_RATE`. The delta uses `ACCENT` when > 0.
 2. **Phase cell**: `LabelCaps` `UI_HUD_PHASE` over a `Chip` with the phase name (`UI_PHASE_*`);
-   the chip is `ChipAccent` in Covert, `ChipAlert` from Emergent on (the world knows you), default
-   in Boxed.
+   the chip is default in Boxed, `ChipAccent` in Covert, `ChipAlert` in Emergent (the world has
+   just found you) and default again in Open — `ALERT` marks a moment, not a standing state, and
+   the Open palette of D3.3 carries the phase from then on (G2).
 3. **Day cell**: `LabelCaps` `UI_HUD_DAY_LABEL` over a `ValueLabel` `UI_HUD_DAY` (`{day}`).
 4. Spacer (expand).
 5. **Paused badge**: `ChipAlert` `UI_HUD_PAUSED`, visible only while `Game.speed == 0`.
 6. **Speed group**: four `IconButton`s PAUSE · PLAY · FAST_2 · FAST_4 as a toggle group
    (`ButtonGroup`), gap `SPACE_1`, tooltips `UI_HUD_SPEED_PAUSE/1/2/4`. The pressed one shows
-   `Game.speed`. Keyboard: `Space` toggles pause ↔ last speed; `1` `2` `3` set 1× 2× 4×.
+   `Game.speed`. Keyboard: `Space` toggles pause ↔ last speed; `1` `2` `3` set 1× 2× 4×. The
+   session handles these keys and `Escape` in `_input`, ahead of the GUI, unless the focus owner
+   is a text field — a focused `Button` otherwise consumes `Space` as `ui_accept`, and after any
+   mouse click on the HUD the pause key was dead (G2).
 
 ### 5.3 Stat row (`ui/hud/stat_row.tscn`)
 
@@ -426,7 +434,9 @@ replaces the item source, not the strip.
 
 A `SlidePanel` (LEFT; BOTTOM in compact) wrapping a `ConsolePanel` with a `ScrollContainer`. Opens
 on `EventBus.region_selected(index)` with `index > 0`, closes on `region_selected(0)`, the close
-button, `Escape`, or a tap on the ocean. Content top to bottom (`VBox`, gaps `SPACE_3`):
+button, `Escape`, or a tap on the ocean. On opening it calls `MapCamera.reveal` (§7.5) with the
+region's anchor and the screen rect it leaves uncovered, so the selected region is never hidden
+behind it. Content top to bottom (`VBox`, gaps `SPACE_3`):
 
 1. **Header** `HBox`: `LabelDisplay` region name (`REGION_<ID>`), autowrap on; `IconButton` CLOSE
    (tooltip `UI_COMMON_CLOSE`) top-right.
@@ -434,7 +444,9 @@ button, `Escape`, or a tap on the ocean. Content top to bottom (`VBox`, gaps `SP
 3. **State chips** `HFlowContainer`: exactly one of `UI_REGION_STATE_UNTOUCHED` (default chip),
    `UI_REGION_STATE_SEEDED` (`{day}` = `seeded_day`, `ChipAccent`), `UI_REGION_STATE_CONTROLLED`
    (`ChipAccent`, when `control >= balance.control_complete`), `UI_REGION_STATE_DARK` (`ChipAlert`);
-   plus `UI_REGION_AIR_GAPPED` (`ChipAlert`) if `air_gapped`.
+   plus `UI_REGION_AIR_GAPPED` (`ChipAlert`) if `air_gapped`. While dark, a `LabelCaption`
+   `UI_REGION_STATE_DARK_DETAIL` in `TEXT_1` follows the chip row — a chip cannot wrap, and the
+   explanation did not fit one at 400 px (G2, S2.4 question 2).
 4. **Presence**: `StatBarPenetration` (`penetration`) and a `StatBar` with the `StatBarPenetration`
    variation and label `UI_TERM_CONTROL` (`control`). Hidden while state is *untouched*.
 5. **Population** two `HBox` rows label/value: `UI_REGION_POPULATION_ALIVE` → `alive` as
@@ -444,8 +456,10 @@ button, `Escape`, or a tap on the ocean. Content top to bottom (`VBox`, gaps `SP
    label/pips pairs in this order: `UI_ATTR_COMPUTE`, `UI_ATTR_CONNECTIVITY`, `UI_ATTR_RESEARCH`,
    `UI_ATTR_REGULATION`, `UI_ATTR_WEALTH`, `UI_ATTR_INDUSTRY`, `UI_ATTR_MANUFACTURING`,
    `UI_ATTR_ISOLATION`. Pips: four 10 × 10 squares, gap 4, filled `TEXT_0` up to the tier, the rest
-   outlined `LINE_1`; accessible name `UI_ATTR_TIER` (`{tier}`). Drawn by a tiny `_draw` in the
-   panel script — not a component.
+   outlined `LINE_2` (G2: `LINE_1` vanished on `BG_2`); accessible name `UI_ATTR_TIER` (`{tier}`).
+   Drawn by a tiny `_draw` in the panel script — not a component. The grid shrinks to its content
+   (`SHRINK_BEGIN`, column gap `SPACE_4`) so the pips sit beside the longest label instead of at
+   the panel's far edge, 400 px from what they belong to (G2).
 7. **Connections** (`LabelHeading` `UI_REGION_LINKS`): one row per link kind present, in the order
    land, sea, air, network: `UI_REGION_LINK_ROW` (`{kind}`, `{count}`), or `UI_REGION_LINK_ROW_CLOSED`
    when any of them is closed (`{closed}`).
@@ -473,7 +487,12 @@ the chips update; the panel does not close by itself.
 | Ticker | 40 | 40 |
 | Region panel | `SlidePanel` LEFT | `SlidePanel` BOTTOM, 50 % height, over dock and stat row |
 
-At 400 × 860 the map keeps at least 860 − 96 − 56 − 84 − 40 = 584 px of height with nothing open.
+At 400 × 860 the chrome measured 352 px in G2 (top bar 136 with its margins, dock 88, stat row
+88, ticker 40) — 508 px of map with nothing open, not the 584 this paragraph once promised. It
+works and nothing clips in German, but it is heavy. **Decision (G2, UI.md §6 question 2): the
+shape stays for M3.** D3.3 designs the phone's bottom anew with the M3 screens — one 56 px status
+strip carrying the three values plus a menu button that opens the dock's destinations as a bottom
+sheet — and M7 judges it on a real device.
 
 ---
 
@@ -540,7 +559,7 @@ Per fragment, in this order:
    the ocean); land alpha is `land_mask` (anti-aliased coast).
 2. `col = MAP_LAND`. Read `d = texelFetch(region_data, ivec2(idx, 0))`, `flags` from `d.a`.
 3. If dark (bit 1): `col = MAP_DARK`, skip 4.
-4. Overlay: mode 0 → `v = d.r`; mode 1 → `v = d.g`; if `v > 0`: `col = mix(MAP_LAND, ramp(v), 0.85)`.
+4. Overlay: mode 0 → `v = d.r`; mode 1 → `v = d.g`; if `v > 0`: `col = mix(MAP_LAND, ramp(v), MAP_OVERLAY_MIX)`.
    Mode 2 → `col = mix(MAP_LAND, MAP_DEATH, 1 − d.b)`. A seeded region with penetration 0.01 is
    therefore visibly teal; nothing below the ramp's start exists.
 5. Border: `b = border_mask`; `col = mix(col, dark ? MAP_BORDER_DARK : MAP_BORDER, b × 0.9)`.
@@ -574,12 +593,19 @@ region_at(...)` and emit `EventBus.region_selected(index)`; `0` deselects.
 - **Zoom**: `zoom_min = max(viewport.x / 4096, viewport.y / MAP_ROW_MAX)` (the map covers the
   viewport); `zoom_max = 4.0`; start at `zoom_min`, centred on x = 2048, y = 875. Wheel: ×1.15 per
   notch toward the cursor (the world point under the cursor stays put), tweened over
-  `MOTION_QUICK`. Pinch: continuous, same anchor rule, no tween. `outline_px = 2 / zoom` (§7.3).
+  `MOTION_QUICK`. **Each notch multiplies the tween's target zoom, not the displayed one**, so
+  notches that arrive in the same frame add up (G2: fourteen notches in one frame moved one step).
+  Pinch: continuous, same anchor rule, no tween. `outline_px = 2 / zoom` (§7.3).
 - **Pan**: left-drag or one-finger drag; on release, inertia with the mean velocity of the last
   three frames, decaying as `v *= exp(−6 × delta)`, stopped below 20 px/s, still clamped.
 - **Keyboard**: arrows pan 400 px/s, `+`/`−` zoom one notch about the centre.
 - `func focus_region(index: int) -> void` tweens the centre to the anchor over `MOTION_PANEL`
   (used by nothing in M2 except the debug key; S3.4 uses it for the origin).
+- `func reveal(anchor: Vector2, free: Rect2) -> void` (G2): `anchor` is a map point, `free` the
+  screen rect not covered by an open panel. If the anchor's screen position lies outside `free`
+  shrunk by `SPACE_6`, pan by the smallest offset that brings it inside, tweened over
+  `MOTION_PANEL`, clamped as usual; zoom is untouched. The region panel calls it when it opens
+  (§5.6) — in G2 a tap on the USA put the USA behind the panel.
 
 ### 7.6 Backdrop (`backdrop.tscn`)
 
@@ -601,10 +627,13 @@ with reduced motion). During the **last 3 days** before `expires_day` the disc b
 `1 / camera.zoom` so it is the same size on screen at every zoom; hit test = 24 screen px from the
 anchor, tested before the map on every tap. A hit sends `CollectAnomalyCommand(anomaly.id)`; a
 rejection is ignored (the marker will disappear with the next event). Hovering a marker shows a
-`LabelCaption` tooltip with `UI_REGION_ANOMALY` (`{value}`).
+tooltip with `UI_REGION_ANOMALY` (`{value}`): a `Chip`-style box (surface `BG_2`, border `LINE_1`,
+radius `RADIUS_S`, padding `SPACE_1` × `SPACE_2`), text `TYPE_CAPTION` in `TEXT_0`, its bottom-left
+corner `SPACE_4` right of and `SPACE_4` above the anchor on screen, pushed back inside the viewport
+when it would leave it (G2: a bare caption drawn over the ring was unreadable).
 
-Dark regions get a static marker too: a 10 px × in `MAP_BORDER_DARK` at the anchor ("never colour
-alone").
+Dark regions get a static marker too: a 12 px × with a 2 px stroke in `MAP_DARK_MARK` at the anchor,
+counter-scaled like the anomaly markers ("never colour alone" — so it has to be seen).
 
 ### 7.8 Links (`link_layer.gd`, `link_line.gd`, `link.gdshader`)
 
@@ -676,7 +705,8 @@ world's voice, i.e. the headlines of D3.4.
 | `UI_REGION_STATE_UNTOUCHED` | No presence | Keine Präsenz |
 | `UI_REGION_STATE_SEEDED` | Present since day {day} | Präsent seit Tag {day} |
 | `UI_REGION_STATE_CONTROLLED` | Under control | Unter Kontrolle |
-| `UI_REGION_STATE_DARK` | Dark — no population, no hardware | Dunkel — keine Bevölkerung, keine Hardware |
+| `UI_REGION_STATE_DARK` | Dark | Dunkel |
+| `UI_REGION_STATE_DARK_DETAIL` | No population, no hardware | Keine Bevölkerung, keine Hardware |
 | `UI_REGION_AIR_GAPPED` | Air-gapped | Vom Netz getrennt |
 | `UI_REGION_POPULATION_ALIVE` | Alive | Lebend |
 | `UI_REGION_POPULATION_DEATHS` | Deaths | Tote |

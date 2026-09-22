@@ -95,7 +95,8 @@ UI_TICKER_IDLE,All systems nominal.,Alle Systeme im Normalbetrieb.
 UI_REGION_STATE_UNTOUCHED,No presence,Keine Präsenz
 UI_REGION_STATE_SEEDED,Present since day {day},Präsent seit Tag {day}
 UI_REGION_STATE_CONTROLLED,Under control,Unter Kontrolle
-UI_REGION_STATE_DARK,"Dark — no population, no hardware","Dunkel — keine Bevölkerung, keine Hardware"
+UI_REGION_STATE_DARK,Dark,Dunkel
+UI_REGION_STATE_DARK_DETAIL,"No population, no hardware","Keine Bevölkerung, keine Hardware"
 UI_REGION_AIR_GAPPED,Air-gapped,Vom Netz getrennt
 UI_REGION_POPULATION_ALIVE,Alive,Lebend
 UI_REGION_POPULATION_DEATHS,Deaths,Tote

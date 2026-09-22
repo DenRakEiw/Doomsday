@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G2 — visual review and M2 gate** |
-| **Model for it** | **Fable** — `/model fable` first |
-| **After it** | `/clear` → D3.1 (still Fable) |
-| **Last completed** | S2.6 — anomaly markers, link layer, both in the gallery |
-| **Milestone** | M1 gated; M2 build under way |
+| **Next step** | **D3.1 — effect vocabulary; Infiltration and Evasion trees** |
+| **Model for it** | **Fable** — no switch |
+| **After it** | `/clear` → D3.2 (still Fable) |
+| **Last completed** | G2 — M2 gated (go), punch list for S2.P written |
+| **Milestone** | M2 gated; M3 design under way |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
@@ -72,7 +72,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S2.6 [O] Anomalies and links — ⇄ **then `/model fable`**
 
 **Block 5 — M2 gate, M3 design · Fable**
-- [ ] G2 [F] Visual review and M2 gate
+- [x] G2 [F] Visual review and M2 gate
 - [ ] D3.1 [F] Effect vocabulary; Infiltration and Evasion trees
 - [ ] D3.2 [F] Capabilities tree
 - [ ] D3.3 [F] M3 screens
@@ -361,27 +361,49 @@ without new information.
   node each: they never move and never animate, and a depopulated world would otherwise be sixty
   nodes doing nothing. The anomaly markers are nodes, because each one has its own clock.
 
+- **2026-09-22** (G2) — **M2 is gated: go.** Hierarchy, legibility at 400 px, German fit, colour
+  language and motion hold; the eight findings are all small or medium and go to S2.P. (User
+  decision.)
+- **2026-09-22** (G2) — **UI.md §6 question 2 (phone HUD): the shape stays for M3.** Chrome is 41 %
+  of a 400 × 860 screen but nothing clips; D3.3 designs the phone's bottom anew (status strip +
+  menu sheet), M7 judges it on a real device. (User decision, options presented.)
+- **2026-09-22** (G2) — **`MAP_OVERLAY_MIX` 0.85 → 0.70.** From ~50 % penetration the world was a
+  sheet of `#FDE725` that outshone the HUD and its accent; the ramp keeps its stops. (User
+  decision.)
+- **2026-09-22** (G2) — **`ALERT` marks a moment, not a standing state**, so the phase chip is red
+  in Emergent only; Open goes back to the default chip and the D3.3 palette carries the phase.
+  Same logic, other direction: the dark regions' × moves from `MAP_BORDER_DARK` (invisible) to
+  `MAP_DARK_MARK` = `TEXT_2` — "never colour alone" needs the glyph to be seen.
+- **2026-09-22** (G2) — **Game shortcuts are handled in `_input`, before the GUI.** A focused
+  `Button` consumes `Space` as `ui_accept`, so after any mouse click on the HUD the pause key was
+  dead (verified: `release_focus()` and the same key paused at once). The S2.5 note about
+  `_shortcut_input` was right for `Escape` only — a button does not consume that one.
+- **2026-09-22** (G2) — **Wheel notches compound on the tween's target zoom.** Fourteen notches in
+  one frame moved the camera one step, because every step multiplied the *displayed* zoom.
+- **2026-09-22** (G2) — **The region panel asks the camera to `reveal` the region it shows.** A tap
+  on the USA opened a 480 px panel over the USA. The camera pans by the smallest offset that keeps
+  the anchor `SPACE_6` inside the uncovered screen; zoom is untouched.
+- **2026-09-22** (G2) — **`UI_REGION_STATE_DARK` is the badge "Dark"/"Dunkel"**; the explanation is
+  the caption `UI_REGION_STATE_DARK_DETAIL` below the chip row (S2.4 question 2 answered — a chip
+  cannot wrap). The ß question stays with D4.5.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
-**S2.4 — two, both with a conservative placeholder already in place:**
-
-1. **How does German uppercase spell ß?** §3.2 says `TYPE_LABEL` is uppercased with
-   `String.to_upper()`, and Godot's leaves ß alone: `SCHLIEßEN`. `Format.caps()` (`ui/components/format.gd`)
-   therefore maps ß → SS first, which is the standard German capital and what `UI_COMMON_CLOSE`
-   now reads as (`SCHLIESSEN`). The alternative is the capital ẞ (U+1E9E), which both fonts do
-   carry. **Decide at D4.5 (German review in context)** — a one-line change either way.
-2. **`UI_REGION_STATE_DARK` is too long for a chip.** "Dunkel — keine Bevölkerung, keine Hardware"
-   is ~390 logical px as a `Chip` and only just fits a 400 px screen; §5.6 puts exactly that string
-   in the region panel's chip row, and in the compact layout the panel is that wide. A chip may not
-   wrap (an `HFlowContainer` lays children out at their minimum size, and a wrapping label's
-   minimum is its longest word — a row of chips becomes a column of syllables), and it does not
-   clip. **Shorten the chip to a badge ("Dunkel") and move the explanation to a caption line?**
-   Until then the long string stands and overflows on a narrower screen.
+**Deferred by G2 to D4.5 (German review in context):** **How does German uppercase spell ß?**
+`Format.caps()` (`ui/components/format.gd`) maps ß → SS before `to_upper()`, so `UI_COMMON_CLOSE`
+reads `SCHLIESSEN`; the alternative is the capital ẞ (U+1E9E), which both fonts carry. A one-line
+change either way. (S2.4's second question — the dark chip — was answered at G2, see *Decisions*.)
 
 **Parked for a later Fable step (not questions, reminders):**
+- **D3.3** designs the phone's bottom (status strip + menu sheet, `ui-foundation.md` §5.7) and
+  should keep the ticker's queue across a locale change (M2 stores rendered strings and drops
+  them on `L`; the D3.4 ticker keeps `(key, args)` and re-renders).
+- **M6 (VISUALS):** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the 8192-px
+  masks anti-alias the coast but not the borders between regions. Acceptable for M2–M5; a vector
+  border pass or a 2× ID map is an M6 polish item, not a bug.
 - **Spectator / benchmark mode** — designed in M6 (decision above). What was noted at S1.8 and is
   still true: a model player is one more `Policy` (core.md §11), the S1.8 runners are the harness,
   candidate driver [TypeSafe](https://docs.typesafe.ai/introduction) / **Jev** (typed Choice /
@@ -396,7 +418,38 @@ without new information.
 
 ## Punch list for Opus
 
-*(empty — S1.P cleared the G1 list)*
+**S2.P — from G2 (2026-09-22).** Every item is specified in `ui-foundation.md` (section in
+brackets); the spec is the source, this list is the checklist. Verify each in the running game the
+way G2 found it.
+
+1. **Speed group is not exclusive** (`ui/hud/top_bar.gd`, §5.2): PAUSE, PLAY and 4× had
+   `button_pressed = true` at once. One `ButtonGroup` on all four; the pressed one follows
+   `Game.speed`. Check: `button_pressed` is true on exactly one after F5, `3`, Space.
+2. **Space is swallowed by a focused HUD button** (`game/session/session.gd`, §5.2): move Space,
+   `1`/`2`/`3` and `Escape` to `_input` with the text-field guard. Check: click an overlay button,
+   press Space → `Game.speed == 0`.
+3. **Wheel notches in one frame collapse to one step** (`game/map/map_camera.gd`, §7.5): compound
+   on the tween's target zoom. Check: two notches in the same frame → ×1.15².
+4. **Region panel hides the region it shows** (`map_camera.gd` `reveal`, `ui/panels/region_panel.gd`,
+   §7.5/§5.6): pan by the smallest offset that keeps the anchor `SPACE_6` inside the uncovered rect.
+   Check: at `zoom_min`, tap the USA → the USA is visible right of the panel.
+5. **`▲ +0 / day`** (`ui/components/value_label.gd`, §4.5): a delta whose formatted value is 0 takes
+   the zero state. Test: `set_delta_in(0.03, COMPUTE)` → no arrow, `TEXT_2`.
+6. **Anomaly tooltip unreadable** (`game/map/marker_layer.gd`, §7.7): chip-style box, `TEXT_0`,
+   `SPACE_4` offset, kept inside the viewport.
+7. **Dark × invisible** (`marker_layer.gd`, §7.7 + `UiTokens.MAP_DARK_MARK`): 12 px, 2 px stroke,
+   `TEXT_2`, counter-scaled.
+8. **Map too loud** (`UiTokens.MAP_OVERLAY_MIX = 0.70`, `map.gdshader` uniform, §3.1/§7.3): the
+   shader takes the mix as a uniform like every other token.
+9. **Phase chip** (`top_bar.gd`, §5.2): `ChipAlert` in Emergent only; default in Boxed and Open.
+10. **Region panel details** (`region_panel.gd`, `attribute_pips.gd`, §5.6): `UI_REGION_STATE_DARK`
+    is now "Dark"/"Dunkel" (strings.csv changed at G2) with the caption
+    `UI_REGION_STATE_DARK_DETAIL` while dark; empty pips outlined `LINE_2`; profile grid
+    `SHRINK_BEGIN` with column gap `SPACE_4`.
+11. **Gallery numbers after `L`** (`ui/dev/gallery.gd`, §4.8): re-format every `ValueLabel` on
+    `NOTIFICATION_TRANSLATION_CHANGED`.
+12. Run `tools/build_theme.gd` if a token the theme uses changed; fresh F12 shots at 1920 and 400,
+    en and de, replacing the S2.6 set for the record.
 
 ## Deviations from the plan or a spec
 
@@ -640,6 +693,14 @@ takes an OS path, which is worth knowing).
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — G2 Visual review and M2 gate [F]
+Greedy seed 1 to day 506 in the running game: both sizes, both locales, all overlays, panel left
+and bottom, markers + tooltip, dark regions, reduced motion, zoom. No engine errors; colour
+literals only in `UiTokens`. **Gate: go.** Found and measured: the speed group is not exclusive,
+a focused button eats Space, same-frame wheel notches collapse, the panel hides its region, `▲ +0`.
+Spec amended in place (§3.1, §4.5, §5.2, §5.6, §5.7, §7.3, §7.5, §7.7, §8.2), 12-item punch list
+for S2.P, UI question 2 decided, `MAP_OVERLAY_MIX` 0.70. Next: **D3.1 on Fable** — `/clear`.
 
 ### 2026-09-22 — S2.6 Anomalies and links [O]
 `marker_layer.gd` + `anomaly_marker.gd` (§7.7), `link_layer.gd` + `link_line.gd` + `link.gdshader`
