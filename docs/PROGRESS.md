@@ -14,15 +14,15 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S1.P — punch list from G1** (one item: exact floats in saves), then S2.1 |
-| **Model for it** | **Opus** — ⇄ **`/model opus` before starting** |
-| **After it** | `/clear` → S2.1 (Opus, no switch) |
-| **Last completed** | G1 + D2.1 — M1 gate passed, `docs/specs/ui-foundation.md` written |
+| **Next step** | **S2.1 — autoloads and session driver** (first step of the M2 build) |
+| **Model for it** | **Opus** — no switch |
+| **After it** | `/clear` → S2.2 (Opus, no switch) |
+| **Last completed** | S1.P — floats in saves are exact; the G1 punch list is empty |
 | **Milestone** | M1 gated; M2 build begins |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 66 scripts compile, 260 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 74 scripts compile, 274 tests. The same command is all of CI. |
 
 **[F]** = Fable: design, specs, content, text, balance, gates. **[O]** = Opus: code, scenes,
 shaders, wiring, tooling, tests. `/clear` after every step. **⇄** marks a model switch before the
@@ -58,7 +58,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] G1 + D2.1 [F] M1 gate, then the interface foundation spec — ⇄ **then `/model opus`**
 
 **Block 4 — M2 build · Opus**
-- [ ] S1.P [O] Punch list from G1 — **one item**, see *Punch list for Opus*
+- [x] S1.P [O] Punch list from G1 — exact floats in saves
 - [ ] S2.1 [O] Autoloads and session driver
 - [ ] S2.2 [O] Map rendering
 - [ ] S2.3 [O] Picking, camera, backdrop
@@ -257,6 +257,14 @@ without new information.
 - **2026-09-22** (D2.1) — **One logical pixel is one dp on mobile:** S2.1 sets
   `content_scale_size` from the screen dpi, so `HIT_MIN = 48` is 48 dp everywhere and the compact
   breakpoint (`width < 1100`) is a single rule. Desktop keeps the 1920×1080 base untouched.
+- **2026-09-22** (S1.P) — The float codec is **`FloatBits`** (`core/save/float_bits.gd`), used by
+  `World.to_dict` and `HistorySample.to_dict`; `from_dict` accepts the bit form **or** a plain
+  number, and anything else in a float field is a refusal. **A state hash from before S1.P does not
+  compare with one after it** — the hashed text changed. Hashes are only ever compared within one
+  build anyway (IMPLEMENTATION §3).
+- **2026-09-22** (S1.P) — The day loop moved into `SimHarness.advance(sim, policy, until_day, …)`
+  and `play` calls it, so a test can carry a *loaded* save on with the same policy through the same
+  loop the runners use. `policy_seed(seed)` is public for the same reason.
 - **2026-09-22** (D2.1) — **`TICKS_PER_SECOND = 1.0` at 1×** as the starting value (a `greedy` run
   is ~6 min at 1×, 1.5 min at 4×); G3 tunes it against the 25–40 minute target.
 
@@ -282,38 +290,15 @@ without new information.
 
 ## Punch list for Opus
 
-**S1.P (from G1) — one item:**
-- **Exact floats in saves.** `World.to_dict` (core.md §5.1) and `HistorySample.to_dict` write every
-  `float` field as a string of its IEEE-754 bits, 16 lowercase hex characters
-  (`PackedByteArray.encode_double` → hex; e.g. `"3ff0000000000000"` for 1.0); `from_dict` accepts
-  that form **and** a plain JSON number (cast with `float()`), so hand-written fixtures and the
-  existing tests keep working. Ints, ids, flags and the RNG strings are unchanged. `state_hash`
-  hashes the new form. Update the example in core.md §5.1 and SCHEMA if it shows a save. **Test:**
-  the core.md §12 property that S1.8 could not satisfy — run N+M ticks equals run N, save to text,
-  load, run M ticks, **by hash** — on the real world, `greedy`, seed 1, N = 200, M = 100; plus a
-  round-trip of the three awkward values 0.1, 1e-9 and 7 676 945 548.0. Then re-record the
-  S1.8 deviation as resolved.
+*(empty — S1.P cleared the G1 list)*
 
 ## Deviations from the plan or a spec
 
 - **2026-09-22** (S1.8) — The CI container (Linux) produced **the same state hash as the dev
-  machine** (Windows) for seed 1, `32456421de9c…`. Pleasant, and not something to rely on: the
-  determinism contract is still "same build, same platform" (IMPLEMENTATION §3). If a later run
-  ever differs across platforms, that is not a regression.
-
-- **2026-09-22** (S1.8) — **A save does not round-trip a 64-bit float, and no Godot 4.7 API does.**
-  `JSON.stringify(…, full_precision = true)` writes every digit, but **the parser cannot read them
-  back**: measured over 20 000 computed doubles, 91 % of values below 0.1 come back one bit off.
-  `String.to_float`, `str_to_var` and `String.num_scientific` all lose the same bit; only
-  `PackedByteArray.encode_double` is exact. IMPLEMENTATION §3's remedy is therefore necessary and
-  not sufficient, and core.md §12's *"run N+M ticks equals run N, save, load, run M by hash"* is not
-  achievable in this engine with a readable save.
-  **What is guaranteed instead, and tested:** `to_dict` → `from_dict` round-trips **exactly** (which
-  is what catches a field forgotten in either); a save restores every integer, id, flag and the RNG
-  state exactly, and every float to within 1e-9; and **the seed plus the command log replay the run
-  bit for bit**, which is the reproducibility the determinism contract actually rests on. A player
-  who saves and loads may end a long run a few days early or late; nothing else notices.
-  **→ decided at G1: floats as bits (see *Decisions*), built in S1.P — delete this entry then.**
+  machine** (Windows) for seed 1. Pleasant, and not something to rely on: the determinism contract
+  is still "same build, same platform" (IMPLEMENTATION §3). If a later run ever differs across
+  platforms, that is not a regression. (The hash *value* of that run no longer reproduces — S1.P
+  changed the written form of every float, and the balance changed at G1.)
 
 - **2026-09-22** (S1.4) — **`ModifierStack.CLAMPS` is `Dictionary[String, Array]`, not
   `Dictionary[String, Vector2]`** as core.md §8 writes it. `Vector2` holds 32-bit components, so the
@@ -391,6 +376,14 @@ takes an OS path, which is worth knowing).
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — S1.P Exact floats in saves [O]
+`core/save/float_bits.gd` (16 hex characters, big-endian, both forms readable) wired into
+`World.to_dict`/`from_dict` and `HistorySample`; core.md §5.1/§10/§12 and IMPLEMENTATION §3 now say
+so. **core.md §12's save property holds at last:** on the real world, `greedy`, seed 1, 200 + 100
+ticks equals 200, save to text, load, 100 — by hash (`tests/integration/test_save_continue.gd`).
+Checked by swapping a lossy codec in: ten integration tests go red, so the property is really
+guarded. 14 new tests, suite green (274). Next: **S2.1 on Opus** — `/clear`, no model switch.
 
 ### 2026-09-22 — G1 + D2.1 M1 gate and interface foundation spec [F]
 Gate: runs end for the right reasons, but `greedy` never lost — containment starved because Harm

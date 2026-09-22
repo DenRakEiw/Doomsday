@@ -172,8 +172,10 @@ generator so that a policy never perturbs the world's random stream. A canonical
 - JSON has no integers. Every loader casts explicitly (`int(d["index"])`).
 - The RNG seed and state are 64-bit and **must be stored as strings**; as JSON numbers they lose
   precision and the restored run diverges a few hundred ticks later.
-- Saves use `JSON.stringify(..., full_precision = true)`; the default float formatting is lossy and
-  breaks the save → load → continue test.
+- **Floats are stored as their IEEE-754 bits**, 16 hex characters in a string (`FloatBits`, core.md
+  §5.1). Writing at full precision is not enough: the parser cannot read a double back, so a save
+  written as numbers breaks the save → load → continue test. Whole numbers, ids and flags stay
+  readable. *(Decided at G1, built in S1.P.)*
 
 **Modifiers, not special cases.** A technology node, a directive, an architecture, a difficulty tier
 and an emergent behaviour are all the same thing to the core: a list of

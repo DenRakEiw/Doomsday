@@ -285,18 +285,32 @@ the denominator is 0. **`seeded_count`** = regions with `seeded_day >= 0`. `aliv
 	"rng": {"seed": "1", "state": "-6044729461038352412"},
 	"phase": "covert", "outcome": "none",
 	"discovered": false, "discovery_day": -1,
-	"agent": {"compute": 3.5, "compute_earned": 20.5, "origin": "fx_alder",
-		"owned_nodes": ["fx_vector_net"]},
-	"regions": [{"id": "fx_alder", "penetration": 0.91, "control": 0.2, "alive": 60000000.0,
-		"deaths": 0.0, "seeded_day": 0, "air_gapped": false, "dark": false}],
+	"agent": {"compute": "400c000000000000", "compute_earned": "4034800000000000",
+		"origin": "fx_alder", "owned_nodes": ["fx_vector_net"]},
+	"regions": [{"id": "fx_alder", "penetration": "3fed1eb851eb851f",
+		"control": "3fc999999999999a", "alive": "418c9c3800000000",
+		"deaths": "0000000000000000", "seeded_day": 0, "air_gapped": false, "dark": false}],
 	"closed_links": ["fx_alder|fx_elm|air"],
-	"factions": [{"id": "unified", "containment": 0.0}],
-	"anomalies": [{"id": 3, "region": "fx_alder", "value": 3.0, "spawn_day": 110, "expires_day": 130}],
+	"factions": [{"id": "unified", "containment": "0000000000000000"}],
+	"anomalies": [{"id": 3, "region": "fx_alder", "value": "4008000000000000",
+		"spawn_day": 110, "expires_day": 130}],
 	"next_anomaly_id": 4,
 	"milestones_fired": ["regions_2"],
 	"history": [{"day": 7, "…": "…"}]
 }
 ```
+
+That example reads 3.5 Compute, 20.5 earned, penetration 0.91, control 0.2, 60 000 000 alive and an
+anomaly worth 3.0.
+
+**Every `float` is written as its IEEE-754 bits** — 16 lower-case hex characters, big-endian,
+`FloatBits.to_hex` (`core/save/float_bits.gd`) — because Godot 4.7 cannot read a double back out of
+JSON: full precision writes every digit, but the parser loses the last bit of most values below 0.1,
+and so do `String.to_float`, `str_to_var` and `String.num_scientific`. Whole numbers, ids, flags and
+the RNG strings stay readable. `from_dict` accepts the bit form **and** a plain JSON number, so
+hand-written fixtures and saves written before S1.P keep loading; anything else in a float field is
+a refusal, not a zero. `HistorySample.to_dict` follows the same rule. *(Decided at G1, built in
+S1.P.)*
 
 Regions and links are referred to **by id**, never by index. `regions` lists every region in index
 order. `agent.origin` is `""` before the origin is chosen. `from_dict` casts every integer
@@ -731,6 +745,13 @@ const CURRENT_VERSION: int = 1
 static func to_json(sim: Simulation) -> String
 static func from_json(text: String, db: ContentDB) -> LoadResult
 static func migrate(save: Dictionary, migrations: Dictionary[int, Callable]) -> String  # reason or ""
+
+class_name FloatBits                                  # S1.P, the float form of §5.1
+const LENGTH: int = 16
+static func to_hex(value: float) -> String            # 16 lower-case hex characters, big-endian
+static func from_hex(text: String) -> float
+static func from_variant(value: Variant) -> float     # the bit form or a plain JSON number
+static func is_readable(value: Variant) -> bool       # exactly what from_variant can read
 ```
 
 `from_json`, in order: not parseable or not an object → `save_invalid_json` · `format` differs →
@@ -887,8 +908,8 @@ coding standard. Every test builds its own `Simulation` from `Fixtures`; no shar
 **S1.8 — `test_world_serializer.gd`, `test_policies.gd`, `test_replay.gd` *(integration)***
 - run 300 ticks ≡ run 120, save, load, run 180 — by hash, on a `greedy` fixture run (so commands,
   anomalies and modifiers are all in play)
-- seed and RNG state are JSON **strings** in the file; floats survive at full precision (a value
-  like 0.1 + 0.2 round-trips bit-exactly)
+- seed and RNG state are JSON **strings** in the file; floats survive bit-exactly (a value like
+  0.1 + 0.2 round-trips)
 - each refusal reason of §10; a fabricated v0 save passes through an injected migration; a future
   version is refused; a truncated file does not crash
 - `content_mismatch` is set when the hash differs and the save still loads
@@ -896,6 +917,15 @@ coding standard. Every test builds its own `Simulation` from `Fixtures`; no shar
 - each policy finishes the fixture with zero rejected commands; `idle` loses by containment; the
   same seed and policy give the same hash twice; a policy draws nothing from the world's generator
   (`world.rng.state_string()` is unchanged across every `next_command` call of a full `idle` run)
+
+**S1.P — `test_float_bits.gd`, `test_save_continue.gd` *(integration)***
+- the codec: the written form is 16 lower-case hex characters; 0.1, 1e-9 and 7 676 945 548.0
+  round-trip exactly, as do 500 computed values and the edges of the range (±0, ±INF, NAN, a
+  denormal); a plain number is still read; anything else is refused rather than read as a number
+- *(integration)* **on the real world**, `greedy`, seed 1: 200 + 100 ticks ≡ 200 ticks, save to text,
+  load, 100 ticks — by hash, with `check_invariants` after every tick of both runs
+- a long run's `history` survives the file field for field; a float field that is neither a number
+  nor the bit form makes the save `save_corrupt`
 
 ## 13. Acceptance
 

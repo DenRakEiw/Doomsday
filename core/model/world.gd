@@ -125,17 +125,18 @@ func max_containment() -> float:
 
 ## Also the `world` block of a save (core.md §5.1). Regions and links appear by
 ## **id**, never by index, so that a re-indexed world does not silently load
-## wrong.
+## wrong, and every float appears as its bits (`FloatBits`) because JSON cannot
+## carry a double back.
 func to_dict() -> Dictionary:
 	var region_list: Array = []
 	for i: int in range(1, regions.size()):
 		var region: Region = regions[i]
 		region_list.append({
 			"id": region.def.id,
-			"penetration": region.penetration,
-			"control": region.control,
-			"alive": region.alive,
-			"deaths": region.deaths,
+			"penetration": FloatBits.to_hex(region.penetration),
+			"control": FloatBits.to_hex(region.control),
+			"alive": FloatBits.to_hex(region.alive),
+			"deaths": FloatBits.to_hex(region.deaths),
 			"seeded_day": region.seeded_day,
 			"air_gapped": region.air_gapped,
 			"dark": region.dark,
@@ -148,14 +149,17 @@ func to_dict() -> Dictionary:
 
 	var faction_list: Array = []
 	for faction: Faction in factions:
-		faction_list.append({"id": faction.id, "containment": faction.containment})
+		faction_list.append({
+			"id": faction.id,
+			"containment": FloatBits.to_hex(faction.containment),
+		})
 
 	var anomaly_list: Array = []
 	for anomaly: Anomaly in anomalies:
 		anomaly_list.append({
 			"id": anomaly.id,
 			"region": regions[anomaly.region].def.id,
-			"value": anomaly.value,
+			"value": FloatBits.to_hex(anomaly.value),
 			"spawn_day": anomaly.spawn_day,
 			"expires_day": anomaly.expires_day,
 		})
@@ -173,8 +177,8 @@ func to_dict() -> Dictionary:
 		"discovered": discovered,
 		"discovery_day": discovery_day,
 		"agent": {
-			"compute": agent.compute,
-			"compute_earned": agent.compute_earned,
+			"compute": FloatBits.to_hex(agent.compute),
+			"compute_earned": FloatBits.to_hex(agent.compute_earned),
 			"origin": "" if agent.origin == 0 else regions[agent.origin].def.id,
 			"owned_nodes": agent.owned_nodes.duplicate(),
 		},
@@ -289,17 +293,17 @@ static func _read_regions(world: World, raw: Variant, db: ContentDB) -> bool:
 		var entry: Dictionary = list[i]
 		if not _str(entry, "id") or str(entry["id"]) != db.regions[i + 1].id:
 			return false
-		if not _num(entry, "penetration") or not _num(entry, "control") \
-				or not _num(entry, "alive") or not _num(entry, "deaths") \
+		if not _real(entry, "penetration") or not _real(entry, "control") \
+				or not _real(entry, "alive") or not _real(entry, "deaths") \
 				or not _num(entry, "seeded_day"):
 			return false
 		if not _flag(entry, "air_gapped") or not _flag(entry, "dark"):
 			return false
 		var region: Region = Region.create(db.regions[i + 1])
-		region.penetration = float(entry["penetration"])
-		region.control = float(entry["control"])
-		region.alive = float(entry["alive"])
-		region.deaths = float(entry["deaths"])
+		region.penetration = FloatBits.from_variant(entry["penetration"])
+		region.control = FloatBits.from_variant(entry["control"])
+		region.alive = FloatBits.from_variant(entry["alive"])
+		region.deaths = FloatBits.from_variant(entry["deaths"])
 		region.seeded_day = int(entry["seeded_day"])
 		region.air_gapped = bool(entry["air_gapped"])
 		region.dark = bool(entry["dark"])
@@ -325,13 +329,13 @@ static func _read_links(world: World, raw: Variant, db: ContentDB) -> bool:
 
 static func _read_agent(world: World, raw: Variant, db: ContentDB) -> bool:
 	var entry: Dictionary = raw
-	if not _num(entry, "compute") or not _num(entry, "compute_earned"):
+	if not _real(entry, "compute") or not _real(entry, "compute_earned"):
 		return false
 	if not _str(entry, "origin") or not _arr(entry, "owned_nodes"):
 		return false
 	world.agent = Agent.new()
-	world.agent.compute = float(entry["compute"])
-	world.agent.compute_earned = float(entry["compute_earned"])
+	world.agent.compute = FloatBits.from_variant(entry["compute"])
+	world.agent.compute_earned = FloatBits.from_variant(entry["compute_earned"])
 	var origin_id: String = str(entry["origin"])
 	if origin_id.is_empty():
 		world.agent.origin = 0
@@ -353,10 +357,10 @@ static func _read_factions(world: World, raw: Variant) -> bool:
 		if typeof(entry) != TYPE_DICTIONARY:
 			return false
 		var faction_dict: Dictionary = entry
-		if not _str(faction_dict, "id") or not _num(faction_dict, "containment"):
+		if not _str(faction_dict, "id") or not _real(faction_dict, "containment"):
 			return false
 		var faction: Faction = Faction.create(str(faction_dict["id"]))
-		faction.containment = float(faction_dict["containment"])
+		faction.containment = FloatBits.from_variant(faction_dict["containment"])
 		world.factions.append(faction)
 	return true
 
@@ -367,7 +371,7 @@ static func _read_anomalies(world: World, raw: Variant, db: ContentDB) -> bool:
 		if typeof(entry) != TYPE_DICTIONARY:
 			return false
 		var anomaly_dict: Dictionary = entry
-		if not _num(anomaly_dict, "id") or not _num(anomaly_dict, "value") \
+		if not _num(anomaly_dict, "id") or not _real(anomaly_dict, "value") \
 				or not _num(anomaly_dict, "spawn_day") or not _num(anomaly_dict, "expires_day"):
 			return false
 		if not _str(anomaly_dict, "region"):
@@ -378,7 +382,7 @@ static func _read_anomalies(world: World, raw: Variant, db: ContentDB) -> bool:
 		var anomaly: Anomaly = Anomaly.new()
 		anomaly.id = int(anomaly_dict["id"])
 		anomaly.region = db.region_index_by_id[region_id]
-		anomaly.value = float(anomaly_dict["value"])
+		anomaly.value = FloatBits.from_variant(anomaly_dict["value"])
 		anomaly.spawn_day = int(anomaly_dict["spawn_day"])
 		anomaly.expires_day = int(anomaly_dict["expires_day"])
 		world.anomalies.append(anomaly)
@@ -399,6 +403,11 @@ static func _num(d: Dictionary, key: String) -> bool:
 		return false
 	var type: int = typeof(d[key])
 	return type == TYPE_FLOAT or type == TYPE_INT
+
+
+## A float field: the bit form of `FloatBits`, or a plain number.
+static func _real(d: Dictionary, key: String) -> bool:
+	return d.has(key) and FloatBits.is_readable(d[key])
 
 
 static func _str(d: Dictionary, key: String) -> bool:

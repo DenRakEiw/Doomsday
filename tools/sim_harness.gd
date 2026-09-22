@@ -56,16 +56,29 @@ static func policy_ids() -> Array[String]:
 	return [IdlePolicy.ID, GreedyPolicy.ID, StealthPolicy.ID]
 
 
+## The stream a policy gets for a world seed. Far enough from the seed that
+## neighbouring seeds do not give neighbouring policies.
+static func policy_seed(seed_value: int) -> int:
+	return seed_value * POLICY_SEED_FACTOR + POLICY_SEED_OFFSET
+
+
 ## Plays one run to its end. `problems` is filled with the first invariant
 ## violation when `check` is on, and the run stops there.
 static func play(db: ContentDB, seed_value: int, policy_id: String, max_days: int, check: bool,
 		problems: Array[String]) -> Dictionary:
 	var sim: Simulation = Simulation.create(db, seed_value)
 	var policy: Policy = make_policy(policy_id)
-	policy.setup(db, seed_value * POLICY_SEED_FACTOR + POLICY_SEED_OFFSET)
+	policy.setup(db, policy_seed(seed_value))
+	return {"sim": sim, "rejected": advance(sim, policy, max_days, check, problems)}
 
+
+## The day loop, on a simulation that may already have days behind it — which is
+## what lets a test continue a loaded save with the same policy. Returns the
+## number of rejected commands.
+static func advance(sim: Simulation, policy: Policy, until_day: int, check: bool,
+		problems: Array[String]) -> int:
 	var rejected: int = 0
-	while sim.world.outcome == World.Outcome.NONE and sim.world.day < max_days:
+	while sim.world.outcome == World.Outcome.NONE and sim.world.day < until_day:
 		for i: int in MAX_COMMANDS_PER_DAY:
 			var command: Command = policy.next_command(sim)
 			if command == null:
@@ -76,11 +89,11 @@ static func play(db: ContentDB, seed_value: int, policy_id: String, max_days: in
 				rejected += 1
 		sim.tick()
 		if check:
-			var found: Array[String] = sim.world.check_invariants(db)
+			var found: Array[String] = sim.world.check_invariants(sim.db)
 			if not found.is_empty():
 				problems.append("day %d: %s" % [sim.world.day, ", ".join(found)])
 				break
-	return {"sim": sim, "rejected": rejected}
+	return rejected
 
 
 static func summarise(sim: Simulation, seed_value: int, policy_id: String, max_days: int,
