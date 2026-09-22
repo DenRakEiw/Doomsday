@@ -133,6 +133,8 @@ const VARIATIONS: Dictionary[String, String] = {
 	"ChipLabel": "LabelCaps",
 	"ChipLabelAccent": "LabelCaps",
 	"ChipLabelAlert": "LabelCaps",
+	"MapTooltip": PANEL_CONTAINER,
+	"MapTooltipLabel": "LabelCaption",
 }
 
 
@@ -169,6 +171,9 @@ static func _colours() -> Theme:
 	theme.set_color(COLOR_FONT, "ChipLabelAccent", UiTokens.ACCENT)
 	theme.set_color(COLOR_FONT, "ChipLabelAlert", UiTokens.ALERT)
 	theme.set_color(COLOR_FONT, "Ticker", UiTokens.TEXT_1)
+	# §7.7: the tooltip is a caption on a chip-shaped box, but it is read over a
+	# moving map — so `TEXT_0`, not the caption's `TEXT_2`.
+	theme.set_color(COLOR_FONT, "MapTooltipLabel", UiTokens.TEXT_0)
 
 	# §4.5: the delta's colour is the label's colour, because a `Label` has one.
 	var value_colours: Dictionary[String, Color] = {
@@ -200,6 +205,7 @@ static func _typography() -> Theme:
 	_type(theme, LABEL, mono_regular, UiTokens.TYPE_BODY, UiTokens.LINE_BODY)
 	_type(theme, "LabelCaps", caps, UiTokens.TYPE_LABEL, UiTokens.LINE_LABEL)
 	_type(theme, "LabelCaption", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
+	_type(theme, "MapTooltipLabel", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
 	_type(theme, "LabelDisplay", display, UiTokens.TYPE_DISPLAY, UiTokens.LINE_DISPLAY)
 	_type(theme, "LabelDisplayXL", display, UiTokens.TYPE_DISPLAY_XL, UiTokens.LINE_DISPLAY_XL)
 	_type(theme, "LabelHeading", heading, UiTokens.TYPE_HEADING, UiTokens.LINE_HEADING)
@@ -243,6 +249,9 @@ static func _panels() -> Theme:
 		_flat(UiTokens.BG_3, UiTokens.ACCENT_DIM, UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
 	theme.set_stylebox(STYLE_PANEL, "ChipAlert",
 		_flat(UiTokens.BG_3, UiTokens.ALERT, UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
+	# §7.7: chip-shaped, but on `BG_2` — it sits over the map, not on a panel.
+	theme.set_stylebox(STYLE_PANEL, "MapTooltip",
+		_flat(UiTokens.BG_2, UiTokens.LINE_1, UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
 
 	# §5.5: the ticker is a strip with a top border and no other edge.
 	var ticker: StyleBoxFlat = _flat(UiTokens.BG_2, UiTokens.LINE_1, 0, 0,

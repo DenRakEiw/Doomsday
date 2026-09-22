@@ -10,10 +10,9 @@ shader_type canvas_item;
 // No colour lives here. Every colour arrives as a uniform that `map_view.gd`
 // sets from `UiTokens` (CLAUDE.md, *Constants*).
 
-// The two mixing strengths of §7.3: borders are drawn at 90 %, an overlay
-// covers 85 % of the land colour so the land still reads underneath.
+// Borders are drawn at 90 % (§7.3). How far an overlay covers the land is a
+// token like every colour here, so it arrives as a uniform.
 const float BORDER_STRENGTH = 0.9;
-const float OVERLAY_MIX = 0.85;
 
 const int FLAG_DARK = 2;
 
@@ -41,6 +40,8 @@ uniform vec4 map_border_dark : source_color;
 uniform vec4 map_select : source_color;
 uniform vec4 map_death : source_color;
 uniform float hover_gain;
+// `UiTokens.MAP_OVERLAY_MIX`: how much of the ramp's colour covers the land.
+uniform float overlay_mix;
 
 int region_index(ivec2 texel, ivec2 size) {
 	ivec2 clamped = clamp(texel, ivec2(0), size - ivec2(1));
@@ -68,7 +69,7 @@ void fragment() {
 		} else {
 			float v = overlay_mode == OVERLAY_CONTROL ? data.g : data.r;
 			if (v > 0.0) {
-				col = mix(map_land.rgb, texture(ramp, vec2(v, 0.5)).rgb, OVERLAY_MIX);
+				col = mix(map_land.rgb, texture(ramp, vec2(v, 0.5)).rgb, overlay_mix);
 			}
 		}
 

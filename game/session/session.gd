@@ -26,9 +26,15 @@ const HEADLESS_DRIVER: String = "headless"
 ## M2 only, like the rest of the debug keys (§10.2).
 const SHOT_PATH: String = "user://session_%s_%d_day%04d.png"
 
+## §5.2: the speed `Space` returns to when nothing else was chosen.
+const SPEED_DEFAULT: int = 1
+
 @onready var _safe_area: MarginContainer = %SafeArea
 @onready var _hud: Control = %Hud
 @onready var _region_panel: SlidePanel = %RegionPanel
+
+## The speed `Space` toggles against; the last one the player ran at.
+var _last_speed: int = SPEED_DEFAULT
 
 
 func _ready() -> void:
@@ -40,8 +46,41 @@ func _ready() -> void:
 	# The HUD owns the breakpoint (§5.7); the panel beside it only has to be told
 	# which edge it comes in from and how much of the screen it must leave alone.
 	_hud.connect(&"layout_changed", _on_hud_layout_changed)
+	EventBus.speed_changed.connect(_on_speed_changed)
 	_apply_logical_scale()
 	_apply_safe_area()
+
+
+## §5.2: the keys that steer the run are the session's, and they are taken in
+## `_input` — ahead of the GUI. A focused `Button` turns `Space` into `ui_accept`
+## and swallows it, so after any click on the HUD the pause key was dead (G2).
+## A text field is the one thing that may keep them: there the keys are letters.
+func _input(event: InputEvent) -> void:
+	var key: InputEventKey = event as InputEventKey
+	if key == null or not key.pressed or key.echo or _text_has_focus():
+		return
+	match key.keycode:
+		KEY_SPACE:
+			Game.set_speed(0 if Game.speed > 0 else _last_speed)
+		KEY_1:
+			Game.set_speed(1)
+		KEY_2:
+			Game.set_speed(2)
+		KEY_3:
+			Game.set_speed(4)
+		KEY_ESCAPE:
+			if not _region_panel.is_open:
+				return
+			# One door (§5.6): the map clears its outline on the same signal.
+			EventBus.region_selected.emit(0)
+		_:
+			return
+	get_viewport().set_input_as_handled()
+
+
+func _text_has_focus() -> bool:
+	var focus: Control = get_viewport().gui_get_focus_owner()
+	return focus is LineEdit or focus is TextEdit
 
 
 ## `F12` writes the view to `user://`, named after the locale, the logical width
@@ -56,6 +95,11 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	print("session shot: %s -> %s" % [ProjectSettings.globalize_path(path),
 		error_string(image.save_png(path))])
 	get_viewport().set_input_as_handled()
+
+
+func _on_speed_changed(speed: int) -> void:
+	if speed > 0:
+		_last_speed = speed
 
 
 func _on_window_size_changed() -> void:

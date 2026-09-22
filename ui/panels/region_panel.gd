@@ -3,7 +3,9 @@ extends SlidePanel
 ##
 ## It opens on a selection, re-reads its region after every tick, and closes on
 ## the close button, `Escape`, or a tap on the ocean — all three of which arrive
-## as `region_selected(0)`.
+## as `region_selected(0)`. `Escape` itself belongs to the session (§5.2): a
+## focused button swallows a key before any panel sees it, so every key of the
+## run is taken in one place, ahead of the GUI.
 ##
 ## The order of the sections is the spec's and is not a matter of taste: a region
 ## is read top-down as name, state, presence, people, profile, connections, and
@@ -21,6 +23,9 @@ const KEY_STATE_UNTOUCHED: String = "UI_REGION_STATE_UNTOUCHED"
 const KEY_STATE_SEEDED: String = "UI_REGION_STATE_SEEDED"
 const KEY_STATE_CONTROLLED: String = "UI_REGION_STATE_CONTROLLED"
 const KEY_STATE_DARK: String = "UI_REGION_STATE_DARK"
+## A chip cannot wrap, so what being dark means is a caption under the chip row
+## rather than a longer badge (§5.6, G2).
+const KEY_STATE_DARK_DETAIL: String = "UI_REGION_STATE_DARK_DETAIL"
 const KEY_AIR_GAPPED: String = "UI_REGION_AIR_GAPPED"
 
 const KEY_PENETRATION: String = "UI_TERM_PENETRATION"
@@ -71,6 +76,7 @@ const STAT_BAR_SCENE: String = "res://ui/components/stat_bar.tscn"
 @onready var _close_button: IconButton = %CloseButton
 @onready var _continent: Label = %Continent
 @onready var _chips: HFlowContainer = %Chips
+@onready var _dark_detail: Label = %DarkDetail
 @onready var _presence: VBoxContainer = %Presence
 @onready var _alive_value: ValueLabel = %AliveValue
 @onready var _deaths_row: HBoxContainer = %DeathsRow
@@ -118,19 +124,7 @@ func _notification(what: int) -> void:
 func _refresh_strings() -> void:
 	_profile_title.text = tr(KEY_ATTRIBUTES)
 	_links_title.text = tr(KEY_LINKS)
-
-
-## §5.6: `Escape` closes the panel, the same way the close button does. It is a
-## shortcut and not unhandled input: by the time an event is unhandled the focus
-## system has had it, and a focused button swallows the key.
-func _shortcut_input(event: InputEvent) -> void:
-	if not is_open:
-		return
-	var key: InputEventKey = event as InputEventKey
-	if key == null or not key.pressed or key.echo or key.keycode != KEY_ESCAPE:
-		return
-	_close()
-	get_viewport().set_input_as_handled()
+	_dark_detail.text = tr(KEY_STATE_DARK_DETAIL)
 
 
 ## The region the panel is showing, 0 for none.
@@ -182,6 +176,7 @@ func _refresh_chips(region: Region) -> void:
 		gapped.kind = Chip.Kind.ALERT
 		gapped.set_label(KEY_AIR_GAPPED)
 		_chips.add_child(gapped)
+	_dark_detail.visible = region.dark
 
 
 func _refresh_presence(region: Region) -> void:
@@ -285,7 +280,26 @@ func _build_links() -> void:
 func _show_region(index: int) -> void:
 	_index = index
 	refresh()
+	var was_open: bool = is_open
 	open()
+	_reveal(index, was_open)
+
+
+## §5.6: the panel covers the part of the map it is talking about, so the map is
+## asked to bring the region out from behind it (G2: a tap on the USA put the
+## USA under the panel). The panel is laid out by then, so the rectangle it
+## leaves free is the one the camera gets.
+##
+## Nothing happens without a map — the panel is tested on its own — and nothing
+## happens while the panel was already open on another region: the player is
+## reading, and the map should not slide out from under the pointer.
+func _reveal(index: int, was_open: bool) -> void:
+	if was_open or Game.db == null or index <= 0 or index >= Game.db.regions.size():
+		return
+	var camera: MapCamera = MapCamera.find_in_tree(self)
+	if camera == null:
+		return
+	camera.reveal(Vector2(Game.db.regions[index].anchor), uncovered_rect())
 
 
 func _close() -> void:

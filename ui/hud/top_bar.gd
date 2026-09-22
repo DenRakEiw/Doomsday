@@ -23,15 +23,14 @@ const SPEED_GLYPHS: Array[IconButton.Glyph] = [IconButton.Glyph.PAUSE, IconButto
 	IconButton.Glyph.FAST_2, IconButton.Glyph.FAST_4]
 const SPEED_KEYS: Array[String] = ["UI_HUD_SPEED_PAUSE", "UI_HUD_SPEED_1", "UI_HUD_SPEED_2",
 	"UI_HUD_SPEED_4"]
-## What `Space` returns to when the run is paused and nothing else was chosen.
-const SPEED_DEFAULT: int = 1
-
-## The phase the chip is drawn for, by `World.Phase`: the world knows about you
-## from Emergent on, and that is what the alert colour says.
+## The phase the chip is drawn for, by `World.Phase`. Emergent is the moment the
+## world finds you, and it alone is an alert: red marks a moment, never a
+## standing state, so Open goes back to the default chip and takes its colour
+## from D3.3's palette instead (§5.2, G2).
 const PHASE_KEYS: Array[String] = ["UI_PHASE_BOXED", "UI_PHASE_COVERT", "UI_PHASE_EMERGENT",
 	"UI_PHASE_OPEN"]
 const PHASE_CHIP_KINDS: Array[Chip.Kind] = [Chip.Kind.DEFAULT, Chip.Kind.ACCENT,
-	Chip.Kind.ALERT, Chip.Kind.ALERT]
+	Chip.Kind.ALERT, Chip.Kind.DEFAULT]
 
 ## The gap between the cells: §5.2's `SPACE_5` when there is room for it.
 const VARIATION_ROW_WIDE: StringName = &"RowWide"
@@ -59,8 +58,6 @@ var compact: bool = false:
 @onready var _speed_group: HBoxContainer = %SpeedGroup
 
 var _speed_buttons: Array[IconButton] = []
-## The speed `Space` goes back to; the last one the player chose.
-var _last_speed: int = SPEED_DEFAULT
 
 
 func _ready() -> void:
@@ -79,26 +76,6 @@ func _notification(what: int) -> void:
 		# Every string here wraps a number, so re-reading the state is also what
 		# puts the new language on the screen (§9.1).
 		refresh()
-
-
-## §5.2's keyboard: `Space` toggles pause against the last speed, `1` `2` `3` set
-## the three running speeds.
-func _unhandled_key_input(event: InputEvent) -> void:
-	var key: InputEventKey = event as InputEventKey
-	if key == null or not key.pressed or key.echo:
-		return
-	match key.keycode:
-		KEY_SPACE:
-			Game.set_speed(0 if Game.speed > 0 else _last_speed)
-		KEY_1:
-			Game.set_speed(1)
-		KEY_2:
-			Game.set_speed(2)
-		KEY_3:
-			Game.set_speed(4)
-		_:
-			return
-	get_viewport().set_input_as_handled()
 
 
 ## Re-reads the run. Cheap, and called after anything that may have moved a
@@ -186,9 +163,11 @@ func _on_speed_pressed(speed: int) -> void:
 
 
 func _on_speed_changed(speed: int) -> void:
-	if speed > 0:
-		_last_speed = speed
 	_paused.visible = speed == 0
 	var index: int = SPEED_VALUES.find(speed)
-	if index >= 0:
-		_speed_buttons[index].set_pressed_no_signal(true)
+	# A `ButtonGroup` is exclusive only against a *click*: `set_pressed_no_signal`
+	# presses a button without releasing the rest of its group, and after a few
+	# speed changes pause, play and 4× were lit at once (G2). So the whole group
+	# is written every time, and the pressed one is whatever `Game.speed` says.
+	for i: int in _speed_buttons.size():
+		_speed_buttons[i].set_pressed_no_signal(i == index)

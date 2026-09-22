@@ -14,19 +14,19 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S2.P — Punch list from G2** (the twelve items under *Punch list for Opus*) |
-| **Model for it** | **Opus** — **`/model opus`** |
-| **After it** | `/clear` → S3.1 (no switch) |
-| **Last completed** | D3.4 — `docs/specs/ticker.md`, `data/headlines.json` (150), 151 strings en/de, CONTENT §10 |
+| **Next step** | **S3.1 — Effect vocabulary in the core; load the trees** |
+| **Model for it** | **Opus** — no switch |
+| **After it** | `/clear` → S3.2 (no switch) |
+| **Last completed** | S2.P — the twelve G2 items; the punch list is empty |
 | **Milestone** | M2 gated; M3 design complete, build starts |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 107 scripts compile (21 judged by the suite), 504 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 108 scripts compile (24 judged by the suite), 526 tests. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Run it** | `run_project` → **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
-| **Compact layout** | Below 1100 px the interface switches (§5.7). A desktop window narrower than that lays out one logical pixel per window pixel, so `game_set_property /root size {"x":400,"y":860}` really shows the phone layout — **`game_window set_size` does not work**, it maximises the window instead. |
+| **Compact layout** | Below 1100 px the interface switches (§5.7). A desktop window narrower than that lays out one logical pixel per window pixel, **`game_window set_size 400 860` resized correctly in S2.P** — try it first; `game_set_property /root size {"x":400,"y":860}` is the fallback and in S2.P it rendered a blank frame. After any resize at runtime the camera keeps a zoom from the old viewport: write `zoom` and give it one `game_scroll` notch down to settle it at `zoom_min`. |
 | **Look at the map** | `game_click` (**`button: 1`, never `"left"`** — see *Known issues*), `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Session/MapLayer/MapView`, `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead — but a property write emits no `view_changed`, so links and markers keep the old zoom until the next real camera movement (**one `game_scroll` notch fixes it**). |
 
 **[F]** = Fable: design, specs, content, text, balance, gates. **[O]** = Opus: code, scenes,
@@ -79,7 +79,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] D3.4 [F] Ticker voice and headlines — ⇄ **then `/model opus`**
 
 **Block 6 — M3 build · Opus**
-- [ ] S2.P [O] Punch list from G2 *(skip if empty)*
+- [x] S2.P [O] Punch list from G2
 - [ ] S3.1 [O] Effect vocabulary in the core; load the trees
 - [ ] S3.2 [O] Tech tree interface
 - [ ] S3.3 [O] Containment and phases in the interface
@@ -495,6 +495,13 @@ without new information.
 reads `SCHLIESSEN`; the alternative is the capital ẞ (U+1E9E), which both fonts carry. A one-line
 change either way. (S2.4's second question — the dark chip — was answered at G2, see *Decisions*.)
 
+**New at S2.P — the zero rate reads as two numbers.** §4.5's zero state drops the arrow, so the
+compute cell now shows `1,4 0 / Tag` (`UI_HUD_COMPUTE_RATE` with a bare `0` in it) for the whole
+early game, where the rate is below 0.05. It is what the spec asks for and it is no longer a lie,
+but at a glance it reads as two numbers. If the wording should change — `±0` inside the sentence,
+or a rate cell that is simply empty until it rounds up — that is one line in `value_label.gd`
+(`_set_delta`, the `State.MUTED` branch) plus the string.
+
 **Parked for a later Fable step (not questions, reminders):**
 - **M6 (VISUALS):** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the 8192-px
   masks anti-alias the coast but not the borders between regions. Acceptable for M2–M5; a vector
@@ -527,40 +534,23 @@ change either way. (S2.4's second question — the dark chip — was answered at
 
 ## Punch list for Opus
 
-**S2.P — from G2 (2026-09-22).** Every item is specified in `ui-foundation.md` (section in
-brackets); the spec is the source, this list is the checklist. Verify each in the running game the
-way G2 found it.
-
-1. **Speed group is not exclusive** (`ui/hud/top_bar.gd`, §5.2): PAUSE, PLAY and 4× had
-   `button_pressed = true` at once. One `ButtonGroup` on all four; the pressed one follows
-   `Game.speed`. Check: `button_pressed` is true on exactly one after F5, `3`, Space.
-2. **Space is swallowed by a focused HUD button** (`game/session/session.gd`, §5.2): move Space,
-   `1`/`2`/`3` and `Escape` to `_input` with the text-field guard. Check: click an overlay button,
-   press Space → `Game.speed == 0`.
-3. **Wheel notches in one frame collapse to one step** (`game/map/map_camera.gd`, §7.5): compound
-   on the tween's target zoom. Check: two notches in the same frame → ×1.15².
-4. **Region panel hides the region it shows** (`map_camera.gd` `reveal`, `ui/panels/region_panel.gd`,
-   §7.5/§5.6): pan by the smallest offset that keeps the anchor `SPACE_6` inside the uncovered rect.
-   Check: at `zoom_min`, tap the USA → the USA is visible right of the panel.
-5. **`▲ +0 / day`** (`ui/components/value_label.gd`, §4.5): a delta whose formatted value is 0 takes
-   the zero state. Test: `set_delta_in(0.03, COMPUTE)` → no arrow, `TEXT_2`.
-6. **Anomaly tooltip unreadable** (`game/map/marker_layer.gd`, §7.7): chip-style box, `TEXT_0`,
-   `SPACE_4` offset, kept inside the viewport.
-7. **Dark × invisible** (`marker_layer.gd`, §7.7 + `UiTokens.MAP_DARK_MARK`): 12 px, 2 px stroke,
-   `TEXT_2`, counter-scaled.
-8. **Map too loud** (`UiTokens.MAP_OVERLAY_MIX = 0.70`, `map.gdshader` uniform, §3.1/§7.3): the
-   shader takes the mix as a uniform like every other token.
-9. **Phase chip** (`top_bar.gd`, §5.2): `ChipAlert` in Emergent only; default in Boxed and Open.
-10. **Region panel details** (`region_panel.gd`, `attribute_pips.gd`, §5.6): `UI_REGION_STATE_DARK`
-    is now "Dark"/"Dunkel" (strings.csv changed at G2) with the caption
-    `UI_REGION_STATE_DARK_DETAIL` while dark; empty pips outlined `LINE_2`; profile grid
-    `SHRINK_BEGIN` with column gap `SPACE_4`.
-11. **Gallery numbers after `L`** (`ui/dev/gallery.gd`, §4.8): re-format every `ValueLabel` on
-    `NOTIFICATION_TRANSLATION_CHANGED`.
-12. Run `tools/build_theme.gd` if a token the theme uses changed; fresh F12 shots at 1920 and 400,
-    en and de, replacing the S2.6 set for the record.
+*(empty — S2.P closed the twelve items from G2 on 2026-09-22. The next one comes from G3.)*
 
 ## Deviations from the plan or a spec
+
+- **2026-09-22** (S2.P) — **`Escape` left the region panel.** §5.2 gives the session every key of
+  the run, so `region_panel.gd` lost its `_shortcut_input` and `session.gd` `_input` closes the
+  panel by emitting `region_selected(0)` — one owner, and the text-field guard in one place.
+  `test_escape_closes_the_panel` moved to the new `tests/integration/test_session_keys.gd`.
+- **2026-09-22** (S2.P) — **Two type variations beyond §3.8's list: `MapTooltip` (PanelContainer)
+  and `MapTooltipLabel` (Label, `TYPE_CAPTION` in `TEXT_0`).** §7.7 wants the anomaly tooltip
+  chip-shaped but with the caption in `TEXT_0` on `BG_2`, which is neither `Chip` (uppercase
+  `TYPE_LABEL`, `TEXT_1`, `BG_3`) nor `LabelCaption` (`TEXT_2`). A per-node override is banned, so
+  the theme got the two entries. The spec's list is a minimum; `test_theme_builder.gd` still passes.
+- **2026-09-22** (S2.P) — **`StatBar` re-formats its number on a locale change too**, not only the
+  `ValueLabel`s the punch list names. §4.8 asks that *every* number in the gallery is re-formatted,
+  and a bar shows a percent, which German writes `42 %`. The bar now keeps the value and the `Kind`
+  it last showed.
 
 - **2026-09-22** (D3.4) — **150 headlines, not ~60** (see *Decisions*), and the register guide is
   CONTENT §10 with *Open questions* renumbered to §11 (nothing referenced the old number). The
@@ -709,6 +699,11 @@ way G2 found it.
 
 ## Known issues and carry-overs
 
+- **An anomaly marker is hard to catch in a live run.** Every bot collects an anomaly within a tick
+  or two of its spawning, so `marker_count()` is 0 almost always and the hover tooltip of §7.7 could
+  not be photographed at S2.P — its box, its text and the push back inside the viewport are covered
+  by `test_marker_layer.gd` instead. To see it by hand: run greedy at 4× for ~40 s, poll
+  `game_call_method MarkerLayer marker_count`, and pause the moment it is not 0.
 - **`ConsolePanel` destroys `%UniqueName` for everything inside it.** `_build_content` moves the
   authored children into its `Content` box, and taking a node out of the tree clears the owner of
   its whole subtree — every unique name registered below it is gone, and `@onready var x = %X`
@@ -732,9 +727,12 @@ way G2 found it.
   scales at their screen size — a camera moved by `game_set_property` draws them at the *old* zoom
   until the next real movement. One `game_scroll` notch puts it right. (The game itself never
   bypasses `set_view`.)
-- **godot-mcp `game_window` with `set_size` maximises the window instead of resizing it** (and the
-  next screenshot comes back at the desktop's resolution). `game_set_property` on `/root` with
-  `size = {"x": …, "y": …}` does the right thing — that is how the 400 × 860 layout was reviewed.
+- **Resizing the running window: the two routes swapped places between S2.5 and S2.P.**
+  `game_window set_size 400 860` maximised the window in S2.5 and resized it correctly in S2.P;
+  `game_set_property /root size` did the right thing in S2.5 and gave a blank (white) frame in
+  S2.P. Try `game_window` first and look at the screenshot. Either way the camera keeps a zoom
+  computed for the old viewport — in S2.P it sat at 2.36 with `zoom_min` 0.617 — so write `zoom`
+  and send one `game_scroll` notch down before taking a picture of the map.
 - **godot-mcp's own helper scripts are untyped and trip `untyped_declaration=2`.** Two of the three
   were patched locally in the server installation (outside this repository, so the patch is
   machine-local and an update to godot-mcp will undo it): `scripts/validate_script.gd` was given
@@ -841,6 +839,16 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-22 — S2.P Punch list from G2 [O]
+All twelve items (§3.1/§4.5/§4.8/§5.2/§5.6/§7.3/§7.5/§7.7): the speed group is written whole on every
+change (**a `ButtonGroup` is exclusive against a click only — `set_pressed_no_signal` unpresses
+nobody**), the run's keys moved to `session.gd` `_input` with a text-field guard, wheel notches
+compound on the tween's target, `MapCamera.reveal`, a delta that *formats* as zero is muted, a
+themed tooltip box, `MAP_DARK_MARK`, `MAP_OVERLAY_MIX` as a uniform, Open is no longer an alert,
+the dark caption and a grid that shrinks, the gallery re-formats on `L`. 21 new tests (526 green);
+checked in the running game, shots at `…/session_{en,de}_{2019,400}_day0111.png`.
+Next: **S3.1 on Opus** — `/clear`, no switch.
 
 ### 2026-09-22 — D3.4 Ticker voice and headlines [F]
 CONTENT §10 register guide (three voices, the two-sentence joke, `institutional`/`emergency`,

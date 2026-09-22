@@ -218,6 +218,28 @@ func test_a_delta_of_zero_is_muted_and_has_no_arrow() -> void:
 	assert_eq(String(label.theme_type_variation), "ValueLabelMuted")
 
 
+## G2: the compute rate ticked over as `▲ +0` for the whole first week.
+func test_a_delta_that_formats_as_zero_is_muted_too() -> void:
+	TranslationServer.set_locale("en")
+	var label: ValueLabel = ValueLabel.new()
+	_add(label)
+	label.set_number(10.0, Format.Kind.COMPUTE)
+	label.set_delta_in("UI_HUD_COMPUTE_RATE", "rate", 0.03, Format.Kind.COMPUTE)
+	assert_false(label.text.contains(ValueLabel.ARROW_UP), label.text)
+	assert_false(label.text.contains(Format.MINUS), "and no sign either")
+	assert_eq(String(label.theme_type_variation), "ValueLabelMuted")
+
+
+func test_a_negative_delta_that_formats_as_zero_is_not_a_minus_zero() -> void:
+	TranslationServer.set_locale("en")
+	var label: ValueLabel = ValueLabel.new()
+	_add(label)
+	label.set_number(10.0, Format.Kind.COMPUTE)
+	label.set_delta(-0.03, Format.Kind.COMPUTE)
+	assert_eq(label.text, "10 0")
+	assert_eq(String(label.theme_type_variation), "ValueLabelMuted")
+
+
 func test_clearing_the_delta_returns_the_label_to_neutral() -> void:
 	var label: ValueLabel = ValueLabel.new()
 	_add(label)
@@ -261,6 +283,18 @@ func test_a_stat_bar_reads_its_value_out_as_a_percentage() -> void:
 	bar.set_value(0.423)
 	var value: ValueLabel = bar.get_node("%Value") as ValueLabel
 	assert_eq(value.text, "42%")
+
+
+func test_a_bar_reads_its_number_out_again_in_the_new_language() -> void:
+	var bar: StatBar = _stat_bar(false)
+	TranslationServer.set_locale("en")
+	bar.set_value(0.42)
+	var english: String = (bar.get_node("%Value") as Label).text
+	TranslationServer.set_locale("de")
+	var german: String = (bar.get_node("%Value") as Label).text
+	TranslationServer.set_locale("en")
+	assert_ne(german, english, "German puts a space before the percent sign (§8.5)")
+	assert_eq(german, "42 %")
 
 
 func test_a_raw_bar_shows_the_number_and_not_the_share() -> void:

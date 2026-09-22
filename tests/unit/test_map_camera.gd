@@ -116,3 +116,69 @@ func test_reduced_motion_pins_the_backdrop_to_the_map() -> void:
 	var values: Array = BACKDROP.shader_values(center, 3.0, WIDE, true)
 	assert_eq(values[0], center, "no lag")
 	assert_almost_eq(float(values[1]), 1.0, 0.001, "no breathing")
+
+
+# ------------------------------------------------- §7.5 reveal (S2.P, from G2)
+
+
+## The free rectangle an open side panel leaves at 1920 × 1080: §4.6's width is
+## 30 % of the viewport, clamped to 480.
+func _free_beside_panel() -> Rect2:
+	return Rect2(480.0, 0.0, WIDE.x - 480.0, WIDE.y)
+
+
+func test_an_anchor_the_panel_covers_is_panned_out_from_behind_it() -> void:
+	var zoom: float = 2.0
+	var free: Rect2 = _free_beside_panel()
+	# A point well inside the panel's half of the screen.
+	var center: Vector2 = Vector2(2048.0, 875.0)
+	var anchor: Vector2 = MapCamera.transform_for(center, zoom, WIDE).affine_inverse() \
+		* Vector2(120.0, 540.0)
+
+	var moved: Vector2 = MapCamera.reveal_center(center, zoom, WIDE, anchor, free, 32.0)
+
+	var screen: Vector2 = MapCamera.transform_for(moved, zoom, WIDE) * anchor
+	assert_almost_eq(screen.x, free.position.x + 32.0, 0.001,
+		"just inside the free rectangle, and no further")
+	assert_almost_eq(screen.y, 540.0, 0.001, "the axis that was fine is untouched")
+
+
+func test_an_anchor_that_is_already_visible_moves_nothing() -> void:
+	var center: Vector2 = Vector2(2048.0, 875.0)
+	var anchor: Vector2 = MapCamera.transform_for(center, 2.0, WIDE).affine_inverse() \
+		* Vector2(1200.0, 500.0)
+
+	assert_eq(MapCamera.reveal_center(center, 2.0, WIDE, anchor, _free_beside_panel(),
+		32.0), center)
+
+
+func test_the_reveal_never_leaves_the_map() -> void:
+	var zoom: float = MapCamera.zoom_min_for(WIDE)
+	var center: Vector2 = MapCamera.clamp_center(Vector2(200.0, 875.0), zoom, WIDE)
+	# The far west, behind the panel, with no map left to pan in from the left.
+	var anchor: Vector2 = Vector2(10.0, 875.0)
+
+	var moved: Vector2 = MapCamera.reveal_center(center, zoom, WIDE, anchor,
+		_free_beside_panel(), 32.0)
+
+	assert_eq(moved, MapCamera.clamp_center(moved, zoom, WIDE), "still inside the bounds")
+
+
+func test_a_bottom_sheet_pushes_the_anchor_up_instead() -> void:
+	var zoom: float = 2.0
+	var free: Rect2 = Rect2(0.0, 0.0, COMPACT.x, COMPACT.y * 0.5)
+	var center: Vector2 = Vector2(2048.0, 875.0)
+	var anchor: Vector2 = MapCamera.transform_for(center, zoom, COMPACT).affine_inverse() \
+		* Vector2(200.0, 800.0)
+
+	var moved: Vector2 = MapCamera.reveal_center(center, zoom, COMPACT, anchor, free, 32.0)
+
+	var screen: Vector2 = MapCamera.transform_for(moved, zoom, COMPACT) * anchor
+	assert_almost_eq(screen.y, free.end.y - 32.0, 0.001)
+	assert_almost_eq(screen.x, 200.0, 0.001, "x was inside all along")
+
+
+func test_a_free_rectangle_smaller_than_the_margin_is_ignored() -> void:
+	var center: Vector2 = Vector2(2048.0, 875.0)
+	assert_eq(MapCamera.reveal_center(center, 2.0, WIDE, Vector2.ZERO,
+		Rect2(0.0, 0.0, 40.0, 40.0), 32.0), center, "rather than pan to nowhere")

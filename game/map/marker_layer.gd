@@ -14,12 +14,15 @@ extends Node2D
 ## Scene-specific, so no `class_name`.
 
 ## §7.7: the cross a dark region gets, in screen pixels.
-const DARK_CROSS_PX: float = 10.0
+const DARK_CROSS_PX: float = 12.0
 const DARK_STROKE_PX: float = 2.0
 
-## Where the hover tooltip sits relative to the anchor, in screen pixels.
-const TOOLTIP_OFFSET_PX: Vector2 = Vector2(UiTokens.SPACE_3, -UiTokens.SPACE_5)
-const TOOLTIP_VARIATION: StringName = &"LabelCaption"
+## §7.7: the tooltip's bottom-left corner sits `SPACE_4` right of and above the
+## anchor, in screen pixels.
+const TOOLTIP_OFFSET_PX: Vector2 = Vector2(UiTokens.SPACE_4, -UiTokens.SPACE_4)
+## §7.7: a chip-shaped box on `BG_2` with the caption in `TEXT_0`.
+const TOOLTIP_VARIATION: StringName = &"MapTooltip"
+const TOOLTIP_LABEL_VARIATION: StringName = &"MapTooltipLabel"
 const KEY_ANOMALY: String = "UI_REGION_ANOMALY"
 const PLACEHOLDER_VALUE: String = "value"
 
@@ -30,7 +33,8 @@ var _markers: Dictionary[int, AnomalyMarker] = {}
 var _dark_anchors: PackedVector2Array = PackedVector2Array()
 var _camera: MapCamera = null
 var _zoom: float = 1.0
-var _tooltip: Label = null
+var _tooltip: PanelContainer = null
+var _tooltip_label: Label = null
 ## The marker the pointer is over, or 0.
 var _hovered_id: int = 0
 
@@ -75,12 +79,20 @@ func try_tap(screen: Vector2) -> bool:
 ## a test should be able to say "the pointer is here" without an event queue.
 func hover(screen: Vector2) -> void:
 	_hover(marker_at(screen))
+	# The box is placed in screen space, so it follows a map that moved under a
+	# resting pointer as well as a pointer that moved to another marker.
+	if _hovered_id != 0:
+		_place_tooltip()
 
 
-## The tooltip, for the tests. Empty and hidden unless the pointer rests on a
-## marker.
-func tooltip() -> Label:
+## The tooltip, for the tests. Hidden unless the pointer rests on a marker.
+func tooltip() -> PanelContainer:
 	return _tooltip
+
+
+## What the tooltip says, for the tests.
+func tooltip_text() -> String:
+	return _tooltip_label.text
 
 
 ## The marker under a screen point, or null. Nearest wins — two anchors can be
@@ -140,9 +152,9 @@ func _draw() -> void:
 	var stroke: float = DARK_STROKE_PX / _zoom
 	for anchor: Vector2 in _dark_anchors:
 		draw_line(anchor + Vector2(-arm, -arm), anchor + Vector2(arm, arm),
-			UiTokens.MAP_BORDER_DARK, stroke)
+			UiTokens.MAP_DARK_MARK, stroke)
 		draw_line(anchor + Vector2(-arm, arm), anchor + Vector2(arm, -arm),
-			UiTokens.MAP_BORDER_DARK, stroke)
+			UiTokens.MAP_DARK_MARK, stroke)
 
 
 func _on_run_started(_seed_value: int) -> void:
@@ -223,38 +235,60 @@ func _hover(marker: AnomalyMarker) -> void:
 	if marker == null:
 		_tooltip.visible = false
 		return
-	_tooltip.text = tr(KEY_ANOMALY).format(
+	_tooltip_label.text = tr(KEY_ANOMALY).format(
 		{PLACEHOLDER_VALUE: Format.number(marker.value, Format.Kind.COMPUTE)})
 	_tooltip.visible = true
 	_place_tooltip()
 
 
+## §7.7: the box sits up and to the right of the marker, and is pushed back
+## inside the viewport when that would take it off the screen.
 func _place_tooltip() -> void:
 	var marker: AnomalyMarker = _markers.get(_hovered_id, null)
-	if marker == null:
+	if marker == null or _camera == null:
 		_tooltip.visible = false
 		return
-	# The label lives in map coordinates like everything else here, so it is
+	# The box lives in map coordinates like everything else here, so it is
 	# counter-scaled to land on the screen at its authored size.
 	_tooltip.scale = Vector2.ONE / _zoom
-	_tooltip.position = marker.position + TOOLTIP_OFFSET_PX / _zoom
+	_tooltip.size = _tooltip.get_combined_minimum_size()
+	var to_screen: Transform2D = _camera.canvas_transform()
+	var corner: Vector2 = to_screen * marker.position + TOOLTIP_OFFSET_PX
+	var top_left: Vector2 = corner - Vector2(0.0, _tooltip.size.y)
+	_tooltip.position = to_screen.affine_inverse() * _inside_view(top_left, _tooltip.size)
 
 
-func _make_tooltip() -> Label:
-	var label: Label = Label.new()
-	label.theme_type_variation = TOOLTIP_VARIATION
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.visible = false
-	return label
+## `top_left` moved back inside the viewport, in screen pixels, with a gutter to
+## the edge. A box wider than the screen is left at the left edge rather than
+## pushed off the other side.
+func _inside_view(top_left: Vector2, box: Vector2) -> Vector2:
+	var view: Vector2 = _camera.view_size()
+	var margin: float = float(UiTokens.SPACE_2)
+	return Vector2(
+		minf(maxf(top_left.x, margin), maxf(view.x - box.x - margin, margin)),
+		minf(maxf(top_left.y, margin), maxf(view.y - box.y - margin, margin)))
+
+
+## §7.7: a chip-shaped box, not a bare caption — over the pulsing ring a plain
+## label was unreadable (G2).
+func _make_tooltip() -> PanelContainer:
+	var box: PanelContainer = PanelContainer.new()
+	box.theme_type_variation = TOOLTIP_VARIATION
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.visible = false
+	_tooltip_label = Label.new()
+	_tooltip_label.theme_type_variation = TOOLTIP_LABEL_VARIATION
+	_tooltip_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(_tooltip_label)
+	return box
 
 
 func _on_camera_view_changed(_center: Vector2, zoom_level: float) -> void:
-	if zoom_level <= 0.0 or is_equal_approx(zoom_level, _zoom):
-		return
-	_zoom = zoom_level
-	var marker_scale: Vector2 = Vector2.ONE / _zoom
-	for id: int in _markers:
-		_markers[id].scale = marker_scale
+	if zoom_level > 0.0 and not is_equal_approx(zoom_level, _zoom):
+		_zoom = zoom_level
+		var marker_scale: Vector2 = Vector2.ONE / _zoom
+		for id: int in _markers:
+			_markers[id].scale = marker_scale
+		queue_redraw()
 	if _hovered_id != 0:
 		_place_tooltip()
-	queue_redraw()

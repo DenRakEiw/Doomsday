@@ -75,18 +75,21 @@ func set_delta_in(key: String, placeholder: String, delta: float,
 	_set_delta(delta, kind, key, placeholder)
 
 
+## Zero is what the label *shows*, not what it was given (§4.5): a rate of 0.03
+## formats as `0`, and `▲ +0` is a lie about a number that has not moved (G2).
 func _set_delta(delta: float, kind: Format.Kind, key: String, placeholder: String) -> void:
 	var formatted: String = Format.number(delta, kind)
+	var zero: String = Format.number(0.0, kind)
 	var body: String = ""
-	if delta > 0.0:
+	if Format.number(absf(delta), kind) == zero:
+		_state = State.MUTED
+		body = zero
+	elif delta > 0.0:
 		_state = State.UP
 		body = "%s %s%s" % [ARROW_UP, PLUS, formatted]
-	elif delta < 0.0:
+	else:
 		_state = State.DOWN
 		body = "%s %s" % [ARROW_DOWN, formatted]
-	else:
-		_state = State.MUTED
-		body = formatted
 	if not key.is_empty():
 		body = tr(key).format({placeholder: body})
 	_delta_text = " " + body

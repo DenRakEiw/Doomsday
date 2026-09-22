@@ -47,7 +47,9 @@ func _draw() -> void:
 			draw_rect(box, UiTokens.TEXT_0)
 		else:
 			# An empty pip is an outline: the row keeps its shape at every tier.
-			draw_rect(box, UiTokens.LINE_1, false, float(UiTokens.BORDER))
+			# `LINE_2` and not the default border — on `BG_2` `LINE_1` vanished
+			# and the row read as fewer pips than it has (G2).
+			draw_rect(box, UiTokens.LINE_2, false, float(UiTokens.BORDER))
 
 
 func _wanted_size() -> Vector2:

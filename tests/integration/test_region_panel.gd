@@ -4,7 +4,8 @@ extends GutTest
 ##
 ## A selection is a signal, not a method call: the panel opens on
 ## `region_selected` and closes on `region_selected(0)`, which is what the close
-## button, `Escape` and a tap on the ocean all produce.
+## button, `Escape` and a tap on the ocean all produce — `Escape` itself is the
+## session's key and is tested in `test_session_keys.gd`.
 
 const PANEL_SCENE: PackedScene = preload("res://ui/panels/region_panel.tscn")
 
@@ -103,20 +104,6 @@ func test_the_close_button_clears_the_selection_for_everyone() -> void:
 	assert_false(_panel.is_open)
 
 
-func test_escape_closes_the_panel() -> void:
-	_start()
-	_select(REGION_USA)
-	watch_signals(EventBus)
-	var key: InputEventKey = InputEventKey.new()
-	key.keycode = KEY_ESCAPE
-	key.pressed = true
-	# The shortcut layer, not unhandled input: a focused button would otherwise
-	# have swallowed the key before the panel saw it.
-	_panel.call("_shortcut_input", key)
-	assert_signal_emitted_with_parameters(EventBus, "region_selected", [0])
-	assert_false(_panel.is_open)
-
-
 func test_an_untouched_region_hides_the_presence_bars() -> void:
 	_start(1)
 	# Day 1: the bot has an origin and nothing else. North Korea is air-gapped
@@ -155,6 +142,35 @@ func test_the_profile_shows_every_attribute_at_its_tier() -> void:
 		"a label and a row of pips per attribute")
 	var pips: AttributePips = grid.get_child(1) as AttributePips
 	assert_eq(pips.tier, definition.attr("compute"), "the first row is compute")
+
+
+## A chip cannot wrap, so being dark is a short badge plus a caption (§5.6, G2).
+func test_a_dark_region_says_in_words_what_dark_means() -> void:
+	_start()
+	var index: int = _index_of(REGION_USA)
+	var detail: Label = _node("DarkDetail") as Label
+	_select(REGION_USA)
+	assert_false(detail.visible, "a region with people in it says nothing")
+
+	Game.sim.world.regions[index].dark = true
+	EventBus.region_selected.emit(0)
+	_select(REGION_USA)
+
+	assert_true(detail.visible)
+	assert_eq(detail.text, tr("UI_REGION_STATE_DARK_DETAIL"))
+
+
+## G2: at 400 px the pips stood at the far edge of the panel, away from the
+## label they belong to.
+func test_the_profile_grid_shrinks_to_the_width_it_needs() -> void:
+	_start()
+	_select(REGION_USA)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var grid: GridContainer = _node("Profile") as GridContainer
+	assert_eq(grid.size_flags_horizontal, int(Control.SIZE_SHRINK_BEGIN))
+	assert_almost_eq(grid.size.x, grid.get_combined_minimum_size().x, 1.0,
+		"the pips sit beside the longest label, not at the panel's edge")
 
 
 func test_a_link_row_counts_the_links_of_its_kind() -> void:

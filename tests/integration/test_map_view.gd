@@ -55,6 +55,9 @@ func test_the_palette_comes_from_the_tokens_and_not_from_the_shader() -> void:
 	assert_eq(_material.get_shader_parameter("map_dark"), UiTokens.MAP_DARK)
 	assert_eq(_material.get_shader_parameter("map_death"), UiTokens.MAP_DEATH)
 	assert_eq(_material.get_shader_parameter("hover_gain"), UiTokens.MAP_HOVER_GAIN)
+	# G2: the overlay's strength was a literal in the shader, and a half-taken
+	# world outshone the HUD (§7.3).
+	assert_eq(_material.get_shader_parameter("overlay_mix"), UiTokens.MAP_OVERLAY_MIX)
 	assert_not_null(_material.get_shader_parameter("ramp"), "and so does the ramp")
 
 

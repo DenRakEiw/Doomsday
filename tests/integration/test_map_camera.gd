@@ -243,3 +243,48 @@ func test_focusing_nothing_is_ignored() -> void:
 	_camera.focus_region(0)
 	_camera.focus_region(99999)
 	assert_eq(_camera.position, before)
+
+
+# --------------------------------------------- §7.5 wheel and reveal (S2.P)
+
+
+func test_two_notches_in_one_frame_are_two_steps() -> void:
+	# Motion on: the bug of G2 is that a second notch arrives while the first is
+	# still tweening, and against the drawn zoom it changes nothing.
+	var cursor: Vector2 = _view_size() * 0.5
+	var start: float = _camera.zoom.x
+
+	_camera.zoom_by(MapCamera.ZOOM_STEP, cursor, true)
+	_camera.zoom_by(MapCamera.ZOOM_STEP, cursor, true)
+
+	assert_almost_eq(_camera.target_zoom(),
+		start * MapCamera.ZOOM_STEP * MapCamera.ZOOM_STEP, 0.0001)
+
+
+func test_a_notch_against_the_drawn_zoom_is_still_one_step() -> void:
+	Settings.set_reduced_motion(true)
+	var start: float = _camera.zoom.x
+	_camera.zoom_by(MapCamera.ZOOM_STEP, _view_size() * 0.5, true)
+	assert_almost_eq(_camera.target_zoom(), start * MapCamera.ZOOM_STEP, 0.0001,
+		"without a tween the target is what is on the screen")
+	Settings.set_reduced_motion(false)
+
+
+func test_opening_the_panel_brings_the_region_out_from_behind_it() -> void:
+	Settings.set_reduced_motion(true)
+	Game.start_run(1, GreedyPolicy.ID)
+	Game.set_speed(0)
+	var panel: SlidePanel = _session.get_node("%RegionPanel") as SlidePanel
+	var index: int = Game.db.region_index_by_id["usa"]
+	# The USA behind the panel: the camera is put there on purpose, because the
+	# headless viewport is square and shows the whole map at the start zoom.
+	_camera.set_view(MapCamera.clamp_center(Vector2(Game.db.regions[index].anchor)
+		+ Vector2(700.0, 0.0), 2.0, _view_size()), 2.0)
+
+	EventBus.region_selected.emit(index)
+
+	var free: Rect2 = panel.uncovered_rect()
+	var screen: Vector2 = _camera.canvas_transform() * Vector2(Game.db.regions[index].anchor)
+	assert_true(free.grow(-float(UiTokens.SPACE_6)).has_point(screen),
+		"the anchor at %s is inside the free rect %s" % [screen, free])
+	Settings.set_reduced_motion(false)

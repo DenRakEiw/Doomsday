@@ -533,10 +533,26 @@ variation_opentype = {
 2003265652: 500
 }
 
-[sub_resource type="StyleBoxLine" id="StyleBoxLine_vpyir"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vpyir"]
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+bg_color = Color(0.0627451, 0.09411765, 0.1254902, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.17254902, 0.23921569, 0.29803923, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_ejigh"]
 color = Color(0.12156863, 0.17254902, 0.21960784, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ejigh"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fsuoh"]
 content_margin_left = 16.0
 content_margin_top = 0.0
 content_margin_right = 16.0
@@ -689,11 +705,18 @@ LabelHeading/colors/font_color = Color(0.8627451, 0.9019608, 0.93333334, 1)
 LabelHeading/constants/line_spacing = 3
 LabelHeading/font_sizes/font_size = 20
 LabelHeading/fonts/font = SubResource("FontVariation_m0v8a")
+MapTooltip/base_type = &"PanelContainer"
+MapTooltip/styles/panel = SubResource("StyleBoxFlat_vpyir")
+MapTooltipLabel/base_type = &"LabelCaption"
+MapTooltipLabel/colors/font_color = Color(0.8627451, 0.9019608, 0.93333334, 1)
+MapTooltipLabel/constants/line_spacing = 4
+MapTooltipLabel/font_sizes/font_size = 12
+MapTooltipLabel/fonts/font = ExtResource("2_0kv8u")
 PanelContent/base_type = &"VBoxContainer"
 PanelContent/constants/separation = 12
 PanelRule/base_type = &"HSeparator"
 PanelRule/constants/separation = 17
-PanelRule/styles/separator = SubResource("StyleBoxLine_vpyir")
+PanelRule/styles/separator = SubResource("StyleBoxLine_ejigh")
 Row/base_type = &"HBoxContainer"
 Row/constants/separation = 12
 RowTight/base_type = &"HBoxContainer"
@@ -729,7 +752,7 @@ Ticker/colors/font_color = Color(0.5764706, 0.6509804, 0.70980394, 1)
 Ticker/constants/line_spacing = 6
 Ticker/font_sizes/font_size = 16
 Ticker/fonts/font = ExtResource("2_0kv8u")
-Ticker/styles/panel = SubResource("StyleBoxFlat_ejigh")
+Ticker/styles/panel = SubResource("StyleBoxFlat_fsuoh")
 ValueLabel/base_type = &"Label"
 ValueLabel/colors/font_color = Color(0.8627451, 0.9019608, 0.93333334, 1)
 ValueLabel/constants/line_spacing = 3

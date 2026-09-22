@@ -185,14 +185,47 @@ func test_resting_on_a_marker_says_what_it_is_worth() -> void:
 
 	_layer.hover(at)
 
-	var tooltip: Label = _layer.tooltip()
+	var tooltip: PanelContainer = _layer.tooltip()
 	assert_true(tooltip.visible, "the tooltip is up")
-	assert_string_contains(tooltip.text,
+	assert_string_contains(_layer.tooltip_text(),
 		Format.number(anomaly.value, Format.Kind.COMPUTE),
 		"and reads the anomaly's value")
 
 	_layer.hover(at + Vector2(AnomalyMarker.HIT_RADIUS_PX * 2.0, 0.0))
 	assert_false(_layer.tooltip().visible, "and goes again when the pointer leaves")
+
+
+## G2: over the pulsing ring a bare caption could not be read.
+func test_the_tooltip_is_a_box_and_not_a_bare_caption() -> void:
+	var anomaly: Anomaly = _run_to_an_anomaly()
+
+	_layer.hover(_look_at(_anchor_of(anomaly)))
+
+	var box: StyleBoxFlat = _layer.tooltip().get_theme_stylebox(&"panel") as StyleBoxFlat
+	assert_not_null(box, "the chip-shaped box of §7.7")
+	assert_eq(box.bg_color, UiTokens.BG_2)
+	assert_eq(box.border_color, UiTokens.LINE_1)
+
+
+func test_the_tooltip_stays_inside_the_viewport() -> void:
+	var anomaly: Anomaly = _run_to_an_anomaly()
+	var anchor: Vector2 = _anchor_of(anomaly)
+	var view: Vector2 = _camera.view_size()
+	var zoom: float = 3.0
+	# The marker in the top-right corner, where the box of §7.7 would hang off
+	# the screen if it were placed up and to the right as usual.
+	var corner: Vector2 = Vector2(view.x - 8.0, 8.0)
+	_camera.set_view(anchor - (corner - view * 0.5) / zoom, zoom)
+	var at: Vector2 = _camera.canvas_transform() * anchor
+	assert_gt(at.x, view.x - 100.0, "the marker really is at the right edge")
+
+	_layer.hover(at)
+
+	var tooltip: PanelContainer = _layer.tooltip()
+	var on_screen: Rect2 = Rect2(_camera.canvas_transform() * tooltip.position,
+		tooltip.size)
+	assert_true(Rect2(Vector2.ZERO, view).encloses(on_screen),
+		"%s is inside the %s viewport" % [on_screen, view])
 
 
 func test_the_markers_keep_their_screen_size_when_the_camera_zooms() -> void:

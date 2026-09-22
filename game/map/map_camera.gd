@@ -54,6 +54,11 @@ const START_CENTER: Vector2 = Vector2(2048.0, 875.0)
 ## reverse tree order, so the layer drawn last is asked first.
 const TAP_METHOD: String = "try_tap"
 
+## The layers of the map find the camera beside them, but the region panel lives
+## in a canvas layer of its own and still has to reach it (§5.6 calls `reveal`
+## when the panel opens) — so the camera is findable by group as well.
+const GROUP: StringName = &"map_camera"
+
 ## Smallest zoom the viewport allows, recomputed with the viewport.
 var zoom_min: float = 1.0
 
@@ -64,6 +69,11 @@ var _travelled_px: float = 0.0
 var _velocity: Vector2 = Vector2.ZERO
 var _velocity_samples: Array[Vector2] = []
 var _tween: Tween = null
+## The view a running tween is heading for. A wheel notch multiplies *this*
+## zoom, so notches that arrive in the same frame add up instead of collapsing
+## into one step (§7.5; G2: fourteen notches in one frame moved the map once).
+var _target_center: Vector2 = Vector2.ZERO
+var _target_zoom: float = 0.0
 ## Kept for the debug key of §7.5; 0 means nothing is selected.
 var _selected_index: int = 0
 var _started: bool = false
@@ -125,6 +135,37 @@ static func center_keeping_point(world_point: Vector2, screen_point: Vector2,
 	return world_point - (screen_point - viewport_size * 0.5) / zoom_level
 
 
+## §7.5: the centre that brings `anchor` inside `free` — the screen rectangle an
+## open panel leaves uncovered — shrunk by `margin`, moving as little as
+## possible. An anchor that is already inside, or a `free` too small to hold the
+## margin, leaves the centre where it is. The zoom is never touched: the player
+## asked for a region, not for a different scale.
+static func reveal_center(center: Vector2, zoom_level: float, viewport_size: Vector2,
+		anchor: Vector2, free: Rect2, margin: float) -> Vector2:
+	if zoom_level <= 0.0:
+		return center
+	var inner: Rect2 = free.grow(-margin)
+	if inner.size.x <= 0.0 or inner.size.y <= 0.0:
+		return center
+	var screen: Vector2 = transform_for(center, zoom_level, viewport_size) * anchor
+	var shift: Vector2 = Vector2(
+		_shift_into(screen.x, inner.position.x, inner.end.x),
+		_shift_into(screen.y, inner.position.y, inner.end.y))
+	if shift == Vector2.ZERO:
+		return center
+	# The map moves by `shift` on screen, so the camera moves against it.
+	return clamp_center(center - shift / zoom_level, zoom_level, viewport_size)
+
+
+## How far `value` has to move to lie between `low` and `high`.
+static func _shift_into(value: float, low: float, high: float) -> float:
+	if value < low:
+		return low - value
+	if value > high:
+		return high - value
+	return 0.0
+
+
 # ------------------------------------------------------------------- the node
 
 
@@ -142,12 +183,22 @@ static func find_beside(node: Node) -> MapCamera:
 	return null
 
 
+## The camera of the screen `node` belongs to, or null — for a node that is not
+## a sibling of it. Null is a normal answer: a panel tested on its own has no map
+## behind it.
+static func find_in_tree(node: Node) -> MapCamera:
+	if not node.is_inside_tree():
+		return null
+	return node.get_tree().get_first_node_in_group(GROUP) as MapCamera
+
+
 func _ready() -> void:
 	anchor_mode = Camera2D.ANCHOR_MODE_DRAG_CENTER
 	position_smoothing_enabled = false
 	rotation_smoothing_enabled = false
 	ignore_rotation = true
 	make_current()
+	add_to_group(GROUP)
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
 	EventBus.region_selected.connect(_on_region_selected)
 	zoom_min = zoom_min_for(view_size())
@@ -216,10 +267,16 @@ func set_view(center: Vector2, zoom_level: float) -> void:
 
 ## Multiplies the zoom, keeping the world point under `screen_point` where it
 ## is. `tweened` is the wheel (§7.5 tweens a notch); pinch is continuous.
+##
+## The factor multiplies the view the camera is *heading for*, not the one it
+## draws: a wheel sends its notches faster than a frame, and against the drawn
+## zoom all but the first of them would be swallowed by the tween (G2).
 func zoom_by(factor: float, screen_point: Vector2, tweened: bool) -> void:
 	var size: Vector2 = view_size()
-	var target: float = clampf(zoom.x * factor, zoom_min, ZOOM_MAX)
-	var world: Vector2 = canvas_transform().affine_inverse() * screen_point
+	var from_center: Vector2 = target_center()
+	var from_zoom: float = target_zoom()
+	var target: float = clampf(from_zoom * factor, zoom_min, ZOOM_MAX)
+	var world: Vector2 = transform_for(from_center, from_zoom, size).affine_inverse() 		* screen_point
 	var center: Vector2 = center_keeping_point(world, screen_point, target, size)
 	var seconds: float = UiTokens.duration(UiTokens.MOTION_QUICK) if tweened else 0.0
 	if seconds <= 0.0:
@@ -227,6 +284,34 @@ func zoom_by(factor: float, screen_point: Vector2, tweened: bool) -> void:
 		set_view(center, target)
 		return
 	_tween_to(center, target, seconds)
+
+
+## Brings a region's anchor out from behind an open panel (§7.5): `free` is the
+## screen rectangle the panel leaves uncovered, and the map is panned by the
+## smallest offset that puts the anchor inside it with `SPACE_6` to spare.
+func reveal(anchor: Vector2, free: Rect2) -> void:
+	var size: Vector2 = view_size()
+	var center: Vector2 = reveal_center(position, zoom.x, size, anchor, free,
+		float(UiTokens.SPACE_6))
+	if center == position:
+		return
+	_stop_inertia()
+	var seconds: float = UiTokens.duration(UiTokens.MOTION_PANEL)
+	if seconds <= 0.0:
+		_stop_tween()
+		set_view(center, zoom.x)
+		return
+	_tween_to(center, zoom.x, seconds)
+
+
+## The centre a running tween is heading for, or the current one.
+func target_center() -> Vector2:
+	return _target_center if _is_tweening() else position
+
+
+## The zoom a running tween is heading for, or the current one.
+func target_zoom() -> float:
+	return _target_zoom if _is_tweening() else zoom.x
 
 
 ## Tweens the centre onto a region's anchor (§7.5). An index the content does
@@ -378,6 +463,9 @@ func _tween_to(center: Vector2, zoom_level: float, seconds: float) -> void:
 	_stop_tween()
 	var from_center: Vector2 = position
 	var from_zoom: float = zoom.x
+	_target_center = clamp_center(center, clampf(zoom_level, zoom_min, ZOOM_MAX),
+		view_size())
+	_target_zoom = clampf(zoom_level, zoom_min, ZOOM_MAX)
 	_tween = create_tween()
 	_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	_tween.tween_method(
@@ -390,6 +478,13 @@ func _stop_tween() -> void:
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
 	_tween = null
+	_target_zoom = 0.0
+
+
+## A tween that has finished is freed by the engine, so the target it carried
+## stops counting on its own.
+func _is_tweening() -> bool:
+	return _target_zoom > 0.0 and _tween != null and _tween.is_valid()
 
 
 func _anchor_of(index: int) -> Vector2i:

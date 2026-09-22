@@ -69,6 +69,10 @@ const COMPACT_WIDTH: int = 1100
 var _changing: StatBar = null
 var _cycle_step: int = 0
 var _slide: SlidePanel = null
+## One per `ValueLabel` on the screen: what it was built from, ready to be
+## applied again. A number carries its separators from the locale (§8.5), and
+## `L` used to leave `1,284.5` standing under German labels (G2).
+var _value_setters: Array[Callable] = []
 
 
 func _ready() -> void:
@@ -90,6 +94,14 @@ func _ready() -> void:
 	cycle.timeout.connect(_cycle_changing)
 	add_child(cycle)
 	cycle.start()
+
+
+## The labels that hold a string re-read it themselves; a number has to be
+## formatted again (§4.8).
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		for setter: Callable in _value_setters:
+			setter.call()
 
 
 ## `F12` writes the view to `user://` under the locale and width it was taken at,
@@ -320,9 +332,12 @@ func _button(key: String, primary: bool, toggled: bool, disabled: bool) -> Conso
 func _value(value: float, kind: Format.Kind, delta: float, large: bool) -> ValueLabel:
 	var label: ValueLabel = ValueLabel.new()
 	label.large = large
-	label.set_number(value, kind)
-	if not is_nan(delta):
-		label.set_delta(delta, Format.Kind.COMPUTE)
+	var setter: Callable = func() -> void:
+		label.set_number(value, kind)
+		if not is_nan(delta):
+			label.set_delta(delta, Format.Kind.COMPUTE)
+	setter.call()
+	_value_setters.append(setter)
 	return label
 
 

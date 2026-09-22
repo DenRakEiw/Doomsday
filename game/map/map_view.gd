@@ -31,6 +31,7 @@ const PARAM_SELECTED: String = "selected_index"
 const PARAM_OVERLAY: String = "overlay_mode"
 const PARAM_OUTLINE: String = "outline_px"
 const PARAM_HOVER_GAIN: String = "hover_gain"
+const PARAM_OVERLAY_MIX: String = "overlay_mix"
 
 ## Colour uniform → token, so the shader's palette has exactly one source.
 const COLOR_PARAMS: Dictionary[String, Color] = {
@@ -96,6 +97,7 @@ func _ready() -> void:
 	_shader.set_shader_parameter(PARAM_REGION_DATA, _data_texture)
 	_shader.set_shader_parameter(PARAM_RAMP, UiTokens.ramp_texture())
 	_shader.set_shader_parameter(PARAM_HOVER_GAIN, UiTokens.MAP_HOVER_GAIN)
+	_shader.set_shader_parameter(PARAM_OVERLAY_MIX, UiTokens.MAP_OVERLAY_MIX)
 	for param: String in COLOR_PARAMS:
 		_shader.set_shader_parameter(param, COLOR_PARAMS[param])
 	_set_param(PARAM_HOVER, hover_index)

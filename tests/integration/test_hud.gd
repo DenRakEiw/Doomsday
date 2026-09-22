@@ -82,6 +82,24 @@ func test_the_top_bar_follows_the_phase() -> void:
 		Game.sim.world.phase].to_upper())
 
 
+## §5.2: `ALERT` marks the moment the world finds you, not every phase after it
+## (G2 — the chip stayed red for the rest of the run).
+func test_only_the_emergent_phase_alerts() -> void:
+	_start(1)
+	var chip: Chip = _block("TopBar").get_node("%PhaseChip") as Chip
+	var kinds: Dictionary[int, int] = {
+		World.Phase.BOXED: Chip.Kind.DEFAULT,
+		World.Phase.COVERT: Chip.Kind.ACCENT,
+		World.Phase.EMERGENT: Chip.Kind.ALERT,
+		World.Phase.OPEN: Chip.Kind.DEFAULT,
+	}
+	for phase: int in kinds:
+		Game.sim.world.phase = phase as World.Phase
+		EventBus.tick_advanced.emit(Game.sim.world.day)
+		assert_eq(int(chip.kind), int(kinds[phase]),
+			"phase %s" % World.PHASE_IDS[phase])
+
+
 func test_the_paused_badge_is_shown_only_while_the_run_is_paused() -> void:
 	_start()
 	var paused: Chip = _block("TopBar").get_node("%PausedChip") as Chip

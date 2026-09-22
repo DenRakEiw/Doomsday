@@ -38,6 +38,11 @@ const CONST_COMPACT_HEIGHT: StringName = &"compact_height"
 @onready var _fill: StatBarFill = %Fill
 
 var _value: float = 0.0
+## The number the label reads out and the form it takes. Kept because the
+## separators belong to the locale (§8.5): a bar the run is not updating still
+## has to change its number when the language changes.
+var _shown: float = 0.0
+var _kind: Format.Kind = Format.Kind.PERCENT
 var _tween: Tween = null
 
 
@@ -46,13 +51,15 @@ func _ready() -> void:
 		theme_type_variation = VARIATION
 	_name_label.label_key = label_key
 	_apply_compact()
-	_value_label.set_number(_value, Format.Kind.PERCENT)
+	_value_label.set_number(_shown, _kind)
 
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_THEME_CHANGED and is_node_ready():
 		_apply_variation()
 		_apply_heights()
+	elif what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
+		_value_label.set_number(_shown, _kind)
 
 
 ## The share the bar shows, 0 … 1. The fill tweens to it; a change of at least
@@ -76,6 +83,8 @@ func _set_value(share: float, shown: float, kind: Format.Kind) -> void:
 	var wanted: float = clampf(share, 0.0, 1.0)
 	var changed: float = absf(wanted - _value)
 	_value = wanted
+	_shown = shown
+	_kind = kind
 	_value_label.set_number(shown, kind)
 	if changed >= FLASH_THRESHOLD:
 		_value_label.flash()

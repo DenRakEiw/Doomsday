@@ -86,6 +86,29 @@ func close() -> void:
 	_slide(State.CLOSING, State.CLOSED, _closed_position())
 
 
+## The screen rectangle an open panel leaves free, for whatever has to stay
+## visible beside it (§5.6: the map pans the selected region out from behind the
+## panel). While the panel is closed that is the whole screen.
+##
+## It is the half the panel is not on, across the whole of the other axis: the
+## narrow strips the insets leave beside a side panel are the HUD's, and nothing
+## should be moved into them.
+func uncovered_rect() -> Rect2:
+	var view: Rect2 = Rect2(Vector2.ZERO, get_viewport_rect().size)
+	if _panel == null or not is_open:
+		return view
+	match edge:
+		Edge.LEFT:
+			return Rect2(_panel.size.x, view.position.y,
+				maxf(view.size.x - _panel.size.x, 0.0), view.size.y)
+		Edge.RIGHT:
+			return Rect2(view.position, Vector2(maxf(view.size.x - _panel.size.x, 0.0),
+				view.size.y))
+		_:
+			return Rect2(view.position, Vector2(view.size.x,
+				maxf(view.size.y - _panel.size.y, 0.0)))
+
+
 ## The panel's size and its resting place, recomputed whenever the window changes.
 func _layout() -> void:
 	if _panel == null:

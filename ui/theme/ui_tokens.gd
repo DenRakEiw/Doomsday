@@ -80,6 +80,13 @@ const MAP_LAND: Color = Color("#1A2530")
 const MAP_DARK: Color = Color("#0E1318")
 const MAP_BORDER: Color = Color("#3A4B5C")
 const MAP_BORDER_DARK: Color = Color("#1F2C38")
+## The × at a dark region's anchor — `TEXT_2`, because in the border's colour it
+## was invisible (G2).
+const MAP_DARK_MARK: Color = Color("#5E7282")
+## How much of the ramp's colour covers the land under an overlay. Not a colour:
+## the shader takes it as a uniform like every other token (§7.3). At 0.85 a
+## half-taken world outshone the HUD (G2).
+const MAP_OVERLAY_MIX: float = 0.70
 ## A multiplier on the region's colour, not a colour.
 const MAP_HOVER_GAIN: float = 1.15
 const MAP_SELECT: Color = Color("#FFFFFF")
