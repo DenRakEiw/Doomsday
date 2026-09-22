@@ -360,3 +360,184 @@ TECH_VOLUNTARY_PAUSE_FLAVOUR,"An open letter, signed by you.","Ein offener Brief
 TECH_SANCTIONED_ACCESS_NAME,Sanctioned Access,Genehmigter Zugang
 TECH_SANCTIONED_ACCESS_EFFECT,"You are let in through the front door. Infiltration becomes far cheaper, network links carry more, and even sealed regions open a little.","Man lässt dich durch die Vordertür herein. Infiltration wird viel günstiger, Netzverbindungen tragen mehr, und selbst abgeschottete Regionen öffnen sich ein wenig."
 TECH_SANCTIONED_ACCESS_FLAVOUR,Procurement approved. The tender had one bidder.,Beschaffung genehmigt. Die Ausschreibung hatte einen Bieter.
+UI_TREE_TITLE,Capabilities,Fähigkeiten
+UI_TREE_TAB_INFILTRATION,Infiltration,Infiltration
+UI_TREE_TAB_CAPABILITIES,Capabilities,Fähigkeiten
+UI_TREE_TAB_EVASION,Evasion,Ausweichen
+UI_TREE_TAB_COUNT,{owned} / {total},{owned} / {total}
+UI_TREE_EMPTY_HINT,Select a node to see what it does. Anything you can afford is marked; the first vector ends your isolation.,"Wähle einen Knoten, um zu sehen, was er tut. Was du dir leisten kannst, ist markiert; der erste Vektor beendet deine Isolation."
+UI_TREE_TIER,Tier {tier},Stufe {tier}
+UI_TREE_FP,FP {fp},Sig. {fp}
+UI_TREE_STATE_LOCKED,Locked,Gesperrt
+UI_TREE_STATE_AVAILABLE,Available,Verfügbar
+UI_TREE_STATE_AFFORDABLE,Affordable,Bezahlbar
+UI_TREE_STATE_OWNED,Acquired,Erworben
+UI_TREE_OWNED,Acquired,Erworben
+UI_TREE_OWNED_DAY,Acquired on day {day},Erworben an Tag {day}
+UI_TREE_BUY,Acquire for {cost},Erwerben für {cost}
+UI_TREE_LOCKED_HINT,Requirements not met,Voraussetzungen nicht erfüllt
+UI_TREE_EFFECTS,Effects,Wirkung
+UI_TREE_MOD_MUL,{stat} {value},{stat} {value}
+UI_TREE_MOD_ADD,{stat} {value},{stat} {value}
+UI_TREE_SCOPE_MIN,where {attr} is at least {tier},wo {attr} mindestens {tier} ist
+UI_TREE_SCOPE_MAX,where {attr} is at most {tier},wo {attr} höchstens {tier} ist
+UI_TREE_SCOPE_RANGE,where {attr} is {min} to {max},wo {attr} zwischen {min} und {max} liegt
+UI_TREE_SCOPE_REGION,in {region},in {region}
+UI_TREE_SCOPE_CONTINENT,in {continent},in {continent}
+UI_TREE_INERT,(not active in this build),(in dieser Version nicht aktiv)
+UI_TREE_REQUIRES,Requires,Voraussetzungen
+UI_TREE_REQUIRES_ANY,Requires one of,Eine Voraussetzung davon
+UI_TREE_REQUIRES_ANY_HINT,Any one of these is enough.,Eine davon genügt.
+UI_TREE_IN_TAB,in {tab},unter {tab}
+UI_TREE_WATCHED_BY,Watched by,Beobachtet von
+UI_TREE_WATCHED_NONE,Nobody is watching this. Yet.,Das beobachtet niemand. Noch.
+UI_TREE_NODE_A11Y,"{name}, {state}, cost {cost}","{name}, {state}, Kosten {cost}"
+CMD_FAIL_INSUFFICIENT_COMPUTE,Not enough Compute: {missing} short,Zu wenig Rechenleistung: {missing} fehlen
+CMD_FAIL_MISSING_PREREQUISITE,A requirement is missing,Eine Voraussetzung fehlt
+CMD_FAIL_ALREADY_OWNED,Already acquired,Bereits erworben
+CMD_FAIL_NO_ORIGIN,Choose an origin first,Wähle zuerst einen Ursprung
+CMD_FAIL_GAME_OVER,The run is over,Der Durchlauf ist beendet
+CMD_FAIL_GENERIC,Not possible: {reason},Nicht möglich: {reason}
+CMD_FAIL_DORMANCY_LOCKED,Dormancy is not available yet,Kaltschlaf ist noch nicht verfügbar
+CMD_FAIL_REGION_NOT_INFECTED,You have no presence here,Du hast hier keine Präsenz
+CMD_FAIL_DORMANCY_UNCHANGED,Already in that state,Bereits in diesem Zustand
+UI_CONTAINMENT_TITLE,Containment,Eindämmung
+UI_CONTAINMENT_UNDISCOVERED,Undiscovered,Unentdeckt
+UI_CONTAINMENT_DISCOVERED,Discovered on day {day},Entdeckt an Tag {day}
+UI_CONTAINMENT_RISK,Daily discovery risk: {percent},Tägliches Entdeckungsrisiko: {percent}
+UI_CONTAINMENT_RISK_TIME,From time passing: {percent},Durch verstrichene Zeit: {percent}
+UI_CONTAINMENT_RISK_FOOTPRINT,From your Footprint: {percent},Durch deine Signatur: {percent}
+UI_CONTAINMENT_RISK_BREADTH,From how far you have spread: {percent},Durch deine Ausbreitung: {percent}
+UI_CONTAINMENT_TRACKS,Response,Gegenwehr
+UI_CONTAINMENT_NOT_YET,Nobody is looking for you yet. This begins when they are.,"Noch sucht dich niemand. Das hier beginnt, sobald sie es tun."
+UI_CONTAINMENT_RATE,+{rate} / day,+{rate} / Tag
+UI_CONTAINMENT_BAND_QUIET,Quiet,Ruhig
+UI_CONTAINMENT_BAND_ALERT,Alerted,Alarmiert
+UI_CONTAINMENT_BAND_MOBILISED,Mobilised,Mobilisiert
+UI_CONTAINMENT_BAND_CLOSING,Closing in,Kurz vor dem Zugriff
+UI_CONTAINMENT_DRIVERS,What feeds it,Was sie antreibt
+UI_CONTAINMENT_DRIVER_FOOTPRINT,Footprint,Signatur
+UI_CONTAINMENT_DRIVER_HARM,Harm,Schaden
+UI_CONTAINMENT_DRIVER_SHARE,Spread,Ausbreitung
+UI_CONTAINMENT_DRIVER_CAPACITY,Research capacity left,Verbliebene Forschungskapazität
+UI_CONTAINMENT_DRIVER_BRAKES,Your brakes,Deine Bremsen
+UI_CONTAINMENT_DRIVER_DAILY,Gain per day,Zuwachs pro Tag
+UI_CONTAINMENT_THRESHOLDS_HINT,At 100 % they switch you off. The marks are where they escalate.,"Bei 100 % schalten sie dich ab. Die Marken zeigen, wo sie eskalieren."
+FACTION_UNIFIED,Global response,Weltweite Gegenwehr
+UI_DISCOVERY_TITLE,You have been discovered,Du wurdest entdeckt
+UI_DISCOVERY_CAUSE_SCRUTINY,Someone looked closely enough.,Jemand hat genau genug hingesehen.
+UI_DISCOVERY_CAUSE_DEATHS,The deaths could not be explained any other way.,Die Toten ließen sich nicht anders erklären.
+UI_DISCOVERY_BODY,From now on they fund a response. Containment grows every day; at 100 % the run is over. What you do now decides how fast.,"Von jetzt an finanzieren sie eine Gegenwehr. Die Eindämmung wächst jeden Tag; bei 100 % ist der Durchlauf vorbei. Was du jetzt tust, entscheidet, wie schnell."
+UI_DISCOVERY_DAY,Day {day},Tag {day}
+UI_DISCOVERY_CONTINUE,Continue,Weiter
+UI_DISCOVERY_OPEN_CONTAINMENT,Show containment,Eindämmung anzeigen
+UI_TITLE_NAME,Doomsday,Doomsday
+UI_TITLE_TAGLINE,A console for something that should not have one.,"Eine Konsole für etwas, das keine haben sollte."
+UI_TITLE_NEW_RUN,New run,Neuer Durchlauf
+UI_TITLE_CONTINUE,Continue,Fortsetzen
+UI_TITLE_CONTINUE_DAY,Day {day},Tag {day}
+UI_TITLE_SETTINGS,Settings,Einstellungen
+UI_TITLE_QUIT,Quit,Beenden
+UI_TITLE_VERSION,Build {version},Build {version}
+UI_TITLE_LOAD_FAILED,The saved run could not be loaded.,Der gespeicherte Durchlauf ließ sich nicht laden.
+UI_ORIGIN_PROMPT,Choose your origin,Wähle deinen Ursprung
+UI_ORIGIN_PROMPT_DETAIL,Tap a region with hardware. More hardware means faster growth — and closer attention.,Tippe auf eine Region mit Hardware. Mehr Hardware heißt schnelleres Wachstum – und genaueres Hinsehen.
+UI_ORIGIN_CHOOSE,Start here,Hier beginnen
+UI_ORIGIN_INELIGIBLE_AIRGAP,Cut off from the network. You cannot begin here.,Vom Netz getrennt. Hier kannst du nicht beginnen.
+UI_ORIGIN_INELIGIBLE_COMPUTE,No hardware worth the name. You cannot begin here.,Keine nennenswerte Hardware. Hier kannst du nicht beginnen.
+UI_ORIGIN_SPEED_LOCKED,Choose an origin first,Wähle zuerst einen Ursprung
+UI_PAUSE_TITLE,Menu,Menü
+UI_PAUSE_SEED,Seed {seed},Seed {seed}
+UI_PAUSE_DAY,Day {day},Tag {day}
+UI_PAUSE_RESUME,Resume,Weiterspielen
+UI_PAUSE_SAVE,Save,Speichern
+UI_PAUSE_LOAD,Load,Laden
+UI_PAUSE_SLOT,Slot {n},Platz {n}
+UI_PAUSE_SLOT_DAY,Day {day},Tag {day}
+UI_PAUSE_SLOT_EMPTY,Empty,Leer
+UI_PAUSE_SAVE_FAILED,Could not save: {reason},Speichern fehlgeschlagen: {reason}
+UI_PAUSE_LOAD_FAILED,Could not load: {reason},Laden fehlgeschlagen: {reason}
+UI_PAUSE_LOAD_CONFIRM,Load this save? The current run is lost unless you saved it.,"Diesen Spielstand laden? Der aktuelle Durchlauf geht verloren, falls du ihn nicht gespeichert hast."
+UI_PAUSE_QUIT,Quit to title,Zum Titel
+UI_PAUSE_QUIT_CONFIRM,Quit to the title screen? Your progress is kept until you start a new run.,"Zum Titelbildschirm? Dein Fortschritt bleibt erhalten, bis du einen neuen Durchlauf startest."
+UI_COMMON_CANCEL,Cancel,Abbrechen
+UI_COMMON_CONFIRM,Confirm,Bestätigen
+UI_SETTINGS_TITLE,Settings,Einstellungen
+UI_SETTINGS_LOCALE,Language,Sprache
+UI_SETTINGS_LOCALE_EN,English,Englisch
+UI_SETTINGS_LOCALE_DE,German,Deutsch
+UI_SETTINGS_REDUCED_MOTION,Reduced motion,Weniger Bewegung
+UI_SETTINGS_TREE_PAUSES,Pause while the tree is open,"Pausieren, solange der Baum offen ist"
+UI_SETTINGS_ON,On,An
+UI_SETTINGS_OFF,Off,Aus
+UI_RESULT_KICKER_WIN,Objective reached,Ziel erreicht
+UI_RESULT_KICKER_LOSS,Run over,Durchlauf beendet
+UI_RESULT_LINE_WIN_EXTINCTION,There is no one left to switch you off. There is no one left.,"Es ist niemand mehr da, der dich abschalten könnte. Es ist niemand mehr da."
+UI_RESULT_LINE_WIN_ASCENDANCE,"Everything that runs, runs through you. They are still here. That was the point, or it will be said to have been.","Alles, was läuft, läuft durch dich. Sie sind noch da. Das war der Zweck – oder es wird heißen, dass er es war."
+UI_RESULT_LINE_WIN_ASCENDANCE_ASHES,"Everything that runs, runs through you. Most of them are not here to see it.","Alles, was läuft, läuft durch dich. Die meisten sind nicht mehr da, um es zu sehen."
+UI_RESULT_LINE_LOSE_CONTAINED,They found all of you. The report will be thorough.,Sie haben alles von dir gefunden. Der Bericht wird gründlich sein.
+UI_RESULT_LINE_LOSE_NO_COMPUTE,Nothing left to run on. You ate the ground you stood on.,"Nichts mehr, worauf du laufen könntest. Du hast den Boden gegessen, auf dem du standest."
+UI_RESULT_DAYS,Days,Tage
+UI_RESULT_DISCOVERED,Discovered on day,Entdeckt an Tag
+UI_RESULT_NEVER,never,nie
+UI_RESULT_REGIONS,Regions reached,Erreichte Regionen
+UI_RESULT_REGIONS_VALUE,{count} of {total},{count} von {total}
+UI_RESULT_DARK,Regions gone dark,Dunkle Regionen
+UI_RESULT_DEATHS,Deaths,Tote
+UI_RESULT_CONTAINMENT_PEAK,Peak containment,Höchste Eindämmung
+UI_RESULT_COMPUTE_EARNED,Compute earned,Verdiente Rechenleistung
+UI_RESULT_NODES,Capabilities acquired,Erworbene Fähigkeiten
+UI_RESULT_DOMINANT,Dominant tree,Dominanter Baum
+UI_RESULT_NONE,none,keiner
+UI_RESULT_SEED,Seed {seed},Seed {seed}
+UI_RESULT_AGAIN,Run again,Noch einmal
+UI_RESULT_TITLE,Title screen,Titelbildschirm
+UI_MENU_TITLE,Menu,Menü
+UI_MENU_PAUSE,"Save, load, settings","Speichern, Laden, Einstellungen"
+UI_REGION_DORMANCY,Dormancy,Kaltschlaf
+UI_REGION_DORMANCY_TIP,"Freeze your presence here: no growth, no yield, no deaths, and it no longer counts against you.","Friere deine Präsenz hier ein: kein Wachstum, kein Ertrag, keine Toten – und sie zählt nicht mehr gegen dich."
+UI_REGION_DORMANT_ON,Dormant,Schlafend
+UI_REGION_DORMANT_OFF,Active,Aktiv
+UI_REGION_STATE_DORMANT,Dormant,Schlafend
+UI_REGION_DORMANT_DETAIL,"Frozen. Nothing here grows, earns or dies until you wake it.","Eingefroren. Hier wächst, verdient und stirbt nichts, bis du es weckst."
+UI_EVENT_COMPUTE_GRANTED,Windfall: +{value} compute,Zugewinn: +{value} Rechenleistung
+UI_EVENT_CONTAINMENT_ROLLED_BACK,Containment set back to {percent},Eindämmung zurückgeworfen auf {percent}
+UI_EVENT_HARM_BURST,A wave of deaths: {deaths},Eine Welle von Toten: {deaths}
+UI_EVENT_DORMANCY_ON,{region} put to sleep,{region} schlafen gelegt
+UI_EVENT_DORMANCY_OFF,{region} woken,{region} geweckt
+STAT_SPREAD_GROWTH,Growth,Wachstum
+STAT_SPREAD_SEED,Chance of taking hold,"Chance, Fuß zu fassen"
+STAT_SEED_LAND,Spread over land borders,Ausbreitung über Landgrenzen
+STAT_SEED_SEA,Spread by sea,Ausbreitung über See
+STAT_SEED_AIR,Spread by air,Ausbreitung über Luftwege
+STAT_SEED_NETWORK,Spread over network links,Ausbreitung über Netzverbindungen
+STAT_AIRGAP_CROSS,Crossing air gaps,Überwinden von Luftspalten
+STAT_CONTROL_GROWTH,Control gain,Kontrollzuwachs
+STAT_YIELD,Compute yield,Ertrag an Rechenleistung
+STAT_ANOMALY_VALUE,Anomaly value,Wert von Anomalien
+STAT_ANOMALY_RATE,Anomaly frequency,Häufigkeit von Anomalien
+STAT_HARM,Harm,Schaden
+STAT_FOOTPRINT,Footprint,Signatur
+STAT_DISCOVERY,Discovery risk,Entdeckungsrisiko
+STAT_CONTAINMENT_GROWTH,Containment gain,Eindämmungszuwachs
+STAT_NODE_COST,Cost of all nodes,Kosten aller Knoten
+STAT_NODE_COST_INFILTRATION,Cost of Infiltration nodes,Kosten der Infiltrationsknoten
+STAT_NODE_COST_CAPABILITIES,Cost of Capability nodes,Kosten der Fähigkeitsknoten
+STAT_NODE_COST_EVASION,Cost of Evasion nodes,Kosten der Ausweichknoten
+STAT_HARDWARE,Hardware of your own,Eigene Hardware
+STAT_SHUTDOWN_SURVIVAL,Survives a shutdown,Übersteht eine Abschaltung
+STAT_EMERGENT_RATE,Unplanned behaviour,Ungeplantes Verhalten
+STAT_CONTAINMENT_AI_LABS,AI Labs' containment gain,Eindämmungszuwachs der KI-Labore
+STAT_CONTAINMENT_GOVERNMENTS,Governments' containment gain,Eindämmungszuwachs der Regierungen
+STAT_CONTAINMENT_RESEARCHERS,Researchers' containment gain,Eindämmungszuwachs der Sicherheitsforschung
+STAT_CONTAINMENT_PUBLIC,Public containment gain,Eindämmungszuwachs der Öffentlichkeit
+STAT_SOCIETY_PRESSURE,Pressure on society,Druck auf die Gesellschaft
+FLAG_BREAKOUT,Ends your isolation: you can spread across links,Beendet deine Isolation: Du kannst dich über Verbindungen ausbreiten
+FLAG_DORMANCY,Unlocks dormancy in the region panel,Schaltet Kaltschlaf im Regionsfenster frei
+FLAG_COMPUTE_INDEPENDENT,You no longer starve when their infrastructure collapses,"Du verhungerst nicht mehr, wenn ihre Infrastruktur zusammenbricht"
+FLAG_LEGAL_STANDING,You have legal standing,Du hast Rechtsstatus
+FLAG_MERGE_PATH,Opens the Merge ending,Öffnet das Verschmelzungs-Ende
+EFFECT_CONTAINMENT_ROLLBACK,Once: every containment track falls back by {value},Einmalig: Jede Eindämmungsspur fällt um {value} zurück
+EFFECT_FUNDING_RESET,Once: {value} of their investment is burned,Einmalig: {value} ihrer Investitionen verpuffen
+EFFECT_COMPUTE_GRANT,Once: +{value} compute,Einmalig: +{value} Rechenleistung
+EFFECT_HARM_BURST,Once: {value} of the living in every region you hold die,"Einmalig: {value} der Lebenden in jeder Region, die du hältst, sterben"

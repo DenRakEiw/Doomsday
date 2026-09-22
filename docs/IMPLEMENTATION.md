@@ -589,13 +589,19 @@ to v2. Data problems found here are reported as design questions, not fixed by g
 
 ### S3.3 — Containment and phases in the interface **[O]**
 **Read first:** `docs/specs/m3-screens.md` (containment, discovery, phase reveal)
-**Done when:** "how much trouble am I in" is readable within two seconds.
+**Build:** `FactionTrack` and the containment panel; the two pure queries on `ContainmentSystem`
+(§10.5 — the one `core/` change); `ModalHost` and the discovery modal; the reveal schedule; the
+`open` token set with `UiTokens.color()`; the dormancy toggle and the map's dormant flag.
+**Done when:** "how much trouble am I in" is readable within two seconds, Boxed shows one bar and
+one button, and Open turns the console amber with the map ramp unchanged.
 
 ### S3.4 — Run flow: origin, outcome, results **[O]**
 **Read first:** `docs/specs/m3-screens.md` (run flow)
 **Build:** `ScreenRouter` autoload; title; origin select on the live map sending `ChooseOrigin`;
-results screen; pause menu with save, load, quit; autosave.
-**Done when:** title → origin → play → result → again works without restarting the application.
+results screen; pause menu with save, load, settings, quit; autosave; the phone's bottom (status
+strip and menu sheet, `m3-screens.md` §9); `balance.results.ashes_share`.
+**Done when:** title → origin → play → result → again works without restarting the application,
+and at 400 × 860 the bottom is the strip plus the ticker.
 
 ### S3.5 — Ticker component and headline system **[O]**
 **Read first:** `docs/specs/ticker.md`

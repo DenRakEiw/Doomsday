@@ -212,10 +212,10 @@ Not an afterthought — much of it is free if decided now, and expensive if retr
 
 ## 6. Open questions
 
-1. Does the tech tree pause the game on desktop? Pausing is kinder; not pausing preserves tension.
-   Probably a setting, defaulting to pause.
+1. *Decided at D3.3 (2026-09-22):* a setting, `tree_pauses`, default on for desktop and off on
+   mobile (`m3-screens.md` §3.1).
 2. *Decided at G2 (2026-09-22):* the dock shape stays for M3 — nothing clips at 400 px, but the
    chrome takes 41 % of the height. D3.3 designs the phone's bottom anew (a status strip plus a
    menu sheet for the dock's destinations, `ui-foundation.md` §5.7); M7 judges it on a real device.
-3. How much of the phase shift is worth building? The idea is strong; the cost is unbounded. Cap it
-   at: revealed controls, one palette change, one ticker register change.
+3. *Decided at D3.3 (2026-09-22):* capped at revealed controls, one palette change (the `open`
+   token set) and one ticker register change; the schedule is `m3-screens.md` §6.

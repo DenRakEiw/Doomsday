@@ -14,10 +14,10 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D3.3 — M3 screens** |
+| **Next step** | **D3.4 — Ticker voice and headlines** |
 | **Model for it** | **Fable** — no switch |
-| **After it** | `/clear` → D3.4 (still Fable) |
-| **Last completed** | D3.2 — `capabilities.json` staged in `data/tech_staging/`, `tech-trees.md` §7.5 |
+| **After it** | `/clear` → **`/model opus`** → S2.P |
+| **Last completed** | D3.3 — `docs/specs/m3-screens.md`, 181 strings en/de |
 | **Milestone** | M2 gated; M3 design under way |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
@@ -75,7 +75,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] G2 [F] Visual review and M2 gate
 - [x] D3.1 [F] Effect vocabulary; Infiltration and Evasion trees
 - [x] D3.2 [F] Capabilities tree
-- [ ] D3.3 [F] M3 screens
+- [x] D3.3 [F] M3 screens
 - [ ] D3.4 [F] Ticker voice and headlines — ⇄ **then `/model opus`**
 
 **Block 6 — M3 build · Opus**
@@ -427,6 +427,36 @@ without new information.
   in `core.md` §7.5 reads the unscoped stat. Cyber's regional Harm (on compute-rich or poor regions)
   raises containment only through deaths; Biology's and Weapons' unscoped Harm pays in full. G3
   judges the branches knowing that (tech-trees.md §7.5.7).
+- **2026-09-22** (D3.3) — **UI.md §6 question 1: the tree pauses by a setting** (`tree_pauses`,
+  default on for desktop, off on mobile). Pausing is one *hold* among several (`Game.hold` /
+  `release`, counted by reason) so a pause menu over a paused tree restores the speed once.
+- **2026-09-22** (D3.3) — **Discovery pauses the game and shows a one-sentence modal** on player
+  runs only; bot runs get the ticker line. The moment must not pass at 4× while the player reads
+  the map.
+- **2026-09-22** (D3.3) — **UI.md §6 question 3: the phase shift is three things** — revealed
+  blocks by a state table (Boxed: one bar, one dock button), one palette (`open`: amber accent, warm
+  greys, map ramp / `ALERT` / categorical set unchanged, contrast ≥ 8 : 1 for `TEXT_1`), one ticker
+  register change (D3.4 names it). The reveal is computed from state, never from events, so a load
+  is right at once. The swap is instant in both motion settings.
+- **2026-09-22** (D3.3) — **Tree lines are straight segments behind the nodes**, endpoints on the
+  facing sides, no routing; selection resolves ambiguity (thick white edges plus rings on the
+  prerequisites). Edges to another tab are not drawn: the node shows an EXTERNAL glyph and the
+  detail pane lists the prerequisite with its tab and a jump. Orthogonal routing around 43 nodes
+  would need a channel router for a picture nobody asked for.
+- **2026-09-22** (D3.3) — **Phone bottom (UI.md §6 question 2, G2): one 56 px status strip plus
+  the ticker;** bars and dock destinations move into a bottom sheet with the pause-menu entries.
+  Chrome at 400 × 860 drops from 352 to 232 px. UI §3's "three bars always visible" becomes "three
+  values always visible, bars one tap away" on the phone — recorded as the deviation it is.
+- **2026-09-22** (D3.3) — **Autosave** is the slot `autosave`: on every accepted player command and
+  every 7 days, never in bot runs, deleted when the run ends. Title *Continue* loads it. Manual
+  slots are three.
+- **2026-09-22** (D3.3) — **The results screen already splits Ascendance by deaths share** (G1's
+  note for D5.2): `balance.results.ashes_share` 0.5 picks the "ruling over ashes" line. D5.2
+  replaces the five verdict lines; the keys stay.
+- **2026-09-22** (D3.3) — **Two pure queries move into `ContainmentSystem`** (`discovery_risk`,
+  `containment_breakdown`) so the panel shows the formula the tick uses, not a copy. The tick
+  calls the same functions. It is the only `core/` change an interface spec has asked for, and it
+  is a refactor, not a rule.
 - **2026-09-22** — **The benchmark mode (M6) talks to models through OpenRouter**: one
   OpenAI-compatible endpoint, many models, so "Doomsday benchmark" can rank models rather than
   test one API. Consequence for the M6 design: the model policy is an HTTP adapter over one chat
@@ -444,9 +474,11 @@ reads `SCHLIESSEN`; the alternative is the capital ẞ (U+1E9E), which both font
 change either way. (S2.4's second question — the dark chip — was answered at G2, see *Decisions*.)
 
 **Parked for a later Fable step (not questions, reminders):**
-- **D3.3** designs the phone's bottom (status strip + menu sheet, `ui-foundation.md` §5.7) and
-  should keep the ticker's queue across a locale change (M2 stores rendered strings and drops
-  them on `L`; the D3.4 ticker keeps `(key, args)` and re-renders).
+- **D3.4** must write down the ticker rule `m3-screens.md` §6.4 promises: items are `(key, args)`
+  and re-render on `locale_changed` (M2 drops the queue on `L`); the register switch listens to
+  `EventBus.phase_changed` and happens once, at Open. Three event keys exist already for the
+  one-shots (`UI_EVENT_COMPUTE_GRANTED`, `_CONTAINMENT_ROLLED_BACK`, `_HARM_BURST`) and two for
+  dormancy — D3.4 may reword the text, not the keys.
 - **M6 (VISUALS):** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the 8192-px
   masks anti-alias the coast but not the borders between regions. Acceptable for M2–M5; a vector
   border pass or a 2× ID map is an M6 polish item, not a bug.
@@ -463,22 +495,14 @@ change either way. (S2.4's second question — the dark chip — was answered at
   (`HTTPClient` or a Python driver over the S1.8 runners — decide in M6). Cost control: a per-run
   call budget and a cache of digest → answer keyed by model, so a replay costs nothing.
 - **D5.2 endings** must distinguish Ascendance by deaths share (decision above).
-- **D3.3** delivers the `"open"` token set for `ThemeBuilder` (ui-foundation.md §3.7) and the
-  strings for tech tree, containment, analysis and events (§8.3).
-- **D3.3:** four Capabilities nodes have a prerequisite **in another tab** (Command Network
-  Presence ← Log Manipulation II + Distributed Redundancy II; Voluntary Pause ← Cold Storage
-  Dormancy; Sanctioned Access ← Human Proxies; Distributed Synthesis `requires_any` includes Human
-  Proxies). A line cannot cross tabs, so the detail pane has to name the foreign prerequisite with
-  its tree and state, and the node's locked state must not look like a bug. The tab holds 12 rows
-  × 7 columns; the phone scrolls both ways.
 - **D4.1:** `society_pressure` values in `capabilities.json` are relative weights (Tier 2 4–8, Tier 3
   8–15, False Attribution 15), not calibrated; the Weapons chain is `watched_by` all four factions
   from its second node on, which D4.1's per-faction Footprint weighting must handle (one node,
   four chips, full weight each or a split — decide there).
-- **D3.3** designs the dormancy toggle in the region panel (`set_dormancy`, tech-trees.md §6.4)
-  with `CMD_FAIL_DORMANCY_LOCKED` / `_REGION_NOT_INFECTED` / `_DORMANCY_UNCHANGED`, the
-  `watched_by` chips (`FACTION_*` strings exist), solid vs dashed prerequisite lines, and a grid of
-  up to 8 × 12 cells per tab.
+- **D4.4 (Analysis screen):** the dock button is revealed in Open and disabled with
+  `UI_DOCK_NOT_YET` until S4.7 (`m3-screens.md` §6.1); the results screen's summary grid (§7.4) is
+  the seed of the run log. **D5.3** replaces the placeholder title (§7.1) and keeps
+  `ScreenRouter`; **D5.2** replaces the five verdict lines (`UI_RESULT_LINE_*`), keys unchanged.
 - **D4.1** defines how `watched_by` weights a node's Footprint per faction, what `funding_reset`
   burns, and makes the four `containment_<faction>` targets live. **D4.2** defines the
   per-Infiltration-node term of the emergent rate and makes `emergent_rate` live. **S4.3** makes
@@ -520,6 +544,11 @@ way G2 found it.
     en and de, replacing the S2.6 set for the record.
 
 ## Deviations from the plan or a spec
+
+- **2026-09-22** (D3.3) — **UI.md §3 "three bars, always visible" is relaxed on the phone** (values
+  always visible in the status strip, bars in the sheet) — G2's decision on the chrome asked for
+  it. And the D3.3 *Produce* line says "containment panel" — the spec delivers it with the one
+  unified track of M3; the four tracks are S4.1's content in the same component.
 
 - **2026-09-22** (D3.2) — **CONTENT §4's synergy table changed shape** (three rows are prerequisites
   now, two are nodes, two rows added) and §3 gained the gates the data has; see *Decisions*. The
@@ -792,6 +821,13 @@ takes an OS path, which is worth knowing).
 ## Session log
 
 Newest first. Five lines at most per entry: what was done, what was learned, what is next.
+
+### 2026-09-22 — D3.3 M3 screens [F]
+`docs/specs/m3-screens.md`: tech tree modal (`TechNode`, `TreeLines`, detail pane, buying, focus,
+`tree_pauses`), containment panel with `FactionTrack` and two pure core queries, discovery modal,
+reveal table + `open` palette (contrast checked), title / origin prompt / pause menu / results /
+autosave, phone status strip + menu sheet, dormancy toggle; 181 strings en/de appended. UI.md §6
+questions 1 and 3 decided; IMPLEMENTATION S3.3/S3.4 build lines extended. Next: **D3.4 on Fable**.
 
 ### 2026-09-22 — D3.2 Capabilities tree [F]
 `data/tech_staging/capabilities.json`: 43 nodes in five branches, 7 × 12 grid, every synergy and
