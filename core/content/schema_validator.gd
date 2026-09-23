@@ -64,7 +64,7 @@ const REGION_EVENTS: Array[String] = [SimEvent.ASSET_DEPLOYED, SimEvent.ASSET_LO
 	SimEvent.ABILITY_USED, SimEvent.STATUS_STARTED, SimEvent.STATUS_ENDED,
 	SimEvent.PENETRATION_CHANGED, SimEvent.CONTROL_CHANGED, SimEvent.REGION_WIPED,
 	SimEvent.EVENT_OPENED, SimEvent.EVENT_ANSWERED, SimEvent.EVENT_EXPIRED,
-	SimEvent.EVENT_DROPPED]
+	SimEvent.EVENT_DROPPED, SimEvent.SOCIETY_STAGE_CHANGED]
 ## The strings every map event needs; per option the two of `EventOptionDef`.
 const EVENT_STRING_SUFFIXES: Array[String] = ["TITLE", "BODY"]
 
@@ -2614,6 +2614,10 @@ static func _headline_domain(field: String, event: String,
 			return [SimEvent.CAUSE_SCRUTINY, SimEvent.CAUSE_DEATHS]
 		"outcome":
 			return World.OUTCOME_IDS
+		"faction":
+			# loop-content §9.3: a faction field names one of the four.
+			var factions: Array[String] = Faction.FACTION_IDS.duplicate()
+			return factions
 		"to", "from":
 			if event == SimEvent.THREAT_LEADER_CHANGED:
 				return Faction.FACTION_IDS

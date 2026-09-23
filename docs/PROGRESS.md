@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S4.7 — Chains** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/loop-content.md` §8, §15.2, §16 and `docs/specs/chains.md`) |
+| **Next step** | **S4.8 — Analysis screen** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/analysis.md` — load the `dataviz` skill first) |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S4.8 … S4.10 → D4.5 → G4 (the gates still need the user) |
-| **Last completed** | S4.6 — Trees v3 and the remaining abilities: the three v3 files moved from `data/tech_staging/` to `data/tech/` (folder deleted) and load clean; the vector group, the two doors, every deploy, Release's labs, all ten abilities at both levels and Cyber's +14 / 0 Harm asserted on `res://data`; greedy 900 days with zero rejected commands. 1152 tests, all green (2026-09-23) |
-| **Before that** | S4.5 — Counter-moves, Societal Function, Autophagy (2026-09-23) |
+| **After it** | S4.9, S4.10 → D4.5 → G4 (the gates still need the user) |
+| **Last completed** | S4.7 — Chains: the six chains (21 steps, every option) covered by `test_chains.gd` on `res://data` with each roll seen both ways at named seeds, the eight openings by `test_openings.gd`, every M4 headline shown to fire (`test_m4_headlines.gd`); the §9.3 `faction` domain and `society_stage_changed` as a region event; `bm_exposed` in German at 400 px seen in the running game. 1178 tests, all green (2026-09-23) |
+| **Before that** | S4.6 — Trees v3 and the remaining abilities (2026-09-23) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 177 scripts compile (68 judged by the suite), 1152 tests, **all green since S4.6**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 177 scripts compile (68 judged by the suite), 1178 tests, **all green since S4.7**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -106,8 +106,8 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S4.4 [O] Four factions
 - [x] S4.5 [O] Counter-moves, Societal Function, Autophagy
 - [x] S4.6 [O] Trees v3 and the remaining abilities
-- [ ] **S4.7 [O] Chains**
-- [ ] S4.8 [O] Analysis screen
+- [x] S4.7 [O] Chains
+- [ ] **S4.8 [O] Analysis screen**
 - [ ] S4.9 [O] Localisation tooling and overflow screenshots
 - [ ] S4.10 [O] Strategy bots, second generation — ⇄ **then `/model fable`**
 
@@ -858,6 +858,19 @@ compact bar (it is in the sheet), or a short rate form (`+0,1/T`).
 
 ## Deviations from the plan or a spec
 
+- **2026-09-23** (S4.7) — **The chains needed no wiring**: S4.3's `EventSystem` already runs
+  `next`, `chance[].next`, `pick: "same"`, a step's own pick, `origin`, standing statuses and
+  `global` effects. S4.7 is the tests the two specs list. The rolls, as the tests print them:
+  `bm_published.poison` routes to the exposure at seeds 1, 13, 17 and ends at 2, 3, 4;
+  `rs_talk.discredit` ends at 1, 3, 7 and backfires at 2, 4, 5; `gb_demand.mask` ends at 1, 13, 17
+  and goes to the inquiry at 2, 3, 4 (the sim's first roll, all on `_sim(seed)` of the test).
+- **2026-09-23** (S4.7) — **The headlines test goes through `on_command`** with one matching
+  event per headline over up to 60 seeds (the chance and the weighted pick among rivals), for
+  every headline on an M4 event without a `when`; loop-content §15.2 asked for one test per
+  staged file, but the files were merged and deleted by S4.1–S4.5.
+- **2026-09-23** (S4.7) — **The four Disclosures share their status code** (`DC` / `OL`) and the
+  code-uniqueness test allows exactly that; every other code is unique per language.
+
 - **2026-09-23** (S4.6) — **Every ability was already loadable and usable** (S4.2 loaded all ten
   and the live trees carried the `ability` fields); S4.6 is the data move, the §15.1 tests
   (`tests/integration/test_abilities_content.gd`) and the older tests the v3 trees broke:
@@ -1569,6 +1582,13 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — S4.7 Chains [O]
+- `test_chains.gd` (every option of the 21 chain steps, reachability, the Operator's standing
+  link, the transfer's own pick and its drop, the Benchmark's lock and audit, Second Instance's
+  grace and the betrayer's lock, three rolls both ways), `test_openings.gd`, `test_m4_headlines.gd`;
+  the §9.3 validator domain. Seen by hand: `bm_exposed` in the wire card at 400 × 860, German,
+  `»` fallback, text fits. 1178 tests green. Next: **S4.8**.
 
 ### 2026-09-23 — S4.6 Trees v3 and the remaining abilities [O]
 - `data/tech_staging/*.json` moved over `data/tech/` and the folder deleted; the loader took the
