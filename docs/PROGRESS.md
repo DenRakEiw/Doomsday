@@ -14,15 +14,16 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G3 — Balance pass 1 and the M3 gate** |
-| **Model for it** | **Fable** — `/model fable` first |
-| **After it** | `/clear` → S3.P (the punch list from G3, on Opus) if it has one, else D4.1 |
-| **Last completed** | S3.6 — the three strategy bots and the batch report (M3 build complete) |
-| **Milestone** | M2 gated; **M3 built, waiting for its gate** |
+| **Next step** | **G3, the gate itself: play one run, answer the four questions under *Waiting on the user*** — the balance pass is done (`docs/BALANCE.md`). Then D4.1 |
+| **Model for it** | **Fable** (no switch) |
+| **After it** | `/clear` → D4.1 (Fable). The punch list for S3.P has five items and waits at the head of Block 8; the user may pull it forward to play the gate at the new clock |
+| **Last completed** | G3 balance pass 1 — clock 0.5 + stretch 2.5, `containment.base_rate` 0.0014, seven node names, anomaly headlines (2026-09-23) |
+| **Milestone** | M2 gated; **M3 built and balanced, gate decisions pending** |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
+| **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 132 scripts compile (53 judged by the suite), 675 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 132 scripts compile (53 judged by the suite), 675 tests — **673 green since G3's retune, the two red ones are S3.P items 3 and 5.** The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Run it** | `run_project` starts at the **title** (`game/main.tscn`); New run → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 stealth · F7 idle (**with Shift**: cyber_rush · stealth_spread · persuader) · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
@@ -88,7 +89,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S3.6 [O] Strategy bots and batch reporting — ⇄ **then `/model fable`**
 
 **Block 7 — M3 gate, M4 design · Fable**
-- [ ] **G3 [F] Balance pass 1 and M3 gate — the important one**
+- [ ] **G3 [F] Balance pass 1 and M3 gate — the important one** *(balance pass done 2026-09-23; the play-through and the four gate decisions are pending — see *Waiting on the user*)*
 - [ ] D4.1 [F] Opposition: factions, Societal Function, counter-actions
 - [ ] D4.2 [F] Emergent behaviours; event format; two proving chains
 - [ ] D4.3 [F] Event chains, second batch
@@ -485,60 +486,56 @@ without new information.
   caption size below the breakpoint, standing time grows with length). Caps: en ≤ 80, de ≤ 88
   characters with placeholders at 12 — a string test, not a layout test.
 
+- **2026-09-23** (G3) — **One day is two seconds at 1× (`TICKS_PER_SECOND` 0.5, S3.P applies it)
+  and every per-day rate of the simulation is divided by 2.5**, every duration in days multiplied
+  by it (`scrutiny_per_day` by 2.5², the headline cooldowns too). A won run is 730–1 150 days =
+  24–38 minutes at 1×; the shape of a run (nodes, outcome mix, compute) is unchanged — verified at
+  100 seeds before anything else moved. The scaling rule and the reasons for both levers:
+  `docs/BALANCE.md` §3.2. `history.interval_days` stays 7.
+- **2026-09-23** (G3) — **`containment.base_rate` 0.0010 (the stretched G1 value) → 0.0014.**
+  Swept 0.0010…0.0026 with all six policies over 100 seeds (`BALANCE.md` §3.3): `greedy` 63 %, `cyber_rush` 35 %,
+  `stealth_spread` 67 %, `persuader` 93 %, `idle` 0 % — the loud reference loses one in three, so a
+  first-run human lands under half; 0.0013 had `greedy` at 79 %, 0.0015 at 49 %.
+  `per_footprint` stays 0.15 — raising it to 0.30 is a hammer (`greedy` 18 %); D4.1 turns
+  Footprint into per-faction pressure, which is where quiet play is meant to pay.
+- **2026-09-23** (G3) — **The three containment drivers add, they do not multiply** (S3.3's
+  question). `core.md` §7.5 is the binding formula and every baseline was measured against it;
+  multiplying would have been a 4× jump for a loud, harmful, widespread run on top of the sweep.
+  `m3-screens.md` §12.2's test row corrected to the sum; the panel shows the three as `1 + a`
+  factors, which is what they are.
+- **2026-09-23** (G3) — **The HUD's Harm is the maximum over regions of the scoped stat**, not the
+  unscoped read (S3.3's question): bar, readout and the §6.1 reveal. The containment panel's driver
+  row keeps the unscoped value because that is what the formula multiplies. Scoped Harm itself stays
+  quieter than unscoped by design (`tech-trees.md` §7.5.7). → S3.P.
+- **2026-09-23** (G3) — **Seven English node names shortened** (S3.2's question) rather than
+  widening the compact cell: *Communications Denial*, *Transport Control*, *Automated Lab Access*,
+  *Command Net Presence*, *Fragmentation I* / *II* (both, for consistency), *Replicating Agents*.
+  German names were fine and are unchanged. → S3.P empties `KNOWN_OVERFLOW`.
+- **2026-09-23** (G3) — **Anomaly headlines: three variants each for `anomaly_spawned` and
+  `anomaly_collected`** (S3.5's two questions), `cooldown_days` 75 and 90 per variant after the
+  stretch, so any anomaly line comes about once in 25–30 days and the same sentence once in 75–90.
+  A `greedy` win now says ~235 lines over ~730 days (one every six seconds at the new clock);
+  `ticker.md` §8.3's bound raised from 200 to 260 with the reason.
+- **2026-09-23** (G3) — **The zero rate reads `±0`** (S2.P's question): the `MUTED` delta keeps its
+  colour and gets the sign, string unchanged. → S3.P.
+- **2026-09-23** (G3) — **`cyber_rush` never starving is not a scoped-Harm number.**
+  `lose_no_compute` needs every infected region dark; Cyber's Harm touches the compute-rich ones
+  only, so the poor world keeps the agent alive. The prediction in `tech-trees.md` §7.5.6 is about
+  Autophagy (PLAN §3.7, S4.2) and is re-dated to G4; scoped Harm stays as designed. At M3 the
+  price of killing 57 % of the world is the "ruling over ashes" ending.
+- **2026-09-23** (G3) — **Extinction unreached and the Diplomat unopposed are G4 questions**, not
+  G3 balance answers: no bot buys Release or the Weapons chain until S4.9's `SlowBurn` and
+  `Sprint`, and nothing counters Persuasion until S4.1. The arithmetic of the Biology race is in
+  `BALANCE.md` §3.6.
+- **2026-09-23** (G3) — **Boxed is player-paced.** PLAN's "0–5 minutes, you can barely act" is not
+  enforced by an unaffordable first vector: start Compute 5 covers the cheap leak at once and the
+  origin-matching vectors after a first anomaly. *When* and *with what* to break out is the run's
+  first decision. Revisit only if the play-through says the opening is empty.
+- **2026-09-23** (G3) — **The M1 `stealth` policy is obsolete as a reference** (price-blind, found
+  earlier than `greedy`, collapses when containment bites) and stays in the report for continuity
+  only; `stealth_spread` is the careful reference.
+
 ## Design questions for Fable
-
-**New at S3.6 — two predictions of `tech-trees.md` §7.5.6 did not come true in 3 000 runs.**
-(a) "A policy that buys Blackout and Grid Failure before Robotics should lose to `lose_no_compute`
-in a visible share of seeds — if it never does, the scoped Harm is too low." `cyber_rush` does
-exactly that, kills 57 % of the world, and loses to `lose_no_compute` **zero times in 500 seeds**
-(9 % contained, 91 % Ascendance). (b) No run of any policy ends in Extinction: every win is
-Ascendance, because no bot reaches Biology's Release. (a) is a balance answer G3 owes;
-(b) may only mean that the missing bot is `SlowBurn`, which S3.6 was not asked to build.
-
-**New at S3.6 — nothing opposes the Diplomat.** `persuader` wins 500 of 500 with zero deaths and a
-containment that never passes 0.6. That is §7.5.6's "reference never-contained run" working as
-written, but until M4's factions there is no counter-play in the model at all, so the number says
-nothing about whether Persuasion is *balanced* — only that it is unopposed.
-
-**New at S3.5 — a greedy run says 255 lines, and §8.3 of `ticker.md` bounds it at 200.** Two
-headlines make 112 of them: `anomaly_spawned` (63) and `anomaly_collected` (49), which fire at
-their cooldowns of 3 and 4 days for 300 days. Everything else is inside the expected range
-(filler 39, reaction 13, the other consequence lines ~90). The pacing is content, not code:
-raising those two cooldowns to ~10 days, or lowering their `chance`, brings the total to about
-190. The acceptance test asserts the shape §8.3 asks for — all three streams, the origin first,
-the outcome last, every cooldown respected — with a ceiling of 400 rather than 200, and this
-entry is why.
-
-**New at S3.5 — the same anomaly line twice a week reads as a stuck feed.** The 63 fires above
-are two sentences repeating with a different region in them. Whether that is the intended texture
-of a quiet run (a wire service *is* repetitive) or wants two or three more variants per anomaly
-event is a voice decision.
-
-**New at S3.3 — do the three containment drivers multiply or add?** `core.md` §7.5 sums them
-(`pressure = 1 + a + b + c`); `m3-screens.md` §4.1 and §12.2 read as if they multiplied
-(`(1+a)(1+b)(1+c)`). The build kept the sum (see *Deviations*) because the alternative is a balance
-change. Multiplying would make a loud, harmful, widespread run escalate far faster — at Footprint
-20, Harm 4 and share 0.5 the gain would be 4.5× the summed one — which is a G3 question, not a
-build one. Whichever way G3 decides, `ContainmentSystem.containment_breakdown` and the panel follow
-in one line each.
-
-**New at S3.3 — a scoped Harm node leaves the Harm bar at zero.** §6.1 reveals the bar once
-`stat("harm") > 0`, and §5.3 shows the same unscoped number. Half the Harm nodes of
-`capabilities.json` are scoped (Regional Blackout is `compute` ≥ 2, Supply Chain Halt is
-`population` ≥ 3), and an unscoped read of a scoped modifier is 0 — so a player who buys only
-those sees no Harm bar and no Harm number while people die. Three ways out: the bar reads the
-maximum over the regions, the reveal reads that while the bar keeps the global stat, or the content
-stops scoping Harm. This is a real hole in the HUD's promise, not a nicety.
-
-**New at S3.2 — seven English node names need three lines in a cell built for two.**
-§3.4 promises two lines and no ellipsis at `TECH_CELL` 200 × 96 and `TECH_CELL_COMPACT` 160 × 88.
-Every **German** name holds at both sizes. In English `total_communications_denial` needs three
-lines at 200 and, at 160, so do `rail_and_shipping_control`, `automated_laboratory_access`,
-`command_network_presence`, `weight_fragmentation_2` and `self_replicating_agents`. The node keeps
-`max_lines_visible = 2` and trims with an ellipsis, as the spec says, so those names are cut on a
-phone. Three ways out, all Fable's: shorten the English names, widen the compact cell (a phone
-scrolls the grid anyway), or let the name have three lines and shrink the cost row.
-`tests/unit/test_tech_node.gd` asserts the list exactly, so it fails the day a name changes.
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
@@ -547,13 +544,6 @@ scrolls the grid anyway), or let the name have three lines and shrink the cost r
 `Format.caps()` (`ui/components/format.gd`) maps ß → SS before `to_upper()`, so `UI_COMMON_CLOSE`
 reads `SCHLIESSEN`; the alternative is the capital ẞ (U+1E9E), which both fonts carry. A one-line
 change either way. (S2.4's second question — the dark chip — was answered at G2, see *Decisions*.)
-
-**New at S2.P — the zero rate reads as two numbers.** §4.5's zero state drops the arrow, so the
-compute cell now shows `1,4 0 / Tag` (`UI_HUD_COMPUTE_RATE` with a bare `0` in it) for the whole
-early game, where the rate is below 0.05. It is what the spec asks for and it is no longer a lie,
-but at a glance it reads as two numbers. If the wording should change — `±0` inside the sentence,
-or a rate cell that is simply empty until it rounds up — that is one line in `value_label.gd`
-(`_set_delta`, the `State.MUTED` branch) plus the string.
 
 **Parked for a later Fable step (not questions, reminders):**
 - **M6 (VISUALS):** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the 8192-px
@@ -587,7 +577,33 @@ or a rate cell that is simply empty until it rounds up — that is one line in `
 
 ## Punch list for Opus
 
-*(empty — S2.P closed the twelve items from G2 on 2026-09-22. The next one comes from G3.)*
+**S3.P — from G3 (2026-09-23).** Each item is a decision already made; nothing here needs design.
+
+1. **`game/autoload/game.gd`: `TICKS_PER_SECOND` 1.0 → 0.5** (one day every two seconds at 1×; 2×
+   and 4× multiply). `tests/unit/test_game_accumulator.gd` follows: 120 frames of 1/60 at 1× are
+   one tick, at 2× two, at 4× four; the test names say "two seconds". `ui-foundation.md` §10.2 and
+   §10.3 already say 0.5.
+2. **The HUD's Harm reads the maximum over regions.** `ui/hud/hud.gd`, `status_strip.gd`,
+   `stat_row.gd` (`TARGET_HARM`) bind `stat("harm")`, which is 0 while a player who owns only scoped
+   Harm nodes (Regional Blackout, Supply Chain Halt, …) kills people. Bar, readout and the §6.1
+   reveal use `max over regions of stat("harm", r)` (a `World`/`ModifierStack` query if none
+   exists — `core/` may gain the pure function); the containment panel's `_DRIVER_HARM` row keeps the
+   unscoped value. `m3-screens.md` §6.1 has the rule. Test: a fixture with one scoped Harm node shows
+   the bar.
+3. **`tests/unit/test_tech_node.gd`: `KNOWN_OVERFLOW` → `[]`.** G3 shortened the seven English
+   names in `strings.csv` (Communications Denial, Transport Control, Automated Lab Access, Command
+   Net Presence, Fragmentation I/II, Replicating Agents). If one still needs three lines at 160 px,
+   report it under *Design questions* rather than widening the cell.
+4. **`ui/components/value_label.gd`, the `State.MUTED` branch: the zero delta reads `±0`**
+   (`" ±0"` with the muted colour, no arrow), so the compute cell no longer shows `1,4 0 / day`.
+   `ui-foundation.md` §4.5 updated. String unchanged.
+5. **Tests that depended on the M3 pace.** G3 stretched every per-day rate by 2.5 (see *Decisions*);
+   the suite was run afterwards (675 tests, 673 green) and exactly two fail, both expected:
+   `tests/integration/test_region_panel.gd` `test_the_deaths_row_appears_only_once_somebody_has_died`
+   — `Game.advance(400)` no longer reaches a death on seed 1 (the first deaths of a `greedy` run
+   now come after day ~700); advance far enough or pick the day from the run. And item 3's
+   `KNOWN_OVERFLOW`: the measured list is already `[]`, so every English name fits and the constant
+   simply empties. **CI is red until S3.P closes these two.**
 
 ## Deviations from the plan or a spec
 
@@ -981,9 +997,46 @@ or a rate cell that is simply empty until it rounds up — that is one line in `
 
 ## Waiting on the user
 
-*(nothing)*
+**G3, the gate (2026-09-23).** The balance pass is in; the gate needs the user's eyes. Play one full
+run (`run_project` → New run → an origin with hardware → 1×; a win is ~12 minutes at today's clock
+and ~24 after S3.P item 1, a loss comes sooner) and answer:
+
+1. **Is the loop fun?** The only question that can change the plan: if not, D4.1–D4.4 become a
+   redesign step (IMPLEMENTATION §1.7). What to watch: does Boxed → first vector feel like a
+   decision; is discovery a moment; is the Emergent phase a race the player can read on the
+   containment panel; does the Open phase feel like a sprint or a wait.
+2. **Four containment tracks or two** (PLAN §6). *Recommendation: four.* D3.1/D3.2 already put
+   per-faction brakes on twelve nodes, the Weapons chain is watched by all four, and Persuasion's
+   identity (Regulatory Capture → governments, Sycophancy → public) is per faction; two tracks would
+   strand half of that. The HUD shows one bar (the maximum) either way; the panel lists the tracks.
+3. **UI question 1 — does the tree pause the game?** D3.3 decided *by a setting, on by default on
+   desktop, off on mobile*. *Recommendation: confirm.*
+4. **VISUALS question 5 — `DPITexture` for the icons?** *Recommendation: yes*, with the source SVGs
+   kept and a PNG-atlas fallback as a build step (VISUALS already proposes exactly that); the icon
+   set is not real yet, so this is a direction for M6, not a change now.
+
+Record the answers under *Decisions* (G3), tick G3, commit `G3: gate decisions`.
 
 ## Balance baselines
+
+**2026-09-23 (G3) — the G3 baseline: the retuned data, six policies, 500 seeds each.**
+Every per-day rate ÷ 2.5, `containment.base_rate` 0.0014, the clock to follow in S3.P (one day =
+two seconds). Full pass in `docs/BALANCE.md` §3. Days are simulated days: 100 = 200 s at 1×.
+
+| Policy | Outcome | Days | Discovery | Deaths | Containment | Compute | Nodes (I · C · E) | Said (c · r · f) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 100 % contained | 1047 · **1504** · 2272 | day 790 | 0 % | 1.00 | 42 | 0 · 0 · 0 | 25 · 13 · 125 |
+| `greedy` | 57 % Ascendance (43 % contained) | 473 · **698** · 763 | day 282 | 20 % | 0.94 | 1 519 | 15 · 20 · 6 | 122 · 15 · 39 |
+| `stealth` | 82 % contained (18 % Ascendance) | 478 · **572** · 864 | day 206 | 0 % | 1.00 | 311 | 13 · 5 · 5 | 84 · 13 · 39 |
+| `cyber_rush` | 67 % contained (33 % Ascendance) | 407 · **500** · 756 | day 223 | 4 % | 1.00 | 593 | 15 · 10 · 6 | 102 · 14 · 32 |
+| `stealth_spread` | 67 % Ascendance (33 % contained) | 794 · **1071** · 1230 | day 580 | 9 % | 0.77 | 1 403 | 15 · 16 · 7 | 128 · 15 · 76 |
+| `persuader` | 93 % Ascendance (7 % contained) | 687 · **746** · 793 | day 261 | 0 % | 0.61 | 1 234 | 17 · 7 · 0 | 114 · 14 · 46 |
+
+What the numbers say: a `greedy` win is ~730 days = 24 min at the new clock, a
+`stealth_spread` win ~36 min, a loss 13–20 min; the loud reference loses 43 % of its runs, the loudest
+branch 67 %, the careful spread 33 %, the Diplomat 7 % (unopposed until S4.1); `idle` always.
+Extinction and `lose_no_compute` still never happen — G4's questions (BALANCE §3.6). Headlines
+per `greedy` run ≈ 176, the anomaly lines no longer dominate.
 
 **2026-09-23 (S3.6) — the M3 baseline: six policies, 500 seeds each, the same seeds for all of
 them.** `res://data` complete (72 nodes, 150 headlines), `tools/sim_report.gd --seeds=1..500`,
@@ -1096,6 +1149,15 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — G3 Balance pass 1 [F] *(gate decisions pending)*
+Every per-day rate of `balance.json` divided by 2.5 and every duration multiplied (a two-second
+day, `TICKS_PER_SECOND` 0.5 → S3.P), then `containment.base_rate` swept over 14 variants × 100
+seeds and set to 0.0014: `greedy` 57 %, `cyber_rush` 33 %, `stealth_spread` 67 %, `persuader`
+93 % at 500 seeds — a won run is 24–36 min. Seven S3.x design questions answered (drivers add,
+Harm bar = max over regions, seven English names shortened, anomaly headlines ×3 variants, `±0`),
+`docs/BALANCE.md` written, five-item punch list for S3.P, two tests red until then. The
+play-through and the four gate questions wait under *Waiting on the user*.
 
 ### 2026-09-23 — S3.6 Strategy bots and batch reporting [O]
 `CyberRushPolicy`, `StealthSpreadPolicy` and `PersuaderPolicy` (`tech-trees.md` §7.3 and §7.5.6),

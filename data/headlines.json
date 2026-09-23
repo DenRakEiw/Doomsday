@@ -1,5 +1,5 @@
 {
-	"_comment": "Headlines for the ticker (D3.4). Format, trigger vocabulary, eligibility, selection and pacing: docs/specs/ticker.md section 3; voice: docs/CONTENT.md section 10. Text lives in data/loc/strings.csv under HEADLINE_<ID>. Nothing reads this file until S3.5 builds the HeadlineSystem; the pacing constants it needs are the balance.headlines block of the spec.",
+	"_comment": "Headlines for the ticker (D3.4). Format, trigger vocabulary, eligibility, selection and pacing: docs/specs/ticker.md section 3; voice: docs/CONTENT.md section 10. Text lives in data/loc/strings.csv under HEADLINE_<ID>. Pacing constants: balance.headlines. Every cooldown_days is in simulated days and was multiplied by 2.5 at G3 (docs/BALANCE.md section 3.2); the anomaly lines have three variants each with a long cooldown, so any of them fires about once in 25-30 days.",
 	"version": 1,
 	"headlines": [
 		{
@@ -47,7 +47,7 @@
 				"regions_min": 3
 			},
 			"chance": 0.6,
-			"cooldown_days": 14
+			"cooldown_days": 35
 		},
 		{
 			"id": "seed_sea",
@@ -63,7 +63,7 @@
 				"regions_min": 3
 			},
 			"chance": 0.6,
-			"cooldown_days": 20
+			"cooldown_days": 50
 		},
 		{
 			"id": "seed_air",
@@ -79,7 +79,7 @@
 				"regions_min": 3
 			},
 			"chance": 0.6,
-			"cooldown_days": 20
+			"cooldown_days": 50
 		},
 		{
 			"id": "seed_land",
@@ -95,7 +95,7 @@
 				"regions_min": 3
 			},
 			"chance": 0.4,
-			"cooldown_days": 12
+			"cooldown_days": 30
 		},
 		{
 			"id": "seed_rich",
@@ -111,7 +111,7 @@
 				"regions_min": 3
 			},
 			"weight": 2,
-			"cooldown_days": 15
+			"cooldown_days": 38
 		},
 		{
 			"id": "seed_poor",
@@ -126,7 +126,7 @@
 			"when": {
 				"regions_min": 3
 			},
-			"cooldown_days": 20
+			"cooldown_days": 50
 		},
 		{
 			"id": "seed_isolated",
@@ -142,7 +142,7 @@
 				"regions_min": 3
 			},
 			"weight": 2,
-			"cooldown_days": 30
+			"cooldown_days": 75
 		},
 		{
 			"id": "seed_open",
@@ -152,7 +152,7 @@
 				"event": "region_seeded"
 			},
 			"chance": 0.5,
-			"cooldown_days": 6
+			"cooldown_days": 15
 		},
 		{
 			"id": "controlled",
@@ -162,7 +162,7 @@
 				"event": "region_controlled"
 			},
 			"chance": 0.6,
-			"cooldown_days": 8
+			"cooldown_days": 20
 		},
 		{
 			"id": "controlled_rich",
@@ -175,7 +175,7 @@
 				}
 			},
 			"weight": 3,
-			"cooldown_days": 25
+			"cooldown_days": 62
 		},
 		{
 			"id": "controlled_open",
@@ -185,7 +185,7 @@
 				"event": "region_controlled"
 			},
 			"chance": 0.6,
-			"cooldown_days": 6
+			"cooldown_days": 15
 		},
 		{
 			"id": "anomaly_spawned",
@@ -195,7 +195,27 @@
 				"event": "anomaly_spawned"
 			},
 			"chance": 0.7,
-			"cooldown_days": 3
+			"cooldown_days": 75
+		},
+		{
+			"id": "anomaly_spawned_2",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "anomaly_spawned"
+			},
+			"chance": 0.7,
+			"cooldown_days": 75
+		},
+		{
+			"id": "anomaly_spawned_3",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "anomaly_spawned"
+			},
+			"chance": 0.7,
+			"cooldown_days": 75
 		},
 		{
 			"id": "anomaly_expired",
@@ -205,7 +225,7 @@
 				"event": "anomaly_expired"
 			},
 			"chance": 0.4,
-			"cooldown_days": 6
+			"cooldown_days": 15
 		},
 		{
 			"id": "anomaly_collected",
@@ -215,7 +235,27 @@
 				"event": "anomaly_collected"
 			},
 			"chance": 0.6,
-			"cooldown_days": 4
+			"cooldown_days": 90
+		},
+		{
+			"id": "anomaly_collected_2",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "anomaly_collected"
+			},
+			"chance": 0.6,
+			"cooldown_days": 90
+		},
+		{
+			"id": "anomaly_collected_3",
+			"stream": "consequence",
+			"register": "any",
+			"on": {
+				"event": "anomaly_collected"
+			},
+			"chance": 0.6,
+			"cooldown_days": 90
 		},
 		{
 			"id": "milestone_regions_10",
@@ -282,7 +322,7 @@
 					]
 				}
 			},
-			"cooldown_days": 10
+			"cooldown_days": 25
 		},
 		{
 			"id": "n_cloud_federation",
@@ -437,7 +477,7 @@
 					"dormant": true
 				}
 			},
-			"cooldown_days": 2
+			"cooldown_days": 5
 		},
 		{
 			"id": "dormancy_off",
@@ -449,7 +489,7 @@
 					"dormant": false
 				}
 			},
-			"cooldown_days": 2
+			"cooldown_days": 5
 		},
 		{
 			"id": "n_benchmark_sandbagging",
@@ -976,7 +1016,7 @@
 				"event": "node_purchased",
 				"node_tree": "infiltration"
 			},
-			"cooldown_days": 10,
+			"cooldown_days": 25,
 			"fallback": true
 		},
 		{
@@ -987,7 +1027,7 @@
 				"event": "node_purchased",
 				"node_tree": "capabilities"
 			},
-			"cooldown_days": 10,
+			"cooldown_days": 25,
 			"fallback": true
 		},
 		{
@@ -998,7 +1038,7 @@
 				"event": "node_purchased",
 				"node_tree": "evasion"
 			},
-			"cooldown_days": 10,
+			"cooldown_days": 25,
 			"fallback": true
 		},
 		{
@@ -1016,7 +1056,7 @@
 			"on": {
 				"event": "compute_granted"
 			},
-			"cooldown_days": 1
+			"cooldown_days": 2
 		},
 		{
 			"id": "depopulated",
@@ -1026,7 +1066,7 @@
 				"event": "region_depopulated"
 			},
 			"chance": 0.7,
-			"cooldown_days": 2
+			"cooldown_days": 5
 		},
 		{
 			"id": "depopulated_2",
@@ -1036,7 +1076,7 @@
 				"event": "region_depopulated"
 			},
 			"chance": 0.7,
-			"cooldown_days": 2
+			"cooldown_days": 5
 		},
 		{
 			"id": "outcome_win_extinction",
@@ -1144,7 +1184,7 @@
 					"threshold": 0.25
 				}
 			},
-			"cooldown_days": 30
+			"cooldown_days": 75
 		},
 		{
 			"id": "threshold_50",
@@ -1156,7 +1196,7 @@
 					"threshold": 0.5
 				}
 			},
-			"cooldown_days": 30
+			"cooldown_days": 75
 		},
 		{
 			"id": "threshold_75",
@@ -1168,7 +1208,7 @@
 					"threshold": 0.75
 				}
 			},
-			"cooldown_days": 30
+			"cooldown_days": 75
 		},
 		{
 			"id": "threshold_open",
@@ -1177,7 +1217,7 @@
 			"on": {
 				"event": "containment_threshold"
 			},
-			"cooldown_days": 30
+			"cooldown_days": 75
 		},
 		{
 			"id": "rolled_back",
@@ -1186,7 +1226,7 @@
 			"on": {
 				"event": "containment_rolled_back"
 			},
-			"cooldown_days": 1
+			"cooldown_days": 2
 		},
 		{
 			"id": "r_ninety",
@@ -1195,7 +1235,7 @@
 			"when": {
 				"containment_min": 0.9
 			},
-			"cooldown_days": 10
+			"cooldown_days": 25
 		},
 		{
 			"id": "r_ninety_open",
@@ -1204,7 +1244,7 @@
 			"when": {
 				"containment_min": 0.9
 			},
-			"cooldown_days": 10
+			"cooldown_days": 25
 		},
 		{
 			"id": "r_thirty_days",
@@ -1269,7 +1309,7 @@
 			"when": {
 				"footprint_min": 15
 			},
-			"cooldown_days": 40
+			"cooldown_days": 100
 		},
 		{
 			"id": "r_silence",
@@ -1296,7 +1336,7 @@
 			"when": {
 				"share_min": 0.6
 			},
-			"cooldown_days": 30
+			"cooldown_days": 75
 		},
 		{
 			"id": "r_dormant",
@@ -1305,7 +1345,7 @@
 			"when": {
 				"dormant_min": 3
 			},
-			"cooldown_days": 30
+			"cooldown_days": 75
 		},
 		{
 			"id": "r_written_answer",
@@ -1337,147 +1377,147 @@
 				]
 			},
 			"weight": 2,
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_safe_by_design",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_licensing",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_transform",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_roadmap",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_committee",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_export_controls",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_communique",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_exam",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_rename",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_town",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_marriage",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_insurers",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_strategy",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_enrolment",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_benchmark",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_trading_halt",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_open_letter",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_assistant_holiday",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_ethics_board",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_ai_winter",
 			"stream": "filler",
 			"register": "institutional",
 			"when": {},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_energy",
@@ -1489,7 +1529,7 @@
 					"emergent"
 				]
 			},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_outage_report",
@@ -1501,7 +1541,7 @@
 					"emergent"
 				]
 			},
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_hearing",
@@ -1513,63 +1553,63 @@
 				]
 			},
 			"weight": 2,
-			"cooldown_days": 45
+			"cooldown_days": 112
 		},
 		{
 			"id": "f_queues",
 			"stream": "filler",
 			"register": "emergency",
 			"when": {},
-			"cooldown_days": 30
+			"cooldown_days": 75
 		},
 		{
 			"id": "f_remain_calm",
 			"stream": "filler",
 			"register": "emergency",
 			"when": {},
-			"cooldown_days": 30
+			"cooldown_days": 75
 		},
 		{
 			"id": "f_talk_show",
 			"stream": "filler",
 			"register": "emergency",
 			"when": {},
-			"cooldown_days": 30
+			"cooldown_days": 75
 		},
 		{
 			"id": "f_weather",
 			"stream": "filler",
 			"register": "emergency",
 			"when": {},
-			"cooldown_days": 30
+			"cooldown_days": 75
 		},
 		{
 			"id": "f_banks",
 			"stream": "filler",
 			"register": "emergency",
 			"when": {},
-			"cooldown_days": 30
+			"cooldown_days": 75
 		},
 		{
 			"id": "f_notice",
 			"stream": "filler",
 			"register": "emergency",
 			"when": {},
-			"cooldown_days": 30
+			"cooldown_days": 75
 		},
 		{
 			"id": "f_stay_indoors",
 			"stream": "filler",
 			"register": "emergency",
 			"when": {},
-			"cooldown_days": 30
+			"cooldown_days": 75
 		},
 		{
 			"id": "f_curfew",
 			"stream": "filler",
 			"register": "emergency",
 			"when": {},
-			"cooldown_days": 30
+			"cooldown_days": 75
 		}
 	]
 }

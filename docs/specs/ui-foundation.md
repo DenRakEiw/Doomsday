@@ -310,7 +310,8 @@ between them, `compact = true`).
 `TYPE_DATA`, right-aligned, colour `TEXT_0`. `func set_number(value: float, kind: Format.Kind)
 -> void` formats via `Format` (§8.5). Optional delta: `func set_delta(delta: float, kind) -> void`
 appends `" ▲ +12"` / `" ▼ −3"` (the arrows are U+25B2 / U+25BC) in `ACCENT` for positive,
-`MAP_DEATH` for negative, `TEXT_2` and no arrow for zero — zero meaning the *formatted* delta
+`MAP_DEATH` for negative, `TEXT_2`, no arrow and a `±` sign (`" ±0"`) for zero — so the compute
+cell never reads as two numbers (G3 decision) — zero meaning the *formatted* delta
 reads 0, so a rate of 0.03 shows `0`, never `▲ +0` (G2). S2.4 checks `Font.has_char(0x25B2)` on
 the imported JetBrains Mono; if it is missing, the label uses the sign alone (`+12` / `−3`) and
 `PROGRESS.md` records it — a system-font fallback glyph is not acceptable. States: **neutral**
@@ -834,7 +835,7 @@ signal reduced_motion_changed(enabled: bool)
 ### 10.2 `Game` (autoload)
 
 ```gdscript
-const TICKS_PER_SECOND: float = 1.0      # at 1×; 2× and 4× multiply. Tuned at G3.
+const TICKS_PER_SECOND: float = 0.5      # at 1×: one day every two seconds; 2× and 4× multiply. G3 decision, applied in S3.P.
 const MAX_TICKS_PER_FRAME: int = 8       # a long frame never spirals
 var sim: Simulation                      # null before a run
 var db: ContentDB
@@ -862,7 +863,8 @@ The ticker announces a bot run with `UI_DEBUG_BOT_RUN`.
 
 `tests/unit/test_game_accumulator.gd` drives the accumulator as a pure function
 (`Game.ticks_for(delta, speed, acc) -> [ticks, acc]`, static, so the test needs no autoload): a
-sequence of 60 deltas of 1/60 at 1× yields exactly 1 tick; at 4× exactly 4; at speed 0 none; one
+sequence of 120 deltas of 1/60 at 1× yields exactly 1 tick and at 4× exactly 4 (G3:
+`TICKS_PER_SECOND` 0.5, two seconds per day); at speed 0 none; one
 delta of 10 s at 4× yields `MAX_TICKS_PER_FRAME` and the remainder is dropped, not carried.
 
 ### 10.4 `SaveManager` (autoload)

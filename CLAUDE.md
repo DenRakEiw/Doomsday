@@ -41,6 +41,7 @@ whatever a future session would need to know about it.
 | `docs/UI.md` | Screen flow, HUD, UI architecture, accessibility |
 | `docs/VISUALS.md` | 2D decision, art direction, map pipeline gotchas, fonts, icons |
 | `docs/ASSET_LICENCES.md` | Every third-party or generated asset — nothing ships without a row |
+| `docs/BALANCE.md` | Balance passes: targets, method, sweeps, what changed and why (from G3) |
 
 ## Rules that are easy to break
 

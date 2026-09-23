@@ -555,7 +555,9 @@ the strings follow are `CONTENT.md` §10; the placeholders they use are `{region
 ### 8.3 Acceptance (S3.5 *Done when*)
 
 - `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --headlines`
-  prints between 40 and 200 headline lines with all three streams present, the first line the
+  prints between 40 and 260 headline lines (G3: a `greedy` win of ~730 days says ~235 — the bound
+  was 200 for the 300-day runs of M3, and the anomaly lines are now one in 25 days) with all three
+  streams present, the first line the
   origin's, the last the outcome's, and no line repeated within its `cooldown_days`.
 - In the running game (`run_project`, F5): the strip shows headlines only; `L` re-renders the
   visible line in the other language without a restart; a save made in Open loads with `///`

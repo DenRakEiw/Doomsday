@@ -1,5 +1,5 @@
 {
-	"_comment": "Every tunable constant of the simulation. Format and meaning: data/SCHEMA.md section 5. Formulas: docs/specs/core.md section 7. Retuned once at G1 (containment.base_rate); next pass at G3 with the real technology trees.",
+	"_comment": "Every tunable constant of the simulation. Format and meaning: data/SCHEMA.md section 5. Formulas: docs/specs/core.md section 7. Retuned at G1 (containment.base_rate) and at G3 (every per-day rate divided by 2.5 for a two-second day, containment.base_rate re-swept; docs/BALANCE.md section 3).",
 	"stats": {
 		"spread_growth": 1.0,
 		"spread_seed": 1.0,
@@ -31,32 +31,32 @@
 	},
 	"population_tiers": [5000000, 30000000, 100000000, 300000000],
 	"spread": {
-		"base_growth": 0.04,
+		"base_growth": 0.016,
 		"origin_penetration": 0.05,
 		"seed_penetration": 0.01,
 		"saturation_snap": 0.999,
 		"seed_chance": {
-			"land": 0.04,
-			"sea": 0.015,
-			"air": 0.02,
-			"network": 0.03
+			"land": 0.016,
+			"sea": 0.006,
+			"air": 0.008,
+			"network": 0.012
 		}
 	},
 	"control": {
 		"threshold": 0.5,
-		"rate": 0.006,
+		"rate": 0.0024,
 		"complete": 0.99
 	},
 	"compute": {
 		"start": 5.0,
-		"yield_scale": 0.02,
+		"yield_scale": 0.008,
 		"hardware_by_tier": [0.0, 1.0, 2.0, 4.0, 7.0],
 		"cost_step": 1.0
 	},
 	"anomaly": {
-		"spawn_chance": 0.02,
+		"spawn_chance": 0.008,
 		"max_active": 5,
-		"lifetime_days": 20,
+		"lifetime_days": 50,
 		"base_value": 2.0,
 		"tier_bonus": 0.25,
 		"footprint_bonus": 0.5,
@@ -74,17 +74,17 @@
 		{"id": "share_90", "kind": "world_share", "threshold": 0.9, "reward": 12.0}
 	],
 	"harm": {
-		"daily_rate": 0.002
+		"daily_rate": 0.0008
 	},
 	"discovery": {
-		"scrutiny_per_day": 0.000012,
-		"per_footprint": 0.004,
-		"breadth_rate": 0.0015,
+		"scrutiny_per_day": 0.00000192,
+		"per_footprint": 0.0016,
+		"breadth_rate": 0.0006,
 		"breadth_free": 0.15,
 		"deaths_certain_share": 0.0001
 	},
 	"containment": {
-		"base_rate": 0.0025,
+		"base_rate": 0.0014,
 		"per_footprint": 0.15,
 		"per_harm": 0.3,
 		"per_share": 1.0,
@@ -99,9 +99,9 @@
 		"_comment": "ticker.md 3.8: the caps and the pace of the narration.",
 		"max_per_tick": 2,
 		"max_per_command": 3,
-		"reaction_gap_days": 3,
+		"reaction_gap_days": 8,
 		"filler": {
-			"gap_days": {"boxed": 4, "covert": 5, "emergent": 7, "open": 9},
+			"gap_days": {"boxed": 10.0, "covert": 12.5, "emergent": 17.5, "open": 22.5},
 			"per_dark_region": 0.4,
 			"silence_dark_regions": 25,
 			"silence_deaths_share": 0.05

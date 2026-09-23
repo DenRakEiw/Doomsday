@@ -423,7 +423,12 @@ regresses, ui-foundation §7.6 in core.md, and the value rules are monotone by c
 | Top bar (compute, phase, day, speed) | shown | shown | shown | shown |
 | Stat row: Penetration | shown | shown | shown | shown |
 | Stat row: Footprint | hidden | shown | shown | shown |
-| Stat row: Harm | hidden | **shown once `stat("harm") > 0`**, else hidden | shown | shown |
+| Stat row: Harm | hidden | **shown once `harm_shown > 0`**, else hidden | shown | shown |
+
+`harm_shown` is the **maximum over regions** of `stat("harm", r)` (G3 decision): half the Harm nodes
+are scoped, and an unscoped read of a scoped modifier is 0, so the bar, the readout and this reveal
+all use the maximum. Only the containment panel's `_DRIVER_HARM` row keeps the unscoped value —
+it shows what `core.md` §7.5 actually multiplies.
 | Overlay picker | hidden (one region, nothing to compare) | penetration · control | + population | all three |
 | Dock: Capabilities | shown | shown | shown | shown |
 | Dock: Containment | hidden | shown (the risk view is the Covert player's tool) | shown, with the % chip | shown |
@@ -1079,7 +1084,7 @@ menu sheet** (compact only) · **Modals** (discovery, confirm, results with fake
 | `tests/unit/test_faction_track.gd` `test_band_from_thresholds` | 0.1 quiet, 0.25 alert, 0.5 mobilised, 0.75 closing; ticks at the thresholds |
 | `tests/integration/test_containment_panel.gd` `test_shows_risk_before_and_tracks_after_discovery` | undiscovered fixture → risk rows visible, drivers hidden; discovered → the reverse, the chip says the day |
 | `tests/unit/test_containment_queries.gd` `test_discovery_risk_matches_the_tick` | fixed seed: `discovery_risk().total` equals the risk the system computed for the same world (exposed through the extracted function) |
-| `test_containment_breakdown_multiplies_to_the_gain` | `footprint × harm × share × capacity × brakes × base_rate == gain` (±1e-9) and equals the containment delta of the next tick |
+| `test_containment_breakdown_adds_up_to_the_gain` · `test_the_breakdown_is_what_the_next_tick_adds` | `(footprint + harm + share − 2) × capacity × brakes × base_rate == gain` (±1e-9) — the three drivers are the addends of `core.md` §7.5's one pressure, shown as factors of the form `1 + a` (G3 decision) — and equals the containment delta of the next tick |
 | `tests/integration/test_discovery_moment.gd` `test_discovery_holds_and_shows_the_modal` | on `discovered` with no policy: `Game.is_held()`, the modal is open; Continue → released, speed back; a policy run shows nothing |
 | `tests/integration/test_phase_reveal.gd` `test_reveal_follows_the_table` | a fixture world set to each phase (and harm 0 / > 0 in Covert) → exactly the blocks of §6.1 visible; loading a save in Open shows the Open set at once |
 | `test_open_swaps_the_variant_once` | entering Open: `UiTokens.variant == &"open"`, the session theme's `ConsoleButton` normal colour is the open `BG_3`; a new run resets to cold |
