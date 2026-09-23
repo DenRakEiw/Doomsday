@@ -43,6 +43,8 @@ const HOLD_DISCOVERY: StringName = &"discovery"
 const HOLD_PAUSE: StringName = &"pause"
 const HOLD_RESULTS: StringName = &"results"
 const HOLD_ORIGIN: StringName = &"origin"
+## `loop-mechanics.md` §16.7: the wire card holds the clock while it is up.
+const HOLD_EVENT: StringName = &"event"
 
 @onready var _safe_area: MarginContainer = %SafeArea
 @onready var _hud: Control = %Hud
@@ -53,6 +55,7 @@ const HOLD_ORIGIN: StringName = &"origin"
 @onready var _discovery: DiscoveryModal = %DiscoveryModal
 @onready var _pause_menu: PauseMenu = %PauseMenu
 @onready var _ability_picker: Control = %AbilityPicker
+@onready var _wire: WireCard = %WireCard
 @onready var _results: Results = %Results
 @onready var _camera: MapCamera = %MapCamera
 @onready var _menu_sheet: SlidePanel = %MenuSheet
@@ -61,6 +64,8 @@ const HOLD_ORIGIN: StringName = &"origin"
 var _last_speed: int = SPEED_DEFAULT
 ## §7.5: a failed autosave is reported once, not once a second.
 var _autosave_warned: bool = false
+## Events waiting for the wire card while it shows another, oldest first.
+var _wire_queue: Array[int] = []
 
 
 func _ready() -> void:
@@ -85,6 +90,8 @@ func _ready() -> void:
 	_tech_tree.reopen_requested.connect(_on_tech_tree_reopen_requested)
 	_discovery.dismissed.connect(_on_discovery_dismissed)
 	_discovery.containment_requested.connect(_on_discovery_containment)
+	_wire.closed.connect(_on_wire_closed)
+	EventBus.wire_requested.connect(_open_wire)
 	# §4.1: the two side panels never overlap — opening one closes the other.
 	EventBus.region_selected.connect(_on_region_selected)
 	EventBus.sim_event.connect(_on_sim_event)
@@ -273,12 +280,50 @@ func _on_results_title_requested() -> void:
 ## §5: the moment they find you. A bot run is narrated by the ticker alone, and
 ## a save that was already discovered emits no event to react to.
 func _on_sim_event(event: SimEvent) -> void:
+	if event.type == SimEvent.EVENT_OPENED:
+		_on_event_opened(event)
+		return
 	if event.type != SimEvent.DISCOVERED or Game.policy != null:
 		return
 	_modals.flash_alert()
 	Game.hold(HOLD_DISCOVERY)
 	_discovery.show_discovery(str(event.data.get("cause", "")), event.day)
 	_modals.open(_discovery)
+
+
+## §16.7: a global event, or one that asks for the card, opens the wire card —
+## except in a bot run, where the bot answers or the deadline does.
+func _on_event_opened(event: SimEvent) -> void:
+	if Game.policy != null:
+		return
+	if not bool(event.data.get("modal", false)) and not str(event.data.get("region", "")).is_empty():
+		return
+	_open_wire(int(event.data.get("event", 0)))
+
+
+func _open_wire(event_id: int) -> void:
+	if Game.sim == null or Game.sim.world.event_by_id(event_id) == null:
+		return
+	if _wire.visible or _modals.current() == _wire:
+		if _wire.event_id() != event_id and not _wire_queue.has(event_id):
+			_wire_queue.append(event_id)
+		return
+	if not _wire.show_event(event_id):
+		return
+	Game.hold(HOLD_EVENT)
+	_modals.open(_wire)
+
+
+func _on_wire_closed() -> void:
+	if _modals.current() == _wire:
+		_modals.close()
+	_wire.visible = false
+	Game.release(HOLD_EVENT)
+	while not _wire_queue.is_empty():
+		var next: int = _wire_queue.pop_front()
+		if Game.sim != null and Game.sim.world.event_by_id(next) != null:
+			_open_wire(next)
+			return
 
 
 func _on_discovery_dismissed() -> void:

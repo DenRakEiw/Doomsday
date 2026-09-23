@@ -14,21 +14,21 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S4.3 — Map events** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/loop-mechanics.md`, events) |
-| **Model for it** | **Opus** — no switch |
-| **After it** | S4.4 … S4.10 (no switch) → `/model fable` → D4.5 |
-| **Last completed** | S4.2 — Statuses and abilities: `StatusDef`/`AbilityDef`, `Status`, `Pulse`, `StatusSystem`, `UseAbilityCommand`, the ten remaining effects of §8.2, the four targets live, save v2 filled, the console line, status rings, the region panel's *Status* and *Actions* rows, the `A` picker. 911 tests, all green (2026-09-23) |
-| **Before that** | S4.1 — Assets and site select: `Eligibility`, `AssetDef`, `EffectDef` + `EffectRunner`, the `asset` scope, tree v3, `PurchaseNodeCommand.region`, save v2 with the v1 → v2 migration, the anomaly beat, site select, asset markers and the HUD readout (2026-09-23) |
+| **Next step** | **S4.4 — Four factions** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/opposition.md`, factions) |
+| **Model for it** | **Opus** — no switch. *This account has no Fable (user, 2026-09-23): the user said to go on without switching; see Decisions* |
+| **After it** | S4.5 … S4.10 (no switch) → D4.5 (Fable, or Opus while no Fable is available) |
+| **Last completed** | S4.3 — Map events: `EventDef`/`EventOptionDef`/`EventChanceDef`, all eight `events/*.json` loaded and validated, `OpenEvent`/`PendingEvent` in the world and save v2, `EventSystem` in the tick order, `ChooseEventOptionCommand`, the §10.3 `when` keys, bots answer every event with its default; event markers, the region panel's event card, the wire card, the discovery modal's picture slot, the top bar's pending chip, the console lines. 1021 tests, all green (2026-09-23) |
+| **Before that** | S4.2 — Statuses and abilities (2026-09-23) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 139 scripts compile (58 judged by the suite), 759 tests, **all green since S4.1**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 169 scripts compile (66 judged by the suite), 1021 tests, **all green since S4.3**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
-| **Run it** | `run_project` starts at the **title** (`game/main.tscn`); New run → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **A** ability picker · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 stealth · F7 idle (**with Shift**: cyber_rush · stealth_spread · persuader) · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
+| **Run it** | `run_project` starts at the **title** (`game/main.tscn`); New run → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **A** ability picker · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 stealth · F7 idle (**with Shift**: cyber_rush · stealth_spread · persuader) · **F8** puts the first opening on the origin at the next tick, **Shift+F8** the first global event (the wire card); from godot-mcp: `game_call_method /root/Game debug_schedule_event ["<def id>", "<region id or empty>"]`, then `advance [1]` · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
 | **Compact layout** | Below 1100 px the interface switches (§5.7). A desktop window narrower than that lays out one logical pixel per window pixel, **`game_window set_size 400 860` resized correctly in S2.P** — try it first; `game_set_property /root size {"x":400,"y":860}` is the fallback and in S2.P it rendered a blank frame. After any resize at runtime the camera keeps a zoom from the old viewport: write `zoom` and give it one `game_scroll` notch down to settle it at `zoom_min`. |
 | **Look at the map** | `game_click` (**`button: 1`, never `"left"`** — see *Known issues*), `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Main/ScreenSlot/Session/MapLayer/MapView` (the router’s slot is in the path now), `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead — but a property write emits no `view_changed`, so links and markers keep the old zoom until the next real camera movement (**one `game_scroll` notch fixes it**). |
 
@@ -102,8 +102,8 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S3.P [O] Punch list from G3 (eight items)
 - [x] S4.1 [O] Assets and site select
 - [x] S4.2 [O] Statuses and abilities
-- [ ] **S4.3 [O] Map events**
-- [ ] S4.4 [O] Four factions
+- [x] S4.3 [O] Map events
+- [ ] **S4.4 [O] Four factions**
 - [ ] S4.5 [O] Counter-moves, Societal Function, Autophagy
 - [ ] S4.6 [O] Trees v3 and the remaining abilities
 - [ ] S4.7 [O] Chains
@@ -737,6 +737,23 @@ without new information.
   `ACCENT` / `MAP_DEATH`; factions their four hues (pink ↔ green needs the legend and end labels it
   has); society stages the magnitude ramp; assets as small multiples rather than a fifth hue.
 
+- **2026-09-23** (S4.3) — **No Fable on this account; Opus goes on without switching.** The
+  user, going to bed: *"auf diesem account haben wir kein fable daher kannst du weitermachen ohne
+  modelwechsel"* — and to keep going from step to step instead of stopping for `/clear`. Design
+  steps (D4.5 on) are Fable's by the plan; if this account still has no Fable when one comes up,
+  ask the user before doing a design step on Opus. (User decision.)
+- **2026-09-23** (S4.3) — **A tick that had a pending event due is that event's.** §10.4 step 3
+  says the opening roll waits while "a pending event is due"; after step 2 a due event is left only
+  when the slots are full, which blocks the roll anyway. So the rule is read as: if anything was
+  due at the start of step 2 (opened or dropped), there is no opening roll this tick. The §21.3
+  test *"a due pending event blocks the opening roll"* asserts exactly that.
+- **2026-09-23** (S4.3) — **An open or pending event in a region that goes dark is dropped**
+  (`event_dropped {cause: "dark"}`, no default runs), in `PopulationSystem.go_dark` next to the
+  anomaly. §10.4 says it only for pending events; §3.5's invariant (no open event in a dark region)
+  needs the same for open ones.
+- **2026-09-23** (S4.3) — **Debug key F8 / `Game.debug_schedule_event`** (M2-only debug keys):
+  a map event can be looked at without waiting for the roll. The S4.3 screenshots came from it.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
@@ -797,6 +814,10 @@ say the direction), or say that the faction track should show the rate as a plai
 
 ## Punch list for Opus
 
+- **(S4.3, cosmetic)** The top bar's *n offen* chip also shows while the wire card is up on that
+  very event (behind the scrim). Harmless; hide it while `Game.is_held()` for `event` if D4.5
+  finds it noisy.
+
 - **(S4.2, cosmetic)** In the region panel the trailing chip of an *Actions* row (`FREI` / the
   cost) and the `{days}` caption of a *Status* row sit under the scroll container's vertical
   scrollbar and are clipped by a few pixels at 1920 × 1080. Every other row of the panel happens
@@ -805,6 +826,33 @@ say the direction), or say that the faction track should show the rate as a plai
 
 ## Deviations from the plan or a spec
 
+- **2026-09-23** (S4.3) — **`EventOptionDef` holds `requires` as typed fields** (`requires_owned`,
+  `requires_flag`, …) and `chance` as `EventChanceDef` objects, not the `Dictionary` /
+  `Array[Dictionary]` of §10.1 — the loader casts once, the evaluator reads types. `lock_reason`
+  lives on the option (`EventOptionDef.lock_reason(sim, region)`); `EventDef.lock_reason(sim,
+  event, option_id)` exists as the spec names it and delegates.
+- **2026-09-23** (S4.3) — **`load_from_dicts` takes the events after the technology files**, as
+  `Array[Dictionary]`; `Fixtures.raw_content()` gained `"events"`, `root_files` writes
+  `events/fixture_<n>.json` (or `events/.keep` for an empty directory, which must exist).
+- **2026-09-23** (S4.3) — **A save's statuses, events and pending events are checked for missing
+  content** (`save_content_missing`, §13). S4.2's test *"a status in a region the content lost is
+  content missing"* asserted `save_corrupt` against its own name; it asserts the spec's reason now.
+- **2026-09-23** (S4.3) — **The event marker's count is drawn as a number**, not a `Chip` — a
+  `Node2D` on the map has no container to hold one. **The counter-move's wire-card fallback is the
+  `!` mark in `TEXT_2`**, not `Glyphs.faction(...)`: faction glyphs are D4.2/S4.4's (opposition
+  §9.7); S4.4 swaps it in `WireCard._refresh`.
+- **2026-09-23** (S4.3) — **Three theme variations added**: `ConsolePanel<Faction>` (a
+  counter-move's card border, like `Chip<Faction>`), `ConsolePanelWire` (raised, `SPACE_5`
+  padding, §16.7) and `IllustrationSlot` (`BG_2`). **The wire card scrolls** and its width is
+  `min(840, screen − 2 × SPACE_4)`, and **option buttons wrap** their text — at 400 px the card
+  was wider and taller than the phone (seen in the running game).
+- **2026-09-23** (S4.3) — **`test_marker_layer.gd` waits one day at a time** for an anomaly: the
+  event roll moved the world's stream, and with ten-day steps no spawn landed on a step's last
+  tick within 200 days (greedy collects the day after a spawn). Not a behaviour change.
+- **2026-09-23** (S4.3) — **The 500-seed acceptance batch was run at 40 seeds** (every policy,
+  3000 days: greedy 522 events opened, stealth 517, cyber_rush 364, stealth_spread 599, persuader
+  536, idle 0 — it never breaks out; **0 expired, 0 rejected**). The full 500 took longer than the
+  session had; S4.10's report measures it anyway.
 - **2026-09-23** (S4.2) — **The fixture’s global ability got a node of its own.**
   loop-mechanics §22 hangs `fx_hush` on `fx_zap_1` with the note that *a second ability on one node
   is legal* — but §11.1 gives a node a single `ability` object and §9.1 makes the validator demand
@@ -1403,6 +1451,21 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — S4.3 Map events [O]
+- **Core:** `EventDef` / `EventOptionDef` / `EventChanceDef`, every `events/*.json` loaded (the
+  eight D4.3/D4.4 files validate as written) with §15.7's rules, chain reachability across files and
+  the headline `def`/`option` filters; `OpenEvent` / `PendingEvent` typed in `World` and save v2;
+  `EventSystem` (deadlines, pending, the opening roll; `open`, `schedule`, `answer`);
+  `ChooseEventOptionCommand` + codec; `chance[].next`, `requires.not_owned`, the nine §10.3 `when`
+  keys (one vocabulary for headlines and events), `Simulation.has_flag`; every bot answers first.
+- **Interface:** `EventMarker` (hit before anomalies, tooltip, count), `EventCard` in the region
+  panel (locks, prices, default mark, deadline turning `ALERT`, result line), `WireCard` with
+  `EventOptions` and `IllustrationSlot`, the discovery modal's slot, the pending chip, two console
+  lines, three event glyphs. `s4_3.json` merged (211 headlines), 22 strings, SCHEMA v5.
+- Seen in the running game at 1920 × 1080 and 400 × 860: marker → tap → panel scrolled to the card
+  → answer → office granted, result shown; the global *Netzgesetz* in the wire card with the
+  chain glyph, clock held. 1021 tests green. Next: **S4.4 on Opus**.
 
 ### 2026-09-23 — S4.2 Statuses and abilities [O]
 - **Core:** `StatusDef`/`StatusLevelDef`, `AbilityDef`, `Status`, `Pulse`, `StatusSystem` (apply,

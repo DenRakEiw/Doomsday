@@ -37,3 +37,9 @@ signal site_select_changed(active: bool)
 ## The console line's input (`loop-mechanics.md` §16.2). Anything may push a
 ## line; the line itself decides when it is shown and for how long.
 signal console_pushed(text: String)
+## A tap on an event marker (`loop-mechanics.md` §16.3.2): the region panel,
+## already opened on that region, brings its event card into view.
+signal event_card_requested(region_index: int)
+## The wire card is asked to show an open event again (§16.7): the top bar's
+## pending chip, for a global event that was put away with `Escape`.
+signal wire_requested(event_id: int)

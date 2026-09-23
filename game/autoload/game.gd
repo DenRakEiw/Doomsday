@@ -387,9 +387,38 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			print("save: %s" % _reason_text(SaveManager.save(DEBUG_SAVE_SLOT)))
 		KEY_F10:
 			_load_debug_save()
+		KEY_F8:
+			_debug_event(strategy)
 		_:
 			return
 	get_viewport().set_input_as_handled()
+
+
+## F8 puts a map event on the map at the next tick — the first opening in the
+## origin, or with Shift the first global one — so the event card and the wire
+## card can be looked at without waiting for the roll (S4.3).
+func _debug_event(global: bool) -> void:
+	if sim == null or sim.world.agent.origin == 0:
+		return
+	for def: EventDef in db.events:
+		if global != def.is_global():
+			continue
+		if not global and def.kind != EventDef.KIND_OPENING:
+			continue
+		var origin_id: String = sim.world.regions[sim.world.agent.origin].def.id
+		debug_schedule_event(def.id, "" if global else origin_id)
+		return
+
+
+## Schedules `def_id` to open at the next tick in `region_id` ("" = global, or
+## let the def pick). Debug only; callable from the godot-mcp tools, which pass
+## strings and not vectors.
+func debug_schedule_event(def_id: String, region_id: String = "") -> void:
+	if sim == null or db.event(def_id) == null:
+		return
+	var region: int = int(db.region_index_by_id.get(region_id, 0))
+	EventSystem.schedule(sim.world, def_id, region, "", sim.world.day + 1, 1)
+	print("event %s scheduled for day %d" % [def_id, sim.world.day + 1])
 
 
 func _start_debug_run(policy_id: String) -> void:

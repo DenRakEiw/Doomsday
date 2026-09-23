@@ -35,6 +35,12 @@ const KEY_STATUS_WORLD_GLOBAL: String = "UI_CONSOLE_STATUS_WORLD_GLOBAL"
 const KEY_STATUS_ENDED: String = "UI_CONSOLE_STATUS_ENDED"
 const KEY_STATUS_ENDED_GLOBAL: String = "UI_CONSOLE_STATUS_ENDED_GLOBAL"
 const KEY_GRANT: String = "UI_CONSOLE_GRANT"
+const KEY_EVENT: String = "UI_CONSOLE_EVENT"
+const KEY_EVENT_GLOBAL: String = "UI_CONSOLE_EVENT_GLOBAL"
+const KEY_EVENT_EXPIRED: String = "UI_CONSOLE_EVENT_EXPIRED"
+const PLACEHOLDER_TITLE: String = "title"
+const PLACEHOLDER_DAYS: String = "days"
+const PLACEHOLDER_OPTION: String = "option"
 
 const PLACEHOLDER_NAME: String = "name"
 const PLACEHOLDER_KIND: String = "kind"
@@ -179,6 +185,38 @@ func _on_sim_event(event: SimEvent) -> void:
 		SimEvent.COMPUTE_GRANTED:
 			push(tr(KEY_GRANT).format({PLACEHOLDER_VALUE: Format.number(
 				float(event.data.get("value", 0.0)), Format.Kind.COMPUTE)}))
+		SimEvent.EVENT_OPENED:
+			_event_opened(event)
+		SimEvent.EVENT_EXPIRED:
+			_event_expired(event)
+
+
+## §16.2: a map event came up — where, what, and how long there is to answer.
+func _event_opened(event: SimEvent) -> void:
+	var region_id: String = str(event.data.get("region", ""))
+	var index: int = int(Game.db.region_index_by_id.get(region_id, 0))
+	var days: int = int(event.data.get("deadline_day", 0)) - event.day
+	var title: String = EventView.title(str(event.data.get("def", "")), Game.sim.world, index)
+	if index <= 0:
+		push(tr(KEY_EVENT_GLOBAL).format({PLACEHOLDER_TITLE: title, PLACEHOLDER_DAYS: days}))
+		return
+	push(tr(KEY_EVENT).format({
+		PLACEHOLDER_REGION: _region(region_id),
+		PLACEHOLDER_TITLE: title,
+		PLACEHOLDER_DAYS: days,
+	}))
+
+
+## §16.2: the deadline decided — the one line that says the choice was made
+## for you, and which one it was.
+func _event_expired(event: SimEvent) -> void:
+	var def_id: String = str(event.data.get("def", ""))
+	var region_id: String = str(event.data.get("region", ""))
+	var index: int = int(Game.db.region_index_by_id.get(region_id, 0))
+	push(tr(KEY_EVENT_EXPIRED).format({
+		PLACEHOLDER_TITLE: EventView.title(def_id, Game.sim.world, index),
+		PLACEHOLDER_OPTION: EventView.option_text(def_id, str(event.data.get("option", ""))),
+	}))
 
 
 func _ability_unlocked(event: SimEvent) -> void:

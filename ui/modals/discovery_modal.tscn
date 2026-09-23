@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://ui/modals/discovery_modal.gd" id="1_discovery"]
 [ext_resource type="Script" path="res://ui/components/console_button.gd" id="2_console_button"]
+[ext_resource type="Script" path="res://ui/components/illustration_slot.gd" id="3_illustration"]
 
 [node name="DiscoveryModal" type="Control"]
 layout_mode = 3
@@ -28,45 +29,55 @@ custom_minimum_size = Vector2(560, 0)
 layout_mode = 2
 theme_type_variation = &"ConsolePanelAlert"
 
-[node name="Body" type="VBoxContainer" parent="Centre/DiscoveryPanel"]
+[node name="Layout" type="BoxContainer" parent="Centre/DiscoveryPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"RowWide"
+
+[node name="Illustration" type="PanelContainer" parent="Centre/DiscoveryPanel/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("3_illustration")
+
+[node name="Body" type="VBoxContainer" parent="Centre/DiscoveryPanel/Layout"]
 layout_mode = 2
 theme_type_variation = &"PanelContent"
 
-[node name="DiscoveryTitle" type="Label" parent="Centre/DiscoveryPanel/Body"]
+[node name="DiscoveryTitle" type="Label" parent="Centre/DiscoveryPanel/Layout/Body"]
 unique_name_in_owner = true
 layout_mode = 2
 autowrap_mode = 3
 theme_type_variation = &"LabelDisplay"
 
-[node name="DiscoveryCause" type="Label" parent="Centre/DiscoveryPanel/Body"]
+[node name="DiscoveryCause" type="Label" parent="Centre/DiscoveryPanel/Layout/Body"]
 unique_name_in_owner = true
 layout_mode = 2
 autowrap_mode = 3
 theme_type_variation = &"LabelCaption"
 
-[node name="DiscoveryBody" type="Label" parent="Centre/DiscoveryPanel/Body"]
+[node name="DiscoveryBody" type="Label" parent="Centre/DiscoveryPanel/Layout/Body"]
 unique_name_in_owner = true
 layout_mode = 2
 autowrap_mode = 3
 
-[node name="DiscoveryDay" type="Label" parent="Centre/DiscoveryPanel/Body"]
+[node name="DiscoveryDay" type="Label" parent="Centre/DiscoveryPanel/Layout/Body"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
 
-[node name="Buttons" type="HBoxContainer" parent="Centre/DiscoveryPanel/Body"]
+[node name="Buttons" type="HBoxContainer" parent="Centre/DiscoveryPanel/Layout/Body"]
 layout_mode = 2
 alignment = 2
 theme_type_variation = &"Row"
 
-[node name="ContinueButton" type="Button" parent="Centre/DiscoveryPanel/Body/Buttons"]
+[node name="ContinueButton" type="Button" parent="Centre/DiscoveryPanel/Layout/Body/Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"ConsoleButton"
 script = ExtResource("2_console_button")
 label_key = "UI_DISCOVERY_CONTINUE"
 
-[node name="ContainmentButton" type="Button" parent="Centre/DiscoveryPanel/Body/Buttons"]
+[node name="ContainmentButton" type="Button" parent="Centre/DiscoveryPanel/Layout/Body/Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"ConsoleButtonPrimary"

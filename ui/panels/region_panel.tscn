@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://ui/panels/region_panel.gd" id="1_region_panel"]
 [ext_resource type="Script" path="res://ui/components/icon_button.gd" id="3_icon_button"]
 [ext_resource type="Script" path="res://ui/components/caps_label.gd" id="4_caps_label"]
 [ext_resource type="Script" path="res://ui/components/value_label.gd" id="5_value_label"]
 [ext_resource type="Script" path="res://ui/components/console_button.gd" id="6_console_button"]
+[ext_resource type="PackedScene" path="res://ui/panels/event_card.tscn" id="7_event_card"]
 
 [node name="RegionPanel" type="Control"]
 layout_mode = 3
@@ -256,6 +257,10 @@ theme_type_variation = &"LabelHeading"
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"StackTight"
+
+[node name="EventCard" parent="Panel/Scroll/Body" instance=ExtResource("7_event_card")]
+unique_name_in_owner = true
+layout_mode = 2
 
 [node name="ActionsBlock" type="VBoxContainer" parent="Panel/Scroll/Body"]
 unique_name_in_owner = true

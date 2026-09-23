@@ -156,6 +156,7 @@ const STAT_BAR_SCENE: String = "res://ui/components/stat_bar.tscn"
 @onready var _status_block: Control = %StatusBlock
 @onready var _status_title: Label = %StatusTitle
 @onready var _statuses: VBoxContainer = %Statuses
+@onready var _event_card: EventCard = %EventCard
 @onready var _actions_block: Control = %ActionsBlock
 @onready var _actions_title: Label = %ActionsTitle
 @onready var _actions: VBoxContainer = %Actions
@@ -183,6 +184,7 @@ func _ready() -> void:
 	EventBus.command_applied.connect(_on_command_applied)
 	EventBus.run_started.connect(_on_run_started)
 	EventBus.site_select_changed.connect(_on_site_select_changed)
+	EventBus.event_card_requested.connect(_on_event_card_requested)
 	_refresh_strings()
 
 
@@ -229,6 +231,7 @@ func refresh() -> void:
 	_refresh_anomaly(world)
 	_refresh_assets(region)
 	_refresh_statuses(world)
+	_event_card.show_region(_index)
 	_refresh_actions()
 
 
@@ -419,6 +422,30 @@ func _status_source_text(status: Status) -> String:
 func _is_world_status(status: Status) -> bool:
 	var definition: StatusDef = Game.db.status(status.id)
 	return definition != null and definition.origin == StatusDef.ORIGIN_WORLD
+
+
+## §16.3.2: a tap on an event marker opens the panel on that region and brings
+## its card into view. The card is laid out on the next frame, so the scroll
+## waits for it.
+func scroll_to_event() -> void:
+	if not _event_card.visible:
+		return
+	await get_tree().process_frame
+	if not is_inside_tree():
+		return
+	var scroll: ScrollContainer = _event_card.get_parent().get_parent() as ScrollContainer
+	if scroll != null:
+		scroll.ensure_control_visible(_event_card)
+
+
+func _on_event_card_requested(region_index: int) -> void:
+	if region_index == _index:
+		scroll_to_event()
+
+
+## The event card, for the tests.
+func event_card() -> EventCard:
+	return _event_card
 
 
 ## §16.5 item 13: one button per unlocked region ability, in `abilities.json`

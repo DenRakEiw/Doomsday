@@ -97,6 +97,8 @@ const VARIATIONS: Dictionary[String, String] = {
 	"ConsolePanelAlert": PANEL_CONTAINER,
 	"ConsolePanelRaised": PANEL_CONTAINER,
 	"ConsolePanelRaisedAlert": PANEL_CONTAINER,
+	"ConsolePanelWire": PANEL_CONTAINER,
+	"IllustrationSlot": PANEL_CONTAINER,
 	"Ticker": PANEL_CONTAINER,
 	"Chip": PANEL_CONTAINER,
 	"ChipAccent": PANEL_CONTAINER,
@@ -316,6 +318,21 @@ static func _panels() -> Theme:
 		_flat(UiTokens.color(&"BG_3"), UiTokens.color(&"LINE_1"), UiTokens.BORDER, UiTokens.RADIUS_M, pad))
 	theme.set_stylebox(STYLE_PANEL, "ConsolePanelRaisedAlert",
 		_flat(UiTokens.color(&"BG_3"), UiTokens.color(&"ALERT"), UiTokens.BORDER, UiTokens.RADIUS_M, pad))
+	# `loop-mechanics.md` §16.5: a counter-move's card wears the border of the
+	# faction that made it — one variation per faction, like the chips below.
+	for faction: String in Faction.FACTION_IDS:
+		theme.set_stylebox(STYLE_PANEL, "ConsolePanel%s" % Chip.faction_suffix(faction),
+			_flat(UiTokens.color(&"BG_2"), UiTokens.faction_color(faction), UiTokens.BORDER,
+				UiTokens.RADIUS_M, pad))
+	# §16.7: the wire card is the raised panel with a wider margin.
+	var wire_pad: Vector2i = Vector2i(UiTokens.SPACE_5, UiTokens.SPACE_5)
+	theme.set_stylebox(STYLE_PANEL, "ConsolePanelWire",
+		_flat(UiTokens.color(&"BG_3"), UiTokens.color(&"LINE_1"), UiTokens.BORDER, UiTokens.RADIUS_M,
+			wire_pad))
+	# §16.7: the illustration slot is a plain `BG_2` ground the picture covers.
+	theme.set_stylebox(STYLE_PANEL, "IllustrationSlot",
+		_flat(UiTokens.color(&"BG_2"), UiTokens.color(&"LINE_0"), 0, UiTokens.RADIUS_S,
+			Vector2i.ZERO))
 
 	var chip_pad: Vector2i = Vector2i(UiTokens.SPACE_2, UiTokens.SPACE_1)
 	theme.set_stylebox(STYLE_PANEL, "Chip",

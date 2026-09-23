@@ -5,11 +5,12 @@ changes a loader, a format or the vocabulary changes this file in the same commi
 `SchemaValidator` enforces everything stated here; where this file and the validator disagree, that
 is a bug in one of them.
 
-Version: **v4** (D1.1 — regions, links, technology nodes, balance; D3.1 — the node grid, the
+Version: **v5** (D1.1 — regions, links, technology nodes, balance; D3.1 — the node grid, the
 factions that watch a node, one-shot effects, the targets and flags of the three trees; D3.4 —
 `headlines.json` and the `headlines` balance section; D4.1 — `assets.json`, the `asset` scope, the
 eligibility grammar, the effect vocabulary as one list, the tree v3 fields, and — written up here
-at S4.2 — `statuses.json` and `abilities.json`). Later specs add sections.
+at S4.2 — `statuses.json` and `abilities.json`; at S4.3 — `events/*.json`, the `events`
+balance section and the `when` keys of loop-mechanics §10.3). Later specs add sections.
 
 ## 1. General rules
 
@@ -35,6 +36,7 @@ Layout of a content root (`res://data` or a test fixture directory — both have
 <root>/statuses.json
 <root>/abilities.json
 <root>/tech/*.json          every file, in ascending file-name order
+<root>/events/*.json        every file, in ascending file-name order; the directory must exist
 <root>/headlines.json
 ```
 
@@ -308,6 +310,9 @@ as ≥ 0 unless stated. The meaning of each constant is defined by the formula t
 | `headlines.filler.silence_deaths_share` | float | in (0, 1]; so does this share of the world dead |
 | `results.ashes_share` | float | in (0, 1]; Ascendance above it reads as ashes (m3-screens §7.4) |
 | `history.interval_days` | int | ≥ 1 |
+| `events.opening_chance` | {phase id: float} | exactly the four phase ids, each in [0, 1]; the daily opening roll (`boxed` 0) |
+| `events.opening_from_regions` | int | ≥ 1; openings roll only once this many regions were seeded |
+| `events.max_open` | int | ≥ 1; how many map events may stand at once |
 
 Milestone: `{"id": <id>, "kind": <kind>, "threshold": <number>, "reward": <float>}`, ids unique.
 
@@ -413,6 +418,62 @@ why the prerequisite rule above is enforced rather than assumed.
 
 Strings per ability: `ABILITY_<ID>_NAME` · `_DETAIL`, each in `en` and `de`.
 
+## 6c. `events/*.json`
+
+Map events (D4.1 §10, loop-mechanics.md). Every file under `events/` is read in name order, each
+`{"version": 1, "events": [ … ]}`; ids are unique **across** files. Three kinds share one format.
+
+```json
+{"id": "opening_unattended_cluster", "kind": "opening",
+ "pick": {"infected": true, "attr_min": {"compute": 2}},
+ "when": {"phase": ["covert", "emergent"]},
+ "weight": 3, "max_fires": 2, "cooldown_days": 40, "deadline_days": 20, "default": "leave",
+ "options": [
+	{"id": "take", "cost": 0, "effects": [{"effect": "compute_grant", "value": 4}]},
+	{"id": "seed", "cost": 2, "effects": [{"effect": "seed_neighbours", "count": 1}],
+	 "chance": [{"p": 0.3, "effects": [{"effect": "footprint_pulse", "value": 3, "days": 30}]}]},
+	{"id": "leave", "cost": 0}]}
+```
+
+| Field | Type | Required | Rule |
+| --- | --- | --- | --- |
+| `id` | id | yes | unique across every events file |
+| `kind` | `opening` · `counter_move` · `chain` | yes | |
+| `chain` | id | chain steps | the chain every step of it shares; only on `chain` |
+| `start` | bool | no (false) | `chain` only: this step is rolled with the openings. Exactly one per chain |
+| `pick` | eligibility · `"same"` · `{"rule": id}` | no (global) | §7; `"same"` only on a chain step that is not the start (the region of the step that scheduled it); `{"rule"}` only on a counter-move, one of `lockdown_target` `richest_infected` `audit_target` `purge_target` `exposure_target` `protest_target` |
+| `pick_weight` | `uniform` · `hardware_penetration` | no (`uniform`) | how the region is drawn among the eligible |
+| `when` | object | no (`{}`) | the state conditions of §8's `when`, evaluated at the draw; a flag list may name a story flag |
+| `weight` | float > 0 | no (1) | its share of the opening draw |
+| `max_fires` | int ≥ 0 | no (1 on a chain step, else 0 = unlimited) | |
+| `cooldown_days` | int ≥ 0 | no (0) | days between two openings |
+| `deadline_days` | int ≥ 1 | yes | the tick whose day reaches it chooses `default` |
+| `default` | option id | yes | an option with cost 0 and no `requires` |
+| `modal` | bool | no (false) | opens the wire card even with a region |
+| `illustration` | id | no | `assets/illustrations/<id>.png`, from M6 |
+| `status` · `faction` | status id · faction id | counter-moves only, both required | a status whose `origin` is `world` |
+| `flags` | [id] | no | story flags set when it opens; never a modifier flag |
+| `options` | [option] | yes | 2…4, ids unique within the event |
+
+Option:
+
+| Field | Type | Required | Rule |
+| --- | --- | --- | --- |
+| `id` | id | yes | |
+| `cost` | number ≥ 0 | no (0) | Compute |
+| `requires` | object | no | `owned` `owned_any` `not_owned` [node id] · `flag` [id] (modifier, timed or story flag) · `asset_min` {kind: int} (in the event's region; an error on a global event) · `compute_min` number · `ability` ability id (unlocked) |
+| `effects` | [effect] | no | §4.4; an effect that needs a region is an error on a global event |
+| `chance` | [{`p` (0, 1], `effects`, `next`?}] | no | every entry is rolled, in order; a successful entry's `next` replaces the option's for this answer (chain steps only; `[]` ends the chain) |
+| `flags` | [id] | no | story flags set when chosen |
+| `status_level` · `status_days` | int ≥ 0 | no (0) | counter-moves only: 0 = the event's level / the level's days |
+| `skip_status` | bool | no | counter-moves only: the move's status is not applied |
+| `next` | [{`step` event id, `delay_days` int ≥ 0}] | no | chain steps only; every step a step of the same chain |
+
+A chain step that is not `start` and that no `next` names is an error.
+
+Strings per event: `EVENT_<ID>_TITLE` · `_BODY`, per option `EVENT_<ID>_OPT_<OPTION>` ·
+`EVENT_<ID>_RESULT_<OPTION>`, each in `en` and `de`; `{region}` in a text is the event's region.
+
 ## 7. Eligibility
 
 Where something may be placed, used or picked: a `deploy` site, an ability's target, an event's
@@ -461,7 +522,7 @@ the order the system checks them in, and two headlines eligible for the same slo
 
 | Field | Type | Matches when |
 | --- | --- | --- |
-| `data` | object | for every `field → value(s)`: the event carries `field` and its value is one of them. A scalar is a one-element list. Ids are checked against the content: `node`, `region`, `milestone`, `link_kind`, `cause`, `outcome`, a `phase_changed` `to`/`from`, and a `threshold` against `balance.containment.thresholds` |
+| `data` | object | for every `field → value(s)`: the event carries `field` and its value is one of them. A scalar is a one-element list. Ids are checked against the content: `node`, `region`, `milestone`, `status`, `ability`, `def` (an event id), `option` (an option of the `def` beside it — without a `def` an error), `link_kind`, `cause`, `outcome`, a `phase_changed` `to`/`from`, and a `threshold` against `balance.containment.thresholds` |
 | `region_attr_min` `region_attr_max` | attr → tier 0…4 | the event's `region` has that attribute at or above (below) the tier. Only on an event that carries a region |
 | `node_tree` | tree id | the event's `node` is in that tree. Only on `node_purchased` |
 | `node_tier` | int 1…3 | that node's tier. Only on `node_purchased` |
@@ -487,7 +548,12 @@ true. A state-only headline is checked only once the run has an origin. `_min` i
 | `compute_min` `compute_max` | float | |
 | `owned` `owned_any` `not_owned` | [node id] | all of them · at least one · none |
 | `owned_count_min` | int | nodes bought |
-| `flag` `not_flag` | [flag] | all of them set · none set |
+| `flag` `not_flag` | [flag] | all of them set · none set — a modifier flag, a timed flag or a story flag |
+| `faction_min` `faction_max` | {faction id: float} | that faction's containment; an id the world does not track (the unified track until S4.4) reads the highest one |
+| `asset_min` `asset_max` | {kind: int} | the agent's total of that kind |
+| `status_active` `status_inactive` | [status id] | each running somewhere · none running anywhere |
+| `ability_unlocked` | [ability id] | each at level 1 or more |
+| `story_flag` `not_story_flag` | [id] | all set · none set |
 
 Anything else under `on` or `when` is an error. The vocabulary grows by a row here and a row in
 `HeadlineConditions`, never by an `if` per headline.

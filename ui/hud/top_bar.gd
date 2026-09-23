@@ -14,6 +14,11 @@ extends PanelContainer
 ## m3-screens §7.3: the pause menu, from the bar itself.
 signal menu_requested
 
+## `loop-mechanics.md` §17.3: the chip after the day cell that brings a waiting
+## global event back.
+const KEY_EVENT_PENDING: String = "UI_HUD_EVENT_PENDING"
+const PLACEHOLDER_COUNT: String = "count"
+
 const KEY_COMPUTE_RATE: String = "UI_HUD_COMPUTE_RATE"
 const KEY_DAY: String = "UI_HUD_DAY"
 const PLACEHOLDER_RATE: String = "rate"
@@ -66,11 +71,23 @@ var compact: bool = false:
 @onready var _menu_button: IconButton = %MenuButton
 
 var _speed_buttons: Array[IconButton] = []
+## `loop-mechanics.md` §16.7: the global events put away with `Escape`, waiting —
+## a tap brings the oldest back into the wire card.
+var _pending: Chip = null
 
 
 func _ready() -> void:
 	_row_main.add_child(_assets)
 	_row_main.move_child(_assets, _day_cell.get_index() + 1)
+	_pending = Chip.new()
+	_pending.kind = Chip.Kind.ALERT
+	_pending.visible = false
+	_pending.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pending.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_pending.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_pending.gui_input.connect(_on_pending_input)
+	_row_main.add_child(_pending)
+	_row_main.move_child(_pending, _assets.get_index() + 1)
 	_build_speed_buttons()
 	_menu_button.pressed.connect(menu_requested.emit)
 	_apply_compact()
@@ -104,6 +121,32 @@ func refresh() -> void:
 		Format.Kind.COMPUTE)
 	_day_value.set_number_in(KEY_DAY, PLACEHOLDER_DAY, float(world.day), Format.Kind.DAYS)
 	_set_phase(world.phase)
+	_refresh_pending(world)
+
+
+## The global events standing open — only a person answers them, so a bot run
+## shows none (§16.7).
+func _refresh_pending(world: World) -> void:
+	var waiting: Array[OpenEvent] = world.events_in_region(0)
+	_pending.visible = not waiting.is_empty() and Game.policy == null
+	if _pending.visible:
+		_pending.set_label(KEY_EVENT_PENDING, {PLACEHOLDER_COUNT: waiting.size()})
+
+
+## The pending chip, for the tests.
+func pending_chip() -> Chip:
+	return _pending
+
+
+func _on_pending_input(event: InputEvent) -> void:
+	var press: InputEventMouseButton = event as InputEventMouseButton
+	if press == null or not press.pressed or press.button_index != MOUSE_BUTTON_LEFT:
+		return
+	if Game.sim == null:
+		return
+	var waiting: Array[OpenEvent] = Game.sim.world.events_in_region(0)
+	if not waiting.is_empty():
+		EventBus.wire_requested.emit(waiting[0].id)
 
 
 func _set_phase(phase: World.Phase) -> void:

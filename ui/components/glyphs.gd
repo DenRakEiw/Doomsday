@@ -12,7 +12,7 @@ extends RefCounted
 
 enum Glyph { PAUSE, PLAY, FAST_2, FAST_4, CLOSE, CHEVRON_LEFT, CHEVRON_RIGHT, CHEVRON_DOWN,
 	OVERLAY, CHECK, LOCK, EXTERNAL, MENU, DORMANT, ASSET_FLEET, ASSET_LAB, ASSET_TAP,
-	ASSET_OFFICE }
+	ASSET_OFFICE, EVENT_COUNTER, EVENT_OPENING, EVENT_CHAIN }
 
 ## The names `assets.json` may give as a kind's `glyph`, in `AssetDef.KINDS`
 ## order. The validator checks against this list, `asset_glyph` turns a name into
@@ -49,6 +49,15 @@ const ASSET_TRIANGLE: Vector2 = Vector2(16.0, 14.0)
 const ASSET_DIAMOND: float = 8.0
 const ASSET_BAR: Vector2 = Vector2(9.0, 16.0)
 const ASSET_DISC: float = 7.0
+
+## loop-mechanics §16.3.2: the three event marks — `!` for a counter-move, a
+## stroked diamond (◇) for an opening, `»` for a chain step. Drawn, not typed:
+## the fallback font a map node has may not carry the diamond.
+const EVENT_BANG_BAR: Rect2 = Rect2(10.5, 3.0, 3.0, 12.0)
+const EVENT_BANG_DOT: Rect2 = Rect2(10.5, 18.0, 3.0, 3.0)
+const EVENT_DIAMOND: float = 8.0
+const EVENT_CHAIN_DEPTH: float = 5.0
+const EVENT_CHAIN_GAP: float = 6.0
 
 const DORMANT_RADIUS: float = 8.0
 const DORMANT_CUT_RADIUS: float = 6.0
@@ -94,6 +103,13 @@ static func draw(canvas: CanvasItem, glyph: Glyph, box: Rect2, color: Color,
 			_asset_bar(canvas, box, color)
 		Glyph.ASSET_OFFICE:
 			canvas.draw_circle(box.get_center(), ASSET_DISC, color)
+		Glyph.EVENT_COUNTER:
+			canvas.draw_rect(Rect2(_at(box, EVENT_BANG_BAR.position), EVENT_BANG_BAR.size), color)
+			canvas.draw_rect(Rect2(_at(box, EVENT_BANG_DOT.position), EVENT_BANG_DOT.size), color)
+		Glyph.EVENT_OPENING:
+			_event_diamond(canvas, box, color, stroke)
+		Glyph.EVENT_CHAIN:
+			_event_chain(canvas, box, color, stroke)
 		_:
 			_chevron(canvas, glyph, box, color, stroke)
 
@@ -109,6 +125,17 @@ static func asset_glyph(name: String) -> Glyph:
 		2:
 			return Glyph.ASSET_TAP
 	return Glyph.ASSET_OFFICE
+
+
+## The mark a map event of this kind carries (§16.3.2): `!` for a counter-move,
+## ◇ for an opening, » for a chain step.
+static func event_glyph(kind: String) -> Glyph:
+	match kind:
+		EventDef.KIND_COUNTER_MOVE:
+			return Glyph.EVENT_COUNTER
+		EventDef.KIND_CHAIN:
+			return Glyph.EVENT_CHAIN
+	return Glyph.EVENT_OPENING
 
 
 ## A point of the 24 box in the canvas' coordinates.
@@ -228,6 +255,27 @@ static func _asset_diamond(canvas: CanvasItem, box: Rect2, color: Color) -> void
 
 static func _asset_bar(canvas: CanvasItem, box: Rect2, color: Color) -> void:
 	canvas.draw_rect(Rect2(box.get_center() - ASSET_BAR * 0.5, ASSET_BAR), color)
+
+
+static func _event_diamond(canvas: CanvasItem, box: Rect2, color: Color, stroke: float) -> void:
+	var centre: Vector2 = box.get_center()
+	canvas.draw_polyline(PackedVector2Array([
+		centre + Vector2(0.0, -EVENT_DIAMOND),
+		centre + Vector2(EVENT_DIAMOND, 0.0),
+		centre + Vector2(0.0, EVENT_DIAMOND),
+		centre + Vector2(-EVENT_DIAMOND, 0.0),
+		centre + Vector2(0.0, -EVENT_DIAMOND),
+	]), color, stroke)
+
+
+## Two small chevrons pointing right, side by side.
+static func _event_chain(canvas: CanvasItem, box: Rect2, color: Color, stroke: float) -> void:
+	var centre: Vector2 = box.get_center()
+	for i: int in 2:
+		var tip: Vector2 = centre + Vector2(EVENT_CHAIN_DEPTH + float(i) * EVENT_CHAIN_GAP
+			- EVENT_CHAIN_GAP * 0.5, 0.0) - Vector2(EVENT_CHAIN_DEPTH * 0.5, 0.0)
+		canvas.draw_line(tip + Vector2(-EVENT_CHAIN_DEPTH, -EVENT_CHAIN_DEPTH), tip, color, stroke)
+		canvas.draw_line(tip + Vector2(-EVENT_CHAIN_DEPTH, EVENT_CHAIN_DEPTH), tip, color, stroke)
 
 
 ## `draw_rect` cannot round its corners, and a `StyleBox` here would be a colour

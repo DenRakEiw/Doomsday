@@ -7,8 +7,8 @@ extends GutTest
 ## finishes in the same frame and a test never waits on a clock.
 
 ## The nine glyphs of ui-foundation §4.3, the five of m3-screens §3.4.1, and the
-## four asset shapes of loop-mechanics §16.3.2.
-const GLYPH_COUNT: int = 18
+## four asset shapes and the three event marks of loop-mechanics §16.3.2.
+const GLYPH_COUNT: int = 21
 
 const STAT_BAR: PackedScene = preload("res://ui/components/stat_bar.tscn")
 
