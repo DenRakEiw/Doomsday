@@ -1610,6 +1610,40 @@
 			"register": "emergency",
 			"when": {},
 			"cooldown_days": 75
-		}
+		},
+		{
+			"id": "asset_fleet",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "asset_deployed", "data": {"kind": "fleet"}},
+			"chance": 0.7,
+			"cooldown_days": 20
+		},
+		{
+			"id": "asset_lab",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "asset_deployed", "data": {"kind": "lab"}},
+			"chance": 0.7,
+			"cooldown_days": 20
+		},
+		{
+			"id": "asset_tap",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "asset_deployed", "data": {"kind": "tap"}},
+			"chance": 0.7,
+			"cooldown_days": 20
+		},
+		{
+			"id": "asset_office",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "asset_deployed", "data": {"kind": "office"}},
+			"chance": 0.7,
+			"cooldown_days": 20
+		},
+		{"id": "asset_lost", "stream": "consequence", "register": "any", "on": {"event": "asset_lost"}, "cooldown_days": 10}
+	
 	]
 }

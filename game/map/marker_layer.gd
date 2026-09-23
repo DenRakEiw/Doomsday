@@ -25,10 +25,17 @@ const TOOLTIP_VARIATION: StringName = &"MapTooltip"
 const TOOLTIP_LABEL_VARIATION: StringName = &"MapTooltipLabel"
 const KEY_ANOMALY: String = "UI_REGION_ANOMALY"
 const PLACEHOLDER_VALUE: String = "value"
+## `loop-mechanics.md` §16.3.2: what an asset row says when the pointer rests on
+## it, and what joins the kinds in that line.
+const KEY_ASSETS_TIP: String = "UI_MAP_ASSETS_TIP"
+const PLACEHOLDER_ASSETS: String = "assets"
+const ASSET_JOIN: String = " · "
 
 ## Anomaly id → its marker. Only markers that are still collectable are in here;
 ## a fading one has been taken out already.
 var _markers: Dictionary[int, AnomalyMarker] = {}
+## Region index → its asset row. A region that holds nothing has none (§16.3.2).
+var _assets: Dictionary[int, AssetMarker] = {}
 ## Anchors of the regions that have gone dark, in map pixels.
 var _dark_anchors: PackedVector2Array = PackedVector2Array()
 var _camera: MapCamera = null
@@ -37,6 +44,8 @@ var _tooltip: PanelContainer = null
 var _tooltip_label: Label = null
 ## The marker the pointer is over, or 0.
 var _hovered_id: int = 0
+## The region whose asset row the pointer is over, or 0 (§16.3.2).
+var _hovered_assets: int = 0
 
 
 func _ready() -> void:
@@ -85,11 +94,17 @@ func try_tap(screen: Vector2) -> bool:
 ## everything else takes it away again. Public for the same reason `try_tap` is:
 ## a test should be able to say "the pointer is here" without an event queue.
 func hover(screen: Vector2) -> void:
-	_hover(marker_at(screen))
+	var marker: AnomalyMarker = marker_at(screen)
+	_hover(marker)
+	# An anomaly sits on the anchor and the asset row below it, so the anomaly is
+	# asked first and only a miss falls through to the row.
+	_hover_assets(0 if marker != null else asset_row_at(screen))
 	# The box is placed in screen space, so it follows a map that moved under a
 	# resting pointer as well as a pointer that moved to another marker.
 	if _hovered_id != 0:
-		_place_tooltip()
+		_place_tooltip_at(marker.position)
+	elif _hovered_assets != 0:
+		_place_tooltip_at(_assets[_hovered_assets].position)
 
 
 ## The tooltip, for the tests. Hidden unless the pointer rests on a marker.
@@ -121,12 +136,35 @@ func marker_at(screen: Vector2) -> AnomalyMarker:
 	return best
 
 
+## The region whose asset row lies under a screen point, or 0. The row is a
+## band below the anchor, so the box it answers for is the row's own width and
+## the glyph height, both in screen pixels (§16.3.2).
+func asset_row_at(screen: Vector2) -> int:
+	if _camera == null:
+		return 0
+	var point: Vector2 = _camera.canvas_transform().affine_inverse() * screen
+	for index: int in _assets:
+		var marker: AssetMarker = _assets[index]
+		var offset: Vector2 = (point - marker.position) * _zoom
+		var half: float = marker.row_width() * 0.5
+		if absf(offset.x) > half:
+			continue
+		if offset.y >= float(UiTokens.MARKER_ROW_OFFSET) \
+				and offset.y <= float(UiTokens.MARKER_ROW_OFFSET) + UiTokens.ASSET_GLYPH_LEAD:
+			return index
+	return 0
+
+
 ## Builds the markers from the world as it stands — at the start of a run, and
 ## after a save was loaded into it.
 func rebuild() -> void:
 	for id: int in _markers:
 		_markers[id].queue_free()
 	_markers.clear()
+	for index: int in _assets:
+		_assets[index].queue_free()
+	_assets.clear()
+	_hovered_assets = 0
 	_dark_anchors = PackedVector2Array()
 	_hover(null)
 	if Game.sim != null:
@@ -136,7 +174,46 @@ func rebuild() -> void:
 		for i: int in range(1, world.regions.size()):
 			if world.regions[i].dark:
 				_dark_anchors.append(Vector2(world.regions[i].def.anchor))
+			_refresh_assets(i, false)
 	queue_redraw()
+
+
+## The asset row of one region, rebuilt from the world. `commission` runs the
+## ring of §16.3.2, which only a fresh deployment gets.
+func _refresh_assets(region_index: int, commission: bool) -> void:
+	if Game.sim == null or region_index <= 0:
+		return
+	var region: Region = Game.sim.world.regions[region_index]
+	if not region.has_assets():
+		if _assets.has(region_index):
+			_assets[region_index].queue_free()
+			_assets.erase(region_index)
+		return
+	var marker: AssetMarker = _assets.get(region_index, null)
+	if marker == null:
+		marker = AssetMarker.new()
+		marker.position = Vector2(region.def.anchor)
+		marker.scale = Vector2.ONE / _zoom
+		for kind: String in AssetDef.KINDS:
+			marker.glyphs[kind] = int(Glyphs.asset_glyph(Game.db.assets[kind].glyph))
+		add_child(marker)
+		_assets[region_index] = marker
+	var counts: Dictionary[String, int] = {}
+	for kind: String in AssetDef.KINDS:
+		if region.asset_count(kind) > 0:
+			counts[kind] = region.asset_count(kind)
+	marker.counts = counts
+	if commission:
+		marker.commission()
+
+
+## The asset rows on the map, for the tests.
+func asset_count() -> int:
+	return _assets.size()
+
+
+func asset_marker_of(region_index: int) -> AssetMarker:
+	return _assets.get(region_index, null)
 
 
 ## Markers that are still on the map, for the tests.
@@ -184,6 +261,10 @@ func _on_sim_event(event: SimEvent) -> void:
 			_remove(int(event.data.get("anomaly", 0)))
 		SimEvent.REGION_DEPOPULATED:
 			_darken(str(event.data.get("region", "")))
+		SimEvent.ASSET_DEPLOYED:
+			_refresh_assets(_region_index(str(event.data.get("region", ""))), true)
+		SimEvent.ASSET_LOST:
+			_refresh_assets(_region_index(str(event.data.get("region", ""))), false)
 
 
 func _spawn(event: SimEvent) -> void:
@@ -243,17 +324,37 @@ func _hover(marker: AnomalyMarker) -> void:
 	if marker == null:
 		_tooltip.visible = false
 		return
+	_hovered_assets = 0
 	_tooltip_label.text = tr(KEY_ANOMALY).format(
 		{PLACEHOLDER_VALUE: Format.number(marker.value, Format.Kind.COMPUTE)})
 	_tooltip.visible = true
-	_place_tooltip()
+	_place_tooltip_at(marker.position)
+
+
+## §16.3.2: the kinds and counts of a row, joined by ` · `.
+func _hover_assets(region_index: int) -> void:
+	if region_index == _hovered_assets:
+		return
+	_hovered_assets = region_index
+	if region_index == 0:
+		if _hovered_id == 0:
+			_tooltip.visible = false
+		return
+	var marker: AssetMarker = _assets[region_index]
+	var parts: Array[String] = []
+	for kind: String in marker.kinds():
+		var count: int = marker.counts[kind]
+		parts.append("%d × %s" % [count, TechText.asset_name(kind, count)])
+	_tooltip_label.text = tr(KEY_ASSETS_TIP).format(
+		{PLACEHOLDER_ASSETS: ASSET_JOIN.join(parts)})
+	_tooltip.visible = true
+	_place_tooltip_at(marker.position)
 
 
 ## §7.7: the box sits up and to the right of the marker, and is pushed back
 ## inside the viewport when that would take it off the screen.
-func _place_tooltip() -> void:
-	var marker: AnomalyMarker = _markers.get(_hovered_id, null)
-	if marker == null or _camera == null:
+func _place_tooltip_at(anchor: Vector2) -> void:
+	if _camera == null:
 		_tooltip.visible = false
 		return
 	# The box lives in map coordinates like everything else here, so it is
@@ -261,7 +362,7 @@ func _place_tooltip() -> void:
 	_tooltip.scale = Vector2.ONE / _zoom
 	_tooltip.size = _tooltip.get_combined_minimum_size()
 	var to_screen: Transform2D = _camera.canvas_transform()
-	var corner: Vector2 = to_screen * marker.position + TOOLTIP_OFFSET_PX
+	var corner: Vector2 = to_screen * anchor + TOOLTIP_OFFSET_PX
 	var top_left: Vector2 = corner - Vector2(0.0, _tooltip.size.y)
 	_tooltip.position = to_screen.affine_inverse() * _inside_view(top_left, _tooltip.size)
 
@@ -297,6 +398,10 @@ func _on_camera_view_changed(_center: Vector2, zoom_level: float) -> void:
 		var marker_scale: Vector2 = Vector2.ONE / _zoom
 		for id: int in _markers:
 			_markers[id].scale = marker_scale
+		for index: int in _assets:
+			_assets[index].scale = marker_scale
 		queue_redraw()
 	if _hovered_id != 0:
-		_place_tooltip()
+		_place_tooltip_at(_markers[_hovered_id].position)
+	elif _hovered_assets != 0 and _assets.has(_hovered_assets):
+		_place_tooltip_at(_assets[_hovered_assets].position)

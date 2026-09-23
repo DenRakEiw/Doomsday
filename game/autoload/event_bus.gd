@@ -30,3 +30,7 @@ signal theme_variant_changed(variant: StringName)
 ## Whether the interface is holding the clock (m3-screens §10.2). The speed group
 ## and the paused badge read it; the speed itself is still `speed_changed`.
 signal hold_changed(held: bool)
+## The map is being asked **where** (`loop-mechanics.md` §16.1): the prompt strip
+## appears, the map outlines what is eligible, and the region panel offers the
+## one button that answers.
+signal site_select_changed(active: bool)

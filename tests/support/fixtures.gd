@@ -18,9 +18,13 @@ const TEMP_ROOT: String = "user://test_content"
 
 const REGION_COUNT: int = 6
 const LINK_COUNT: int = 7
-const TECH_NODE_COUNT: int = 13
+const TECH_NODE_COUNT: int = 18
 ## The fixture nodes a dormancy test needs, in purchase order.
 const DORMANCY_NODES: Array[String] = ["fx_quiet", "fx_hold"]
+## The fixture's deploying nodes and the group the two vectors share (S4.1).
+const DEPLOY_FLEET_NODE: String = "fx_fleet"
+const DEPLOY_LAB_NODE: String = "fx_lab"
+const VECTOR_GROUP: String = "fx_vectors"
 
 ## Loaded once: the database is immutable, so every test may share it.
 static var _db: ContentDB = null
@@ -38,6 +42,33 @@ static func db() -> ContentDB:
 ## A fresh simulation on the fixture world. Seed 1 unless a test needs another.
 static func sim(seed_value: int = 1) -> Simulation:
 	return Simulation.create(db(), seed_value)
+
+
+## The fixture content with `anomaly.spawn_chance` at 1. The beat is one
+## world-wide roll a day (`loop-mechanics.md` §12), so a test that needs a spawn
+## makes that roll certain rather than raising one region's weight.
+static var _certain_db: ContentDB = null
+
+
+static func db_with_certain_anomalies() -> ContentDB:
+	if _certain_db == null:
+		var content: Dictionary = raw_content()
+		var balance: Dictionary = content["balance"]
+		var anomaly: Dictionary = balance["anomaly"]
+		anomaly["spawn_chance"] = 1.0
+		var result: ContentLoadResult = load_raw(content)
+		assert(result.ok(), "the anomaly fixture must load cleanly:\n%s" % result.error_text())
+		_certain_db = result.db
+	return _certain_db
+
+
+## A run on that content, origin already chosen.
+static func sim_with_certain_anomalies(region_id: String = "fx_alder",
+		seed_value: int = 1) -> Simulation:
+	var simulation: Simulation = Simulation.create(db_with_certain_anomalies(), seed_value)
+	var result: CommandResult = simulation.apply(ChooseOriginCommand.new(region_id))
+	assert(result.ok, "the origin %s must be acceptable: %s" % [region_id, result.reason])
+	return simulation
 
 
 ## A simulation whose origin is already chosen — day 0, one region seeded.
@@ -127,11 +158,25 @@ static func grant(simulation: Simulation, compute: float) -> void:
 	simulation.world.agent.compute += compute
 
 
-## Buys every node in order, asserting that each purchase is accepted.
-static func buy(simulation: Simulation, node_ids: Array[String]) -> void:
+## Buys every node in order, asserting that each purchase is accepted. A node
+## that deploys is placed in `region_id`, or in the first region that takes it.
+static func buy(simulation: Simulation, node_ids: Array[String],
+		region_id: String = "") -> void:
 	for node_id: String in node_ids:
-		var result: CommandResult = simulation.apply(PurchaseNodeCommand.new(node_id))
+		var site: String = region_id
+		var node: TechNodeDef = simulation.db.tech(node_id)
+		if node != null and node.deploys() and site.is_empty():
+			site = first_site(simulation, node)
+		var result: CommandResult = simulation.apply(PurchaseNodeCommand.new(node_id, site))
 		assert(result.ok, "buying %s must be accepted: %s" % [node_id, result.reason])
+
+
+## The first region a deploying node may be placed in, or "" when there is none.
+static func first_site(simulation: Simulation, node: TechNodeDef) -> String:
+	for i: int in range(1, simulation.db.regions.size()):
+		if simulation.site_eligibility(node.id, i).is_empty():
+			return simulation.db.regions[i].id
+	return ""
 
 
 ## The fixture's files, parsed but not validated, as a fresh mutable copy per
@@ -142,6 +187,7 @@ static func raw_content() -> Dictionary:
 		"balance": read_json(WORLD_SMALL.path_join("balance.json")),
 		"regions": read_json(WORLD_SMALL.path_join("world/regions.json")),
 		"links": read_json(WORLD_SMALL.path_join("world/links.json")),
+		"assets": read_json(WORLD_SMALL.path_join("assets.json")),
 		"tech": [read_json(WORLD_SMALL.path_join("tech/fixture.json"))],
 		"headlines": read_json(WORLD_SMALL.path_join("headlines.json")),
 	}
@@ -153,7 +199,7 @@ static func load_raw(content: Dictionary) -> ContentLoadResult:
 	for entry: Variant in content["tech"]:
 		tech.append(entry)
 	return ContentLoader.load_from_dicts(content["balance"], content["regions"], content["links"],
-		tech, content["headlines"])
+		content["assets"], tech, content["headlines"])
 
 
 ## The four files of a content root as text, so that a test can write a root that
@@ -167,6 +213,7 @@ static func root_files(content: Dictionary, indent: String = "\t") -> Dictionary
 		"balance.json": JSON.stringify(content["balance"], indent, true, true),
 		"world/regions.json": JSON.stringify(content["regions"], indent, true, true),
 		"world/links.json": JSON.stringify(content["links"], indent, true, true),
+		"assets.json": JSON.stringify(content["assets"], indent, true, true),
 		"tech/fixture.json": JSON.stringify(tech[0], indent, true, true),
 		"headlines.json": JSON.stringify(content["headlines"], indent, true, true),
 	}

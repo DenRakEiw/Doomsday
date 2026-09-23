@@ -11,7 +11,13 @@ extends RefCounted
 ## Never instantiated; it is a namespace of shapes.
 
 enum Glyph { PAUSE, PLAY, FAST_2, FAST_4, CLOSE, CHEVRON_LEFT, CHEVRON_RIGHT, CHEVRON_DOWN,
-	OVERLAY, CHECK, LOCK, EXTERNAL, MENU, DORMANT }
+	OVERLAY, CHECK, LOCK, EXTERNAL, MENU, DORMANT, ASSET_FLEET, ASSET_LAB, ASSET_TAP,
+	ASSET_OFFICE }
+
+## The names `assets.json` may give as a kind's `glyph`, in `AssetDef.KINDS`
+## order. The validator checks against this list, `asset_glyph` turns a name into
+## the shape. Placeholders until VISUALS §3.3's icon set (M6).
+const ASSET_NAMES: Array[String] = ["ASSET_FLEET", "ASSET_LAB", "ASSET_TAP", "ASSET_OFFICE"]
 
 # ui-foundation §4.3's shapes, in the coordinates of the 24 box.
 const PAUSE_BAR: Vector2 = Vector2(6.0, 20.0)
@@ -37,6 +43,13 @@ const EXTERNAL_TO: Vector2 = Vector2(21.0, 3.0)
 const EXTERNAL_HEAD: float = 6.0
 const MENU_SLAB: Vector2 = Vector2(20.0, 2.0)
 const MENU_TOPS: Array[float] = [5.0, 11.0, 17.0]
+## loop-mechanics §16.3.2: the four asset shapes, all filled, in the 24 box. A
+## filled shape reads at 12 px where a stroke does not.
+const ASSET_TRIANGLE: Vector2 = Vector2(16.0, 14.0)
+const ASSET_DIAMOND: float = 8.0
+const ASSET_BAR: Vector2 = Vector2(9.0, 16.0)
+const ASSET_DISC: float = 7.0
+
 const DORMANT_RADIUS: float = 8.0
 const DORMANT_CUT_RADIUS: float = 6.0
 const DORMANT_CUT_OFFSET: Vector2 = Vector2(4.0, -3.0)
@@ -73,8 +86,29 @@ static func draw(canvas: CanvasItem, glyph: Glyph, box: Rect2, color: Color,
 			_external(canvas, box, color, stroke)
 		Glyph.DORMANT:
 			_dormant(canvas, box, color, stroke)
+		Glyph.ASSET_FLEET:
+			_asset_triangle(canvas, box, color)
+		Glyph.ASSET_LAB:
+			_asset_diamond(canvas, box, color)
+		Glyph.ASSET_TAP:
+			_asset_bar(canvas, box, color)
+		Glyph.ASSET_OFFICE:
+			canvas.draw_circle(box.get_center(), ASSET_DISC, color)
 		_:
 			_chevron(canvas, glyph, box, color, stroke)
+
+
+## The shape an asset kind's `glyph` name stands for. An unknown name is a
+## content error the validator already caught, so it comes back as the disc.
+static func asset_glyph(name: String) -> Glyph:
+	match ASSET_NAMES.find(name):
+		0:
+			return Glyph.ASSET_FLEET
+		1:
+			return Glyph.ASSET_LAB
+		2:
+			return Glyph.ASSET_TAP
+	return Glyph.ASSET_OFFICE
 
 
 ## A point of the 24 box in the canvas' coordinates.
@@ -170,6 +204,30 @@ static func _dormant(canvas: CanvasItem, box: Rect2, color: Color, stroke: float
 	canvas.draw_arc(centre, DORMANT_RADIUS, PI * 0.5, PI * 1.5, ARC_SEGMENTS, color, stroke)
 	canvas.draw_arc(centre + DORMANT_CUT_OFFSET, DORMANT_CUT_RADIUS, PI * 0.5, PI * 1.5,
 		ARC_SEGMENTS, color, stroke)
+
+
+static func _asset_triangle(canvas: CanvasItem, box: Rect2, color: Color) -> void:
+	var centre: Vector2 = box.get_center()
+	var half: Vector2 = ASSET_TRIANGLE * 0.5
+	canvas.draw_colored_polygon(PackedVector2Array([
+		centre + Vector2(0.0, -half.y),
+		centre + Vector2(half.x, half.y),
+		centre + Vector2(-half.x, half.y),
+	]), color)
+
+
+static func _asset_diamond(canvas: CanvasItem, box: Rect2, color: Color) -> void:
+	var centre: Vector2 = box.get_center()
+	canvas.draw_colored_polygon(PackedVector2Array([
+		centre + Vector2(0.0, -ASSET_DIAMOND),
+		centre + Vector2(ASSET_DIAMOND, 0.0),
+		centre + Vector2(0.0, ASSET_DIAMOND),
+		centre + Vector2(-ASSET_DIAMOND, 0.0),
+	]), color)
+
+
+static func _asset_bar(canvas: CanvasItem, box: Rect2, color: Color) -> void:
+	canvas.draw_rect(Rect2(box.get_center() - ASSET_BAR * 0.5, ASSET_BAR), color)
 
 
 ## `draw_rect` cannot round its corners, and a `StyleBox` here would be a colour

@@ -49,6 +49,8 @@ var containment_rates: Dictionary[String, float] = {}
 var policy: Policy = null
 ## Set by the debug keys: prints every tick and every event to the console.
 var debug_log: bool = false
+## The question the map is being asked, or null (`loop-mechanics.md` §16.1).
+var site_request: SiteRequest = null
 
 var _accumulator: float = 0.0
 var _last_outcome: World.Outcome = World.Outcome.NONE
@@ -118,6 +120,7 @@ func start_run(seed_value: int, policy_id: String = "") -> void:
 
 ## Drops the run without touching the content. Nothing is saved.
 func stop_run() -> void:
+	site_cancel()
 	clear_holds()
 	_force_speed(0)
 	sim = null
@@ -146,6 +149,58 @@ func apply(command: Command) -> CommandResult:
 	for event: SimEvent in result.events:
 		_report(event)
 	return result
+
+
+# ------------------------------------------------------------- site select
+
+
+## Asks the map where. A second request replaces the first, and the first one's
+## `on_cancel` runs — so the tree reopens even when an ability interrupted it.
+##
+## A bot run never enters the mode: a policy passes its region in the command,
+## and a prompt strip over a headless run would answer nothing.
+func site_select(request: SiteRequest) -> void:
+	if policy != null or sim == null:
+		return
+	if site_request != null:
+		_run_cancel(site_request)
+	site_request = request
+	EventBus.site_select_changed.emit(true)
+
+
+## Leaves the mode and lets the caller put back whatever it took away.
+func site_cancel() -> void:
+	if site_request == null:
+		return
+	var request: SiteRequest = site_request
+	site_request = null
+	EventBus.site_select_changed.emit(false)
+	_run_cancel(request)
+
+
+## Answers with a region. A success leaves the mode; a failure stays in it, so
+## the player can try another region without starting over.
+func site_confirm(region_id: String) -> CommandResult:
+	if site_request == null:
+		return CommandResult.rejected(FAIL_NO_RUN)
+	var command: Command = site_request.command_for(region_id)
+	if command == null:
+		return CommandResult.rejected(Command.FAIL_INVALID_REGION)
+	var result: CommandResult = apply(command)
+	if result.ok:
+		site_request = null
+		EventBus.site_select_changed.emit(false)
+	return result
+
+
+## Whether the map is being asked where right now.
+func is_selecting_site() -> bool:
+	return site_request != null
+
+
+func _run_cancel(request: SiteRequest) -> void:
+	if request.on_cancel.is_valid():
+		request.on_cancel.call()
 
 
 ## A hold is the interface pausing the run for a reason — an open modal, the
@@ -257,6 +312,9 @@ func _measure_containment(before: Dictionary[String, float]) -> void:
 
 
 func _adopt(new_sim: Simulation, seed_value: int) -> void:
+	# A request from the old run would build a command against a world that is
+	# gone (§16.1: a new run and a load both leave the mode).
+	site_cancel()
 	sim = new_sim
 	compute_rate = 0.0
 	containment_rates.clear()

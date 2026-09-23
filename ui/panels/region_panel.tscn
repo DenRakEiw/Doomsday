@@ -225,6 +225,22 @@ script = ExtResource("6_console_button")
 label_key = "UI_REGION_COLLECT"
 primary = true
 
+[node name="AssetsBlock" type="VBoxContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="AssetsTitle" type="Label" parent="Panel/Scroll/Body/AssetsBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelHeading"
+
+[node name="Assets" type="VBoxContainer" parent="Panel/Scroll/Body/AssetsBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
 [node name="Extra" type="VBoxContainer" parent="Panel/Scroll/Body"]
 layout_mode = 2
 theme_type_variation = &"StackTight"

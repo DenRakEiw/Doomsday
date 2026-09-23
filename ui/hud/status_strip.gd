@@ -17,6 +17,9 @@ const KINDS: Array[Format.Kind] = [Format.Kind.PERCENT, Format.Kind.PLAIN, Forma
 @onready var _row: HBoxContainer = %StripRow
 @onready var _chip: Chip = %StripChip
 @onready var _menu: IconButton = %StripMenu
+@onready var _rows: VBoxContainer = %StripRows
+## `loop-mechanics.md` §16.9: the readout is the strip's second row on a phone.
+var _assets: AssetReadout = null
 
 ## One `[button, caption, value]` per readout, in the order of `KEYS`.
 var _values: Array[ValueLabel] = []
@@ -25,6 +28,8 @@ var _buttons: Array[ConsoleButton] = []
 
 func _ready() -> void:
 	custom_minimum_size.y = float(UiTokens.STATUS_STRIP_HEIGHT)
+	_assets = AssetReadout.new()
+	_rows.add_child(_assets)
 	_build_readouts()
 	_menu.pressed.connect(menu_requested.emit)
 	EventBus.tick_advanced.connect(_on_tick_advanced)

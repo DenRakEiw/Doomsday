@@ -74,6 +74,23 @@ func _eligible_origins(sim: Simulation) -> PackedInt32Array:
 	return out
 
 
+## Where a bot would place what a deploying node puts on the map: the eligible
+## region with the most hardware actually under the agent, ties to the lower
+## index. "" when the node can go nowhere, which is what makes the bot buy
+## something else instead (`loop-mechanics.md` §19).
+func best_site(sim: Simulation, node: TechNodeDef) -> String:
+	var best: int = 0
+	var best_score: float = 0.0
+	for i: int in range(1, sim.db.regions.size()):
+		if not sim.site_eligibility(node.id, i).is_empty():
+			continue
+		var score: float = sim.hardware(i) * sim.world.regions[i].penetration
+		if best == 0 or score > best_score:
+			best = i
+			best_score = score
+	return "" if best == 0 else sim.db.regions[best].id
+
+
 ## The oldest anomaly on the map — `world.anomalies` is in spawn order.
 func _collect_oldest(sim: Simulation) -> Command:
 	if sim.world.anomalies.is_empty():
@@ -96,18 +113,28 @@ func _cheapest_allowed(sim: Simulation, tree_order: Array[String],
 		allows: Callable) -> Command:
 	var best: TechNodeDef = null
 	var best_cost: float = 0.0
+	var best_site_id: String = ""
 	for node: TechNodeDef in sim.available_nodes():
 		if not bool(allows.call(node)):
 			continue
 		var cost: float = sim.node_cost(node.id)
 		if cost > sim.world.agent.compute:
 			continue
+		# `available_nodes` only means "prerequisites met": a node that is
+		# group-full, closed by an exclusion or short of assets is still in the
+		# list, and buying it would be a rejected command.
+		var site: String = best_site(sim, node) if node.deploys() else ""
+		if node.deploys() and site.is_empty():
+			continue
+		if not sim.can_apply(PurchaseNodeCommand.new(node.id, site)).is_empty():
+			continue
 		if best == null or _is_better(node, cost, best, best_cost, tree_order):
 			best = node
 			best_cost = cost
+			best_site_id = site
 	if best == null:
 		return null
-	return PurchaseNodeCommand.new(best.id)
+	return PurchaseNodeCommand.new(best.id, best_site_id)
 
 
 ## The first of `node_ids` that can be bought right now, or null. A bot names
@@ -116,7 +143,13 @@ func _cheapest_allowed(sim: Simulation, tree_order: Array[String],
 ## nothing by name.
 func _first_buyable(sim: Simulation, node_ids: Array[String]) -> Command:
 	for node_id: String in node_ids:
-		var command: PurchaseNodeCommand = PurchaseNodeCommand.new(node_id)
+		var node: TechNodeDef = sim.db.tech(node_id)
+		if node == null:
+			continue
+		var site: String = best_site(sim, node) if node.deploys() else ""
+		if node.deploys() and site.is_empty():
+			continue
+		var command: PurchaseNodeCommand = PurchaseNodeCommand.new(node_id, site)
 		if sim.can_apply(command).is_empty():
 			return command
 	return null

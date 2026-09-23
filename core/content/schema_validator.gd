@@ -31,17 +31,28 @@ const BALANCE_KEYS: Array[String] = ["stats", "population_tiers", "spread", "con
 const REGION_KEYS: Array[String] = ["index", "id", "continent", "population", "air_gapped",
 	"anchor", "attributes"]
 const LINK_KEYS: Array[String] = ["a", "b", "kind"]
+const ASSET_KEYS: Array[String] = ["kind", "watched_by", "glyph", "modifiers"]
+## `assets.json`, `statuses.json`, `abilities.json` and every `events/*.json`
+## are v1 (`loop-mechanics.md` §15.1).
+const CONTENT_VERSION: int = 1
+## The keys a `deploy` block takes (§11.1).
+const DEPLOY_KEYS: Array[String] = ["kind", "count", "eligible"]
+## The keys a node's `ability` block takes.
+const ABILITY_REF_KEYS: Array[String] = ["id", "level"]
+## The keys a group declaration takes.
+const GROUP_KEYS: Array[String] = ["max"]
 const TECH_NODE_KEYS: Array[String] = ["id", "tree", "tier", "cost", "requires", "requires_any",
-	"modifiers", "flags", "grid", "watched_by", "on_purchase"]
+	"modifiers", "flags", "grid", "watched_by", "on_purchase", "group", "excludes", "deploy",
+	"ability", "requires_assets"]
 const MODIFIER_KEYS: Array[String] = ["target", "op", "value", "scope"]
-const EFFECT_KEYS: Array[String] = ["effect", "value"]
 ## The three string keys every node needs, `TECH_<ID>_<suffix>` (SCHEMA §7).
 const TECH_STRING_SUFFIXES: Array[String] = ["NAME", "EFFECT", "FLAVOUR"]
 const MILESTONE_KEYS: Array[String] = ["id", "kind", "threshold", "reward"]
 ## `headlines.json` is v1 (ticker.md §3.2).
 const HEADLINES_VERSION: int = 1
 ## The event types that carry a region, and so allow an attribute filter (§5).
-const REGION_EVENTS: Array[String] = [SimEvent.ORIGIN_CHOSEN, SimEvent.REGION_SEEDED,
+const REGION_EVENTS: Array[String] = [SimEvent.ASSET_DEPLOYED, SimEvent.ASSET_LOST,
+	SimEvent.ORIGIN_CHOSEN, SimEvent.REGION_SEEDED,
 	SimEvent.REGION_CONTROLLED, SimEvent.ANOMALY_SPAWNED, SimEvent.ANOMALY_EXPIRED,
 	SimEvent.ANOMALY_COLLECTED, SimEvent.REGION_DEPOPULATED, SimEvent.DORMANCY_CHANGED]
 
@@ -506,6 +517,206 @@ static func validate_links(file: String, raw: Variant, regions: Dictionary[Strin
 # ----------------------------------------------------------------- tech/*.json
 
 
+## Appends every problem in `assets.json` to `errors` (`loop-mechanics.md` §6.1,
+## §15.2). There are exactly four kinds, each once, and a kind's modifiers carry
+## no scope of their own: the loader scopes each one to the kind.
+static func validate_assets(file: String, raw: Variant, strings: Dictionary[String, bool],
+		strings_known: bool, errors: Array[ValidationError]) -> void:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return
+	var d: Dictionary = raw
+	_check_keys(d, ["version", AssetDef.ROOT_KEY], file, "", errors)
+	_content_version(d, file, errors)
+	if not _require(d, AssetDef.ROOT_KEY, file, "", errors):
+		return
+	if not _is_list(d[AssetDef.ROOT_KEY], file, AssetDef.ROOT_KEY, errors):
+		return
+	var list: Array = d[AssetDef.ROOT_KEY]
+	var seen: Dictionary[String, bool] = {}
+	for i: int in list.size():
+		var path: String = "%s[%d]" % [AssetDef.ROOT_KEY, i]
+		if not _is_object(list[i], file, path, errors):
+			continue
+		var a: Dictionary = list[i]
+		_check_keys(a, ASSET_KEYS, file, path, errors)
+		var kind: String = _id(a, "kind", file, path, errors)
+		if kind.is_empty():
+			continue
+		if not AssetDef.KINDS.has(kind):
+			_add(errors, file, _join(path, "kind"), "unknown asset kind \"%s\"" % kind)
+			continue
+		if seen.has(kind):
+			_add(errors, file, _join(path, "kind"), "duplicate kind \"%s\"" % kind)
+			continue
+		seen[kind] = true
+		_asset_glyph(a, file, path, errors)
+		_watched_by(a, file, path, errors)
+		_asset_modifiers(a, file, path, errors)
+		if strings_known:
+			for key: String in [AssetDef.name_key(kind), AssetDef.plural_key(kind)]:
+				if not strings.has(key):
+					_add(errors, file, _join(path, "kind"),
+						"no string \"%s\" with both an en and a de cell" % key)
+	for kind: String in AssetDef.KINDS:
+		if not seen.has(kind):
+			_add(errors, file, AssetDef.ROOT_KEY, "missing asset kind \"%s\"" % kind)
+
+
+static func _asset_glyph(a: Dictionary, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	var glyph: String = _text(a, "glyph", file, path, errors)
+	if not glyph.is_empty() and not Glyphs.ASSET_NAMES.has(glyph):
+		_add(errors, file, _join(path, "glyph"), "unknown glyph \"%s\"" % glyph)
+
+
+## A kind's modifiers are regional and unscoped: the loader gives every one the
+## asset scope, so a scope in the file would be a second, silent one.
+static func _asset_modifiers(a: Dictionary, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	var modifiers_path: String = _join(path, "modifiers")
+	if not _require(a, "modifiers", file, path, errors):
+		return
+	if not _is_list(a["modifiers"], file, modifiers_path, errors):
+		return
+	var modifiers: Array = a["modifiers"]
+	var empty: Dictionary[String, String] = {}
+	var no_continents: Dictionary[String, bool] = {}
+	for i: int in modifiers.size():
+		var entry_path: String = "%s[%d]" % [modifiers_path, i]
+		_modifier(modifiers[i], file, entry_path, empty, false, no_continents, errors)
+		if typeof(modifiers[i]) != TYPE_DICTIONARY:
+			continue
+		var m: Dictionary = modifiers[i]
+		if m.has("scope"):
+			_add(errors, file, _join(entry_path, "scope"),
+				"an asset\'s modifier is scoped to its kind by the loader")
+		var target: String = str(m.get("target", ""))
+		if ModifierDef.TARGETS_GLOBAL.has(target):
+			_add(errors, file, _join(entry_path, "target"),
+				"\"%s\" is global; an asset stands in a region" % target)
+
+
+## The `watched_by` list of an asset kind or a node: known factions, no repeats.
+static func _watched_by(d: Dictionary, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if not d.has("watched_by"):
+		return
+	var watched_path: String = _join(path, "watched_by")
+	if not _is_list(d["watched_by"], file, watched_path, errors):
+		return
+	var watched: Array = d["watched_by"]
+	var seen: Dictionary[String, bool] = {}
+	for i: int in watched.size():
+		var entry_path: String = "%s[%d]" % [watched_path, i]
+		if typeof(watched[i]) != TYPE_STRING:
+			_add(errors, file, entry_path, "expected a string, found %s"
+				% type_string(typeof(watched[i])))
+			continue
+		var faction: String = watched[i]
+		if not Faction.FACTION_IDS.has(faction):
+			_add(errors, file, entry_path, "unknown faction \"%s\"" % faction)
+		elif seen.has(faction):
+			_add(errors, file, entry_path, "duplicate faction \"%s\"" % faction)
+		else:
+			seen[faction] = true
+
+
+## The `version` field every M4 content file carries.
+static func _content_version(d: Dictionary, file: String, errors: Array[ValidationError]) -> void:
+	if not _require(d, "version", file, "", errors):
+		return
+	var version: int = _integer(d, "version", file, "", errors, CONTENT_VERSION, CONTENT_VERSION)
+	if version != INVALID_INT and version != CONTENT_VERSION:
+		_add(errors, file, "version", "expected version %d" % CONTENT_VERSION)
+
+
+## Appends every problem in an `Eligibility` block to `errors` (§5). `kinds` and
+## `statuses` are the vocabularies the rule may name; a vocabulary that is not
+## known yet (statuses before S4.2) is not checked rather than reported.
+static func _eligibility(raw: Variant, file: String, path: String,
+		continents: Dictionary[String, bool], continents_known: bool,
+		statuses: Dictionary[String, bool], statuses_known: bool,
+		errors: Array[ValidationError]) -> void:
+	if not _is_object(raw, file, path, errors):
+		return
+	var e: Dictionary = raw
+	_check_keys(e, Eligibility.KEYS, file, path, errors)
+	for key: String in Eligibility.FLAG_KEYS:
+		if e.has(key):
+			_bool(e, key, file, path, errors)
+	for key: String in Eligibility.TABLE_KEYS:
+		_eligibility_table(e, key, file, path, errors)
+	for key: String in Eligibility.LIST_KEYS:
+		var listed: PackedStringArray = _id_list(e, key, file, path, errors)
+		if not statuses_known:
+			continue
+		for i: int in listed.size():
+			if not listed[i].is_empty() and not statuses.has(listed[i]):
+				_add(errors, file, "%s.%s[%d]" % [path, key, i],
+					"unknown status \"%s\"" % listed[i])
+	for key: String in Eligibility.SHARE_KEYS:
+		if e.has(key):
+			_number(e, key, file, path, errors, 0.0, 1.0)
+	if e.has("continent"):
+		var continent: String = _id(e, "continent", file, path, errors)
+		if continents_known and not continent.is_empty() and not continents.has(continent):
+			_add(errors, file, _join(path, "continent"), "unknown continent \"%s\"" % continent)
+	_eligibility_bounds(e, file, path, errors)
+
+
+## A tier or count table: `{name: whole number}`, the names from the right
+## vocabulary and the bounds in the right order.
+static func _eligibility_table(e: Dictionary, key: String, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if not e.has(key):
+		return
+	var table_path: String = _join(path, key)
+	if not _is_object(e[key], file, table_path, errors):
+		return
+	var table: Dictionary = e[key]
+	var attributes: bool = key.begins_with("attr")
+	for raw_name: Variant in table:
+		if typeof(raw_name) != TYPE_STRING:
+			_add(errors, file, table_path, "object keys must be strings")
+			continue
+		var name: String = raw_name
+		if attributes and not RegionDef.ATTRIBUTES_ALL.has(name):
+			_add(errors, file, _join(table_path, name), "unknown attribute \"%s\"" % name)
+			continue
+		if not attributes and not AssetDef.KINDS.has(name):
+			_add(errors, file, _join(table_path, name), "unknown asset kind \"%s\"" % name)
+			continue
+		if attributes:
+			_integer(table, name, file, table_path, errors, RegionDef.TIER_MIN, RegionDef.TIER_MAX)
+		else:
+			_integer(table, name, file, table_path, errors, 0)
+
+
+## No rule may be written so that it can never hold.
+static func _eligibility_bounds(e: Dictionary, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	for pair: Array in [["attr_min", "attr_max"], ["asset_min", "asset_max"]]:
+		if typeof(e.get(pair[0])) != TYPE_DICTIONARY or typeof(e.get(pair[1])) != TYPE_DICTIONARY:
+			continue
+		var low: Dictionary = e[pair[0]]
+		var high: Dictionary = e[pair[1]]
+		for name: Variant in low:
+			if not high.has(name) or typeof(low[name]) == TYPE_STRING:
+				continue
+			if float(low[name]) > float(high[name]):
+				_add(errors, file, _join(path, str(pair[0])),
+					"\"%s\" minimum %s is above its maximum %s" % [name, low[name], high[name]])
+	if typeof(e.get("status_absent")) == TYPE_ARRAY \
+			and typeof(e.get("status_present")) == TYPE_ARRAY:
+		var absent: Array = e["status_absent"]
+		for entry: Variant in absent:
+			if (e["status_present"] as Array).has(entry):
+				_add(errors, file, _join(path, "status_absent"),
+					"\"%s\" is required to be both absent and present" % entry)
+	if bool(e.get("not_origin", false)) and bool(e.get("origin", false)):
+		_add(errors, file, path, "a rule cannot be both \"origin\" and \"not_origin\"")
+
+
 ## Appends every problem in the technology files to `errors`. Ids are unique
 ## across all of them, so the files are validated together.
 static func validate_tech(files: PackedStringArray, raws: Array,
@@ -515,6 +726,7 @@ static func validate_tech(files: PackedStringArray, raws: Array,
 	var continents: Dictionary[String, bool] = {}
 	for continent: String in regions.values():
 		continents[continent] = true
+	var groups: Dictionary[String, bool] = _tech_groups(files, raws, errors)
 
 	# Pass 1: structure, and the id of every node that came through intact.
 	var node_file: Dictionary[String, String] = {}
@@ -535,6 +747,7 @@ static func validate_tech(files: PackedStringArray, raws: Array,
 			_check_keys(node, TECH_NODE_KEYS, file, path, errors)
 			var id: String = _id(node, "id", file, path, errors)
 			_tech_node_fields(node, file, path, regions, regions_known, continents, errors)
+			_tech_node_v3(node, file, path, groups, continents, regions_known, errors)
 			var cell: Vector2i = _tech_grid(node, file, path, errors)
 			if id.is_empty():
 				continue
@@ -595,8 +808,140 @@ static func validate_tech(files: PackedStringArray, raws: Array,
 							% [columns[id], dep, columns[dep]])
 					deps.append(dep)
 			prerequisites[id] = deps
+			_tech_excludes(node, id, file, path, node_file, raws, errors)
 
 	_tech_cycles(order, prerequisites, node_file, node_path, errors)
+
+
+## The `groups` header of every technology file: a group is declared once, in
+## whichever file wants it, and every node's `group` must name one (§11.1).
+static func _tech_groups(files: PackedStringArray, raws: Array,
+		errors: Array[ValidationError]) -> Dictionary[String, bool]:
+	var groups: Dictionary[String, bool] = {}
+	var declared_in: Dictionary[String, String] = {}
+	for f: int in files.size():
+		var file: String = files[f]
+		if typeof(raws[f]) != TYPE_DICTIONARY:
+			continue
+		var d: Dictionary = raws[f]
+		if not d.has(ContentLoader.GROUPS_KEY):
+			continue
+		if not _is_object(d[ContentLoader.GROUPS_KEY], file, ContentLoader.GROUPS_KEY, errors):
+			continue
+		var header: Dictionary = d[ContentLoader.GROUPS_KEY]
+		for raw_id: Variant in header:
+			if typeof(raw_id) != TYPE_STRING:
+				_add(errors, file, ContentLoader.GROUPS_KEY, "object keys must be strings")
+				continue
+			var group: String = raw_id
+			var path: String = _join(ContentLoader.GROUPS_KEY, group)
+			if not _is_valid_id(group):
+				_add(errors, file, path, "\"%s\" is not a valid id" % group)
+				continue
+			if declared_in.has(group):
+				_add(errors, file, path,
+					"group \"%s\" is already declared by %s" % [group, declared_in[group]])
+				continue
+			declared_in[group] = file
+			if not _is_object(header[group], file, path, errors):
+				continue
+			var declaration: Dictionary = header[group]
+			_check_keys(declaration, GROUP_KEYS, file, path, errors)
+			_integer(declaration, "max", file, path, errors, 1)
+			groups[group] = true
+	return groups
+
+
+## Tree v3's five fields (§11.1).
+static func _tech_node_v3(node: Dictionary, file: String, path: String,
+		groups: Dictionary[String, bool], continents: Dictionary[String, bool],
+		regions_known: bool, errors: Array[ValidationError]) -> void:
+	if node.has("group"):
+		var group: String = _id(node, "group", file, path, errors)
+		if not group.is_empty() and not groups.has(group):
+			_add(errors, file, _join(path, "group"), "undeclared group \"%s\"" % group)
+	if node.has("requires_assets"):
+		var needs_path: String = _join(path, "requires_assets")
+		if _is_object(node["requires_assets"], file, needs_path, errors):
+			var needed: Dictionary = node["requires_assets"]
+			for raw_kind: Variant in needed:
+				if typeof(raw_kind) != TYPE_STRING:
+					_add(errors, file, needs_path, "object keys must be strings")
+					continue
+				var kind: String = raw_kind
+				if not AssetDef.KINDS.has(kind):
+					_add(errors, file, _join(needs_path, kind), "unknown asset kind \"%s\"" % kind)
+					continue
+				_integer(needed, kind, file, needs_path, errors, 1)
+	_tech_deploy(node, file, path, continents, regions_known, errors)
+	if node.has("ability"):
+		var ability_path: String = _join(path, "ability")
+		if _is_object(node["ability"], file, ability_path, errors):
+			var ability: Dictionary = node["ability"]
+			_check_keys(ability, ABILITY_REF_KEYS, file, ability_path, errors)
+			_id(ability, "id", file, ability_path, errors)
+			_integer(ability, "level", file, ability_path, errors, 1)
+
+
+static func _tech_deploy(node: Dictionary, file: String, path: String,
+		continents: Dictionary[String, bool], regions_known: bool,
+		errors: Array[ValidationError]) -> void:
+	if not node.has("deploy"):
+		return
+	var deploy_path: String = _join(path, "deploy")
+	if not _is_object(node["deploy"], file, deploy_path, errors):
+		return
+	var deploy: Dictionary = node["deploy"]
+	_check_keys(deploy, DEPLOY_KEYS, file, deploy_path, errors)
+	var kind: String = _id(deploy, "kind", file, deploy_path, errors)
+	if not kind.is_empty() and not AssetDef.KINDS.has(kind):
+		_add(errors, file, _join(deploy_path, "kind"), "unknown asset kind \"%s\"" % kind)
+	_integer(deploy, "count", file, deploy_path, errors, 1)
+	if deploy.has("eligible"):
+		var no_statuses: Dictionary[String, bool] = {}
+		_eligibility(deploy["eligible"], file, _join(deploy_path, "eligible"), continents,
+			regions_known, no_statuses, false, errors)
+
+
+## Exclusions are symmetric: whatever a node closes has to close it back, or the
+## tree would depend on which of the two was bought first (§11.1).
+static func _tech_excludes(node: Dictionary, id: String, file: String, path: String,
+		node_file: Dictionary[String, String], raws: Array,
+		errors: Array[ValidationError]) -> void:
+	var listed: PackedStringArray = _id_list(node, "excludes", file, path, errors)
+	for i: int in listed.size():
+		var other: String = listed[i]
+		var entry_path: String = "%s.excludes[%d]" % [path, i]
+		if other.is_empty():
+			continue
+		if other == id:
+			_add(errors, file, entry_path, "a node cannot exclude itself")
+			continue
+		if not node_file.has(other):
+			_add(errors, file, entry_path, "unknown node \"%s\"" % other)
+			continue
+		if not _excludes_back(raws, other, id):
+			_add(errors, file, entry_path,
+				"\"%s\" does not list \"%s\" back" % [other, id])
+
+
+## Whether the node `other` lists `id` in its own `excludes`.
+static func _excludes_back(raws: Array, other: String, id: String) -> bool:
+	for raw: Variant in raws:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var d: Dictionary = raw
+		if typeof(d.get("nodes")) != TYPE_ARRAY:
+			continue
+		for entry: Variant in d["nodes"]:
+			if typeof(entry) != TYPE_DICTIONARY:
+				continue
+			var candidate: Dictionary = entry
+			if str(candidate.get("id", "")) != other:
+				continue
+			return typeof(candidate.get("excludes")) == TYPE_ARRAY \
+				and (candidate["excludes"] as Array).has(id)
+	return false
 
 
 ## The `nodes` array of one technology file. Reports its problems only on the
@@ -607,7 +952,7 @@ static func _tech_nodes(file: String, raw: Variant, errors: Array[ValidationErro
 		return []
 	var d: Dictionary = raw
 	if report:
-		_check_keys(d, ["nodes"], file, "", errors)
+		_check_keys(d, ["nodes", ContentLoader.GROUPS_KEY], file, "", errors)
 		if not _require(d, "nodes", file, "", errors):
 			return []
 		if not _is_list(d["nodes"], file, "nodes", errors):
@@ -641,31 +986,17 @@ static func _tech_node_fields(node: Dictionary, file: String, path: String,
 
 	_tech_breakout(node, file, path, tree, errors)
 
-	if node.has("watched_by"):
-		var watched_path: String = _join(path, "watched_by")
-		if _is_list(node["watched_by"], file, watched_path, errors):
-			var watched: Array = node["watched_by"]
-			var seen: Dictionary[String, bool] = {}
-			for i: int in watched.size():
-				var entry_path: String = "%s[%d]" % [watched_path, i]
-				if typeof(watched[i]) != TYPE_STRING:
-					_add(errors, file, entry_path, "expected a string, found %s"
-						% type_string(typeof(watched[i])))
-					continue
-				var faction: String = watched[i]
-				if not Faction.FACTION_IDS.has(faction):
-					_add(errors, file, entry_path, "unknown faction \"%s\"" % faction)
-				elif seen.has(faction):
-					_add(errors, file, entry_path, "duplicate faction \"%s\"" % faction)
-				else:
-					seen[faction] = true
+	_watched_by(node, file, path, errors)
 
 	if node.has("on_purchase"):
 		var effects_path: String = _join(path, "on_purchase")
 		if _is_list(node["on_purchase"], file, effects_path, errors):
 			var effects: Array = node["on_purchase"]
+			# A node runs its one-shots in the region it deployed into, so an
+			# effect that needs one may only sit on a node that has one (§8.3).
+			var has_region: bool = typeof(node.get("deploy")) == TYPE_DICTIONARY
 			for i: int in effects.size():
-				_purchase_effect(effects[i], file, "%s[%d]" % [effects_path, i], errors)
+				effect(effects[i], file, "%s[%d]" % [effects_path, i], has_region, errors)
 
 	if node.has("modifiers"):
 		var modifiers_path: String = _join(path, "modifiers")
@@ -718,20 +1049,71 @@ static func _tech_grid(node: Dictionary, file: String, path: String,
 	return Vector2i(column, row)
 
 
-static func _purchase_effect(raw: Variant, file: String, path: String,
+## Appends every problem in one `EffectDef` entry to `errors` (§8, §15.4).
+## `has_region` says whether the container this effect sits in runs with a
+## region; an effect that needs one and does not get one can never work.
+static func effect(raw: Variant, file: String, path: String, has_region: bool,
 		errors: Array[ValidationError]) -> void:
 	if not _is_object(raw, file, path, errors):
 		return
 	var e: Dictionary = raw
-	_check_keys(e, EFFECT_KEYS, file, path, errors)
-	var effect: String = _text(e, "effect", file, path, errors)
-	if effect.is_empty():
+	var id: String = _text(e, "effect", file, path, errors)
+	if id.is_empty():
 		return
-	if not PurchaseEffectDef.EFFECTS.has(effect):
-		_add(errors, file, _join(path, "effect"), "unknown effect \"%s\"" % effect)
+	if not EffectDef.EFFECTS.has(id):
+		_add(errors, file, _join(path, "effect"), "unknown effect \"%s\"" % id)
 		return
-	var bounds: Array = PurchaseEffectDef.RANGES[effect]
-	_number(e, "value", file, path, errors, float(bounds[0]), float(bounds[1]), bool(bounds[2]))
+	var allowed: Array[String] = ["effect"]
+	allowed.append_array(EffectDef.REQUIRED_FIELDS[id])
+	allowed.append_array(EffectDef.OPTIONAL_FIELDS[id])
+	_check_keys(e, allowed, file, path, errors)
+	for key: String in EffectDef.REQUIRED_FIELDS[id]:
+		_require(e, key, file, path, errors)
+	if EffectDef.effect_needs_region(id, bool(e.get("per_hardware", false))) and not has_region:
+		_add(errors, file, _join(path, "effect"),
+			"\"%s\" needs a region and this one never has one" % id)
+	_effect_numbers(e, id, file, path, errors)
+	_effect_ids(e, id, file, path, errors)
+
+
+static func _effect_numbers(e: Dictionary, id: String, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if EffectDef.VALUE_RANGES.has(id) and e.has("value"):
+		var bounds: Array = EffectDef.VALUE_RANGES[id]
+		_number(e, "value", file, path, errors, float(bounds[0]), float(bounds[1]),
+			bool(bounds[2]))
+	if EffectDef.COUNT_RANGES.has(id) and e.has("count"):
+		var counts: Array = EffectDef.COUNT_RANGES[id]
+		_integer(e, "count", file, path, errors, int(counts[0]), int(counts[1]))
+	if EffectDef.DAYS_RANGES.has(id) and e.has("days"):
+		var days: Array = EffectDef.DAYS_RANGES[id]
+		_integer(e, "days", file, path, errors, int(days[0]), int(days[1]))
+	if e.has("level"):
+		_integer(e, "level", file, path, errors, 1)
+
+
+## The content ids an effect names. Status ids are checked from S4.2 on, when
+## `statuses.json` exists; everything else is a closed vocabulary already.
+static func _effect_ids(e: Dictionary, id: String, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if e.has("kind"):
+		var kind: String = _id(e, "kind", file, path, errors)
+		if not kind.is_empty() and not AssetDef.KINDS.has(kind):
+			_add(errors, file, _join(path, "kind"), "unknown asset kind \"%s\"" % kind)
+	if e.has("faction"):
+		var faction: String = _id(e, "faction", file, path, errors)
+		if not faction.is_empty() and faction != EffectDef.FACTION_ALL \
+				and not Faction.FACTION_IDS.has(faction):
+			_add(errors, file, _join(path, "faction"), "unknown faction \"%s\"" % faction)
+	if e.has("flag"):
+		var flag: String = _id(e, "flag", file, path, errors)
+		if not flag.is_empty() and ModifierDef.FLAGS.has(flag):
+			_add(errors, file, _join(path, "flag"),
+				"\"%s\" is a modifier flag and cannot also be set here" % flag)
+	if e.has("watched_by"):
+		_watched_by(e, file, path, errors)
+	if id == EffectDef.END_STATUSES:
+		_id_list(e, "ids", file, path, errors)
 
 
 ## Every node needs its three strings, in both languages. The table is read from
@@ -783,13 +1165,23 @@ static func _scope(raw: Variant, file: String, path: String,
 		continents: Dictionary[String, bool], errors: Array[ValidationError]) -> void:
 	var s: Dictionary = raw
 	var forms: int = 0
-	for form: String in ["attr", "region", "continent"]:
+	for form: String in ["attr", "region", "continent", "asset"]:
 		if s.has(form):
 			forms += 1
 	if forms != 1:
-		_add(errors, file, path, "a scope is exactly one of \"attr\", \"region\" and \"continent\"")
+		_add(errors, file, path,
+			"a scope is exactly one of \"attr\", \"region\", \"continent\" and \"asset\"")
 
-	if s.has("attr"):
+	if s.has("asset"):
+		# `min` doubles as the minimum count here, and there is no `max`: an
+		# asset scope asks "does at least this much stand there" (§6.3).
+		_check_keys(s, ["asset", "min"], file, path, errors)
+		var kind: String = _id(s, "asset", file, path, errors)
+		if not kind.is_empty() and not AssetDef.KINDS.has(kind):
+			_add(errors, file, _join(path, "asset"), "unknown asset kind \"%s\"" % kind)
+		if s.has("min"):
+			_integer(s, "min", file, path, errors, 1)
+	elif s.has("attr"):
 		_check_keys(s, ["attr", "min", "max"], file, path, errors)
 		var attribute: String = _text(s, "attr", file, path, errors)
 		if not attribute.is_empty() and not RegionDef.ATTRIBUTES_ALL.has(attribute):

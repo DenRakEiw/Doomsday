@@ -9,7 +9,11 @@ extends Button
 ##
 ## The node computes nothing about the run: the modal hands it its state.
 
-enum State { LOCKED, AVAILABLE, AFFORDABLE, OWNED }
+## `EXCLUDED` and `CLOSED` are appended rather than inserted, because every
+## table below is indexed by the enum value (`loop-mechanics.md` §16.6). They
+## rank below `OWNED` and above `LOCKED`, and a node that is both takes
+## `CLOSED`.
+enum State { LOCKED, AVAILABLE, AFFORDABLE, OWNED, EXCLUDED, CLOSED }
 
 ## Selected by a tap, a click or `Enter`.
 signal selected(node_id: String)
@@ -18,16 +22,17 @@ signal buy_requested(node_id: String)
 
 const VARIATION: String = "TechNode"
 ## Suffixes on the variation names, in the order of `State`.
-const STATE_SUFFIX: Array[String] = ["Locked", "", "Affordable", "Owned"]
+const STATE_SUFFIX: Array[String] = ["Locked", "", "Affordable", "Owned", "Locked", "Locked"]
 ## The name and the cost take their colour from the state too, and a `Label` has
 ## one colour — so each is its own family (§3.4's table).
 const NAME_VARIATION: Array[String] = ["TechNodeNameLocked", "TechNodeName", "TechNodeName",
-	"TechNodeName"]
+	"TechNodeName", "TechNodeNameLocked", "TechNodeNameLocked"]
 const COST_VARIATION: Array[String] = ["TechNodeCostLocked", "TechNodeCost",
-	"TechNodeCostAffordable", "TechNodeCost"]
+	"TechNodeCostAffordable", "TechNodeCost", "TechNodeCostLocked", "TechNodeCostLocked"]
 ## The accessible state names, in the order of `State`.
 const STATE_KEY: Array[String] = ["UI_TREE_STATE_LOCKED", "UI_TREE_STATE_AVAILABLE",
-	"UI_TREE_STATE_AFFORDABLE", "UI_TREE_STATE_OWNED"]
+	"UI_TREE_STATE_AFFORDABLE", "UI_TREE_STATE_OWNED", "UI_TREE_STATE_EXCLUDED",
+	"UI_TREE_STATE_CLOSED"]
 
 const KEY_NAME: String = "TECH_%s_NAME"
 const KEY_A11Y: String = "UI_TREE_NODE_A11Y"
@@ -56,6 +61,8 @@ var _flash_alpha: float = 0.0
 var _flash_tween: Tween = null
 ## Kept so that the accessible name can be rebuilt on a locale change.
 var _cost_value: float = 0.0
+## The placeholders the state's string takes; empty for a state without any.
+var _state_args: Dictionary = {}
 
 
 func _ready() -> void:
@@ -87,8 +94,10 @@ func _notification(what: int) -> void:
 
 
 ## Everything the node shows, in one call from the modal.
-func bind(definition: TechNodeDef, cost: float, node_state: State, external: bool) -> void:
+func bind(definition: TechNodeDef, cost: float, node_state: State, external: bool,
+		state_arguments: Dictionary = {}) -> void:
 	node_id = definition.id
+	_state_args = state_arguments
 	_cell = definition.grid
 	state = node_state
 	has_external_prerequisite = external
@@ -135,17 +144,42 @@ func grid_cell() -> Vector2i:
 static func state_for(definition: TechNodeDef, sim: Simulation) -> State:
 	if sim.world.agent.owns(definition.id):
 		return State.OWNED
-	if sim.can_apply(PurchaseNodeCommand.new(definition.id)).is_empty():
+	if not sim.excluded_by(definition.id).is_empty():
+		return State.CLOSED
+	if not definition.group.is_empty() \
+			and sim.owned_in_group(definition.group) >= sim.group_max(definition.group):
+		return State.EXCLUDED
+	# A deploying node is affordable when everything but the site is fine: the
+	# site is chosen after the button, not before it (§16.6).
+	var reason: String = sim.can_apply(PurchaseNodeCommand.new(definition.id))
+	if reason.is_empty() or reason == Command.FAIL_SITE_REQUIRED:
 		return State.AFFORDABLE
 	if sim.prerequisites_met(definition):
 		return State.AVAILABLE
 	return State.LOCKED
 
 
+## The placeholders the state's own string takes, for the chip and the
+## accessible name. Empty for the four states that need none.
+static func state_args(definition: TechNodeDef, sim: Simulation) -> Dictionary:
+	match state_for(definition, sim):
+		State.CLOSED:
+			return {"node": TechText.node_name(sim.excluded_by(definition.id))}
+		State.EXCLUDED:
+			return {
+				"group": TechText.tr_key("GROUP_" + definition.group.to_upper()),
+				"owned": sim.owned_in_group(definition.group),
+				"max": sim.group_max(definition.group),
+			}
+	return {}
+
+
 ## The glyph the footer shows, or -1 for none (§3.4).
 func glyph() -> int:
 	if state == State.OWNED:
 		return Glyphs.Glyph.CHECK
+	if state == State.EXCLUDED or state == State.CLOSED:
+		return Glyphs.Glyph.LOCK
 	if state != State.LOCKED:
 		return -1
 	return Glyphs.Glyph.EXTERNAL if has_external_prerequisite else Glyphs.Glyph.LOCK
@@ -213,7 +247,7 @@ func _apply_state() -> void:
 func _refresh_strings() -> void:
 	accessibility_name = tr(KEY_A11Y).format({
 		"name": tr(KEY_NAME % node_id.to_upper()),
-		"state": tr(STATE_KEY[state]),
+		"state": tr(STATE_KEY[state]).format(_state_args),
 		"cost": Format.number(_cost_value, Format.Kind.COMPUTE),
 	})
 

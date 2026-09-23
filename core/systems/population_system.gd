@@ -36,6 +36,19 @@ func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 static func go_dark(world: World, region: Region, index: int, events: Array[SimEvent]) -> void:
 	region.dark = true
 	region.penetration = 0.0
+	# Everything standing there goes with it. The nodes stay owned: what was
+	# lost is the place, not the knowledge (`loop-mechanics.md` §6.5).
+	for kind: String in AssetDef.KINDS:
+		var held: int = region.asset_count(kind)
+		if held <= 0:
+			continue
+		world.set_assets(index, kind, 0)
+		events.append(SimEvent.new(SimEvent.ASSET_LOST, world.day, {
+			"kind": kind,
+			"region": region.def.id,
+			"count": held,
+			"cause": SimEvent.CAUSE_DARK,
+		}))
 	var anomaly: Anomaly = world.anomaly_in_region(index)
 	if anomaly != null:
 		world.anomalies.erase(anomaly)

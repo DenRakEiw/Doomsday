@@ -47,7 +47,7 @@ func test_the_data_texture_is_the_row_the_spec_describes() -> void:
 	var texture: Texture2D = _material.get_shader_parameter("region_data")
 	assert_not_null(texture, "the row exists before the first tick")
 	assert_eq(texture.get_width(), RegionData.WIDTH)
-	assert_eq(texture.get_height(), 1)
+	assert_eq(texture.get_height(), RegionData.HEIGHT)
 
 
 func test_the_palette_comes_from_the_tokens_and_not_from_the_shader() -> void:

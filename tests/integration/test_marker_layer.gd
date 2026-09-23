@@ -235,3 +235,41 @@ func test_the_markers_keep_their_screen_size_when_the_camera_zooms() -> void:
 		_camera.set_view(_camera.position, zoom)
 		assert_almost_eq(marker.scale.x * _camera.zoom.x, 1.0, 0.001,
 			"at zoom %f" % zoom)
+
+# ------------------------------------------------- S4.1: the asset row
+
+
+## §16.3.2: one row per region that holds something, rebuilt from the world and
+## kept up by the two asset events.
+func test_an_asset_row_appears_with_the_asset_and_goes_with_it() -> void:
+	Game.start_run(SEED)
+	Game.apply(ChooseOriginCommand.new(Game.db.regions[1].id))
+	assert_eq(_layer.asset_count(), 0, "nothing is on the ground at the start")
+
+	Game.sim.world.set_assets(1, AssetDef.KIND_FLEET, 2)
+	EventBus.sim_event.emit(SimEvent.new(SimEvent.ASSET_DEPLOYED, 0, {
+		"node": "", "ability": "", "kind": AssetDef.KIND_FLEET,
+		"region": Game.db.regions[1].id, "count": 2}))
+	assert_eq(_layer.asset_count(), 1)
+	var marker: AssetMarker = _layer.asset_marker_of(1)
+	assert_not_null(marker)
+	assert_eq(marker.kinds(), [AssetDef.KIND_FLEET] as Array[String])
+	assert_gt(marker.row_width(), 0.0, "a count of two is drawn beside the glyph")
+
+	Game.sim.world.set_assets(1, AssetDef.KIND_FLEET, 0)
+	EventBus.sim_event.emit(SimEvent.new(SimEvent.ASSET_LOST, 0, {
+		"kind": AssetDef.KIND_FLEET, "region": Game.db.regions[1].id,
+		"count": 2, "cause": SimEvent.CAUSE_DARK}))
+	assert_eq(_layer.asset_count(), 0, "and the row goes with the last asset")
+
+
+## A loaded world is rebuilt from state rather than from the events that led to
+## it, so the rows are there without anything having been emitted.
+func test_rebuild_reads_the_rows_off_the_world() -> void:
+	Game.start_run(SEED)
+	Game.apply(ChooseOriginCommand.new(Game.db.regions[1].id))
+	Game.sim.world.set_assets(2, AssetDef.KIND_LAB, 1)
+	Game.sim.world.set_assets(3, AssetDef.KIND_TAP, 1)
+	_layer.rebuild()
+	assert_eq(_layer.asset_count(), 2)
+	assert_eq(_layer.asset_marker_of(2).kinds(), [AssetDef.KIND_LAB] as Array[String])

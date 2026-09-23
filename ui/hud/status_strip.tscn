@@ -9,17 +9,22 @@ custom_minimum_size = Vector2(0, 56)
 theme_type_variation = &"ConsolePanelRaised"
 script = ExtResource("1_status_strip")
 
-[node name="Body" type="HBoxContainer" parent="."]
+[node name="StripRows" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="Body" type="HBoxContainer" parent="StripRows"]
 layout_mode = 2
 theme_type_variation = &"Row"
 
-[node name="StripRow" type="HBoxContainer" parent="Body"]
+[node name="StripRow" type="HBoxContainer" parent="StripRows/Body"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"RowSnug"
 
-[node name="StripChip" type="PanelContainer" parent="Body"]
+[node name="StripChip" type="PanelContainer" parent="StripRows/Body"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -27,7 +32,7 @@ size_flags_vertical = 4
 theme_type_variation = &"Chip"
 script = ExtResource("2_chip")
 
-[node name="StripMenu" type="Button" parent="Body"]
+[node name="StripMenu" type="Button" parent="StripRows/Body"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 4

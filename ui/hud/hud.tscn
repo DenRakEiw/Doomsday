@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" path="res://ui/hud/dock.tscn" id="4_dock"]
 [ext_resource type="PackedScene" path="res://ui/hud/stat_row.tscn" id="5_stat_row"]
 [ext_resource type="PackedScene" path="res://ui/hud/ticker.tscn" id="6_ticker"]
-[ext_resource type="PackedScene" path="res://ui/screens/origin_prompt.tscn" id="7_origin_prompt"]
+[ext_resource type="PackedScene" path="res://ui/hud/site_prompt.tscn" id="7_site_prompt"]
 [ext_resource type="PackedScene" path="res://ui/hud/status_strip.tscn" id="8_status_strip"]
 
 [node name="Hud" type="Control"]
@@ -33,7 +33,7 @@ theme_type_variation = &"Flush"
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="OriginPrompt" parent="Layout" instance=ExtResource("7_origin_prompt")]
+[node name="SitePrompt" parent="Layout" instance=ExtResource("7_site_prompt")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2

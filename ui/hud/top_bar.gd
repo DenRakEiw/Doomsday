@@ -56,6 +56,10 @@ var compact: bool = false:
 @onready var _phase_chip: Chip = %PhaseChip
 @onready var _day_cell: VBoxContainer = %DayCell
 @onready var _day_value: ValueLabel = %DayValue
+## `loop-mechanics.md` §16.9: what the agent has on the ground, after the day
+## cell. Built here rather than in the scene, because the readout is one node
+## that both layouts share.
+@onready var _assets: AssetReadout = AssetReadout.new()
 @onready var _spacer: Control = %Spacer
 @onready var _paused: Chip = %PausedChip
 @onready var _speed_group: HBoxContainer = %SpeedGroup
@@ -65,6 +69,8 @@ var _speed_buttons: Array[IconButton] = []
 
 
 func _ready() -> void:
+	_row_main.add_child(_assets)
+	_row_main.move_child(_assets, _day_cell.get_index() + 1)
 	_build_speed_buttons()
 	_menu_button.pressed.connect(menu_requested.emit)
 	_apply_compact()
@@ -134,6 +140,9 @@ func _apply_compact() -> void:
 	# routes to the menu, so the bar's button is a desktop control
 	# (PROGRESS.md, *Deviations*).
 	_menu_button.visible = not compact
+	# §16.9: on a phone the readout is the status strip's second row, so the bar
+	# gives it up rather than squeezing a fifth cell into 400 px.
+	_assets.enabled = not compact
 	var cell_flags: int = int(Control.SIZE_EXPAND_FILL) if compact else int(Control.SIZE_FILL)
 	for cell: Control in [_compute_cell, _phase_cell, _day_cell]:
 		cell.size_flags_horizontal = cell_flags

@@ -175,3 +175,62 @@ func test_an_inert_flag_is_answered_truthfully() -> void:
 	var flags: Array[String] = [flag]
 	stack.add_source("a", none, flags)
 	assert_true(stack.has_flag(flag))
+
+# ------------------------------------------------- S4.1: the asset scope
+
+
+## §6.3: the stack answers the asset scope, because it is the only one that
+## depends on state rather than on the region's definition.
+func _asset_modifier(kind: String, minimum: int = 1) -> ModifierDef:
+	var modifier: ModifierDef = ModifierDef.new()
+	modifier.target = "hardware"
+	modifier.op = ModifierDef.Op.ADD
+	modifier.value = 1.0
+	modifier.scope_kind = ModifierDef.ScopeKind.ASSET
+	modifier.scope_asset = kind
+	modifier.scope_min = minimum
+	return modifier
+
+
+func _asset_stack(minimum: int = 1) -> ModifierStack:
+	var bases: Dictionary[String, float] = {"hardware": 0.0}
+	var stack: ModifierStack = ModifierStack.new(bases)
+	var modifiers: Array[ModifierDef] = [_asset_modifier(AssetDef.KIND_FLEET, minimum)]
+	var no_flags: Array[String] = []
+	stack.add_source(ModifierStack.source_for_asset(AssetDef.KIND_FLEET), modifiers, no_flags)
+	return stack
+
+
+func test_an_asset_scope_applies_once_the_count_reaches_its_minimum() -> void:
+	var stack: ModifierStack = _asset_stack(2)
+	var region: RegionDef = Fixtures.db().regions[1]
+	assert_almost_eq(stack.value("hardware", region), 0.0, 1e-9)
+	stack.set_asset_count(region.index, AssetDef.KIND_FLEET, 1)
+	assert_almost_eq(stack.value("hardware", region), 0.0, 1e-9, "one is not two")
+	stack.set_asset_count(region.index, AssetDef.KIND_FLEET, 2)
+	assert_almost_eq(stack.value("hardware", region), 1.0, 1e-9)
+
+
+func test_an_asset_scope_never_reaches_a_global_stat() -> void:
+	var stack: ModifierStack = _asset_stack()
+	stack.set_asset_count(1, AssetDef.KIND_FLEET, 5)
+	assert_almost_eq(stack.value("hardware"), 0.0, 1e-9, "a null region holds no assets")
+
+
+func test_setting_a_count_to_zero_erases_it() -> void:
+	var stack: ModifierStack = _asset_stack()
+	stack.set_asset_count(1, AssetDef.KIND_FLEET, 3)
+	assert_eq(stack.asset_count(1, AssetDef.KIND_FLEET), 3)
+	stack.set_asset_count(1, AssetDef.KIND_FLEET, 0)
+	assert_eq(stack.asset_count(1, AssetDef.KIND_FLEET), 0)
+	assert_eq(stack.asset_count(99, AssetDef.KIND_FLEET), 0, "a region nobody wrote")
+
+
+## The counts are state, not a source: `clear` drops the sources and leaves the
+## world's own numbers alone (§6.3).
+func test_clear_keeps_the_asset_counts() -> void:
+	var stack: ModifierStack = _asset_stack()
+	stack.set_asset_count(1, AssetDef.KIND_FLEET, 2)
+	stack.clear()
+	assert_eq(stack.asset_count(1, AssetDef.KIND_FLEET), 2)
+	assert_eq(stack.sources().size(), 0)

@@ -171,3 +171,28 @@ func test_the_same_seed_seeds_the_same_regions_on_the_same_days() -> void:
 		else:
 			assert_eq(seen, days)
 	assert_gt(days.size(), 0)
+
+# ------------------------------------------------- S4.1: seeds by link kind
+
+
+## §3.2: every seeding is counted by the kind of link it crossed, which is what
+## D4.2's Disclosure reads.
+func test_seeds_by_kind_counts_every_seeding() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	Fixtures.allow_breakout(sim)
+	sim.world.regions[1].penetration = 1.0
+	var seeded: int = 0
+	for day: int in 400:
+		sim.tick()
+		seeded = 0
+		for i: int in range(1, sim.world.regions.size()):
+			if sim.world.regions[i].seeded_day >= 0:
+				seeded += 1
+		if seeded >= 3:
+			break
+	assert_gt(seeded, 1, "the run reached something")
+	var counted: int = 0
+	for kind: String in sim.world.agent.seeds_by_kind:
+		assert_true(LinkDef.KINDS.has(kind), kind)
+		counted += sim.world.agent.seeds_by_kind[kind]
+	assert_eq(counted, seeded - 1, "every region but the origin was counted once")

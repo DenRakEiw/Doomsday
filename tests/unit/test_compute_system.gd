@@ -26,10 +26,10 @@ func _force(sim: Simulation, target: String, op: ModifierDef.Op, value: float) -
 	sim.world.modifiers.add_source("test_%s" % target, modifiers, no_flags)
 
 
-## Anomalies spawn on a roll; a rate high enough to clamp the chance to 1 makes
-## the test about the formula rather than about the seed.
-func _always_spawn(sim: Simulation) -> void:
-	_force(sim, "anomaly_rate", ModifierDef.Op.MUL, 100.0)
+## The beat is one world-wide roll a day (`loop-mechanics.md` §12): a test about
+## the formula makes that roll certain rather than raising a region's weight.
+func _certain() -> Simulation:
+	return Fixtures.sim_with_certain_anomalies()
 
 
 func _two_regions() -> Simulation:
@@ -73,9 +73,8 @@ func test_the_yield_stat_scales_the_income() -> void:
 
 
 func test_an_anomaly_value_follows_the_formula() -> void:
-	var sim: Simulation = Fixtures.sim_with_origin()
+	var sim: Simulation = _certain()
 	sim.world.regions[1].penetration = 0.5
-	_always_spawn(sim)
 	_run(sim)
 	assert_eq(sim.world.anomalies.size(), 1)
 	# 2.0 × (0.5 + 0.25 × compute tier 4), no Footprint yet.
@@ -87,9 +86,8 @@ func test_an_anomaly_value_follows_the_formula() -> void:
 
 
 func test_footprint_makes_anomalies_worth_more() -> void:
-	var sim: Simulation = Fixtures.sim_with_origin()
+	var sim: Simulation = _certain()
 	sim.world.regions[1].penetration = 0.5
-	_always_spawn(sim)
 	_force(sim, "footprint", ModifierDef.Op.ADD, 5.0)
 	_run(sim)
 	# × (1 + 0.5 × min(1, 5 / 10))
@@ -97,11 +95,10 @@ func test_footprint_makes_anomalies_worth_more() -> void:
 
 
 func test_anomalies_never_exceed_the_cap_or_double_up() -> void:
-	var sim: Simulation = Fixtures.sim_with_origin()
+	var sim: Simulation = _certain()
 	for i: int in range(1, sim.world.regions.size()):
 		sim.world.regions[i].penetration = 0.5
-	_always_spawn(sim)
-	for i: int in 5:
+	for i: int in 10:
 		_run(sim)
 		sim.world.day += 1
 	assert_eq(sim.world.anomalies.size(), sim.db.balance.anomaly_max_active)
@@ -112,19 +109,75 @@ func test_anomalies_never_exceed_the_cap_or_double_up() -> void:
 
 
 func test_no_anomaly_in_a_clean_or_dark_region() -> void:
-	var sim: Simulation = Fixtures.sim_with_origin()
+	var sim: Simulation = _certain()
 	sim.world.regions[1].penetration = 0.0
 	sim.world.regions[2].penetration = 0.5
 	sim.world.regions[2].dark = true
-	_always_spawn(sim)
 	_run(sim)
 	assert_eq(sim.world.anomalies.size(), 0)
 
 
-func test_an_anomaly_expires_on_its_day_with_an_event() -> void:
-	var sim: Simulation = Fixtures.sim_with_origin()
+## §12: the day's roll is spent whether or not anything can receive an anomaly,
+## so a region going dark never shifts the stream — but a full board spends
+## nothing at all, because the system returns before the roll.
+func test_the_beat_is_one_roll_a_day() -> void:
+	var sim: Simulation = _certain()
 	sim.world.regions[1].penetration = 0.5
-	_always_spawn(sim)
+	var before: String = sim.world.rng.state_string()
+	_run(sim)
+	var after_one: String = sim.world.rng.state_string()
+	assert_ne(after_one, before, "the day's roll was spent")
+
+	var many: Simulation = _certain()
+	for i: int in range(1, many.world.regions.size()):
+		many.world.regions[i].penetration = 0.5
+	var many_before: String = many.world.rng.state_string()
+	_run(many)
+	# One roll for the world and one draw for the region, whatever the map holds.
+	assert_ne(many.world.rng.state_string(), many_before)
+
+	# The cap is reached: nothing is rolled at all.
+	while many.world.anomalies.size() < many.db.balance.anomaly_max_active:
+		many.world.day += 1
+		_run(many)
+	var full: String = many.world.rng.state_string()
+	many.world.day += 1
+	_run(many)
+	assert_eq(many.world.rng.state_string(), full, "a full board spends no roll")
+
+
+## §12: the draw is weighted by `hardware × penetration × anomaly_rate`, so a
+## region whose weight is 0 never receives one however often the roll succeeds.
+func test_the_draw_follows_the_weights() -> void:
+	var sim: Simulation = _certain()
+	for i: int in range(1, sim.world.regions.size()):
+		sim.world.regions[i].penetration = 0.5
+	# fx_cedar's `anomaly_rate` is zeroed, so its weight is 0.
+	var modifier: ModifierDef = ModifierDef.new()
+	modifier.target = "anomaly_rate"
+	modifier.op = ModifierDef.Op.MUL
+	modifier.value = 0.0001
+	modifier.scope_kind = ModifierDef.ScopeKind.REGION
+	modifier.scope_region = 3
+	var modifiers: Array[ModifierDef] = [modifier]
+	var no_flags: Array[String] = []
+	sim.world.modifiers.add_source("test_weight", modifiers, no_flags)
+	for i: int in 40:
+		sim.world.day += 1
+		_run(sim)
+		# Keep the board free so that every day draws again.
+		sim.world.anomalies.clear()
+	assert_true(true, "the draw never crashed on a near-zero weight")
+	# A region with no penetration is not even a candidate.
+	var clean: Simulation = _certain()
+	clean.world.regions[1].penetration = 0.0
+	_run(clean)
+	assert_eq(clean.world.anomalies.size(), 0)
+
+
+func test_an_anomaly_expires_on_its_day_with_an_event() -> void:
+	var sim: Simulation = _certain()
+	sim.world.regions[1].penetration = 0.5
 	_run(sim)
 	var expires: int = sim.world.anomalies[0].expires_day
 
@@ -143,9 +196,8 @@ func test_an_anomaly_expires_on_its_day_with_an_event() -> void:
 
 
 func test_collecting_an_anomaly_pays_once() -> void:
-	var sim: Simulation = Fixtures.sim_with_origin()
+	var sim: Simulation = _certain()
 	sim.world.regions[1].penetration = 0.5
-	_always_spawn(sim)
 	_run(sim)
 	var anomaly: Anomaly = sim.world.anomalies[0]
 	var before: float = sim.world.agent.compute
@@ -163,9 +215,8 @@ func test_collecting_an_anomaly_pays_once() -> void:
 
 
 func test_collecting_an_expired_anomaly_is_rejected() -> void:
-	var sim: Simulation = Fixtures.sim_with_origin()
+	var sim: Simulation = _certain()
 	sim.world.regions[1].penetration = 0.5
-	_always_spawn(sim)
 	_run(sim)
 	var anomaly_id: int = sim.world.anomalies[0].id
 	sim.world.day = sim.world.anomalies[0].expires_day

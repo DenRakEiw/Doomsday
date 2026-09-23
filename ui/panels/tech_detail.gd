@@ -32,6 +32,25 @@ const PREFIX_FAIL: String = "CMD_FAIL_"
 const PREFIX_FACTION: String = "FACTION_"
 const KEY_MISSING: String = "missing"
 
+## `loop-mechanics.md` §16.6: the rows tree v3 adds, after *Prerequisites* and
+## before *Watched by*.
+const KEY_DEPLOYS: String = "UI_TREE_DEPLOYS"
+const KEY_DEPLOYS_ROW: String = "UI_TREE_DEPLOYS_ROW"
+const KEY_GRANTS: String = "UI_TREE_GRANTS"
+const KEY_REQUIRES_ASSETS: String = "UI_TREE_REQUIRES_ASSETS"
+const KEY_EXCLUDES: String = "UI_TREE_EXCLUDES"
+const KEY_GROUP: String = "UI_TREE_GROUP"
+const KEY_BUY_PLACE: String = "UI_TREE_BUY_PLACE"
+const PREFIX_ELIGIBLE_NEEDS: String = "UI_ELIGIBLE_NEEDS_"
+const PREFIX_ATTR: String = "UI_ATTR_"
+const PREFIX_STATUS: String = "STATUS_"
+const PREFIX_GROUP: String = "GROUP_"
+const PREFIX_CONTINENT: String = "CONTINENT_"
+const PREFIX_ABILITY: String = "ABILITY_"
+const SUFFIX_NAME: String = "_NAME"
+const VARIATION_CAPS: StringName = &"LabelCaps"
+const VARIATION_ALERT: StringName = &"LabelCaptionAlert"
+
 ## The tab names, by tree id — the chip in the caption row and the `in {tab}`
 ## suffix of a prerequisite from elsewhere.
 const TAB_KEY: Dictionary[String, String] = {
@@ -41,8 +60,9 @@ const TAB_KEY: Dictionary[String, String] = {
 }
 ## The state chip, in the order of `TechNode.State`.
 const STATE_KEY: Array[String] = ["UI_TREE_STATE_LOCKED", "UI_TREE_STATE_AVAILABLE",
-	"UI_TREE_STATE_AFFORDABLE", "UI_TREE_STATE_OWNED"]
-const STATE_IS_ACCENT: Array[bool] = [false, false, true, true]
+	"UI_TREE_STATE_AFFORDABLE", "UI_TREE_STATE_OWNED", "UI_TREE_STATE_EXCLUDED",
+	"UI_TREE_STATE_CLOSED"]
+const STATE_IS_ACCENT: Array[bool] = [false, false, true, true, false, false]
 
 @onready var _empty_hint: Label = %EmptyHint
 @onready var _effects_title: Label = %EffectsTitle
@@ -54,6 +74,7 @@ const STATE_IS_ACCENT: Array[bool] = [false, false, true, true]
 @onready var _tier: Label = %Tier
 @onready var _tree_chip: Chip = %TreeChip
 @onready var _state_chip: Chip = %StateChip
+@onready var _group_chip: Chip = %GroupChip
 @onready var _effect: Label = %Effect
 @onready var _flavour: Label = %Flavour
 @onready var _effects: VBoxContainer = %Effects
@@ -61,6 +82,7 @@ const STATE_IS_ACCENT: Array[bool] = [false, false, true, true]
 @onready var _requires: VBoxContainer = %Requires
 @onready var _requires_any_block: Control = %RequiresAnyBlock
 @onready var _requires_any: VBoxContainer = %RequiresAny
+@onready var _v3_rows: VBoxContainer = %V3Rows
 @onready var _watched: HFlowContainer = %Watched
 @onready var _watched_none: Label = %WatchedNone
 @onready var _buy: ConsoleButton = %Buy
@@ -115,9 +137,10 @@ func show_node(definition: TechNodeDef, sim: Simulation, state: TechNode.State,
 	_empty_hint.visible = false
 	_body.visible = true
 	_failure.visible = false
-	_fill_head(definition, state)
+	_fill_head(definition, state, sim)
 	_fill_effects(definition, sim.db)
 	_fill_prerequisites(definition, sim)
+	_fill_v3(definition, sim)
 	_fill_watchers(definition)
 	_fill_buy(definition, sim, state, cost, purchase_day)
 
@@ -134,12 +157,21 @@ func shown_id() -> String:
 	return _node_id
 
 
-func _fill_head(definition: TechNodeDef, state: TechNode.State) -> void:
+func _fill_head(definition: TechNodeDef, state: TechNode.State, sim: Simulation) -> void:
 	_title.text = TechText.node_name(definition.id)
 	_tier.text = tr(KEY_TIER).format({"tier": definition.tier})
 	_tree_chip.set_label(TAB_KEY[definition.tree])
-	_state_chip.set_label(STATE_KEY[state])
+	_state_chip.set_label(STATE_KEY[state], TechNode.state_args(definition, sim))
 	_state_chip.kind = Chip.Kind.ACCENT if STATE_IS_ACCENT[state] else Chip.Kind.DEFAULT
+	# §16.6: a grouped node says how much of its group is spoken for, whatever
+	# state it is in — that is the number the choice is about.
+	_group_chip.visible = not definition.group.is_empty()
+	if _group_chip.visible:
+		_group_chip.set_label(KEY_GROUP, {
+			"group": tr(PREFIX_GROUP + definition.group.to_upper()),
+			"owned": sim.owned_in_group(definition.group),
+			"max": sim.group_max(definition.group),
+		})
 	_effect.text = tr(KEY_EFFECT % definition.id.to_upper())
 	_flavour.text = tr(KEY_FLAVOUR % definition.id.to_upper())
 
@@ -151,7 +183,7 @@ func _fill_effects(definition: TechNodeDef, db: ContentDB) -> void:
 		_add_caption(_effects, TechText.modifier_line(modifier, db))
 	for flag: String in definition.flags:
 		_add_caption(_effects, TechText.flag_line(flag))
-	for effect: PurchaseEffectDef in definition.on_purchase:
+	for effect: EffectDef in definition.on_purchase:
 		_add_caption(_effects, TechText.effect_line(effect))
 
 
@@ -194,6 +226,76 @@ func _prerequisite_row(node_id: String, tree: String, sim: Simulation) -> Contro
 	return row
 
 
+## §16.6: *Deploys*, *Grants*, *Needs assets* and *Excludes*, each only when the
+## node carries it. They are built rather than laid out in the scene, because a
+## node has none of them as often as it has one.
+func _fill_v3(definition: TechNodeDef, sim: Simulation) -> void:
+	_clear(_v3_rows)
+	if definition.deploys():
+		_add_heading(KEY_DEPLOYS)
+		_add_row(tr(KEY_DEPLOYS_ROW).format({
+			"count": definition.deploy_count,
+			"kind": TechText.asset_name(definition.deploy_kind, definition.deploy_count),
+		}))
+		if definition.deploy_eligible != null:
+			for row: Array in definition.deploy_eligible.requirements():
+				_add_caption(_v3_rows, tr(PREFIX_ELIGIBLE_NEEDS + str(row[0]).to_upper())
+					.format(_requirement_args(row[1])))
+	if definition.grants_ability():
+		_add_heading(KEY_GRANTS)
+		_add_row(tr(KEY_GRANTS).format({
+			"ability": tr(PREFIX_ABILITY + definition.ability_id.to_upper() + SUFFIX_NAME),
+			"level": definition.ability_level,
+		}))
+	if not definition.requires_assets.is_empty():
+		var missing: Dictionary[String, int] = sim.missing_assets(definition)
+		for kind: String in definition.requires_assets:
+			var count: int = definition.requires_assets[kind]
+			var line: Label = _add_row(tr(KEY_REQUIRES_ASSETS).format({
+				"count": count,
+				"kind": TechText.asset_name(kind, count),
+			}))
+			if missing.has(kind):
+				line.theme_type_variation = VARIATION_ALERT
+	if not definition.excludes.is_empty():
+		_add_heading(KEY_EXCLUDES)
+		for other: String in definition.excludes:
+			var line: Label = _add_row(TechText.node_name(other))
+			line.theme_type_variation = VARIATION_ALERT
+
+
+## An `Eligibility` requirement's arguments, with every id turned into a name.
+func _requirement_args(raw: Variant) -> Dictionary:
+	var source: Dictionary = raw
+	var args: Dictionary = source.duplicate()
+	if source.has("attr"):
+		args["attr"] = tr(PREFIX_ATTR + str(source["attr"]).to_upper())
+	if source.has("kind"):
+		args["kind"] = TechText.asset_name(str(source["kind"]), int(source.get("count", 1)))
+	if source.has("status"):
+		args["status"] = tr(PREFIX_STATUS + str(source["status"]).to_upper() + SUFFIX_NAME)
+	if source.has("value"):
+		args["value"] = Format.percent(float(source["value"]))
+	if source.has("continent"):
+		args["continent"] = tr(PREFIX_CONTINENT + str(source["continent"]).to_upper())
+	return args
+
+
+func _add_heading(key: String) -> void:
+	var label: Label = Label.new()
+	label.theme_type_variation = VARIATION_CAPS
+	label.text = Format.caps(tr(key))
+	_v3_rows.add_child(label)
+
+
+func _add_row(text: String) -> Label:
+	var label: Label = Label.new()
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.text = text
+	_v3_rows.add_child(label)
+	return label
+
+
 func _fill_watchers(definition: TechNodeDef) -> void:
 	_clear(_watched)
 	_watched_none.visible = definition.watched_by.is_empty()
@@ -215,9 +317,14 @@ func _fill_buy(definition: TechNodeDef, sim: Simulation, state: TechNode.State, 
 		_owned_chip.set_label(KEY_OWNED if purchase_day < 0 else KEY_OWNED_DAY,
 			{"day": Format.number(float(purchase_day), Format.Kind.DAYS)})
 		return
-	_buy.text = Format.caps(tr(KEY_BUY).format(
+	# §16.6: on a deploying node the button opens site select instead of buying,
+	# so it is enabled when everything but the site is fine.
+	var key: String = KEY_BUY_PLACE if definition.deploys() else KEY_BUY
+	_buy.text = Format.caps(tr(key).format(
 		{"cost": Format.number(cost, Format.Kind.COMPUTE)}))
-	_buy.disabled = not sim.can_apply(PurchaseNodeCommand.new(definition.id)).is_empty()
+	var reason: String = sim.can_apply(PurchaseNodeCommand.new(definition.id))
+	_buy.disabled = not (reason.is_empty()
+		or (definition.deploys() and reason == Command.FAIL_SITE_REQUIRED))
 
 
 ## The reason, with the shortfall spelled out where there is one (§3.3).

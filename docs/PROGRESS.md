@@ -14,19 +14,20 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S4.1 — Assets and site select** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/loop-mechanics.md`, assets and site select) |
+| **Next step** | **S4.2 — Statuses and abilities** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/loop-mechanics.md`, statuses, abilities, effects) |
 | **Model for it** | **Opus** — no switch |
-| **After it** | S4.2 … S4.10 (no switch) → `/model fable` → D4.5 |
-| **Last completed** | S3.P — Punch list from G3, all eight items: the two-second day, Harm as the maximum over regions (`World.max_harm`), `±0`, the results panel's height, the anomaly countdown ring, and the tap rule (press → release, not the path walked). 677 tests, all green (2026-09-23) |
-| **Before that** | D4.4 — Chains, second batch and the Analysis spec: `docs/specs/chains.md`, `docs/specs/analysis.md`; The Operator / The Benchmark / Second Instance as `data/events/*.json`; `operator_link`, `grace` in `statuses.json`; 8 headlines staged; 167 strings en/de; four vocabulary extensions (2026-09-23) |
+| **After it** | S4.3 … S4.10 (no switch) → `/model fable` → D4.5 |
+| **Last completed** | S4.1 — Assets and site select: `Eligibility`, `AssetDef`, `EffectDef` + `EffectRunner`, the `asset` scope, tree v3 (`group`, `excludes`, `deploy`, `requires_assets`), `PurchaseNodeCommand.region`, save v2 with the v1 → v2 migration, the anomaly beat and the §18 economy numbers, site select (strip, map row 1, region panel, *Buy and place*), asset markers and the HUD readout. 759 tests, all green (2026-09-23) |
+| **Before that** | S3.P — Punch list from G3, all eight items: the two-second day, Harm as the maximum over regions (`World.max_harm`), `±0`, the results panel's height, the anomaly countdown ring, and the tap rule (press → release, not the path walked) (2026-09-23) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 132 scripts compile (53 judged by the suite), 677 tests, **all green since S3.P**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 139 scripts compile (58 judged by the suite), 759 tests, **all green since S4.1**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
+| **Site select** | S4.1: the origin, a deploying node's site and (from S4.2) an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
 | **Run it** | `run_project` starts at the **title** (`game/main.tscn`); New run → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 stealth · F7 idle (**with Shift**: cyber_rush · stealth_spread · persuader) · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
 | **Compact layout** | Below 1100 px the interface switches (§5.7). A desktop window narrower than that lays out one logical pixel per window pixel, **`game_window set_size 400 860` resized correctly in S2.P** — try it first; `game_set_property /root size {"x":400,"y":860}` is the fallback and in S2.P it rendered a blank frame. After any resize at runtime the camera keeps a zoom from the old viewport: write `zoom` and give it one `game_scroll` notch down to settle it at `zoom_min`. |
 | **Look at the map** | `game_click` (**`button: 1`, never `"left"`** — see *Known issues*), `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Main/ScreenSlot/Session/MapLayer/MapView` (the router’s slot is in the path now), `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead — but a property write emits no `view_changed`, so links and markers keep the old zoom until the next real camera movement (**one `game_scroll` notch fixes it**). |
@@ -99,8 +100,8 @@ which file was being edited, and anything learned that the files do not show)*
 
 **Block 8 — M4 build · Opus** *(rewritten at D4.0)*
 - [x] S3.P [O] Punch list from G3 (eight items)
-- [ ] **S4.1 [O] Assets and site select**
-- [ ] S4.2 [O] Statuses and abilities
+- [x] S4.1 [O] Assets and site select
+- [ ] **S4.2 [O] Statuses and abilities**
 - [ ] S4.3 [O] Map events
 - [ ] S4.4 [O] Four factions
 - [ ] S4.5 [O] Counter-moves, Societal Function, Autophagy
@@ -798,6 +799,45 @@ S4.P.)*
 
 ## Deviations from the plan or a spec
 
+- **2026-09-23** (S4.1) — **The three v3 targets arrive one step early.** `containment_capacity`,
+  `penetration_decay` and `control_decay` are in `ModifierDef.TARGETS_REGIONAL`, in `CLAMPS`, in
+  `INERT_TARGETS` and in both `balance.json` files now rather than at S4.2 (loop-mechanics §18
+  puts them there), because `data/assets.json` scopes a `containment_capacity` modifier on the
+  office and the file would not load without the target. They are inert until S4.2 reads them.
+- **2026-09-23** (S4.1) — **The effects that need the status machinery are validated but not run.**
+  `EffectDef` owns the whole vocabulary of §8.2 from S4.1 on; `EffectRunner` carries out
+  `compute_grant`, `containment_rollback`, `harm_burst`, `destroy_assets` and `grant_assets`, and
+  the six of `EffectDef.PENDING_EFFECTS` (`spread_status`, `end_statuses`, `footprint_pulse`,
+  `set_flag`, `apply_status`, `wipe`) are no-ops with a test that says so. No S4.1 content uses
+  one. S4.2 empties that list as it builds `StatusSystem`.
+- **2026-09-23** (S4.1) — **The save's status, pulse and event blocks are carried, not parsed.**
+  §13 makes every v2 field required, and `Status`, `Pulse` and `OpenEvent` are S4.2's and S4.3's
+  classes — so `World` holds `statuses`, `pulses`, `events` and `pending_events` as plain `Array`s,
+  writes them (always empty at S4.1) and reads them back with a type check only. S4.2 and S4.3
+  replace the arrays with their records without changing the save version again.
+- **2026-09-23** (S4.1) — **`World.has_status` answers `false` for everything** until S4.2 fills
+  `World.statuses`. The `Eligibility` grammar asks the question from S4.1 on (the keys are in the
+  spec's `KEYS` list and the region panel renders their strings), and an S4.1 rule that used them
+  would simply never pass — no content does.
+- **2026-09-23** (S4.1) — **The eligibility validator does not check status ids yet.** There is no
+  `statuses.json` before S4.2, so `_eligibility` takes a `statuses_known` flag the way the region
+  cross-references take `regions_known`, and S4.1 passes `false`. S4.2 passes the loaded ids.
+- **2026-09-23** (S4.1) — **`ChipFaction` is not in the theme yet.** §16.12 lists the variation,
+  but its only consumer is §16.5's Status row (S4.2) and the fill colour differs per faction, so
+  the variation lands with the row that needs it. `UiTokens.faction_color(id)` and the four tokens
+  are in place and the map shader already takes them as uniforms.
+- **2026-09-23** (S4.1) — **The fixture tree grew to 18 nodes, not 22.** §22 lists nine new fixture
+  nodes; the four that carry an `ability` block belong to S4.2, which also writes
+  `abilities.json`. `Fixtures.TECH_NODE_COUNT` is 18 and becomes 22 there. The `fx_vectors` group
+  is capped at **1** as §22 says, so one purchase fills it.
+- **2026-09-23** (S4.1) — **`test_every_shipped_tree_is_buyable_end_to_end` skips grouped nodes.**
+  With `vectors` capped at two, "every node of a tree is buyable in one run" stopped being true by
+  design; the test now walks the ungrouped nodes and a new
+  `test_a_group_takes_its_cap_and_no_more` measures the cap itself.
+- **2026-09-23** (S4.1) — **`test_costs_follow_escalation_every_tick` no longer asserts the step.**
+  `compute.cost_step` is 1.5 and `node_cost` rounds up, so a purchase does not raise another price
+  by exactly the step. The test asserts that every other price rose, which is what the escalation
+  promises.
 - **2026-09-23** (S3.P) — **The anomaly marker's blink became a countdown ring** (punch list item
   7), so `ui-foundation.md` §7.7's sentence about the last three days no longer describes the
   build: the disc is always `ACCENT`, a ring at radius 14 empties clockwise from the top as
@@ -1228,6 +1268,8 @@ two, the Merge/Terror exclusion, the cadence table). Changes go into the spec be
 
 ## Balance baselines
 
+**Stale since S4.1.** The table below was measured on the M3 numbers. S4.1 changed five of them (`spread.origin_penetration` 0.25, `compute.start` 8, `compute.cost_step` 1.5, `anomaly.spawn_chance` 0.12, `max_active` 3, `base_value` 3.0) and made anomalies one world-wide roll a day, so every row here is the M3 reference and nothing else. **S4.10 measures the new ones** (loop-mechanics §18); G4 is the pass that retunes them.
+
 **2026-09-23 (G3) — the G3 baseline: the retuned data, six policies, 500 seeds each.**
 Every per-day rate ÷ 2.5, `containment.base_rate` 0.0014, the clock to follow in S3.P (one day =
 two seconds). Full pass in `docs/BALANCE.md` §3. Days are simulated days: 100 = 200 s at 1×.
@@ -1358,6 +1400,32 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — S4.1 Assets and site select [O]
+- **Core:** `Eligibility` (§5, fourteen keys, first-failure reason, `detail`, `requirements`),
+  `AssetDef` + `data/assets.json` loaded and validated, `EffectDef` replacing `PurchaseEffectDef`
+  with the whole §8.2 vocabulary, `EffectContext` + `EffectRunner`, the `asset` scope in
+  `ModifierDef`/`ModifierStack` (with the always-on per-kind sources), `Region.assets` +
+  `World.set_assets`/`asset_total`, tree v3 (`group`, `excludes`, `deploy`, `ability`,
+  `requires_assets`, the `groups` file header), `PurchaseNodeCommand.region` and its five checks,
+  `SimRng.weighted_pick`, the anomaly beat of §12, `seeds_by_kind`, save **v2** with the v1 → v2
+  migration, and `Policy.best_site`.
+- **Interface:** site select (`SiteRequest`, `Game.site_select/cancel/confirm`,
+  `EventBus.site_select_changed`), `ui/hud/site_prompt.tscn` replacing `origin_prompt.tscn`, the
+  data texture's **second row** and the shader's eligible outline and status border,
+  `AssetMarker` + the asset row on the map with its tooltip, `AssetReadout` in the top bar and as
+  the status strip's second row, the region panel's *Assets* row and its generalised site button,
+  the tree modal's *Deploys* / *Grants* / *Needs assets* / *Closes* rows, the group chip, the two
+  new node states and *Buy and place*.
+- **Data:** the §18 economy numbers (origin penetration 0.25, compute start 8, cost step 1.5,
+  anomaly 0.12 / 3 / 3.0), `groups` + `group: "vectors"` on the seven Tier 1 vectors, `deploy` on
+  Logistics Fleets, `headlines_staging/s4_1.json` merged (159 headlines), 68 new strings en/de,
+  `data/SCHEMA.md` at **v3**.
+- **A real bug the new tests found:** `ModifierStack.value` still asked `ModifierDef.matches`, so
+  the asset scope never applied. `test_modifier_stack.gd` and `test_world.gd` catch it now.
+- Checked by hand in the running game: the origin prompt outlines every eligible origin, *Buy and
+  place* enters the mode without paying, the tap buys and places, the readout counts the fleet and
+  the region panel lists it — in the full and the compact layout. 759 tests, all green.
 
 ### 2026-09-23 — S3.P Punch list from G3 [O]
 All eight items. The day is two seconds (`TICKS_PER_SECOND` 0.5, the accumulator test with it);

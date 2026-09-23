@@ -54,7 +54,33 @@ var grid: Vector2i = Vector2i.ZERO
 ## The factions that notice this node. Carries no mechanism before M4.
 var watched_by: Array[String] = []
 ## Applied once, in list order, when the node is bought.
-var on_purchase: Array[PurchaseEffectDef] = []
+var on_purchase: Array[EffectDef] = []
+## Tree v3 (`loop-mechanics.md` §11.1). The exclusive group this node belongs
+## to, or "" — at most `ContentDB.groups[group]` of them may ever be owned.
+var group: String = ""
+## Nodes this one closes for good. Symmetric: every node listed lists this one
+## back, which the validator insists on.
+var excludes: Array[String] = []
+## What the purchase puts on the map, or "" for a node that deploys nothing.
+var deploy_kind: String = ""
+var deploy_count: int = 0
+## Where it may be placed. Null when the node does not deploy.
+var deploy_eligible: Eligibility = null
+## The ability this node grants, and at which level; "" for none.
+var ability_id: String = ""
+var ability_level: int = 1
+## Asset kind -> how many the agent must hold **in total** to buy this node.
+var requires_assets: Dictionary[String, int] = {}
+
+
+## Whether buying this node puts something on the map, which is what makes the
+## purchase need a site (§6.4).
+func deploys() -> bool:
+	return not deploy_kind.is_empty()
+
+
+func grants_ability() -> bool:
+	return not ability_id.is_empty()
 
 
 ## Which branch of the Capabilities tree the node is in, or "" for a node in

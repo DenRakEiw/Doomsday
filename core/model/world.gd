@@ -16,7 +16,7 @@ const PHASE_IDS: Array[String] = ["boxed", "covert", "emergent", "open"]
 const OUTCOME_IDS: Array[String] = ["none", "win_extinction", "win_ascendance",
 	"lose_contained", "lose_no_compute"]
 
-## M1 has one containment track. S4.1 adds three more without touching this file.
+## M1 has one containment track. S4.4 adds three more without touching this file.
 const FACTION_UNIFIED: String = "unified"
 
 var day: int = 0
@@ -39,6 +39,20 @@ var next_anomaly_id: int = 1
 ## Firing order.
 var milestones_fired: Array[String] = []
 var history: Array[HistorySample] = []
+## How long the world has been starving. Saved from v2 on; nothing reads it
+## before S4.5 (D4.2 §3.2).
+var starving_days: int = 0
+## The records of S4.2 and S4.3, in the save from v2 on. Until those steps they
+## are always empty; keeping them here is what lets S4.1 write and read a v2
+## file that S4.2 does not have to migrate again (§13).
+var statuses: Array = []
+var pulses: Array = []
+var next_pulse_id: int = 1
+var events: Array = []
+var pending_events: Array = []
+var next_event_id: int = 1
+var event_fires: Dictionary[String, int] = {}
+var event_last_day: Dictionary[String, int] = {}
 ## Derived from the owned nodes, rebuilt after loading, never serialised.
 var modifiers: ModifierStack
 
@@ -55,6 +69,7 @@ static func create(db: ContentDB, seed_value: int) -> World:
 		world.links.append(Link.create(link))
 	world.factions.append(Faction.create(FACTION_UNIFIED))
 	world.modifiers = ModifierStack.new(db.balance.stats)
+	world.add_asset_sources(db)
 	return world
 
 
@@ -82,6 +97,52 @@ func infected_share(db: ContentDB) -> float:
 	if total <= 0.0:
 		return 0.0
 	return infected / total
+
+
+## The one way an asset count ever changes: it writes the region and the mirror
+## the modifier stack keeps, so an asset-scoped modifier can never be out of step
+## with what stands there (`loop-mechanics.md` §6.3).
+func set_assets(region_index: int, kind: String, count: int) -> void:
+	var region: Region = regions[region_index]
+	var held: int = maxi(0, count)
+	if held == 0:
+		region.assets.erase(kind)
+	else:
+		region.assets[kind] = held
+	if modifiers != null:
+		modifiers.set_asset_count(region_index, kind, held)
+
+
+## Every asset kind's base effects as an always-active source, and the counts
+## the scope reads (§6.2). Called after the stack is built or cleared.
+func add_asset_sources(db: ContentDB) -> void:
+	if modifiers == null:
+		return
+	var no_flags: Array[String] = []
+	for kind: String in AssetDef.KINDS:
+		if not db.assets.has(kind):
+			continue
+		modifiers.add_source(ModifierStack.source_for_asset(kind), db.assets[kind].modifiers,
+			no_flags)
+	for i: int in range(1, regions.size()):
+		for kind: String in AssetDef.KINDS:
+			modifiers.set_asset_count(i, kind, regions[i].asset_count(kind))
+
+
+## How many assets of a kind the agent holds everywhere (`requires_assets`).
+func asset_total(kind: String) -> int:
+	var total: int = 0
+	for i: int in range(1, regions.size()):
+		total += regions[i].asset_count(kind)
+	return total
+
+
+## Whether a status of this id is running in the region — region 0 is the agent.
+## `statuses` arrives with S4.2; until then nothing is ever running, and the
+## eligibility grammar can already ask the question.
+@warning_ignore("unused_parameter")
+func has_status(status_id: String, region_index: int) -> bool:
+	return false
 
 
 func seeded_count() -> int:
@@ -149,6 +210,10 @@ func to_dict() -> Dictionary:
 	var region_list: Array = []
 	for i: int in range(1, regions.size()):
 		var region: Region = regions[i]
+		var held: Dictionary = {}
+		for kind: String in AssetDef.KINDS:
+			if region.asset_count(kind) > 0:
+				held[kind] = region.asset_count(kind)
 		region_list.append({
 			"id": region.def.id,
 			"penetration": FloatBits.to_hex(region.penetration),
@@ -159,6 +224,8 @@ func to_dict() -> Dictionary:
 			"air_gapped": region.air_gapped,
 			"dark": region.dark,
 			"dormant": region.dormant,
+			"assets": held,
+			"society": FloatBits.to_hex(region.society),
 		})
 
 	var closed_links: Array = []
@@ -171,6 +238,9 @@ func to_dict() -> Dictionary:
 		faction_list.append({
 			"id": faction.id,
 			"containment": FloatBits.to_hex(faction.containment),
+			"preparing": faction.preparing,
+			"fire_day": faction.fire_day,
+			"cooldown_until": faction.cooldown_until,
 		})
 
 	var anomaly_list: Array = []
@@ -200,6 +270,10 @@ func to_dict() -> Dictionary:
 			"compute_earned": FloatBits.to_hex(agent.compute_earned),
 			"origin": "" if agent.origin == 0 else regions[agent.origin].def.id,
 			"owned_nodes": agent.owned_nodes.duplicate(),
+			"cooldowns": agent.cooldowns.duplicate(),
+			"timed_flags": agent.timed_flags.duplicate(),
+			"story_flags": agent.story_flags.duplicate(),
+			"seeds_by_kind": agent.seeds_by_kind.duplicate(),
 		},
 		"regions": region_list,
 		"closed_links": closed_links,
@@ -208,6 +282,18 @@ func to_dict() -> Dictionary:
 		"next_anomaly_id": next_anomaly_id,
 		"milestones_fired": milestones_fired.duplicate(),
 		"history": history_list,
+		"starving_days": starving_days,
+		# The status, pulse and event blocks of save v2. S4.1 writes them empty
+		# and reads them back; S4.2 and S4.3 fill them with the records they add
+		# (`loop-mechanics.md` §13).
+		"statuses": statuses.duplicate(),
+		"pulses": pulses.duplicate(),
+		"next_pulse_id": next_pulse_id,
+		"events": events.duplicate(),
+		"pending_events": pending_events.duplicate(),
+		"next_event_id": next_event_id,
+		"event_fires": event_fires.duplicate(),
+		"event_last_day": event_last_day.duplicate(),
 	}
 
 
@@ -223,6 +309,16 @@ func state_hash() -> String:
 static func from_dict(d: Dictionary, db: ContentDB) -> World:
 	if not _num(d, "day") or not _num(d, "origin_day") or not _num(d, "discovery_day") \
 			or not _num(d, "next_anomaly_id"):
+		return null
+	# Save v2 (loop-mechanics.md 13). A v1 file reaches this function migrated,
+	# so every field is required: a missing one is a corrupt save, not an old one.
+	if not _num(d, "starving_days") or not _num(d, "next_pulse_id") \
+			or not _num(d, "next_event_id"):
+		return null
+	if not _arr(d, "statuses") or not _arr(d, "pulses") or not _arr(d, "events") \
+			or not _arr(d, "pending_events"):
+		return null
+	if not _obj(d, "event_fires") or not _obj(d, "event_last_day"):
 		return null
 	if not _flag(d, "discovered") or not _str(d, "phase") or not _str(d, "outcome"):
 		return null
@@ -249,6 +345,18 @@ static func from_dict(d: Dictionary, db: ContentDB) -> World:
 	world.phase = phase_from_id(str(d["phase"]))
 	world.outcome = outcome_from_id(str(d["outcome"]))
 	world.rng = SimRng.from_strings(str(rng_dict["seed"]), str(rng_dict["state"]))
+	world.starving_days = int(d["starving_days"])
+	world.next_pulse_id = int(d["next_pulse_id"])
+	world.next_event_id = int(d["next_event_id"])
+	# The records themselves are S4.2's and S4.3's; until then the lists are
+	# always empty and are carried through as they were written.
+	world.statuses = (d["statuses"] as Array).duplicate()
+	world.pulses = (d["pulses"] as Array).duplicate()
+	world.events = (d["events"] as Array).duplicate()
+	world.pending_events = (d["pending_events"] as Array).duplicate()
+	if not _read_counts(world.event_fires, d["event_fires"]) \
+			or not _read_counts(world.event_last_day, d["event_last_day"]):
+		return null
 
 	if not _read_regions(world, d["regions"], db):
 		return null
@@ -322,6 +430,8 @@ static func _read_regions(world: World, raw: Variant, db: ContentDB) -> bool:
 		# as a world where nothing is held.
 		if entry.has("dormant") and typeof(entry["dormant"]) != TYPE_BOOL:
 			return false
+		if not _obj(entry, "assets") or not _real(entry, "society"):
+			return false
 		var region: Region = Region.create(db.regions[i + 1])
 		region.penetration = FloatBits.from_variant(entry["penetration"])
 		region.control = FloatBits.from_variant(entry["control"])
@@ -331,6 +441,15 @@ static func _read_regions(world: World, raw: Variant, db: ContentDB) -> bool:
 		region.air_gapped = bool(entry["air_gapped"])
 		region.dark = bool(entry["dark"])
 		region.dormant = bool(entry.get("dormant", false))
+		region.society = FloatBits.from_variant(entry["society"])
+		var held: Dictionary = entry["assets"]
+		for kind: Variant in held:
+			if typeof(kind) != TYPE_STRING or not AssetDef.KINDS.has(str(kind)):
+				return false
+			var count: Variant = held[kind]
+			if typeof(count) != TYPE_FLOAT and typeof(count) != TYPE_INT:
+				return false
+			region.assets[str(kind)] = int(count)
 		world.regions[i + 1] = region
 	return true
 
@@ -357,6 +476,9 @@ static func _read_agent(world: World, raw: Variant, db: ContentDB) -> bool:
 		return false
 	if not _str(entry, "origin") or not _arr(entry, "owned_nodes"):
 		return false
+	if not _obj(entry, "cooldowns") or not _obj(entry, "timed_flags") \
+			or not _arr(entry, "story_flags") or not _obj(entry, "seeds_by_kind"):
+		return false
 	world.agent = Agent.new()
 	world.agent.compute = FloatBits.from_variant(entry["compute"])
 	world.agent.compute_earned = FloatBits.from_variant(entry["compute_earned"])
@@ -366,6 +488,17 @@ static func _read_agent(world: World, raw: Variant, db: ContentDB) -> bool:
 	elif db.region_index_by_id.has(origin_id):
 		world.agent.origin = db.region_index_by_id[origin_id]
 	else:
+		return false
+	if not _read_counts(world.agent.cooldowns, entry["cooldowns"]) \
+			or not _read_counts(world.agent.timed_flags, entry["timed_flags"]):
+		return false
+	var seeds: Dictionary = entry["seeds_by_kind"]
+	for kind: Variant in seeds:
+		if typeof(kind) != TYPE_STRING or not LinkDef.KINDS.has(str(kind)):
+			return false
+	if not _read_counts(world.agent.seeds_by_kind, seeds):
+		return false
+	if not _read_strings(world.agent.story_flags, entry["story_flags"]):
 		return false
 	# Node ids are not checked against the content here: an owned node the
 	# content no longer has is a *content* problem, which the save reader
@@ -383,8 +516,14 @@ static func _read_factions(world: World, raw: Variant) -> bool:
 		var faction_dict: Dictionary = entry
 		if not _str(faction_dict, "id") or not _real(faction_dict, "containment"):
 			return false
+		if not _str(faction_dict, "preparing") or not _num(faction_dict, "fire_day") \
+				or not _num(faction_dict, "cooldown_until"):
+			return false
 		var faction: Faction = Faction.create(str(faction_dict["id"]))
 		faction.containment = FloatBits.from_variant(faction_dict["containment"])
+		faction.preparing = str(faction_dict["preparing"])
+		faction.fire_day = int(faction_dict["fire_day"])
+		faction.cooldown_until = int(faction_dict["cooldown_until"])
 		world.factions.append(faction)
 	return true
 
@@ -410,6 +549,21 @@ static func _read_anomalies(world: World, raw: Variant, db: ContentDB) -> bool:
 		anomaly.spawn_day = int(anomaly_dict["spawn_day"])
 		anomaly.expires_day = int(anomaly_dict["expires_day"])
 		world.anomalies.append(anomaly)
+	return true
+
+
+## A `{id: whole number}` block of the save. False for anything ill-typed.
+static func _read_counts(into: Dictionary[String, int], raw: Variant) -> bool:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return false
+	var d: Dictionary = raw
+	for key: Variant in d:
+		if typeof(key) != TYPE_STRING:
+			return false
+		var type: int = typeof(d[key])
+		if type != TYPE_FLOAT and type != TYPE_INT:
+			return false
+		into[str(key)] = int(d[key])
 	return true
 
 
@@ -478,6 +632,10 @@ func check_invariants(db: ContentDB = null) -> Array[String]:
 			problems.append("%s: dark but not empty" % where)
 		if region.dormant and (region.dark or region.penetration <= 0.0):
 			problems.append("%s: dormant without the agent in it" % where)
+		for kind: String in region.assets:
+			if region.assets[kind] < 0:
+				problems.append("%s: %d %s assets is negative"
+					% [where, region.assets[kind], kind])
 
 	for faction: Faction in factions:
 		if not is_finite(faction.containment) or faction.containment < 0.0 \
@@ -489,6 +647,14 @@ func check_invariants(db: ContentDB = null) -> Array[String]:
 		problems.append("compute %s is negative or not finite" % agent.compute)
 	if discovered and discovery_day < 0:
 		problems.append("discovered without a discovery day")
+	var seen_flags: Dictionary[String, bool] = {}
+	for flag: String in agent.story_flags:
+		if seen_flags.has(flag):
+			problems.append("story flag %s is set twice" % flag)
+		seen_flags[flag] = true
+	for kind: String in agent.seeds_by_kind:
+		if not LinkDef.KINDS.has(kind):
+			problems.append("seeds_by_kind names the unknown link kind %s" % kind)
 
 	var seen_regions: Dictionary[int, bool] = {}
 	for anomaly: Anomaly in anomalies:

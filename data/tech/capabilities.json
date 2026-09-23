@@ -315,6 +315,7 @@
 			"cost": 6,
 			"grid": [0, 6],
 			"watched_by": ["public_sentiment"],
+			"deploy": {"kind": "fleet", "count": 1, "eligible": {"infected": true, "attr_min": {"industry": 2}}},
 			"modifiers": [
 				{"target": "seed_land", "op": "mul", "value": 1.3},
 				{"target": "hardware", "op": "add", "value": 1.0, "scope": {"attr": "industry", "min": 3}},

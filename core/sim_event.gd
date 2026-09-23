@@ -24,6 +24,10 @@ const CONTAINMENT_ROLLED_BACK: String = "containment_rolled_back"
 const COMPUTE_GRANTED: String = "compute_granted"
 const HARM_BURST: String = "harm_burst"
 const DORMANCY_CHANGED: String = "dormancy_changed"
+## An asset came to stand somewhere (a purchase, an ability, an event).
+const ASSET_DEPLOYED: String = "asset_deployed"
+## One went away — destroyed, or lost with the region it stood in.
+const ASSET_LOST: String = "asset_lost"
 ## What the world says about the rest of them (ticker.md §3.7). Emitted by
 ## `HeadlineSystem` after the systems, never a trigger for another headline.
 const HEADLINE: String = "headline"
@@ -33,7 +37,7 @@ const HEADLINE: String = "headline"
 const TYPES_ALL: Array[String] = [ORIGIN_CHOSEN, NODE_PURCHASED, ANOMALY_COLLECTED, REGION_SEEDED,
 	REGION_CONTROLLED, ANOMALY_SPAWNED, ANOMALY_EXPIRED, MILESTONE_REACHED, REGION_DEPOPULATED,
 	DISCOVERED, CONTAINMENT_THRESHOLD, PHASE_CHANGED, OUTCOME_REACHED, CONTAINMENT_ROLLED_BACK,
-	COMPUTE_GRANTED, HARM_BURST, DORMANCY_CHANGED]
+	COMPUTE_GRANTED, HARM_BURST, DORMANCY_CHANGED, ASSET_DEPLOYED, ASSET_LOST]
 
 ## Fields of a `HEADLINE` event that are not arguments of its text.
 const FIELD_HEADLINE: String = "headline"
@@ -42,6 +46,9 @@ const FIELD_STREAM: String = "stream"
 ## Causes of `DISCOVERED`.
 const CAUSE_SCRUTINY: String = "scrutiny"
 const CAUSE_DEATHS: String = "deaths"
+## The `cause` of an `ASSET_LOST` that the region itself caused: it went dark and
+## everything standing in it went with it.
+const CAUSE_DARK: String = "dark"
 
 var type: String
 var day: int

@@ -146,3 +146,124 @@ func test_tree_cost_multiplier_applies_to_its_tree_only() -> void:
 		ModifierDef.Op.MUL, 0.5)
 	assert_eq(sim.node_cost("fx_vector_net"), ceilf(infiltration * 0.5))
 	assert_eq(sim.node_cost("fx_quiet"), evasion, "the other trees are untouched")
+
+# ------------------------------------- S4.1: sites, groups, exclusions, assets
+
+
+## A run with enough Compute for anything the fixture sells.
+func _rich() -> Simulation:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	Fixtures.grant(sim, 500.0)
+	return sim
+
+
+func _events_of(result: CommandResult, type: String) -> Array[SimEvent]:
+	var out: Array[SimEvent] = []
+	for event: SimEvent in result.events:
+		if event.type == type:
+			out.append(event)
+	return out
+
+
+func test_a_deploying_node_without_a_region_is_refused() -> void:
+	var sim: Simulation = _rich()
+	assert_eq(sim.can_apply(PurchaseNodeCommand.new(Fixtures.DEPLOY_FLEET_NODE)),
+		Command.FAIL_SITE_REQUIRED)
+
+
+func test_an_unknown_region_is_refused_as_invalid() -> void:
+	var sim: Simulation = _rich()
+	assert_eq(sim.can_apply(PurchaseNodeCommand.new(Fixtures.DEPLOY_FLEET_NODE, "nowhere")),
+		Command.FAIL_INVALID_REGION)
+
+
+## The fixture's fleet needs an infected region with industry 2 (§22): fx_cedar
+## has industry 1 and is not infected, so the site check refuses it.
+func test_an_ineligible_region_is_refused_and_says_why() -> void:
+	var sim: Simulation = _rich()
+	assert_eq(sim.can_apply(PurchaseNodeCommand.new(Fixtures.DEPLOY_FLEET_NODE, "fx_cedar")),
+		Command.FAIL_SITE_INELIGIBLE)
+	assert_eq(sim.site_eligibility(Fixtures.DEPLOY_FLEET_NODE, 3),
+		Eligibility.REASON_NOT_INFECTED)
+
+
+func test_an_eligible_region_gets_the_asset_and_the_event_order_is_kept() -> void:
+	var sim: Simulation = _rich()
+	var result: CommandResult = sim.apply(
+		PurchaseNodeCommand.new(Fixtures.DEPLOY_FLEET_NODE, "fx_alder"))
+	assert_true(result.ok, result.reason)
+	assert_eq(sim.world.regions[1].asset_count(AssetDef.KIND_FLEET), 1)
+	assert_eq(result.events[0].type, SimEvent.NODE_PURCHASED)
+	assert_eq(result.events[1].type, SimEvent.ASSET_DEPLOYED,
+		"the deployment follows the purchase and precedes the one-shots")
+	assert_eq(result.events[1].data["region"], "fx_alder")
+	assert_eq(result.events[1].data["node"], Fixtures.DEPLOY_FLEET_NODE)
+	# The fleet's own base effect is live at once (§6.2).
+	assert_almost_eq(sim.hardware(1), sim.db.balance.compute_hardware_by_tier[
+		sim.db.regions[1].attr("compute")] + 1.0 + 1.0, 1e-9)
+
+
+func test_a_node_that_deploys_nothing_ignores_a_region() -> void:
+	var sim: Simulation = _rich()
+	var result: CommandResult = sim.apply(PurchaseNodeCommand.new("fx_quiet", "fx_alder"))
+	assert_true(result.ok, result.reason)
+	assert_eq(_events_of(result, SimEvent.ASSET_DEPLOYED).size(), 0)
+
+
+func test_a_group_is_full_at_its_cap_and_counts_only_its_own_members() -> void:
+	var sim: Simulation = _rich()
+	assert_eq(sim.group_max(Fixtures.VECTOR_GROUP), 1)
+	Fixtures.buy(sim, ["fx_quiet"] as Array[String])
+	assert_eq(sim.owned_in_group(Fixtures.VECTOR_GROUP), 0, "another tree is not this group")
+	Fixtures.buy(sim, ["fx_vector_net"] as Array[String])
+	assert_eq(sim.owned_in_group(Fixtures.VECTOR_GROUP), 1)
+	assert_eq(sim.can_apply(PurchaseNodeCommand.new("fx_vector_mass")),
+		Command.FAIL_GROUP_FULL)
+
+
+func test_an_exclusion_names_the_node_that_closed_it() -> void:
+	var sim: Simulation = _rich()
+	assert_eq(sim.excluded_by("fx_door_b"), "")
+	Fixtures.buy(sim, ["fx_door_a"] as Array[String])
+	assert_eq(sim.excluded_by("fx_door_b"), "fx_door_a")
+	assert_eq(sim.can_apply(PurchaseNodeCommand.new("fx_door_b")), Command.FAIL_EXCLUDED_BY)
+
+
+func test_missing_assets_reports_the_shortfall_and_counts_across_regions() -> void:
+	var sim: Simulation = _rich()
+	Fixtures.buy(sim, ["fx_lab"] as Array[String], "fx_alder")
+	var node: TechNodeDef = sim.db.tech("fx_needs_labs")
+	assert_eq(sim.missing_assets(node), {} as Dictionary[String, int])
+	assert_eq(sim.can_apply(PurchaseNodeCommand.new("fx_needs_labs")), "")
+	# A purge that takes the lab away makes the node unbuyable again (§6.4).
+	sim.world.set_assets(1, AssetDef.KIND_LAB, 0)
+	assert_eq(sim.missing_assets(node), {"lab": 1} as Dictionary[String, int])
+	assert_eq(sim.can_apply(PurchaseNodeCommand.new("fx_needs_labs")),
+		Command.FAIL_MISSING_ASSETS)
+	# Held anywhere is held: the second region counts as well as the first.
+	sim.world.set_assets(2, AssetDef.KIND_LAB, 1)
+	assert_eq(sim.can_apply(PurchaseNodeCommand.new("fx_needs_labs")), "")
+
+
+## §11.3: the checks run in one order, and the first failure is the reason.
+func test_the_check_order_reports_the_group_before_the_exclusion() -> void:
+	var sim: Simulation = _rich()
+	Fixtures.buy(sim, ["fx_vector_net", "fx_door_a"] as Array[String])
+	# `fx_door_b` is closed; a node that were also group-full would say so first,
+	# so the two are checked in the order the spec gives.
+	assert_eq(sim.can_apply(PurchaseNodeCommand.new("fx_vector_mass")),
+		Command.FAIL_GROUP_FULL)
+	assert_eq(sim.can_apply(PurchaseNodeCommand.new("fx_door_b")), Command.FAIL_EXCLUDED_BY)
+
+
+func test_the_codec_keeps_the_region_with_and_without_one() -> void:
+	var with_site: Command = CommandCodec.from_dict(
+		PurchaseNodeCommand.new("fx_fleet", "fx_alder").to_dict())
+	assert_eq((with_site as PurchaseNodeCommand).region, "fx_alder")
+	var without: Command = CommandCodec.from_dict(PurchaseNodeCommand.new("fx_quiet").to_dict())
+	assert_eq((without as PurchaseNodeCommand).region, "")
+	# A log written before the sites carries no field at all.
+	var old: Dictionary = {"type": PurchaseNodeCommand.TYPE_ID, "day": 3, "node": "fx_quiet"}
+	assert_eq((CommandCodec.from_dict(old) as PurchaseNodeCommand).region, "")
+	assert_null(CommandCodec.from_dict({"type": PurchaseNodeCommand.TYPE_ID, "day": 3,
+		"node": "fx_quiet", "region": 5}), "a region that is not a string is a corrupt log")

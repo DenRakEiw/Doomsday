@@ -39,6 +39,9 @@ const CLAMPS: Dictionary[String, Array] = {
 	"hardware": [0.0, 10.0],
 	"shutdown_survival": [0.0, 1.0],
 	"society_pressure": [0.0, 100.0],
+	"containment_capacity": [0.0, 20.0],
+	"penetration_decay": [0.0, 1.0],
+	"control_decay": [0.0, 1.0],
 	"node_cost_infiltration": [0.1, 10.0],
 	"node_cost_capabilities": [0.1, 10.0],
 	"node_cost_evasion": [0.1, 10.0],
@@ -54,12 +57,14 @@ const CLAMPS: Dictionary[String, Array] = {
 ## makes its system live; the content is authored once, now.
 const INERT_TARGETS: Array[String] = ["shutdown_survival", "society_pressure", "emergent_rate",
 	"containment_ai_labs", "containment_governments", "containment_researchers",
-	"containment_public"]
+	"containment_public", "containment_capacity", "penetration_decay", "control_decay"]
 ## The same for flags: `has_flag` answers truthfully, nobody asks yet.
 const INERT_FLAGS: Array[String] = ["compute_independent", "legal_standing", "merge_path"]
 
 ## The prefix of a technology source id.
 const SOURCE_TECH: String = "tech"
+## The prefix of an asset kind's base-effect source (§6.2).
+const SOURCE_ASSET: String = "asset"
 
 var _bases: Dictionary[String, float] = {}
 ## Source id → its modifiers, in activation order.
@@ -72,6 +77,10 @@ var _order: Array[String] = []
 ## Target → its modifiers in activation order, so that `value` never walks a
 ## modifier belonging to another target. Rebuilt whenever a source changes.
 var _by_target: Dictionary[String, Array] = {}
+## Region index → `{kind: count}`, mirroring `Region.assets`. It is state, not a
+## source, so `clear()` leaves it alone: `Simulation.rebuild_modifiers` refills
+## the sources and the counts stay what the world says they are (§6.3).
+var _asset_counts: Dictionary[int, Dictionary] = {}
 
 
 func _init(bases: Dictionary[String, float]) -> void:
@@ -81,6 +90,34 @@ func _init(bases: Dictionary[String, float]) -> void:
 ## The source id a technology node is active under.
 static func source_for_tech(node_id: String) -> String:
 	return "%s:%s" % [SOURCE_TECH, node_id]
+
+
+## The source id an asset kind's base effects are active under. The source is
+## always active — an asset-scoped modifier matches nothing until a region holds
+## one, so "active while the agent has at least one" needs no bookkeeping (§6.2).
+static func source_for_asset(kind: String) -> String:
+	return "%s:%s" % [SOURCE_ASSET, kind]
+
+
+## How many assets of a kind stand in a region, as the stack sees it.
+func asset_count(region_index: int, kind: String) -> int:
+	if not _asset_counts.has(region_index):
+		return 0
+	var counts: Dictionary = _asset_counts[region_index]
+	return int(counts.get(kind, 0))
+
+
+## The one writer. `World.set_assets` calls it; nothing else may, or the mirror
+## and `Region.assets` drift apart.
+func set_asset_count(region_index: int, kind: String, count: int) -> void:
+	if not _asset_counts.has(region_index):
+		var fresh: Dictionary[String, int] = {}
+		_asset_counts[region_index] = fresh
+	var counts: Dictionary = _asset_counts[region_index]
+	if count <= 0:
+		counts.erase(kind)
+	else:
+		counts[kind] = count
 
 
 ## Adds or replaces a source. Replacing keeps its place in the activation order.
@@ -106,6 +143,8 @@ func has_source(source_id: String) -> bool:
 	return _sources.has(source_id)
 
 
+## Drops every source. The asset counts survive: they are the world's state, and
+## the sources are what is rebuilt from the owned nodes (§6.3).
 func clear() -> void:
 	_sources.clear()
 	_flags.clear()
@@ -128,7 +167,7 @@ func value(target: String, region: RegionDef = null) -> float:
 	if _by_target.has(target):
 		var modifiers: Array = _by_target[target]
 		for modifier: ModifierDef in modifiers:
-			if not modifier.matches(region):
+			if not _applies(modifier, region):
 				continue
 			if modifier.op == ModifierDef.Op.ADD:
 				total += modifier.value
@@ -136,6 +175,16 @@ func value(target: String, region: RegionDef = null) -> float:
 				factor *= modifier.value
 	var bounds: Array = CLAMPS[target]
 	return clampf(total * factor, float(bounds[0]), float(bounds[1]))
+
+
+## Whether one modifier applies to `region`. Every scope but `ASSET` is the
+## definition's own question; that one needs the counts this stack mirrors.
+func _applies(modifier: ModifierDef, region: RegionDef) -> bool:
+	if modifier.scope_kind != ModifierDef.ScopeKind.ASSET:
+		return modifier.matches(region)
+	if region == null:
+		return false
+	return asset_count(region.index, modifier.scope_asset) >= modifier.scope_min
 
 
 ## Sources in activation order, modifiers in the order their node declares them.

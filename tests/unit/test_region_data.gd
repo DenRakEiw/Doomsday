@@ -29,8 +29,35 @@ func _written() -> Image:
 func test_the_row_is_the_size_and_format_the_shader_expects() -> void:
 	var image: Image = RegionData.create_image()
 	assert_eq(image.get_width(), RegionData.WIDTH)
-	assert_eq(image.get_height(), 1)
+	# Two rows since S4.1: the region, and what the interface says about it.
+	assert_eq(image.get_height(), RegionData.HEIGHT)
+	assert_eq(image.get_height(), 2)
 	assert_eq(image.get_format(), RegionData.FORMAT)
+
+
+## §16.3.1: row 1 is the interface's own row. Site select writes G, the scope
+## flash writes B, and the status colour and the border flag arrive with S4.2.
+func test_row_one_carries_the_eligible_set() -> void:
+	var plain: Color = RegionData.encode_row1(_sim.world, 1, false, false)
+	assert_eq(plain, Color(0.0, 0.0, 0.0, 0.0), "nothing to say about the region")
+	var eligible: Color = RegionData.encode_row1(_sim.world, 1, true, false)
+	assert_eq(eligible.g, RegionData.ON, "an eligible site")
+	assert_eq(eligible.b, RegionData.OFF)
+	var flashing: Color = RegionData.encode_row1(_sim.world, 1, false, true)
+	assert_eq(flashing.b, RegionData.ON, "a scope flash")
+	assert_eq(flashing.g, RegionData.OFF)
+
+
+func test_write_fills_both_rows() -> void:
+	var image: Image = RegionData.create_image()
+	var eligible: Dictionary[int, bool] = {2: true}
+	assert_true(RegionData.write(image, _sim.world, _db, eligible))
+	assert_eq(image.get_pixel(2, RegionData.ROW_INTERFACE).g, RegionData.ON)
+	assert_eq(image.get_pixel(1, RegionData.ROW_INTERFACE).g, RegionData.OFF)
+	# Row 0 is untouched by any of it.
+	assert_eq(RegionData.flags_of(image.get_pixel(1, RegionData.ROW_REGION)),
+		RegionData.flags_of(RegionData.encode(_sim.world.regions[1],
+			_db.balance.control_complete, false)))
 
 
 func test_a_regions_pixel_carries_penetration_control_and_the_alive_share() -> void:

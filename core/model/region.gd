@@ -19,6 +19,13 @@ var dark: bool = false
 ## Held rather than active: the agent is there and frozen, and the region is out
 ## of the infected share (`tech-trees.md` §6.3). Waking resumes everything.
 var dormant: bool = false
+## Asset kind → count; an absent kind is 0. Written through `World.set_assets`
+## only, which keeps the modifier stack's mirror in step (`loop-mechanics.md`
+## §6.3).
+var assets: Dictionary[String, int] = {}
+## Societal Function: how well the place still runs. Saved from v2 on; nothing
+## reads it before S4.5 (D4.2 §3.3).
+var society: float = 0.0
 
 
 static func create(definition: RegionDef) -> Region:
@@ -27,3 +34,16 @@ static func create(definition: RegionDef) -> Region:
 	region.alive = float(definition.population)
 	region.air_gapped = definition.air_gapped
 	return region
+
+
+## How many assets of a kind stand here; 0 for a kind that is not held.
+func asset_count(kind: String) -> int:
+	return int(assets.get(kind, 0))
+
+
+## Whether anything of the agent's stands here at all.
+func has_assets() -> bool:
+	for kind: String in assets:
+		if assets[kind] > 0:
+			return true
+	return false

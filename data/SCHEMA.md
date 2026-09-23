@@ -5,9 +5,11 @@ changes a loader, a format or the vocabulary changes this file in the same commi
 `SchemaValidator` enforces everything stated here; where this file and the validator disagree, that
 is a bug in one of them.
 
-Version: **v2** (D1.1 — regions, links, technology nodes, balance; D3.1 — the node grid, the
+Version: **v3** (D1.1 — regions, links, technology nodes, balance; D3.1 — the node grid, the
 factions that watch a node, one-shot effects, the targets and flags of the three trees; D3.4 —
-`headlines.json` and the `headlines` balance section). Later specs add sections.
+`headlines.json` and the `headlines` balance section; D4.1 — `assets.json`, the `asset` scope, the
+eligibility grammar, the effect vocabulary as one list, and the tree v3 fields). Later specs add
+sections.
 
 ## 1. General rules
 
@@ -29,9 +31,13 @@ Layout of a content root (`res://data` or a test fixture directory — both have
 <root>/balance.json
 <root>/world/regions.json
 <root>/world/links.json
+<root>/assets.json
 <root>/tech/*.json          every file, in ascending file-name order
 <root>/headlines.json
 ```
+
+Every file added from M4 on carries `"version": 1` at its top level. `balance.json`,
+`world/*.json`, `tech/*.json` and `headlines.json` keep the shapes they have.
 
 ## 2. `world/regions.json`
 
@@ -120,6 +126,20 @@ order is the iteration order of the simulation and therefore part of the determi
 | `on_purchase` | [effect] | no (`[]`) | §4.4 |
 | `modifiers` | [modifier] | no (`[]`) | §4.1 |
 | `flags` | [flag] | no (`[]`) | §4.3 |
+| `group` | group id | no (`""`) | at most `groups[group].max` nodes of the group may be owned; the group must be declared in some tech file (below) |
+| `excludes` | [node id] | no (`[]`) | owning this node closes every listed one for good. **Symmetric:** every node listed must list this one back; no self-reference |
+| `deploy` | object | no | `{"kind": <asset kind>, "count": int ≥ 1, "eligible": <eligibility>}` (§8, §9). Buying the node places the assets in a region the player or the bot chooses; the node's `on_purchase` effects then run in that region |
+| `ability` | object | no | `{"id": <ability id>, "level": int ≥ 1}` — the ability this node grants (S4.2) |
+| `requires_assets` | kind → int ≥ 1 | no (`{}`) | the agent must hold that many of the kind **in total, over all regions**, to buy the node |
+
+A tech file may also carry a `groups` header:
+
+```json
+{"groups": {"vectors": {"max": 2}}, "nodes": [ … ]}
+```
+
+Group ids are declared **once**, in whichever file wants them, and `max` is ≥ 1. Every node's
+`group` must name a declared one.
 
 The prerequisite graph over `requires` ∪ `requires_any` must be acyclic. How a file groups nodes is
 free; the `tree` field, not the file name, decides the tree.
@@ -149,7 +169,7 @@ floating-point summation order, which is fixed (activation order).
 | `control_growth` | regional | 1 | 0…20 | multiplier on control gain |
 | `yield` | regional | 1 | 0…20 | multiplier on passive Compute from the region |
 | `anomaly_value` | regional | 1 | 0…20 | multiplier on the value of anomalies spawned there |
-| `anomaly_rate` | regional | 1 | 0…20 | multiplier on the spawn chance there |
+| `anomaly_rate` | regional | 1 | 0…20 | the region's **weight** in the one daily draw that places an anomaly (D4.1 §12); it was a per-region spawn chance until then |
 | `harm` | regional | 0 | 0…100 | Harm: deaths per day as a multiple of `harm.daily_rate` |
 | `footprint` | global | 0 | 0…100 | Footprint: how visible the agent is |
 | `discovery` | global | 1 | 0…20 | multiplier on the daily discovery risk |
@@ -169,6 +189,15 @@ lists the inert ones in `INERT_TARGETS`, and a system's spec deletes its row fro
 | `containment_ai_labs` `containment_governments` `containment_researchers` `containment_public` | global | 1 | 0…20 | `factions` (S4.1) | multiplier on that faction's containment gain, after `containment_growth`. The unified M1–M3 track ignores them |
 | `society_pressure` | regional | 0 | 0…100 | `society` (S4.2) | daily pressure on Societal Function in the region |
 
+**Targets v3** (D4.1 §7.5). The three the status system reads; the steps in the *System* column
+are the ones that make them live.
+
+| Target | Kind | Base | Clamp | System | Meaning |
+| --- | --- | --- | --- | --- | --- |
+| `containment_capacity` | regional | 1 | 0…20 | `statuses` (S4.2) | multiplier on the region's weight in the containment numerator; the denominator keeps the plain tier weight |
+| `penetration_decay` | regional | 0 | 0…1 | `statuses` (S4.2) | share of penetration the region loses each day, reduced by `shutdown_survival` |
+| `control_decay` | regional | 0 | 0…1 | `statuses` (S4.2) | control lost each day, before the day's gain |
+
 An `add` may be negative — the clamp decides what comes of it; only a `mul` of 0 or less is an
 error.
 
@@ -185,6 +214,7 @@ Absent = applies to every region (or to the global stat). Otherwise exactly one 
 | `{"attr": <attribute>, "min": n}` / `{"attr": …, "max": n}` / both | regions whose tier lies in the inclusive range; at least one of `min`/`max`; `attr` is one of the nine attributes |
 | `{"region": <region id>}` | that region |
 | `{"continent": <continent id>}` | regions on that continent (must occur in `regions.json`) |
+| `{"asset": <asset kind>, "min": n?}` | regions holding at least `n` (default 1) assets of that kind (§8). `min` ≥ 1; there is no `max`. This is the one scope that depends on state rather than on the region's definition, so the modifier stack answers it and `ModifierDef.matches` does not |
 
 Archetype affinity ("favours high-connectivity regions") is expressed this way — there is no
 affinity field.
@@ -206,16 +236,36 @@ An unknown flag is a validation error. An inert flag is answered truthfully by
 
 ### 4.4 One-shot effects
 
-`"on_purchase": [{"effect": <effect>, "value": <number>}]` — applied once, in list order, when the
-node is bought, after its modifiers become active. Never undone, never part of the modifier stack,
-never re-applied on load: a save carries the state they produced.
+`"on_purchase": [{"effect": <effect>, …fields}]` — applied once, in list order, when the node is
+bought, after its modifiers become active and after it has deployed. Never undone, never part of
+the modifier stack, never re-applied on load: a save carries the state they produced.
 
-| Effect | `value` | System | Does |
-| --- | --- | --- | --- |
-| `containment_rollback` | (0, 1] | live | every faction: `containment ← containment × (1 − value)`. A threshold that is crossed again is announced again |
-| `compute_grant` | ≥ 0 | live | `compute` and `compute_earned` both rise by `value` |
-| `harm_burst` | (0, 1] | live | one wave of deaths at once: every region that is not dark, not dormant and infected loses `value × penetration × alive` people; a region that empties goes dark as in `docs/specs/core.md` §7.4 |
-| `funding_reset` | (0, 1] | `factions` (S4.1) | burns that share of every faction's accumulated investment. Inert: accepted, no effect |
+The same list is used by a status level's `on_start` / `on_end`, an ability's `applies.effects`
+and an event option's `effects` (D4.1 §8): one vocabulary, one runner. An effect marked **R** needs
+a region — on a node that means the node must also `deploy`, because a node's effects run in the
+region it deployed into and in no other.
+
+| Effect | Fields | R | System | Does |
+| --- | --- | --- | --- | --- |
+| `compute_grant` | `value` ≥ 0, `per_hardware`? | if `per_hardware` | live | `compute` and `compute_earned` both rise by `value`, times the region's hardware when `per_hardware` |
+| `containment_rollback` | `value` (0, 1] | | live | every faction: `containment ← containment × (1 − value)`. A threshold that is crossed again is announced again |
+| `harm_burst` | `value` (0, 1] | | live | one wave of deaths at once: every region that is not dark, not dormant and infected loses `value × penetration × alive` people; a region that empties goes dark as in `docs/specs/core.md` §7.4 |
+| `funding_reset` | `value` (0, 1] | | `factions` (S4.4) | burns that share of every faction's preparation. Inert: accepted, no effect |
+| `destroy_assets` | `kind`, `count` ≥ 0 | R | live | removes `min(count, held)` of the kind; 0 means every one held |
+| `grant_assets` | `kind`, `count` ≥ 1 | R | live | the mirror: the region gains that many |
+| `seed_neighbours` | `count` ≥ 1 | R | `events` (S4.2) | seeds the best uninfected neighbours over open links |
+| `penetration_mul` | `value` ≥ 0 | R | `statuses` (S4.2) | `penetration ← penetration × value` |
+| `control_add` | `value` | R | `statuses` (S4.2) | `control ← clamp(control + value, 0, 1)` |
+| `spread_status` | `status`, `level`?, `days`? | R | `statuses` (S4.2) | applies the status to every neighbour over an open link |
+| `end_statuses` | `ids`, `global`? | R | `statuses` (S4.2) | ends every listed status in the region |
+| `apply_status` | `status`, `level`?, `days`?, `global`? | | `statuses` (S4.2) | applies it in the context's region, or on the agent when `global` |
+| `wipe` | `value` [0, 1] | R | `statuses` (S4.2) | a shutdown: `penetration ← penetration × (value + shutdown_survival)` |
+| `containment_add` | `faction`, `value` | | `statuses` (S4.2) | adds to one faction's containment, or to every one with `"all"` |
+| `footprint_pulse` | `value`, `days` ≥ 1, `watched_by`? | | `statuses` (S4.2) | a timed Footprint bump with no status behind it |
+| `set_flag` | `flag`, `days` ≥ 1 (0 = permanent) | | `statuses` (S4.2) | a timed flag, or a story flag that never expires |
+
+A field an effect does not take is an unknown field and therefore an error. A `flag` that collides
+with a §4.3 modifier flag is an error.
 
 ### 4.5 Commands the content unlocks
 
@@ -239,7 +289,7 @@ as ≥ 0 unless stated. The meaning of each constant is defined by the formula t
 | `control.threshold` `.rate` `.complete` | float | `threshold` in [0, 1); `complete` in (0, 1] |
 | `compute.start` `.yield_scale` `.cost_step` | float | |
 | `compute.hardware_by_tier` | [float × 5] | index = `compute` tier |
-| `anomaly.spawn_chance` `.base_value` `.tier_bonus` `.footprint_bonus` `.footprint_reference` | float | `spawn_chance` in [0, 1]; `footprint_reference` > 0 |
+| `anomaly.spawn_chance` `.base_value` `.tier_bonus` `.footprint_bonus` `.footprint_reference` | float | `spawn_chance` in [0, 1] and is rolled **once a day for the whole world** (D4.1 §12), not once per region; `footprint_reference` > 0 |
 | `anomaly.max_active` `.lifetime_days` | int | ≥ 1 |
 | `milestones` | [milestone] | below |
 | `harm.daily_rate` | float | |
@@ -265,7 +315,52 @@ Milestone: `{"id": <id>, "kind": <kind>, "threshold": <number>, "reward": <float
 | `world_share` | the infected share of the world's hardware reaches it | float in (0, 1] |
 | `continent_foothold` | a region is seeded on a continent other than the origin's — **once per continent**; the fired id is `<id>_<continent>` | ignored, write 1 |
 
-## 6. `headlines.json`
+## 6. `assets.json`
+
+The four kinds of asset the agent can have standing in a region, and what each is worth where it
+stands (D4.1 §6). Required; exactly the four kinds, each once.
+
+```json
+{"version": 1, "assets": [
+	{"kind": "fleet", "watched_by": ["public_sentiment"], "glyph": "ASSET_FLEET",
+	 "modifiers": [{"target": "hardware", "op": "add", "value": 1.0}]}
+]}
+```
+
+| Field | Type | Required | Rule |
+| --- | --- | --- | --- |
+| `kind` | id | yes | exactly one of `fleet` · `lab` · `tap` · `office`, each appearing once |
+| `glyph` | string | yes | one of `Glyphs.ASSET_NAMES` |
+| `watched_by` | [faction id] | no (`[]`) | as on a node; read by S4.4's per-faction Footprint |
+| `modifiers` | [modifier] | yes | every target regional, and **no scope**: the loader scopes each one `{"asset": <kind>}`, so a scope in the file would be a second, silent one |
+
+The sources are always active — an asset-scoped modifier matches nothing until a region holds one,
+so "active while the agent has at least one" needs no bookkeeping.
+
+## 7. Eligibility
+
+Where something may be placed, used or picked: a `deploy` site, an ability's target, an event's
+pick. Every key is optional and an absent key never fails; the keys are checked in the order below
+and the **first** failure is the reason the interface shows.
+
+| Key | Type | Region passes when |
+| --- | --- | --- |
+| `infected` | bool | `penetration > 0` |
+| `not_dark` | bool | not dark. **Always applied**, whether given or not |
+| `not_dormant` | bool | not dormant |
+| `attr_min` / `attr_max` | attribute → tier 0…4 | every entry holds |
+| `asset_min` / `asset_max` | asset kind → int ≥ 0 | every entry holds |
+| `status_absent` / `status_present` | [status id] | none / all of them are running there |
+| `penetration_min` / `control_min` | float [0, 1] | the value is at least that |
+| `continent` | continent id | the region is on it |
+| `not_origin` | bool | the region is not the origin |
+| `origin` | bool | the region **is** the origin |
+
+`attr_min` above `attr_max` for one attribute, `asset_min` above `asset_max`, a status id in both
+lists, and `origin` together with `not_origin` are all errors: a rule that can never hold is a
+mistake, not a design.
+
+## 8. `headlines.json`
 
 What the world says about the run (spec `docs/specs/ticker.md` §3.2). One file per root, required.
 Root: `{"version": 1, "headlines": [ … ]}`, the array non-empty and in firing order — file order is
@@ -321,7 +416,7 @@ true. A state-only headline is checked only once the run has an origin. `_min` i
 Anything else under `on` or `when` is an error. The vocabulary grows by a row here and a row in
 `HeadlineConditions`, never by an `if` per headline.
 
-## 7. Localisation keys
+## 9. Localisation keys
 
 `data/loc/strings.csv`, header `keys,en,de`. Keys are `UPPER_SNAKE`, prefixed by domain, and derived
 from content ids so that data files never carry text:

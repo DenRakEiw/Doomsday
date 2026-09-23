@@ -426,11 +426,11 @@ func test_an_unknown_one_shot_effect_is_rejected() -> void:
 func test_an_effect_value_outside_its_range_is_rejected() -> void:
 	var content: Dictionary = Fixtures.raw_content()
 	_node(content, 0)["on_purchase"] = [
-		{"effect": PurchaseEffectDef.EFFECT_CONTAINMENT_ROLLBACK, "value": 0.0}]
+		{"effect": EffectDef.CONTAINMENT_ROLLBACK, "value": 0.0}]
 	_expect(content, TECH, "nodes[0].on_purchase[0].value", "outside")
 	content = Fixtures.raw_content()
 	_node(content, 0)["on_purchase"] = [
-		{"effect": PurchaseEffectDef.EFFECT_HARM_BURST, "value": 1.5}]
+		{"effect": EffectDef.HARM_BURST, "value": 1.5}]
 	_expect(content, TECH, "nodes[0].on_purchase[0].value", "outside")
 
 

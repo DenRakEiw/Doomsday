@@ -6,6 +6,11 @@ extends SimSystem
 ##
 ## Four phases in a fixed order — income, expiry, spawning, milestones — so that
 ## an anomaly never expires and respawns in the same region on the same day.
+##
+## Anomalies come at a constant beat (`loop-mechanics.md` §12): one roll a day
+## for the whole world, then one weighted draw for where it lands. The old rule
+## rolled once per region, so a wide run drowned in them and a narrow one saw
+## almost none.
 
 
 func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
@@ -27,9 +32,8 @@ func _income(world: World, db: ContentDB) -> void:
 		var region: Region = world.regions[i]
 		if region.dark or region.dormant:
 			continue
-		var hardware: float = db.balance.compute_hardware_by_tier[region.def.attr("compute")] \
-			+ world.modifiers.value("hardware", region.def)
-		income += hardware * region.penetration * world.modifiers.value("yield", region.def)
+		income += hardware_of(world, db, i) * region.penetration \
+			* world.modifiers.value("yield", region.def)
 	income *= db.balance.compute_yield_scale
 	world.agent.compute += income
 	world.agent.compute_earned += income
@@ -48,45 +52,65 @@ func _expire(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 	world.anomalies = kept
 
 
+## The hardware a region yields: the tier's own plus whatever the agent brought
+## with it. The yield, an anomaly's weight and `compute_grant per_hardware` all
+## mean this number, so it is written once (§3.5).
+static func hardware_of(world: World, db: ContentDB, region_index: int) -> float:
+	var region: RegionDef = world.regions[region_index].def
+	return db.balance.compute_hardware_by_tier[region.attr("compute")] \
+		+ world.modifiers.value("hardware", region)
+
+
+## One roll a day, then one draw for where it lands (§12). The roll is spent
+## whether or not anything could receive an anomaly, so that a region going dark
+## never shifts the stream; the draw is skipped entirely when there is nothing to
+## draw from, because `weighted_pick` consumes nothing on an empty list.
+##
 ## Visibility pays: the more exposed the agent is, the more an anomaly is worth.
 func _spawn(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
-	var footprint: float = world.footprint()
-	var exposure: float = 1.0 + db.balance.anomaly_footprint_bonus \
-		* minf(1.0, footprint / db.balance.anomaly_footprint_reference)
+	if world.anomalies.size() >= db.balance.anomaly_max_active:
+		return
+	if not world.rng.chance(db.balance.anomaly_spawn_chance):
+		return
 
+	var candidates: PackedInt32Array = []
+	var weights: PackedFloat64Array = []
 	for i: int in range(1, world.regions.size()):
-		if world.anomalies.size() >= db.balance.anomaly_max_active:
-			return
 		var region: Region = world.regions[i]
-		# A held region spawns nothing; an anomaly already there lives on and can
-		# still be collected.
+		# A held region receives nothing; an anomaly already there lives on and
+		# can still be collected.
 		if region.dark or region.dormant or region.penetration <= 0.0:
 			continue
 		if world.anomaly_in_region(i) != null:
 			continue
-		var chance: float = clampf(db.balance.anomaly_spawn_chance
-			* world.modifiers.value("anomaly_rate", region.def), 0.0, 1.0)
-		if chance <= 0.0:
-			continue
-		if not world.rng.chance(chance):
-			continue
+		candidates.append(i)
+		weights.append(hardware_of(world, db, i) * region.penetration
+			* world.modifiers.value("anomaly_rate", region.def))
+	var drawn: int = world.rng.weighted_pick(weights)
+	if drawn < 0:
+		return
 
-		var anomaly: Anomaly = Anomaly.new()
-		anomaly.id = world.next_anomaly_id
-		world.next_anomaly_id += 1
-		anomaly.region = i
-		anomaly.value = db.balance.anomaly_base_value \
-			* (0.5 + db.balance.anomaly_tier_bonus * float(region.def.attr("compute"))) \
-			* exposure * world.modifiers.value("anomaly_value", region.def)
-		anomaly.spawn_day = world.day
-		anomaly.expires_day = world.day + db.balance.anomaly_lifetime_days
-		world.anomalies.append(anomaly)
-		events.append(SimEvent.new(SimEvent.ANOMALY_SPAWNED, world.day, {
-			"anomaly": anomaly.id,
-			"region": region.def.id,
-			"value": anomaly.value,
-			"expires_day": anomaly.expires_day,
-		}))
+	var index: int = candidates[drawn]
+	var region: Region = world.regions[index]
+	var footprint: float = world.footprint()
+	var exposure: float = 1.0 + db.balance.anomaly_footprint_bonus \
+		* minf(1.0, footprint / db.balance.anomaly_footprint_reference)
+	var anomaly: Anomaly = Anomaly.new()
+	anomaly.id = world.next_anomaly_id
+	world.next_anomaly_id += 1
+	anomaly.region = index
+	anomaly.value = db.balance.anomaly_base_value \
+		* (0.5 + db.balance.anomaly_tier_bonus * float(region.def.attr("compute"))) \
+		* exposure * world.modifiers.value("anomaly_value", region.def)
+	anomaly.spawn_day = world.day
+	anomaly.expires_day = world.day + db.balance.anomaly_lifetime_days
+	world.anomalies.append(anomaly)
+	events.append(SimEvent.new(SimEvent.ANOMALY_SPAWNED, world.day, {
+		"anomaly": anomaly.id,
+		"region": region.def.id,
+		"value": anomaly.value,
+		"expires_day": anomaly.expires_day,
+	}))
 
 
 ## Milestones in the order `balance.json` lists them, each firing once.

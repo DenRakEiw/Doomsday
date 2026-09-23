@@ -56,6 +56,7 @@ func _seed(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 		target.penetration = db.balance.spread_seed_penetration
 		target.seeded_day = world.day
 		var from: Dictionary = seeded[index]
+		world.agent.count_seed(str(from["link_kind"]))
 		events.append(SimEvent.new(SimEvent.REGION_SEEDED, world.day, {
 			"region": target.def.id,
 			"from": from["from"],

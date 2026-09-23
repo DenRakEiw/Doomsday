@@ -27,7 +27,10 @@
 		"containment_ai_labs": 1.0,
 		"containment_governments": 1.0,
 		"containment_researchers": 1.0,
-		"containment_public": 1.0
+		"containment_public": 1.0,
+		"containment_capacity": 1.0,
+		"penetration_decay": 0.0,
+		"control_decay": 0.0
 	},
 	"population_tiers": [5000000, 20000000, 80000000, 300000000],
 	"spread": {

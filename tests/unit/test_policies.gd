@@ -100,3 +100,52 @@ func test_an_unknown_policy_id_yields_nothing() -> void:
 	assert_null(Harness.make_policy("reckless"))
 	# Three shape bots (S1.8) and three strategies (S3.6).
 	assert_eq(Harness.policy_ids().size(), 6)
+
+# ------------------------------------------------- S4.1: where a bot places
+
+
+## §19: the eligible region with the most `hardware × penetration`, ties to the
+## lower index; "" when the node can go nowhere.
+func test_best_site_picks_the_richest_eligible_region() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	var policy: Policy = GreedyPolicy.new()
+	policy.setup(sim.db, Policy.seed_for(1))
+	var node: TechNodeDef = sim.db.tech(Fixtures.DEPLOY_FLEET_NODE)
+
+	# Only the origin is infected, and its industry is 2 — so it is the site.
+	assert_eq(policy.best_site(sim, node), "fx_alder")
+
+	# fx_dogwood has industry 4 and, once infected harder, more of the agent.
+	sim.world.regions[4].penetration = 0.9
+	sim.world.regions[4].seeded_day = 0
+	assert_eq(policy.best_site(sim, node), "fx_dogwood")
+
+
+func test_best_site_is_empty_when_nothing_is_eligible() -> void:
+	var sim: Simulation = Fixtures.sim()
+	var policy: Policy = GreedyPolicy.new()
+	policy.setup(sim.db, Policy.seed_for(1))
+	assert_eq(policy.best_site(sim, sim.db.tech(Fixtures.DEPLOY_FLEET_NODE)), "",
+		"nothing is infected before there is an origin")
+
+
+## §19: a bot never sends a command the simulation would refuse — a deploying
+## node it cannot place is simply not the node it buys.
+func test_greedy_is_never_rejected_over_three_hundred_days() -> void:
+	var sim: Simulation = Fixtures.sim()
+	var policy: Policy = GreedyPolicy.new()
+	policy.setup(sim.db, Policy.seed_for(1))
+	var rejected: int = 0
+	var placed: int = 0
+	for day: int in 300:
+		for i: int in Policy.MAX_COMMANDS_PER_DAY:
+			var command: Command = policy.next_command(sim)
+			if command == null:
+				break
+			if not sim.apply(command).ok:
+				rejected += 1
+		sim.tick()
+	for i: int in range(1, sim.world.regions.size()):
+		placed += sim.world.regions[i].asset_count(AssetDef.KIND_FLEET)
+	assert_eq(rejected, 0)
+	assert_gt(placed, 0, "and it placed the fixture fleet by itself")

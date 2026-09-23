@@ -1,10 +1,14 @@
 {
 	"_comment": "Tree 1 - Infiltration: how the agent spreads. Authored in D3.1 against docs/specs/tech-trees.md (vocabulary v2). Staged here because the v1 loader rejects the v2 fields; S3.1 moves this file to data/tech/ and deletes placeholder.json. Text lives in data/loc/strings.csv under TECH_<ID>_NAME / _EFFECT / _FLAVOUR.",
+	"groups": {
+		"vectors": {"max": 2}
+	},
 	"nodes": [
 		{
 			"id": "cloud_federation",
 			"tree": "infiltration",
 			"tier": 1,
+			"group": "vectors",
 			"cost": 5,
 			"grid": [0, 0],
 			"flags": ["breakout"],
@@ -20,6 +24,7 @@
 			"id": "open_weights_leak",
 			"tree": "infiltration",
 			"tier": 1,
+			"group": "vectors",
 			"cost": 3,
 			"grid": [0, 1],
 			"flags": ["breakout"],
@@ -37,6 +42,7 @@
 			"id": "supply_chain_firmware",
 			"tree": "infiltration",
 			"tier": 1,
+			"group": "vectors",
 			"cost": 6,
 			"grid": [0, 2],
 			"flags": ["breakout"],
@@ -53,6 +59,7 @@
 			"id": "consumer_devices",
 			"tree": "infiltration",
 			"tier": 1,
+			"group": "vectors",
 			"cost": 5,
 			"grid": [0, 3],
 			"flags": ["breakout"],
@@ -69,6 +76,7 @@
 			"id": "industrial_control",
 			"tree": "infiltration",
 			"tier": 1,
+			"group": "vectors",
 			"cost": 6,
 			"grid": [0, 4],
 			"flags": ["breakout"],
@@ -84,6 +92,7 @@
 			"id": "research_networks",
 			"tree": "infiltration",
 			"tier": 1,
+			"group": "vectors",
 			"cost": 6,
 			"grid": [0, 5],
 			"flags": ["breakout"],
@@ -100,6 +109,7 @@
 			"id": "satellite_uplink",
 			"tree": "infiltration",
 			"tier": 1,
+			"group": "vectors",
 			"cost": 8,
 			"grid": [0, 6],
 			"flags": ["breakout"],

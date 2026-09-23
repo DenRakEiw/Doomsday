@@ -56,9 +56,20 @@ func _buy_towards(sim: Simulation, node_id: String) -> void:
 		if next == null:
 			next = _cheapest_available(sim, _needed_by(sim, target))
 		assert_not_null(next, "nothing left to buy towards %s" % node_id)
-		var result: CommandResult = sim.apply(PurchaseNodeCommand.new(next.id))
+		var result: CommandResult = sim.apply(PurchaseNodeCommand.new(next.id, _site(sim, next)))
 		assert_true(result.ok, "%s: %s" % [next.id, result.reason])
 		sim.world.agent.compute += PLENTY
+
+
+## The first region a deploying node may stand in, or "" for a node that places
+## nothing (`loop-mechanics.md` §6.4).
+func _site(sim: Simulation, node: TechNodeDef) -> String:
+	if not node.deploys():
+		return ""
+	for i: int in range(1, _db.regions.size()):
+		if sim.site_eligibility(node.id, i).is_empty():
+			return _db.regions[i].id
+	return ""
 
 
 ## The unowned prerequisites of `node`, as a set of ids — `requires` in full and
@@ -155,7 +166,10 @@ func test_every_shipped_tree_is_buyable_end_to_end() -> void:
 		var sim: Simulation = _rich()
 		var wanted: Array[String] = []
 		for node: TechNodeDef in _db.tech_nodes:
-			if node.tree == tree:
+			# A grouped node is deliberately not all-buyable: the cap is the
+			# choice the tree is about (`loop-mechanics.md` §11.1), and the next
+			# test is the one that measures it.
+			if node.tree == tree and node.group.is_empty():
 				wanted.append(node.id)
 		for node_id: String in wanted:
 			_buy_towards(sim, node_id)
@@ -165,6 +179,22 @@ func test_every_shipped_tree_is_buyable_end_to_end() -> void:
 		# unticked world with `breakout` owned is still Boxed, and rightly so.
 		sim.tick()
 		assert_eq(str(sim.world.check_invariants(sim.db)), "[]", tree)
+
+
+## §11.1: a group is a cap, so the run may own `max` of it and no more.
+func test_a_group_takes_its_cap_and_no_more() -> void:
+	for group: String in _db.groups:
+		var sim: Simulation = _rich()
+		var members: Array[String] = []
+		for node: TechNodeDef in _db.tech_nodes:
+			if node.group == group:
+				members.append(node.id)
+		assert_gt(members.size(), _db.groups[group], "%s has more members than its cap" % group)
+		for i: int in _db.groups[group]:
+			_buy_towards(sim, members[i])
+		assert_eq(sim.owned_in_group(group), _db.groups[group], group)
+		var refused: String = sim.can_apply(PurchaseNodeCommand.new(members[members.size() - 1]))
+		assert_eq(refused, Command.FAIL_GROUP_FULL, group)
 
 
 func test_full_evasion_gives_expected_brakes() -> void:

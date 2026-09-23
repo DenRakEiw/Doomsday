@@ -121,6 +121,70 @@ func can_apply(command: Command) -> String:
 	return command.validate(self)
 
 
+## Which region a deploy site check is about, as a reason code or "" (§5). An
+## unknown node or a node that deploys nothing accepts every region that is not
+## dark, so that a caller may ask without branching first.
+func site_eligibility(node_id: String, region_index: int) -> String:
+	var node: TechNodeDef = db.tech(node_id)
+	if node == null or node.deploy_eligible == null:
+		return Eligibility.none().check(world, region_index)
+	return node.deploy_eligible.check(world, region_index)
+
+
+## Every region a rule accepts, in index order.
+func eligible_regions(rule: Eligibility) -> PackedInt32Array:
+	var out: PackedInt32Array = []
+	for i: int in range(1, world.regions.size()):
+		if rule.check(world, i).is_empty():
+			out.append(i)
+	return out
+
+
+## The hardware a region yields, which is the base tier plus whatever the agent
+## brought with it. One place, because the yield, an anomaly's weight and
+## `compute_grant per_hardware` all mean the same number. Region 0 has none.
+func hardware(region_index: int) -> float:
+	if region_index <= 0 or region_index >= world.regions.size():
+		return 0.0
+	return ComputeSystem.hardware_of(world, db, region_index)
+
+
+## How many nodes of an exclusive group the run owns (§11.2).
+func owned_in_group(group: String) -> int:
+	var count: int = 0
+	for node_id: String in world.agent.owned_nodes:
+		var node: TechNodeDef = db.tech(node_id)
+		if node != null and node.group == group:
+			count += 1
+	return count
+
+
+## The cap of a group; a group the content does not declare has none.
+func group_max(group: String) -> int:
+	return int(db.groups.get(group, 0))
+
+
+## The first owned node that closes `node_id`, or "". Exclusions are symmetric,
+## so asking either side gives the same answer.
+func excluded_by(node_id: String) -> String:
+	for owned: String in world.agent.owned_nodes:
+		var node: TechNodeDef = db.tech(owned)
+		if node != null and node.excludes.has(node_id):
+			return owned
+	return ""
+
+
+## Kind -> how many more of it the agent needs to buy this node; empty when it
+## has enough. `requires_assets` counts across every region (§6.4).
+func missing_assets(node: TechNodeDef) -> Dictionary[String, int]:
+	var short: Dictionary[String, int] = {}
+	for kind: String in node.requires_assets:
+		var shortfall: int = node.requires_assets[kind] - world.asset_total(kind)
+		if shortfall > 0:
+			short[kind] = shortfall
+	return short
+
+
 ## What a node costs right now: every purchase raises the price of everything
 ## else by one step (core.md §7.3). -1.0 for an unknown id.
 func node_cost(node_id: String) -> float:
@@ -164,6 +228,9 @@ func prerequisites_met(node: TechNodeDef) -> bool:
 ## is derived state: it is never saved, only rebuilt.
 func rebuild_modifiers() -> void:
 	world.modifiers.clear()
+	# The asset kinds first, so that a node's own modifiers still come last in
+	# the summation order the determinism contract fixes (§6.2).
+	world.add_asset_sources(db)
 	for node_id: String in world.agent.owned_nodes:
 		var node: TechNodeDef = db.tech(node_id)
 		if node == null:

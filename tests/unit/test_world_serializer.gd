@@ -287,20 +287,28 @@ func test_a_save_on_other_content_loads_and_says_so() -> void:
 
 
 func test_an_older_version_passes_through_its_migration() -> void:
-	# v1 has nothing to migrate from, and a save below version 1 is refused as
-	# corrupt before migration is reached — so the mechanism is proved on
-	# `migrate` itself, which is why it is public and takes its table.
+	# The table is a parameter, so the mechanism is proved on fabricated steps
+	# rather than on the production ones: `migrate` walks every version up to
+	# `CURRENT_VERSION` and stops at the first one it has no step for.
 	var save: Dictionary = {"version": 0, "marker": "before"}
-	var migrations: Dictionary[int, Callable] = {0: _fake_v0_to_v1}
+	var migrations: Dictionary[int, Callable] = {0: _fake_v0_to_v1, 1: _fake_step}
 	assert_eq(WorldSerializer.migrate(save, migrations), "")
 	assert_eq(save["version"], WorldSerializer.CURRENT_VERSION)
 	assert_eq(save["marker"], "after", "the migration actually ran")
+	assert_eq(save["stepped"], true, "and so did every later step")
 
 
 ## A real migration reshapes raw dictionaries and never touches a model class.
 func _fake_v0_to_v1(save: Dictionary) -> Dictionary:
 	var migrated: Dictionary = save.duplicate(true)
 	migrated["marker"] = "after"
+	return migrated
+
+
+## One more fabricated step, so that the walk reaches `CURRENT_VERSION`.
+func _fake_step(save: Dictionary) -> Dictionary:
+	var migrated: Dictionary = save.duplicate(true)
+	migrated["stepped"] = true
 	return migrated
 
 
@@ -368,3 +376,70 @@ func _parse(text: String) -> Dictionary:
 
 func _load(save: Dictionary) -> LoadResult:
 	return WorldSerializer.from_json(JSON.stringify(save, "", true, true), Fixtures.db())
+
+# ------------------------------------------------- S4.1: the v1 save format
+
+
+## A real v1 save, written by the M3 code from `sim_run --seed=1 --policy=greedy`
+## at day 120 and checked in before the version bump (§21.1). It is the
+## production example of a migration: whatever changes in v2, this file still
+## loads and still continues.
+const V1_SAVE: String = "res://tests/fixtures/saves/v1_day120.json"
+
+
+func _shipped_db() -> ContentDB:
+	var result: ContentLoadResult = ContentLoader.load_root("res://data")
+	assert_true(result.ok(), result.error_text())
+	return result.db
+
+
+func test_the_current_version_is_two() -> void:
+	assert_eq(WorldSerializer.CURRENT_VERSION, 2)
+
+
+func test_a_v1_save_loads_through_its_migration_and_continues() -> void:
+	var db: ContentDB = _shipped_db()
+	var text: String = FileAccess.get_file_as_string(V1_SAVE)
+	assert_false(text.is_empty(), "the v1 fixture is checked in")
+	var loaded: LoadResult = WorldSerializer.from_json(text, db)
+	assert_true(loaded.ok(), loaded.reason)
+	assert_eq(loaded.sim.world.day, 120)
+
+	# Every field v2 added is at the value a world that never had one carries.
+	assert_eq(loaded.sim.world.starving_days, 0)
+	assert_eq(loaded.sim.world.statuses.size(), 0)
+	assert_eq(loaded.sim.world.next_event_id, 1)
+	assert_eq(loaded.sim.world.agent.seeds_by_kind, {} as Dictionary[String, int])
+	assert_eq(loaded.sim.world.factions[0].fire_day, -1)
+	for i: int in range(1, loaded.sim.world.regions.size()):
+		assert_false(loaded.sim.world.regions[i].has_assets(), "nothing was on the ground in v1")
+
+	# A v2 write of it reads back as the same world.
+	var rewritten: LoadResult = WorldSerializer.from_json(
+		WorldSerializer.to_json(loaded.sim), db)
+	assert_true(rewritten.ok(), rewritten.reason)
+	assert_eq(rewritten.sim.state_hash(), loaded.sim.state_hash())
+
+	# And the run goes on from where it stopped.
+	loaded.sim.tick()
+	assert_eq(loaded.sim.world.day, 121)
+	assert_eq(str(loaded.sim.world.check_invariants(db)), "[]")
+
+
+func test_a_v2_save_missing_one_of_its_new_fields_is_corrupt() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	var save: Dictionary = JSON.parse_string(WorldSerializer.to_json(sim))
+	var world: Dictionary = save["world"]
+	world.erase("statuses")
+	var loaded: LoadResult = WorldSerializer.from_json(JSON.stringify(save), Fixtures.db())
+	assert_eq(loaded.reason, WorldSerializer.REASON_CORRUPT)
+
+
+func test_a_v2_save_with_an_asset_kind_the_content_does_not_have_is_corrupt() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	var save: Dictionary = JSON.parse_string(WorldSerializer.to_json(sim))
+	var world: Dictionary = save["world"]
+	var regions: Array = world["regions"]
+	(regions[0] as Dictionary)["assets"] = {"drone": 1}
+	var loaded: LoadResult = WorldSerializer.from_json(JSON.stringify(save), Fixtures.db())
+	assert_eq(loaded.reason, WorldSerializer.REASON_CORRUPT)

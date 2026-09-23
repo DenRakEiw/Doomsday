@@ -142,7 +142,10 @@ func test_costs_follow_escalation_every_tick() -> void:
 	(_detail.get_node("%Buy") as Button).emit_signal("pressed")
 	Game.advance(1)
 	var after: float = Game.sim.node_cost(other)
-	assert_almost_eq(after, before + Game.db.balance.compute_cost_step, 1e-6)
+	# The step is fractional since S4.1 and a price is a whole number, so the
+	# rise is not the step itself: what the escalation promises is that every
+	# purchase makes everything else dearer, and that the board says so.
+	assert_gt(after, before, "a purchase raises every other price")
 	var node: TechNode = _board.node_for(other)
 	assert_string_contains(node.accessibility_name,
 		Format.number(after, Format.Kind.COMPUTE))
@@ -176,3 +179,67 @@ func test_escape_closes_the_tree_and_releases_the_hold() -> void:
 	_tree.on_escape()
 	assert_false(_tree.is_open())
 	assert_false(Game.is_held())
+
+# ------------------------------------------- S4.1: the tree v3 rows and states
+
+
+## The one deploying node the shipped content has at S4.1.
+const DEPLOY_NODE: String = "logistics_fleets"
+## The seven tier 1 Infiltration vectors share a group capped at two (§11.1).
+const VECTOR_GROUP: String = "vectors"
+
+
+## The text of every row in the detail pane's v3 block.
+func _v3_lines() -> Array[String]:
+	var out: Array[String] = []
+	for child: Node in (_detail.get_node("%V3Rows") as Node).get_children():
+		var label: Label = child as Label
+		if label != null:
+			out.append(label.text)
+	return out
+
+
+func _lines_contain(fragment: String) -> bool:
+	for line: String in _v3_lines():
+		if line.contains(fragment):
+			return true
+	return false
+
+
+func test_the_detail_pane_says_what_a_node_deploys_and_where() -> void:
+	_start()
+	_tree.call("_select", DEPLOY_NODE)
+	assert_true(_lines_contain(tr("ASSET_FLEET_NAME")), str(_v3_lines()))
+	# The eligibility is listed as requirements, not as reasons (§16.6).
+	assert_true(_lines_contain(tr("UI_ELIGIBLE_NEEDS_NOT_INFECTED")), str(_v3_lines()))
+	assert_true(_lines_contain(tr("UI_ATTR_INDUSTRY")), str(_v3_lines()))
+	# And the buy button asks for a site rather than for a purchase.
+	var buy: Button = _detail.get_node("%Buy") as Button
+	assert_string_contains(buy.text, Format.caps(tr("UI_TREE_BUY_PLACE").format(
+		{"cost": Format.number(Game.sim.node_cost(DEPLOY_NODE), Format.Kind.COMPUTE)})))
+	assert_false(buy.disabled, "everything but the site is fine")
+
+
+func test_a_grouped_node_shows_the_group_and_closes_when_it_is_full() -> void:
+	_start(200.0)
+	_tree.call("_select", FIRST_NODE)
+	var chip: Chip = _detail.get_node("%GroupChip") as Chip
+	assert_true(chip.visible, "a grouped node says how much of its group is spoken for")
+
+	# The cap is two: buy both, and the rest of the group reads as excluded.
+	var bought: int = 0
+	for node: TechNodeDef in Game.db.tech_nodes:
+		if node.group != VECTOR_GROUP or bought >= Game.db.groups[VECTOR_GROUP]:
+			continue
+		assert_true(Game.apply(PurchaseNodeCommand.new(node.id)).ok, node.id)
+		bought += 1
+	var closed: TechNodeDef = null
+	for node: TechNodeDef in Game.db.tech_nodes:
+		if node.group == VECTOR_GROUP and not Game.sim.world.agent.owns(node.id):
+			closed = node
+			break
+	assert_not_null(closed)
+	assert_eq(TechNode.state_for(closed, Game.sim), TechNode.State.EXCLUDED)
+	var args: Dictionary = TechNode.state_args(closed, Game.sim)
+	assert_eq(args["max"], Game.db.groups[VECTOR_GROUP])
+	assert_eq(args["owned"], bought)

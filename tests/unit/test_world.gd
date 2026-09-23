@@ -255,3 +255,60 @@ func test_invariants_report_a_phase_that_lags_behind() -> void:
 	world.discovered = true
 	world.discovery_day = 10
 	assert_string_contains(str(world.check_invariants(db)), "phase is boxed")
+
+# ------------------------------------------------- S4.1: assets on the map
+
+
+func test_set_assets_writes_the_region_and_the_stack() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	sim.world.set_assets(1, AssetDef.KIND_FLEET, 2)
+	assert_eq(sim.world.regions[1].asset_count(AssetDef.KIND_FLEET), 2)
+	assert_eq(sim.world.modifiers.asset_count(1, AssetDef.KIND_FLEET), 2)
+	assert_true(sim.world.regions[1].has_assets())
+	# The fleet's base effect is `hardware +1` where one stands (§6.1).
+	assert_almost_eq(sim.hardware(1), sim.db.balance.compute_hardware_by_tier[
+		sim.db.regions[1].attr("compute")] + 1.0, 1e-9)
+
+	sim.world.set_assets(1, AssetDef.KIND_FLEET, 0)
+	assert_false(sim.world.regions[1].has_assets())
+	assert_false(sim.world.regions[1].assets.has(AssetDef.KIND_FLEET), "0 erases the key")
+
+
+func test_asset_total_counts_across_the_world() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	sim.world.set_assets(1, AssetDef.KIND_LAB, 1)
+	sim.world.set_assets(2, AssetDef.KIND_LAB, 2)
+	assert_eq(sim.world.asset_total(AssetDef.KIND_LAB), 3)
+	assert_eq(sim.world.asset_total(AssetDef.KIND_TAP), 0)
+
+
+func test_the_save_lists_only_the_kinds_a_region_holds() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	sim.world.set_assets(1, AssetDef.KIND_LAB, 2)
+	var regions: Array = sim.world.to_dict()["regions"]
+	var first: Dictionary = regions[0]
+	assert_eq(first["assets"], {"lab": 2})
+	assert_eq((regions[1] as Dictionary)["assets"], {}, "and nothing for a region with none")
+
+
+func test_an_asset_changes_the_state_hash_and_survives_a_round_trip() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	sim.world.agent.count_seed(LinkDef.KIND_SEA)
+	var before: String = sim.state_hash()
+	sim.world.set_assets(1, AssetDef.KIND_FLEET, 1)
+	assert_ne(sim.state_hash(), before)
+
+	var restored: World = World.from_dict(sim.world.to_dict(), sim.db)
+	assert_not_null(restored)
+	var continued: Simulation = Simulation.from_world(sim.db, restored, [])
+	assert_eq(continued.state_hash(), sim.state_hash())
+	assert_eq(continued.world.regions[1].asset_count(AssetDef.KIND_FLEET), 1)
+	assert_eq(continued.world.agent.seeds_by_kind, {LinkDef.KIND_SEA: 1})
+	assert_eq(continued.world.modifiers.asset_count(1, AssetDef.KIND_FLEET), 1,
+		"the stack is refilled from the regions")
+
+
+func test_a_negative_asset_count_is_an_invariant_violation() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	sim.world.regions[1].assets[AssetDef.KIND_FLEET] = -1
+	assert_string_contains(str(sim.world.check_invariants(sim.db)), "negative")

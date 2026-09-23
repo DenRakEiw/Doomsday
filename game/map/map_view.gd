@@ -32,6 +32,8 @@ const PARAM_OVERLAY: String = "overlay_mode"
 const PARAM_OUTLINE: String = "outline_px"
 const PARAM_HOVER_GAIN: String = "hover_gain"
 const PARAM_OVERLAY_MIX: String = "overlay_mix"
+## The four faction colours the shader draws a world status in (§16.3.1).
+const PARAM_FACTION: String = "faction_%d"
 
 ## Colour uniform → token, so the shader's palette has exactly one source.
 ## Uniform → the token it takes its colour from. A function rather than a table
@@ -43,6 +45,7 @@ const COLOR_TOKENS: Dictionary[String, StringName] = {
 	"map_border_dark": &"MAP_BORDER_DARK",
 	"map_select": &"MAP_SELECT",
 	"map_death": &"MAP_DEATH",
+	"accent": &"ACCENT",
 }
 
 ## 0 means none. Written by S2.3's picking, read by the shader.
@@ -87,6 +90,11 @@ var _id_image: Image = null
 var _camera: MapCamera = null
 
 
+## Region index → true while site select is offering it (§16.1). Recomputed
+## whenever the request, the world or a command may have changed the answer.
+var _eligible: Dictionary[int, bool] = {}
+
+
 func _ready() -> void:
 	centered = false
 	position = Vector2.ZERO
@@ -101,6 +109,7 @@ func _ready() -> void:
 	_shader.set_shader_parameter(PARAM_HOVER_GAIN, UiTokens.MAP_HOVER_GAIN)
 	_shader.set_shader_parameter(PARAM_OVERLAY_MIX, UiTokens.MAP_OVERLAY_MIX)
 	_send_colours()
+	_send_faction_colours()
 	_set_param(PARAM_HOVER, hover_index)
 	_set_param(PARAM_SELECTED, selected_index)
 	_set_param(PARAM_OVERLAY, int(overlay_mode))
@@ -111,6 +120,7 @@ func _ready() -> void:
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.command_applied.connect(_on_command_applied)
 	EventBus.overlay_changed.connect(_on_overlay_changed)
+	EventBus.site_select_changed.connect(_on_site_select_changed)
 	# A selection can also be cleared from the panel (§5.6: the close button and
 	# `Escape`), and the outline has to follow it there too.
 	EventBus.region_selected.connect(_on_region_selected)
@@ -168,7 +178,7 @@ func refresh() -> void:
 		return
 	if Game.sim == null or Game.db == null:
 		_data_image.fill(Color(0.0, 0.0, 0.0, 0.0))
-	elif not RegionData.write(_data_image, Game.sim.world, Game.db):
+	elif not RegionData.write(_data_image, Game.sim.world, Game.db, _eligible):
 		# §7.2: more regions than the row holds. Drawing would paint regions with
 		# one another's numbers, so the map stays blank and says why.
 		push_error("map_view: %d regions do not fit the %d-pixel data row"
@@ -185,21 +195,50 @@ func _send_colours() -> void:
 		_shader.set_shader_parameter(param, UiTokens.color(COLOR_TOKENS[param]))
 
 
+## The four faction colours, numbered as the status index is (§16.3.1).
+func _send_faction_colours() -> void:
+	for i: int in Faction.FACTION_IDS.size():
+		_shader.set_shader_parameter(PARAM_FACTION % (i + 1),
+			UiTokens.faction_color(Faction.FACTION_IDS[i]))
+
+
+## What site select is offering right now, as a set of region indices.
+func _recompute_eligible() -> void:
+	_eligible.clear()
+	var request: SiteRequest = Game.site_request
+	if request == null or Game.sim == null:
+		return
+	for i: int in range(1, Game.sim.world.regions.size()):
+		if request.reason_for(i).is_empty():
+			_eligible[i] = true
+
+
+func _on_site_select_changed(_active: bool) -> void:
+	_recompute_eligible()
+	refresh()
+
+
 func _on_theme_variant_changed(_variant: StringName) -> void:
 	if _shader != null:
 		_send_colours()
+		_send_faction_colours()
 
 
 func _on_run_started(_seed_value: int) -> void:
+	_recompute_eligible()
 	refresh()
 
 
 func _on_tick_advanced(_day: int) -> void:
+	# A region can become eligible without a command: a neighbour was seeded, a
+	# tier rose, an asset was lost (§16.1).
+	_recompute_eligible()
 	refresh()
 
 
 func _on_command_applied(_command: Command, result: CommandResult) -> void:
 	if result.ok:
+		_recompute_eligible()
 		refresh()
 
 

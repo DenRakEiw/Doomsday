@@ -52,13 +52,28 @@ const INK: Color = Color("#07090C")
 # ------------------------------------------------- §3.1 data colours (M4, reserved)
 
 
-## Okabe–Ito without black. M2 uses none of them — they are tokens now so that
-## nothing in M2 accidentally takes one.
+## Okabe–Ito without black. `CAT_YELLOW` is the only one still free: it sits at
+## the top of the ramp, and a faction colour there would read as a magnitude.
 const CAT_ORANGE: Color = Color("#E69F00")
 const CAT_SKY: Color = Color("#56B4E9")
 const CAT_GREEN: Color = Color("#009E73")
 const CAT_YELLOW: Color = Color("#F0E442")
 const CAT_PINK: Color = Color("#CC79A7")
+
+## `loop-mechanics.md` §16.12: one colour per faction, shared by S4.2's status
+## rings, the map's border rule and D4.2's threat bar — so that a colour means
+## the same faction wherever it appears.
+const FACTION_AI_LABS: Color = CAT_SKY
+const FACTION_GOVERNMENTS: Color = CAT_ORANGE
+const FACTION_RESEARCHERS: Color = CAT_GREEN
+const FACTION_PUBLIC: Color = CAT_PINK
+## Faction id → its token, in `Faction.FACTION_IDS` order.
+const FACTION_TOKENS: Dictionary[String, StringName] = {
+	"ai_labs": &"FACTION_AI_LABS",
+	"governments": &"FACTION_GOVERNMENTS",
+	"security_researchers": &"FACTION_RESEARCHERS",
+	"public_sentiment": &"FACTION_PUBLIC",
+}
 
 
 # ---------------------------------------------------------- §3.1 magnitude ramp
@@ -282,6 +297,19 @@ const TECH_DASH: Vector2 = Vector2(8, 6)
 const SCRIM_ALPHA: float = 0.85
 ## §5, §7.3, §7.4: a modal never grows wider than this.
 const MODAL_MAX_WIDTH: int = 560
+## `loop-mechanics.md` §16.12: the wire card's own width, the console line's
+## pace, and the geometry of the markers M4 adds.
+const WIRE_MAX_WIDTH: int = 840
+const CONSOLE_LINE_MS: int = 4000
+const CONSOLE_QUEUE_MAX: int = 3
+const MOTION_SCOPE_FLASH: int = 1500
+const MARKER_ROW_OFFSET: int = 18
+const MARKER_EVENT_OFFSET: Vector2 = Vector2(-18.0, -18.0)
+const STATUS_RING_RADIUS: float = 14.0
+const STATUS_RING_STEP: float = 5.0
+## §16.3.2: a fleet is drawn larger than the rest of the row.
+const ASSET_GLYPH_LEAD: float = 16.0
+const ASSET_GLYPH: float = 12.0
 ## m3-screens §5: the red wash of the discovery moment, and how long it lasts.
 const ALERT_FLASH_ALPHA: float = 0.25
 ## m3-screens §7.4: how long the last frame is left alone before the results
@@ -378,6 +406,14 @@ static func reduced_motion() -> bool:
 		return false
 	var settings: Node = tree.root.get_node_or_null(SETTINGS_PATH)
 	return settings != null and bool(settings.get(SETTING_REDUCED_MOTION))
+
+
+## The colour a faction is drawn in. An unknown id — a world status that no
+## faction owns — takes the console's own accent (§16.3.1).
+static func faction_color(faction: String) -> Color:
+	if not FACTION_TOKENS.has(faction):
+		return color(&"ACCENT")
+	return color(FACTION_TOKENS[faction])
 
 
 ## The §3.1 ramp as a 256-wide gradient, built once and shared by the map shader

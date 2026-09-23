@@ -79,6 +79,7 @@ func _ready() -> void:
 	_menu_sheet.connect(&"destination_requested", _on_destination_requested)
 	_menu_sheet.connect(&"pause_requested", _open_pause_menu)
 	_tech_tree.closed.connect(_on_tech_tree_closed)
+	_tech_tree.reopen_requested.connect(_on_tech_tree_reopen_requested)
 	_discovery.dismissed.connect(_on_discovery_dismissed)
 	_discovery.containment_requested.connect(_on_discovery_containment)
 	# §4.1: the two side panels never overlap — opening one closes the other.
@@ -122,6 +123,13 @@ func _input(event: InputEvent) -> void:
 			if _modals.is_open():
 				# The modal host answers `Escape` itself (m3-screens §10.4).
 				return
+			# `Escape` leaves site select (`loop-mechanics.md` §16.1) — except
+			# the origin's, which cannot be cancelled: there is nothing behind
+			# the run's first decision, so the key goes on to the pause menu.
+			if Game.is_selecting_site() and Game.site_request.can_cancel():
+				Game.site_cancel()
+				get_viewport().set_input_as_handled()
+				return
 			if _containment.is_open:
 				_containment.close()
 				get_viewport().set_input_as_handled()
@@ -151,6 +159,15 @@ func _toggle_tech_tree() -> void:
 	# no path for the arrow keys to point at.
 	_modals.open(_tech_tree)
 	_tech_tree.open()
+
+
+## The tree comes back where the player left it when a deploy site was not
+## chosen after all (`loop-mechanics.md` §16.1).
+func _on_tech_tree_reopen_requested(node_id: String) -> void:
+	if Game.sim == null or _modals.is_open():
+		return
+	_modals.open(_tech_tree)
+	_tech_tree.open_on(node_id)
 
 
 ## §4.1: the containment panel is not a modal — the game keeps running behind
@@ -273,6 +290,7 @@ func _on_run_started(_seed_value: int) -> void:
 	# player's alone (§7.2).
 	if Game.sim != null and Game.policy == null and Game.sim.world.agent.origin == 0:
 		Game.hold(HOLD_ORIGIN)
+		Game.site_select(SiteRequest.for_origin())
 
 
 ## §7.2 and §7.5: the origin starts the run moving and writes the first

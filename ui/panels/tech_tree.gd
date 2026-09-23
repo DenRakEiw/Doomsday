@@ -10,6 +10,9 @@ extends Control
 
 ## The modal closed itself — the session releases whatever it was showing it in.
 signal closed
+## The player backed out of site select: the session puts the modal back up with
+## `node_id` selected (`loop-mechanics.md` §16.1).
+signal reopen_requested(node_id: String)
 
 ## The hold this modal takes while `Settings.tree_pauses` is on (§10.2).
 const HOLD: StringName = &"tree"
@@ -21,6 +24,9 @@ const TechBoard: GDScript = preload("res://ui/panels/tech_board.gd")
 const TechDetail: GDScript = preload("res://ui/panels/tech_detail.gd")
 
 const KEY_TITLE: String = "UI_TREE_TITLE"
+## `loop-mechanics.md` §16.1: what the prompt strip says while a site is chosen.
+const KEY_SITE_PROMPT_DEPLOY: String = "UI_SITE_PROMPT_DEPLOY"
+const KEY_TECH_NAME: String = "TECH_%s_NAME"
 const KEY_TAB_COUNT: String = "UI_TREE_TAB_COUNT"
 const KEY_COMPUTE_RATE: String = "UI_HUD_COMPUTE_RATE"
 const TABS: Array[String] = ["infiltration", "capabilities", "evasion"]
@@ -109,6 +115,21 @@ func open() -> void:
 	_show_tab(_tab)
 	_refresh_header()
 	_tab_buttons[_tab].grab_focus()
+
+
+## Opens the tree with `node_id` selected — what a cancelled site select does.
+## The tab is shown explicitly, because `open` on a tree that is already open
+## does nothing and the node may live in another tab.
+func open_on(node_id: String) -> void:
+	var definition: TechNodeDef = Game.db.tech(node_id)
+	open()
+	if definition == null:
+		return
+	var index: int = TABS.find(definition.tree)
+	if index >= 0 and index != _tab:
+		_remember_scroll()
+		_show_tab(index)
+	_select(node_id)
 
 
 func close() -> void:
@@ -296,6 +317,10 @@ func _show_detail(node_id: String) -> void:
 ## The one door to a purchase: the buy button and `Enter` on a node both end
 ## here, so a refusal is reported in exactly one place (§3.3).
 func _buy(node_id: String) -> void:
+	var definition: TechNodeDef = Game.db.tech(node_id)
+	if definition != null and definition.deploys():
+		_place(definition)
+		return
 	var locked: Dictionary[String, bool] = _locked_nodes()
 	var result: CommandResult = Game.apply(PurchaseNodeCommand.new(node_id))
 	if not result.ok:
@@ -303,6 +328,25 @@ func _buy(node_id: String) -> void:
 		return
 	_refresh()
 	_flash_opened(node_id, locked)
+
+
+## A deploying node is not bought here (`loop-mechanics.md` §16.1): the modal
+## hands the question to the map and closes itself. Nothing has been paid for
+## until the player taps a region, and backing out reopens the tree on the node.
+func _place(definition: TechNodeDef) -> void:
+	var request: SiteRequest = SiteRequest.new()
+	request.kind = SiteRequest.KIND_DEPLOY
+	request.title_key = KEY_SITE_PROMPT_DEPLOY
+	request.name_key = KEY_TECH_NAME % definition.id.to_upper()
+	request.rule = definition.deploy_eligible
+	request.eligible = func(index: int) -> String:
+		return Game.sim.site_eligibility(definition.id, index)
+	request.build = func(region_id: String) -> Command:
+		return PurchaseNodeCommand.new(definition.id, region_id)
+	request.on_cancel = func() -> void:
+		reopen_requested.emit(definition.id)
+	close()
+	Game.site_select(request)
 
 
 ## Which nodes of the shown tab are locked right now, so that the ones a purchase

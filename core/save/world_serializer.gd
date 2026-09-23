@@ -14,7 +14,7 @@ extends RefCounted
 ##     lossy and breaks save → load → continue.
 
 const FORMAT: String = "doomsday-save"
-const CURRENT_VERSION: int = 1
+const CURRENT_VERSION: int = 2
 ## The project setting the `build` field records.
 const VERSION_SETTING: String = "application/config/version"
 
@@ -25,8 +25,57 @@ const REASON_FROM_FUTURE: String = "save_from_future"
 const REASON_MIGRATION_MISSING: String = "save_migration_missing"
 const REASON_CONTENT_MISSING: String = "save_content_missing"
 
-## v1 has nothing to migrate from. A later version adds `{1: Callable}` here.
+## The production migration table. Every save older than `CURRENT_VERSION` is
+## brought forward here, on the raw dictionary, before anything reads it.
+static func migrations() -> Dictionary[int, Callable]:
+	var table: Dictionary[int, Callable] = {1: _v1_to_v2}
+	return table
+
+
+## An empty table, for the tests that drive `migrate` themselves.
 const NO_MIGRATIONS: Dictionary[int, Callable] = {}
+
+
+## v1 → v2 (`loop-mechanics.md` §13): every block gains the fields M4 added, at
+## the value a world that never had them would carry. It works on the raw
+## dictionary and never instantiates a model class.
+static func _v1_to_v2(save: Dictionary) -> Dictionary:
+	var out: Dictionary = save.duplicate(true)
+	if typeof(out.get("world")) != TYPE_DICTIONARY:
+		return out
+	var world: Dictionary = out["world"]
+	var zero: String = FloatBits.to_hex(0.0)
+	if typeof(world.get("regions")) == TYPE_ARRAY:
+		for entry: Variant in world["regions"]:
+			if typeof(entry) != TYPE_DICTIONARY:
+				continue
+			var region: Dictionary = entry
+			region["assets"] = {}
+			region["society"] = zero
+	if typeof(world.get("agent")) == TYPE_DICTIONARY:
+		var agent: Dictionary = world["agent"]
+		agent["cooldowns"] = {}
+		agent["timed_flags"] = {}
+		agent["story_flags"] = []
+		agent["seeds_by_kind"] = {}
+	if typeof(world.get("factions")) == TYPE_ARRAY:
+		for entry: Variant in world["factions"]:
+			if typeof(entry) != TYPE_DICTIONARY:
+				continue
+			var faction: Dictionary = entry
+			faction["preparing"] = ""
+			faction["fire_day"] = -1
+			faction["cooldown_until"] = 0
+	world["starving_days"] = 0
+	world["statuses"] = []
+	world["pulses"] = []
+	world["next_pulse_id"] = 1
+	world["events"] = []
+	world["pending_events"] = []
+	world["next_event_id"] = 1
+	world["event_fires"] = {}
+	world["event_last_day"] = {}
+	return out
 
 
 static func to_json(sim: Simulation) -> String:
@@ -49,7 +98,7 @@ static func to_json(sim: Simulation) -> String:
 ## Loads a save, or says why it will not. Checks run in the order core.md §10
 ## lists them, and the first failure is the reason.
 static func from_json(text: String, db: ContentDB,
-		migrations: Dictionary[int, Callable] = NO_MIGRATIONS) -> LoadResult:
+		table: Dictionary[int, Callable] = migrations()) -> LoadResult:
 	var json: JSON = JSON.new()
 	if json.parse(text) != OK or typeof(json.data) != TYPE_DICTIONARY:
 		return LoadResult.refused(REASON_INVALID_JSON)
@@ -64,7 +113,7 @@ static func from_json(text: String, db: ContentDB,
 	if version > CURRENT_VERSION:
 		return LoadResult.refused(REASON_FROM_FUTURE)
 
-	var migration_reason: String = migrate(save, migrations)
+	var migration_reason: String = migrate(save, table)
 	if not migration_reason.is_empty():
 		return LoadResult.refused(migration_reason)
 

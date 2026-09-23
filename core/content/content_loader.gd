@@ -16,6 +16,7 @@ const BALANCE_FILE: String = "balance.json"
 const REGIONS_FILE: String = "world/regions.json"
 const LINKS_FILE: String = "world/links.json"
 const HEADLINES_FILE: String = "headlines.json"
+const ASSETS_FILE: String = "assets.json"
 const TECH_DIR: String = "tech"
 const TECH_SUFFIX: String = ".json"
 ## The localisation table, read here as plain rows so that the string check of
@@ -26,6 +27,10 @@ const STRINGS_FILE: String = "loc/strings.csv"
 const STRINGS_LANGUAGES: int = 2
 ## Stands in for the root in the errors of `load_from_dicts`.
 const MEMORY_LABEL: String = "memory"
+## The optional header of a technology file that declares exclusive groups.
+const GROUPS_KEY: String = "groups"
+## The default minimum count of an `asset` scope: one of them standing there.
+const ASSET_SCOPE_MIN: int = 1
 
 
 ## Loads a content root from disk. The result carries either a database or every
@@ -35,6 +40,7 @@ static func load_root(root: String) -> ContentLoadResult:
 	var balance_raw: Variant = _read(root.path_join(BALANCE_FILE), errors)
 	var regions_raw: Variant = _read(root.path_join(REGIONS_FILE), errors)
 	var links_raw: Variant = _read(root.path_join(LINKS_FILE), errors)
+	var assets_raw: Variant = _read(root.path_join(ASSETS_FILE), errors)
 
 	var tech_files: PackedStringArray = []
 	var tech_raws: Array = []
@@ -55,14 +61,14 @@ static func load_root(root: String) -> ContentLoadResult:
 	var headlines_raw: Variant = _read(root.path_join(HEADLINES_FILE), errors)
 	var strings: Dictionary[String, bool] = {}
 	var strings_known: bool = _read_strings(root.path_join(STRINGS_FILE), strings)
-	return _finish(root, balance_raw, regions_raw, links_raw, tech_files, tech_raws, headlines_raw,
-		strings, strings_known, errors)
+	return _finish(root, balance_raw, regions_raw, links_raw, assets_raw, tech_files, tech_raws,
+		headlines_raw, strings, strings_known, errors)
 
 
 ## Loads content that is already parsed — for tests, and for anything that builds
 ## content in memory. `label` stands in for the root in error paths.
 static func load_from_dicts(balance: Dictionary, regions: Dictionary, links: Dictionary,
-		tech_files: Array[Dictionary], headlines: Dictionary,
+		assets: Dictionary, tech_files: Array[Dictionary], headlines: Dictionary,
 		label: String = MEMORY_LABEL) -> ContentLoadResult:
 	var errors: Array[ValidationError] = []
 	var names: PackedStringArray = []
@@ -73,7 +79,8 @@ static func load_from_dicts(balance: Dictionary, regions: Dictionary, links: Dic
 	# Content built in memory carries no string table, so the string check is
 	# skipped rather than reported against a file that does not exist.
 	var strings: Dictionary[String, bool] = {}
-	return _finish(label, balance, regions, links, names, raws, headlines, strings, false, errors)
+	return _finish(label, balance, regions, links, assets, names, raws, headlines, strings, false,
+		errors)
 
 
 # --------------------------------------------------------------------- reading
@@ -128,8 +135,8 @@ static func _read_strings(path: String, into: Dictionary[String, bool]) -> bool:
 
 
 static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, links_raw: Variant,
-		tech_files: PackedStringArray, tech_raws: Array, headlines_raw: Variant,
-		strings: Dictionary[String, bool], strings_known: bool,
+		assets_raw: Variant, tech_files: PackedStringArray, tech_raws: Array,
+		headlines_raw: Variant, strings: Dictionary[String, bool], strings_known: bool,
 		errors: Array[ValidationError]) -> ContentLoadResult:
 	# The order is SCHEMA's: balance, regions, links, technology, and the
 	# cross-file checks inside the validators that need an earlier file.
@@ -142,6 +149,10 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 	var regions_known: bool = typeof(regions_raw) == TYPE_DICTIONARY
 	SchemaValidator.validate_links(root.path_join(LINKS_FILE), links_raw, regions, regions_known,
 		errors)
+	# Assets before technology: a node's `deploy` and `requires_assets` name a
+	# kind, so the kinds have to be checked first.
+	SchemaValidator.validate_assets(root.path_join(ASSETS_FILE), assets_raw, strings,
+		strings_known, errors)
 	SchemaValidator.validate_tech(tech_files, tech_raws, regions, regions_known, strings,
 		strings_known, errors)
 	# Headlines last: they name regions, nodes and balance values, so everything
@@ -152,7 +163,8 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 	var result: ContentLoadResult = ContentLoadResult.new()
 	result.errors = errors
 	if errors.is_empty():
-		result.db = _build(balance_raw, regions_raw, links_raw, tech_raws, headlines_raw)
+		result.db = _build(balance_raw, regions_raw, links_raw, assets_raw, tech_raws,
+			headlines_raw)
 	return result
 
 
@@ -162,15 +174,38 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 ## Everything below runs on validated data only: the fields are there, they have
 ## the right types and every reference resolves.
 static func _build(balance_raw: Dictionary, regions_raw: Dictionary, links_raw: Dictionary,
-		tech_raws: Array, headlines_raw: Dictionary) -> ContentDB:
+		assets_raw: Dictionary, tech_raws: Array, headlines_raw: Dictionary) -> ContentDB:
 	var db: ContentDB = ContentDB.new()
 	db.balance = _build_balance(balance_raw)
 	_build_regions(db, regions_raw)
 	_build_links(db, links_raw)
+	_build_assets(db, assets_raw)
 	_build_tech(db, tech_raws)
 	_build_headlines(db, headlines_raw)
-	db.content_hash = _content_hash(balance_raw, regions_raw, links_raw, tech_raws, headlines_raw)
+	db.content_hash = _content_hash(balance_raw, regions_raw, links_raw, assets_raw, tech_raws,
+		headlines_raw)
 	return db
+
+
+## The four asset kinds, in `AssetDef.KINDS` order whatever order the file uses.
+## Every modifier is scoped `{"asset": kind}` here rather than in the file: the
+## scope is what the kind *means*, not something an author chooses (§6.1).
+static func _build_assets(db: ContentDB, raw: Dictionary) -> void:
+	var by_kind: Dictionary[String, Dictionary] = {}
+	var list: Array = raw[AssetDef.ROOT_KEY]
+	for entry: Variant in list:
+		var a: Dictionary = entry
+		by_kind[str(a["kind"])] = a
+	for kind: String in AssetDef.KINDS:
+		var a: Dictionary = by_kind[kind]
+		var def: AssetDef = AssetDef.new()
+		def.kind = kind
+		def.glyph = str(a["glyph"])
+		def.watched_by = _string_array(a, "watched_by")
+		var modifiers: Array = a["modifiers"]
+		for modifier: Variant in modifiers:
+			def.modifiers.append(_build_modifier(db, modifier, kind))
+		db.assets[kind] = def
 
 
 static func _build_regions(db: ContentDB, raw: Dictionary) -> void:
@@ -226,6 +261,11 @@ static func _build_links(db: ContentDB, raw: Dictionary) -> void:
 static func _build_tech(db: ContentDB, tech_raws: Array) -> void:
 	for raw: Variant in tech_raws:
 		var file: Dictionary = raw
+		if file.has(GROUPS_KEY):
+			var groups: Dictionary = file[GROUPS_KEY]
+			for group: String in groups:
+				var declaration: Dictionary = groups[group]
+				db.groups[group] = int(declaration["max"])
 		var list: Array = file["nodes"]
 		for entry: Variant in list:
 			var n: Dictionary = entry
@@ -247,9 +287,30 @@ static func _build_tech(db: ContentDB, tech_raws: Array) -> void:
 			if n.has("on_purchase"):
 				var effects: Array = n["on_purchase"]
 				for effect: Variant in effects:
-					def.on_purchase.append(_build_effect(effect))
+					def.on_purchase.append(EffectDef.from_dict(effect))
+			_build_tech_v3(def, n)
 			db.tech_nodes.append(def)
 			db.tech_by_id[def.id] = def
+
+
+## Tree v3's five fields (§11.1). Each is optional; a node without them is the
+## node it always was.
+static func _build_tech_v3(def: TechNodeDef, n: Dictionary) -> void:
+	def.group = str(n.get("group", ""))
+	def.excludes = _string_array(n, "excludes")
+	if n.has("deploy"):
+		var deploy: Dictionary = n["deploy"]
+		def.deploy_kind = str(deploy["kind"])
+		def.deploy_count = int(deploy["count"])
+		def.deploy_eligible = Eligibility.from_dict(deploy.get("eligible", {}))
+	if n.has("ability"):
+		var ability: Dictionary = n["ability"]
+		def.ability_id = str(ability["id"])
+		def.ability_level = int(ability["level"])
+	if n.has("requires_assets"):
+		var needed: Dictionary = n["requires_assets"]
+		for kind: String in needed:
+			def.requires_assets[kind] = int(needed[kind])
 
 
 ## `headlines.json` in file order (ticker.md §3.2). The trigger blocks are
@@ -320,26 +381,30 @@ static func _string_list(raw: Array) -> Array[String]:
 	return out
 
 
-static func _build_effect(raw: Variant) -> PurchaseEffectDef:
-	var e: Dictionary = raw
-	var def: PurchaseEffectDef = PurchaseEffectDef.new()
-	def.effect = str(e["effect"])
-	def.value = float(e["value"])
-	return def
-
-
-static func _build_modifier(db: ContentDB, raw: Variant) -> ModifierDef:
+## `force_asset` is the kind an `assets.json` modifier is scoped to; the file
+## itself carries no scope there, and one in it is a validation error (§6.1).
+static func _build_modifier(db: ContentDB, raw: Variant,
+		force_asset: String = "") -> ModifierDef:
 	var m: Dictionary = raw
 	var def: ModifierDef = ModifierDef.new()
 	def.target = str(m["target"])
 	def.op = ModifierDef.op_from_name(str(m["op"]))
 	def.value = float(m["value"])
+	if not force_asset.is_empty():
+		def.scope_kind = ModifierDef.ScopeKind.ASSET
+		def.scope_asset = force_asset
+		def.scope_min = ASSET_SCOPE_MIN
+		return def
 	if not m.has("scope"):
 		def.scope_kind = ModifierDef.ScopeKind.NONE
 		return def
 
 	var scope: Dictionary = m["scope"]
-	if scope.has("attr"):
+	if scope.has("asset"):
+		def.scope_kind = ModifierDef.ScopeKind.ASSET
+		def.scope_asset = str(scope["asset"])
+		def.scope_min = int(scope.get("min", ASSET_SCOPE_MIN))
+	elif scope.has("attr"):
 		def.scope_kind = ModifierDef.ScopeKind.ATTR
 		def.scope_attr = str(scope["attr"])
 		def.scope_min = int(scope.get("min", RegionDef.TIER_MIN))
@@ -369,10 +434,11 @@ static func _string_array(d: Dictionary, key: String) -> Array[String]:
 ## and key order therefore do not change it, while any value does. A save
 ## carrying a different hash would not replay on this content.
 static func _content_hash(balance: Dictionary, regions: Dictionary, links: Dictionary,
-		tech_raws: Array, headlines: Dictionary) -> String:
+		assets: Dictionary, tech_raws: Array, headlines: Dictionary) -> String:
 	var text: String = JSON.stringify(balance, "", true, true)
 	text += JSON.stringify(regions, "", true, true)
 	text += JSON.stringify(links, "", true, true)
+	text += JSON.stringify(assets, "", true, true)
 	for raw: Variant in tech_raws:
 		text += JSON.stringify(raw, "", true, true)
 	text += JSON.stringify(headlines, "", true, true)

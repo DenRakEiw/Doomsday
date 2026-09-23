@@ -44,7 +44,11 @@ static func _make(type: String, d: Dictionary) -> Command:
 		var node: String = read_id(d, "node")
 		if node.is_empty():
 			return null
-		return PurchaseNodeCommand.new(node)
+		# A log written before the deploy sites carries no region, and a node
+		# that places nothing never has one: an absent field reads as "none".
+		if d.has("region") and typeof(d["region"]) != TYPE_STRING:
+			return null
+		return PurchaseNodeCommand.new(node, str(d.get("region", "")))
 	if type == SetDormancyCommand.TYPE_ID:
 		var dormancy_region: String = read_id(d, "region")
 		if dormancy_region.is_empty():

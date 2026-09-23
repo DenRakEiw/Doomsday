@@ -24,6 +24,12 @@ const FAIL_UNKNOWN_ANOMALY: String = "unknown_anomaly"
 const FAIL_DORMANCY_LOCKED: String = "dormancy_locked"
 const FAIL_REGION_NOT_INFECTED: String = "region_not_infected"
 const FAIL_DORMANCY_UNCHANGED: String = "dormancy_unchanged"
+## The five checks a deploying node adds (`loop-mechanics.md` §11.3).
+const FAIL_GROUP_FULL: String = "group_full"
+const FAIL_EXCLUDED_BY: String = "excluded_by"
+const FAIL_MISSING_ASSETS: String = "missing_assets"
+const FAIL_SITE_REQUIRED: String = "site_required"
+const FAIL_SITE_INELIGIBLE: String = "site_ineligible"
 
 ## Set by `Simulation.apply` when the command is accepted; -1 until then.
 var day: int = -1

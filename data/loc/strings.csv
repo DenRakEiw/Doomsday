@@ -1276,3 +1276,71 @@ UI_LOG_FUNDING_RESET,Every faction's preparation is set back,Die Vorbereitung al
 UI_LOG_THREAT_LEADER_CHANGED,Leading: {faction},Vorn: {faction}
 UI_LOG_SOCIETY_STAGE_CHANGED,{region}: {stage},{region}: {stage}
 UI_LOG_REGION_WIPED,{region}: presence cut to {percent},{region}: Präsenz auf {percent} gekürzt
+CMD_FAIL_SITE_REQUIRED,Choose a region first.,Wähle zuerst eine Region.
+CMD_FAIL_SITE_INELIGIBLE,Not here.,Hier nicht.
+CMD_FAIL_GROUP_FULL,{group}: {owned} of {max} taken.,{group}: {owned} von {max} belegt.
+CMD_FAIL_EXCLUDED_BY,Closed by {node}.,Durch {node} verschlossen.
+CMD_FAIL_MISSING_ASSETS,Needs {count} × {kind}.,Braucht {count} × {kind}.
+UI_ELIGIBLE_NOT_INFECTED,You are not here yet.,Hier bist du noch nicht.
+UI_ELIGIBLE_DARK,Nothing left here.,Hier ist nichts mehr.
+UI_ELIGIBLE_DORMANT,Held. Wake it first.,Gehalten. Weck sie zuerst.
+UI_ELIGIBLE_ATTR_MIN,{attr} below {tier}.,{attr} unter {tier}.
+UI_ELIGIBLE_ATTR_MAX,{attr} above {tier}.,{attr} über {tier}.
+UI_ELIGIBLE_ASSET_MIN,Fewer than {count} × {kind} here.,Weniger als {count} × {kind} hier.
+UI_ELIGIBLE_ASSET_MAX,Too many {kind} here already.,Schon zu viele {kind} hier.
+UI_ELIGIBLE_STATUS_ABSENT,{status} is already running here.,{status} läuft hier schon.
+UI_ELIGIBLE_STATUS_PRESENT,Needs {status} here.,Braucht {status} hier.
+UI_ELIGIBLE_PENETRATION_MIN,Penetration below {value}.,Durchdringung unter {value}.
+UI_ELIGIBLE_CONTROL_MIN,Control below {value}.,Kontrolle unter {value}.
+UI_ELIGIBLE_CONTINENT,Not on {continent}.,Nicht auf {continent}.
+UI_ELIGIBLE_NOT_ORIGIN,Not at home.,Nicht zu Hause.
+UI_ELIGIBLE_ORIGIN,Only at home.,Nur zu Hause.
+UI_ELIGIBLE_NEEDS_NOT_INFECTED,An infected region,Eine infizierte Region
+UI_ELIGIBLE_NEEDS_DORMANT,An active region,Eine aktive Region
+UI_ELIGIBLE_NEEDS_ATTR_MIN,{attr} at least {tier},{attr} mindestens {tier}
+UI_ELIGIBLE_NEEDS_ATTR_MAX,{attr} at most {tier},{attr} höchstens {tier}
+UI_ELIGIBLE_NEEDS_ASSET_MIN,{count} × {kind} in the region,{count} × {kind} in der Region
+UI_ELIGIBLE_NEEDS_ASSET_MAX,At most {count} × {kind},Höchstens {count} × {kind}
+UI_ELIGIBLE_NEEDS_STATUS_ABSENT,No {status} running,Kein {status} aktiv
+UI_ELIGIBLE_NEEDS_STATUS_PRESENT,{status} running,{status} aktiv
+UI_ELIGIBLE_NEEDS_PENETRATION_MIN,Penetration {value},Durchdringung {value}
+UI_ELIGIBLE_NEEDS_CONTROL_MIN,Control {value},Kontrolle {value}
+UI_ELIGIBLE_NEEDS_CONTINENT,On {continent},Auf {continent}
+UI_ELIGIBLE_NEEDS_NOT_ORIGIN,Anywhere but the origin,Überall außer am Ursprung
+UI_ELIGIBLE_NEEDS_ORIGIN,The origin only,Nur der Ursprung
+UI_SITE_PROMPT_DEPLOY,Place: {name},Platzieren: {name}
+UI_SITE_PROMPT_ABILITY,Use: {name},Einsetzen: {name}
+UI_SITE_PROMPT_DETAIL,Tap an outlined region. The world keeps moving.,Tippe auf eine umrandete Region. Die Welt läuft weiter.
+UI_SITE_CANCEL,Cancel,Abbrechen
+UI_SITE_PLACE,Place here,Hier platzieren
+UI_SITE_USE,Use here,Hier einsetzen
+UI_HUD_ASSETS,Assets,Bestand
+UI_HUD_ASSETS_TIP,"What you have on the ground, by kind.","Was du vor Ort hast, nach Art."
+UI_MAP_ASSETS_TIP,{assets},{assets}
+UI_REGION_ASSETS,Assets,Bestand
+UI_REGION_ASSET_ROW,{count} × {kind},{count} × {kind}
+UI_TREE_STATE_EXCLUDED,{group}: {owned} of {max},{group}: {owned} von {max}
+UI_TREE_STATE_CLOSED,Closed by {node},Verschlossen durch {node}
+UI_TREE_GROUP,{group} {owned}/{max},{group} {owned}/{max}
+UI_TREE_EXCLUDES,Closes,Verschließt
+UI_TREE_DEPLOYS,Deploys,Stellt auf
+UI_TREE_DEPLOYS_ROW,{count} × {kind},{count} × {kind}
+UI_TREE_GRANTS,Grants {ability} (level {level}),Gibt {ability} (Stufe {level})
+UI_TREE_REQUIRES_ASSETS,Needs {count} × {kind},Braucht {count} × {kind}
+UI_TREE_BUY_PLACE,Buy and place · {cost},Kaufen und platzieren · {cost}
+UI_TREE_SCOPE_ASSET,where a {kind} stands,wo ein {kind} steht
+UI_TREE_SCOPE_ASSET_MIN,where {count} × {kind} stand,wo {count} × {kind} stehen
+STAT_CONTAINMENT_CAPACITY,Containment capacity,Eindämmungskapazität
+STAT_PENETRATION_DECAY,Penetration loss,Durchdringungsverlust
+STAT_CONTROL_DECAY,Control loss,Kontrollverlust
+EFFECT_COMPUTE_GRANT_PER_HARDWARE,+{value} Compute per hardware unit,+{value} Rechenleistung je Hardware-Einheit
+EFFECT_SEED_NEIGHBOURS,Seeds {count} neighbouring regions,Besiedelt {count} Nachbarregionen
+EFFECT_PENETRATION_MUL,Penetration ×{value},Durchdringung ×{value}
+EFFECT_CONTROL_ADD,Control {value},Kontrolle {value}
+EFFECT_DESTROY_ASSETS,Destroys {count} × {kind},Zerstört {count} × {kind}
+EFFECT_SPREAD_STATUS,{status} spreads to neighbours for {days} days,{status} greift für {days} Tage auf Nachbarn über
+EFFECT_END_STATUSES,Ends {statuses},Beendet {statuses}
+EFFECT_CONTAINMENT_ADD,{faction} containment {value},Eindämmung {faction} {value}
+EFFECT_FOOTPRINT_PULSE,Footprint {value} for {days} days,Fußabdruck {value} für {days} Tage
+EFFECT_SET_FLAG,For {days} days,Für {days} Tage
+EFFECT_SET_FLAG_PERMANENT,From now on,Von jetzt an

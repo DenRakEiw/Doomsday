@@ -283,6 +283,9 @@ func _chip_texts() -> String:
 
 func test_origin_row_replaces_presence_until_chosen() -> void:
 	Game.start_run(SEED)
+	# The origin is one `SiteRequest` among three since S4.1, and the session is
+	# what enters the mode — this test drives the panel alone, so it asks.
+	Game.site_select(SiteRequest.for_origin())
 	var row: Control = _panel.get_node("%OriginRow") as Control
 	var button: ConsoleButton = _panel.get_node("%OriginButton") as ConsoleButton
 	var note: Label = _panel.get_node("%OriginNote") as Label
@@ -314,3 +317,34 @@ func _tier_zero_region() -> String:
 		if Game.db.regions[i].attr("compute") == 0 and not Game.db.regions[i].air_gapped:
 			return Game.db.regions[i].id
 	return "usa"
+
+# ------------------------------------------------- S4.1: the Assets row
+
+
+## §16.5 item 9: one row per kind held, in `AssetDef.KINDS` order, and no
+## section at all in a region that holds nothing.
+func test_the_assets_row_lists_what_stands_in_the_region() -> void:
+	Game.start_run(SEED)
+	Game.apply(ChooseOriginCommand.new("usa"))
+	var block: Control = _panel.get_node("%AssetsBlock") as Control
+	var rows: VBoxContainer = _panel.get_node("%Assets") as VBoxContainer
+
+	var index: int = _select("usa")
+	assert_false(block.visible, "nothing on the ground, nothing to say")
+
+	Game.sim.world.set_assets(index, AssetDef.KIND_LAB, 2)
+	Game.sim.world.set_assets(index, AssetDef.KIND_FLEET, 1)
+	_panel.refresh()
+	assert_true(block.visible)
+	assert_eq(rows.get_child_count(), 2)
+	# The fleet leads whatever order they were placed in.
+	var first: HBoxContainer = rows.get_child(0) as HBoxContainer
+	var label: Label = first.get_child(1) as Label
+	assert_string_contains(label.text, tr("ASSET_FLEET_NAME"))
+	var second: Label = (rows.get_child(1) as HBoxContainer).get_child(1) as Label
+	assert_string_contains(second.text, tr("ASSET_LAB_PLURAL"), "two labs read as a plural")
+
+	Game.sim.world.set_assets(index, AssetDef.KIND_LAB, 0)
+	Game.sim.world.set_assets(index, AssetDef.KIND_FLEET, 0)
+	_panel.refresh()
+	assert_false(block.visible)

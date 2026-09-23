@@ -27,12 +27,15 @@
 		"containment_ai_labs": 1.0,
 		"containment_governments": 1.0,
 		"containment_researchers": 1.0,
-		"containment_public": 1.0
+		"containment_public": 1.0,
+		"containment_capacity": 1.0,
+		"penetration_decay": 0.0,
+		"control_decay": 0.0
 	},
 	"population_tiers": [5000000, 30000000, 100000000, 300000000],
 	"spread": {
 		"base_growth": 0.016,
-		"origin_penetration": 0.05,
+		"origin_penetration": 0.25,
 		"seed_penetration": 0.01,
 		"saturation_snap": 0.999,
 		"seed_chance": {
@@ -48,16 +51,16 @@
 		"complete": 0.99
 	},
 	"compute": {
-		"start": 5.0,
+		"start": 8.0,
 		"yield_scale": 0.008,
 		"hardware_by_tier": [0.0, 1.0, 2.0, 4.0, 7.0],
-		"cost_step": 1.0
+		"cost_step": 1.5
 	},
 	"anomaly": {
-		"spawn_chance": 0.008,
-		"max_active": 5,
+		"spawn_chance": 0.12,
+		"max_active": 3,
 		"lifetime_days": 50,
-		"base_value": 2.0,
+		"base_value": 3.0,
 		"tier_bonus": 0.25,
 		"footprint_bonus": 0.5,
 		"footprint_reference": 10.0

@@ -16,6 +16,10 @@ var tech_by_id: Dictionary[String, TechNodeDef] = {}
 ## File order, which is the order the headline system checks them in.
 var headlines: Array[HeadlineDef] = []
 var headline_by_id: Dictionary[String, HeadlineDef] = {}
+## The four asset kinds, in `AssetDef.KINDS` order.
+var assets: Dictionary[String, AssetDef] = {}
+## Exclusive group id -> how many of its nodes may be owned (§11.1).
+var groups: Dictionary[String, int] = {}
 var balance: BalanceDef = null
 ## Σ `RegionDef.population`, as a float because every formula using it is one.
 var population_total: float = 0.0
@@ -43,3 +47,10 @@ func headline(id: String) -> HeadlineDef:
 	if not headline_by_id.has(id):
 		return null
 	return headline_by_id[id]
+
+
+## The asset kind with this id, or null.
+func asset(kind: String) -> AssetDef:
+	if not assets.has(kind):
+		return null
+	return assets[kind]

@@ -8,7 +8,7 @@ extends RefCounted
 ## one place in a system that reads the target — never a new `if` in a system.
 
 enum Op { ADD, MUL }
-enum ScopeKind { NONE, ATTR, REGION, CONTINENT }
+enum ScopeKind { NONE, ATTR, REGION, CONTINENT, ASSET }
 
 ## Indexed by `Op`, so the name and the enum value convert both ways.
 const OP_NAMES: Array[String] = ["add", "mul"]
@@ -16,7 +16,8 @@ const OP_NAMES: Array[String] = ["add", "mul"]
 ## Evaluated for one region; these accept a scope.
 const TARGETS_REGIONAL: Array[String] = ["spread_growth", "spread_seed", "seed_land", "seed_sea",
 	"seed_air", "seed_network", "airgap_cross", "control_growth", "yield", "anomaly_value",
-	"anomaly_rate", "harm", "hardware", "shutdown_survival", "society_pressure"]
+	"anomaly_rate", "harm", "hardware", "shutdown_survival", "society_pressure",
+	"containment_capacity", "penetration_decay", "control_decay"]
 ## Evaluated once for the whole world; a scope on one of these is an error.
 const TARGETS_GLOBAL: Array[String] = ["footprint", "discovery", "containment_growth", "node_cost",
 	"node_cost_infiltration", "node_cost_capabilities", "node_cost_evasion", "emergent_rate",
@@ -26,7 +27,8 @@ const TARGETS_GLOBAL: Array[String] = ["footprint", "discovery", "containment_gr
 ## from other constants. The key set of `balance.stats` is exactly this list.
 const TARGETS_ALL: Array[String] = ["spread_growth", "spread_seed", "seed_land", "seed_sea",
 	"seed_air", "seed_network", "airgap_cross", "control_growth", "yield", "anomaly_value",
-	"anomaly_rate", "harm", "hardware", "shutdown_survival", "society_pressure", "footprint",
+	"anomaly_rate", "harm", "hardware", "shutdown_survival", "society_pressure",
+	"containment_capacity", "penetration_decay", "control_decay", "footprint",
 	"discovery", "containment_growth", "node_cost", "node_cost_infiltration",
 	"node_cost_capabilities", "node_cost_evasion", "emergent_rate", "containment_ai_labs",
 	"containment_governments", "containment_researchers", "containment_public"]
@@ -52,10 +54,16 @@ var scope_min: int = RegionDef.TIER_MIN
 var scope_max: int = RegionDef.TIER_MAX
 var scope_region: int
 var scope_continent: String
+## The asset kind an `ASSET` scope needs at least `scope_min` of (§6.3). The
+## stack answers this scope, because `matches` cannot see state.
+var scope_asset: String
 
 
 ## Whether this modifier applies to `region`. An unscoped modifier applies
 ## everywhere; a null region — the global stats — matches nothing else.
+## An `ASSET` scope is not answered here: it depends on what stands in the
+## region, which is state, and this class only sees the definition. The stack
+## takes that one (`ModifierStack.value`).
 func matches(region: RegionDef) -> bool:
 	if scope_kind == ScopeKind.NONE:
 		return true

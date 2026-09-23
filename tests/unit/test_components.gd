@@ -6,8 +6,9 @@ extends GutTest
 ## once `_ready` has run. Motion is switched off through `Settings`, so a tween
 ## finishes in the same frame and a test never waits on a clock.
 
-## The nine glyphs of ui-foundation §4.3 plus the five of m3-screens §3.4.1.
-const GLYPH_COUNT: int = 14
+## The nine glyphs of ui-foundation §4.3, the five of m3-screens §3.4.1, and the
+## four asset shapes of loop-mechanics §16.3.2.
+const GLYPH_COUNT: int = 18
 
 const STAT_BAR: PackedScene = preload("res://ui/components/stat_bar.tscn")
 

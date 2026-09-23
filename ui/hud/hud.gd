@@ -32,7 +32,7 @@ signal menu_requested
 @onready var _dock_bar: VBoxContainer = %DockBar
 @onready var _stat_row: PanelContainer = %StatRow
 @onready var _ticker: PanelContainer = %Ticker
-@onready var _origin_prompt: PanelContainer = %OriginPrompt
+@onready var _site_prompt: PanelContainer = %SitePrompt
 @onready var _status_strip: PanelContainer = %StatusStrip
 
 var _compact: bool = false
@@ -133,7 +133,7 @@ func _apply_layout_for(compact: bool) -> void:
 	_overlay_picker.set("compact", compact)
 	_stat_row.set("compact", compact)
 	_dock.set("compact", compact)
-	_origin_prompt.call(&"set_compact", compact)
+	_site_prompt.call(&"set_compact", compact)
 	_ticker.set(&"compact", compact)
 	# §9: below the breakpoint the dock bar and the stacked stat row are one
 	# strip, and the bars live in the sheet the strip opens.

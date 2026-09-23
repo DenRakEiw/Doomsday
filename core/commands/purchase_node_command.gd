@@ -2,20 +2,30 @@ class_name PurchaseNodeCommand
 extends Command
 ## Spends Compute on a technology node. The one way the player changes what the
 ## agent can do.
+##
+## A node that deploys (`loop-mechanics.md` §6.4) also needs a **site**: the
+## region id travels with the command, so the same object serves the interface's
+## site select and a bot that picked its region itself.
 
 const TYPE_ID: String = "purchase_node"
 
 var node: String
+## Region id, or "" for a node that places nothing. A node that does not deploy
+## ignores it — a bot may pass one, and the codec keeps it either way.
+var region: String
 
 
-func _init(p_node: String = "") -> void:
+func _init(p_node: String = "", p_region: String = "") -> void:
 	node = p_node
+	region = p_region
 
 
 func type_id() -> String:
 	return TYPE_ID
 
 
+## The order of §11.3. The site checks come last, because "you cannot afford it"
+## is a truer answer than "not there" when both hold.
 func validate(sim: Simulation) -> String:
 	if sim.world.agent.origin == 0:
 		return FAIL_NO_ORIGIN
@@ -26,14 +36,30 @@ func validate(sim: Simulation) -> String:
 		return FAIL_ALREADY_OWNED
 	if not sim.prerequisites_met(definition):
 		return FAIL_MISSING_PREREQUISITE
+	if not definition.group.is_empty() \
+			and sim.owned_in_group(definition.group) >= sim.group_max(definition.group):
+		return FAIL_GROUP_FULL
+	if not sim.excluded_by(node).is_empty():
+		return FAIL_EXCLUDED_BY
+	if not sim.missing_assets(definition).is_empty():
+		return FAIL_MISSING_ASSETS
 	if sim.world.agent.compute < sim.node_cost(node):
 		return FAIL_INSUFFICIENT_COMPUTE
+	if not definition.deploys():
+		return ""
+	if region.is_empty():
+		return FAIL_SITE_REQUIRED
+	if not sim.db.region_index_by_id.has(region):
+		return FAIL_INVALID_REGION
+	if not sim.site_eligibility(node, sim.db.region_index_by_id[region]).is_empty():
+		return FAIL_SITE_INELIGIBLE
 	return ""
 
 
-## The order of `tech-trees.md` §6.6: pay, own, activate, then the one-shot
-## effects — and `node_purchased` first in the events, the consequences after it,
-## because the interface animates the purchase before what it caused.
+## The order of `tech-trees.md` §6.6 extended by §11.3: pay, own, activate,
+## deploy, then the one-shot effects — and `node_purchased` first in the events,
+## the consequences after it, because the interface animates the purchase before
+## what it caused.
 func execute(sim: Simulation, events: Array[SimEvent]) -> void:
 	# The cost is read before the node is owned: owning it would raise it.
 	var cost: float = sim.node_cost(node)
@@ -44,67 +70,31 @@ func execute(sim: Simulation, events: Array[SimEvent]) -> void:
 		definition.flags)
 	events.append(SimEvent.new(SimEvent.NODE_PURCHASED, sim.world.day,
 		{"node": node, "cost": cost}))
-	for effect: PurchaseEffectDef in definition.on_purchase:
-		_apply_effect(sim, effect, events)
+	var site: int = _deploy(sim, definition, events)
+	EffectRunner.apply_all(sim, definition.on_purchase, EffectContext.for_node(node, site),
+		events)
 
 
-## One-shot effects are never undone and never re-applied: a save carries the
-## state they produced, not the effect itself.
-func _apply_effect(sim: Simulation, effect: PurchaseEffectDef,
-		events: Array[SimEvent]) -> void:
-	match effect.effect:
-		PurchaseEffectDef.EFFECT_CONTAINMENT_ROLLBACK:
-			_rollback_containment(sim, effect.value, events)
-		PurchaseEffectDef.EFFECT_COMPUTE_GRANT:
-			sim.world.agent.compute += effect.value
-			sim.world.agent.compute_earned += effect.value
-			events.append(SimEvent.new(SimEvent.COMPUTE_GRANTED, sim.world.day,
-				{"node": node, "value": effect.value}))
-		PurchaseEffectDef.EFFECT_HARM_BURST:
-			_burst_harm(sim, effect.value, events)
-		_:
-			# `funding_reset` until S4.1: accepted, validated, carried out by
-			# nobody. An unknown id never reaches here — the loader rejects it.
-			pass
-
-
-## Every track falls by the same share. Dropping below a threshold is intended:
-## the announcement fires again when they climb back to it.
-func _rollback_containment(sim: Simulation, value: float, events: Array[SimEvent]) -> void:
-	for faction: Faction in sim.world.factions:
-		var before: float = faction.containment
-		faction.containment = before * (1.0 - value)
-		events.append(SimEvent.new(SimEvent.CONTAINMENT_ROLLED_BACK, sim.world.day, {
-			"node": node,
-			"faction": faction.id,
-			"from": before,
-			"to": faction.containment,
-		}))
-
-
-## One wave of deaths, taking a share of the infected *living* — not of the
-## population the region started with.
-func _burst_harm(sim: Simulation, value: float, events: Array[SimEvent]) -> void:
-	var world: World = sim.world
-	var deaths: float = 0.0
-	for i: int in range(1, world.regions.size()):
-		var region: Region = world.regions[i]
-		if region.dark or region.dormant or region.penetration <= 0.0 or region.alive <= 0.0:
-			continue
-		var dead: float = minf(region.alive, value * region.penetration * region.alive)
-		region.alive -= dead
-		region.deaths += dead
-		deaths += dead
-		if region.alive < 1.0:
-			deaths += region.alive
-			region.deaths += region.alive
-			region.alive = 0.0
-			PopulationSystem.go_dark(world, region, i, events)
-	events.append(SimEvent.new(SimEvent.HARM_BURST, world.day,
-		{"node": node, "deaths": deaths}))
+## Puts the node's assets on the map and answers the region the one-shots then
+## run in — 0 for a node that deploys nothing.
+func _deploy(sim: Simulation, definition: TechNodeDef, events: Array[SimEvent]) -> int:
+	if not definition.deploys():
+		return 0
+	var index: int = sim.db.region_index_by_id[region]
+	var held: int = sim.world.regions[index].asset_count(definition.deploy_kind)
+	sim.world.set_assets(index, definition.deploy_kind, held + definition.deploy_count)
+	events.append(SimEvent.new(SimEvent.ASSET_DEPLOYED, sim.world.day, {
+		"node": node,
+		"ability": "",
+		"kind": definition.deploy_kind,
+		"region": region,
+		"count": definition.deploy_count,
+	}))
+	return index
 
 
 func to_dict() -> Dictionary:
 	var d: Dictionary = super()
 	d["node"] = node
+	d["region"] = region
 	return d

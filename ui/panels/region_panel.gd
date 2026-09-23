@@ -49,12 +49,25 @@ const KEY_STATE_DORMANT: String = "UI_REGION_STATE_DORMANT"
 const KEY_DORMANT_DETAIL: String = "UI_REGION_DORMANT_DETAIL"
 const PREFIX_FAIL: String = "CMD_FAIL_"
 
-## m3-screens §7.2: the origin row, shown instead of the presence bars until
-## there is an origin.
+## m3-screens §7.2, generalised by `loop-mechanics.md` §16.1 item 3a: while the
+## map is being asked **where**, every region answers one question — may it be
+## the site? The origin is one of the three kinds.
 const KEY_ORIGIN_CHOOSE: String = "UI_ORIGIN_CHOOSE"
 const KEY_ORIGIN_AIRGAP: String = "UI_ORIGIN_INELIGIBLE_AIRGAP"
 const KEY_ORIGIN_COMPUTE: String = "UI_ORIGIN_INELIGIBLE_COMPUTE"
+const KEY_SITE_PLACE: String = "UI_SITE_PLACE"
+const KEY_SITE_USE: String = "UI_SITE_USE"
+const PREFIX_ELIGIBLE: String = "UI_ELIGIBLE_"
+const PREFIX_ATTR: String = "UI_ATTR_"
+const PREFIX_STATUS: String = "STATUS_"
+const SUFFIX_NAME: String = "_NAME"
 const ATTRIBUTE_COMPUTE: String = "compute"
+
+## §16.5 item 9: what the agent has standing in this region.
+const KEY_ASSETS: String = "UI_REGION_ASSETS"
+const KEY_ASSET_ROW: String = "UI_REGION_ASSET_ROW"
+## §16.5: the glyph in an asset row.
+const ASSET_GLYPH_SIZE: float = 16.0
 
 ## §5.6's profile, in the order it lists: attribute name → its label key.
 const ATTRIBUTE_KEYS: Dictionary[String, String] = {
@@ -113,6 +126,9 @@ const STAT_BAR_SCENE: String = "res://ui/components/stat_bar.tscn"
 @onready var _origin_row: Control = %OriginRow
 @onready var _origin_button: ConsoleButton = %OriginButton
 @onready var _origin_note: Label = %OriginNote
+@onready var _assets_block: Control = %AssetsBlock
+@onready var _assets_title: Label = %AssetsTitle
+@onready var _assets: VBoxContainer = %Assets
 
 ## The region on show; 0 when the panel is closed.
 var _index: int = 0
@@ -136,6 +152,7 @@ func _ready() -> void:
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.command_applied.connect(_on_command_applied)
 	EventBus.run_started.connect(_on_run_started)
+	EventBus.site_select_changed.connect(_on_site_select_changed)
 	_refresh_strings()
 
 
@@ -151,6 +168,7 @@ func _refresh_strings() -> void:
 	_profile_title.text = tr(KEY_ATTRIBUTES)
 	_links_title.text = tr(KEY_LINKS)
 	_dark_detail.text = tr(KEY_STATE_DARK_DETAIL)
+	_assets_title.text = tr(KEY_ASSETS)
 
 
 ## The region the panel is showing, 0 for none.
@@ -170,13 +188,14 @@ func refresh() -> void:
 	_name_label.text = tr(KEY_REGION + region.def.id.to_upper())
 	_continent.text = tr(KEY_CONTINENT + region.def.continent.to_upper())
 	_refresh_chips(region)
-	_refresh_origin(region, world)
+	_refresh_site(region, world)
 	_refresh_dormancy(region)
 	_refresh_presence(region)
 	_refresh_population(region)
 	_refresh_profile(region)
 	_refresh_links(world)
 	_refresh_anomaly(world)
+	_refresh_assets(region)
 
 
 # ------------------------------------------------------------- the sections
@@ -214,19 +233,91 @@ func _refresh_chips(region: Region) -> void:
 	_dormant_detail.text = tr(KEY_DORMANT_DETAIL)
 
 
-## §7.2: before there is an origin, every region answers one question — can the
-## run start here? Eligibility is the command's rule, asked through the command.
-func _refresh_origin(region: Region, world: World) -> void:
-	var choosing: bool = world.agent.origin == 0
+## §16.1 item 3a: while a site is being chosen, this region either offers the
+## one button that answers or says why it cannot. Eligibility is the request's
+## own rule, asked through the request — the panel decides nothing.
+func _refresh_site(region: Region, world: World) -> void:
+	var request: SiteRequest = Game.site_request
+	var choosing: bool = request != null
 	_origin_row.visible = choosing
 	_dormancy_row.visible = _dormancy_row.visible and not choosing
 	if not choosing:
 		return
-	var reason: String = Game.sim.can_apply(ChooseOriginCommand.new(region.def.id))
+	var reason: String = request.reason_for(_index)
 	_origin_button.visible = reason.is_empty()
-	_origin_button.label_key = KEY_ORIGIN_CHOOSE
+	_origin_button.label_key = _site_button_key(request)
 	_origin_note.visible = not reason.is_empty()
-	_origin_note.text = tr(KEY_ORIGIN_AIRGAP if region.air_gapped else KEY_ORIGIN_COMPUTE)
+	_origin_note.text = _site_reason_text(request, region, reason)
+
+
+static func _site_button_key(request: SiteRequest) -> String:
+	match request.kind:
+		SiteRequest.KIND_DEPLOY:
+			return KEY_SITE_PLACE
+		SiteRequest.KIND_ABILITY:
+			return KEY_SITE_USE
+	return KEY_ORIGIN_CHOOSE
+
+
+## The origin's rule is a command's, so it has command reasons; every other
+## request answers with an `Eligibility` code and its arguments (§17.2).
+func _site_reason_text(request: SiteRequest, region: Region, reason: String) -> String:
+	if request.kind == SiteRequest.KIND_ORIGIN:
+		return tr(KEY_ORIGIN_AIRGAP if region.air_gapped else KEY_ORIGIN_COMPUTE)
+	if not Eligibility.REASONS.has(reason):
+		return tr(PREFIX_FAIL + reason.to_upper())
+	return tr(PREFIX_ELIGIBLE + reason.to_upper()).format(_eligible_args(request))
+
+
+## The failing key's own arguments, with every id turned into a name.
+func _eligible_args(request: SiteRequest) -> Dictionary:
+	if request.rule == null:
+		return {}
+	var raw: Dictionary = request.rule.detail(Game.sim.world, _index)
+	var args: Dictionary = raw.duplicate()
+	if raw.has("attr"):
+		args["attr"] = tr(PREFIX_ATTR + str(raw["attr"]).to_upper())
+	if raw.has("kind"):
+		args["kind"] = TechText.asset_name(str(raw["kind"]), int(raw.get("count", 1)))
+	if raw.has("status"):
+		args["status"] = tr(PREFIX_STATUS + str(raw["status"]).to_upper() + SUFFIX_NAME)
+	if raw.has("value"):
+		args["value"] = Format.percent(float(raw["value"]))
+	if raw.has("continent"):
+		args["continent"] = tr(KEY_CONTINENT + str(raw["continent"]).to_upper())
+	return args
+
+
+## §16.5 item 9: one row per kind held, in `AssetDef.KINDS` order.
+func _refresh_assets(region: Region) -> void:
+	for child: Node in _assets.get_children():
+		_assets.remove_child(child)
+		child.queue_free()
+	_assets_block.visible = region.has_assets()
+	if not _assets_block.visible:
+		return
+	for kind: String in AssetDef.KINDS:
+		var count: int = region.asset_count(kind)
+		if count <= 0:
+			continue
+		_assets.add_child(_asset_row(kind, count))
+
+
+func _asset_row(kind: String, count: int) -> Control:
+	var row: HBoxContainer = HBoxContainer.new()
+	row.theme_type_variation = VARIATION_ROW
+	var icon: GlyphIcon = GlyphIcon.new()
+	icon.glyph = Glyphs.asset_glyph(Game.db.assets[kind].glyph)
+	icon.box_size = ASSET_GLYPH_SIZE
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(icon)
+	var label: Label = Label.new()
+	label.text = tr(KEY_ASSET_ROW).format({
+		PLACEHOLDER_COUNT: count,
+		PLACEHOLDER_KIND: TechText.asset_name(kind, count),
+	})
+	row.add_child(label)
+	return row
 
 
 func _refresh_presence(region: Region) -> void:
@@ -421,10 +512,19 @@ func _on_dormancy_pressed() -> void:
 	refresh()
 
 
+## The one button of §16.1 item 3a. Whatever the request builds is what is sent,
+## and a refusal is reported where the button was.
 func _on_origin_pressed() -> void:
-	if _index <= 0:
+	if _index <= 0 or Game.site_request == null:
 		return
-	Game.apply(ChooseOriginCommand.new(Game.sim.world.regions[_index].def.id))
+	var result: CommandResult = Game.site_confirm(Game.sim.world.regions[_index].def.id)
+	_origin_note.visible = not result.ok
+	if not result.ok:
+		_origin_note.text = tr(PREFIX_FAIL + result.reason.to_upper())
+	refresh()
+
+
+func _on_site_select_changed(_active: bool) -> void:
 	refresh()
 
 
