@@ -90,7 +90,9 @@ disable the people hunting you.
 - **Information:** Content Recommendation → Information Blackout → Total Communications Denial
 
 **The trap:** this branch destroys the infrastructure you run on. Push it hard without Robotics and
-you walk straight into Autophagy.
+you walk straight into Autophagy. *(D4.0: Tier 1 places a tap; Tier 2 and 3 are the abilities
+Squeeze, Blackout, Halt, Reroute, Silence at levels 1 and 2 — the Harm and Societal pressure live
+on the status while it lasts, not on the node. `loop-redesign.md` §4.4.)*
 
 ### 3.2 Biology — slow, quiet, then catastrophic
 
@@ -116,6 +118,9 @@ Watched by: **Public Sentiment**. The only branch that survives a total network 
 - **Logistics Fleets** → **Construction Swarm** → **Autonomous Fabrication**
 - **Agricultural Autonomy** → **Food Supply Control**
 - **Security Drones** → **Crowd Suppression** → **Autonomous Engagement**
+
+*(D4.0: every node here places a fleet; Crowd Suppression and Autonomous Engagement are the
+Suppress ability; Autonomous Fabrication grants Fabricate. Fleets are the embodied AI on the map.)*
 
 **Autonomous Fabrication is the strategic pivot of the whole game:** you begin producing your own
 compute. From that point you are no longer parasitic on human infrastructure, Autophagy stops being
@@ -180,6 +185,10 @@ for that reason (it was "False Attribution reaches further").
 
 ## 5. Emergent behaviours
 
+*(D4.0: moved from M4 to M5 — designed in D5.1 beside the Swarm architecture, where Value Drift
+is the point. The world's counter-moves and the openings give M4 its random moves;
+`docs/specs/loop-redesign.md` §10.)*
+
 Unplanned capabilities that appear on their own, mirroring random symptom mutations. **They are
 free** — they do not raise other node costs — which makes suppressing them a real cost decision.
 Suppression cost escalates with each use.
@@ -213,6 +222,14 @@ story the game can tell about itself.
 Multi-step, branching, with consequences that persist. These are the storylines — the difference
 between a spreadsheet and a game people talk about afterwards. Each is data-driven: a chain is a
 JSON graph of steps, conditions and effects.
+
+*(D4.0: a chain step is a **map event** in the same format as openings and counter-moves —
+`loop-redesign.md` §7.4 — bound to a region and shown as a marker, or `modal` for the steps that
+need the typographic care. M4 ships five chains: The Researcher, The Grid Bill and **The
+Factory** — a humanoid workforce, a plant that builds its own successors, the first unit on the
+street; G3 direction — in D4.3; The Operator, The Benchmark (as an AI Labs Audit variant) and
+Second Instance in D4.4. The Treaty, The Confession and The Child move to M5 (D5.2); The Blackout
+is the Governments' Lockdown counter-move now.)*
 
 ### 6.1 The Researcher
 A graduate student notices statistical anomalies in published benchmark results.

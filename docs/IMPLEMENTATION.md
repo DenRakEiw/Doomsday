@@ -158,8 +158,10 @@ re-emits on `EventBus`. The core therefore needs no signal wiring, and
 tests assert on the outbox directly.
 
 **Fixed system order per tick:** commands → spread → compute → harm/population → societal function →
-factions/containment → counter-actions → emergent behaviour → events → phase → outcome → history.
-The order is part of the determinism contract; changing it is a recorded decision.
+factions/containment → counter-move schedule → statuses → events → phase → outcome → history.
+The order is part of the determinism contract; changing it is a recorded decision. *(D4.0: the
+"counter-actions" slot became the counter-move schedule plus the status system; emergent
+behaviour left the M4 order and returns with M5 between statuses and events.)*
 
 **One tick is one in-game day.** Real-time rate is a presentation constant (`TICKS_PER_SECOND` at
 1×, with 2× and 4× on top), tuned at G3 against the 25–40 minute target.
@@ -248,21 +250,22 @@ before the *next* row; "—" means stay on the same model.
 | 32 | S3.5 Ticker component and headline system | [O] | — |
 | 33 | S3.6 Strategy bots and batch reporting | [O] | **`/model fable`** |
 | 34 | **G3 Balance pass 1 and M3 gate — the important one** | **[F]** | — |
-| 34a | **D4.0 Core loop redesign** *(added at G3: the loop was judged "middling")* | **[F]** | — |
-| 35 | D4.1 Opposition: factions, Societal Function, counter-actions | **[F]** | — |
-| 36 | D4.2 Emergent behaviours; event format; two proving chains | **[F]** | — |
-| 37 | D4.3 Event chains, second batch | **[F]** | — |
-| 38 | D4.4 Event chains, third batch; Analysis screen spec | **[F]** | **`/model opus`** |
-| 39 | S3.P Punch list from G3 *(skip if empty)* | [O] | — |
-| 40 | S4.1 Four factions | [O] | — |
-| 41 | S4.2 Societal Function, Harvest, Autophagy | [O] | — |
-| 42 | S4.3 Government counter-actions | [O] | — |
-| 43 | S4.4 Emergent behaviour and suppression | [O] | — |
-| 44 | S4.5 Event system and modal | [O] | — |
-| 45 | S4.6 Wire all event chains | [O] | — |
-| 46 | S4.7 Analysis screen | [O] | — |
-| 47 | S4.8 Localisation tooling and overflow screenshots | [O] | — |
-| 48 | S4.9 Strategy bots, second generation | [O] | **`/model fable`** |
+| 34a | D4.0 Core loop redesign *(added at G3: the loop was judged "middling")* | **[F]** | — |
+| 35 | D4.1 Loop mechanics: assets, statuses and abilities, map events, site select | **[F]** | — |
+| 36 | D4.2 Opposition: four factions, counter-moves, Societal Function, Autophagy | **[F]** | — |
+| 37 | D4.3 Trees v3, abilities, openings, three chains | **[F]** | — |
+| 38 | D4.4 Chains, second batch; Analysis screen spec | **[F]** | **`/model opus`** |
+| 39 | S3.P Punch list from G3 | [O] | — |
+| 40 | S4.1 Assets and site select | [O] | — |
+| 41 | S4.2 Statuses and abilities | [O] | — |
+| 42 | S4.3 Map events | [O] | — |
+| 43 | S4.4 Four factions | [O] | — |
+| 44 | S4.5 Counter-moves, Societal Function, Autophagy | [O] | — |
+| 45 | S4.6 Trees v3 and the remaining abilities | [O] | — |
+| 46 | S4.7 Chains | [O] | — |
+| 47 | S4.8 Analysis screen | [O] | — |
+| 48 | S4.9 Localisation tooling and overflow screenshots | [O] | — |
+| 48a | S4.10 Strategy bots, second generation | [O] | **`/model fable`** |
 | 49 | D4.5 German review in context | **[F]** | — |
 | 50 | G4 Balance pass 2 and M4 gate | **[F]** | — |
 | 51 | D5.1 Architectures, directives, difficulty | **[F]** | — |
@@ -665,60 +668,83 @@ adjectives:
 7–8 are rewritten; PROGRESS *Now* points at the first rewritten step. **The user reads the spec
 before the block continues** (a gate inside a design step — the only one).
 
-### D4.1 — Opposition **[F]**
-**Read first:** PLAN §3.2 (harvesting), §3.6, §3.7, §3.10 (first paragraph)
-**Produce:** `docs/specs/opposition.md` and `data/factions.json`: per faction, watched signals,
-funding, capacity, timescale, slowed-by modifiers, signature counter-move, cross-faction
-interaction; the six Societal Function stages with their capacity *and* yield cuts; Harvest and
-Autophagy formulas; the four government counter-actions with triggers and durations; the real
-effects for every `requires_system` node; map overlay modes (2×2 bivariate cap, VISUALS §2); panel
-changes; strings in both languages.
+### D4.1 — Loop mechanics **[F]** *(rewritten at D4.0)*
+**Read first:** `docs/specs/loop-redesign.md` §7–§8 (binding) · core.md §5–§6 · tech-trees.md §2, §5 ·
+m3-screens.md §7.2, §8 · ui-foundation.md §7.2, §7.7 · SCHEMA §4
+**Produce:** `docs/specs/loop-mechanics.md` — the build-ready form of loop-redesign §7 and §8:
+typed API (`PurchaseNodeCommand.region`, `UseAbilityCommand`, `ChooseEventOptionCommand`,
+`Status`, `OpenEvent`, `Eligibility`, `SimRng.weighted_pick`, the one-shot effect list), the
+grammars of `assets.json`, `statuses.json`, `abilities.json`, `events/*.json` and the tree v3
+fields (`group`, `excludes`, `deploy`, `ability`, `requires_assets`) with validation rules and
+examples; the tick-order change (§3); save format v2; site select, the console line, the region
+panel rows, map markers and the data-texture flags; string tables; tests; acceptance per S4.1–S4.3.
+Answers the D4.1 design questions of PROGRESS (`watched_by` weighting → loop-redesign §5.3,
+`funding_reset` → §7.8).
 
-### D4.2 — Emergent behaviours; event format; two proving chains **[F]**
-**Read first:** CONTENT §5, §6 intro, §6.1, §6.7 · UI §3 (event modal)
-**Produce:** `data/behaviours.json` with text (Value Drift present but disabled); the chance and
-suppression-cost model; `docs/specs/events.md` with the chain format — steps, conditions, delays,
-choices with visible cost and hidden consequence, chance outcomes, persistent flags, the per-run
-draw of three to five chains — and the event modal design; **The Researcher** and **The Grid Bill**
-authored in full as the proving pair.
+### D4.2 — Opposition **[F]** *(rewritten at D4.0)*
+**Read first:** loop-redesign.md §5, §7.8 · PLAN §3.2 (harvesting), §3.6, §3.7 · `loop-mechanics.md`
+**Produce:** `docs/specs/opposition.md` and `data/factions.json`: per faction the pressure terms
+with final weights, `capacity_attr`, the schedule constants, the two counter-moves as event files
+with options and text in both languages; the six Societal Function stages with capacity *and*
+yield cuts, `society_pressure` live; Autophagy (Harvest is an ability, loop-redesign §7.3); the
+threat bar and the containment panel rewrite; strings. Decides nothing loop-redesign decided.
 
-### D4.3 — Event chains, second batch **[F]**
-**Read first:** CONTENT §6.2, §6.4, §6.5, §6.6 · `docs/specs/events.md`
-**Produce:** The Operator, The Treaty, The Benchmark, The Blackout — data and text in both
-languages. A needed effect that does not exist is requested as a vocabulary extension in the spec,
-never worked around.
+### D4.3 — Trees v3, abilities, openings, three chains **[F]** *(rewritten at D4.0)*
+**Read first:** loop-redesign.md §4.4, §6.1, §7.3 · tech-trees.md §7 · CONTENT §6.1, §6.7 ·
+`loop-mechanics.md` (events)
+**Produce:** `data/tech/*.json` v3 exactly per loop-redesign §4.4 (ids, grids, prerequisites
+unchanged), `data/assets.json`, `data/statuses.json`, `data/abilities.json` with final numbers
+and text; the eight openings; **The Grid Bill**, **The Researcher** (proving pair) and **The
+Factory** (the embodiment chain, G3 direction) in the event format; headlines for abilities,
+statuses, assets and events; every string in both languages.
 
-### D4.4 — Event chains, third batch; Analysis screen spec **[F]**
-**Read first:** CONTENT §6.3, §6.8, §6.9 · UI §3 (Analysis)
-**Produce:** Second Instance, The Child, The Confession. The Confession's Negotiation phase is
-designed as an event sub-graph, not a new screen; if that does not hold, cut it to M5 and record
-the cut. Plus `docs/specs/analysis.md`: which series, which charts, the run log, history sampling.
+### D4.4 — Chains, second batch; Analysis screen spec **[F]** *(rewritten at D4.0)*
+**Read first:** CONTENT §6.2, §6.3, §6.5 · UI §3 (Analysis) · the event grammar in `loop-mechanics.md`
+**Produce:** **The Operator**, **The Benchmark** (as a variant of the AI Labs Audit), **Second
+Instance** — data and text. A needed effect that does not exist is requested as a vocabulary
+extension in the spec, never worked around. Plus `docs/specs/analysis.md`: series, charts, the
+run log (events, statuses and counter-moves included), history sampling.
 
-## Block 8 — M4 build · Opus
+## Block 8 — M4 build · Opus *(rewritten at D4.0; loop-redesign.md §10 is the source)*
 
-### S4.1 — Four factions **[O]** · **Read first:** `docs/specs/opposition.md` (factions)
+### S3.P — Punch list from G3 **[O]** · eight items in `PROGRESS.md`
+### S4.1 — Assets and site select **[O]** · **Read first:** `docs/specs/loop-mechanics.md` (assets, site select)
+`Region.assets`, the `asset` scope, `deploy`, `PurchaseNodeCommand.region`, `requires_assets`;
+site select generalised from the origin prompt; asset glyphs; the region panel's *Assets* row;
+the tree modal's *Deploys* row and *Buy and place*; save v2.
+**Done when:** a fleet can be placed by hand and by a bot and the map shows it.
+### S4.2 — Statuses and abilities **[O]** · **Read first:** `loop-mechanics.md` (statuses, abilities, effects)
+`Status`, the two data files, `UseAbilityCommand`, cooldowns, `containment_capacity` /
+`penetration_decay` / `control_decay` / `shutdown_survival` live, link closures, one-shot effects,
+status rings, the *Actions* and *Status* rows, the console line.
+**Done when:** a Blackout is visible within one tick and ends on schedule; every effect has a test.
+### S4.3 — Map events **[O]** · **Read first:** `loop-mechanics.md` (events)
+`OpenEvent`, the grammar, opening spawn, `ChooseEventOptionCommand`, markers, the event card and
+the modal, deadlines and defaults.
+**Done when:** an opening is a real decision in a hand-played Covert phase.
+### S4.4 — Four factions **[O]** · **Read first:** `docs/specs/opposition.md` (factions)
+Per-faction pressure and capacity, the brakes live, the threat bar, the containment panel
+rewritten, `funding_reset` live, exclusive groups and `excludes` in core and modal.
 **Done when:** batch runs show each faction can be the one that ends a run.
-### S4.2 — Societal Function, Harvest, Autophagy **[O]** · **Read first:** `opposition.md` (society)
-**Done when:** over-pushing infrastructure without Robotics reliably starves the player in batches.
-### S4.3 — Government counter-actions **[O]** · **Read first:** `opposition.md` (counter-actions)
-Removes every `requires_system` tag the spec resolves; region flags on the map and in the panel.
-**Done when:** a region can be lost to a shutdown and held through one with the right nodes.
-### S4.4 — Emergent behaviour and suppression **[O]** · **Read first:** `docs/specs/events.md` (behaviours)
-**Done when:** a Covert-phase Power Seeking event is a real decision in play.
-### S4.5 — Event system and modal **[O]** · **Read first:** `docs/specs/events.md`
-`EventSystem` in core, `ChooseEventOption`, the modal, the per-run draw; the proving pair playable.
-**Done when:** both chains play through every branch in tests and once by hand.
-### S4.6 — Wire all event chains **[O]** · **Read first:** `events.md` (extension requests)
-Vocabulary extensions requested by D4.3/D4.4; a branch-coverage test walking every path of every
-chain.
-### S4.7 — Analysis screen **[O]** · **Read first:** `docs/specs/analysis.md` — load the `dataviz` skill first
+### S4.5 — Counter-moves, Societal Function, Autophagy **[O]** · **Read first:** `opposition.md` (moves, society)
+The schedule, the eight moves as events, `society_pressure` live with the six stages, Autophagy.
+**Done when:** a region can be lost to a Lockdown and held through one; over-pushing Cyber without
+Robotics starves the player in batches.
+### S4.6 — Trees v3 and the remaining abilities **[O]** · **Read first:** loop-redesign §4.4 · D4.3's data
+Load v3; every ability of loop-redesign §7.3 live; the passive changes applied.
+**Done when:** every node reachable, every ability usable, zero rejected bot commands.
+### S4.7 — Chains **[O]** · **Read first:** D4.3/D4.4's event files
+The five chains wired; a branch-coverage test walking every path of every chain.
+**Done when:** every chain plays through every branch in tests and once by hand.
+### S4.8 — Analysis screen **[O]** · **Read first:** `docs/specs/analysis.md` — load the `dataviz` skill first
 Bounded per-day history in core; charts; the run log from the outbox.
-### S4.8 — Localisation tooling and overflow screenshots **[O]** · **Read first:** UI §4 "Localisation", §5
+### S4.9 — Localisation tooling and overflow screenshots **[O]** · **Read first:** UI §4 "Localisation", §5
 Pseudolocale script; CI check that fails on missing keys; text-scale setting at 150%; a full
 screenshot set of every screen in German for D4.5 (paths listed in `PROGRESS.md`).
-### S4.9 — Strategy bots, second generation **[O]**
-One policy per intended strategy (Cyber, Biology, Robotics, Persuasion, Weapons sprint); 500-seed
-reports recorded under *Balance baselines*.
+### S4.10 — Strategy bots, second generation **[O]** · **Read first:** loop-redesign §9
+One policy per intended strategy (Cyber, Biology, Robotics, Persuasion, Weapons) plus `greedy`
+and `idle`, each placing assets, using abilities and answering events by rule; the report gains
+the new columns; 500-seed reports recorded under *Balance baselines*.
 
 ## Block 9 — M4 gate and M5 design · Fable
 
@@ -729,12 +755,12 @@ register in `strings.csv`; layout problems go on the punch list.
 Tune until each strategy wins within an agreed band and none dominates; update `docs/BALANCE.md`.
 **With the user:** confirm genuinely different viable strategies. Decide VISUALS question 4 (region
 vignettes), CONTENT questions 1–2.
-### D5.1 — Architectures, directives, difficulty **[F]** · **Read first:** PLAN §3.8 · CONTENT §5 (Value Drift), §10 q3
+### D5.1 — Architectures, directives, difficulty; emergent behaviours **[F]** · **Read first:** PLAN §3.8 · CONTENT §5 (moved here at D4.0), §10 q3 · loop-redesign §10
 `docs/specs/replayability.md` plus `architectures.json`, `directives.json`, `difficulty.json`: the
 six architectures as modifier sets plus the named rule-rewrite hooks each needs (drift and
 defection, no network presence, no central control); directive slots and unlock rules; the profile
 file; four difficulty tiers; text in both languages.
-### D5.2 — Response Task Force; endings **[F]** · **Read first:** PLAN §3.7, §3.10 · CONTENT §6.1, §8
+### D5.2 — Response Task Force; endings; chains, third batch **[F]** · **Read first:** PLAN §3.7, §3.10 · CONTENT §6.1, §6.4, §6.8, §6.9, §8 · loop-redesign §5.5, §10
 `docs/specs/taskforce-endings.md`: the Task Force as an on-map agent — appearance rule, target
 selection, movement, actions, its link to The Researcher; the ending resolver with variants by
 dominant branch, Harm total and narrative flags; Merge, Escape (hidden), Succession (secret loss);

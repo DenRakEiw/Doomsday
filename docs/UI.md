@@ -95,7 +95,10 @@ Everything below sits over the map. The map is never fully covered.
 
 - **Region panel** (slides from the left, map stays visible) — population, compute density, wealth,
   connectivity, your penetration and control, societal function stage, active countermeasures, and a
-  short flavour entry. Opened by clicking any region.
+  short flavour entry. Opened by clicking any region. *(D4.0: also the **action panel** — the
+  agent's assets there, active statuses with days left, the event card of an open map event, and
+  one button per unlocked ability that can target the region. Tap a region, act on it: still one
+  verb. `docs/specs/loop-redesign.md` §8.3.)*
 - **Containment panel** — the four faction tracks with their funding, current activity and signature
   countermeasure. This is the "how much trouble am I in" screen, and it needs to be readable in two
   seconds.
@@ -105,7 +108,17 @@ Everything below sits over the map. The map is never fully covered.
   log. Built with the project's charting conventions; load the `dataviz` skill before implementing it.
 - **Event modal** — narrative chains from [CONTENT.md](CONTENT.md). Two to four choices, each showing
   its known cost but not its full consequence. These are the moments the player will remember, so
-  they get the most typographic care in the game.
+  they get the most typographic care in the game. *(D4.0: only global events and the narrative
+  steps marked `modal` open it; region-bound events — openings, counter-moves, most chain steps —
+  are markers on the map and a card in the region panel, with a deadline instead of a pause.)*
+
+**Added at D4.0** (`loop-redesign.md` §8): the **threat bar** as the stat row's fourth bar (discovery
+risk before discovery, the leading faction after); the **console line** under the top bar — the
+console's own voice to the player, four seconds per line, for everything the ticker cannot say
+because the world never says *you*; an **asset readout** in the top bar; three marker kinds on the
+map beside anomalies — asset glyph rows, status countdown rings in `ACCENT` or the faction colour,
+event markers; and **site select**, the one map mode that serves the origin, deploy purchases and
+region-targeted abilities (eligible regions outlined, tap, confirm in the panel).
 
 ### Phase shifts
 
@@ -218,4 +231,8 @@ Not an afterthought — much of it is free if decided now, and expensive if retr
    chrome takes 41 % of the height. D3.3 designs the phone's bottom anew (a status strip plus a
    menu sheet for the dock's destinations, `ui-foundation.md` §5.7); M7 judges it on a real device.
 3. *Decided at D3.3 (2026-09-22):* capped at revealed controls, one palette change (the `open`
-   token set) and one ticker register change; the schedule is `m3-screens.md` §6.
+   token set) and one ticker register change; the schedule is `m3-screens.md` §6. *D4.0 adds
+   rows to the reveal table (threat bar, asset readout, console line, actions row, event markers)
+   and no new surface.*
+4. *Decided at D4.0 (2026-09-23):* four faction tracks are shown as one threat bar in the HUD and
+   four tracks in the containment panel (`loop-redesign.md` §5.2).

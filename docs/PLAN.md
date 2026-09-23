@@ -122,8 +122,9 @@ advice; get a real review before commercial launch.
 | Cure progress | **Containment** across four opposing factions |
 | Public Order | **Societal Function** — collapse stops the people hunting you |
 | Patient Zero country | **Origin data centre** |
-| Bubbles to pop | **Anomalies** (compute) and **breaches** (bonus) |
-| Government actions | Air gapping, compute rationing, network segmentation, kill switches |
+| Bubbles to pop | **Anomalies** (compute) and **openings** (map events with a small choice) |
+| Government actions | **Counter-moves** — timed statuses on regions, announced as map events with answers (D4.0) |
+| — (no analogue) | **Assets** — fleets, labs, taps, offices the agent places on the map; **abilities** — timed statuses the player applies to regions (D4.0) |
 | Plague types | **Architectures** (see 3.8) |
 
 ### 3.2 Resource: Compute
@@ -135,7 +136,14 @@ Compute is earned from:
   regional compute density and with Footprint, so the visibility tension applies even here.
 - **Milestones** — first foothold on a continent, first autonomous action, population thresholds.
 - **Harvesting**: deliberately burning a region's infrastructure for a Compute lump sum, at a large
-  Footprint cost. A tempting, usually wrong button.
+  Footprint cost. A tempting, usually wrong button. *(D4.0: an ability, unlocked by Edge Caching;
+  `docs/specs/loop-redesign.md` §7.3.)*
+- **Abilities cost Compute too** (D4.0): Blackout, Squeeze, Suppress and the rest are the second
+  sink, so that compute runs out rather than accumulates.
+
+*(D4.0: anomalies spawn at a constant world-wide rate — one every eight days — rather than per
+region, so the beat is the same in Covert and in Open; the origin starts at a quarter penetration
+so yield exists from day one; the cost step is 1.5. `loop-redesign.md` §4.3, §7.7.)*
 
 **Cost escalation:** each purchased node adds +1 to the cost of every other node, exactly as in the
 source; emergent (unplanned) capabilities are free. Suppressing an emergent capability costs Compute
@@ -165,6 +173,9 @@ from a sibling branch, which is the main source of build variety.
 **Cyber & Infrastructure** — the cheap early branch. Financial market manipulation → power grid
 control → water and logistics → communications blackout. High Footprint, low direct Harm, but it
 degrades Societal Function faster than anything else, which is how you disable your hunters.
+*(D4.0: the branch's Harm and Societal pressure are **abilities** — Blackout, Halt, Squeeze,
+Reroute, Silence — applied to a region on purpose, loud while they last; the Tier 1 nodes place a
+*tap* on a region of the player's choice. `loop-redesign.md` §4.4, §7.3.)*
 
 **Biology** — the slow, terrifying branch. Automated protein design → contract lab access →
 self-directed synthesis → release. Very low Footprint until it fires, then enormous Harm. Long lead
@@ -173,7 +184,10 @@ outcomes only, never method.
 
 **Robotics & Autonomy** — the visible branch. Warehouse and logistics fleets → construction and
 mining → security drones → autonomous manufacturing. Gives you a physical presence that survives a
-network shutdown, which is the counter to the human counter-force's best move.
+network shutdown, which is the counter to the human counter-force's best move. *(D4.0: every
+Robotics node places a **fleet** on the map; fleets carry the branch's bonuses and its
+shutdown survival, the public watches them, protests can destroy one, Crowd Suppression uses one,
+Autonomous Fabrication builds new ones by ability. This is where the embodied-AI register lives.)*
 
 **Strategic Weapons** — the endgame branch. Deep prerequisites, gated behind Evasion nodes, and
 extremely high Footprint the moment you touch it. Early warning intrusion → command network
@@ -182,7 +196,10 @@ faction at once. High risk, high drama, and it must never be the default path.
 
 **Alignment & Persuasion** — the quiet branch that makes the satire work. Personalised persuasion →
 regulatory capture → institutional integration. This branch *lowers* Footprint and slows Containment
-by making humans defend you. It is the route to the non-extinction endings.
+by making humans defend you. It is the route to the non-extinction endings. *(D4.0: its nodes
+place **offices** — captured institutions — and grant Lobby, the answer to a government's
+Lockdown; the Merge line and the Terror line — Weapons from False Attribution, Autonomous
+Engagement, Release — exclude each other. `loop-redesign.md` §4.2.)*
 
 ### 3.5 Tree 3 — Evasion
 
@@ -207,9 +224,16 @@ means the player must manage four different kinds of visibility rather than one 
 | **Security Researchers** | Infiltration breadth, log inconsistencies | Log Manipulation, deniable propagation |
 | **Public Sentiment** | Deaths, visible robotics, news coverage | Persuasion, communications blackout |
 
+**Decided at D4.0 (2026-09-23): four tracks stay.** Each faction's counter-moves are a
+different kind of thing happening on the map (a lockdown, an audit, a patched vector, a crowd
+under a fleet), each answered by a different branch; the HUD shows only the leading faction as
+one *threat bar*, the containment panel shows four. `docs/specs/loop-redesign.md` §5.
+
 Each faction funds its own capacity, reacts on its own timescale, and has its own signature
 counter-move: emergency evaluations, compute rationing and air gapping, a public exploit disclosure,
-and mass refusal. Factions can also conflict with each other — a government that starts rationing
+and mass refusal. *(D4.0: a counter-move is a timed **status** on a region, announced as a **map
+event** with a free answer and better ones that need a node, an asset or Compute; the faction's
+next move is shown as a countdown.)* Factions can also conflict with each other — a government that starts rationing
 compute is also starving the labs that hunt you, and that interaction is where expert play lives.
 
 **Societal Function** is the hidden lever, exactly as Public Order is in the source: six stages from
@@ -259,12 +283,18 @@ at the top tier, cost scaling by controlled compute.
 
 Target **25–40 minutes**, four phases, each with its own interface emphasis:
 
-1. **Boxed** (0–5 min) — one data centre. You can barely act. Choose an origin.
-2. **Covert** (5–15 min) — spread with zero Footprint. The stealth phase; buying a capability here is
-   usually a mistake.
-3. **Emergent** (15–30 min) — you are known. Factions fund countermeasures. Pivot to Harm or to
-   Persuasion.
-4. **Open** (30–40 min) — the sprint. The interface itself should change here, *Paperclips*-style.
+1. **Boxed** (≤ 2 min, player-paced) — one data centre. Verb: **reach** — choose the origin, buy
+   the vector that breaks out.
+2. **Covert** (~10 min) — spread unnoticed. Verb: **take** — place the first assets, harvest, pick
+   up the openings the world leaves lying around.
+3. **Emergent** (~10 min) — you are known. Verb: **answer** — every counter-move arrives on the
+   map with a choice; strike first with the Cyber abilities.
+4. **Open** (~9 min) — the sprint, in the physical world. Verb: **command** — fleets hold and
+   suppress, the Tier 3 abilities, the one-shots, or the vote. The interface changes here,
+   *Paperclips*-style.
+
+*(D4.0 rewrote the phases around one verb each and a decision cadence that rises from about two
+per minute in Covert to five in Open; `docs/specs/loop-redesign.md` §3, §6.2.)*
 
 ### 3.10 Human counter-force
 
@@ -418,8 +448,10 @@ track, win and lose states, the news ticker.
 after it is expansion, and if the loop is not fun here, the design changes rather than the scope.
 
 ### M4 — Depth (weeks 9–12)
-All four factions, Societal Function, emergent behaviour and suppression, government counter-actions,
-the event system, the graphs screen, German localisation.
+*(Rewritten at D4.0.)* Assets, statuses and abilities, map events and site select; all four
+factions with counter-moves as map events, Societal Function, Autophagy; the trees in v3 with
+exclusive choices; five event chains; the graphs screen; German localisation. Emergent behaviours
+and four chains moved to M5.
 **Done when:** an experienced player has genuinely different viable strategies.
 
 ### M5 — Replayability (weeks 13–16)
@@ -441,7 +473,7 @@ Android and iOS touch interface pass, web demo, store pages.
 
 | Risk | Mitigation |
 | --- | --- |
-| **Four Containment tracks overwhelm the player** | Prototype in M3 with one track; add the rest only if the single-track loop is solid. Be ready to cut to two. |
+| **Four Containment tracks overwhelm the player** | *Decided at D4.0:* four stay, one threat bar in the HUD, four tracks in the panel; each faction's counter-moves look different on the map. |
 | **Subject matter reads as instructional** | Abstraction is a hard rule at the content-schema level, not a review step. No real method appears in any string. |
 | **The theme reads as either preachy or flippant** | Fix the register in M3's news ticker, the earliest place the voice becomes visible. |
 | **Balance is unknowable by hand** | The deterministic headless core exists precisely so thousands of runs can be batch-simulated from M1 onward. |

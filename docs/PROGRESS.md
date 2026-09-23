@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D4.0 — Core loop redesign** (added at G3; IMPLEMENTATION Block 7, read its *Why* first) |
+| **Next step** | **The user reads `docs/specs/loop-redesign.md`** (the gate inside D4.0; its §12 lists what to judge). Then **D4.1 — Loop mechanics** (IMPLEMENTATION Block 7, rewritten) |
 | **Model for it** | **Fable** (no switch) |
-| **After it** | `/clear` → whatever D4.0's rewritten run sheet names first (D4.1 as it stands, unless the redesign changes it). The punch list for S3.P (eight items) waits at the head of Block 8 |
-| **Last completed** | G3 — balance pass 1 and the M3 gate: **the loop is "middling", a redesign step (D4.0) goes before D4.1** (2026-09-23) |
-| **Milestone** | M2 gated; **M3 gated: change** — the scope stays, the loop design is revisited in D4.0 |
+| **After it** | `/clear` → D4.2 Opposition → D4.3 Trees v3, abilities, openings, three chains → D4.4 Chains and Analysis → `/model opus` → S3.P (eight items) → S4.1 … S4.10 |
+| **Last completed** | D4.0 — Core loop redesign: `docs/specs/loop-redesign.md`; PLAN §3, CONTENT, UI and IMPLEMENTATION Blocks 7–8 carry the changes (2026-09-23) |
+| **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
@@ -90,23 +90,24 @@ which file was being edited, and anything learned that the files do not show)*
 
 **Block 7 — M3 gate, M4 design · Fable**
 - [x] G3 [F] Balance pass 1 and M3 gate — the important one *(verdict: change; D4.0 added)*
-- [ ] **D4.0 [F] Core loop redesign** *(added at G3)*
-- [ ] D4.1 [F] Opposition: factions, Societal Function, counter-actions
-- [ ] D4.2 [F] Emergent behaviours; event format; two proving chains
-- [ ] D4.3 [F] Event chains, second batch
-- [ ] D4.4 [F] Event chains, third batch; Analysis screen spec — ⇄ **then `/model opus`**
+- [x] D4.0 [F] Core loop redesign *(added at G3; `docs/specs/loop-redesign.md`; Blocks 7–8 rewritten)*
+- [ ] **D4.1 [F] Loop mechanics: assets, statuses and abilities, map events, site select**
+- [ ] D4.2 [F] Opposition: four factions, counter-moves, Societal Function, Autophagy
+- [ ] D4.3 [F] Trees v3, abilities, openings, three chains
+- [ ] D4.4 [F] Chains, second batch; Analysis screen spec — ⇄ **then `/model opus`**
 
-**Block 8 — M4 build · Opus**
-- [ ] S3.P [O] Punch list from G3 *(skip if empty)*
-- [ ] S4.1 [O] Four factions
-- [ ] S4.2 [O] Societal Function, Harvest, Autophagy
-- [ ] S4.3 [O] Government counter-actions
-- [ ] S4.4 [O] Emergent behaviour and suppression
-- [ ] S4.5 [O] Event system and modal
-- [ ] S4.6 [O] Wire all event chains
-- [ ] S4.7 [O] Analysis screen
-- [ ] S4.8 [O] Localisation tooling and overflow screenshots
-- [ ] S4.9 [O] Strategy bots, second generation — ⇄ **then `/model fable`**
+**Block 8 — M4 build · Opus** *(rewritten at D4.0)*
+- [ ] S3.P [O] Punch list from G3 (eight items)
+- [ ] S4.1 [O] Assets and site select
+- [ ] S4.2 [O] Statuses and abilities
+- [ ] S4.3 [O] Map events
+- [ ] S4.4 [O] Four factions
+- [ ] S4.5 [O] Counter-moves, Societal Function, Autophagy
+- [ ] S4.6 [O] Trees v3 and the remaining abilities
+- [ ] S4.7 [O] Chains
+- [ ] S4.8 [O] Analysis screen
+- [ ] S4.9 [O] Localisation tooling and overflow screenshots
+- [ ] S4.10 [O] Strategy bots, second generation — ⇄ **then `/model fable`**
 
 **Block 9 — M4 gate, M5 design · Fable**
 - [ ] D4.5 [F] German review in context
@@ -561,6 +562,44 @@ without new information.
   in D4.2; D5.2 gives the Robotics win its own Ascendance text (machines in the open, not servers in
   the dark). The content rule holds: outcome, never method. (User direction, recorded at G3.)
 
+- **2026-09-23** (D4.0) — **The loop gets three mechanisms — assets, statuses with abilities and
+  counter-moves, map events — and every M4 system is expressed through them** rather than beside
+  them. Binding spec: `docs/specs/loop-redesign.md`; the reasons are its §0 (one `greedy` run:
+  Boxed lasted one tick, the first ten minutes earned 49 compute, 43 nodes bought in price order,
+  nothing of the agent on the map, nothing the world did that could be seen or answered).
+- **2026-09-23** (D4.0) — **PLAN §6: four containment tracks stay**, shown as one threat bar (the
+  leading faction) in the HUD and four tracks in the panel; each faction's two counter-moves look
+  different on the map and are answered by a different branch (loop-redesign §5).
+- **2026-09-23** (D4.0) — **A counter-move is a timed status announced as a map event** with a
+  free answer and better ones needing a node, an asset or Compute; the faction's next move is a
+  visible countdown (`prepare_days` 60 × (1 − containment)). The Task Force (M5) is a fifth mover
+  on the same machinery.
+- **2026-09-23** (D4.0) — **Cyber's Tier 2/3 permanent Harm and Societal pressure become ability
+  statuses** (Blackout, Halt, Squeeze, Reroute, Silence at two levels): harm is something the
+  player does to a region, loud while it lasts. The Finance one-shot grants become Squeeze.
+- **2026-09-23** (D4.0) — **Tree v3 fields, ids and grids unchanged:** `group` with a cap (Tier 1
+  vectors, cap 2), `excludes` (the Merge door — Indispensability, Constitutional Integration,
+  Succession — against the Terror door — Autonomous Engagement, False Attribution, Launch
+  Authority, Dead Hand, Release), `deploy` (fleets, labs, taps, offices placed by site select),
+  `ability` (levels from nodes), `requires_assets` (Release needs two labs). Full table:
+  loop-redesign §4.4.
+- **2026-09-23** (D4.0) — **Economy:** origin penetration 0.05 → 0.25, start compute 5 → 8, cost
+  step 1.0 → 1.5, anomalies spawn at a world-wide constant rate (0.12 per day, cap 3, value 3)
+  weighted by hardware × penetration. Abilities cost 4–12 with cooldowns 30–120 days. Target:
+  22–26 purchases a run, the cadence table in loop-redesign §6.2; G4 tunes.
+- **2026-09-23** (D4.0) — **The console line** (one caption under the top bar, four seconds, the
+  console's voice) is the channel for what the player did or suffered; the ticker stays the
+  world's voice and never says *you*.
+- **2026-09-23** (D4.0) — **Tick order:** the `counter-actions` slot becomes `counter-move
+  schedule → statuses`; emergent behaviour leaves the M4 order (IMPLEMENTATION §3).
+- **2026-09-23** (D4.0) — **M4 scope:** emergent behaviours and four chains (The Treaty, The
+  Confession, The Child; The Blackout is the Lockdown counter-move) move to M5's D5.1/D5.2; M4
+  gains S4.1–S4.3 (assets, statuses/abilities, map events) and S4.10; five chains ship in M4
+  (Researcher, Grid Bill, **The Factory** — the embodiment chain —, Operator, Benchmark as an
+  Audit variant, Second Instance). No milestone added.
+- **2026-09-23** (D4.0) — **Earlier specs and `BALANCE.md` keep the old step numbers**; the map
+  old → new is in loop-redesign §10. Only PROGRESS and IMPLEMENTATION carry the new sheet.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
@@ -588,18 +627,19 @@ change either way. (S2.4's second question — the dark chip — was answered at
   (`HTTPClient` or a Python driver over the S1.8 runners — decide in M6). Cost control: a per-run
   call budget and a cache of digest → answer keyed by model, so a replay costs nothing.
 - **D5.2 endings** must distinguish Ascendance by deaths share (decision above).
-- **D4.1:** `society_pressure` values in `capabilities.json` are relative weights (Tier 2 4–8, Tier 3
-  8–15, False Attribution 15), not calibrated; the Weapons chain is `watched_by` all four factions
-  from its second node on, which D4.1's per-faction Footprint weighting must handle (one node,
-  four chips, full weight each or a split — decide there).
+- **D4.2:** `society_pressure` values in `capabilities.json` are relative weights (Tier 2 4–8, Tier 3
+  8–15, False Attribution 15), not calibrated — and after D4.0 most of them move onto statuses
+  (loop-redesign §4.4). **Answered at D4.0:** a node's Footprint counts in full for every faction
+  in its `watched_by`; an empty list spreads it 0.25 to each (loop-redesign §5.3).
 - **D4.4 (Analysis screen):** the dock button is revealed in Open and disabled with
-  `UI_DOCK_NOT_YET` until S4.7 (`m3-screens.md` §6.1); the results screen's summary grid (§7.4) is
+  `UI_DOCK_NOT_YET` until S4.8 (`m3-screens.md` §6.1; the step number moved at D4.0); the results screen's summary grid (§7.4) is
   the seed of the run log. **D5.3** replaces the placeholder title (§7.1) and keeps
   `ScreenRouter`; **D5.2** replaces the five verdict lines (`UI_RESULT_LINE_*`), keys unchanged.
-- **D4.1** defines how `watched_by` weights a node's Footprint per faction, what `funding_reset`
-  burns, and makes the four `containment_<faction>` targets live. **D4.2** defines the
-  per-Infiltration-node term of the emergent rate and makes `emergent_rate` live. **S4.3** makes
-  `shutdown_survival` live.
+- **Answered at D4.0:** `watched_by` weighting (loop-redesign §5.3); `funding_reset` burns every
+  faction's *preparation* — the counter-move countdown restarts (§7.8); the four
+  `containment_<faction>` targets go live in S4.4, `shutdown_survival` in S4.2. **D5.1** defines the
+  per-Infiltration-node term of the emergent rate and makes `emergent_rate` live (moved with the
+  behaviours).
 
 ## Punch list for Opus
 
@@ -1046,7 +1086,9 @@ change either way. (S2.4's second question — the dark chip — was answered at
 
 ## Waiting on the user
 
-*(nothing — the G3 gate was answered on 2026-09-23; D4.0 ends with the user reading its spec)*
+**D4.0 (2026-09-23): read `docs/specs/loop-redesign.md`** — its §12 names the five things to
+judge (the phase fantasies and the fleet as the body, the busy Cyber branch, the vector cap of
+two, the Merge/Terror exclusion, the cadence table). Changes go into the spec before D4.1 starts.
 
 ## Balance baselines
 
@@ -1180,6 +1222,16 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — D4.0 Core loop redesign [F]
+Measured the gate's complaint on a `greedy` run (Boxed one tick, 49 compute in the first ten
+minutes, 43 nodes in price order, nothing of the agent on the map, no world move to answer) and
+wrote `docs/specs/loop-redesign.md`: assets placed by site select, timed statuses applied by
+player abilities and by faction counter-moves, map events (openings, counter-moves, chain
+steps), one verb per phase, purchase feedback contract, exclusive groups and the Merge/Terror
+doors, economy numbers, four tracks behind one threat bar, cadence targets, Blocks 7–8 rewritten
+(S4.1–S4.3 and S4.10 new; emergent behaviours and four chains to M5). PLAN §3, CONTENT, UI and
+IMPLEMENTATION carry the changes. Next: **the user reads the spec**, then **D4.1 on Fable**.
 
 ### 2026-09-23 — G3 Balance pass 1 and M3 gate [F]
 Every per-day rate of `balance.json` divided by 2.5 and every duration multiplied (a two-second
