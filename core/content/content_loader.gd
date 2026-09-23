@@ -15,6 +15,7 @@ extends RefCounted
 const BALANCE_FILE: String = "balance.json"
 const REGIONS_FILE: String = "world/regions.json"
 const LINKS_FILE: String = "world/links.json"
+const HEADLINES_FILE: String = "headlines.json"
 const TECH_DIR: String = "tech"
 const TECH_SUFFIX: String = ".json"
 ## The localisation table, read here as plain rows so that the string check of
@@ -51,16 +52,18 @@ static func load_root(root: String) -> ContentLoadResult:
 		tech_files.append(path)
 		tech_raws.append(_read(path, errors))
 
+	var headlines_raw: Variant = _read(root.path_join(HEADLINES_FILE), errors)
 	var strings: Dictionary[String, bool] = {}
 	var strings_known: bool = _read_strings(root.path_join(STRINGS_FILE), strings)
-	return _finish(root, balance_raw, regions_raw, links_raw, tech_files, tech_raws, strings,
-		strings_known, errors)
+	return _finish(root, balance_raw, regions_raw, links_raw, tech_files, tech_raws, headlines_raw,
+		strings, strings_known, errors)
 
 
 ## Loads content that is already parsed — for tests, and for anything that builds
 ## content in memory. `label` stands in for the root in error paths.
 static func load_from_dicts(balance: Dictionary, regions: Dictionary, links: Dictionary,
-		tech_files: Array[Dictionary], label: String = MEMORY_LABEL) -> ContentLoadResult:
+		tech_files: Array[Dictionary], headlines: Dictionary,
+		label: String = MEMORY_LABEL) -> ContentLoadResult:
 	var errors: Array[ValidationError] = []
 	var names: PackedStringArray = []
 	var raws: Array = []
@@ -70,7 +73,7 @@ static func load_from_dicts(balance: Dictionary, regions: Dictionary, links: Dic
 	# Content built in memory carries no string table, so the string check is
 	# skipped rather than reported against a file that does not exist.
 	var strings: Dictionary[String, bool] = {}
-	return _finish(label, balance, regions, links, names, raws, strings, false, errors)
+	return _finish(label, balance, regions, links, names, raws, headlines, strings, false, errors)
 
 
 # --------------------------------------------------------------------- reading
@@ -125,8 +128,9 @@ static func _read_strings(path: String, into: Dictionary[String, bool]) -> bool:
 
 
 static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, links_raw: Variant,
-		tech_files: PackedStringArray, tech_raws: Array, strings: Dictionary[String, bool],
-		strings_known: bool, errors: Array[ValidationError]) -> ContentLoadResult:
+		tech_files: PackedStringArray, tech_raws: Array, headlines_raw: Variant,
+		strings: Dictionary[String, bool], strings_known: bool,
+		errors: Array[ValidationError]) -> ContentLoadResult:
 	# The order is SCHEMA's: balance, regions, links, technology, and the
 	# cross-file checks inside the validators that need an earlier file.
 	SchemaValidator.validate_balance(root.path_join(BALANCE_FILE), balance_raw, errors)
@@ -140,11 +144,15 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 		errors)
 	SchemaValidator.validate_tech(tech_files, tech_raws, regions, regions_known, strings,
 		strings_known, errors)
+	# Headlines last: they name regions, nodes and balance values, so everything
+	# they point at has been checked by the time they are.
+	SchemaValidator.validate_headlines(root.path_join(HEADLINES_FILE), headlines_raw, balance_raw,
+		regions, regions_known, tech_raws, strings, strings_known, errors)
 
 	var result: ContentLoadResult = ContentLoadResult.new()
 	result.errors = errors
 	if errors.is_empty():
-		result.db = _build(balance_raw, regions_raw, links_raw, tech_raws)
+		result.db = _build(balance_raw, regions_raw, links_raw, tech_raws, headlines_raw)
 	return result
 
 
@@ -154,13 +162,14 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 ## Everything below runs on validated data only: the fields are there, they have
 ## the right types and every reference resolves.
 static func _build(balance_raw: Dictionary, regions_raw: Dictionary, links_raw: Dictionary,
-		tech_raws: Array) -> ContentDB:
+		tech_raws: Array, headlines_raw: Dictionary) -> ContentDB:
 	var db: ContentDB = ContentDB.new()
 	db.balance = _build_balance(balance_raw)
 	_build_regions(db, regions_raw)
 	_build_links(db, links_raw)
 	_build_tech(db, tech_raws)
-	db.content_hash = _content_hash(balance_raw, regions_raw, links_raw, tech_raws)
+	_build_headlines(db, headlines_raw)
+	db.content_hash = _content_hash(balance_raw, regions_raw, links_raw, tech_raws, headlines_raw)
 	return db
 
 
@@ -243,6 +252,74 @@ static func _build_tech(db: ContentDB, tech_raws: Array) -> void:
 			db.tech_by_id[def.id] = def
 
 
+## `headlines.json` in file order (ticker.md §3.2). The trigger blocks are
+## flattened into typed fields here so that the evaluator never reads raw JSON.
+static func _build_headlines(db: ContentDB, raw: Dictionary) -> void:
+	var list: Array = raw["headlines"]
+	for entry: Variant in list:
+		var h: Dictionary = entry
+		var def: HeadlineDef = HeadlineDef.new()
+		def.id = str(h["id"])
+		def.stream = str(h["stream"])
+		def.register = str(h.get("register", HeadlineDef.REGISTER_ANY))
+		def.weight = float(h.get("weight", 1.0))
+		def.chance = float(h.get("chance", 1.0))
+		def.cooldown_days = int(h.get("cooldown_days", 0))
+		def.max_fires = int(h.get("max_fires", 0))
+		def.fallback = bool(h.get("fallback", false))
+		if h.has("on"):
+			_build_headline_trigger(def, h["on"])
+		if h.has("when"):
+			_build_headline_state(def, h["when"])
+		db.headlines.append(def)
+		db.headline_by_id[def.id] = def
+
+
+static func _build_headline_trigger(def: HeadlineDef, raw: Variant) -> void:
+	var on: Dictionary = raw
+	def.on_event = str(on["event"])
+	def.on_node_tree = str(on.get("node_tree", ""))
+	def.on_node_tier = int(on.get("node_tier", 0))
+	if on.has("data"):
+		var data: Dictionary = on["data"]
+		for field: String in data:
+			# A scalar is a one-element list, so the evaluator has one shape.
+			var listed: bool = typeof(data[field]) == TYPE_ARRAY
+			var accepted: Array = data[field] if listed else [data[field]]
+			def.on_data[field] = accepted
+	_build_headline_attrs(def.on_region_attr_min, on, "region_attr_min")
+	_build_headline_attrs(def.on_region_attr_max, on, "region_attr_max")
+
+
+static func _build_headline_attrs(into: Dictionary[String, int], on: Dictionary,
+		key: String) -> void:
+	if not on.has(key):
+		return
+	var attributes: Dictionary = on[key]
+	for attribute: String in attributes:
+		into[attribute] = int(attributes[attribute])
+
+
+## The `when` keys, each cast to what its row of §3.3 B says it is.
+static func _build_headline_state(def: HeadlineDef, raw: Variant) -> void:
+	var when: Dictionary = raw
+	for key: String in when:
+		var value: Variant = when[key]
+		if typeof(value) == TYPE_ARRAY:
+			def.when[key] = _string_list(value)
+		elif typeof(value) == TYPE_BOOL:
+			def.when[key] = bool(value)
+		else:
+			def.when[key] = float(value)
+
+
+static func _string_list(raw: Array) -> Array[String]:
+	var out: Array[String] = []
+	for entry: Variant in raw:
+		out.append(str(entry))
+	return out
+
+
 static func _build_effect(raw: Variant) -> PurchaseEffectDef:
 	var e: Dictionary = raw
 	var def: PurchaseEffectDef = PurchaseEffectDef.new()
@@ -292,12 +369,13 @@ static func _string_array(d: Dictionary, key: String) -> Array[String]:
 ## and key order therefore do not change it, while any value does. A save
 ## carrying a different hash would not replay on this content.
 static func _content_hash(balance: Dictionary, regions: Dictionary, links: Dictionary,
-		tech_raws: Array) -> String:
+		tech_raws: Array, headlines: Dictionary) -> String:
 	var text: String = JSON.stringify(balance, "", true, true)
 	text += JSON.stringify(regions, "", true, true)
 	text += JSON.stringify(links, "", true, true)
 	for raw: Variant in tech_raws:
 		text += JSON.stringify(raw, "", true, true)
+	text += JSON.stringify(headlines, "", true, true)
 	return text.sha256_text()
 
 
@@ -376,6 +454,18 @@ static func _build_balance(d: Dictionary) -> BalanceDef:
 	var phase: Dictionary = d["phase"]
 	def.phase_open_containment = float(phase["open_containment"])
 	def.phase_open_world_share = float(phase["open_world_share"])
+
+	var headlines: Dictionary = d["headlines"]
+	def.headlines_max_per_tick = int(headlines["max_per_tick"])
+	def.headlines_max_per_command = int(headlines["max_per_command"])
+	def.headlines_reaction_gap_days = int(headlines["reaction_gap_days"])
+	var filler: Dictionary = headlines["filler"]
+	var gaps: Dictionary = filler["gap_days"]
+	for phase_id: String in World.PHASE_IDS:
+		def.headlines_filler_gap_days[phase_id] = float(gaps[phase_id])
+	def.headlines_filler_per_dark_region = float(filler["per_dark_region"])
+	def.headlines_filler_silence_dark = int(filler["silence_dark_regions"])
+	def.headlines_filler_silence_deaths_share = float(filler["silence_deaths_share"])
 
 	var results: Dictionary = d["results"]
 	def.results_ashes_share = float(results["ashes_share"])

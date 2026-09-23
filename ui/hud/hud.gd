@@ -137,6 +137,7 @@ func _apply_layout_for(compact: bool) -> void:
 	_stat_row.set("compact", compact)
 	_dock.set("compact", compact)
 	_origin_prompt.call(&"set_compact", compact)
+	_ticker.set(&"compact", compact)
 	# §9: below the breakpoint the dock bar and the stacked stat row are one
 	# strip, and the bars live in the sheet the strip opens.
 	# The dock bar is gone on a phone: its three destinations are in the sheet.

@@ -8,6 +8,7 @@ const BALANCE: String = "balance.json"
 const REGIONS: String = "world/regions.json"
 const LINKS: String = "world/links.json"
 const TECH: String = "tech[0]"
+const HEADLINES: String = "headlines.json"
 
 
 func after_all() -> void:
@@ -503,6 +504,66 @@ func _node(content: Dictionary, i: int) -> Dictionary:
 func _modifier(content: Dictionary, node: int, i: int) -> Dictionary:
 	var modifiers: Array = _node(content, node)["modifiers"]
 	return modifiers[i]
+
+
+# --------------------------------------------------------------- headlines.json
+
+
+func test_headlines_reject_unknown_keys_events_and_ids() -> void:
+	_break_headline({"when": {"not_a_condition": 3}}, "headlines[0].when.not_a_condition",
+		"unknown field")
+	_break_headline({"on": {"event": "not_an_event"}}, "headlines[0].on.event",
+		"is not an event type")
+	_break_headline({"on": {"event": "node_purchased", "data": {"node": "no_such_node"}}},
+		"headlines[0].on.data.node", "is not a known node")
+	_break_headline({"stream": "filler", "on": {"event": "region_seeded"}}, "headlines[0].on",
+		"no event trigger")
+	_break_headline({"chance": 0.5, "on": null, "when": {}}, "headlines[0].chance",
+		"only an event trigger")
+	_break_headline({"when": {"day_min": 40, "day_max": 10}}, "headlines[0].when.day_min",
+		"is above")
+	_break_headline({"on": {"event": "region_seeded", "region_attr_min": {"aura": 2}}},
+		"headlines[0].on.region_attr_min.aura", "unknown field")
+	_break_headline({"on": {"event": "discovered", "region_attr_min": {"compute": 2}}},
+		"headlines[0].on.region_attr_min", "carries no region")
+	_break_headline({"on": {"event": "containment_threshold", "data": {"threshold": 0.4}}},
+		"headlines[0].on.data.threshold", "balance.containment.thresholds")
+
+
+## A headline missing its line in one language is the content's mistake, not the
+## interface's — the same check the technology names get.
+func test_a_headline_without_a_string_is_reported() -> void:
+	var content: Dictionary = Fixtures.raw_content()
+	var files: Dictionary[String, String] = Fixtures.root_files(content)
+	files["loc/strings.csv"] = "keys,en,de
+HEADLINE_H_ORIGIN,An origin,Ein Ursprung
+"
+	var result: ContentLoadResult = ContentLoader.load_root(
+		Fixtures.write_root("headline_strings", files))
+	_assert_error(result, HEADLINES, "headlines[1].id", "no string \"HEADLINE_H_SEED_RICH\"")
+
+
+## The check that the delivered headlines and the delivered strings agree.
+func test_shipped_headlines_validate() -> void:
+	var result: ContentLoadResult = ContentLoader.load_root("res://data")
+	assert_true(result.ok(), result.error_text())
+	assert_gt(result.db.headlines.size(), 0, "and there are headlines to say")
+
+
+## Replaces the fixture headline list with one entry, broken in the given way.
+func _break_headline(fields: Dictionary, path: String, fragment: String) -> void:
+	var content: Dictionary = Fixtures.raw_content()
+	var entry: Dictionary = {"id": "h_broken", "stream": "consequence",
+		"on": {"event": "region_seeded"}}
+	entry.merge(fields, true)
+	# A null stands for "and without this one", which is how the state-only
+	# shape is written.
+	for key: String in fields:
+		if fields[key] == null:
+			entry.erase(key)
+	var file: Dictionary = content["headlines"]
+	file["headlines"] = [entry]
+	_expect(content, HEADLINES, path, fragment)
 
 
 ## Loads the broken content and asserts that the expected error is among the ones

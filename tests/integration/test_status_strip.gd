@@ -51,6 +51,9 @@ func test_compact_bottom_is_strip_plus_ticker() -> void:
 	assert_false((_hud.get_node("%DockBar") as Control).visible,
 		"and the dock bar is gone with it")
 	assert_eq(int(_strip.custom_minimum_size.y), UiTokens.STATUS_STRIP_HEIGHT)
+	# The suite runs with reduced motion on, where a standing line gets two rows
+	# (ticker.md §4.5); §9.1's 40 px is the moving one.
+	Settings.set_reduced_motion(false)
 	assert_eq(int((_hud.get_node("%Ticker") as Control).custom_minimum_size.y),
 		UiTokens.TICKER_HEIGHT)
 
@@ -76,8 +79,13 @@ func test_the_strip_opens_the_sheet() -> void:
 
 func test_the_full_layout_takes_its_bars_back() -> void:
 	_start()
+	var row: Control = _hud.get_node("%StatRow") as Control
+	var home: Node = row.get_parent()
+	var index: int = row.get_index()
 	_set_layout(true)
 	_set_layout(false)
 	var slot: VBoxContainer = _sheet.get_node("%BarsSlot") as VBoxContainer
 	assert_eq(slot.get_child_count(), 0)
-	assert_true((_hud.get_node("%StatRow") as Control).visible)
+	assert_true(row.visible)
+	assert_eq(row.get_parent(), home)
+	assert_eq(row.get_index(), index, "and above the ticker, where it was")

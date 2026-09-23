@@ -29,6 +29,8 @@ var _buttons: Array[ConsoleButton] = []
 ## below it (PROGRESS.md, *Known issues*).
 var _row_home: Node = null
 var _row_owner: Node = null
+## Its place among its siblings: the ticker is below it and must stay there.
+var _row_index: int = 0
 var _stat_row: Control = null
 
 
@@ -54,6 +56,8 @@ func adopt_stat_row(row: Control) -> void:
 	_stat_row = row
 	_row_home = row.get_parent()
 	_row_owner = row.owner
+	# Where it sat, so that it comes back above the ticker and not below it.
+	_row_index = row.get_index()
 	_row_home.remove_child(row)
 	_bars_slot.add_child(row)
 	# No owner while it is here: an owner has to be an ancestor, and the HUD is
@@ -67,12 +71,14 @@ func release_stat_row() -> void:
 		return
 	_bars_slot.remove_child(_stat_row)
 	_row_home.add_child(_stat_row)
+	_row_home.move_child(_stat_row, _row_index)
 	_stat_row.owner = _row_owner
 	# Re-registers the `%` name the removal dropped.
 	_stat_row.unique_name_in_owner = true
 	_stat_row = null
 	_row_home = null
 	_row_owner = null
+	_row_index = 0
 
 
 ## §6.1: the destinations appear with their phases, like the dock's buttons.

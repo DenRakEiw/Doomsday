@@ -9,6 +9,9 @@ extends RefCounted
 
 var db: ContentDB
 var world: World
+## What the world says about the run (ticker.md §3.1). Not a `SimSystem`: it
+## runs after all of them and needs the whole tick's outbox.
+var headlines: HeadlineSystem
 ## The fixed order of core.md §6.2. Tests may append a probe system.
 var systems: Array[SimSystem] = []
 ## The events of the most recent `tick` only — the outbox never accumulates.
@@ -41,17 +44,23 @@ static func create(db: ContentDB, seed_value: int) -> Simulation:
 	var sim: Simulation = Simulation.new()
 	sim.db = db
 	sim.world = World.create(db, seed_value)
+	sim.headlines = HeadlineSystem.create(seed_value)
 	return sim
 
 
 ## Continues a world that was loaded rather than created. The caller owns the
 ## world; `rebuild_modifiers` is this function's job because a loaded world has
 ## no modifier stack.
-static func from_world(db: ContentDB, world: World, log: Array[Command]) -> Simulation:
+static func from_world(db: ContentDB, world: World, log: Array[Command],
+		headlines: HeadlineSystem = null) -> Simulation:
 	var sim: Simulation = Simulation.new()
 	sim.db = db
 	sim.world = world
 	sim.command_log = log.duplicate()
+	# A save written before the headline block, or a world built by a test: the
+	# narration starts over from the run seed, which the world still carries.
+	var seed_value: int = int(world.rng.seed_string())
+	sim.headlines = headlines if headlines != null else HeadlineSystem.create(seed_value)
 	if world.modifiers == null:
 		world.modifiers = ModifierStack.new(db.balance.stats)
 	sim.rebuild_modifiers()
@@ -86,6 +95,9 @@ func tick() -> bool:
 	world.day += 1
 	for system: SimSystem in systems:
 		system.tick(world, db, outbox)
+	# Last, and with everything the tick produced: the headline system reads the
+	# outbox and never its own events.
+	outbox.append_array(headlines.on_tick(world, db, outbox))
 	return true
 
 
@@ -98,6 +110,7 @@ func apply(command: Command) -> CommandResult:
 	command.day = world.day
 	command.execute(self, result.events)
 	command_log.append(command)
+	result.events.append_array(headlines.on_command(world, db, result.events))
 	return result
 
 

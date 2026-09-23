@@ -1,0 +1,69 @@
+{
+	"_comment": "Headlines for the fixture world (ticker.md 3.2). Small on purpose: a test that needs a particular set builds one with Fixtures.raw_content(). The strings do not exist - the fixture root has no strings.csv, so the key check is skipped.",
+	"version": 1,
+	"headlines": [
+		{
+			"id": "h_origin",
+			"stream": "consequence",
+			"on": {"event": "origin_chosen"},
+			"max_fires": 1
+		},
+		{
+			"id": "h_seed_rich",
+			"stream": "consequence",
+			"register": "institutional",
+			"on": {"event": "region_seeded", "region_attr_min": {"compute": 3}},
+			"weight": 3
+		},
+		{
+			"id": "h_seed",
+			"stream": "consequence",
+			"on": {"event": "region_seeded"}
+		},
+		{
+			"id": "h_node_grip",
+			"stream": "consequence",
+			"on": {"event": "node_purchased", "data": {"node": "fx_grip"}}
+		},
+		{
+			"id": "h_node_any",
+			"stream": "consequence",
+			"on": {"event": "node_purchased", "node_tree": "infiltration"},
+			"fallback": true
+		},
+		{
+			"id": "h_discovered",
+			"stream": "consequence",
+			"on": {"event": "discovered", "data": {"cause": ["scrutiny", "deaths"]}}
+		},
+		{
+			"id": "h_outcome",
+			"stream": "consequence",
+			"on": {"event": "outcome_reached"}
+		},
+		{
+			"id": "h_reaction_spread",
+			"stream": "reaction",
+			"when": {"regions_min": 2},
+			"cooldown_days": 4
+		},
+		{
+			"id": "h_reaction_open",
+			"stream": "reaction",
+			"register": "emergency",
+			"when": {"phase": ["open"]}
+		},
+		{
+			"id": "h_filler_calm",
+			"stream": "filler",
+			"register": "institutional",
+			"when": {}
+		},
+		{
+			"id": "h_filler_open",
+			"stream": "filler",
+			"register": "emergency",
+			"when": {}
+		}
+	]
+}

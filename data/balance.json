@@ -95,6 +95,18 @@
 		"open_containment": 0.5,
 		"open_world_share": 0.6
 	},
+	"headlines": {
+		"_comment": "ticker.md 3.8: the caps and the pace of the narration.",
+		"max_per_tick": 2,
+		"max_per_command": 3,
+		"reaction_gap_days": 3,
+		"filler": {
+			"gap_days": {"boxed": 4, "covert": 5, "emergent": 7, "open": 9},
+			"per_dark_region": 0.4,
+			"silence_dark_regions": 25,
+			"silence_deaths_share": 0.05
+		}
+	},
 	"results": {
 		"ashes_share": 0.5
 	},

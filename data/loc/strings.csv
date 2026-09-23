@@ -120,19 +120,6 @@ UI_REGION_LINK_ROW_CLOSED,{kind}: {count} ({closed} closed),{kind}: {count} ({cl
 UI_REGION_ANOMALY,Anomaly available: {value} compute,Anomalie verfügbar: {value} Rechenleistung
 UI_REGION_ANOMALY_EXPIRES,Fades on day {day},Verfällt an Tag {day}
 UI_REGION_COLLECT,Collect,Einsammeln
-UI_EVENT_ORIGIN_CHOSEN,Origin established: {region},Ursprung eingerichtet: {region}
-UI_EVENT_REGION_SEEDED,Presence established in {region},Präsenz in {region} aufgebaut
-UI_EVENT_REGION_CONTROLLED,{region} is under control,{region} ist unter Kontrolle
-UI_EVENT_ANOMALY_SPAWNED,Anomaly detected in {region},Anomalie in {region} entdeckt
-UI_EVENT_ANOMALY_EXPIRED,The anomaly in {region} has faded,Die Anomalie in {region} ist verflogen
-UI_EVENT_ANOMALY_COLLECTED,Anomaly collected: +{value} compute,Anomalie eingesammelt: +{value} Rechenleistung
-UI_EVENT_MILESTONE,Milestone reached: +{reward} compute,Meilenstein erreicht: +{reward} Rechenleistung
-UI_EVENT_NODE_PURCHASED,Acquired: {node},Erworben: {node}
-UI_EVENT_DEPOPULATED,{region} has gone dark,{region} ist dunkel geworden
-UI_EVENT_DISCOVERED,You have been discovered,Du wurdest entdeckt
-UI_EVENT_CONTAINMENT_THRESHOLD,Containment at {percent},Eindämmung bei {percent}
-UI_EVENT_PHASE_CHANGED,Phase: {phase},Phase: {phase}
-UI_EVENT_OUTCOME,Run over: {outcome},Durchlauf beendet: {outcome}
 UI_OUTCOME_WIN_EXTINCTION,Extinction,Auslöschung
 UI_OUTCOME_WIN_ASCENDANCE,Ascendance,Aufstieg
 UI_OUTCOME_LOSE_CONTAINED,Contained,Eingedämmt
@@ -500,11 +487,6 @@ UI_REGION_DORMANT_ON,Dormant,Schlafend
 UI_REGION_DORMANT_OFF,Active,Aktiv
 UI_REGION_STATE_DORMANT,Dormant,Schlafend
 UI_REGION_DORMANT_DETAIL,"Frozen. Nothing here grows, earns or dies until you wake it.","Eingefroren. Hier wächst, verdient und stirbt nichts, bis du es weckst."
-UI_EVENT_COMPUTE_GRANTED,Windfall: +{value} compute,Zugewinn: +{value} Rechenleistung
-UI_EVENT_CONTAINMENT_ROLLED_BACK,Containment set back to {percent},Eindämmung zurückgeworfen auf {percent}
-UI_EVENT_HARM_BURST,A wave of deaths: {deaths},Eine Welle von Toten: {deaths}
-UI_EVENT_DORMANCY_ON,{region} put to sleep,{region} schlafen gelegt
-UI_EVENT_DORMANCY_OFF,{region} woken,{region} geweckt
 STAT_SPREAD_GROWTH,Growth,Wachstum
 STAT_SPREAD_SEED,Chance of taking hold,"Chance, Fuß zu fassen"
 STAT_SEED_LAND,Spread over land borders,Ausbreitung über Landgrenzen

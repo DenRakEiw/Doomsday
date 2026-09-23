@@ -60,6 +60,17 @@ var containment_thresholds: Array[float] = []
 var phase_open_containment: float
 var phase_open_world_share: float
 
+## ticker.md §3.8: how many headlines a tick and a command may say, how far
+## apart two state-triggered reactions are, and the pace of the filler.
+var headlines_max_per_tick: int
+var headlines_max_per_command: int
+var headlines_reaction_gap_days: int
+## Days between two filler lines, per phase id; the key set is `World.PHASE_IDS`.
+var headlines_filler_gap_days: Dictionary[String, float] = {}
+var headlines_filler_per_dark_region: float
+var headlines_filler_silence_dark: int
+var headlines_filler_silence_deaths_share: float
+
 ## m3-screens §7.4: Ascendance over this share of the world dead reads as ashes.
 var results_ashes_share: float = 0.5
 var history_interval_days: int

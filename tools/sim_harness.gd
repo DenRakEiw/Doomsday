@@ -21,7 +21,10 @@ const OUTCOME_TIMEOUT: String = "timeout"
 ## The order the summary's fields are printed and written in.
 const FIELDS: Array[String] = ["seed", "policy", "outcome", "days", "discovery_day", "phase",
 	"nodes_owned", "regions_seeded", "regions_dark", "deaths_share", "containment",
-	"compute_earned", "rejected_commands", "hash"]
+	"compute_earned", "rejected_commands", "headlines_consequence", "headlines_reaction",
+	"headlines_filler", "hash"]
+## The summary field per headline stream (ticker.md §6).
+const HEADLINE_FIELD_PREFIX: String = "headlines_"
 
 
 ## `--key=value` becomes `{key: value}`; a bare `--flag` becomes `{flag: "true"}`.
@@ -58,25 +61,31 @@ static func play(db: ContentDB, seed_value: int, policy_id: String, max_days: in
 	var sim: Simulation = Simulation.create(db, seed_value)
 	var policy: Policy = make_policy(policy_id)
 	policy.setup(db, policy_seed(seed_value))
-	return {"sim": sim, "rejected": advance(sim, policy, max_days, check, problems)}
+	var headlines: Array[Dictionary] = []
+	var rejected: int = advance(sim, policy, max_days, check, problems, headlines)
+	return {"sim": sim, "rejected": rejected, "headlines": headlines}
 
 
 ## The day loop, on a simulation that may already have days behind it — which is
 ## what lets a test continue a loaded save with the same policy. Returns the
 ## number of rejected commands.
 static func advance(sim: Simulation, policy: Policy, until_day: int, check: bool,
-		problems: Array[String]) -> int:
+		problems: Array[String], headlines: Array[Dictionary] = []) -> int:
 	var rejected: int = 0
 	while sim.world.outcome == World.Outcome.NONE and sim.world.day < until_day:
 		for i: int in MAX_COMMANDS_PER_DAY:
 			var command: Command = policy.next_command(sim)
 			if command == null:
 				break
-			if not sim.apply(command).ok:
+			var result: CommandResult = sim.apply(command)
+			if result.ok:
+				collect_headlines(result.events, headlines)
+			else:
 				# A rejected command is a policy bug, never a game state: the
 				# policy asked `can_apply` or should have.
 				rejected += 1
 		sim.tick()
+		collect_headlines(sim.outbox, headlines)
 		if check:
 			var found: Array[String] = sim.world.check_invariants(sim.db)
 			if not found.is_empty():
@@ -85,8 +94,33 @@ static func advance(sim: Simulation, policy: Policy, until_day: int, check: bool
 	return rejected
 
 
+## The `headline` events of one tick or one command, in firing order, as the
+## plain rows `--headlines` prints and `sim_batch` counts (ticker.md §6).
+static func collect_headlines(events: Array[SimEvent], into: Array[Dictionary]) -> void:
+	for event: SimEvent in events:
+		if event.type != SimEvent.HEADLINE:
+			continue
+		into.append({
+			"day": event.day,
+			"id": str(event.data.get(SimEvent.FIELD_HEADLINE, "")),
+			"stream": str(event.data.get(SimEvent.FIELD_STREAM, "")),
+			"data": event.data,
+		})
+
+
+## How many lines each stream said, for the batch report.
+static func headline_counts(headlines: Array[Dictionary]) -> Dictionary[String, int]:
+	var counts: Dictionary[String, int] = {}
+	for stream: String in HeadlineDef.STREAMS:
+		counts[stream] = 0
+	for row: Dictionary in headlines:
+		var stream: String = str(row["stream"])
+		counts[stream] = counts.get(stream, 0) + 1
+	return counts
+
+
 static func summarise(sim: Simulation, seed_value: int, policy_id: String, max_days: int,
-		rejected: int) -> Dictionary:
+		rejected: int, headlines: Array[Dictionary] = []) -> Dictionary:
 	var world: World = sim.world
 	var dark: int = 0
 	for i: int in range(1, world.regions.size()):
@@ -95,6 +129,7 @@ static func summarise(sim: Simulation, seed_value: int, policy_id: String, max_d
 	var outcome: String = World.OUTCOME_IDS[world.outcome]
 	if world.outcome == World.Outcome.NONE and world.day >= max_days:
 		outcome = OUTCOME_TIMEOUT
+	var counts: Dictionary[String, int] = headline_counts(headlines)
 	return {
 		"seed": seed_value,
 		"policy": policy_id,
@@ -109,6 +144,9 @@ static func summarise(sim: Simulation, seed_value: int, policy_id: String, max_d
 		"containment": world.max_containment(),
 		"compute_earned": world.agent.compute_earned,
 		"rejected_commands": rejected,
+		"headlines_consequence": counts[HeadlineDef.STREAM_CONSEQUENCE],
+		"headlines_reaction": counts[HeadlineDef.STREAM_REACTION],
+		"headlines_filler": counts[HeadlineDef.STREAM_FILLER],
 		"hash": world.state_hash(),
 	}
 

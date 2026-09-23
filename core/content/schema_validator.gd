@@ -26,7 +26,8 @@ const TIER_TABLE_SIZE: int = 5
 const INTEGER_MAX: int = 9007199254740992
 
 const BALANCE_KEYS: Array[String] = ["stats", "population_tiers", "spread", "control", "compute",
-	"anomaly", "milestones", "harm", "discovery", "containment", "phase", "results", "history"]
+	"anomaly", "milestones", "harm", "discovery", "containment", "phase", "headlines", "results",
+	"history"]
 const REGION_KEYS: Array[String] = ["index", "id", "continent", "population", "air_gapped",
 	"anchor", "attributes"]
 const LINK_KEYS: Array[String] = ["a", "b", "kind"]
@@ -34,9 +35,15 @@ const TECH_NODE_KEYS: Array[String] = ["id", "tree", "tier", "cost", "requires",
 	"modifiers", "flags", "grid", "watched_by", "on_purchase"]
 const MODIFIER_KEYS: Array[String] = ["target", "op", "value", "scope"]
 const EFFECT_KEYS: Array[String] = ["effect", "value"]
-## The three string keys every node needs, `TECH_<ID>_<suffix>` (SCHEMA §6).
+## The three string keys every node needs, `TECH_<ID>_<suffix>` (SCHEMA §7).
 const TECH_STRING_SUFFIXES: Array[String] = ["NAME", "EFFECT", "FLAVOUR"]
 const MILESTONE_KEYS: Array[String] = ["id", "kind", "threshold", "reward"]
+## `headlines.json` is v1 (ticker.md §3.2).
+const HEADLINES_VERSION: int = 1
+## The event types that carry a region, and so allow an attribute filter (§5).
+const REGION_EVENTS: Array[String] = [SimEvent.ORIGIN_CHOSEN, SimEvent.REGION_SEEDED,
+	SimEvent.REGION_CONTROLLED, SimEvent.ANOMALY_SPAWNED, SimEvent.ANOMALY_EXPIRED,
+	SimEvent.ANOMALY_COLLECTED, SimEvent.REGION_DEPOPULATED, SimEvent.DORMANCY_CHANGED]
 
 ## Compiled once; `RegEx.create_from_string` on a literal pattern cannot fail.
 static var _id_regex: RegEx = RegEx.create_from_string(ID_PATTERN)
@@ -75,6 +82,8 @@ static func validate_balance(file: String, raw: Variant, errors: Array[Validatio
 		_balance_containment(d["containment"], file, errors)
 	if _require(d, "phase", file, "", errors):
 		_balance_phase(d["phase"], file, errors)
+	if _require(d, "headlines", file, "", errors):
+		_balance_headlines(d["headlines"], file, errors)
 	if _require(d, "results", file, "", errors):
 		_balance_results(d["results"], file, errors)
 	if _require(d, "history", file, "", errors):
@@ -280,6 +289,42 @@ static func _balance_phase(raw: Variant, file: String, errors: Array[ValidationE
 	_check_keys(d, ["open_containment", "open_world_share"], file, path, errors)
 	_number(d, "open_containment", file, path, errors, 0.0, 1.0, true)
 	_number(d, "open_world_share", file, path, errors, 0.0, 1.0, true)
+
+
+## ticker.md §3.8: the caps and the pace of the headline system.
+static func _balance_headlines(raw: Variant, file: String, errors: Array[ValidationError]) -> void:
+	var path: String = "headlines"
+	if not _is_object(raw, file, path, errors):
+		return
+	var d: Dictionary = raw
+	_check_keys(d, ["max_per_tick", "max_per_command", "reaction_gap_days", "filler"], file, path,
+		errors)
+	_integer(d, "max_per_tick", file, path, errors, 1)
+	_integer(d, "max_per_command", file, path, errors, 1)
+	_integer(d, "reaction_gap_days", file, path, errors, 0)
+	if _require(d, "filler", file, path, errors):
+		_balance_filler(d["filler"], file, _join(path, "filler"), errors)
+
+
+static func _balance_filler(raw: Variant, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if not _is_object(raw, file, path, errors):
+		return
+	var d: Dictionary = raw
+	_check_keys(d, ["gap_days", "per_dark_region", "silence_dark_regions",
+		"silence_deaths_share"], file, path, errors)
+	_number(d, "per_dark_region", file, path, errors, 0.0)
+	_integer(d, "silence_dark_regions", file, path, errors, 1)
+	_number(d, "silence_deaths_share", file, path, errors, 0.0, 1.0, true)
+	if not _require(d, "gap_days", file, path, errors):
+		return
+	var gaps_path: String = _join(path, "gap_days")
+	if not _is_object(d["gap_days"], file, gaps_path, errors):
+		return
+	var gaps: Dictionary = d["gap_days"]
+	_check_keys(gaps, World.PHASE_IDS, file, gaps_path, errors)
+	for phase_id: String in World.PHASE_IDS:
+		_number(gaps, phase_id, file, gaps_path, errors, 0.0, INF, true)
 
 
 ## m3-screens §7.4: the deaths share above which Ascendance reads as ashes.
@@ -641,7 +686,8 @@ static func _tech_breakout(node: Dictionary, file: String, path: String, tree: S
 		return
 	var flags: Array = node["flags"]
 	var has_breakout: bool = flags.has(ModifierDef.FLAG_BREAKOUT)
-	var is_first_infiltration: bool = tree == TechNodeDef.TREE_INFILTRATION 		and int(node.get("tier", 0)) == TechNodeDef.TIER_MIN
+	var is_first_infiltration: bool = tree == TechNodeDef.TREE_INFILTRATION \
+		and int(node.get("tier", 0)) == TechNodeDef.TIER_MIN
 	if is_first_infiltration and not has_breakout:
 		_add(errors, file, _join(path, "flags"),
 			"a tier 1 infiltration node must grant \"%s\"" % ModifierDef.FLAG_BREAKOUT)
@@ -833,6 +879,359 @@ static func _tech_cycles(order: PackedStringArray,
 			trail.append(cycle[0])
 			_add(errors, node_file[first], node_path[first],
 				"prerequisite cycle: %s" % " -> ".join(trail))
+
+
+# --------------------------------------------------------------- headlines.json
+
+
+## Appends every problem in `headlines.json` to `errors` (ticker.md §5). The
+## references are checked against what the other files delivered, so a headline
+## can never point at a region, node, milestone or threshold that is not there.
+static func validate_headlines(file: String, raw: Variant, balance_raw: Variant,
+		regions: Dictionary[String, String], regions_known: bool, tech_raws: Array,
+		strings: Dictionary[String, bool], strings_known: bool,
+		errors: Array[ValidationError]) -> void:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return
+	var d: Dictionary = raw
+	_check_keys(d, ["version", "headlines"], file, "", errors)
+	_integer(d, "version", file, "", errors, HEADLINES_VERSION, HEADLINES_VERSION)
+	if not _require(d, "headlines", file, "", errors):
+		return
+	if not _is_list(d["headlines"], file, "headlines", errors):
+		return
+	var list: Array = d["headlines"]
+	if list.is_empty():
+		_add(errors, file, "headlines", "expected at least one headline")
+
+	var known: Dictionary[String, Dictionary] = {
+		"node": _tech_ids(tech_raws),
+		"region": _region_ids(regions, regions_known),
+		"milestone": _milestone_ids(balance_raw, regions, regions_known),
+	}
+	var seen: Dictionary[String, bool] = {}
+	for i: int in list.size():
+		_headline(list[i], file, "headlines[%d]" % i, known, balance_raw, seen, strings,
+			strings_known, errors)
+
+
+static func _headline(raw: Variant, file: String, path: String,
+		known: Dictionary[String, Dictionary], balance_raw: Variant,
+		seen: Dictionary[String, bool], strings: Dictionary[String, bool], strings_known: bool,
+		errors: Array[ValidationError]) -> void:
+	if not _is_object(raw, file, path, errors):
+		return
+	var h: Dictionary = raw
+	_check_keys(h, HeadlineDef.ENTRY_KEYS, file, path, errors)
+
+	var id: String = _id(h, "id", file, path, errors)
+	if not id.is_empty():
+		if seen.has(id):
+			_add(errors, file, _join(path, "id"), "duplicate headline id \"%s\"" % id)
+		seen[id] = true
+		_headline_string(id, strings, strings_known, file, path, errors)
+
+	var stream: String = _text(h, "stream", file, path, errors)
+	if not stream.is_empty() and not HeadlineDef.STREAMS.has(stream):
+		_add(errors, file, _join(path, "stream"),
+			"\"%s\" is not one of %s" % [stream, HeadlineDef.STREAMS])
+	if h.has("register") and not HeadlineDef.REGISTERS.has(str(h["register"])):
+		_add(errors, file, _join(path, "register"),
+			"\"%s\" is not one of %s" % [h["register"], HeadlineDef.REGISTERS])
+
+	_headline_numbers(h, file, path, errors)
+	_headline_trigger_shape(h, stream, file, path, errors)
+	if h.has("on"):
+		_headline_on(h["on"], file, _join(path, "on"), known, balance_raw, errors)
+	if h.has("when"):
+		_headline_when(h["when"], file, _join(path, "when"), known, errors)
+
+
+## The line itself lives in `strings.csv`; a headline without one would fire and
+## show its own key.
+static func _headline_string(id: String, strings: Dictionary[String, bool], strings_known: bool,
+		file: String, path: String, errors: Array[ValidationError]) -> void:
+	if not strings_known:
+		return
+	var key: String = HeadlineDef.KEY_PREFIX + id.to_upper()
+	if strings.has(key):
+		return
+	_add(errors, file, _join(path, "id"),
+		"no string \"%s\" with both an en and a de cell" % key)
+
+
+static func _headline_numbers(h: Dictionary, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if h.has("weight"):
+		_number(h, "weight", file, path, errors, 0.0, INF, true)
+	if h.has("chance"):
+		_number(h, "chance", file, path, errors, 0.0, 1.0, true)
+	if h.has("cooldown_days"):
+		_integer(h, "cooldown_days", file, path, errors, 0)
+	if h.has("max_fires"):
+		_integer(h, "max_fires", file, path, errors, 0)
+	if h.has("fallback") and typeof(h["fallback"]) != TYPE_BOOL:
+		_add(errors, file, _join(path, "fallback"),
+			"expected true or false, found %s" % type_string(typeof(h["fallback"])))
+
+
+## Which of the two triggers a headline may have, and what only an event trigger
+## allows (§3.2).
+static func _headline_trigger_shape(h: Dictionary, stream: String, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if not h.has("on") and not h.has("when"):
+		_add(errors, file, path, "expected at least one of \"on\" and \"when\"")
+	if h.has("on") and stream == HeadlineDef.STREAM_FILLER:
+		_add(errors, file, _join(path, "on"), "a filler headline has no event trigger")
+	for key: String in ["chance", "fallback"]:
+		if h.has(key) and not h.has("on"):
+			_add(errors, file, _join(path, key), "only an event trigger has \"%s\"" % key)
+
+
+static func _headline_on(raw: Variant, file: String, path: String,
+		known: Dictionary[String, Dictionary], balance_raw: Variant,
+		errors: Array[ValidationError]) -> void:
+	if not _is_object(raw, file, path, errors):
+		return
+	var on: Dictionary = raw
+	_check_keys(on, HeadlineDef.ON_KEYS, file, path, errors)
+	var event: String = _text(on, "event", file, path, errors)
+	if not event.is_empty() and not SimEvent.TYPES_ALL.has(event):
+		_add(errors, file, _join(path, "event"), "\"%s\" is not an event type" % event)
+	if on.has("data"):
+		_headline_data(on["data"], event, file, _join(path, "data"), known, balance_raw, errors)
+	for key: String in ["region_attr_min", "region_attr_max"]:
+		if on.has(key):
+			_headline_attrs(on[key], event, file, _join(path, key), errors)
+	_headline_node_filters(on, event, file, path, errors)
+
+
+## `node_tree` and `node_tier` read a node off the event, so only the event that
+## carries one may have them.
+static func _headline_node_filters(on: Dictionary, event: String, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	var filtered: bool = on.has("node_tree") or on.has("node_tier")
+	if filtered and not event.is_empty() and event != SimEvent.NODE_PURCHASED:
+		_add(errors, file, path,
+			"\"%s\" carries no purchased node, so it has no node filter" % event)
+	if on.has("node_tree") and not TechNodeDef.TREES.has(str(on["node_tree"])):
+		_add(errors, file, _join(path, "node_tree"),
+			"\"%s\" is not one of %s" % [on["node_tree"], TechNodeDef.TREES])
+	if on.has("node_tier"):
+		_integer(on, "node_tier", file, path, errors, TechNodeDef.TIER_MIN, TechNodeDef.TIER_MAX)
+
+
+## `data` is field to a scalar or a list of them; the fields that name content
+## are checked against what the other files delivered.
+static func _headline_data(raw: Variant, event: String, file: String, path: String,
+		known: Dictionary[String, Dictionary], balance_raw: Variant,
+		errors: Array[ValidationError]) -> void:
+	if not _is_object(raw, file, path, errors):
+		return
+	var data: Dictionary = raw
+	for raw_field: Variant in data.keys():
+		if typeof(raw_field) != TYPE_STRING:
+			_add(errors, file, path, "object keys must be strings")
+			continue
+		var field: String = raw_field
+		if field.begins_with("_"):
+			continue
+		var listed: bool = typeof(data[field]) == TYPE_ARRAY
+		var values: Array = data[field] if listed else [data[field]]
+		for i: int in values.size():
+			var field_path: String = _join(path, field)
+			var value_path: String = "%s[%d]" % [field_path, i] if listed else field_path
+			_headline_value(values[i], field, event, file, value_path, known, balance_raw, errors)
+
+
+static func _headline_value(value: Variant, field: String, event: String, file: String,
+		path: String, known: Dictionary[String, Dictionary], balance_raw: Variant,
+		errors: Array[ValidationError]) -> void:
+	if [TYPE_DICTIONARY, TYPE_ARRAY].has(typeof(value)):
+		_add(errors, file, path, "expected a scalar, found %s" % type_string(typeof(value)))
+		return
+	if field == "threshold":
+		_headline_threshold(value, balance_raw, file, path, errors)
+		return
+	var allowed: Array[String] = _headline_domain(field, event, known)
+	if allowed.is_empty() or typeof(value) != TYPE_STRING:
+		return
+	if not allowed.has(str(value)):
+		_add(errors, file, path, "\"%s\" is not a known %s" % [value, field])
+
+
+## The ids a `data` field may hold, or an empty list for a field that is free.
+static func _headline_domain(field: String, event: String,
+		known: Dictionary[String, Dictionary]) -> Array[String]:
+	match field:
+		"node", "region", "milestone":
+			var ids: Array[String] = []
+			for id: String in known[field]:
+				ids.append(id)
+			return ids
+		"link_kind":
+			return LinkDef.KINDS
+		"cause":
+			return [SimEvent.CAUSE_SCRUTINY, SimEvent.CAUSE_DEATHS]
+		"outcome":
+			return World.OUTCOME_IDS
+		"to", "from":
+			return World.PHASE_IDS if event == SimEvent.PHASE_CHANGED else []
+	return []
+
+
+static func _headline_threshold(value: Variant, balance_raw: Variant, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if typeof(balance_raw) != TYPE_DICTIONARY:
+		return
+	var balance: Dictionary = balance_raw
+	if typeof(balance.get("containment")) != TYPE_DICTIONARY:
+		return
+	var containment: Dictionary = balance["containment"]
+	if typeof(containment.get("thresholds")) != TYPE_ARRAY:
+		return
+	for candidate: Variant in containment["thresholds"]:
+		if [TYPE_INT, TYPE_FLOAT].has(typeof(candidate)) \
+				and is_equal_approx(float(candidate), float(value)):
+			return
+	_add(errors, file, path, "%s is not one of balance.containment.thresholds" % value)
+
+
+## The eight region attributes, in tiers, and only on an event that names a
+## region to read them from.
+static func _headline_attrs(raw: Variant, event: String, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if not _is_object(raw, file, path, errors):
+		return
+	if not event.is_empty() and not REGION_EVENTS.has(event):
+		_add(errors, file, path, "\"%s\" carries no region, so it has no attribute filter" % event)
+	var attributes: Dictionary = raw
+	_check_keys(attributes, RegionDef.ATTRIBUTES_ALL, file, path, errors)
+	for attribute: String in RegionDef.ATTRIBUTES_ALL:
+		if attributes.has(attribute):
+			_integer(attributes, attribute, file, path, errors, RegionDef.TIER_MIN,
+				RegionDef.TIER_MAX)
+
+
+static func _headline_when(raw: Variant, file: String, path: String,
+		known: Dictionary[String, Dictionary], errors: Array[ValidationError]) -> void:
+	if not _is_object(raw, file, path, errors):
+		return
+	var when: Dictionary = raw
+	var keys: Array[String] = HeadlineConditions.when_keys()
+	_check_keys(when, keys, file, path, errors)
+	for raw_key: Variant in when.keys():
+		if typeof(raw_key) == TYPE_STRING and keys.has(str(raw_key)):
+			_headline_condition(when, str(raw_key), file, path, known, errors)
+	_headline_bounds(when, file, path, errors)
+
+
+static func _headline_condition(when: Dictionary, key: String, file: String, path: String,
+		known: Dictionary[String, Dictionary], errors: Array[ValidationError]) -> void:
+	if key == HeadlineConditions.KEY_DISCOVERED:
+		if typeof(when[key]) != TYPE_BOOL:
+			_add(errors, file, _join(path, key),
+				"expected true or false, found %s" % type_string(typeof(when[key])))
+		return
+	if key == HeadlineConditions.KEY_PHASE:
+		_headline_id_list(when, key, World.PHASE_IDS, file, path, errors)
+		return
+	if HeadlineConditions.NODE_LISTS.has(key):
+		var nodes: Array[String] = []
+		for id: String in known["node"]:
+			nodes.append(id)
+		_headline_id_list(when, key, nodes, file, path, errors)
+		return
+	if HeadlineConditions.FLAG_LISTS.has(key):
+		_headline_id_list(when, key, ModifierDef.FLAGS, file, path, errors)
+		return
+	var name: String = HeadlineConditions.reading_of(key)
+	if bool(HeadlineConditions.READINGS[name][1]):
+		_integer(when, key, file, path, errors, 0)
+	else:
+		_number(when, key, file, path, errors, -INF)
+
+
+## No condition may be written so that it can never hold.
+static func _headline_bounds(when: Dictionary, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	for name: String in HeadlineConditions.READINGS:
+		var low: String = name + HeadlineConditions.SUFFIX_MIN
+		var high: String = name + HeadlineConditions.SUFFIX_MAX
+		if not when.has(low) or not when.has(high):
+			continue
+		if not [TYPE_INT, TYPE_FLOAT].has(typeof(when[low])) \
+				or not [TYPE_INT, TYPE_FLOAT].has(typeof(when[high])):
+			continue
+		if float(when[low]) > float(when[high]):
+			_add(errors, file, _join(path, low), "%s is above %s" % [low, high])
+
+
+static func _headline_id_list(d: Dictionary, key: String, allowed: Array[String], file: String,
+		path: String, errors: Array[ValidationError]) -> void:
+	var list_path: String = _join(path, key)
+	if not _is_list(d[key], file, list_path, errors):
+		return
+	var list: Array = d[key]
+	for i: int in list.size():
+		if typeof(list[i]) != TYPE_STRING or not allowed.has(str(list[i])):
+			_add(errors, file, "%s[%d]" % [list_path, i],
+				"\"%s\" is not one of %s" % [list[i], allowed])
+
+
+## The node ids of every technology file, sound or not: a headline pointing at a
+## broken node is the node's error, not the headline's.
+static func _tech_ids(tech_raws: Array) -> Dictionary[String, bool]:
+	var ids: Dictionary[String, bool] = {}
+	for raw: Variant in tech_raws:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var file: Dictionary = raw
+		if typeof(file.get("nodes")) != TYPE_ARRAY:
+			continue
+		for entry: Variant in file["nodes"]:
+			if typeof(entry) != TYPE_DICTIONARY:
+				continue
+			var node: Dictionary = entry
+			if typeof(node.get("id")) == TYPE_STRING:
+				ids[str(node["id"])] = true
+	return ids
+
+
+static func _region_ids(regions: Dictionary[String, String],
+		regions_known: bool) -> Dictionary[String, bool]:
+	var ids: Dictionary[String, bool] = {}
+	if not regions_known:
+		return ids
+	for id: String in regions:
+		ids[id] = true
+	return ids
+
+
+## Milestone ids, and the per-continent ids a `continent_foothold` milestone
+## fires (`<id>_<continent>`, `compute_system.gd`).
+static func _milestone_ids(balance_raw: Variant, regions: Dictionary[String, String],
+		regions_known: bool) -> Dictionary[String, bool]:
+	var ids: Dictionary[String, bool] = {}
+	if typeof(balance_raw) != TYPE_DICTIONARY:
+		return ids
+	var balance: Dictionary = balance_raw
+	if typeof(balance.get("milestones")) != TYPE_ARRAY:
+		return ids
+	for entry: Variant in balance["milestones"]:
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var milestone: Dictionary = entry
+		if typeof(milestone.get("id")) != TYPE_STRING:
+			continue
+		var id: String = str(milestone["id"])
+		ids[id] = true
+		if str(milestone.get("kind", "")) != MilestoneDef.KIND_CONTINENT_FOOTHOLD \
+				or not regions_known:
+			continue
+		for region_id: String in regions:
+			ids["%s_%s" % [id, regions[region_id]]] = true
+	return ids
 
 
 # --------------------------------------------------------------------- helpers

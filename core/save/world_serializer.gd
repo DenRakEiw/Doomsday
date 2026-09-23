@@ -41,6 +41,7 @@ static func to_json(sim: Simulation) -> String:
 		"seed": sim.world.rng.seed_string(),
 		"world": sim.world.to_dict(),
 		"commands": commands,
+		"headlines": sim.headlines.to_dict(),
 	}
 	return JSON.stringify(save, "\t", true, true)
 
@@ -82,6 +83,16 @@ static func from_json(text: String, db: ContentDB,
 	if world == null:
 		return LoadResult.refused(REASON_CORRUPT)
 
+	# A save from before the block simply narrates from the start again; one that
+	# has a block it cannot read is corrupt like any other broken field.
+	var headlines: HeadlineSystem = null
+	if save.has("headlines"):
+		if typeof(save["headlines"]) != TYPE_DICTIONARY:
+			return LoadResult.refused(REASON_CORRUPT)
+		headlines = HeadlineSystem.from_dict(save["headlines"], db)
+		if headlines == null:
+			return LoadResult.refused(REASON_CORRUPT)
+
 	var log: Array[Command] = []
 	for entry: Variant in save["commands"]:
 		if typeof(entry) != TYPE_DICTIONARY:
@@ -92,7 +103,7 @@ static func from_json(text: String, db: ContentDB,
 		log.append(command)
 
 	var result: LoadResult = LoadResult.new()
-	result.sim = Simulation.from_world(db, world, log)
+	result.sim = Simulation.from_world(db, world, log, headlines)
 	result.content_mismatch = str(save.get("content_hash", "")) != db.content_hash
 	return result
 

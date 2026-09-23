@@ -76,6 +76,41 @@ static func tech_node(id: String, tree: String, grid: Vector2i, tier: int = 1, c
 	}
 
 
+## The headline a silent fixture holds — never eligible, because no run lasts
+## this long.
+const SILENT_HEADLINE: Dictionary = {
+	"id": "h_silent",
+	"stream": "filler",
+	"when": {"day_min": 1000000},
+}
+
+
+## One headline in the shape `headlines.json` holds it, so that a test can write
+## exactly the set it wants to watch fire.
+static func headline(id: String, stream: String, extra: Dictionary = {}) -> Dictionary:
+	var entry: Dictionary = {"id": id, "stream": stream}
+	entry.merge(extra, true)
+	return entry
+
+
+## The fixture content with `entries` as its whole headline list. An empty list
+## means "say nothing": the file may not be empty, so it holds one headline
+## whose condition no run ever reaches.
+static func db_with_headlines(entries: Array) -> ContentDB:
+	var content: Dictionary = raw_content()
+	var file: Dictionary = content["headlines"]
+	file["headlines"] = entries if not entries.is_empty() else [SILENT_HEADLINE]
+	var result: ContentLoadResult = load_raw(content)
+	assert(result.ok(), "the headline fixture must load cleanly:
+%s" % result.error_text())
+	return result.db
+
+
+## A run on the fixture world whose headlines are exactly `entries`.
+static func sim_with_headlines(entries: Array, seed_value: int = 1) -> Simulation:
+	return Simulation.create(db_with_headlines(entries), seed_value)
+
+
 ## Buys the dormancy branch and holds `region_id`. Returns the command's result
 ## so that a test can assert on the event.
 static func hold(simulation: Simulation, region_id: String,
@@ -108,6 +143,7 @@ static func raw_content() -> Dictionary:
 		"regions": read_json(WORLD_SMALL.path_join("world/regions.json")),
 		"links": read_json(WORLD_SMALL.path_join("world/links.json")),
 		"tech": [read_json(WORLD_SMALL.path_join("tech/fixture.json"))],
+		"headlines": read_json(WORLD_SMALL.path_join("headlines.json")),
 	}
 
 
@@ -117,7 +153,7 @@ static func load_raw(content: Dictionary) -> ContentLoadResult:
 	for entry: Variant in content["tech"]:
 		tech.append(entry)
 	return ContentLoader.load_from_dicts(content["balance"], content["regions"], content["links"],
-		tech)
+		tech, content["headlines"])
 
 
 ## The four files of a content root as text, so that a test can write a root that
@@ -132,6 +168,7 @@ static func root_files(content: Dictionary, indent: String = "\t") -> Dictionary
 		"world/regions.json": JSON.stringify(content["regions"], indent, true, true),
 		"world/links.json": JSON.stringify(content["links"], indent, true, true),
 		"tech/fixture.json": JSON.stringify(tech[0], indent, true, true),
+		"headlines.json": JSON.stringify(content["headlines"], indent, true, true),
 	}
 
 

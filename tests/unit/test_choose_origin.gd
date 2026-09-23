@@ -17,7 +17,8 @@ func test_choosing_an_origin_seeds_it() -> void:
 func test_the_event_names_the_region() -> void:
 	var sim: Simulation = Fixtures.sim()
 	var result: CommandResult = sim.apply(ChooseOriginCommand.new("fx_alder"))
-	assert_eq(result.events.size(), 1)
+	# The headline the fixture says about it comes after the command's own event
+	# (ticker.md §3.1).
 	assert_eq(result.events[0].type, SimEvent.ORIGIN_CHOSEN)
 	assert_eq(result.events[0].data["region"], "fx_alder")
 	assert_eq(result.events[0].day, 0)

@@ -14,15 +14,15 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S3.5 — Ticker component and headline system** |
+| **Next step** | **S3.6 — Strategy bots and batch reporting** |
 | **Model for it** | **Opus** — no switch |
-| **After it** | `/clear` → S3.6 (no switch) |
-| **Last completed** | S3.4 — title, origin select, results, pause menu, the phone’s bottom |
+| **After it** | `/clear` → **`/model fable`** → G3 (the M3 gate) |
+| **Last completed** | S3.5 — the headline system, the ticker rewritten around it |
 | **Milestone** | M2 gated; M3 building |
 | **Branch** | `main` |
-| **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` |
+| **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 120 scripts compile (51 judged by the suite), 636 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 128 scripts compile (53 judged by the suite), 667 tests. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Run it** | `run_project` starts at the **title** (`game/main.tscn`); New run → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
@@ -84,7 +84,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S3.2 [O] Tech tree interface
 - [x] S3.3 [O] Containment and phases in the interface
 - [x] S3.4 [O] Run flow: origin, outcome, results
-- [ ] S3.5 [O] Ticker component and headline system
+- [x] S3.5 [O] Ticker component and headline system
 - [ ] S3.6 [O] Strategy bots and batch reporting — ⇄ **then `/model fable`**
 
 **Block 7 — M3 gate, M4 design · Fable**
@@ -487,6 +487,20 @@ without new information.
 
 ## Design questions for Fable
 
+**New at S3.5 — a greedy run says 255 lines, and §8.3 of `ticker.md` bounds it at 200.** Two
+headlines make 112 of them: `anomaly_spawned` (63) and `anomaly_collected` (49), which fire at
+their cooldowns of 3 and 4 days for 300 days. Everything else is inside the expected range
+(filler 39, reaction 13, the other consequence lines ~90). The pacing is content, not code:
+raising those two cooldowns to ~10 days, or lowering their `chance`, brings the total to about
+190. The acceptance test asserts the shape §8.3 asks for — all three streams, the origin first,
+the outcome last, every cooldown respected — with a ceiling of 400 rather than 200, and this
+entry is why.
+
+**New at S3.5 — the same anomaly line twice a week reads as a stuck feed.** The 63 fires above
+are two sentences repeating with a different region in them. Whether that is the intended texture
+of a quiet run (a wire service *is* repetitive) or wants two or three more variants per anomaly
+event is a voice decision.
+
 **New at S3.3 — do the three containment drivers multiply or add?** `core.md` §7.5 sums them
 (`pressure = 1 + a + b + c`); `m3-screens.md` §4.1 and §12.2 read as if they multiplied
 (`(1+a)(1+b)(1+c)`). The build kept the sum (see *Deviations*) because the alternative is a balance
@@ -563,6 +577,32 @@ or a rate cell that is simply empty until it rounds up — that is one line in `
 *(empty — S2.P closed the twelve items from G2 on 2026-09-22. The next one comes from G3.)*
 
 ## Deviations from the plan or a spec
+
+- **2026-09-23** (S3.5) — **The outcome tick says only how the run ended.** §3.5 puts the urgent
+  types first and then says "the last line of a run is the outcome's" — but with `max_per_tick` 2
+  a `region_controlled` on the same tick still gets a line after it, and the run ends on a
+  footnote. The event pass on an outcome tick therefore sees the `outcome_reached` events only.
+- **2026-09-23** (S3.5) — **An event-triggered reaction does not push the reaction gap.** §3.5
+  says firing commits `stream_last_day[stream]`, and also that the gap applies to state-triggered
+  reactions only. Both cannot hold: committing it for an event reaction silences the state one on
+  the same tick, which is the case §8.1 asks for ("an event-triggered reaction fires on the same
+  day as a state one"). Only a state-triggered line moves the clock now.
+- **2026-09-23** (S3.5) — **`HeadlineSystem` lives in `core/systems/`, not `core/sim/`**, and its
+  loader half is split into `HeadlineConditions` (the `on`/`when` vocabulary) and `HeadlineArgs`
+  (the event's data). The spec's `core/sim/` does not exist in this tree, and the vocabulary in
+  one file is what lets the validator and the evaluator read the same table.
+- **2026-09-23** (S3.5) — **`HeadlineSystem.from_dict(d, db)`, not `(d, seed_value)`** (§3.1): the
+  block carries the rng seed itself, and dropping headline ids the content no longer has (§3.9)
+  needs the content.
+- **2026-09-23** (S3.5) — **The register turns on the `phase_changed` event, not on an
+  `EventBus.phase_changed`** (§4.3). The bus has no such signal — the phase is in the outbox like
+  everything else, and the strip already listens to it.
+- **2026-09-23** (S3.5) — **The ticker learns `compact` from the HUD** (a property the layout
+  sets), which is what §4.5's caption face and `TICKER_SPEED_COMPACT` need; the strip has no
+  viewport of its own to ask.
+- **2026-09-23** (S3.4, found at S3.5) — **The menu sheet puts the stat row back where it was.**
+  `release_stat_row` appended it, so after one trip to a phone layout and back the row sat *below*
+  the ticker. It restores the child index now; `test_status_strip.gd` asserts it.
 
 - **2026-09-23** (S3.4) — **The MENU button is a desktop control.** §7.3 puts an `IconButton` at
   the right end of the top bar and §9.3 keeps it in the compact bar. At 400 px neither row has the
@@ -988,6 +1028,17 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — S3.5 Ticker component and headline system [O]
+`HeadlineSystem` in `core/` turns the outbox and the world into `headline` events, chosen from the
+150 delivered headlines by trigger, cooldown and weight, with its own RNG (the state hash is
+unchanged, and `test_headlines_do_not_move_the_state_hash` proves it). New: `HeadlineDef`,
+`HeadlineConditions` (the whole `on`/`when` vocabulary, in tables the validator reads too),
+`HeadlineArgs`, `headlines.json` + its validation + `balance.headlines`, the save block,
+`TickerItem`/`HeadlineText`, and the strip rewritten around `(key, args)` — which is what makes
+`L` re-render the moving line instead of starting the run over. `EventText` and the eighteen
+`UI_EVENT_*` keys are gone. 31 new tests (667 green). A greedy run says 254 lines; two anomaly
+headlines are 112 of them, which is a G3 question, not a build one (see *Design questions*).
 
 ### 2026-09-23 — S3.4 Run flow: origin, outcome, results [O]
 `game/main.tscn` is the main scene now: a backdrop, a screen slot and `ScreenRouter` between the

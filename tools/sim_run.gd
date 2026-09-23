@@ -3,11 +3,18 @@ extends SceneTree
 ##
 ##     "$GODOT" --headless --path . -s tools/sim_run.gd -- \
 ##         --seed=1 --policy=greedy [--data=res://data] [--max-days=5000] [--check] [--replay]
+##         [--headlines]
+##
+## `--headlines` adds one line per headline the run said, after the summary:
+## `day<TAB>stream<TAB>id<TAB>the rendered English line` (ticker.md §6).
 ##
 ## Exit codes: 0 finished (a timeout included) · 1 bad arguments or content
 ## errors · 2 an invariant was violated · 3 the replay did not reproduce the run.
 
 const Harness := preload("res://tools/sim_harness.gd")
+
+## §6: the headline report is English, whatever the machine is set to.
+const LOCALE_REPORT: String = "en"
 
 
 func _init() -> void:
@@ -30,8 +37,10 @@ func _init() -> void:
 		args.has("check"), problems)
 	var sim: Simulation = played["sim"]
 	var summary: Dictionary = Harness.summarise(sim, seed_value, policy_id, max_days,
-		int(played["rejected"]))
+		int(played["rejected"]), played["headlines"])
 	print(JSON.stringify(summary))
+	if args.has("headlines"):
+		_print_headlines(played["headlines"])
 
 	if not problems.is_empty():
 		for problem: String in problems:
@@ -48,3 +57,19 @@ func _init() -> void:
 			return
 
 	quit(Harness.EXIT_OK)
+
+
+## A headless run has the translations `project.godot` registers; one without
+## them prints the key, which is not an error but is worth seeing.
+static func _print_headlines(rows: Array) -> void:
+	# The report is read by whoever tuned the numbers, and the spec asks for it
+	# in English whatever the machine speaks.
+	TranslationServer.set_locale(LOCALE_REPORT)
+	for entry: Variant in rows:
+		var row: Dictionary = entry
+		var data: Dictionary = row["data"]
+		var args: Dictionary = data.duplicate()
+		args.erase(SimEvent.FIELD_HEADLINE)
+		args.erase(SimEvent.FIELD_STREAM)
+		print("%d	%s	%s	%s" % [int(row["day"]), row["stream"], row["id"],
+			HeadlineText.render(HeadlineText.key_for(str(row["id"])), args)])

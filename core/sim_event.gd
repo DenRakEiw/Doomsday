@@ -24,6 +24,20 @@ const CONTAINMENT_ROLLED_BACK: String = "containment_rolled_back"
 const COMPUTE_GRANTED: String = "compute_granted"
 const HARM_BURST: String = "harm_burst"
 const DORMANCY_CHANGED: String = "dormancy_changed"
+## What the world says about the rest of them (ticker.md §3.7). Emitted by
+## `HeadlineSystem` after the systems, never a trigger for another headline.
+const HEADLINE: String = "headline"
+
+## Everything a headline may be triggered by — the catalogue above without
+## `HEADLINE` itself (ticker.md §5).
+const TYPES_ALL: Array[String] = [ORIGIN_CHOSEN, NODE_PURCHASED, ANOMALY_COLLECTED, REGION_SEEDED,
+	REGION_CONTROLLED, ANOMALY_SPAWNED, ANOMALY_EXPIRED, MILESTONE_REACHED, REGION_DEPOPULATED,
+	DISCOVERED, CONTAINMENT_THRESHOLD, PHASE_CHANGED, OUTCOME_REACHED, CONTAINMENT_ROLLED_BACK,
+	COMPUTE_GRANTED, HARM_BURST, DORMANCY_CHANGED]
+
+## Fields of a `HEADLINE` event that are not arguments of its text.
+const FIELD_HEADLINE: String = "headline"
+const FIELD_STREAM: String = "stream"
 
 ## Causes of `DISCOVERED`.
 const CAUSE_SCRUTINY: String = "scrutiny"

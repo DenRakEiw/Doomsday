@@ -246,6 +246,8 @@ const TOP_BAR_ROW_HEIGHT: int = 48
 const STAT_ROW_HEIGHT: int = 64
 const STAT_ROW_COMPACT_HEIGHT: int = 84
 const TICKER_HEIGHT: int = 40
+## ticker.md §4.5: a line that stands still gets two rows to stand in.
+const TICKER_STATIC_HEIGHT: int = 64
 
 ## §5.5: a dock button is bigger than `HIT_MIN` because it is a destination, not
 ## a control.
@@ -314,9 +316,12 @@ const MOTION_ALERT: int = 600
 ## m3-screens §6.5: one full breath of the Boxed pulse.
 const PULSE_PERIOD: int = 1600
 const ANOMALY_PULSE_PERIOD: int = 1200
-## How long a static ticker item stays before the next one replaces it (§5.5).
-## It is a timeout, not a movement: reduced motion shortens nothing about it.
+## How long a static ticker item stays before the next one replaces it (§5.5),
+## plus this much per character of it (ticker.md §4.5): an 80-character line
+## stands 8.8 s. It is a timeout, not a movement: reduced motion shortens
+## nothing about it.
 const TICKER_STATIC_PERIOD: int = 4000
+const TICKER_STATIC_PER_CHAR: int = 60
 
 const MS_PER_SECOND: float = 1000.0
 

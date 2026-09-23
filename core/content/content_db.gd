@@ -13,6 +13,9 @@ var links: Array[LinkDef] = []
 ## Tech files in ascending file-name order, nodes in the order of their file.
 var tech_nodes: Array[TechNodeDef] = []
 var tech_by_id: Dictionary[String, TechNodeDef] = {}
+## File order, which is the order the headline system checks them in.
+var headlines: Array[HeadlineDef] = []
+var headline_by_id: Dictionary[String, HeadlineDef] = {}
 var balance: BalanceDef = null
 ## Σ `RegionDef.population`, as a float because every formula using it is one.
 var population_total: float = 0.0
@@ -33,3 +36,10 @@ func tech(id: String) -> TechNodeDef:
 	if not tech_by_id.has(id):
 		return null
 	return tech_by_id[id]
+
+
+## The headline with this id, or null.
+func headline(id: String) -> HeadlineDef:
+	if not headline_by_id.has(id):
+		return null
+	return headline_by_id[id]

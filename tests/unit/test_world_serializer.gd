@@ -321,6 +321,45 @@ func test_a_version_below_one_is_corrupt_before_migration_is_tried() -> void:
 	assert_eq(_load(save).reason, WorldSerializer.REASON_CORRUPT)
 
 
+## ticker.md §3.9: the narration is saved with the run, and an older save simply
+## starts narrating again.
+func test_headline_block_round_trips_and_is_optional() -> void:
+	var sim: Simulation = _played()
+	assert_gt(sim.headlines.fires("h_seed"), 0, "the fixture run says something")
+	var loaded: LoadResult = WorldSerializer.from_json(WorldSerializer.to_json(sim), Fixtures.db())
+	assert_true(loaded.ok(), loaded.reason)
+	var after: HeadlineSystem = loaded.sim.headlines
+	assert_eq(after.to_dict(), sim.headlines.to_dict(), "every counter and the rng")
+
+	var save: Dictionary = _parse(WorldSerializer.to_json(sim))
+	save.erase("headlines")
+	var older: LoadResult = _load(save)
+	assert_true(older.ok(), older.reason)
+	assert_eq(older.sim.headlines.fires("h_seed"), 0, "a save from before it narrates anew")
+
+
+func test_a_headline_block_that_is_not_a_block_is_corrupt() -> void:
+	var sim: Simulation = _played(20)
+	for broken: Variant in [3, {"fires": 3}, {"rng_seed": 1}]:
+		var save: Dictionary = _parse(WorldSerializer.to_json(sim))
+		save["headlines"] = broken
+		assert_eq(_load(save).reason, WorldSerializer.REASON_CORRUPT,
+			"%s is not a headline block" % broken)
+
+
+## A headline the content no longer has is dropped, not refused: the content
+## changed, and `content_mismatch` already says so.
+func test_a_headline_id_this_build_lacks_is_dropped() -> void:
+	var sim: Simulation = _played(20)
+	var save: Dictionary = _parse(WorldSerializer.to_json(sim))
+	var block: Dictionary = save["headlines"]
+	var fires: Dictionary = block["fires"]
+	fires["h_from_another_build"] = 2
+	var loaded: LoadResult = _load(save)
+	assert_true(loaded.ok(), loaded.reason)
+	assert_eq(loaded.sim.headlines.fires("h_from_another_build"), 0)
+
+
 func _parse(text: String) -> Dictionary:
 	var json: JSON = JSON.new()
 	assert_eq(json.parse(text), OK)

@@ -1,53 +1,75 @@
 extends PanelContainer
-## The strip that narrates the run (spec ui-foundation.md §5.5).
+## The strip that narrates the run (specs ui-foundation.md §5.5, ticker.md §4).
 ##
-## Items scroll right to left at `TICKER_SPEED` and are separated by `SEPARATOR`;
-## a new one joins at the right end. Under reduced motion nothing moves: the
-## newest item stands still and is replaced every `TICKER_STATIC_PERIOD`, because
-## a player who turned motion off still has to be able to read the run.
+## It holds `TickerItem`s — a key and raw arguments — and renders them when it
+## draws them, so a language change re-renders the line that is already moving
+## instead of starting the run over. Its only source is the `headline` event of
+## D3.4's headline system; the panels and the map listen to the raw events
+## themselves.
 ##
-## M2 feeds it the event lines of `EventText` (§8.4). S3.5 replaces that source
-## with D3.4's headlines — the strip itself stays.
+## Two registers (CONTENT.md §10.3): institutional until the world knows, then
+## emergency, which is the separator and the idle line, not the colour — the
+## palette is the theme's.
 ##
 ## Scene-specific, so no `class_name`.
 
 ## §5.5: the queue holds this many lines, the oldest dropped first.
 const QUEUE_MAX: int = 12
-const SEPARATOR: String = "   ·   "
+const SEPARATOR_INSTITUTIONAL: String = "   ·   "
+const SEPARATOR_EMERGENCY: String = "   ///   "
 const KEY_IDLE: String = "UI_TICKER_IDLE"
+const KEY_IDLE_EMERGENCY: String = "UI_TICKER_IDLE_OPEN"
 const KEY_BOT_RUN: String = "UI_DEBUG_BOT_RUN"
 
+const REGISTER_INSTITUTIONAL: StringName = &"institutional"
+const REGISTER_EMERGENCY: StringName = &"emergency"
+
+const VARIATION_LINE: StringName = &"Ticker"
+const VARIATION_LINE_COMPACT: StringName = &"LabelCaption"
 const ITEM_FONT: StringName = &"font"
 const ITEM_FONT_SIZE: StringName = &"font_size"
 
+## Set by the HUD when the layout switches (§5.7): a slower line on a phone, and
+## the caption face when one has to stand in two rows.
+var compact: bool = false:
+	set(value):
+		if value == compact:
+			return
+		compact = value
+		if is_node_ready():
+			_apply_mode()
+
 ## Waiting to be shown, oldest first.
-var _queue: Array[String] = []
-## What the scrolling label currently spells out, oldest first.
-var _shown: Array[String] = []
+var _queue: Array[TickerItem] = []
+## What the label currently spells out, oldest first.
+var _shown: Array[TickerItem] = []
+var _register: StringName = REGISTER_INSTITUTIONAL
 ## Seconds the static item has been standing.
 var _standing: float = 0.0
 ## How wide the line is. Measured rather than read off the label: the label grows
 ## with the strip, and assigning its size back would fight the anchors.
 var _width: float = 0.0
+## The frame a re-render already happened in — the notification and the bus
+## signal both arrive on a locale change, and once is enough.
+var _rendered_frame: int = -1
 
 @onready var _clip: Control = %Clip
 @onready var _label: Label = %Line
 
 
 func _ready() -> void:
-	custom_minimum_size.y = float(UiTokens.TICKER_HEIGHT)
 	EventBus.sim_event.connect(_on_sim_event)
 	EventBus.run_started.connect(_on_run_started)
 	EventBus.reduced_motion_changed.connect(_on_reduced_motion_changed)
+	EventBus.locale_changed.connect(_on_locale_changed)
+	_clip.resized.connect(_on_clip_resized)
+	_apply_mode()
 	_reset()
 
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
-		# The lines are already translated, so a language change starts the strip
-		# over rather than mixing two languages in one sentence.
-		_queue.clear()
-		_reset()
+		_re_render()
 
 
 func _process(delta: float) -> void:
@@ -57,19 +79,30 @@ func _process(delta: float) -> void:
 	_advance_scroll(delta)
 
 
-## Puts a line at the right end of the queue. Empty lines are the mapping's way
-## of saying "not worth narrating" and never reach the strip.
-func push_item(item: String) -> void:
-	if item.is_empty():
+# ------------------------------------------------------------------- the queue
+
+
+## Puts an item at the right end of the queue.
+func push(item: TickerItem) -> void:
+	if item == null or item.key.is_empty():
 		return
 	_queue.append(item)
 	while _queue.size() > QUEUE_MAX:
 		_queue.pop_front()
-	if UiTokens.reduced_motion():
-		# Nothing is moving, so the new line goes up as soon as the one standing
-		# has had its time.
-		if _shown.is_empty():
-			_show_next_static()
+	# Nothing is moving, so a new line goes up as soon as the strip is free.
+	if UiTokens.reduced_motion() and _shown.is_empty():
+		_show_next_static()
+
+
+## The strip's own lines — the idle line and the bot banner — pushed the same way
+## a headline is, so that they re-render on a locale change too.
+func push_key(key: String, args: Dictionary = {}) -> void:
+	push(TickerItem.make(key, args))
+
+
+func clear() -> void:
+	_queue.clear()
+	_reset()
 
 
 ## What the strip spells out right now — the scrolling text or the standing line.
@@ -77,9 +110,39 @@ func text() -> String:
 	return _label.text
 
 
-## How many lines are waiting. For the tests and for S3.5's source.
+## How many lines are waiting.
 func queued() -> int:
 	return _queue.size()
+
+
+# ---------------------------------------------------------------- the register
+
+
+## §4.3: the separator and the idle line change, nothing else. Already-shown text
+## is re-joined at once and keeps its position.
+func set_register(value: StringName) -> void:
+	if value == _register:
+		return
+	_register = value
+	if not is_node_ready():
+		return
+	if _shown.is_empty():
+		_show_idle()
+		return
+	_apply_text()
+
+
+func register() -> StringName:
+	return _register
+
+
+func separator() -> String:
+	return SEPARATOR_EMERGENCY if _register == REGISTER_EMERGENCY \
+		else SEPARATOR_INSTITUTIONAL
+
+
+func _idle_key() -> String:
+	return KEY_IDLE_EMERGENCY if _register == REGISTER_EMERGENCY else KEY_IDLE
 
 
 # --------------------------------------------------------------- the two modes
@@ -92,10 +155,14 @@ func _advance_scroll(delta: float) -> void:
 	if _shown.is_empty():
 		_show_idle()
 		return
-	_label.position.x -= UiTokens.TICKER_SPEED * delta
+	_label.position.x -= _speed() * delta
 	_drop_passed()
 	if _label.position.x + _width <= 0.0:
 		_reset()
+
+
+func _speed() -> float:
+	return UiTokens.TICKER_SPEED_COMPACT if compact else UiTokens.TICKER_SPEED
 
 
 ## Everything waiting joins the line being drawn, which is what "a new item joins
@@ -114,7 +181,7 @@ func _take_queued() -> void:
 ## and the label jumps right by exactly its width, so nothing visibly moves.
 func _drop_passed() -> void:
 	while _shown.size() > 1:
-		var first: float = _measure(_shown[0] + SEPARATOR)
+		var first: float = _measure(_shown[0].render() + separator())
 		if _label.position.x + first > 0.0:
 			return
 		_shown.pop_front()
@@ -122,17 +189,23 @@ func _drop_passed() -> void:
 		_apply_text()
 
 
-## Static: one line at a time, replaced when its time is up (§5.5).
+## Static: one line at a time, standing long enough to be read (§4.5).
 func _advance_static(delta: float) -> void:
 	if _shown.is_empty():
 		_show_next_static()
 		return
 	_standing += delta
-	if _standing < UiTokens.seconds(UiTokens.TICKER_STATIC_PERIOD):
+	if _standing < _standing_time():
 		return
 	if _queue.is_empty():
 		return
 	_show_next_static()
+
+
+## Long lines stand longer: the period plus a while per character.
+func _standing_time() -> float:
+	var per_char: int = UiTokens.TICKER_STATIC_PER_CHAR * _label.text.length()
+	return UiTokens.seconds(UiTokens.TICKER_STATIC_PERIOD + per_char)
 
 
 func _show_next_static() -> void:
@@ -149,7 +222,7 @@ func _show_next_static() -> void:
 ## Nothing to say. The idle line stands still at the left edge whether or not
 ## motion is on — it is a state, not an item.
 func _show_idle() -> void:
-	var idle: String = tr(KEY_IDLE)
+	var idle: String = tr(_idle_key())
 	if _label.text == idle and _label.position.x == 0.0:
 		return
 	_label.position.x = 0.0
@@ -164,8 +237,25 @@ func _reset() -> void:
 
 
 func _apply_text() -> void:
-	_label.text = SEPARATOR.join(_shown)
+	var lines: PackedStringArray = []
+	for item: TickerItem in _shown:
+		lines.append(item.render())
+	_label.text = separator().join(lines)
 	_width = _measure(_label.text)
+
+
+## §4.4: everything shown and queued is rendered again, in place. Nothing is
+## dropped and the line does not jump — only the words change.
+func _re_render() -> void:
+	if Engine.get_process_frames() == _rendered_frame:
+		return
+	_rendered_frame = Engine.get_process_frames()
+	if _shown.is_empty():
+		_show_idle()
+		return
+	var position_x: float = _label.position.x
+	_apply_text()
+	_label.position.x = position_x
 
 
 ## The width of a piece of the line in the font the strip draws in.
@@ -177,23 +267,70 @@ func _measure(line: String) -> float:
 	return font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
 
 
+# ------------------------------------------------------------------- the shape
+
+
+## §4.5: standing still means two rows and a taller strip; moving means one row
+## of 40. The face shrinks on a phone, where 51 characters a row is the most a
+## German line can hope for.
+func _apply_mode() -> void:
+	var still: bool = UiTokens.reduced_motion()
+	custom_minimum_size.y = float(UiTokens.TICKER_STATIC_HEIGHT if still \
+		else UiTokens.TICKER_HEIGHT)
+	_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if still else TextServer.AUTOWRAP_OFF
+	_label.theme_type_variation = VARIATION_LINE_COMPACT if still and compact \
+		else VARIATION_LINE
+	_fit_label()
+
+
+## A wrapping label needs a width; a scrolling one must not have one, or the text
+## would wrap the moment it is longer than the strip.
+func _fit_label() -> void:
+	if not UiTokens.reduced_motion():
+		return
+	_label.position.x = 0.0
+	# The offset, not `size`: the label grows downwards from a bottom anchor, and
+	# writing its size back would fight the anchor (and warn about it).
+	_label.offset_right = _clip.size.x
+
+
+func _on_clip_resized() -> void:
+	_fit_label()
+
+
 # ---------------------------------------------------------------- the sources
 
 
+## §4.3: the register turns once, when the world stops pretending. `EventBus`
+## has no `phase_changed` of its own — the phase is in the outbox like
+## everything else.
 func _on_sim_event(event: SimEvent) -> void:
-	push_item(EventText.for_event(event))
+	var phase_to: String = str(event.data.get("to", ""))
+	if event.type == SimEvent.PHASE_CHANGED and phase_to == World.PHASE_IDS[World.Phase.OPEN]:
+		set_register(REGISTER_EMERGENCY)
+	push(HeadlineText.item_for(event))
 
 
-## §10.2: the ticker announces a bot run, which in M2 is the only way a run
-## starts at all.
+## §10.2: the ticker announces a bot run, which is the only way a run starts
+## without a player.
 func _on_run_started(seed_value: int) -> void:
-	_queue.clear()
-	_reset()
+	clear()
+	_register_from_state()
 	if Game.policy == null:
 		return
-	push_item(tr(KEY_BOT_RUN).format({
-		"policy": Game.policy.policy_id(), "seed": seed_value}))
+	push_key(KEY_BOT_RUN, {"policy": Game.policy.policy_id(), "seed": seed_value})
+
+
+## A run loaded in Open speaks the emergency register from its first frame.
+func _register_from_state() -> void:
+	var open: bool = Game.sim != null and Game.sim.world.phase == World.Phase.OPEN
+	set_register(REGISTER_EMERGENCY if open else REGISTER_INSTITUTIONAL)
 
 
 func _on_reduced_motion_changed(_enabled: bool) -> void:
+	_apply_mode()
 	_reset()
+
+
+func _on_locale_changed(_locale: String) -> void:
+	_re_render()

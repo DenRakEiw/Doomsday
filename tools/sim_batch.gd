@@ -53,7 +53,7 @@ func _init() -> void:
 		var problems: Array[String] = []
 		var played: Dictionary = Harness.play(db, seed_value, policy_id, max_days, false, problems)
 		var summary: Dictionary = Harness.summarise(played["sim"], seed_value, policy_id, max_days,
-			int(played["rejected"]))
+			int(played["rejected"]), played["headlines"])
 		var row: PackedStringArray = []
 		for field: String in Harness.FIELDS:
 			row.append(str(summary[field]))

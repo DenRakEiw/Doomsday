@@ -73,7 +73,7 @@ what we tighten.
 - **Naming:** classes `PascalCase`; functions, variables, signals `snake_case`; constants and enum
   values `UPPER_SNAKE`; enum types `PascalCase`; private members `_leading_underscore`; booleans
   read as a statement (`is_open`, `has_origin`, `discovered`). Content ids lower snake case,
-  localisation keys `UPPER_SNAKE` with a domain prefix (`data/SCHEMA.md` §6).
+  localisation keys `UPPER_SNAKE` with a domain prefix (`data/SCHEMA.md` §7).
 - **Typing:** every variable, parameter and return type is declared, `-> void` included. `:=` is
   allowed where the right-hand side makes the type obvious. Typed collections (`Array[Region]`,
   `Dictionary[String, float]`). Loop variables are typed (`for i: int in …`). Values from JSON or a

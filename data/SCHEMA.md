@@ -6,8 +6,8 @@ changes a loader, a format or the vocabulary changes this file in the same commi
 is a bug in one of them.
 
 Version: **v2** (D1.1 — regions, links, technology nodes, balance; D3.1 — the node grid, the
-factions that watch a node, one-shot effects, the targets and flags of the three trees). Later
-specs add sections.
+factions that watch a node, one-shot effects, the targets and flags of the three trees; D3.4 —
+`headlines.json` and the `headlines` balance section). Later specs add sections.
 
 ## 1. General rules
 
@@ -30,6 +30,7 @@ Layout of a content root (`res://data` or a test fixture directory — both have
 <root>/world/regions.json
 <root>/world/links.json
 <root>/tech/*.json          every file, in ascending file-name order
+<root>/headlines.json
 ```
 
 ## 2. `world/regions.json`
@@ -247,6 +248,13 @@ as ≥ 0 unless stated. The meaning of each constant is defined by the formula t
 | `containment.research_weight_by_tier` | [float × 5] | index = `research` tier; sum > 0 |
 | `containment.thresholds` | [float] | ascending, each in (0, 1); announced once when crossed |
 | `phase.open_containment` `.open_world_share` | float | in (0, 1] |
+| `headlines.max_per_tick` `.max_per_command` | int | ≥ 1; how many lines one tick or one command may say |
+| `headlines.reaction_gap_days` | int | ≥ 0; days between two state-triggered reactions |
+| `headlines.filler.gap_days` | {phase id: float > 0} | exactly the four phase ids; days between two filler lines |
+| `headlines.filler.per_dark_region` | float | added to the gap per dark region |
+| `headlines.filler.silence_dark_regions` | int | ≥ 1; this many dark regions and the filler stops |
+| `headlines.filler.silence_deaths_share` | float | in (0, 1]; so does this share of the world dead |
+| `results.ashes_share` | float | in (0, 1]; Ascendance above it reads as ashes (m3-screens §7.4) |
 | `history.interval_days` | int | ≥ 1 |
 
 Milestone: `{"id": <id>, "kind": <kind>, "threshold": <number>, "reward": <float>}`, ids unique.
@@ -257,7 +265,63 @@ Milestone: `{"id": <id>, "kind": <kind>, "threshold": <number>, "reward": <float
 | `world_share` | the infected share of the world's hardware reaches it | float in (0, 1] |
 | `continent_foothold` | a region is seeded on a continent other than the origin's — **once per continent**; the fired id is `<id>_<continent>` | ignored, write 1 |
 
-## 6. Localisation keys
+## 6. `headlines.json`
+
+What the world says about the run (spec `docs/specs/ticker.md` §3.2). One file per root, required.
+Root: `{"version": 1, "headlines": [ … ]}`, the array non-empty and in firing order — file order is
+the order the system checks them in, and two headlines eligible for the same slot are separated by
+`weight`, never by position.
+
+| Field | Type | Required | Rule |
+| --- | --- | --- | --- |
+| `id` | id | yes | unique; its text is `HEADLINE_<ID>` (§7) |
+| `stream` | `consequence` · `reaction` · `filler` | yes | what kind of line it is |
+| `register` | `institutional` · `emergency` · `any` | no (`any`) | `emergency` only while the phase is Open, `institutional` only while it is not |
+| `on` | object | one of `on`/`when` | event trigger, below. **Never on a `filler`** |
+| `when` | object | one of `on`/`when` | state conditions, below; with `on`, both must hold |
+| `weight` | float > 0 | no (1) | the share of the choice it takes |
+| `chance` | float in (0, 1] | no (1) | rolled per matching event; only with `on` |
+| `cooldown_days` | int ≥ 0 | no (0) | days between two fires of this headline |
+| `max_fires` | int ≥ 0 | no (0) | 0 = unlimited, 1 = once per run |
+| `fallback` | bool | no (false) | eligible only while no ordinary headline is, for the same event; only with `on` |
+
+**`on` — the event trigger.** `event` is required and is one of the catalogue (`core.md` §6.4);
+`headline` itself is not allowed. The rest narrow it:
+
+| Field | Type | Matches when |
+| --- | --- | --- |
+| `data` | object | for every `field → value(s)`: the event carries `field` and its value is one of them. A scalar is a one-element list. Ids are checked against the content: `node`, `region`, `milestone`, `link_kind`, `cause`, `outcome`, a `phase_changed` `to`/`from`, and a `threshold` against `balance.containment.thresholds` |
+| `region_attr_min` `region_attr_max` | attr → tier 0…4 | the event's `region` has that attribute at or above (below) the tier. Only on an event that carries a region |
+| `node_tree` | tree id | the event's `node` is in that tree. Only on `node_purchased` |
+| `node_tier` | int 1…3 | that node's tier. Only on `node_purchased` |
+
+**`when` — the state conditions.** All keys are ANDed, every key optional, an empty `when` always
+true. A state-only headline is checked only once the run has an origin. `_min` is `>=`, `_max` is
+`<=`, and a `_min` above its `_max` is an error.
+
+| Key | Type | Reads |
+| --- | --- | --- |
+| `phase` | [phase id] | the phase is one of them |
+| `discovered` | bool | |
+| `day_min` `day_max` | int | days since the origin |
+| `days_since_discovery_min` | int | never true while undiscovered |
+| `share_min` `share_max` | float | the infected share of the world's hardware |
+| `regions_min` `regions_max` | int | regions ever seeded |
+| `dark_min` `dark_max` | int | dark regions |
+| `dormant_min` | int | dormant regions |
+| `deaths_share_min` `deaths_share_max` | float | the dead as a share of the world |
+| `containment_min` `containment_max` | float | the highest faction containment |
+| `footprint_min` `footprint_max` | float | |
+| `harm_min` | float | the unscoped `harm` stat |
+| `compute_min` `compute_max` | float | |
+| `owned` `owned_any` `not_owned` | [node id] | all of them · at least one · none |
+| `owned_count_min` | int | nodes bought |
+| `flag` `not_flag` | [flag] | all of them set · none set |
+
+Anything else under `on` or `when` is an error. The vocabulary grows by a row here and a row in
+`HeadlineConditions`, never by an `if` per headline.
+
+## 7. Localisation keys
 
 `data/loc/strings.csv`, header `keys,en,de`. Keys are `UPPER_SNAKE`, prefixed by domain, and derived
 from content ids so that data files never carry text:
@@ -267,6 +331,7 @@ from content ids so that data files never carry text:
 | region `fx_alder` | `REGION_FX_ALDER` |
 | continent `europe` | `CONTINENT_EUROPE` |
 | tech node `cloud_federation` | `TECH_CLOUD_FEDERATION_NAME` · `…_EFFECT` · `…_FLAVOUR` — all three required, in `en` **and** `de`, for every shipped node |
+| headline `seed_first` | `HEADLINE_SEED_FIRST` — required, in `en` **and** `de`, for every shipped headline |
 | command failure `insufficient_compute` | `CMD_FAIL_INSUFFICIENT_COMPUTE` |
 | interface text | `UI_<SCREEN>_<ELEMENT>` |
 
