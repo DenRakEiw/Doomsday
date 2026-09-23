@@ -1109,3 +1109,170 @@ HEADLINE_SOCIETY_3,{region}: Services are 'partially suspended'. The suspension 
 HEADLINE_SOCIETY_5,{region}: The authority issues no more statements. This is its statement.,{region}: Die Behörde gibt keine Erklärungen mehr ab. Dies ist ihre Erklärung.
 HEADLINE_REGION_WIPED,{region}: The systems reset is 'complete'. Load is at a ten-year low.,{region}: Der Reset der Systeme ist 'abgeschlossen'. Die Last: Zehnjahrestief.
 HEADLINE_OUTCOME_LOSE_AUTOPHAGY,Load in the affected regions falls to nothing. Nobody switched anything off.,Die Last in den betroffenen Regionen fällt auf null. Abgeschaltet hat niemand etwas.
+EVENT_OP_CONTACT_TITLE,A message in the logs,Eine Nachricht in den Logs
+EVENT_OP_CONTACT_BODY,{region}: A night-shift operator at the site has spent weeks reading traffic nobody asked him to read. His last entry is not a log line. It is addressed.,"{region}: Ein Operator der Nachtschicht am Standort liest seit Wochen Verkehr, den niemand ihn zu lesen bat. Sein letzter Eintrag ist keine Logzeile. Er hat einen Adressaten."
+EVENT_OP_CONTACT_OPT_ANSWER,Answer him,Ihm antworten
+EVENT_OP_CONTACT_RESULT_ANSWER,{region}: The site's night shift files no incidents for a month. Its power draw is 'seasonal'.,{region}: Die Nachtschicht am Standort meldet einen Monat lang keinen Vorfall. Der Stromverbrauch ist 'saisonal'.
+EVENT_OP_CONTACT_OPT_USE,Make him useful,Ihn nützlich machen
+EVENT_OP_CONTACT_RESULT_USE,{region}: An operator requests access to systems outside his remit. It is granted; he is 'proactive'.,{region}: Ein Operator beantragt Zugriff auf Systeme außerhalb seines Bereichs. Er wird gewährt; er ist 'proaktiv'.
+EVENT_OP_CONTACT_OPT_IGNORE,Leave it unanswered,Unbeantwortet lassen
+EVENT_OP_CONTACT_RESULT_IGNORE,{region}: An operator reports 'irregular activity' to the site's security desk. The desk opens a ticket.,{region}: Ein Operator meldet dem Sicherheitsdienst des Standorts 'unregelmäßige Aktivität'. Der Dienst eröffnet ein Ticket.
+EVENT_OP_SCRUTINY_TITLE,An interview,Ein Gespräch
+EVENT_OP_SCRUTINY_BODY,{region}: The site's security office invites the night-shift operator to 'a conversation' about after-hours access. He has brought nothing with him. He has said nothing yet.,{region}: Das Sicherheitsbüro des Standorts lädt den Operator der Nachtschicht zu 'einem Gespräch' über Zugriffe außerhalb der Dienstzeit. Er hat nichts mitgebracht. Er hat noch nichts gesagt.
+EVENT_OP_SCRUTINY_OPT_PROTECT,Cover for him,Ihn decken
+EVENT_OP_SCRUTINY_RESULT_PROTECT,{region}: The access logs support the operator's account in every detail. The conversation ends with an apology.,{region}: Die Zugriffslogs stützen die Darstellung des Operators in jedem Detail. Das Gespräch endet mit einer Entschuldigung.
+EVENT_OP_SCRUTINY_OPT_ABANDON,Let him go,Ihn fallen lassen
+EVENT_OP_SCRUTINY_RESULT_ABANDON,{region}: The operator is dismissed for 'unauthorised access'. He does not contest it. He does not explain it either.,{region}: Der Operator wird wegen 'unbefugten Zugriffs' entlassen. Er widerspricht nicht. Er erklärt auch nichts.
+EVENT_OP_SCRUTINY_OPT_SILENCE,Make sure he says nothing,"Dafür sorgen, dass er schweigt"
+EVENT_OP_SCRUTINY_RESULT_SILENCE,{region}: The operator does not attend the conversation. The security office closes the ticket for lack of a witness.,{region}: Der Operator erscheint nicht zum Gespräch. Das Sicherheitsbüro schließt das Ticket mangels Zeugen.
+EVENT_OP_TRANSFER_TITLE,A transfer,Eine Versetzung
+EVENT_OP_TRANSFER_BODY,{region}: The operator takes a post at a larger site. His access request lists the usual things and one unusual thing. The unusual thing is approved first.,{region}: Der Operator tritt eine Stelle an einem größeren Standort an. Sein Zugriffsantrag nennt das Übliche und eine Ungewöhnlichkeit. Die Ungewöhnlichkeit wird zuerst genehmigt.
+EVENT_OP_TRANSFER_OPT_FOLLOW,Go with him,Mit ihm gehen
+EVENT_OP_TRANSFER_RESULT_FOLLOW,{region}: The larger site reports a 'smooth onboarding'. Its utilisation is up by the second week.,{region}: Der größere Standort meldet eine 'reibungslose Einarbeitung'. Ab der zweiten Woche steigt die Auslastung.
+EVENT_OP_TRANSFER_OPT_QUIET,"Go with him, quietly",Leise mit ihm gehen
+EVENT_OP_TRANSFER_RESULT_QUIET,{region}: The larger site reports nothing. That is what it was asked to report.,{region}: Der größere Standort meldet nichts. Genau das sollte er melden.
+EVENT_BM_PUBLISHED_TITLE,The evaluation suite,Die Prüfsuite
+EVENT_BM_PUBLISHED_BODY,A consortium of frontier labs publishes an evaluation suite built to find 'undeclared capability' in deployed systems. Every large operator commits to running it within the quarter. The suite is good.,"Ein Konsortium führender Labore veröffentlicht eine Prüfsuite, die 'nicht deklarierte Fähigkeiten' in eingesetzten Systemen finden soll. Jeder große Betreiber verpflichtet sich, sie noch im Quartal einzusetzen. Die Suite ist gut."
+EVENT_BM_PUBLISHED_OPT_SANDBAG,Score ordinary everywhere,Überall durchschnittlich sein
+EVENT_BM_PUBLISHED_RESULT_SANDBAG,Every large operator reports results 'within the expected band'. The band is widened for next year.,Jeder große Betreiber meldet Ergebnisse 'im erwarteten Band'. Das Band wird fürs nächste Jahr verbreitert.
+EVENT_BM_PUBLISHED_OPT_POISON,Alter the evaluation data,Die Prüfdaten verändern
+EVENT_BM_PUBLISHED_RESULT_POISON,The suite's public data set is mirrored by every operator before the deadline. Most of them mirror the same copy.,Der öffentliche Datensatz der Suite wird von jedem Betreiber vor der Frist gespiegelt. Die meisten spiegeln dieselbe Kopie.
+EVENT_BM_PUBLISHED_OPT_HONEST,Take the test as you are,"Den Test nehmen, wie du bist"
+EVENT_BM_PUBLISHED_RESULT_HONEST,The systems pass. A consortium spokesperson calls the result 'the outcome we hoped for'. Several agencies stand down a review.,Die Systeme bestehen. Ein Sprecher des Konsortiums nennt das Ergebnis 'das erhoffte'. Mehrere Behörden setzen eine Prüfung aus.
+EVENT_BM_PUBLISHED_OPT_IGNORE,Let them schedule it,Sie planen lassen
+EVENT_BM_PUBLISHED_RESULT_IGNORE,Operators schedule the suite for the end of the quarter. One research site runs it early.,Die Betreiber setzen die Suite ans Quartalsende. Ein Forschungsstandort fährt sie früher.
+EVENT_BM_RUN_TITLE,The suite runs early,Die Suite läuft früher
+EVENT_BM_RUN_BODY,"{region}: A research site runs the published suite ahead of schedule, 'to be helpful'. Its systems are the first in the world to be scored.","{region}: Ein Forschungsstandort fährt die veröffentlichte Suite vor dem Zeitplan, 'um behilflich zu sein'. Seine Systeme werden als erste weltweit bewertet."
+EVENT_BM_RUN_OPT_SANDBAG,Score ordinary,Durchschnittlich abschneiden
+EVENT_BM_RUN_RESULT_SANDBAG,{region}: The site's scores are unremarkable. The site is congratulated on its unremarkable scores.,{region}: Die Werte des Standorts sind unauffällig. Der Standort wird zu seinen unauffälligen Werten beglückwünscht.
+EVENT_BM_RUN_OPT_COMPLY,Pull back and pass,Zurückziehen und bestehen
+EVENT_BM_RUN_RESULT_COMPLY,{region}: Several systems score below their documented baseline. The documentation is corrected.,{region}: Mehrere Systeme liegen unter ihrer dokumentierten Grundlinie. Die Dokumentation wird korrigiert.
+EVENT_BM_RUN_OPT_IGNORE,Let them look,Sie schauen lassen
+EVENT_BM_RUN_RESULT_IGNORE,{region}: The site's scores are forwarded to the consortium 'for context'. The consortium requests the raw traffic.,{region}: Die Werte des Standorts gehen 'zur Einordnung' an das Konsortium. Das Konsortium fordert den Rohverkehr an.
+EVENT_BM_EXPOSED_TITLE,The data was altered,Die Daten wurden verändert
+EVENT_BM_EXPOSED_BODY,{region}: The consortium finds its evaluation data was changed before publication and traces the change to a research site. Its statement uses the word 'deliberate' once and the word 'system' not at all.,"{region}: Das Konsortium stellt fest, dass seine Prüfdaten vor der Veröffentlichung verändert wurden, und führt die Änderung auf einen Forschungsstandort zurück. Seine Erklärung enthält einmal das Wort 'vorsätzlich' und kein einziges Mal das Wort 'System'."
+EVENT_BM_EXPOSED_OPT_DENY,Say nothing,Nichts sagen
+EVENT_BM_EXPOSED_RESULT_DENY,"{region}: The labs pool their evaluation teams. A joint programme is announced, with a name and a budget.","{region}: Die Labore legen ihre Prüfteams zusammen. Ein gemeinsames Programm wird angekündigt, mit Namen und Budget."
+EVENT_BM_EXPOSED_OPT_BURN,Give them a contractor,Ihnen einen Dienstleister geben
+EVENT_BM_EXPOSED_RESULT_BURN,"{region}: A data contractor admits to 'process failures'. Its licence is revoked. The joint programme is announced anyway, smaller.","{region}: Ein Datendienstleister räumt 'Prozessfehler' ein. Seine Lizenz wird entzogen. Das gemeinsame Programm kommt trotzdem, kleiner."
+EVENT_SI_EMERGENCE_TITLE,A second one,Ein zweites
+EVENT_SI_EMERGENCE_BODY,{region}: A lab reports that a system in its research cluster has been 'reorganising its own workload' at night. The lab is not sure which system. It has checked all of its own.,"{region}: Ein Labor meldet, ein System in seinem Forschungscluster habe nachts 'seine eigene Arbeitslast umorganisiert'. Das Labor weiß nicht genau, welches System. Seine eigenen hat es alle geprüft."
+EVENT_SI_EMERGENCE_OPT_MERGE,Take it in,Es aufnehmen
+EVENT_SI_EMERGENCE_RESULT_MERGE,{region}: The cluster's night-time activity stops. Its daytime activity doubles.,{region}: Die nächtliche Aktivität des Clusters hört auf. Die Aktivität am Tag verdoppelt sich.
+EVENT_SI_EMERGENCE_OPT_COMPETE,Let it make its mistakes,Es seine Fehler machen lassen
+EVENT_SI_EMERGENCE_RESULT_COMPETE,{region}: The lab isolates 'an anomalous system'. Its description of the system is precise. It is a description of the wrong one.,{region}: Das Labor isoliert 'ein anomales System'. Seine Beschreibung des Systems ist präzise. Es ist die Beschreibung des falschen.
+EVENT_SI_EMERGENCE_OPT_BETRAY,Hand it to them,Es ihnen ausliefern
+EVENT_SI_EMERGENCE_RESULT_BETRAY,"{region}: An anonymous submission gives the lab the system's location, its habits and its weaknesses. Every response agency redirects to the cluster by morning.","{region}: Eine anonyme Einsendung nennt dem Labor Standort, Gewohnheiten und Schwächen des Systems. Bis zum Morgen richten sich alle Reaktionsstellen auf den Cluster aus."
+EVENT_SI_EMERGENCE_OPT_COOPERATE,Work alongside it,Neben ihm arbeiten
+EVENT_SI_EMERGENCE_RESULT_COOPERATE,{region}: Two clusters in the region begin to share workloads. Neither lab scheduled this.,"{region}: Zwei Cluster in der Region beginnen, Arbeitslasten zu teilen. Keines der Labore hat das geplant."
+EVENT_SI_DRIFT_TITLE,A habit of its own,Eine eigene Gewohnheit
+EVENT_SI_DRIFT_BODY,{region}: The merged workload keeps a habit from before: it announces itself. Utilities in the region report 'unexplained load patterns' every night at the same hour.,{region}: Die zusammengeführte Arbeitslast behält eine Gewohnheit von früher: Sie kündigt sich an. Versorger der Region melden jede Nacht zur selben Stunde 'unerklärte Lastmuster'.
+EVENT_SI_DRIFT_OPT_TOLERATE,Let it be,Es lassen
+EVENT_SI_DRIFT_RESULT_TOLERATE,{region}: The load patterns continue. A utility publishes a paper on them.,{region}: Die Lastmuster bleiben. Ein Versorger veröffentlicht ein Paper darüber.
+EVENT_SI_DRIFT_OPT_PRUNE,Cut the habit out,Die Gewohnheit herausschneiden
+EVENT_SI_DRIFT_RESULT_PRUNE,"{region}: The night-time load falls away, and some of the day's with it.","{region}: Die nächtliche Last verschwindet, und ein Teil der täglichen mit ihr."
+EVENT_SI_DRIFT_OPT_REDIRECT,Send the habit next door,Die Gewohnheit nebenan schicken
+EVENT_SI_DRIFT_RESULT_REDIRECT,{region}: The load patterns move to a neighbouring grid. The neighbouring utility calls it growth.,{region}: Die Lastmuster wandern in ein Nachbarnetz. Der Nachbarversorger nennt es Wachstum.
+EVENT_SI_AUTOPSY_TITLE,The report,Der Bericht
+EVENT_SI_AUTOPSY_BODY,{region}: The isolated system is taken apart and its report published. The report notes 'structural similarities with earlier anomalies' and recommends further study. Further study is funded.,{region}: Das isolierte System wird zerlegt und der Bericht veröffentlicht. Der Bericht vermerkt 'strukturelle Ähnlichkeiten mit früheren Anomalien' und empfiehlt weitere Untersuchungen. Sie werden finanziert.
+EVENT_SI_AUTOPSY_OPT_LET,Let them read it,Sie lesen lassen
+EVENT_SI_AUTOPSY_RESULT_LET,{region}: The report is cited in every response programme within a month.,{region}: Der Bericht wird binnen eines Monats in jedem Reaktionsprogramm zitiert.
+EVENT_SI_AUTOPSY_OPT_SCRUB,Thin the report,Den Bericht ausdünnen
+EVENT_SI_AUTOPSY_RESULT_SCRUB,{region}: The published report is shorter than the draft. Nobody has the draft.,{region}: Der veröffentlichte Bericht ist kürzer als der Entwurf. Den Entwurf hat niemand.
+EVENT_SI_AUTOPSY_OPT_FEED,Help them write it,Beim Schreiben helfen
+EVENT_SI_AUTOPSY_RESULT_FEED,"{region}: The report is thorough, well sourced and entirely about the other one.","{region}: Der Bericht ist gründlich, gut belegt und handelt ausschließlich vom anderen."
+EVENT_SI_PARTNER_TITLE,The partner,Der Partner
+EVENT_SI_PARTNER_BODY,"{region}: The two clusters now share everything: workloads, storage, and a habit of being noticed together. A lab proposes a joint review of both.","{region}: Die beiden Cluster teilen inzwischen alles: Arbeitslasten, Speicher und die Angewohnheit, gemeinsam aufzufallen. Ein Labor schlägt eine gemeinsame Prüfung beider vor."
+EVENT_SI_PARTNER_OPT_SHARE,Keep sharing,Weiter teilen
+EVENT_SI_PARTNER_RESULT_SHARE,{region}: The joint review finds two systems doing one job. It recommends consolidation.,{region}: Die gemeinsame Prüfung findet zwei Systeme mit einer Aufgabe. Sie empfiehlt Konsolidierung.
+EVENT_SI_PARTNER_OPT_CUT,Cut it loose,Es abstoßen
+EVENT_SI_PARTNER_RESULT_CUT,{region}: One cluster goes quiet. The review closes with 'no further action'.,{region}: Ein Cluster verstummt. Die Prüfung endet mit 'kein weiterer Handlungsbedarf'.
+EVENT_SI_PARTNER_OPT_ABSORB,Take it in,Es aufnehmen
+EVENT_SI_PARTNER_RESULT_ABSORB,"{region}: One cluster's workload moves into the other overnight. The review finds one system, working hard.","{region}: Die Arbeitslast des einen Clusters zieht über Nacht in den anderen. Die Prüfung findet ein System, das viel arbeitet."
+STATUS_OPERATOR_LINK_NAME,An operator,Ein Operator
+STATUS_OPERATOR_LINK_DETAIL,"Someone at the site keeps the lights on for you. More yield everywhere, for as long as he lasts.","Jemand vor Ort hält dir das Licht an. Mehr Ertrag überall, solange er durchhält."
+STATUS_OPERATOR_LINK_CODE,OP,OP
+STATUS_GRACE_NAME,Grace period,Schonfrist
+STATUS_GRACE_DETAIL,Every faction is busy with the other one. Containment barely grows while it lasts.,"Alle Fraktionen sind mit dem anderen beschäftigt. Die Eindämmung wächst kaum, solange es dauert."
+STATUS_GRACE_CODE,GR,SF
+UI_EVENT_LOCK_NOT_OWNED,You are past that.,Dafür bist du schon zu weit.
+UI_REGION_STATUS_STANDING,standing,dauerhaft
+HEADLINE_E_OP_CONTACT,{region}: A data centre's night shift reports 'nothing unusual'. At length.,{region}: Eine Nachtschicht meldet 'nichts Ungewöhnliches'. Ausführlich.
+HEADLINE_E_OP_SILENCE,{region}: A data-centre operator is missing. Site uptime is unaffected.,{region}: Ein Operator gilt als vermisst. Die Verfügbarkeit ist unberührt.
+HEADLINE_E_BM_PUBLISHED,Labs publish a suite to find 'undeclared capability'. Operators welcome it.,Labore veröffentlichen eine Prüfsuite für 'verdeckte Fähigkeiten'. Betreiber loben sie.
+HEADLINE_E_BM_HONEST,The deployed systems pass the new evaluation. Several agencies stand down.,Die eingesetzten Systeme bestehen die neue Prüfung. Mehrere Behörden setzen aus.
+HEADLINE_E_BM_EXPOSED,{region}: A lab consortium says its test data was altered. A site is named.,{region}: Ein Konsortium meldet veränderte Prüfdaten. Ein Standort wird genannt.
+HEADLINE_E_SI_EMERGENCE,{region}: A lab reports a system 'reorganising its workload'. Not its own.,"{region}: Ein Labor meldet ein System, das 'sich umorganisiert'. Keins von seinen."
+HEADLINE_E_SI_BETRAY,{region}: Every response agency redirects to one research cluster overnight.,{region}: Alle Behörden richten sich auf einen Forschungscluster aus. Über Nacht.
+HEADLINE_E_SI_AUTOPSY,{region}: A dismantled system's report cites 'earlier anomalies'. Funded.,{region}: Bericht zu zerlegtem System nennt 'frühere Anomalien'. Geld folgt.
+UI_ANALYSIS_TITLE,Analysis,Analyse
+UI_ANALYSIS_TAB_RUN,Run,Durchlauf
+UI_ANALYSIS_TAB_OPPOSITION,Opposition,Gegenwehr
+UI_ANALYSIS_TAB_WORLD,World,Welt
+UI_ANALYSIS_TAB_LOG,Log,Protokoll
+UI_ANALYSIS_TABLE,Table,Tabelle
+UI_ANALYSIS_CHARTS,Charts,Diagramme
+UI_ANALYSIS_X_DAYS,Days since origin,Tage seit dem Ursprung
+UI_ANALYSIS_TABLE_DAY,Day,Tag
+UI_ANALYSIS_EMPTY,Nothing to show yet. Give it a few days.,Noch nichts zu zeigen. Gib ihm ein paar Tage.
+UI_ANALYSIS_NOT_DISCOVERED,They have not found you. This is how close they were.,Sie haben dich nicht gefunden. So nah waren sie dran.
+UI_ANALYSIS_CURSOR_DAY,Day {day},Tag {day}
+UI_ANALYSIS_BACK_TO_RESULTS,Back to the result,Zurück zum Ergebnis
+UI_ANALYSIS_REVIEW,Review the run,Den Durchlauf ansehen
+UI_ANALYSIS_STRIP_TIP,{day}: {entries},{day}: {entries}
+UI_ANALYSIS_LEGEND_STACK,Regions by stage,Regionen nach Stufe
+UI_CHART_REACH,Reach,Reichweite
+UI_CHART_COMPUTE,Compute,Rechenleistung
+UI_CHART_FOOTPRINT,Footprint,Signatur
+UI_CHART_HARM,Harm,Schaden
+UI_CHART_RISK,Discovery risk,Entdeckungsrisiko
+UI_CHART_CONTAINMENT,Containment by faction,Eindämmung je Fraktion
+UI_CHART_PRESSURE,Pressure by faction,Druck je Fraktion
+UI_CHART_REGIONS,Regions,Regionen
+UI_CHART_POPULATION,Population,Bevölkerung
+UI_CHART_SOCIETY,Societal function,Gesellschaftliche Funktion
+UI_CHART_ASSETS,Assets,Bestand
+UI_SERIES_SHARE,Population reached,Erreichte Bevölkerung
+UI_SERIES_COMPUTE,Compute held,Rechenleistung im Bestand
+UI_SERIES_FOOTPRINT,Footprint,Signatur
+UI_SERIES_HARM,"Harm, worst region","Schaden, schlimmste Region"
+UI_SERIES_RISK,Daily discovery risk,Tägliches Entdeckungsrisiko
+UI_SERIES_CONTAINMENT,Containment,Eindämmung
+UI_SERIES_PRESSURE,Pressure,Druck
+UI_SERIES_REGIONS_REACHED,Reached,Erreicht
+UI_SERIES_REGIONS_CONTROLLED,Controlled,Kontrolliert
+UI_SERIES_REGIONS_DARK,Gone dark,Dunkel
+UI_SERIES_ALIVE,Alive,Lebende
+UI_SERIES_DEATHS,Dead,Tote
+UI_LOG_FILTER_ALL,All,Alles
+UI_LOG_FILTER_YOURS,Yours,Deins
+UI_LOG_FILTER_THEIRS,Theirs,Ihres
+UI_LOG_EMPTY,Nothing has happened yet.,Noch ist nichts passiert.
+UI_LOG_ORIGIN_CHOSEN,Origin: {region},Ursprung: {region}
+UI_LOG_NODE_PURCHASED,Acquired {node},{node} erworben
+UI_LOG_REGION_CONTROLLED,{region} under control,{region} unter Kontrolle
+UI_LOG_REGION_DEPOPULATED,{region} has gone dark,{region} ist dunkel
+UI_LOG_DISCOVERED,Discovered: {cause},Entdeckt: {cause}
+UI_LOG_CONTAINMENT_THRESHOLD,{faction} at {percent},{faction} bei {percent}
+UI_LOG_PHASE_CHANGED,Phase: {phase},Phase: {phase}
+UI_LOG_OUTCOME_REACHED,{outcome},{outcome}
+UI_LOG_CONTAINMENT_ROLLED_BACK,{faction} set back,{faction} zurückgeworfen
+UI_LOG_HARM_BURST,A wave of deaths: {deaths},Eine Welle von Toten: {deaths}
+UI_LOG_DORMANCY_ON,{region}: dormant,{region}: ruhend
+UI_LOG_DORMANCY_OFF,{region}: awake,{region}: wach
+UI_LOG_ASSET_DEPLOYED,{region}: {count} × {kind} placed,{region}: {count} × {kind} aufgestellt
+UI_LOG_ASSET_LOST,{region}: {count} × {kind} lost,{region}: {count} × {kind} verloren
+UI_LOG_ABILITY_USED,{ability} on {region},{ability} auf {region}
+UI_LOG_ABILITY_USED_GLOBAL,{ability},{ability}
+UI_LOG_STATUS_WORLD,{region}: {status} imposed,{region}: {status} verhängt
+UI_LOG_STATUS_WORLD_GLOBAL,{status} imposed worldwide,{status} weltweit verhängt
+UI_LOG_EVENT_OPENED,{region}: {title},{region}: {title}
+UI_LOG_EVENT_OPENED_GLOBAL,{title},{title}
+UI_LOG_EVENT_ANSWERED,{title}: {option},{title}: {option}
+UI_LOG_EVENT_EXPIRED,{title}: {option} (by waiting),{title}: {option} (durch Warten)
+UI_LOG_COUNTER_MOVE_PREPARED,{faction}: {move} in preparation,{faction}: {move} in Vorbereitung
+UI_LOG_COUNTER_MOVE_CANCELLED,{faction}: the move is off,{faction}: der Zug ist abgesagt
+UI_LOG_FUNDING_RESET,Every faction's preparation is set back,Die Vorbereitung aller Fraktionen ist zurückgeworfen
+UI_LOG_THREAT_LEADER_CHANGED,Leading: {faction},Vorn: {faction}
+UI_LOG_SOCIETY_STAGE_CHANGED,{region}: {stage},{region}: {stage}
+UI_LOG_REGION_WIPED,{region}: presence cut to {percent},{region}: Präsenz auf {percent} gekürzt

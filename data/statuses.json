@@ -1,5 +1,5 @@
 {
-	"_comment": "Timed conditions on a region or on the agent. Grammar: docs/specs/loop-mechanics.md section 7. The world's eight counter-move statuses (Disclosure in four kinds) and the four answer statuses that counter-move options apply were written in D4.2 (docs/specs/opposition.md section 7.2); level 2 of a world status is applied when the faction stands at or above balance.factions.level_thresholds[0]. The player statuses the abilities apply (harvested, crisis, blackout, shortage, rerouted, silenced, paused) and the two Grid Bill statuses (throttled, metered) were written in D4.3 (docs/specs/loop-content.md section 5). Loaded from S4.2 on.",
+	"_comment": "Timed conditions on a region or on the agent. Grammar: docs/specs/loop-mechanics.md section 7. The world's eight counter-move statuses (Disclosure in four kinds) and the four answer statuses that counter-move options apply were written in D4.2 (docs/specs/opposition.md section 7.2); level 2 of a world status is applied when the faction stands at or above balance.factions.level_thresholds[0]. The player statuses the abilities apply (harvested, crisis, blackout, shortage, rerouted, silenced, paused) and the two Grid Bill statuses (throttled, metered) were written in D4.3 (docs/specs/loop-content.md section 5). Loaded from S4.2 on. D4.4 appends operator_link (a standing status: days 0, the D4.4 extension) and grace (The Operator, Second Instance).",
 	"version": 1,
 	"statuses": [
 		{
@@ -528,6 +528,39 @@
 					"modifiers": [
 						{"target": "yield", "op": "mul", "value": 0.8},
 						{"target": "anomaly_value", "op": "mul", "value": 0.8}
+					]
+				}
+			]
+		},
+		{
+			"id": "operator_link",
+			"origin": "player",
+			"watched_by": [],
+			"levels": [
+				{
+					"days": 0,
+					"modifiers": [
+						{"target": "yield", "op": "mul", "value": 1.1}
+					]
+				},
+				{
+					"days": 0,
+					"modifiers": [
+						{"target": "yield", "op": "mul", "value": 1.15},
+						{"target": "footprint", "op": "add", "value": 1.0}
+					]
+				}
+			]
+		},
+		{
+			"id": "grace",
+			"origin": "player",
+			"watched_by": [],
+			"levels": [
+				{
+					"days": 45,
+					"modifiers": [
+						{"target": "containment_growth", "op": "mul", "value": 0.1}
 					]
 				}
 			]

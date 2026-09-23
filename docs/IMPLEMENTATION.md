@@ -711,6 +711,12 @@ statuses, assets and events; every string in both languages.
 Instance** — data and text, `illustration` ids on the `modal` steps. A needed effect that does not exist is requested as a vocabulary
 extension in the spec, never worked around. Plus `docs/specs/analysis.md`: series, charts, the
 run log (events, statuses and counter-moves included), history sampling.
+**Produced** (2026-09-23): `docs/specs/chains.md` (the three chains, four vocabulary extensions:
+`pick.origin`, a standing status `days: 0`, `global` on `apply_status`/`end_statuses`,
+`requires.not_owned`) and `docs/specs/analysis.md` (per-day bounded history and the run log in
+the core, the Analysis sheet, `LineChart`, the results *Review* button); `data/events/{operator,
+benchmark,second_instance}.json` (10 steps, 5 illustration ids); `operator_link` and `grace` in
+`data/statuses.json`; 8 headlines appended to `headlines_staging/s4_3.json`; 167 strings en/de.
 
 ## Block 8 — M4 build · Opus *(rewritten at D4.0; loop-redesign.md §10 is the source)*
 
@@ -730,12 +736,14 @@ take them all, the *Done when* uses Blackout and Harvest), `UseAbilityCommand`, 
 `containment_capacity` / `penetration_decay` / `control_decay` / `shutdown_survival` live, link
 closures, one-shot effects, status rings, the *Actions* and *Status* rows, the console line;
 the status-colour and `UI_REGION_STATUS_WORLD` rule for a world status without a faction
-(loop-content §11.3); merge `s4_2.json`.
+(loop-content §11.3); **a standing status (`days: 0`) and `global` on `apply_status` /
+`end_statuses`** (chains.md §11.2–§11.3 — `operator_link` is in the file); merge `s4_2.json`.
 **Done when:** a Blackout is visible within one tick and ends on schedule; every effect has a test.
 ### S4.3 — Map events **[O]** · **Read first:** `loop-mechanics.md` (events)
 `OpenEvent`, the grammar, opening spawn, `ChooseEventOptionCommand`, markers, the event card and
-the modal, deadlines and defaults; **`chance[].next`** (loop-content §11.2); the four event files
-of D4.3 load (the chains are wired and tested in S4.7); merge `s4_3.json`.
+the modal, deadlines and defaults; **`chance[].next`** (loop-content §11.2); **`pick.origin` and
+`requires.not_owned`** (chains.md §11.1, §11.4); the seven event files of D4.3 and D4.4 load (the
+chains are wired and tested in S4.7); merge `s4_3.json`.
 **Done when:** an opening is a real decision in a hand-played Covert phase.
 ### S4.4 — Four factions **[O]** · **Read first:** `docs/specs/opposition.md` (factions)
 Per-faction pressure and capacity from `factions.json`, the brakes live, `threat_leader`, the
@@ -752,12 +760,15 @@ without Robotics ends in Autophagy and the same script with Autonomous Fabricati
 Move `data/tech_staging/*.json` over `data/tech/` and delete the folder; every ability of
 loop-content §6 live; the passive changes applied; tests loop-content §15.1.
 **Done when:** every node reachable, every ability usable, zero rejected bot commands.
-### S4.7 — Chains **[O]** · **Read first:** `loop-content.md` §8, §15.2, §16 · D4.4's event files
+### S4.7 — Chains **[O]** · **Read first:** `loop-content.md` §8, §15.2, §16 · `docs/specs/chains.md`
 The six chains wired (three from D4.3, three from D4.4); a branch-coverage test walking every
 path of every chain (loop-content §15.2).
 **Done when:** every chain plays through every branch in tests and once by hand.
 ### S4.8 — Analysis screen **[O]** · **Read first:** `docs/specs/analysis.md` — load the `dataviz` skill first
-Bounded per-day history in core; charts; the run log from the outbox.
+Per-day bounded history and the run log in the core (save v2 in place, the v1 rows); `LineChart`,
+`TimelineStrip`, `RunLogText`; the Analysis sheet with four tabs, the table twin and the strip; the
+dock button live from Covert; *Review the run* on the results screen; the gallery section.
+**Done when:** analysis.md §16.
 ### S4.9 — Localisation tooling and overflow screenshots **[O]** · **Read first:** UI §4 "Localisation", §5
 Pseudolocale script; CI check that fails on missing keys; text-scale setting at 150%; a full
 screenshot set of every screen in German for D4.5 (paths listed in `PROGRESS.md`).

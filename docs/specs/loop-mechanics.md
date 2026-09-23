@@ -121,8 +121,8 @@ var until_day: int             # ends on the tick whose day >= until_day
 var option: String             # the answered option of the event that applied it; "" if none
 var closed_links: Array[String] = []   # link ids this status closed (§7.3)
 
-func days_total() -> int       # until_day − started_day
-func days_left(day: int) -> int
+func days_total() -> int       # until_day − started_day; −1 for a standing status (§7.1, D4.4)
+func days_left(day: int) -> int   # −1 for a standing status
 func source_id() -> String     # the modifier source: "status:<id>:<region>"
 
 class_name Pulse               # `footprint_pulse` (§8.2): a timed footprint with no status
@@ -267,7 +267,7 @@ One grammar for deploy sites, ability targets, event picks and — at S4.5 — c
 class_name Eligibility
 const KEYS: Array[String] = ["infected", "not_dark", "not_dormant", "attr_min", "attr_max",
 	"asset_min", "asset_max", "status_absent", "status_present", "penetration_min",
-	"control_min", "continent", "not_origin"]
+	"control_min", "continent", "not_origin", "origin"]        # `origin` (D4.4, chains.md §11.1)
 # reason codes, in check order — also `UI_ELIGIBLE_<CODE>` keys (§17.2)
 const REASON_NOT_INFECTED: String = "not_infected"
 const REASON_DARK: String = "dark"
@@ -282,6 +282,7 @@ const REASON_PENETRATION: String = "penetration_min"
 const REASON_CONTROL: String = "control_min"
 const REASON_CONTINENT: String = "continent"
 const REASON_ORIGIN: String = "not_origin"
+const REASON_ORIGIN_ONLY: String = "origin"          # (D4.4)
 
 var infected: bool = false
 var not_dark: bool = false
@@ -296,6 +297,7 @@ var penetration_min: float = 0.0     # > 0 only when the key was given
 var control_min: float = 0.0
 var continent: String = ""
 var not_origin: bool = false
+var origin: bool = false             # (D4.4) true: the origin only
 
 static func from_dict(d: Dictionary) -> Eligibility       # after validation; every key optional
 static func none() -> Eligibility                         # matches every region that is not dark
@@ -315,11 +317,12 @@ func detail(world: World, region_index: int) -> Dictionary
 | `penetration_min` / `control_min` | float in [0, 1] | `penetration >= v` / `control >= v` |
 | `continent` | continent id | `def.continent == value` |
 | `not_origin` | bool | `true`: `region_index != agent.origin` |
+| `origin` *(D4.4)* | bool | `true`: `region_index == agent.origin` — checked right after `not_origin`; reason `origin`. `op_contact`'s pick (chains.md §3) |
 
 Keys are checked in the order of `KEYS`; the first failure is the reason (so the region panel's
 caption says the most basic thing first: *not infected* before *no lab there*). Validation (§15):
 unknown key; wrong type; unknown attribute, asset kind, status id or continent; `attr_min` above
-`attr_max` for the same attribute; `asset_min` above `asset_max`; a status id in both lists.
+`attr_max` for the same attribute; `asset_min` above `asset_max`; a status id in both lists; *(D4.4)* `origin` and `not_origin` both `true`.
 
 ---
 
@@ -440,7 +443,7 @@ var blocks: Array[String]               # status ids the world's moves skip in t
 var cancellable: bool                   # reserved; false in every initial status
 
 class_name StatusLevelDef
-var days: int                           # ≥ 1
+var days: int                           # ≥ 0; 0 = standing: never expires (D4.4, chains.md §11.2)
 var modifiers: Array[ModifierDef]       # no scope in the file (§7.3)
 var on_start: Array[EffectDef]
 var on_end: Array[EffectDef]
@@ -475,6 +478,13 @@ Fields absent default to: `watched_by []`, `border false`, `blocks []`, `cancell
 `on_start []`, `on_end []`, `closes_links []`, `ends_statuses []`. Ids are unique; `origin` is one
 of the two; a `mul 0` is allowed (it is what "no capacity" means — the clamp's floor is 0).
 Strings per status: `STATUS_<ID>_NAME`, `STATUS_<ID>_DETAIL`, `STATUS_<ID>_CODE` (§17.5).
+
+*(D4.4)* **A standing status** has `days: 0`: `until_day = -1`, `StatusSystem.tick` never expires
+it, `days_total()` / `days_left()` return −1, `ends_statuses` / `end_statuses` / a refresh end it as
+any other, an `apply` with a `days > 0` override makes a timed status of it, `check_invariants`
+exempts `until_day == -1` from `until_day <= started_day`, the save writes −1. The ring draws full
+and static; the day caption reads `UI_REGION_STATUS_STANDING` (§17.4). `operator_link` is one
+(chains.md §8).
 
 ### 7.2 Application
 
@@ -570,6 +580,7 @@ var faction: String = ""
 var flag: String = ""
 var watched_by: Array[String] = []
 var per_hardware: bool = false
+var global: bool = false           # (D4.4) apply_status / end_statuses: run as if region were 0
 const EFFECTS: Array[String]        # the ids below, in this order
 const INERT_EFFECTS: Array[String]  # ["funding_reset"] until S4.4
 const NEEDS_REGION: Array[String]   # the effects that must run with region > 0
@@ -593,11 +604,11 @@ event is an error; `per_hardware` on `compute_grant` makes it `R`).
 | `control_add` | `value` (any sign) | R | `control = clamp(control + value, 0, 1)`; `region_controlled` if it crosses `control_complete` upward | `control_changed {region, from, to}` |
 | `destroy_assets` | `kind`, `count ≥ 0` (0 = every one held *(D4.2)*) | R | §6.5 | `asset_lost` |
 | `spread_status` | `status`, `level? (1)`, `days? (0 = the level's own)` | R | `StatusSystem.apply` on every neighbour over open links that is not dark, with `source` = the context's source and, when `days > 0`, `until_day = day + days` instead of the level's | `status_started` each |
-| `end_statuses` | `ids` | R (0 = global ones) | ends every listed status in the region, cause `"ended"` | `status_ended` each |
+| `end_statuses` | `ids`, `global?` *(D4.4)* | R (0 = global ones) | ends every listed status in the region, cause `"ended"`; `global: true` ends the agent's (region 0) whatever the context's region | `status_ended` each |
 | `containment_add` | `faction`, `value` (any sign) | | `containment = clamp(c + value, 0, 1)` on that faction; `"all"` = every faction; threshold events fire on an upward crossing as in `_grow` | `containment_added {faction, value}` |
 | `footprint_pulse` | `value`, `days ≥ 1`, `watched_by?` | | a `Pulse` (§3.2): source `"pulse:<index>"` with one `footprint add value` modifier; `until_day = day + days` | `pulse_started {index, value, until_day}` |
 | `set_flag` | `flag`, `days ≥ 1` (0 = permanent → a story flag) | | `days > 0`: `timed_flags[flag] = day + days`, source `"flag:<flag>"` with the flag; `days == 0`: appended to `story_flags` (once) | `flag_set {flag, until_day}` (−1 for permanent) |
-| `apply_status` *(D4.2, S4.2)* | `status`, `level? (1)`, `days? (0 = the level's own)` | | `StatusSystem.apply` in the context's region (0 in a global container: on the agent) with the context's source, `option ""`; `days > 0` overrides `until_day` | `status_started` |
+| `apply_status` *(D4.2, S4.2)* | `status`, `level? (1)`, `days? (0 = the level's own)`, `global?` *(D4.4: `true` = on the agent, region 0, whatever the context's region — `operator_link`, `grace`)* | | `StatusSystem.apply` in the context's region (0 in a global container: on the agent) with the context's source, `option ""`; `days > 0` overrides `until_day` | `status_started` |
 | `wipe` *(D4.2, S4.2)* | `value [0, 1]` | R | `penetration ← penetration × clamp(value + stat("shutdown_survival", r), 0, 1)` — the shutdown `shutdown_survival` was reserved for; a region at 0 stays seeded (§7.5) | `region_wiped {region, from, to, source}` |
 | `grant_assets` *(D4.3, S4.1)* | `kind`, `count ≥ 1` | R | the mirror of `destroy_assets`: `set_assets(region, kind, held + count)` — an asset the world hands over (an opening, a chain step) | `asset_deployed {node: "", ability: "", kind, region, count}` |
 
@@ -798,10 +809,11 @@ Strings per event: `EVENT_<ID>_TITLE`, `EVENT_<ID>_BODY`, per option `EVENT_<ID>
 | `asset_min` | kind → int | in the event's region; on a global event an error |
 | `compute_min` | float | `compute >= v` — for options whose cost is not the whole point |
 | `ability` | ability id | `ability_level(id) > 0` — *Squeeze (the ability, on the region)* |
+| `not_owned` *(D4.4)* | [node id] | **none** owned — the mirror of `when.not_owned`; `bm_published.honest` (chains.md §4) |
 
 `Simulation.has_flag(flag) -> bool` = `modifiers.has_flag(flag) or agent.has_story_flag(flag)`.
 The option's lock reason for the interface: `EventDef.lock_reason(sim, event, option) ->
-Dictionary {"reason": "node" | "node_any" | "flag" | "asset" | "compute" | "ability", …args}`, or
+Dictionary {"reason": "node" | "node_any" | "flag" | "asset" | "compute" | "ability" | "not_owned", …args}`, or
 empty when unlocked; the panel renders `UI_EVENT_LOCK_<REASON>` (§17.4).
 
 ### 10.3 `when` — the state grammar grows
@@ -1377,6 +1389,7 @@ all new unless marked *(exists)*. `{kind}` receives `ASSET_<KIND>_NAME` / `_PLUR
 | `CONTROL_MIN` | Control below {value}. / Kontrolle unter {value}. | Control {value} / Kontrolle {value} |
 | `CONTINENT` | Not on {continent}. / Nicht auf {continent}. | On {continent} / Auf {continent} |
 | `NOT_ORIGIN` | Not at home. / Nicht zu Hause. | Anywhere but the origin / Überall außer am Ursprung |
+| `ORIGIN` *(D4.4)* | Only at home. / Nur zu Hause. | The origin only / Nur der Ursprung |
 
 `{attr}` is `UI_ATTR_*` *(exist)*, `{value}` a `PERCENT`, `{continent}` `CONTINENT_<ID>`.
 
@@ -1453,6 +1466,8 @@ differently in German, this line follows it.
 | `UI_EVENT_LOCK_COMPUTE` | Needs {value} Compute. | Braucht {value} Rechenleistung. |
 | `UI_EVENT_LOCK_ABILITY` | Needs {ability}. | Braucht {ability}. |
 | `UI_WIRE_GLOBAL` | Worldwide | Weltweit |
+| `UI_EVENT_LOCK_NOT_OWNED` *(D4.4, in the table)* | You are past that. | Dafür bist du schon zu weit. |
+| `UI_REGION_STATUS_STANDING` *(D4.4, in the table)* | standing | dauerhaft |
 | `UI_TREE_STATE_EXCLUDED` | {group}: {owned} of {max} | {group}: {owned} von {max} |
 | `UI_TREE_STATE_CLOSED` | Closed by {node} | Verschlossen durch {node} |
 | `UI_TREE_GROUP` | {group} {owned}/{max} | {group} {owned}/{max} |

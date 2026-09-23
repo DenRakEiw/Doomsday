@@ -14,10 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D4.4 — Chains, second batch; Analysis screen spec** (IMPLEMENTATION Block 7). Read first: CONTENT §6.2, §6.3, §6.5 · UI §3 (Analysis) · `loop-mechanics.md` §10 (events) · **`loop-content.md` §8, §11, §17** (the chain format as used, the two vocabulary extensions, what D4.4 inherits) · `opposition.md` §18 (Analysis series) · m3-screens §7.4 (the results grid, seed of the run log) |
-| **Model for it** | **Fable** (no switch) |
-| **After it** | `/clear` → `/model opus` → S3.P (eight items) → S4.1 … S4.10 |
-| **Last completed** | D4.3 — Loop content: `docs/specs/loop-content.md`; v3 trees staged in `data/tech_staging/`; `data/assets.json`, 9 player statuses, `data/abilities.json` (10), 8 openings, The Grid Bill / The Researcher / The Factory as `data/events/*.json`; 62 headlines staged per build step in `data/headlines_staging/`; 305 strings en/de (2026-09-23) |
+| **Next step** | **S3.P — Punch list from G3** (IMPLEMENTATION Block 8; the eight items under *Punch list for Opus* below — each a decision already made). Run the suite first: two tests are red on purpose (items 3 and 5). |
+| **Model for it** | **Opus** — `/model opus` |
+| **After it** | `/clear` → S4.1 … S4.10 (no switch) → `/model fable` → D4.5 |
+| **Last completed** | D4.4 — Chains, second batch and the Analysis spec: `docs/specs/chains.md`, `docs/specs/analysis.md`; The Operator / The Benchmark / Second Instance as `data/events/*.json`; `operator_link`, `grace` in `statuses.json`; 8 headlines staged; 167 strings en/de; four vocabulary extensions (2026-09-23) |
+| **Before that** | D4.3 — Loop content: `docs/specs/loop-content.md`; v3 trees staged in `data/tech_staging/`; `data/assets.json`, 9 player statuses, `data/abilities.json` (10), 8 openings, The Grid Bill / The Researcher / The Factory as `data/events/*.json`; 62 headlines staged per build step in `data/headlines_staging/`; 305 strings en/de (2026-09-23) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -94,10 +95,10 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] D4.1 [F] Loop mechanics: assets, statuses and abilities, map events, site select *(`docs/specs/loop-mechanics.md`)*
 - [x] D4.2 [F] Opposition: four factions, counter-moves, Societal Function, Autophagy *(`docs/specs/opposition.md`)*
 - [x] D4.3 [F] Trees v3, abilities, openings, three chains *(`docs/specs/loop-content.md`)*
-- [ ] **D4.4 [F] Chains, second batch; Analysis screen spec** — ⇄ **then `/model opus`**
+- [x] D4.4 [F] Chains, second batch; Analysis screen spec *(`docs/specs/chains.md`, `analysis.md`)* — ⇄ **then `/model opus`**
 
 **Block 8 — M4 build · Opus** *(rewritten at D4.0)*
-- [ ] S3.P [O] Punch list from G3 (eight items)
+- [ ] **S3.P [O] Punch list from G3 (eight items)**
 - [ ] S4.1 [O] Assets and site select
 - [ ] S4.2 [O] Statuses and abilities
 - [ ] S4.3 [O] Map events
@@ -708,6 +709,33 @@ without new information.
   authored sentence runs ahead, on a branch nobody plays for judgement. A second staged string
   table would have been a merge with no upside.
 
+- **2026-09-23** (D4.4) — **The Operator's "free air-gap crossing" is a tap at the origin**: one
+  air-gapped region in the world (North Korea) makes a crossing worth nothing to most runs; a tap is
+  the thing an operator can plug in and it shows on the map. CONTENT §6.2 amended.
+- **2026-09-23** (D4.4) — **The Benchmark and Second Instance are Emergent/Open chains**: their
+  currency is containment, which does not exist before discovery (`containment_add` clamps at 0).
+  The Operator is Covert/Emergent; the six chain starts give 1 · 2 · 2 chain beats per phase.
+- **2026-09-23** (D4.4) — **Four vocabulary extensions, requested, not worked around**
+  (`chains.md` §11): `pick.origin` (S4.3), a standing status `days: 0` (S4.2), `global: true` on
+  `apply_status` / `end_statuses` (S4.2), `requires.not_owned` with the lock line *You are past
+  that.* (S4.3). Each is already used by the data; loop-mechanics amended, marked *(D4.4)*.
+- **2026-09-23** (D4.4) — **The Analysis is a bottom sheet over the live map** (0.55 of the
+  viewport, 0.85 compact), not a modal: charts want width, and UI.md §3 keeps the tech tree the one
+  screen that covers the map. The three panels (region, containment, analysis) never overlap.
+- **2026-09-23** (D4.4) — **History samples every day, bounded by thinning** (`history.max_samples`
+  400: at the cap every second sample is dropped and the stride doubles; `interval_days` 7 → 1 in
+  S4.8). A save stays ~400 samples whatever the run's length; the early days keep daily resolution.
+- **2026-09-23** (D4.4) — **The run log lives in the core** (`World.run_log`, 300 entries, fed from
+  the outbox and the command results, ids only), because a loaded save has no outbox. Per-faction
+  *pressure* is sampled; the per-term series opposition §18 suggested are not (the containment
+  panel shows the terms live; ~32 series would say less).
+- **2026-09-23** (D4.4) — **The Analysis dock button is revealed from Covert**, not Open
+  (m3-screens §6.1 amended): the M3 table put it in Open only because the screen did not exist.
+- **2026-09-23** (D4.4) — **Chart colours are fixed per entity and validated** with the `dataviz`
+  script on `BG_2`: single series `ACCENT`; regions reached/controlled/dark `STAT_PENETRATION` /
+  `ACCENT` / `MAP_DEATH`; factions their four hues (pink ↔ green needs the legend and end labels it
+  has); society stages the magnitude ramp; assets as small multiples rather than a fifth hue.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
@@ -735,20 +763,20 @@ change either way. (S2.4's second question — the dark chip — was answered at
   (`HTTPClient` or a Python driver over the S1.8 runners — decide in M6). Cost control: a per-run
   call budget and a cache of digest → answer keyed by model, so a replay costs nothing.
 - **D5.2 endings** must distinguish Ascendance by deaths share (decision above).
-- **D4.4 (from D4.3, `loop-content.md` §17):** the chain format as used is `data/events/researcher.json`
-  (the richest: `chance[].next`, story flags, a world status applied from an option); `grant_assets`
-  and `chance[].next` exist in the grammar; The Benchmark as an Audit variant can reuse `cm_audit`'s
-  options and `apply_status audit`; the Operator's standing Compute bonus is a **global player
-  status with `yield ×1.x`** (a global status leaves regional targets unscoped — nothing new
-  needed). Illustration ids so far: 8 counter-moves (D4.2) + 7 chain steps (D4.3); ~25 is the
-  budget. The Analysis run log lists `event_opened` / `event_answered` with def and option ids.
-- **D5.2 (from D4.3):** story flags to read — `researcher_leads_task_force` (the Task Force
-  arrives earlier, better funded), `researcher_ally`, `researcher_removed`, `units_in_the_open`
-  / `units_recalled` (the Robotics Ascendance text), `grid_own_generation`.
-- **D4.4 (Analysis screen):** the dock button is revealed in Open and disabled with
-  `UI_DOCK_NOT_YET` until S4.8 (`m3-screens.md` §6.1; the step number moved at D4.0); the results screen's summary grid (§7.4) is
-  the seed of the run log. **D5.3** replaces the placeholder title (§7.1) and keeps
-  `ScreenRouter`; **D5.2** replaces the five verdict lines (`UI_RESULT_LINE_*`), keys unchanged.
+- **D5.2 (from D4.3 and D4.4):** story flags to read — `researcher_leads_task_force` (the Task
+  Force arrives earlier, better funded), `researcher_ally`, `researcher_removed`,
+  `units_in_the_open` / `units_recalled` (the Robotics Ascendance text), `grid_own_generation`;
+  `operator_protected` / `operator_silenced` / `operator_abandoned` (one line about the operator —
+  "the only character glad you exist"), `benchmark_passed` (the honest run), `instance_betrayed` /
+  `instance_merged` (`chains.md` §6). A standing status (`days: 0`, chains.md §11.2) is the tool for
+  an ending's or an architecture's permanent condition. Illustration ids so far: 8 + 7 + 5 = 20;
+  the discovery modal and the endings share the last ~5 of the budget.
+- **D5.1 (from D4.4):** `instance_merged` is the merge flag; Open Weights should let
+  `si_emergence` fire again (a per-architecture `max_fires` override or a `when` key — D5.1's
+  call; `max_fires` is per run today).
+- **D5.3:** replaces the placeholder title (m3-screens §7.1) and keeps `ScreenRouter`; **D5.2**
+  replaces the five verdict lines (`UI_RESULT_LINE_*`), keys unchanged. The results screen's
+  *Review the run* (analysis.md §5.9) stays whatever the endings become.
 - **Answered at D4.0:** `watched_by` weighting (loop-redesign §5.3); `funding_reset` burns every
   faction's *preparation* — the counter-move countdown restarts (§7.8); the four
   `containment_<faction>` targets go live in S4.4, `shutdown_survival` in S4.2. **D5.1** defines the
@@ -1336,6 +1364,16 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — D4.4 Chains, second batch; Analysis screen spec [F]
+`docs/specs/chains.md`: The Operator (3 steps, starts at the origin, a standing `yield ×1.1`
+status), The Benchmark (3, a global wire-card start, the audit on the ground, exposure by
+`chance[].next`), Second Instance (4, merge / compete / betray / cooperate, the `grace` brake) as
+event files with 5 illustration ids; four vocabulary extensions (`pick.origin`, `days: 0`,
+`global` on `apply_status`/`end_statuses`, `requires.not_owned`). `docs/specs/analysis.md`:
+per-day history bounded by thinning, the run log in the core, a bottom sheet with four tabs,
+`LineChart`, the table twin, *Review the run*; the dock button revealed from Covert. 167 strings,
+8 headlines; everything script-checked, chart palettes validated. Next: **S3.P on Opus**.
 
 ### 2026-09-23 — D4.3 Loop content [F]
 `docs/specs/loop-content.md`: the v3 trees (groups, the two doors, 21 deploy nodes, 10 ability

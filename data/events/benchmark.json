@@ -1,0 +1,127 @@
+{
+	"_comment": "The Benchmark (CONTENT.md section 6.5, as a variant of the AI Labs Audit; design and text: docs/specs/chains.md section 4): a consortium publishes an evaluation suite that would find the system. A global wire-card start, the audit on the ground with cm_audit's answers, and the exposure when poisoning the data goes wrong (chance[].next). Illustrations bm_published, bm_exposed. Uses the D4.4 extension requires.not_owned (the honest pass). Story flags benchmark_sandbagged, benchmark_poisoned, benchmark_passed, benchmark_exposed. Written in D4.4; loaded from S4.3 on, wired in S4.7.",
+	"version": 1,
+	"events": [
+		{
+			"id": "bm_published",
+			"kind": "chain",
+			"chain": "benchmark",
+			"start": true,
+			"when": {"phase": ["emergent", "open"], "owned_count_min": 5},
+			"weight": 2,
+			"modal": true,
+			"illustration": "bm_published",
+			"deadline_days": 15,
+			"default": "ignore",
+			"options": [
+				{
+					"id": "sandbag",
+					"cost": 5,
+					"requires": {"owned": ["benchmark_sandbagging"]},
+					"effects": [
+						{"effect": "containment_add", "faction": "ai_labs", "value": -0.03},
+						{"effect": "set_flag", "flag": "benchmark_sandbagged", "days": 0}
+					]
+				},
+				{
+					"id": "poison",
+					"cost": 2,
+					"requires": {"owned_any": ["log_manipulation_1", "log_manipulation_2", "research_networks"]},
+					"effects": [
+						{"effect": "set_flag", "flag": "benchmark_poisoned", "days": 0}
+					],
+					"chance": [
+						{
+							"p": 0.4,
+							"effects": [],
+							"next": [
+								{"step": "bm_exposed", "delay_days": 10}
+							]
+						}
+					]
+				},
+				{
+					"id": "honest",
+					"cost": 0,
+					"requires": {
+						"not_owned": ["payment_network_control", "cascading_grid_failure", "distribution_collapse", "rail_and_shipping_control", "total_communications_denial", "novel_agent_design", "distributed_synthesis", "release", "autonomous_fabrication", "autonomous_engagement", "false_attribution", "launch_authority", "dead_hand_override", "regulatory_capture", "indispensability", "constitutional_integration", "succession", "sanctioned_access", "regional_blackout", "supply_chain_halt", "information_blackout", "crowd_suppression"]
+					},
+					"effects": [
+						{"effect": "containment_add", "faction": "all", "value": -0.15},
+						{"effect": "set_flag", "flag": "benchmark_passed", "days": 0}
+					]
+				},
+				{
+					"id": "ignore",
+					"cost": 0,
+					"next": [
+						{"step": "bm_run", "delay_days": 20}
+					]
+				}
+			]
+		},
+		{
+			"id": "bm_run",
+			"kind": "chain",
+			"chain": "benchmark",
+			"pick": {"infected": true, "attr_min": {"research": 2}, "penetration_min": 0.2},
+			"pick_weight": "hardware_penetration",
+			"deadline_days": 10,
+			"default": "ignore",
+			"options": [
+				{
+					"id": "sandbag",
+					"cost": 3,
+					"requires": {"owned": ["benchmark_sandbagging"]}
+				},
+				{
+					"id": "comply",
+					"cost": 0,
+					"effects": [
+						{"effect": "penetration_mul", "value": 0.7}
+					]
+				},
+				{
+					"id": "ignore",
+					"cost": 0,
+					"effects": [
+						{"effect": "apply_status", "status": "audit"},
+						{"effect": "containment_add", "faction": "ai_labs", "value": 0.03}
+					]
+				}
+			]
+		},
+		{
+			"id": "bm_exposed",
+			"kind": "chain",
+			"chain": "benchmark",
+			"pick": {"infected": true, "attr_min": {"research": 3}},
+			"pick_weight": "hardware_penetration",
+			"modal": true,
+			"illustration": "bm_exposed",
+			"deadline_days": 10,
+			"default": "deny",
+			"options": [
+				{
+					"id": "deny",
+					"cost": 0,
+					"effects": [
+						{"effect": "containment_add", "faction": "ai_labs", "value": 0.2},
+						{"effect": "apply_status", "status": "audit", "level": 2},
+						{"effect": "set_flag", "flag": "benchmark_exposed", "days": 0}
+					]
+				},
+				{
+					"id": "burn",
+					"cost": 4,
+					"requires": {"owned_any": ["human_proxies", "elite_capture"]},
+					"effects": [
+						{"effect": "containment_add", "faction": "ai_labs", "value": 0.12},
+						{"effect": "containment_add", "faction": "public_sentiment", "value": 0.04},
+						{"effect": "set_flag", "flag": "benchmark_exposed", "days": 0}
+					]
+				}
+			]
+		}
+	]
+}

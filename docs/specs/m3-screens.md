@@ -432,7 +432,7 @@ it shows what `core.md` §7.5 actually multiplies.
 | Overlay picker | hidden (one region, nothing to compare) | penetration · control | + population | all three |
 | Dock: Capabilities | shown | shown | shown | shown |
 | Dock: Containment | hidden | shown (the risk view is the Covert player's tool) | shown, with the % chip | shown |
-| Dock: Analysis | hidden | hidden | hidden | shown, disabled (`UI_DOCK_NOT_YET`) until S4.7 |
+| Dock: Analysis | hidden | shown *(D4.4: from Covert — analysis.md §5.1; disabled with `UI_DOCK_NOT_YET` until S4.8)* | shown | shown |
 | Ticker | shown | shown | shown | shown, register *open* (§6.4) |
 | Theme variant | `cold` | `cold` | `cold` | **`open`** |
 

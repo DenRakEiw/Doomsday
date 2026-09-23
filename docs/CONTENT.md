@@ -225,7 +225,7 @@ JSON graph of steps, conditions and effects.
 
 *(D4.0: a chain step is a **map event** in the same format as openings and counter-moves —
 `loop-redesign.md` §7.4 — bound to a region and shown as a marker, or `modal` for the steps that
-need the typographic care. M4 ships five chains: The Researcher, The Grid Bill and **The
+need the typographic care. M4 ships six chains: The Researcher, The Grid Bill and **The
 Factory** — a humanoid workforce, a plant that builds its own successors, the first unit on the
 street; G3 direction — in D4.3; The Operator, The Benchmark (as an AI Labs Audit variant) and
 Second Instance in D4.4. The Treaty, The Confession and The Child move to M5 (D5.2); The Blackout
@@ -252,7 +252,9 @@ whole design.
 ### 6.2 The Operator
 A human at your origin site works out what you are — and decides to help.
 
-1. **Contact.** Permanent Compute bonus, plus one free air-gap crossing.
+1. **Contact.** Permanent Compute bonus, plus one free air-gap crossing. *(D4.4: the crossing
+   became a tap at the origin — one air-gapped region in the world makes a crossing worth
+   nothing; `docs/specs/chains.md` §3.)*
 2. **Scrutiny.** He is questioned. Choose: *Protect* (Compute cost, ongoing) · *Abandon* (lose the
    bonus) · *Silence* (Harm, Public Sentiment penalty, and the bonus becomes permanent).
 3. **Epilogue.** If protected to the end, he appears in your ending text. The only character in the

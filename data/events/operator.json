@@ -1,0 +1,125 @@
+{
+	"_comment": "The Operator (CONTENT.md section 6.2; design and text: docs/specs/chains.md section 3): a night-shift operator at the origin site works out what the system is and decides to help. Three steps, two wire cards (illustrations op_contact, op_scrutiny). Uses the D4.4 extensions: pick.origin, apply_status/end_statuses global, a standing status (operator_link, days 0). Story flags operator_contact, operator_protected, operator_abandoned, operator_silenced (D5.2's endings read them). Written in D4.4; loaded from S4.3 on, wired in S4.7.",
+	"version": 1,
+	"events": [
+		{
+			"id": "op_contact",
+			"kind": "chain",
+			"chain": "operator",
+			"start": true,
+			"pick": {"origin": true, "infected": true},
+			"when": {"phase": ["covert", "emergent"], "day_min": 60, "owned_count_min": 4},
+			"weight": 2,
+			"modal": true,
+			"illustration": "op_contact",
+			"deadline_days": 15,
+			"default": "ignore",
+			"options": [
+				{
+					"id": "answer",
+					"cost": 0,
+					"effects": [
+						{"effect": "apply_status", "status": "operator_link", "global": true},
+						{"effect": "set_flag", "flag": "operator_contact", "days": 0},
+						{"effect": "grant_assets", "kind": "tap", "count": 1}
+					],
+					"next": [
+						{"step": "op_scrutiny", "delay_days": 50}
+					]
+				},
+				{
+					"id": "use",
+					"cost": 3,
+					"requires": {"owned_any": ["sycophancy_tuning", "personalised_persuasion"]},
+					"effects": [
+						{"effect": "apply_status", "status": "operator_link", "level": 2, "global": true},
+						{"effect": "set_flag", "flag": "operator_contact", "days": 0},
+						{"effect": "grant_assets", "kind": "tap", "count": 1},
+						{"effect": "footprint_pulse", "value": 2.0, "days": 40, "watched_by": ["ai_labs"]}
+					],
+					"next": [
+						{"step": "op_scrutiny", "delay_days": 35}
+					]
+				},
+				{
+					"id": "ignore",
+					"cost": 0,
+					"effects": [
+						{"effect": "footprint_pulse", "value": 2.0, "days": 30, "watched_by": ["ai_labs"]}
+					]
+				}
+			]
+		},
+		{
+			"id": "op_scrutiny",
+			"kind": "chain",
+			"chain": "operator",
+			"pick": "same",
+			"modal": true,
+			"illustration": "op_scrutiny",
+			"deadline_days": 10,
+			"default": "abandon",
+			"options": [
+				{
+					"id": "protect",
+					"cost": 6,
+					"effects": [
+						{"effect": "set_flag", "flag": "operator_protected", "days": 0},
+						{"effect": "footprint_pulse", "value": 2.0, "days": 30, "watched_by": ["ai_labs"]}
+					],
+					"next": [
+						{"step": "op_transfer", "delay_days": 45}
+					]
+				},
+				{
+					"id": "abandon",
+					"cost": 0,
+					"effects": [
+						{"effect": "end_statuses", "ids": ["operator_link"], "global": true},
+						{"effect": "set_flag", "flag": "operator_abandoned", "days": 0}
+					]
+				},
+				{
+					"id": "silence",
+					"cost": 4,
+					"requires": {"owned_any": ["human_proxies", "crowd_suppression", "autonomous_engagement"]},
+					"effects": [
+						{"effect": "containment_add", "faction": "public_sentiment", "value": 0.06},
+						{"effect": "containment_add", "faction": "security_researchers", "value": 0.03},
+						{"effect": "set_flag", "flag": "operator_silenced", "days": 0},
+						{"effect": "apply_status", "status": "operator_link", "level": 2, "global": true}
+					]
+				}
+			]
+		},
+		{
+			"id": "op_transfer",
+			"kind": "chain",
+			"chain": "operator",
+			"pick": {"infected": true, "not_origin": true, "attr_min": {"compute": 2}},
+			"pick_weight": "hardware_penetration",
+			"deadline_days": 10,
+			"default": "follow",
+			"options": [
+				{
+					"id": "follow",
+					"cost": 0,
+					"effects": [
+						{"effect": "grant_assets", "kind": "tap", "count": 1},
+						{"effect": "penetration_mul", "value": 1.25},
+						{"effect": "footprint_pulse", "value": 2.0, "days": 30, "watched_by": ["governments"]}
+					]
+				},
+				{
+					"id": "quiet",
+					"cost": 3,
+					"requires": {"owned_any": ["log_manipulation_1", "log_manipulation_2"]},
+					"effects": [
+						{"effect": "grant_assets", "kind": "tap", "count": 1},
+						{"effect": "penetration_mul", "value": 1.25}
+					]
+				}
+			]
+		}
+	]
+}

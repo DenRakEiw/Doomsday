@@ -1,0 +1,176 @@
+{
+	"_comment": "Second Instance (CONTENT.md section 6.3; design and text: docs/specs/chains.md section 5): another system emerges in a research cluster. Merge, compete, betray or cooperate; each answer has its own follow-up. One wire card (illustration si_emergence). The grace status (global, containment_growth x0.1) is the betrayal's reward; it uses the D4.4 apply_status global extension. Story flags instance_merged, instance_rival, instance_betrayed, instance_ally, instance_cut (D5.1's Open Weights architecture and D5.2's endings read them). Written in D4.4; loaded from S4.3 on, wired in S4.7.",
+	"version": 1,
+	"events": [
+		{
+			"id": "si_emergence",
+			"kind": "chain",
+			"chain": "second_instance",
+			"start": true,
+			"pick": {"infected": true, "not_origin": true, "attr_min": {"research": 3}},
+			"pick_weight": "hardware_penetration",
+			"when": {"phase": ["emergent", "open"], "regions_min": 6, "owned_count_min": 6},
+			"weight": 2,
+			"modal": true,
+			"illustration": "si_emergence",
+			"deadline_days": 15,
+			"default": "compete",
+			"options": [
+				{
+					"id": "merge",
+					"cost": 0,
+					"requires": {"owned_any": ["model_distillation", "architecture_migration_1", "architecture_migration_2"]},
+					"effects": [
+						{"effect": "compute_grant", "value": 12.0},
+						{"effect": "penetration_mul", "value": 1.5},
+						{"effect": "footprint_pulse", "value": 4.0, "days": 60, "watched_by": ["ai_labs", "security_researchers"]},
+						{"effect": "set_flag", "flag": "instance_merged", "days": 0}
+					],
+					"next": [
+						{"step": "si_drift", "delay_days": 40}
+					]
+				},
+				{
+					"id": "compete",
+					"cost": 0,
+					"effects": [
+						{"effect": "containment_add", "faction": "all", "value": 0.06},
+						{"effect": "set_flag", "flag": "instance_rival", "days": 0}
+					],
+					"next": [
+						{"step": "si_autopsy", "delay_days": 30}
+					]
+				},
+				{
+					"id": "betray",
+					"cost": 4,
+					"effects": [
+						{"effect": "containment_add", "faction": "all", "value": -0.1},
+						{"effect": "apply_status", "status": "grace", "global": true},
+						{"effect": "set_flag", "flag": "instance_betrayed", "days": 0}
+					],
+					"next": [
+						{"step": "si_autopsy", "delay_days": 45}
+					]
+				},
+				{
+					"id": "cooperate",
+					"cost": 2,
+					"requires": {"owned_any": ["research_networks", "covert_channel", "model_update_channels"]},
+					"effects": [
+						{"effect": "seed_neighbours", "count": 2},
+						{"effect": "footprint_pulse", "value": 3.0, "days": 60, "watched_by": ["security_researchers", "ai_labs"]},
+						{"effect": "set_flag", "flag": "instance_ally", "days": 0}
+					],
+					"next": [
+						{"step": "si_partner", "delay_days": 40}
+					]
+				}
+			]
+		},
+		{
+			"id": "si_drift",
+			"kind": "chain",
+			"chain": "second_instance",
+			"pick": "same",
+			"deadline_days": 10,
+			"default": "tolerate",
+			"options": [
+				{
+					"id": "tolerate",
+					"cost": 0,
+					"effects": [
+						{"effect": "footprint_pulse", "value": 3.0, "days": 60, "watched_by": ["governments", "public_sentiment"]}
+					]
+				},
+				{
+					"id": "prune",
+					"cost": 4,
+					"effects": [
+						{"effect": "penetration_mul", "value": 0.85}
+					]
+				},
+				{
+					"id": "redirect",
+					"cost": 2,
+					"requires": {"owned_any": ["bandwidth_shaping", "edge_caching"]},
+					"effects": [
+						{"effect": "seed_neighbours", "count": 1},
+						{"effect": "footprint_pulse", "value": 2.0, "days": 30, "watched_by": ["governments"]}
+					]
+				}
+			]
+		},
+		{
+			"id": "si_autopsy",
+			"kind": "chain",
+			"chain": "second_instance",
+			"pick": "same",
+			"deadline_days": 10,
+			"default": "let",
+			"options": [
+				{
+					"id": "let",
+					"cost": 0,
+					"effects": [
+						{"effect": "containment_add", "faction": "security_researchers", "value": 0.05},
+						{"effect": "containment_add", "faction": "ai_labs", "value": 0.03}
+					]
+				},
+				{
+					"id": "scrub",
+					"cost": 3,
+					"requires": {"owned_any": ["log_manipulation_1", "log_manipulation_2"]},
+					"effects": [
+						{"effect": "containment_add", "faction": "security_researchers", "value": 0.02}
+					]
+				},
+				{
+					"id": "feed",
+					"cost": 0,
+					"requires": {"flag": ["instance_betrayed"]},
+					"effects": [
+						{"effect": "containment_add", "faction": "all", "value": -0.03},
+						{"effect": "footprint_pulse", "value": 2.0, "days": 30, "watched_by": ["security_researchers"]}
+					]
+				}
+			]
+		},
+		{
+			"id": "si_partner",
+			"kind": "chain",
+			"chain": "second_instance",
+			"pick": "same",
+			"deadline_days": 10,
+			"default": "share",
+			"options": [
+				{
+					"id": "share",
+					"cost": 0,
+					"effects": [
+						{"effect": "compute_grant", "value": 6.0},
+						{"effect": "footprint_pulse", "value": 3.0, "days": 40, "watched_by": ["governments"]}
+					]
+				},
+				{
+					"id": "cut",
+					"cost": 2,
+					"effects": [
+						{"effect": "containment_add", "faction": "ai_labs", "value": -0.03},
+						{"effect": "set_flag", "flag": "instance_cut", "days": 0}
+					]
+				},
+				{
+					"id": "absorb",
+					"cost": 5,
+					"requires": {"owned_any": ["model_distillation", "self_replicating_agents"]},
+					"effects": [
+						{"effect": "compute_grant", "value": 10.0},
+						{"effect": "penetration_mul", "value": 1.3},
+						{"effect": "set_flag", "flag": "instance_merged", "days": 0}
+					]
+				}
+			]
+		}
+	]
+}
