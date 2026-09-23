@@ -16,8 +16,6 @@ extends Node2D
 ## on the region.
 
 const RING_STROKE: float = 3.0
-## How much of a ring's colour is left over for the arc that has run out.
-const SPENT_ALPHA: float = 0.0
 
 ## One row per status, in application order: what to draw and how much is left.
 ## `code` is the already-translated caption; the marker reads no content.

@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S4.2 — Statuses and abilities** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/loop-mechanics.md`, statuses, abilities, effects) |
+| **Next step** | **S4.3 — Map events** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/loop-mechanics.md`, events) |
 | **Model for it** | **Opus** — no switch |
-| **After it** | S4.3 … S4.10 (no switch) → `/model fable` → D4.5 |
-| **Last completed** | S4.1 — Assets and site select: `Eligibility`, `AssetDef`, `EffectDef` + `EffectRunner`, the `asset` scope, tree v3 (`group`, `excludes`, `deploy`, `requires_assets`), `PurchaseNodeCommand.region`, save v2 with the v1 → v2 migration, the anomaly beat and the §18 economy numbers, site select (strip, map row 1, region panel, *Buy and place*), asset markers and the HUD readout. 759 tests, all green (2026-09-23) |
-| **Before that** | S3.P — Punch list from G3, all eight items: the two-second day, Harm as the maximum over regions (`World.max_harm`), `±0`, the results panel's height, the anomaly countdown ring, and the tap rule (press → release, not the path walked) (2026-09-23) |
+| **After it** | S4.4 … S4.10 (no switch) → `/model fable` → D4.5 |
+| **Last completed** | S4.2 — Statuses and abilities: `StatusDef`/`AbilityDef`, `Status`, `Pulse`, `StatusSystem`, `UseAbilityCommand`, the ten remaining effects of §8.2, the four targets live, save v2 filled, the console line, status rings, the region panel's *Status* and *Actions* rows, the `A` picker. 911 tests, all green (2026-09-23) |
+| **Before that** | S4.1 — Assets and site select: `Eligibility`, `AssetDef`, `EffectDef` + `EffectRunner`, the `asset` scope, tree v3, `PurchaseNodeCommand.region`, save v2 with the v1 → v2 migration, the anomaly beat, site select, asset markers and the HUD readout (2026-09-23) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -27,8 +27,8 @@ rather than struck through.
 | **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 139 scripts compile (58 judged by the suite), 759 tests, **all green since S4.1**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
-| **Site select** | S4.1: the origin, a deploying node's site and (from S4.2) an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
-| **Run it** | `run_project` starts at the **title** (`game/main.tscn`); New run → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 stealth · F7 idle (**with Shift**: cyber_rush · stealth_spread · persuader) · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
+| **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
+| **Run it** | `run_project` starts at the **title** (`game/main.tscn`); New run → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **A** ability picker · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 stealth · F7 idle (**with Shift**: cyber_rush · stealth_spread · persuader) · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
 | **Compact layout** | Below 1100 px the interface switches (§5.7). A desktop window narrower than that lays out one logical pixel per window pixel, **`game_window set_size 400 860` resized correctly in S2.P** — try it first; `game_set_property /root size {"x":400,"y":860}` is the fallback and in S2.P it rendered a blank frame. After any resize at runtime the camera keeps a zoom from the old viewport: write `zoom` and give it one `game_scroll` notch down to settle it at `zoom_min`. |
 | **Look at the map** | `game_click` (**`button: 1`, never `"left"`** — see *Known issues*), `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Main/ScreenSlot/Session/MapLayer/MapView` (the router’s slot is in the path now), `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead — but a property write emits no `view_changed`, so links and markers keep the old zoom until the next real camera movement (**one `game_scroll` notch fixes it**). |
 
@@ -101,8 +101,8 @@ which file was being edited, and anything learned that the files do not show)*
 **Block 8 — M4 build · Opus** *(rewritten at D4.0)*
 - [x] S3.P [O] Punch list from G3 (eight items)
 - [x] S4.1 [O] Assets and site select
-- [ ] **S4.2 [O] Statuses and abilities**
-- [ ] S4.3 [O] Map events
+- [x] S4.2 [O] Statuses and abilities
+- [ ] **S4.3 [O] Map events**
 - [ ] S4.4 [O] Four factions
 - [ ] S4.5 [O] Counter-moves, Societal Function, Autophagy
 - [ ] S4.6 [O] Trees v3 and the remaining abilities
@@ -766,7 +766,10 @@ say the direction), or say that the faction track should show the rate as a plai
   command log already is — only new runs are non-deterministic); the score (proposal: mean over a
   fixed seed set of `max_days − days` for wins, 0 for losses); decisions every history interval
   rather than every day, to bound model calls; and the content rule for prompts (feed the game's
-  own outcome-language strings, never method). **Provider: OpenRouter** (decision above) — the
+  own outcome-language strings, never method). **A first model to try: FLUX-3 Action** (Black Forest Labs,
+  https://huggingface.co/collections/black-forest-labs/flux-3-action) — the user named it on
+  2026-09-23 as one of the first models that should drive the game. **Provider: OpenRouter**
+  (decision above) — the
   Godot side is `HTTPRequest` against one chat-completions schema, outside `core/`; the headless
   runner needs the same call without a scene tree, so the adapter must not depend on a node either
   (`HTTPClient` or a Python driver over the S1.8 runners — decide in M6). Cost control: a per-run
@@ -794,42 +797,42 @@ say the direction), or say that the faction track should show the rate as a plai
 
 ## Punch list for Opus
 
-*(empty — S3.P closed G3's eight items on 2026-09-23; the next one comes from D4.5 and G4 as
-S4.P.)*
+- **(S4.2, cosmetic)** In the region panel the trailing chip of an *Actions* row (`FREI` / the
+  cost) and the `{days}` caption of a *Status* row sit under the scroll container's vertical
+  scrollbar and are clipped by a few pixels at 1920 × 1080. Every other row of the panel happens
+  to end short of it. The fix is one rule about the scrollbar's width in the panel's body, not
+  something per row — it belongs with the rest of D4.5's layout findings.
 
 ## Deviations from the plan or a spec
 
-- **2026-09-23** (S4.1) — **The three v3 targets arrive one step early.** `containment_capacity`,
-  `penetration_decay` and `control_decay` are in `ModifierDef.TARGETS_REGIONAL`, in `CLAMPS`, in
-  `INERT_TARGETS` and in both `balance.json` files now rather than at S4.2 (loop-mechanics §18
-  puts them there), because `data/assets.json` scopes a `containment_capacity` modifier on the
-  office and the file would not load without the target. They are inert until S4.2 reads them.
-- **2026-09-23** (S4.1) — **The effects that need the status machinery are validated but not run.**
-  `EffectDef` owns the whole vocabulary of §8.2 from S4.1 on; `EffectRunner` carries out
-  `compute_grant`, `containment_rollback`, `harm_burst`, `destroy_assets` and `grant_assets`, and
-  the six of `EffectDef.PENDING_EFFECTS` (`spread_status`, `end_statuses`, `footprint_pulse`,
-  `set_flag`, `apply_status`, `wipe`) are no-ops with a test that says so. No S4.1 content uses
-  one. S4.2 empties that list as it builds `StatusSystem`.
-- **2026-09-23** (S4.1) — **The save's status, pulse and event blocks are carried, not parsed.**
-  §13 makes every v2 field required, and `Status`, `Pulse` and `OpenEvent` are S4.2's and S4.3's
-  classes — so `World` holds `statuses`, `pulses`, `events` and `pending_events` as plain `Array`s,
-  writes them (always empty at S4.1) and reads them back with a type check only. S4.2 and S4.3
-  replace the arrays with their records without changing the save version again.
-- **2026-09-23** (S4.1) — **`World.has_status` answers `false` for everything** until S4.2 fills
-  `World.statuses`. The `Eligibility` grammar asks the question from S4.1 on (the keys are in the
-  spec's `KEYS` list and the region panel renders their strings), and an S4.1 rule that used them
-  would simply never pass — no content does.
-- **2026-09-23** (S4.1) — **The eligibility validator does not check status ids yet.** There is no
-  `statuses.json` before S4.2, so `_eligibility` takes a `statuses_known` flag the way the region
-  cross-references take `regions_known`, and S4.1 passes `false`. S4.2 passes the loaded ids.
-- **2026-09-23** (S4.1) — **`ChipFaction` is not in the theme yet.** §16.12 lists the variation,
-  but its only consumer is §16.5's Status row (S4.2) and the fill colour differs per faction, so
-  the variation lands with the row that needs it. `UiTokens.faction_color(id)` and the four tokens
-  are in place and the map shader already takes them as uniforms.
-- **2026-09-23** (S4.1) — **The fixture tree grew to 18 nodes, not 22.** §22 lists nine new fixture
-  nodes; the four that carry an `ability` block belong to S4.2, which also writes
-  `abilities.json`. `Fixtures.TECH_NODE_COUNT` is 18 and becomes 22 there. The `fx_vectors` group
-  is capped at **1** as §22 says, so one purchase fills it.
+- **2026-09-23** (S4.2) — **The fixture’s global ability got a node of its own.**
+  loop-mechanics §22 hangs `fx_hush` on `fx_zap_1` with the note that *a second ability on one node
+  is legal* — but §11.1 gives a node a single `ability` object and §9.1 makes the validator demand
+  that the node name the ability **back**, so one node cannot grant two. The stricter pair of rules
+  was kept and `fx_hushbox` added instead; the fixture tree is 23 nodes, not 22
+  (`Fixtures.TECH_NODE_COUNT`). No shipped ability shares a node, so nothing else changes.
+- **2026-09-23** (S4.2) — **The fixture’s four ability nodes sit behind `fx_reach`.** §22 gives
+  them no prerequisite; with none, the greedy bot spent its Compute on them, never bought a vector
+  and stopped seeding, which broke the frozen behaviour four other tests read off that run. They now
+  require `fx_reach` (and `fx_forge` also `fx_fleet`), so the bot’s early purchases are exactly what
+  they were. Their tiers moved up with the prerequisite.
+- **2026-09-23** (S4.2) — **A status’s `R` effects are validated permissively.** §15.4 makes an
+  effect that needs a region an error in a *global* container, but a `StatusDef` does not say
+  whether it is global — the same definition can be applied to a region or to the agent, and only
+  the ability or the chain that applies it knows which. The validator therefore lets a status level
+  carry any effect, and `EffectRunner` guards each `R` effect with `region <= 0 → do nothing`. If
+  D5.1 wants the check back, a `global: true` field on `StatusDef` is what it needs.
+- **2026-09-23** (S4.2) — **`ChipFaction` became four variations, one per faction.** §16.5 names
+  one variation with "the faction colour as text", which a single variation cannot do without a
+  per-node colour override — which CLAUDE.md forbids. `ThemeBuilder` now generates
+  `Chip<Faction>` / `ChipLabel<Faction>` from `Faction.FACTION_IDS`, and `Chip.faction` picks one.
+- **2026-09-23** (S4.2) — **The step is two commits, not one.** §1.4 asks for one commit per step;
+  the core half was committed green on its own because the session was close to a usage limit and a
+  green, recoverable point was worth more than the tidier history.
+- **2026-09-23** (S4.1, narrowed at S4.2) — **The save's event blocks are carried, not parsed.**
+  `World.statuses` and `pulses` are typed records since S4.2; `events` and `pending_events` are
+  still plain `Array`s that are written (always empty) and read back with a type check only, because
+  `OpenEvent` is S4.3's class. S4.3 replaces them without changing the save version again.
 - **2026-09-23** (S4.1) — **`test_every_shipped_tree_is_buyable_end_to_end` skips grouped nodes.**
   With `vectors` capped at two, "every node of a tree is buyable in one run" stopped being true by
   design; the test now walks the ungrouped nodes and a new
@@ -1400,6 +1403,34 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — S4.2 Statuses and abilities [O]
+- **Core:** `StatusDef`/`StatusLevelDef`, `AbilityDef`, `Status`, `Pulse`, `StatusSystem` (apply,
+  refresh, `ends_statuses`, link closing and reopening, expiry with `on_end` on expiry only, pulses
+  and timed flags, `rebuild_sources` after a load), `UseAbilityCommand` with its eight reasons and
+  its codec row, `ability_unlocked` on purchase, `Simulation.stat/ability_level/ability_ready_day`
+  and `Simulation.view`, and the **ten** effects of §8.2 that were waiting for the machinery.
+  `containment_capacity`, `penetration_decay`, `control_decay` and `shutdown_survival` are live;
+  `INERT_TARGETS` is shorter by four and `PENDING_EFFECTS` is empty. Save v2 now carries the
+  statuses, pulses, cooldowns and timed flags it had been writing empty.
+- **Interface:** the console line (§16.2) with its event table and the stat-delta-free passive
+  line; `Rings` — the one countdown arc the anomaly, the status and (S4.3) the event marker share;
+  `StatusMarker` rings with their tooltip; the data texture's status colour and Lockdown border;
+  links drawn in the colour of the status holding them shut; the region panel's *Status* and
+  *Actions* rows; the `A` ability picker and its compact sheet entry; the agent's global statuses
+  as chips in the asset readout.
+- **Data:** the `ability` field on the seventeen live tree nodes that grant one, `statuses.json`
+  (26) and `abilities.json` (10) loaded and validated, the sixteen staged S4.2 headlines merged and
+  the file deleted, 34 strings en/de, `data/SCHEMA.md` at **v4** with §6a and §6b.
+- **Two defects the run found:** the tree modal's *Grants* heading reused the row's key and printed
+  its own placeholders (invisible until a live node granted an ability); and the console line was
+  `SHRINK_CENTER` with `clip_text`, whose minimum width is 0 — the line was one pixel wide and
+  never seen. Both fixed.
+- Checked by hand in the running game: buy Edge Caching → `A` → Ernte → site select → the USA →
+  *Hier einsetzen*; the ring (**AE**), the Status row, the cooldown caption and the console line all
+  appear, and Compute jumps by the per-hardware grant. The acceptance's *closed link* half is
+  covered by `test_status_map.gd` rather than by a photograph: only a world status closes links, and
+  no faction fires one before S4.5. 911 tests, all green. Next: **S4.3 on Opus**.
 
 ### 2026-09-23 — S4.1 Assets and site select [O]
 - **Core:** `Eligibility` (§5, fourteen keys, first-failure reason, `detail`, `requirements`),
