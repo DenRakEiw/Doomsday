@@ -30,11 +30,19 @@ static func create(id: String) -> Policy:
 		return GreedyPolicy.new()
 	if id == StealthPolicy.ID:
 		return StealthPolicy.new()
+	if id == CyberRushPolicy.ID:
+		return CyberRushPolicy.new()
+	if id == StealthSpreadPolicy.ID:
+		return StealthSpreadPolicy.new()
+	if id == PersuaderPolicy.ID:
+		return PersuaderPolicy.new()
 	return null
 
 
+## The shape bots of S1.8 first, the three strategies of S3.6 after them.
 static func ids() -> Array[String]:
-	return [IdlePolicy.ID, GreedyPolicy.ID, StealthPolicy.ID]
+	return [IdlePolicy.ID, GreedyPolicy.ID, StealthPolicy.ID, CyberRushPolicy.ID,
+		StealthSpreadPolicy.ID, PersuaderPolicy.ID]
 
 
 ## The stream a policy gets for a world seed.
@@ -78,10 +86,18 @@ func _collect_oldest(sim: Simulation) -> Command:
 ## seed always buys the same things.
 func _cheapest_affordable(sim: Simulation, tree_order: Array[String],
 		skip_trees: Array[String]) -> Command:
+	return _cheapest_allowed(sim, tree_order,
+		func(node: TechNodeDef) -> bool: return not skip_trees.has(node.tree))
+
+
+## The same choice, with `allows` deciding node by node — which is how the
+## strategy bots of S3.6 express "this branch, up to this tier, not yet".
+func _cheapest_allowed(sim: Simulation, tree_order: Array[String],
+		allows: Callable) -> Command:
 	var best: TechNodeDef = null
 	var best_cost: float = 0.0
 	for node: TechNodeDef in sim.available_nodes():
-		if skip_trees.has(node.tree):
+		if not bool(allows.call(node)):
 			continue
 		var cost: float = sim.node_cost(node.id)
 		if cost > sim.world.agent.compute:
@@ -92,6 +108,35 @@ func _cheapest_affordable(sim: Simulation, tree_order: Array[String],
 	if best == null:
 		return null
 	return PurchaseNodeCommand.new(best.id)
+
+
+## The first of `node_ids` that can be bought right now, or null. A bot names
+## the nodes its strategy is about and falls back to `_cheapest_allowed` for the
+## rest — on content that has none of them (a test fixture) it simply buys
+## nothing by name.
+func _first_buyable(sim: Simulation, node_ids: Array[String]) -> Command:
+	for node_id: String in node_ids:
+		var command: PurchaseNodeCommand = PurchaseNodeCommand.new(node_id)
+		if sim.can_apply(command).is_empty():
+			return command
+	return null
+
+
+## The cheapest affordable node of one Capabilities branch, up to `max_tier`.
+func _cheapest_in_branch(sim: Simulation, branch: String, max_tier: int,
+		tree_order: Array[String]) -> Command:
+	return _cheapest_allowed(sim, tree_order, func(node: TechNodeDef) -> bool:
+		return node.branch() == branch and node.tier <= max_tier)
+
+
+## How many nodes of a tree the run owns — "vectors" for infiltration tier 1.
+static func _owned_in_tree(sim: Simulation, tree: String, tier: int = 0) -> int:
+	var count: int = 0
+	for node_id: String in sim.world.agent.owned_nodes:
+		var node: TechNodeDef = sim.db.tech(node_id)
+		if node != null and node.tree == tree and (tier == 0 or node.tier == tier):
+			count += 1
+	return count
 
 
 func _is_better(node: TechNodeDef, cost: float, best: TechNodeDef, best_cost: float,

@@ -97,6 +97,27 @@ func _cheapest_available(sim: Simulation, allowed: Dictionary[String, bool]) -> 
 	return best
 
 
+## §7.5: the five branches are bands of grid rows, and the counts are the ones
+## D3.2 authored. A node that moves rows changes branch, which is why this is
+## asserted rather than trusted.
+func test_the_capabilities_branches_are_the_rows_they_say() -> void:
+	var counts: Dictionary[String, int] = {}
+	for branch: String in TechNodeDef.BRANCHES:
+		counts[branch] = 0
+	for node: TechNodeDef in _db.tech_nodes:
+		if node.tree != TechNodeDef.TREE_CAPABILITIES:
+			assert_eq(node.branch(), "", "%s is not in Capabilities" % node.id)
+			continue
+		var branch: String = node.branch()
+		assert_true(TechNodeDef.BRANCHES.has(branch), "%s has no branch" % node.id)
+		counts[branch] += 1
+	assert_eq(counts[TechNodeDef.BRANCH_CYBER], 15)
+	assert_eq(counts[TechNodeDef.BRANCH_BIOLOGY], 6)
+	assert_eq(counts[TechNodeDef.BRANCH_ROBOTICS], 8)
+	assert_eq(counts[TechNodeDef.BRANCH_WEAPONS], 5)
+	assert_eq(counts[TechNodeDef.BRANCH_PERSUASION], 9)
+
+
 func test_every_shipped_node_is_reachable() -> void:
 	# A walk from the empty set: every node has to become available eventually,
 	# or it is content nobody can ever buy.

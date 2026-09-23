@@ -14,18 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S3.6 — Strategy bots and batch reporting** |
-| **Model for it** | **Opus** — no switch |
-| **After it** | `/clear` → **`/model fable`** → G3 (the M3 gate) |
-| **Last completed** | S3.5 — the headline system, the ticker rewritten around it |
-| **Milestone** | M2 gated; M3 building |
+| **Next step** | **G3 — Balance pass 1 and the M3 gate** |
+| **Model for it** | **Fable** — `/model fable` first |
+| **After it** | `/clear` → S3.P (the punch list from G3, on Opus) if it has one, else D4.1 |
+| **Last completed** | S3.6 — the three strategy bots and the batch report (M3 build complete) |
+| **Milestone** | M2 gated; **M3 built, waiting for its gate** |
 | **Branch** | `main` |
-| **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
+| **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 128 scripts compile (53 judged by the suite), 667 tests. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; green: 132 scripts compile (53 judged by the suite), 675 tests. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
-| **Run it** | `run_project` starts at the **title** (`game/main.tscn`); New run → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 stealth · F7 idle · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
+| **Run it** | `run_project` starts at the **title** (`game/main.tscn`); New run → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 stealth · F7 idle (**with Shift**: cyber_rush · stealth_spread · persuader) · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
 | **Compact layout** | Below 1100 px the interface switches (§5.7). A desktop window narrower than that lays out one logical pixel per window pixel, **`game_window set_size 400 860` resized correctly in S2.P** — try it first; `game_set_property /root size {"x":400,"y":860}` is the fallback and in S2.P it rendered a blank frame. After any resize at runtime the camera keeps a zoom from the old viewport: write `zoom` and give it one `game_scroll` notch down to settle it at `zoom_min`. |
 | **Look at the map** | `game_click` (**`button: 1`, never `"left"`** — see *Known issues*), `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Main/ScreenSlot/Session/MapLayer/MapView` (the router’s slot is in the path now), `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead — but a property write emits no `view_changed`, so links and markers keep the old zoom until the next real camera movement (**one `game_scroll` notch fixes it**). |
 
@@ -85,7 +85,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S3.3 [O] Containment and phases in the interface
 - [x] S3.4 [O] Run flow: origin, outcome, results
 - [x] S3.5 [O] Ticker component and headline system
-- [ ] S3.6 [O] Strategy bots and batch reporting — ⇄ **then `/model fable`**
+- [x] S3.6 [O] Strategy bots and batch reporting — ⇄ **then `/model fable`**
 
 **Block 7 — M3 gate, M4 design · Fable**
 - [ ] **G3 [F] Balance pass 1 and M3 gate — the important one**
@@ -487,6 +487,19 @@ without new information.
 
 ## Design questions for Fable
 
+**New at S3.6 — two predictions of `tech-trees.md` §7.5.6 did not come true in 3 000 runs.**
+(a) "A policy that buys Blackout and Grid Failure before Robotics should lose to `lose_no_compute`
+in a visible share of seeds — if it never does, the scoped Harm is too low." `cyber_rush` does
+exactly that, kills 57 % of the world, and loses to `lose_no_compute` **zero times in 500 seeds**
+(9 % contained, 91 % Ascendance). (b) No run of any policy ends in Extinction: every win is
+Ascendance, because no bot reaches Biology's Release. (a) is a balance answer G3 owes;
+(b) may only mean that the missing bot is `SlowBurn`, which S3.6 was not asked to build.
+
+**New at S3.6 — nothing opposes the Diplomat.** `persuader` wins 500 of 500 with zero deaths and a
+containment that never passes 0.6. That is §7.5.6's "reference never-contained run" working as
+written, but until M4's factions there is no counter-play in the model at all, so the number says
+nothing about whether Persuasion is *balanced* — only that it is unopposed.
+
 **New at S3.5 — a greedy run says 255 lines, and §8.3 of `ticker.md` bounds it at 200.** Two
 headlines make 112 of them: `anomaly_spawned` (63) and `anomaly_collected` (49), which fire at
 their cooldowns of 3 and 4 days for 300 days. Everything else is inside the expected range
@@ -577,6 +590,23 @@ or a rate cell that is simply empty until it rounds up — that is one line in `
 *(empty — S2.P closed the twelve items from G2 on 2026-09-22. The next one comes from G3.)*
 
 ## Deviations from the plan or a spec
+
+- **2026-09-23** (S3.6) — **A Capabilities branch is a band of grid rows**, read by
+  `TechNodeDef.branch()`. `tech-trees.md` §7.5 gives the five branches as row bands and no node
+  carries a branch field, so the layout is the definition; the alternative was a list of ids in
+  three bots. `test_tech_trees.gd` asserts the five counts (15 · 6 · 8 · 5 · 9), so a node that
+  moves rows fails the suite rather than quietly changing branch.
+- **2026-09-23** (S3.6) — **The three bots choose their origin differently**: `cyber_rush` the most
+  hardware (greedy's rule), `stealth_spread` the least regulated (stealth's), `persuader` the best
+  connected. §7.5.6 says nothing about origins, and three bots that all start in the same place
+  would differ only in what they buy. If G3 wants the branches compared on equal ground, one line
+  in each bot makes them share `greedy`'s rule.
+- **2026-09-23** (S3.6) — **`persuader` buys no Evasion at all.** §7.5.6 calls it the "was never
+  contained" reference, and its own tree carries the brakes; letting it buy Evasion too would make
+  it the quietest run for two reasons and measure neither.
+- **2026-09-23** (S3.6) — **`sim_report.gd`, not `sim_report.py`.** IMPLEMENTATION offers either;
+  GDScript keeps the harness, the policies and the content in one place, and the report needs the
+  `ContentDB` to count nodes by branch.
 
 - **2026-09-23** (S3.5) — **The outcome tick says only how the run ended.** §3.5 puts the urgent
   types first and then says "the last line of a run is the outcome's" — but with `max_per_tick` 2
@@ -955,6 +985,44 @@ or a rate cell that is simply empty until it rounds up — that is one line in `
 
 ## Balance baselines
 
+**2026-09-23 (S3.6) — the M3 baseline: six policies, 500 seeds each, the same seeds for all of
+them.** `res://data` complete (72 nodes, 150 headlines), `tools/sim_report.gd --seeds=1..500`,
+21 minutes, zero rejected commands. `p10 · p50 · p90` where three numbers are given, means where
+one is.
+
+| Policy | Outcome | Days | Discovery | Deaths | Containment | Compute | Nodes (I · C · E) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 100 % contained | 539 · **738** · 1025 | day 338 | 0 % | 1.00 | 49 | 0 · 0 · 0 |
+| `greedy` | 95 % Ascendance | 273 · **294** · 312 | day 111 | 21 % | 0.66 | 1 563 | 17 · 24 · 7 |
+| `stealth` | 67 % Ascendance | 250 · **335** · 369 | day 90 | 8 % | 0.93 | 1 330 | 16 · 16 · 7 |
+| `cyber_rush` | 91 % Ascendance | 266 · **297** · 315 | day 89 | **57 %** | 0.41 | 1 348 | 17 · 15 · 10 |
+| `stealth_spread` | 94 % Ascendance | 389 · **457** · 520 | **day 240** | 9 % | 0.43 | 1 440 | 16 · 21 · 8 |
+| `persuader` | **100 % Ascendance** | 287 · **305** · 323 | day 108 | **0 %** | 0.41 | 1 248 | 17 · 7 · 0 |
+
+Capabilities bought by branch (mean): `cyber_rush` 14.5 Cyber and nothing else; `persuader` 6
+Persuasion and the one Cyber Tier 1 that Indispensability asks for; `greedy` spreads over all five
+(9.9 · 3.0 · 5.9 · 1.5 · 3.9). Headlines per run: 190–200 consequence, 12–16 reaction, 32–78
+filler — `idle` inverts it (22 · 14 · 142), which is what a world with nothing to report sounds
+like.
+
+What the numbers say, for G3:
+
+- **The floor holds.** `idle` loses to containment in 500 of 500 seeds and earns 49 Compute.
+- **Quiet buys time, not safety.** `stealth_spread` is found on day 240 against `greedy`'s 111 and
+  `cyber_rush`'s 89, and the run is 160 days longer for it — but its win rate (94 %) is barely
+  above `greedy`'s (95 %), so the whole cost of hiding is currently paid in *time*, which at one
+  day per tick is the thing the player feels least.
+- **The Diplomat is unbeatable and that is a balance question.** 100 % Ascendance, zero deaths,
+  never contained: the reference run of §7.5.6 works, but nothing opposes it before M4's factions.
+- **Scoped Harm is loud enough to matter and not loud enough to lose.** `cyber_rush` kills 57 % of
+  the world and is still contained in only 9 % of seeds. §7.5.6 expects "a visible share" of
+  `lose_no_compute` from the Blackout-before-Robotics line: **it never happened once in 500 runs.**
+- **Every run takes the whole world** (61 of 61 regions seeded, every policy but `idle`), and
+  every win is Ascendance — Extinction fires in none of the 3 000 runs, because nothing yet buys
+  Biology far enough. Both are G3's to decide on.
+- **The length is still wrong for the target.** 294–457 days at one day per second is 5–8 minutes
+  against PLAN's 25–40; `TICKS_PER_SECOND` and the growth constants are the levers.
+
 **2026-09-22 (S3.1) — the first real baseline with all three trees**, `res://data` with
 `infiltration.json`, `capabilities.json` and `evasion.json` (72 nodes), vocabulary v2 complete,
 40 seeds per policy, **zero rejected commands**, `check_invariants` clean through a 600-day run of
@@ -1028,6 +1096,16 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — S3.6 Strategy bots and batch reporting [O]
+`CyberRushPolicy`, `StealthSpreadPolicy` and `PersuaderPolicy` (`tech-trees.md` §7.3 and §7.5.6),
+each one a claim about how a branch is played: the opener, the tier gates, the quiet pair before
+the second vector, Migration at containment 0.5, the Diplomat's plan. `TechNodeDef.branch()` reads
+the branch off the grid row, `Policy` gained `_cheapest_allowed`, `_first_buyable` and
+`_cheapest_in_branch`, and `tools/sim_report.gd` plays every policy over the same seeds and prints
+the Markdown table under *Balance baselines*. Shift+F5/F6/F7 start the three in the running game.
+8 new tests (675 green). The three runs are exactly the three shapes the spec predicted — see the
+baseline.
 
 ### 2026-09-23 — S3.5 Ticker component and headline system [O]
 `HeadlineSystem` in `core/` turns the outbox and the world into `headline` events, chosen from the

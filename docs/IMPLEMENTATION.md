@@ -130,6 +130,7 @@ next Opus block. An empty punch list skips the step.
 | Script check | `"$GODOT" --headless --path . -s tools/check_scripts.gd` — loads every `.gd` outside `addons/` and exits 1 naming the ones that do not compile. `--import` parses no scripts at all and GUT only compiles what a test touches, so nothing else catches a parse error in a file no test uses. Part of `tools/test.sh`. From S2.1 on it runs without autoloads, so scripts that name one are handed to `tests/unit/test_scripts_compile.gd`, which runs the same scan (`tools/script_scan.gd`) inside the tree. |
 | One simulated game | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy` (from S1.8) |
 | Batch balance run | `... -s tools/sim_batch.gd -- --seeds=1..500 --policy=greedy --out=<csv>` (from S1.8) |
+| Every policy, one table | `... -s tools/sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]` (from S3.6) — the same seeds for each policy, printed as the Markdown that goes under *Balance baselines* |
 | Single script, while editing | godot-mcp `validate_script(s)` with `scriptPaths` as **project-relative** paths (`tests/unit/test_smoke.gd`); a `res://` prefix and the `directory` filter are both rejected, and without `scriptPaths` it tries the whole project including `addons/` and refuses at 60 files. For the whole project use the row above. |
 | Look at the game | godot-mcp `run_project` → `game_screenshot` → `game_get_errors` → `stop_project` |
 | Drive the game | godot-mcp `game_click`, `game_key_press`, `game_get_ui`, `game_get_scene_tree` |

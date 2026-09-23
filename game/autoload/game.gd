@@ -304,19 +304,22 @@ func _day_line() -> String:
 # ------------------------------------------------------- debug keys (M2 only)
 
 
-## §10.2: F5/F6/F7 start a bot run, L and M toggle the two settings, F9 and F10
-## save and load. All of this goes away in M6, when the real screens exist.
+## §10.2: F5/F6/F7 start a bot run — with Shift, the three strategy bots of
+## S3.6 instead of the shape bots of S1.8 — L and M toggle the two settings, F9
+## and F10 save and load. All of this goes away in M6, when the real screens
+## exist.
 func _unhandled_key_input(event: InputEvent) -> void:
 	var key: InputEventKey = event as InputEventKey
 	if key == null or not key.pressed or key.echo:
 		return
+	var strategy: bool = key.shift_pressed
 	match key.keycode:
 		KEY_F5:
-			_start_debug_run(GreedyPolicy.ID)
+			_start_debug_run(CyberRushPolicy.ID if strategy else GreedyPolicy.ID)
 		KEY_F6:
-			_start_debug_run(StealthPolicy.ID)
+			_start_debug_run(StealthSpreadPolicy.ID if strategy else StealthPolicy.ID)
 		KEY_F7:
-			_start_debug_run(IdlePolicy.ID)
+			_start_debug_run(PersuaderPolicy.ID if strategy else IdlePolicy.ID)
 		KEY_L:
 			Settings.toggle_locale()
 			print("locale: %s" % Settings.locale)

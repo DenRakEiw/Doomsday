@@ -1,6 +1,10 @@
 extends GutTest
-## S1.8 — the three bots. They play through the same interface the player does,
-## and they must never disturb the world's random stream.
+## S1.8 — the bots on the fixture world. They play through the same interface
+## the player does, and they must never disturb the world's random stream.
+##
+## What the three strategies of S3.6 actually *do* is asserted on the shipped
+## content, in `tests/integration/test_strategy_bots.gd`: their plans name nodes
+## that only exist there.
 
 const Harness := preload("res://tools/sim_harness.gd")
 const DAYS: int = 4000
@@ -94,4 +98,5 @@ func test_stealth_buys_no_capabilities_while_the_world_is_still_free() -> void:
 
 func test_an_unknown_policy_id_yields_nothing() -> void:
 	assert_null(Harness.make_policy("reckless"))
-	assert_eq(Harness.policy_ids().size(), 3)
+	# Three shape bots (S1.8) and three strategies (S3.6).
+	assert_eq(Harness.policy_ids().size(), 6)
