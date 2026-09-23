@@ -34,6 +34,10 @@ const FAIL_SITE_INELIGIBLE: String = "site_ineligible"
 const FAIL_UNKNOWN_ABILITY: String = "unknown_ability"
 const FAIL_ABILITY_LOCKED: String = "ability_locked"
 const FAIL_ABILITY_COOLDOWN: String = "ability_cooldown"
+## The three checks an event answer adds (`loop-mechanics.md` §10.5).
+const FAIL_UNKNOWN_EVENT: String = "unknown_event"
+const FAIL_UNKNOWN_OPTION: String = "unknown_option"
+const FAIL_OPTION_LOCKED: String = "option_locked"
 
 ## Set by `Simulation.apply` when the command is accepted; -1 until then.
 var day: int = -1

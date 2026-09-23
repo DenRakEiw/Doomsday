@@ -74,3 +74,10 @@ var headlines_filler_silence_deaths_share: float
 ## m3-screens §7.4: Ascendance over this share of the world dead reads as ashes.
 var results_ashes_share: float = 0.5
 var history_interval_days: int
+
+## loop-mechanics §18: the daily opening roll per phase id (the key set is
+## `World.PHASE_IDS`), how many seeded regions it takes before openings roll at
+## all, and how many map events may stand at once.
+var events_opening_chance: Dictionary[String, float] = {}
+var events_opening_from_regions: int = 2
+var events_max_open: int = 3

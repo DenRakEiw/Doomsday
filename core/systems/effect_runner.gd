@@ -256,11 +256,7 @@ static func _set_flag(sim: Simulation, effect: EffectDef, events: Array[SimEvent
 	if effect.days > 0:
 		StatusSystem.set_timed_flag(sim.world, effect.flag, sim.world.day + effect.days, events)
 		return
-	if sim.world.agent.has_story_flag(effect.flag):
-		return
-	sim.world.agent.story_flags.append(effect.flag)
-	events.append(SimEvent.new(SimEvent.FLAG_SET, sim.world.day,
-		{"flag": effect.flag, "until_day": Status.UNTIL_STANDING}))
+	StatusSystem.set_story_flag(sim.world, effect.flag, events)
 
 
 ## The status this effect's container is putting somewhere. `global` puts it on

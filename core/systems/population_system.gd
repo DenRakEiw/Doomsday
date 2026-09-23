@@ -56,4 +56,6 @@ static func go_dark(world: World, region: Region, index: int, events: Array[SimE
 			"anomaly": anomaly.id,
 			"region": region.def.id,
 		}))
+	# A map event about this place has nothing left to be about.
+	EventSystem.drop_in_region(world, index, events)
 	events.append(SimEvent.new(SimEvent.REGION_DEPOPULATED, world.day, {"region": region.def.id}))

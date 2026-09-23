@@ -115,5 +115,10 @@
 	},
 	"history": {
 		"interval_days": 7
+	},
+	"events": {
+		"opening_chance": {"boxed": 0, "covert": 0.025, "emergent": 0.015, "open": 0.01},
+		"opening_from_regions": 2,
+		"max_open": 3
 	}
 }

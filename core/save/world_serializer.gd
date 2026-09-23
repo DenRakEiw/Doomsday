@@ -193,6 +193,26 @@ static func _missing_content(world_dict: Dictionary, db: ContentDB) -> String:
 		if not db.region_index_by_id.has(str(region["id"])):
 			return str(region["id"])
 
+	# Statuses, open and pending events name a definition and a region ("" for
+	# none); either one gone from the content is missing content, not a corrupt
+	# save (§13).
+	var records: Array = []
+	for key: String in ["statuses", "events", "pending_events"]:
+		if typeof(world_dict.get(key)) == TYPE_ARRAY:
+			records.append_array(world_dict[key])
+	for entry: Variant in records:
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var record: Dictionary = entry
+		if typeof(record.get("region")) == TYPE_STRING:
+			var region_id: String = str(record["region"])
+			if not region_id.is_empty() and not db.region_index_by_id.has(region_id):
+				return region_id
+		if typeof(record.get("id")) == TYPE_STRING and db.status(str(record["id"])) == null:
+			return str(record["id"])
+		if typeof(record.get("def")) == TYPE_STRING and db.event(str(record["def"])) == null:
+			return str(record["def"])
+
 	if typeof(world_dict.get("agent")) != TYPE_DICTIONARY:
 		return ""
 	var agent: Dictionary = world_dict["agent"]

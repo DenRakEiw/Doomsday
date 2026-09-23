@@ -163,6 +163,16 @@ static func set_timed_flag(world: World, flag: String, until_day: int,
 		{"flag": flag, "until_day": until_day}))
 
 
+## Sets a story flag: it never expires and is saved in the agent's list, in the
+## order flags were set. Setting one twice changes nothing and says nothing.
+static func set_story_flag(world: World, flag: String, events: Array[SimEvent]) -> void:
+	if world.agent.has_story_flag(flag):
+		return
+	world.agent.story_flags.append(flag)
+	events.append(SimEvent.new(SimEvent.FLAG_SET, world.day,
+		{"flag": flag, "until_day": Status.UNTIL_STANDING}))
+
+
 ## Rebuilds the modifier sources of the running statuses, pulses and timed flags
 ## after a load, which brings a world with no stack at all (`Simulation.
 ## rebuild_modifiers`).

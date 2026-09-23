@@ -24,6 +24,10 @@ var status_by_id: Dictionary[String, StatusDef] = {}
 ## File order, which is the order the region panel and the picker list them in.
 var abilities: Array[AbilityDef] = []
 var ability_by_id: Dictionary[String, AbilityDef] = {}
+## Every `events/*.json` in ascending file-name order, events in file order —
+## the order the opening draw weighs them in (§10.4).
+var events: Array[EventDef] = []
+var event_by_id: Dictionary[String, EventDef] = {}
 ## Exclusive group id -> how many of its nodes may be owned (§11.1).
 var groups: Dictionary[String, int] = {}
 var balance: BalanceDef = null
@@ -74,3 +78,10 @@ func ability(id: String) -> AbilityDef:
 	if not ability_by_id.has(id):
 		return null
 	return ability_by_id[id]
+
+
+## The map event definition with this id, or null.
+func event(id: String) -> EventDef:
+	if not event_by_id.has(id):
+		return null
+	return event_by_id[id]

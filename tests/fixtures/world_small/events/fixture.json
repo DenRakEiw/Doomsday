@@ -1,0 +1,77 @@
+{
+	"_comment": "Fixture map events (loop-mechanics.md section 22). Frozen: tests read these numbers.",
+	"version": 1,
+	"events": [
+		{
+			"id": "fx_opening",
+			"kind": "opening",
+			"pick": {"infected": true, "not_dormant": true},
+			"when": {"regions_min": 2},
+			"weight": 1,
+			"max_fires": 3,
+			"cooldown_days": 2,
+			"deadline_days": 4,
+			"default": "pass",
+			"options": [
+				{"id": "grab", "cost": 0, "effects": [{"effect": "compute_grant", "value": 3}]},
+				{
+					"id": "seed",
+					"cost": 1,
+					"effects": [{"effect": "seed_neighbours", "count": 1}],
+					"chance": [{"p": 0.5, "effects": [{"effect": "footprint_pulse", "value": 2, "days": 3}]}]
+				},
+				{"id": "pass", "cost": 0},
+				{"id": "locked", "cost": 0, "requires": {"owned": ["fx_reach"]}}
+			]
+		},
+		{
+			"id": "fx_move",
+			"kind": "counter_move",
+			"faction": "governments",
+			"status": "fx_lock",
+			"pick": {"infected": true},
+			"deadline_days": 3,
+			"default": "ride",
+			"options": [
+				{"id": "ride", "cost": 0, "status_level": 1},
+				{
+					"id": "resist",
+					"cost": 1,
+					"requires": {"ability": "fx_zap"},
+					"status_level": 1,
+					"effects": [{"effect": "control_add", "value": 0.1}]
+				},
+				{"id": "lobby", "cost": 2, "skip_status": true}
+			]
+		},
+		{
+			"id": "fx_chain_1",
+			"kind": "chain",
+			"chain": "fx_chain",
+			"start": true,
+			"pick": {"infected": true},
+			"when": {},
+			"weight": 1,
+			"deadline_days": 2,
+			"default": "go",
+			"options": [
+				{"id": "go", "cost": 0, "flags": ["fx_seen"], "next": [{"step": "fx_chain_2", "delay_days": 3}]},
+				{"id": "stop", "cost": 0}
+			]
+		},
+		{
+			"id": "fx_chain_2",
+			"kind": "chain",
+			"chain": "fx_chain",
+			"pick": "same",
+			"modal": true,
+			"illustration": "fx_pic",
+			"deadline_days": 2,
+			"default": "wait",
+			"options": [
+				{"id": "remember", "cost": 0, "requires": {"flag": ["fx_seen"]}, "effects": [{"effect": "compute_grant", "value": 1}]},
+				{"id": "wait", "cost": 0}
+			]
+		}
+	]
+}

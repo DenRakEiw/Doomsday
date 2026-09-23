@@ -65,6 +65,20 @@ func next_command(sim: Simulation) -> Command:
 	return null
 
 
+## The oldest open event answered with its default, or null when none is open.
+## Every policy asks this first: a bot never lets a deadline decide, so batch
+## runs stay comparable and no command is rejected for an event that expired
+## (`loop-mechanics.md` §19). S4.10 gives the bots rules of their own.
+func answer_events(sim: Simulation) -> Command:
+	if sim.world.events.is_empty():
+		return null
+	var event: OpenEvent = sim.world.events[0]
+	var def: EventDef = sim.db.event(event.def)
+	if def == null:
+		return null
+	return ChooseEventOptionCommand.new(event.id, def.default_option)
+
+
 ## Region indices that `ChooseOriginCommand` would accept, in index order.
 func _eligible_origins(sim: Simulation) -> PackedInt32Array:
 	var out: PackedInt32Array = []

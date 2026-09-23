@@ -4,7 +4,7 @@ extends RefCounted
 ##
 ## The one place that knows every command type. Each build step that adds a
 ## command adds its line to `_make` — S1.3 `choose_origin`, S1.4 `purchase_node`
-## and `collect_anomaly`, S3.1 `set_dormancy`, S4.2 `use_ability` — and nothing
+## and `collect_anomaly`, S3.1 `set_dormancy`, S4.2 `use_ability`, S4.3 `choose_event_option` — and nothing
 ## else changes.
 
 ## What `read_int` returns for a field it could not read. No command field is
@@ -66,6 +66,12 @@ static func _make(type: String, d: Dictionary) -> Command:
 		if not d.has("region") or typeof(d["region"]) != TYPE_STRING:
 			return null
 		return UseAbilityCommand.new(ability, str(d["region"]))
+	if type == ChooseEventOptionCommand.TYPE_ID:
+		var event: int = read_int(d, "event")
+		var option: String = read_id(d, "option")
+		if event == INVALID or option.is_empty():
+			return null
+		return ChooseEventOptionCommand.new(event, option)
 	if type == CollectAnomalyCommand.TYPE_ID:
 		var anomaly: int = read_int(d, "anomaly")
 		if anomaly == INVALID:

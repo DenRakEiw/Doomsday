@@ -26,6 +26,9 @@ func policy_id() -> String:
 func next_command(sim: Simulation) -> Command:
 	if sim.world.agent.origin == 0:
 		return _choose_origin(sim)
+	var answer: Command = answer_events(sim)
+	if answer != null:
+		return answer
 	var anomaly: Command = _collect_oldest(sim)
 	if anomaly != null:
 		return anomaly

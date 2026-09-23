@@ -47,13 +47,14 @@ var statuses: Array[Status] = []
 ## Every timed Footprint running right now, in creation order.
 var pulses: Array[Pulse] = []
 var next_pulse_id: int = 1
-## The records of S4.3, in the save from v2 on. Until that step they are always
-## empty; keeping them here is what lets S4.1 write and read a v2 file that
-## S4.3 does not have to migrate again (§13).
-var events: Array = []
-var pending_events: Array = []
+## The map events standing right now, in opening order (§3.3).
+var events: Array[OpenEvent] = []
+## Scheduled but not open yet, in due order; ties in scheduling order.
+var pending_events: Array[PendingEvent] = []
 var next_event_id: int = 1
+## Event def id → how many times it opened (`max_fires`).
 var event_fires: Dictionary[String, int] = {}
+## Event def id → the day it last opened (`cooldown_days`).
 var event_last_day: Dictionary[String, int] = {}
 ## Derived from the owned nodes, rebuilt after loading, never serialised.
 var modifiers: ModifierStack
@@ -183,6 +184,36 @@ func link_held_closed(link_id: String) -> bool:
 
 ## Whether a timed flag is set on `day` — `set_flag` with a `days` (§8.2). A
 ## story flag is `Agent.has_story_flag`; the modifier flags are the stack's.
+## The open event with this id, or null.
+func event_by_id(event_id: int) -> OpenEvent:
+	for event: OpenEvent in events:
+		if event.id == event_id:
+			return event
+	return null
+
+
+## The oldest open event bound to a region, or null (§3.3). Region 0 asks for
+## the oldest global one.
+func event_in_region(region_index: int) -> OpenEvent:
+	for event: OpenEvent in events:
+		if event.region == region_index:
+			return event
+	return null
+
+
+## Every open event bound to a region, oldest first.
+func events_in_region(region_index: int) -> Array[OpenEvent]:
+	var out: Array[OpenEvent] = []
+	for event: OpenEvent in events:
+		if event.region == region_index:
+			out.append(event)
+	return out
+
+
+func open_event_count() -> int:
+	return events.size()
+
+
 func has_timed_flag(flag: String, day: int) -> bool:
 	return agent.timed_flags.has(flag) and agent.timed_flags[flag] > day
 
@@ -310,6 +341,13 @@ func to_dict() -> Dictionary:
 	for pulse: Pulse in pulses:
 		pulse_list.append(pulse.to_dict())
 
+	var event_list: Array = []
+	for event: OpenEvent in events:
+		event_list.append(event.to_dict(_region_id(event.region)))
+	var pending_list: Array = []
+	for pending: PendingEvent in pending_events:
+		pending_list.append(pending.to_dict(_region_id(pending.region)))
+
 	return {
 		"day": day,
 		"origin_day": origin_day,
@@ -336,17 +374,21 @@ func to_dict() -> Dictionary:
 		"milestones_fired": milestones_fired.duplicate(),
 		"history": history_list,
 		"starving_days": starving_days,
-		# The status, pulse and event blocks of save v2. S4.3 still writes its
-		# own two empty (`loop-mechanics.md` §13).
+		# The status, pulse and event blocks of save v2 (`loop-mechanics.md` §13).
 		"statuses": status_list,
 		"pulses": pulse_list,
 		"next_pulse_id": next_pulse_id,
-		"events": events.duplicate(),
-		"pending_events": pending_events.duplicate(),
+		"events": event_list,
+		"pending_events": pending_list,
 		"next_event_id": next_event_id,
 		"event_fires": event_fires.duplicate(),
 		"event_last_day": event_last_day.duplicate(),
 	}
+
+
+## A region's id for a save row, "" for region 0.
+func _region_id(region_index: int) -> String:
+	return "" if region_index <= 0 else regions[region_index].def.id
 
 
 ## Two worlds are equal exactly when their hashes are: sorted keys, no indent,
@@ -400,10 +442,6 @@ static func from_dict(d: Dictionary, db: ContentDB) -> World:
 	world.starving_days = int(d["starving_days"])
 	world.next_pulse_id = int(d["next_pulse_id"])
 	world.next_event_id = int(d["next_event_id"])
-	# The event records are S4.3's; until then the lists are always empty and are
-	# carried through as they were written.
-	world.events = (d["events"] as Array).duplicate()
-	world.pending_events = (d["pending_events"] as Array).duplicate()
 	if not _read_counts(world.event_fires, d["event_fires"]) \
 			or not _read_counts(world.event_last_day, d["event_last_day"]):
 		return null
@@ -418,6 +456,9 @@ static func from_dict(d: Dictionary, db: ContentDB) -> World:
 	if not _read_statuses(world, d["statuses"], db):
 		return null
 	if not _read_pulses(world, d["pulses"]):
+		return null
+	if not _read_events(world, d["events"], db) \
+			or not _read_pending_events(world, d["pending_events"], db):
 		return null
 	if not _read_agent(world, d["agent"], db):
 		return null
@@ -544,6 +585,61 @@ static func _read_statuses(world: World, raw: Variant, db: ContentDB) -> bool:
 		if not _read_strings(status.closed_links, d["closed_links"]):
 			return false
 		world.statuses.append(status)
+	return true
+
+
+## A region named by id in a save, "" meaning none; -1 for an id the content
+## does not have.
+static func _region_from_id(region_id: String, db: ContentDB) -> int:
+	if region_id.is_empty():
+		return 0
+	return int(db.region_index_by_id.get(region_id, -1))
+
+
+static func _read_events(world: World, raw: Variant, db: ContentDB) -> bool:
+	var list: Array = raw
+	for entry: Variant in list:
+		if typeof(entry) != TYPE_DICTIONARY:
+			return false
+		var d: Dictionary = entry
+		if not _num(d, "id") or not _str(d, "def") or not _str(d, "region") \
+				or not _str(d, "faction"):
+			return false
+		if not _num(d, "opened_day") or not _num(d, "deadline_day") or not _num(d, "level"):
+			return false
+		var event: OpenEvent = OpenEvent.new()
+		event.id = int(d["id"])
+		event.def = str(d["def"])
+		event.region = _region_from_id(str(d["region"]), db)
+		if event.region < 0:
+			return false
+		event.faction = str(d["faction"])
+		event.opened_day = int(d["opened_day"])
+		event.deadline_day = int(d["deadline_day"])
+		event.level = int(d["level"])
+		world.events.append(event)
+	return true
+
+
+static func _read_pending_events(world: World, raw: Variant, db: ContentDB) -> bool:
+	var list: Array = raw
+	for entry: Variant in list:
+		if typeof(entry) != TYPE_DICTIONARY:
+			return false
+		var d: Dictionary = entry
+		if not _str(d, "def") or not _str(d, "region") or not _str(d, "faction"):
+			return false
+		if not _num(d, "due_day") or not _num(d, "level"):
+			return false
+		var pending: PendingEvent = PendingEvent.new()
+		pending.def = str(d["def"])
+		pending.region = _region_from_id(str(d["region"]), db)
+		if pending.region < 0:
+			return false
+		pending.faction = str(d["faction"])
+		pending.due_day = int(d["due_day"])
+		pending.level = int(d["level"])
+		world.pending_events.append(pending)
 	return true
 
 
@@ -770,6 +866,7 @@ func check_invariants(db: ContentDB = null) -> Array[String]:
 			problems.append("seeds_by_kind names the unknown link kind %s" % kind)
 
 	problems.append_array(_status_problems(db))
+	problems.append_array(_event_problems(db))
 
 	var seen_regions: Dictionary[int, bool] = {}
 	for anomaly: Anomaly in anomalies:
@@ -832,6 +929,26 @@ func _status_problems(db: ContentDB) -> Array[String]:
 	for flag: String in agent.timed_flags:
 		if agent.timed_flags[flag] < day - 1:
 			problems.append("timed flag %s expired on day %d" % [flag, agent.timed_flags[flag]])
+	return problems
+
+
+## Everything that must never be true of the open events (§3.5).
+func _event_problems(db: ContentDB) -> Array[String]:
+	var problems: Array[String] = []
+	for event: OpenEvent in events:
+		var where: String = "event %d (%s)" % [event.id, event.def]
+		if event.deadline_day < event.opened_day:
+			problems.append("%s: deadline day %d is before day %d"
+				% [where, event.deadline_day, event.opened_day])
+		if event.region < 0 or event.region >= regions.size():
+			problems.append("%s: region %d does not exist" % [where, event.region])
+		elif event.region > 0 and regions[event.region].dark:
+			problems.append("%s: in the dark region %s" % [where, regions[event.region].def.id])
+		if db != null and db.event(event.def) == null:
+			problems.append("%s: unknown to the content" % where)
+	if db != null and events.size() > db.balance.events_max_open:
+		problems.append("%d open events, more than the %d allowed"
+			% [events.size(), db.balance.events_max_open])
 	return problems
 
 

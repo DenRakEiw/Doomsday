@@ -48,6 +48,14 @@ const PULSE_ENDED: String = "pulse_ended"
 ## A flag was set (`until_day` −1 for a permanent one) or ran out.
 const FLAG_SET: String = "flag_set"
 const FLAG_EXPIRED: String = "flag_expired"
+## A map event came onto the map (§14).
+const EVENT_OPENED: String = "event_opened"
+## The player answered one.
+const EVENT_ANSWERED: String = "event_answered"
+## Its deadline answered it with the default.
+const EVENT_EXPIRED: String = "event_expired"
+## A pending event could not open: its region went dark, or nowhere was eligible.
+const EVENT_DROPPED: String = "event_dropped"
 ## What the world says about the rest of them (ticker.md §3.7). Emitted by
 ## `HeadlineSystem` after the systems, never a trigger for another headline.
 const HEADLINE: String = "headline"
@@ -60,7 +68,7 @@ const TYPES_ALL: Array[String] = [ORIGIN_CHOSEN, NODE_PURCHASED, ANOMALY_COLLECT
 	COMPUTE_GRANTED, HARM_BURST, DORMANCY_CHANGED, ASSET_DEPLOYED, ASSET_LOST,
 	ABILITY_UNLOCKED, ABILITY_USED, STATUS_STARTED, STATUS_ENDED, PENETRATION_CHANGED,
 	CONTROL_CHANGED, REGION_WIPED, CONTAINMENT_ADDED, PULSE_STARTED, PULSE_ENDED,
-	FLAG_SET, FLAG_EXPIRED]
+	FLAG_SET, FLAG_EXPIRED, EVENT_OPENED, EVENT_ANSWERED, EVENT_EXPIRED, EVENT_DROPPED]
 
 ## Fields of a `HEADLINE` event that are not arguments of its text.
 const FIELD_HEADLINE: String = "headline"
@@ -72,6 +80,8 @@ const CAUSE_DEATHS: String = "deaths"
 ## The `cause` of an `ASSET_LOST` that the region itself caused: it went dark and
 ## everything standing in it went with it.
 const CAUSE_DARK: String = "dark"
+## The `cause` of an `EVENT_DROPPED` whose def found no eligible region.
+const CAUSE_NO_SITE: String = "no_site"
 
 var type: String
 var day: int

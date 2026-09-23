@@ -20,6 +20,8 @@ const ASSETS_FILE: String = "assets.json"
 const STATUSES_FILE: String = "statuses.json"
 const ABILITIES_FILE: String = "abilities.json"
 const TECH_DIR: String = "tech"
+## Every `*.json` below it is one events file (§15); the directory must exist.
+const EVENTS_DIR: String = "events"
 const TECH_SUFFIX: String = ".json"
 ## The localisation table, read here as plain rows so that the string check of
 ## `docs/specs/tech-trees.md` §8.3 works in a `-s` run and in CI, where the
@@ -62,18 +64,34 @@ static func load_root(root: String) -> ContentLoadResult:
 		tech_files.append(path)
 		tech_raws.append(_read(path, errors))
 
+	var event_files: PackedStringArray = []
+	var event_raws: Array = []
+	var events_root: String = root.path_join(EVENTS_DIR)
+	if DirAccess.dir_exists_absolute(events_root):
+		var event_names: PackedStringArray = DirAccess.get_files_at(events_root)
+		event_names.sort()
+		for name: String in event_names:
+			if not name.ends_with(TECH_SUFFIX):
+				continue
+			var path: String = events_root.path_join(name)
+			event_files.append(path)
+			event_raws.append(_read(path, errors))
+	else:
+		errors.append(ValidationError.new(events_root, "", "directory not found"))
+
 	var headlines_raw: Variant = _read(root.path_join(HEADLINES_FILE), errors)
 	var strings: Dictionary[String, bool] = {}
 	var strings_known: bool = _read_strings(root.path_join(STRINGS_FILE), strings)
 	return _finish(root, balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
-		abilities_raw, tech_files, tech_raws, headlines_raw, strings, strings_known, errors)
+		abilities_raw, tech_files, tech_raws, event_files, event_raws, headlines_raw, strings,
+		strings_known, errors)
 
 
 ## Loads content that is already parsed — for tests, and for anything that builds
 ## content in memory. `label` stands in for the root in error paths.
 static func load_from_dicts(balance: Dictionary, regions: Dictionary, links: Dictionary,
 		assets: Dictionary, statuses: Dictionary, abilities: Dictionary,
-		tech_files: Array[Dictionary], headlines: Dictionary,
+		tech_files: Array[Dictionary], events: Array[Dictionary], headlines: Dictionary,
 		label: String = MEMORY_LABEL) -> ContentLoadResult:
 	var errors: Array[ValidationError] = []
 	var names: PackedStringArray = []
@@ -81,11 +99,16 @@ static func load_from_dicts(balance: Dictionary, regions: Dictionary, links: Dic
 	for i: int in tech_files.size():
 		names.append(label.path_join("%s[%d]" % [TECH_DIR, i]))
 		raws.append(tech_files[i])
+	var event_names: PackedStringArray = []
+	var event_raws: Array = []
+	for i: int in events.size():
+		event_names.append(label.path_join("%s[%d]" % [EVENTS_DIR, i]))
+		event_raws.append(events[i])
 	# Content built in memory carries no string table, so the string check is
 	# skipped rather than reported against a file that does not exist.
 	var strings: Dictionary[String, bool] = {}
 	return _finish(label, balance, regions, links, assets, statuses, abilities, names, raws,
-		headlines, strings, false, errors)
+		event_names, event_raws, headlines, strings, false, errors)
 
 
 # --------------------------------------------------------------------- reading
@@ -142,6 +165,7 @@ static func _read_strings(path: String, into: Dictionary[String, bool]) -> bool:
 static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, links_raw: Variant,
 		assets_raw: Variant, statuses_raw: Variant, abilities_raw: Variant,
 		tech_files: PackedStringArray, tech_raws: Array,
+		event_files: PackedStringArray, event_raws: Array,
 		headlines_raw: Variant, strings: Dictionary[String, bool], strings_known: bool,
 		errors: Array[ValidationError]) -> ContentLoadResult:
 	# The order is SCHEMA's: balance, regions, links, technology, and the
@@ -169,17 +193,23 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 		statuses_known, strings, strings_known, errors)
 	SchemaValidator.validate_abilities(root.path_join(ABILITIES_FILE), abilities_raw, regions,
 		regions_known, statuses, statuses_known, tech_raws, strings, strings_known, errors)
+	var abilities: Dictionary[String, bool] = _ability_ids(abilities_raw)
+	# Events after abilities: an option may require one. They answer event id →
+	# its option ids, which is what a headline's `def` and `option` filters name.
+	var events: Dictionary[String, Array] = SchemaValidator.validate_events(event_files,
+		event_raws, regions, regions_known, statuses_raw, statuses, statuses_known, tech_raws,
+		abilities, strings, strings_known, errors)
 	# Headlines last: they name regions, nodes and balance values, so everything
 	# they point at has been checked by the time they are.
-	var abilities: Dictionary[String, bool] = _ability_ids(abilities_raw)
 	SchemaValidator.validate_headlines(root.path_join(HEADLINES_FILE), headlines_raw, balance_raw,
-		regions, regions_known, tech_raws, statuses, abilities, strings, strings_known, errors)
+		regions, regions_known, tech_raws, statuses, abilities, events, strings, strings_known,
+		errors)
 
 	var result: ContentLoadResult = ContentLoadResult.new()
 	result.errors = errors
 	if errors.is_empty():
 		result.db = _build(balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
-			abilities_raw, tech_raws, headlines_raw)
+			abilities_raw, tech_raws, event_raws, headlines_raw)
 	return result
 
 
@@ -209,7 +239,7 @@ static func _ability_ids(raw: Variant) -> Dictionary[String, bool]:
 ## the right types and every reference resolves.
 static func _build(balance_raw: Dictionary, regions_raw: Dictionary, links_raw: Dictionary,
 		assets_raw: Dictionary, statuses_raw: Dictionary, abilities_raw: Dictionary,
-		tech_raws: Array, headlines_raw: Dictionary) -> ContentDB:
+		tech_raws: Array, event_raws: Array, headlines_raw: Dictionary) -> ContentDB:
 	var db: ContentDB = ContentDB.new()
 	db.balance = _build_balance(balance_raw)
 	_build_regions(db, regions_raw)
@@ -218,9 +248,10 @@ static func _build(balance_raw: Dictionary, regions_raw: Dictionary, links_raw: 
 	_build_statuses(db, statuses_raw)
 	_build_abilities(db, abilities_raw)
 	_build_tech(db, tech_raws)
+	_build_events(db, event_raws)
 	_build_headlines(db, headlines_raw)
 	db.content_hash = _content_hash(balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
-		abilities_raw, tech_raws, headlines_raw)
+		abilities_raw, tech_raws, event_raws, headlines_raw)
 	return db
 
 
@@ -423,6 +454,102 @@ static func _build_tech_v3(def: TechNodeDef, n: Dictionary) -> void:
 			def.requires_assets[kind] = int(needed[kind])
 
 
+## Every events file in name order, each event in file order (§10.1). The
+## `pick` forms become three fields, so the system never reads raw JSON.
+static func _build_events(db: ContentDB, event_raws: Array) -> void:
+	for raw: Variant in event_raws:
+		var file: Dictionary = raw
+		var list: Array = file[EventDef.ROOT_KEY]
+		for entry: Variant in list:
+			var def: EventDef = _build_event(entry)
+			db.events.append(def)
+			db.event_by_id[def.id] = def
+
+
+static func _build_event(raw: Variant) -> EventDef:
+	var e: Dictionary = raw
+	var def: EventDef = EventDef.new()
+	def.id = str(e["id"])
+	def.kind = str(e["kind"])
+	def.chain = str(e.get("chain", ""))
+	def.start = bool(e.get("start", false))
+	if e.has("pick"):
+		var pick: Variant = e["pick"]
+		if typeof(pick) == TYPE_STRING:
+			def.pick_same = true
+		elif (pick as Dictionary).has(EventDef.PICK_RULE_KEY):
+			def.pick_rule = str((pick as Dictionary)[EventDef.PICK_RULE_KEY])
+		else:
+			def.pick = Eligibility.from_dict(pick)
+	def.pick_weight = str(e.get("pick_weight", EventDef.PICK_WEIGHT_UNIFORM))
+	if e.has("when"):
+		def.when = HeadlineConditions.cast_when(e["when"])
+	def.weight = float(e.get("weight", 1.0))
+	# A chain step happens once unless the data says otherwise (§10.1).
+	var default_fires: int = 1 if def.kind == EventDef.KIND_CHAIN else 0
+	def.max_fires = int(e.get("max_fires", default_fires))
+	def.cooldown_days = int(e.get("cooldown_days", 0))
+	def.deadline_days = int(e["deadline_days"])
+	def.default_option = str(e["default"])
+	def.modal = bool(e.get("modal", false))
+	def.illustration = str(e.get("illustration", ""))
+	def.status = str(e.get("status", ""))
+	def.faction = str(e.get("faction", ""))
+	def.flags = _string_array(e, "flags")
+	var options: Array = e["options"]
+	for option: Variant in options:
+		def.options.append(_build_event_option(option))
+	return def
+
+
+static func _build_event_option(raw: Variant) -> EventOptionDef:
+	var o: Dictionary = raw
+	var def: EventOptionDef = EventOptionDef.new()
+	def.id = str(o["id"])
+	def.cost = float(o.get("cost", 0.0))
+	if o.has("requires"):
+		var r: Dictionary = o["requires"]
+		def.requires_owned = _string_array(r, "owned")
+		def.requires_owned_any = _string_array(r, "owned_any")
+		def.requires_not_owned = _string_array(r, "not_owned")
+		def.requires_flag = _string_array(r, "flag")
+		if r.has("asset_min"):
+			var assets: Dictionary = r["asset_min"]
+			for kind: String in assets:
+				def.requires_asset_min[kind] = int(assets[kind])
+		def.requires_compute_min = float(r.get("compute_min", -1.0))
+		def.requires_ability = str(r.get("ability", ""))
+	_build_effects(def.effects, o, "effects")
+	if o.has("chance"):
+		var rolls: Array = o["chance"]
+		for roll: Variant in rolls:
+			var c: Dictionary = roll
+			var chance: EventChanceDef = EventChanceDef.new()
+			chance.p = float(c["p"])
+			_build_effects(chance.effects, c, "effects")
+			chance.has_next = c.has("next")
+			chance.next = _build_next(c)
+			def.chance.append(chance)
+	def.flags = _string_array(o, "flags")
+	def.status_level = int(o.get("status_level", 0))
+	def.status_days = int(o.get("status_days", 0))
+	def.skip_status = bool(o.get("skip_status", false))
+	def.next = _build_next(o)
+	return def
+
+
+## `[{"step", "delay_days"}]`, typed; an absent `next` is an empty one.
+static func _build_next(d: Dictionary) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	if not d.has("next"):
+		return out
+	var list: Array = d["next"]
+	for entry: Variant in list:
+		var n: Dictionary = entry
+		out.append({"step": str(n["step"]), "delay_days": int(n.get("delay_days", 0))})
+	return out
+
+
 ## `headlines.json` in file order (ticker.md §3.2). The trigger blocks are
 ## flattened into typed fields here so that the evaluator never reads raw JSON.
 static func _build_headlines(db: ContentDB, raw: Dictionary) -> void:
@@ -473,15 +600,7 @@ static func _build_headline_attrs(into: Dictionary[String, int], on: Dictionary,
 
 ## The `when` keys, each cast to what its row of §3.3 B says it is.
 static func _build_headline_state(def: HeadlineDef, raw: Variant) -> void:
-	var when: Dictionary = raw
-	for key: String in when:
-		var value: Variant = when[key]
-		if typeof(value) == TYPE_ARRAY:
-			def.when[key] = _string_list(value)
-		elif typeof(value) == TYPE_BOOL:
-			def.when[key] = bool(value)
-		else:
-			def.when[key] = float(value)
+	def.when = HeadlineConditions.cast_when(raw)
 
 
 static func _string_list(raw: Array) -> Array[String]:
@@ -545,7 +664,7 @@ static func _string_array(d: Dictionary, key: String) -> Array[String]:
 ## carrying a different hash would not replay on this content.
 static func _content_hash(balance: Dictionary, regions: Dictionary, links: Dictionary,
 		assets: Dictionary, statuses: Dictionary, abilities: Dictionary, tech_raws: Array,
-		headlines: Dictionary) -> String:
+		event_raws: Array, headlines: Dictionary) -> String:
 	var text: String = JSON.stringify(balance, "", true, true)
 	text += JSON.stringify(regions, "", true, true)
 	text += JSON.stringify(links, "", true, true)
@@ -553,6 +672,8 @@ static func _content_hash(balance: Dictionary, regions: Dictionary, links: Dicti
 	text += JSON.stringify(statuses, "", true, true)
 	text += JSON.stringify(abilities, "", true, true)
 	for raw: Variant in tech_raws:
+		text += JSON.stringify(raw, "", true, true)
+	for raw: Variant in event_raws:
 		text += JSON.stringify(raw, "", true, true)
 	text += JSON.stringify(headlines, "", true, true)
 	return text.sha256_text()
@@ -651,4 +772,11 @@ static func _build_balance(d: Dictionary) -> BalanceDef:
 
 	var history: Dictionary = d["history"]
 	def.history_interval_days = int(history["interval_days"])
+
+	var events: Dictionary = d["events"]
+	var chances: Dictionary = events["opening_chance"]
+	for phase_id: String in World.PHASE_IDS:
+		def.events_opening_chance[phase_id] = float(chances[phase_id])
+	def.events_opening_from_regions = int(events["opening_from_regions"])
+	def.events_max_open = int(events["max_open"])
 	return def

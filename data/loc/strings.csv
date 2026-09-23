@@ -1377,3 +1377,25 @@ EFFECT_CONTAINMENT_ADD,{faction} containment {value},Eindämmung {faction} {valu
 EFFECT_FOOTPRINT_PULSE,Footprint {value} for {days} days,Fußabdruck {value} für {days} Tage
 EFFECT_SET_FLAG,For {days} days,Für {days} Tage
 EFFECT_SET_FLAG_PERMANENT,From now on,Von jetzt an
+CMD_FAIL_UNKNOWN_EVENT,That moment has passed.,Der Moment ist vorbei.
+CMD_FAIL_UNKNOWN_OPTION,Not one of the choices.,Keine der Möglichkeiten.
+CMD_FAIL_OPTION_LOCKED,You cannot choose that yet.,Das kannst du noch nicht wählen.
+UI_CONSOLE_EVENT,{region}: {title} — {days} days.,{region}: {title} – {days} Tage.
+UI_CONSOLE_EVENT_GLOBAL,{title} — {days} days.,{title} – {days} Tage.
+UI_CONSOLE_EVENT_EXPIRED,{title}: decided for you — {option}.,{title}: für dich entschieden – {option}.
+UI_HUD_EVENT_PENDING,{count} waiting,{count} offen
+UI_MAP_EVENT_TIP,{title} · {days} days,{title} · {days} Tage
+UI_EVENT_KIND_OPENING,Opening,Gelegenheit
+UI_EVENT_KIND_COUNTER_MOVE,Counter-move,Gegenzug
+UI_EVENT_KIND_CHAIN,Dispatch,Meldung
+UI_EVENT_OPTION_COST,{cost},{cost}
+UI_EVENT_OPTION_FREE,free,frei
+UI_EVENT_DEFAULT_MARK,happens if you wait,"passiert, wenn du wartest"
+UI_EVENT_DEADLINE,"{days} days, then: {option}","{days} Tage, dann: {option}"
+UI_EVENT_LOCK_NODE,Needs {node}.,Braucht {node}.
+UI_EVENT_LOCK_NODE_ANY,Needs one of: {nodes}.,Braucht eins von: {nodes}.
+UI_EVENT_LOCK_FLAG,Not available to you.,Steht dir nicht offen.
+UI_EVENT_LOCK_ASSET,Needs {count} × {kind} here.,Braucht {count} × {kind} hier.
+UI_EVENT_LOCK_COMPUTE,Needs {value} Compute.,Braucht {value} Rechenleistung.
+UI_EVENT_LOCK_ABILITY,Needs {ability}.,Braucht {ability}.
+UI_WIRE_GLOBAL,Worldwide,Weltweit

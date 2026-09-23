@@ -21,6 +21,7 @@ const LINK_COUNT: int = 7
 const TECH_NODE_COUNT: int = 23
 const STATUS_COUNT: int = 4
 const ABILITY_COUNT: int = 4
+const EVENT_COUNT: int = 4
 ## The fixture nodes a dormancy test needs, in purchase order.
 const DORMANCY_NODES: Array[String] = ["fx_quiet", "fx_hold"]
 ## The fixture's deploying nodes and the group the two vectors share (S4.1).
@@ -41,6 +42,12 @@ const HUSH_NODES: Array[String] = ["fx_hushbox"]
 const HUSH_STATUS: String = "fx_hush"
 ## The world's own status, which no ability applies.
 const WORLD_STATUS: String = "fx_lock"
+## The map events (§22): an opening, a counter-move and a two-step chain.
+const OPENING_EVENT: String = "fx_opening"
+const COUNTER_EVENT: String = "fx_move"
+const CHAIN_START: String = "fx_chain_1"
+const CHAIN_STEP: String = "fx_chain_2"
+const CHAIN_FLAG: String = "fx_seen"
 
 ## Loaded once: the database is immutable, so every test may share it.
 static var _db: ContentDB = null
@@ -68,6 +75,17 @@ static func sim_with_status(status_id: String, region_id: String = "fx_alder",
 	StatusSystem.apply(simulation.world, simulation.db, status_id, index,
 		Status.SOURCE_EFFECT, level, "", events)
 	return simulation
+
+
+## Opens a map event now, through `EventSystem.open` — the situation a test
+## wants, without the roll that would produce it. Returns the open record.
+static func open_event(simulation: Simulation, def_id: String, region_id: String = "fx_alder",
+		faction: String = "", level: int = 1) -> OpenEvent:
+	var index: int = int(simulation.db.region_index_by_id.get(region_id, 0))
+	var events: Array[SimEvent] = []
+	var def: EventDef = simulation.db.event(def_id)
+	assert(def != null, "the fixture has no event %s" % def_id)
+	return EventSystem.open(simulation.world, simulation.db, def, index, faction, level, events)
 
 
 ## The fixture world, loaded and asserted to be clean.
@@ -231,6 +249,7 @@ static func raw_content() -> Dictionary:
 		"statuses": read_json(WORLD_SMALL.path_join("statuses.json")),
 		"abilities": read_json(WORLD_SMALL.path_join("abilities.json")),
 		"tech": [read_json(WORLD_SMALL.path_join("tech/fixture.json"))],
+		"events": [read_json(WORLD_SMALL.path_join("events/fixture.json"))],
 		"headlines": read_json(WORLD_SMALL.path_join("headlines.json")),
 	}
 
@@ -240,8 +259,11 @@ static func load_raw(content: Dictionary) -> ContentLoadResult:
 	var tech: Array[Dictionary] = []
 	for entry: Variant in content["tech"]:
 		tech.append(entry)
+	var events: Array[Dictionary] = []
+	for entry: Variant in content.get("events", []):
+		events.append(entry)
 	return ContentLoader.load_from_dicts(content["balance"], content["regions"], content["links"],
-		content["assets"], content["statuses"], content["abilities"], tech,
+		content["assets"], content["statuses"], content["abilities"], tech, events,
 		content["headlines"])
 
 
@@ -252,7 +274,7 @@ static func root_files(content: Dictionary, indent: String = "\t") -> Dictionary
 	var tech: Array = content["tech"]
 	# Full precision, like the save writer: the default float formatting is lossy
 	# and a rewritten root would then no longer hash like the one it came from.
-	return {
+	var files: Dictionary[String, String] = {
 		"balance.json": JSON.stringify(content["balance"], indent, true, true),
 		"world/regions.json": JSON.stringify(content["regions"], indent, true, true),
 		"world/links.json": JSON.stringify(content["links"], indent, true, true),
@@ -262,6 +284,13 @@ static func root_files(content: Dictionary, indent: String = "\t") -> Dictionary
 		"tech/fixture.json": JSON.stringify(tech[0], indent, true, true),
 		"headlines.json": JSON.stringify(content["headlines"], indent, true, true),
 	}
+	var events: Array = content.get("events", [])
+	for i: int in events.size():
+		files["events/fixture_%d.json" % i] = JSON.stringify(events[i], indent, true, true)
+	# The directory must exist even when it holds nothing (§15).
+	if events.is_empty():
+		files["events/.keep"] = ""
+	return files
 
 
 ## Writes a content root below `user://` and returns its path. `files` maps a

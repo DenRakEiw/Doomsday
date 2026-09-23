@@ -27,6 +27,9 @@ func next_command(sim: Simulation) -> Command:
 		var pick: int = eligible[_rng.randi_range(0, eligible.size() - 1)]
 		return ChooseOriginCommand.new(sim.db.regions[pick].id)
 
+	var answer: Command = answer_events(sim)
+	if answer != null:
+		return answer
 	if _decided_day != sim.world.day:
 		_decided_day = sim.world.day
 		_queue.clear()

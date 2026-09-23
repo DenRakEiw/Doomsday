@@ -34,7 +34,7 @@ func _init() -> void:
 		# slot: CounterMoveSystem (S4.5)
 		StatusSystem.new(),
 		# slot: BehaviourSystem (M5)
-		# slot: EventSystem (S4.3)
+		EventSystem.new(),
 		PhaseSystem.new(),
 		OutcomeSystem.new(),
 		HistorySystem.new(),
@@ -159,6 +159,12 @@ func stat(target: String, region_index: int = 0) -> float:
 	if region_index <= 0 or region_index >= world.regions.size():
 		return world.modifiers.value(target)
 	return world.modifiers.value(target, world.regions[region_index].def)
+
+
+## A modifier flag (a node's, or a timed one) or a story flag: `requires.flag`
+## and `when.flag` ask one question and get one answer (§10.2, §20.8).
+func has_flag(flag: String) -> bool:
+	return HeadlineConditions.flag_set(world, flag)
 
 
 ## The ability level the run has reached: the number of leading entries of

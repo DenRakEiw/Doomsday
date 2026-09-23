@@ -11,9 +11,11 @@ extends GutTest
 
 const SESSION: PackedScene = preload("res://game/session/session.tscn")
 const SEED: int = 1
-## How far a run is driven while it is waited on; `greedy` spawns its first
-## anomalies within a few days of taking an origin.
-const STEP_DAYS: int = 10
+## How far a run is driven while it is waited on. One day: `greedy` collects an
+## anomaly the day after it spawns, so only a spawn on the last tick of a step is
+## still there to look at — a longer step made the test hang on where the
+## world's stream happened to put its spawns.
+const STEP_DAYS: int = 1
 const MAX_DAYS: int = 200
 
 var _session: Control = null

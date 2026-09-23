@@ -37,6 +37,23 @@ const NODE_LISTS: Array[String] = [KEY_OWNED, KEY_OWNED_ANY, KEY_NOT_OWNED]
 const FLAG_LISTS: Array[String] = [KEY_FLAG, KEY_NOT_FLAG]
 const KEY_DISCOVERED: String = "discovered"
 
+## The state keys map events added (`loop-mechanics.md` §10.3). One vocabulary
+## for events and headlines alike.
+const KEY_FACTION_MIN: String = "faction_min"
+const KEY_FACTION_MAX: String = "faction_max"
+const KEY_ASSET_MIN: String = "asset_min"
+const KEY_ASSET_MAX: String = "asset_max"
+## `{id: bound}` tables: a faction's containment, or the agent's total of a kind.
+const TABLE_KEYS: Array[String] = [KEY_FACTION_MIN, KEY_FACTION_MAX, KEY_ASSET_MIN,
+	KEY_ASSET_MAX]
+const KEY_STATUS_ACTIVE: String = "status_active"
+const KEY_STATUS_INACTIVE: String = "status_inactive"
+const STATUS_LISTS: Array[String] = [KEY_STATUS_ACTIVE, KEY_STATUS_INACTIVE]
+const KEY_ABILITY_UNLOCKED: String = "ability_unlocked"
+const KEY_STORY_FLAG: String = "story_flag"
+const KEY_NOT_STORY_FLAG: String = "not_story_flag"
+const STORY_FLAG_LISTS: Array[String] = [KEY_STORY_FLAG, KEY_NOT_STORY_FLAG]
+
 ## Event fields the `on` filters read.
 const FIELD_REGION: String = "region"
 const FIELD_NODE: String = "node"
@@ -49,6 +66,10 @@ static func when_keys() -> Array[String]:
 	var keys: Array[String] = [KEY_DISCOVERED, KEY_PHASE]
 	keys.append_array(NODE_LISTS)
 	keys.append_array(FLAG_LISTS)
+	keys.append_array(TABLE_KEYS)
+	keys.append_array(STATUS_LISTS)
+	keys.append(KEY_ABILITY_UNLOCKED)
+	keys.append_array(STORY_FLAG_LISTS)
 	for name: String in READINGS:
 		keys.append(name + SUFFIX_MIN)
 		if bool(READINGS[name][0]):
@@ -59,6 +80,8 @@ static func when_keys() -> Array[String]:
 ## The reading a `<reading>_min` / `_max` key compares, or "" for a key that is
 ## not one of them.
 static func reading_of(key: String) -> String:
+	if TABLE_KEYS.has(key):
+		return ""
 	for suffix: String in [SUFFIX_MIN, SUFFIX_MAX]:
 		if not key.ends_with(suffix):
 			continue
@@ -148,10 +171,38 @@ static func _region_of(data: Dictionary, db: ContentDB) -> RegionDef:
 ## §3.3 B: do all of the headline's `when` conditions hold right now? An empty
 ## `when` is always true.
 static func state_holds(def: HeadlineDef, world: World, db: ContentDB) -> bool:
-	for key: String in def.when:
-		if not _condition_holds(key, def.when[key], world, db):
+	return holds(def.when, world, db)
+
+
+## The same question for any `when` block — a headline's or a map event's
+## (`loop-mechanics.md` §10.3).
+static func holds(when: Dictionary, world: World, db: ContentDB) -> bool:
+	for key: String in when:
+		if not _condition_holds(str(key), when[key], world, db):
 			return false
 	return true
+
+
+## A validated `when` block, each value cast to what its row says it is: a list
+## of strings, a bool, a number, or an `{id: number}` table. Both loaders use it,
+## so the evaluator never meets raw JSON.
+static func cast_when(raw: Dictionary) -> Dictionary[String, Variant]:
+	var when: Dictionary[String, Variant] = {}
+	for key: Variant in raw:
+		var value: Variant = raw[key]
+		if typeof(value) == TYPE_ARRAY:
+			when[str(key)] = _as_strings(value)
+		elif typeof(value) == TYPE_BOOL:
+			when[str(key)] = bool(value)
+		elif typeof(value) == TYPE_DICTIONARY:
+			var table: Dictionary[String, float] = {}
+			var entries: Dictionary = value
+			for name: Variant in entries:
+				table[str(name)] = float(entries[name])
+			when[str(key)] = table
+		else:
+			when[str(key)] = float(value)
+	return when
 
 
 static func _condition_holds(key: String, expected: Variant, world: World,
@@ -160,12 +211,53 @@ static func _condition_holds(key: String, expected: Variant, world: World,
 		return world.discovered == bool(expected)
 	if key == KEY_PHASE:
 		return _as_strings(expected).has(World.PHASE_IDS[world.phase])
-	if NODE_LISTS.has(key) or FLAG_LISTS.has(key):
-		return _list_holds(key, _as_strings(expected), world)
+	if NODE_LISTS.has(key) or FLAG_LISTS.has(key) or STATUS_LISTS.has(key) \
+			or STORY_FLAG_LISTS.has(key) or key == KEY_ABILITY_UNLOCKED:
+		return _list_holds(key, _as_strings(expected), world, db)
+	if TABLE_KEYS.has(key):
+		return _table_holds(key, expected, world)
 	return _bound_holds(key, float(expected), world, db)
 
 
-static func _list_holds(key: String, ids: Array[String], world: World) -> bool:
+## A faction's containment, or the agent's total of an asset kind, against a
+## bound per id. An unknown faction — the unified track's world before S4.4 —
+## reads as the highest track there is.
+static func _table_holds(key: String, expected: Variant, world: World) -> bool:
+	if typeof(expected) != TYPE_DICTIONARY:
+		return false
+	var table: Dictionary = expected
+	var is_max: bool = key.ends_with(SUFFIX_MAX)
+	for id: Variant in table:
+		var bound: float = float(table[id])
+		var value: float = 0.0
+		if key == KEY_FACTION_MIN or key == KEY_FACTION_MAX:
+			value = faction_containment(world, str(id))
+		else:
+			value = float(world.asset_total(str(id)))
+		if is_max and value > bound:
+			return false
+		if not is_max and value < bound:
+			return false
+	return true
+
+
+## One faction's containment; an id the world does not track reads as the
+## maximum over the tracks it has (`loop-mechanics.md` §10.3).
+static func faction_containment(world: World, faction_id: String) -> float:
+	for faction: Faction in world.factions:
+		if faction.id == faction_id:
+			return faction.containment
+	return world.max_containment()
+
+
+## A modifier flag (a node's, or a timed one) or a story flag — one question,
+## one answer (§20.8).
+static func flag_set(world: World, flag: String) -> bool:
+	return world.modifiers.has_flag(flag) or world.agent.has_story_flag(flag)
+
+
+static func _list_holds(key: String, ids: Array[String], world: World,
+		db: ContentDB) -> bool:
 	match key:
 		KEY_OWNED:
 			for id: String in ids:
@@ -184,12 +276,37 @@ static func _list_holds(key: String, ids: Array[String], world: World) -> bool:
 			return true
 		KEY_FLAG:
 			for flag: String in ids:
-				if not world.modifiers.has_flag(flag):
+				if not flag_set(world, flag):
 					return false
 			return true
-	# `not_flag`: none of them may be set.
-	for flag: String in ids:
-		if world.modifiers.has_flag(flag):
+		KEY_NOT_FLAG:
+			for flag: String in ids:
+				if flag_set(world, flag):
+					return false
+			return true
+		KEY_STORY_FLAG:
+			for flag: String in ids:
+				if not world.agent.has_story_flag(flag):
+					return false
+			return true
+		KEY_NOT_STORY_FLAG:
+			for flag: String in ids:
+				if world.agent.has_story_flag(flag):
+					return false
+			return true
+		KEY_STATUS_ACTIVE:
+			for status_id: String in ids:
+				if world.statuses_of(status_id).is_empty():
+					return false
+			return true
+		KEY_STATUS_INACTIVE:
+			for status_id: String in ids:
+				if not world.statuses_of(status_id).is_empty():
+					return false
+			return true
+	# `ability_unlocked`: every one at level 1 or more.
+	for ability_id: String in ids:
+		if Simulation.view(db, world).ability_level(ability_id) == 0:
 			return false
 	return true
 

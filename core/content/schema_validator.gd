@@ -27,7 +27,7 @@ const INTEGER_MAX: int = 9007199254740992
 
 const BALANCE_KEYS: Array[String] = ["stats", "population_tiers", "spread", "control", "compute",
 	"anomaly", "milestones", "harm", "discovery", "containment", "phase", "headlines", "results",
-	"history"]
+	"history", "events"]
 const REGION_KEYS: Array[String] = ["index", "id", "continent", "population", "air_gapped",
 	"anchor", "attributes"]
 const LINK_KEYS: Array[String] = ["a", "b", "kind"]
@@ -60,7 +60,11 @@ const REGION_EVENTS: Array[String] = [SimEvent.ASSET_DEPLOYED, SimEvent.ASSET_LO
 	SimEvent.REGION_CONTROLLED, SimEvent.ANOMALY_SPAWNED, SimEvent.ANOMALY_EXPIRED,
 	SimEvent.ANOMALY_COLLECTED, SimEvent.REGION_DEPOPULATED, SimEvent.DORMANCY_CHANGED,
 	SimEvent.ABILITY_USED, SimEvent.STATUS_STARTED, SimEvent.STATUS_ENDED,
-	SimEvent.PENETRATION_CHANGED, SimEvent.CONTROL_CHANGED, SimEvent.REGION_WIPED]
+	SimEvent.PENETRATION_CHANGED, SimEvent.CONTROL_CHANGED, SimEvent.REGION_WIPED,
+	SimEvent.EVENT_OPENED, SimEvent.EVENT_ANSWERED, SimEvent.EVENT_EXPIRED,
+	SimEvent.EVENT_DROPPED]
+## The strings every map event needs; per option the two of `EventOptionDef`.
+const EVENT_STRING_SUFFIXES: Array[String] = ["TITLE", "BODY"]
 
 ## Compiled once; `RegEx.create_from_string` on a literal pattern cannot fail.
 static var _id_regex: RegEx = RegEx.create_from_string(ID_PATTERN)
@@ -105,6 +109,8 @@ static func validate_balance(file: String, raw: Variant, errors: Array[Validatio
 		_balance_results(d["results"], file, errors)
 	if _require(d, "history", file, "", errors):
 		_balance_history(d["history"], file, errors)
+	if _require(d, "events", file, "", errors):
+		_balance_events(d["events"], file, errors)
 
 
 static func _balance_stats(raw: Variant, file: String, errors: Array[ValidationError]) -> void:
@@ -361,6 +367,27 @@ static func _balance_history(raw: Variant, file: String, errors: Array[Validatio
 	var d: Dictionary = raw
 	_check_keys(d, ["interval_days"], file, path, errors)
 	_integer(d, "interval_days", file, path, errors, 1)
+
+
+## loop-mechanics §18: the opening roll per phase, when it starts, and how many
+## map events may stand at once.
+static func _balance_events(raw: Variant, file: String, errors: Array[ValidationError]) -> void:
+	var path: String = "events"
+	if not _is_object(raw, file, path, errors):
+		return
+	var d: Dictionary = raw
+	_check_keys(d, ["opening_chance", "opening_from_regions", "max_open"], file, path, errors)
+	_integer(d, "opening_from_regions", file, path, errors, 1)
+	_integer(d, "max_open", file, path, errors, 1)
+	if not _require(d, "opening_chance", file, path, errors):
+		return
+	var chance_path: String = _join(path, "opening_chance")
+	if not _is_object(d["opening_chance"], file, chance_path, errors):
+		return
+	var chances: Dictionary = d["opening_chance"]
+	_check_keys(chances, World.PHASE_IDS, file, chance_path, errors)
+	for phase_id: String in World.PHASE_IDS:
+		_number(chances, phase_id, file, chance_path, errors, 0.0, 1.0)
 
 
 # ---------------------------------------------------------- world/regions.json
@@ -1642,6 +1669,445 @@ static func _tech_cycles(order: PackedStringArray,
 				"prerequisite cycle: %s" % " -> ".join(trail))
 
 
+# ------------------------------------------------------------- events/*.json
+
+
+## Appends every problem in the events files to `errors` (§15.7) and answers
+## **event id → its option ids**, which the headline filters on `def` and
+## `option` need. Ids are unique across files; the chain rules look at every
+## file at once, because a chain may be split over none of them but could be.
+static func validate_events(files: PackedStringArray, raws: Array,
+		regions: Dictionary[String, String], regions_known: bool, statuses_raw: Variant,
+		statuses: Dictionary[String, int], statuses_known: bool, tech_raws: Array,
+		abilities: Dictionary[String, bool], strings: Dictionary[String, bool],
+		strings_known: bool, errors: Array[ValidationError]) -> Dictionary[String, Array]:
+	var options_by_event: Dictionary[String, Array] = {}
+	var continents: Dictionary[String, bool] = {}
+	for continent: String in regions.values():
+		continents[continent] = true
+	var status_ids: Dictionary[String, bool] = {}
+	for status_id: String in statuses:
+		status_ids[status_id] = true
+	var known: Dictionary[String, Dictionary] = {
+		"node": _tech_ids(tech_raws),
+		"status": status_ids,
+		"ability": abilities,
+	}
+	var context: Dictionary = {
+		"continents": continents,
+		"continents_known": regions_known,
+		"statuses": statuses,
+		"statuses_known": statuses_known,
+		"world_statuses": _world_status_ids(statuses_raw),
+		"known": known,
+		"strings": strings,
+		"strings_known": strings_known,
+	}
+	# Every event that came through with an id, for the chain rules at the end:
+	# id → [file, path, entry].
+	var entries: Dictionary[String, Array] = {}
+	for f: int in raws.size():
+		var file: String = files[f]
+		if typeof(raws[f]) != TYPE_DICTIONARY:
+			continue
+		var d: Dictionary = raws[f]
+		_check_keys(d, ["version", EventDef.ROOT_KEY], file, "", errors)
+		_content_version(d, file, errors)
+		if not _require(d, EventDef.ROOT_KEY, file, "", errors):
+			continue
+		if not _is_list(d[EventDef.ROOT_KEY], file, EventDef.ROOT_KEY, errors):
+			continue
+		var list: Array = d[EventDef.ROOT_KEY]
+		for i: int in list.size():
+			var path: String = "%s[%d]" % [EventDef.ROOT_KEY, i]
+			if not _is_object(list[i], file, path, errors):
+				continue
+			var e: Dictionary = list[i]
+			var id: String = _id(e, "id", file, path, errors)
+			if id.is_empty():
+				continue
+			if entries.has(id):
+				_add(errors, file, _join(path, "id"), "duplicate event id \"%s\"" % id)
+				continue
+			entries[id] = [file, path, e]
+			options_by_event[id] = _event(e, id, file, path, context, errors)
+	_event_chains(entries, errors)
+	return options_by_event
+
+
+## The status ids whose `origin` is the world's — the only ones a counter-move may
+## apply (§15.7).
+static func _world_status_ids(raw: Variant) -> Dictionary[String, bool]:
+	var ids: Dictionary[String, bool] = {}
+	if typeof(raw) != TYPE_DICTIONARY:
+		return ids
+	var d: Dictionary = raw
+	if typeof(d.get(StatusDef.ROOT_KEY)) != TYPE_ARRAY:
+		return ids
+	for entry: Variant in d[StatusDef.ROOT_KEY]:
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var s: Dictionary = entry
+		if str(s.get("origin", "")) == StatusDef.ORIGIN_WORLD:
+			ids[str(s.get("id", ""))] = true
+	return ids
+
+
+## One event. Answers its option ids, sound or not, so that a headline naming a
+## broken option still gets a sensible message.
+static func _event(e: Dictionary, id: String, file: String, path: String, context: Dictionary,
+		errors: Array[ValidationError]) -> Array:
+	_check_keys(e, EventDef.KEYS, file, path, errors)
+	var kind: String = _text(e, "kind", file, path, errors)
+	if not kind.is_empty() and not EventDef.KINDS.has(kind):
+		_add(errors, file, _join(path, "kind"), "unknown kind \"%s\"" % kind)
+	var is_chain: bool = kind == EventDef.KIND_CHAIN
+	var is_counter: bool = kind == EventDef.KIND_COUNTER_MOVE
+	if is_chain:
+		_id(e, "chain", file, path, errors)
+		if e.has("start"):
+			_bool(e, "start", file, path, errors)
+	else:
+		for key: String in ["chain", "start"]:
+			if e.has(key):
+				_add(errors, file, _join(path, key), "only a chain step has \"%s\"" % key)
+	var has_region: bool = _event_pick(e, kind, file, path, context, errors)
+	if e.has("pick_weight") and not EventDef.PICK_WEIGHTS.has(str(e["pick_weight"])):
+		_add(errors, file, _join(path, "pick_weight"),
+			"\"%s\" is not one of %s" % [e["pick_weight"], EventDef.PICK_WEIGHTS])
+	if e.has("when"):
+		_headline_when(e["when"], file, _join(path, "when"), context["known"], errors, true)
+	if e.has("weight"):
+		_number(e, "weight", file, path, errors, 0.0, INF, true)
+	if e.has("max_fires"):
+		_integer(e, "max_fires", file, path, errors, 0)
+	if e.has("cooldown_days"):
+		_integer(e, "cooldown_days", file, path, errors, 0)
+	_integer(e, "deadline_days", file, path, errors, 1)
+	if e.has("modal"):
+		_bool(e, "modal", file, path, errors)
+	if e.has("illustration"):
+		_id(e, "illustration", file, path, errors)
+	_event_flags(e, file, path, errors)
+	_event_counter_move(e, is_counter, file, path, context, errors)
+
+	var option_ids: Array = []
+	if _require(e, "options", file, path, errors) \
+			and _is_list(e["options"], file, _join(path, "options"), errors):
+		var options: Array = e["options"]
+		if options.size() < EventDef.OPTIONS_MIN or options.size() > EventDef.OPTIONS_MAX:
+			_add(errors, file, _join(path, "options"),
+				"an event has %d to %d options, found %d"
+				% [EventDef.OPTIONS_MIN, EventDef.OPTIONS_MAX, options.size()])
+		for i: int in options.size():
+			var option_path: String = "%s.options[%d]" % [path, i]
+			var option_id: String = _event_option(options[i], id, is_chain, is_counter, has_region,
+				file, option_path, context, errors)
+			if option_id.is_empty():
+				continue
+			if option_ids.has(option_id):
+				_add(errors, file, _join(option_path, "id"),
+					"duplicate option id \"%s\"" % option_id)
+				continue
+			option_ids.append(option_id)
+	_event_default(e, file, path, errors)
+	if bool(context["strings_known"]):
+		var strings: Dictionary[String, bool] = context["strings"]
+		for suffix: String in EVENT_STRING_SUFFIXES:
+			_event_string("EVENT_%s_%s" % [id.to_upper(), suffix], strings, file,
+				_join(path, "id"), errors)
+	return option_ids
+
+
+## `pick`: an eligibility rule, `"same"` on a chain step that is not the start,
+## or `{"rule": id}` on a counter-move. Answers whether the event has a region at
+## all, which is what decides where a region-bound effect may stand.
+static func _event_pick(e: Dictionary, kind: String, file: String, path: String,
+		context: Dictionary, errors: Array[ValidationError]) -> bool:
+	if not e.has("pick"):
+		return false
+	var pick_path: String = _join(path, "pick")
+	var pick: Variant = e["pick"]
+	if typeof(pick) == TYPE_STRING:
+		if str(pick) != EventDef.PICK_SAME:
+			_add(errors, file, pick_path, "\"%s\" is not \"%s\"" % [pick, EventDef.PICK_SAME])
+		elif kind != EventDef.KIND_CHAIN or bool(e.get("start", false)):
+			_add(errors, file, pick_path,
+				"only a chain step after the first may land where the last one did")
+		return true
+	if typeof(pick) != TYPE_DICTIONARY:
+		_add(errors, file, pick_path,
+			"expected an object or \"same\", found %s" % type_string(typeof(pick)))
+		return true
+	var rule: Dictionary = pick
+	if rule.has(EventDef.PICK_RULE_KEY):
+		_check_keys(rule, [EventDef.PICK_RULE_KEY], file, pick_path, errors)
+		if kind != EventDef.KIND_COUNTER_MOVE:
+			_add(errors, file, pick_path, "only a counter-move picks by a named rule")
+		var name: String = _text(rule, EventDef.PICK_RULE_KEY, file, pick_path, errors)
+		if not name.is_empty() and not EventDef.PICK_RULES.has(name):
+			_add(errors, file, _join(pick_path, EventDef.PICK_RULE_KEY),
+				"\"%s\" is not one of %s" % [name, EventDef.PICK_RULES])
+		return true
+	_eligibility(pick, file, pick_path, context["continents"], bool(context["continents_known"]),
+		context["statuses"], bool(context["statuses_known"]), errors)
+	return true
+
+
+## Story flags set when the event or an option opens: ids, and never one the
+## modifier vocabulary owns.
+static func _event_flags(d: Dictionary, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	var flags: PackedStringArray = _id_list(d, "flags", file, path, errors)
+	for i: int in flags.size():
+		if ModifierDef.FLAGS.has(flags[i]):
+			_add(errors, file, "%s.flags[%d]" % [path, i],
+				"\"%s\" is a modifier flag and cannot also be set here" % flags[i])
+
+
+## A counter-move names the world's status it applies and the faction behind it;
+## no other kind may name either.
+static func _event_counter_move(e: Dictionary, is_counter: bool, file: String, path: String,
+		context: Dictionary, errors: Array[ValidationError]) -> void:
+	if not is_counter:
+		for key: String in ["status", "faction"]:
+			if e.has(key):
+				_add(errors, file, _join(path, key), "only a counter-move has \"%s\"" % key)
+		return
+	var faction: String = _id(e, "faction", file, path, errors)
+	if not faction.is_empty() and not Faction.FACTION_IDS.has(faction):
+		_add(errors, file, _join(path, "faction"), "unknown faction \"%s\"" % faction)
+	var status: String = _id(e, "status", file, path, errors)
+	if status.is_empty() or not bool(context["statuses_known"]):
+		return
+	var statuses: Dictionary[String, int] = context["statuses"]
+	var world_statuses: Dictionary[String, bool] = context["world_statuses"]
+	if not statuses.has(status):
+		_add(errors, file, _join(path, "status"), "unknown status \"%s\"" % status)
+	elif not world_statuses.has(status):
+		_add(errors, file, _join(path, "status"),
+			"\"%s\" is the player's; a counter-move applies one of the world's" % status)
+
+
+## One option. Answers its id, or "" when it has none.
+static func _event_option(raw: Variant, event_id: String, is_chain: bool, is_counter: bool,
+		has_region: bool, file: String, path: String, context: Dictionary,
+		errors: Array[ValidationError]) -> String:
+	if not _is_object(raw, file, path, errors):
+		return ""
+	var o: Dictionary = raw
+	_check_keys(o, EventOptionDef.KEYS, file, path, errors)
+	var id: String = _id(o, "id", file, path, errors)
+	if o.has("cost"):
+		_number(o, "cost", file, path, errors, 0.0)
+	if o.has("requires"):
+		_event_requires(o["requires"], has_region, file, _join(path, "requires"), context, errors)
+	var statuses: Dictionary[String, int] = context["statuses"]
+	var statuses_known: bool = context["statuses_known"]
+	if o.has("effects") and _is_list(o["effects"], file, _join(path, "effects"), errors):
+		var effects: Array = o["effects"]
+		for i: int in effects.size():
+			effect(effects[i], file, "%s.effects[%d]" % [path, i], has_region, statuses,
+				statuses_known, errors)
+	if o.has("chance") and _is_list(o["chance"], file, _join(path, "chance"), errors):
+		var rolls: Array = o["chance"]
+		for i: int in rolls.size():
+			_event_chance(rolls[i], is_chain, has_region, file, "%s.chance[%d]" % [path, i],
+				context, errors)
+	_event_flags(o, file, path, errors)
+	for key: String in ["status_level", "status_days", "skip_status"]:
+		if o.has(key) and not is_counter:
+			_add(errors, file, _join(path, key), "only a counter-move's option has \"%s\"" % key)
+	if is_counter:
+		if o.has("status_level"):
+			_integer(o, "status_level", file, path, errors, 0)
+		if o.has("status_days"):
+			_integer(o, "status_days", file, path, errors, 0)
+		if o.has("skip_status"):
+			_bool(o, "skip_status", file, path, errors)
+	if o.has("next"):
+		if is_chain:
+			_event_next(o["next"], file, _join(path, "next"), errors)
+		else:
+			_add(errors, file, _join(path, "next"), "only a chain step leads anywhere")
+	if bool(context["strings_known"]) and not id.is_empty():
+		var strings: Dictionary[String, bool] = context["strings"]
+		_event_string(EventOptionDef.text_key(event_id, id), strings, file, _join(path, "id"),
+			errors)
+		_event_string(EventOptionDef.result_key(event_id, id), strings, file, _join(path, "id"),
+			errors)
+	return id
+
+
+## `requires` (§10.2): each key from its vocabulary, and an asset count only on an
+## event that stands in a region.
+static func _event_requires(raw: Variant, has_region: bool, file: String, path: String,
+		context: Dictionary, errors: Array[ValidationError]) -> void:
+	if not _is_object(raw, file, path, errors):
+		return
+	var r: Dictionary = raw
+	_check_keys(r, EventOptionDef.REQUIRES_KEYS, file, path, errors)
+	var known: Dictionary[String, Dictionary] = context["known"]
+	var nodes: Dictionary = known["node"]
+	for key: String in ["owned", "owned_any", "not_owned"]:
+		var listed: PackedStringArray = _id_list(r, key, file, path, errors)
+		for i: int in listed.size():
+			if not listed[i].is_empty() and not nodes.has(listed[i]):
+				_add(errors, file, "%s.%s[%d]" % [path, key, i], "unknown node \"%s\"" % listed[i])
+	_id_list(r, "flag", file, path, errors)
+	if r.has("asset_min"):
+		if not has_region:
+			_add(errors, file, _join(path, "asset_min"),
+				"a global event has no region to count assets in")
+		_eligibility_table(r, "asset_min", file, path, errors)
+	if r.has("compute_min"):
+		_number(r, "compute_min", file, path, errors, 0.0)
+	if r.has("ability"):
+		var ability: String = _id(r, "ability", file, path, errors)
+		var abilities: Dictionary = known["ability"]
+		if not ability.is_empty() and not abilities.has(ability):
+			_add(errors, file, _join(path, "ability"), "unknown ability \"%s\"" % ability)
+
+
+static func _event_chance(raw: Variant, is_chain: bool, has_region: bool, file: String,
+		path: String, context: Dictionary, errors: Array[ValidationError]) -> void:
+	if not _is_object(raw, file, path, errors):
+		return
+	var c: Dictionary = raw
+	_check_keys(c, EventChanceDef.KEYS, file, path, errors)
+	_number(c, "p", file, path, errors, 0.0, 1.0, true)
+	if c.has("effects") and _is_list(c["effects"], file, _join(path, "effects"), errors):
+		var effects: Array = c["effects"]
+		for i: int in effects.size():
+			effect(effects[i], file, "%s.effects[%d]" % [path, i], has_region,
+				context["statuses"], bool(context["statuses_known"]), errors)
+	if c.has("next"):
+		if is_chain:
+			_event_next(c["next"], file, _join(path, "next"), errors)
+		else:
+			_add(errors, file, _join(path, "next"), "only a chain step leads anywhere")
+
+
+## `[{"step": id, "delay_days": ≥ 0}]`; an empty list is legal and ends the
+## chain. Where the steps lead is `_event_chains`' question.
+static func _event_next(raw: Variant, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if not _is_list(raw, file, path, errors):
+		return
+	var list: Array = raw
+	for i: int in list.size():
+		var entry_path: String = "%s[%d]" % [path, i]
+		if not _is_object(list[i], file, entry_path, errors):
+			continue
+		var n: Dictionary = list[i]
+		_check_keys(n, EventOptionDef.NEXT_KEYS, file, entry_path, errors)
+		_id(n, "step", file, entry_path, errors)
+		if n.has("delay_days"):
+			_integer(n, "delay_days", file, entry_path, errors, 0)
+
+
+## The default is what happens when the player does nothing, so it can never cost
+## anything nor be locked (§15.7).
+static func _event_default(e: Dictionary, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	var default_id: String = _id(e, "default", file, path, errors)
+	if default_id.is_empty() or typeof(e.get("options")) != TYPE_ARRAY:
+		return
+	for option: Variant in e["options"]:
+		if typeof(option) != TYPE_DICTIONARY or str((option as Dictionary).get("id")) != default_id:
+			continue
+		var o: Dictionary = option
+		if [TYPE_INT, TYPE_FLOAT].has(typeof(o.get("cost"))) and float(o["cost"]) != 0.0:
+			_add(errors, file, _join(path, "default"),
+				"the default \"%s\" costs %s; it must be free" % [default_id, o["cost"]])
+		if typeof(o.get("requires")) == TYPE_DICTIONARY \
+				and not (o["requires"] as Dictionary).is_empty():
+			_add(errors, file, _join(path, "default"),
+				"the default \"%s\" has requirements; it must always be open" % default_id)
+		return
+	_add(errors, file, _join(path, "default"), "\"%s\" is not one of the options" % default_id)
+
+
+static func _event_string(key: String, strings: Dictionary[String, bool], file: String,
+		path: String, errors: Array[ValidationError]) -> void:
+	if not strings.has(key):
+		_add(errors, file, path, "no string \"%s\" with both an en and a de cell" % key)
+
+
+## The chain rules of §10.1, across every file: one `start` per chain; every
+## `next` leads to a step of the same chain; every step but the start is led to.
+static func _event_chains(entries: Dictionary[String, Array],
+		errors: Array[ValidationError]) -> void:
+	var starts: Dictionary[String, int] = {}
+	var reached: Dictionary[String, bool] = {}
+	for id: String in entries:
+		var file: String = entries[id][0]
+		var path: String = entries[id][1]
+		var e: Dictionary = entries[id][2]
+		if str(e.get("kind", "")) != EventDef.KIND_CHAIN:
+			continue
+		var chain: String = str(e.get("chain", ""))
+		if bool(e.get("start", false)):
+			starts[chain] = int(starts.get(chain, 0)) + 1
+		if typeof(e.get("options")) != TYPE_ARRAY:
+			continue
+		var options: Array = e["options"]
+		for i: int in options.size():
+			if typeof(options[i]) != TYPE_DICTIONARY:
+				continue
+			var o: Dictionary = options[i]
+			var option_path: String = "%s.options[%d]" % [path, i]
+			_chain_targets(o.get("next"), chain, entries, reached, file,
+				_join(option_path, "next"), errors)
+			if typeof(o.get("chance")) != TYPE_ARRAY:
+				continue
+			var rolls: Array = o["chance"]
+			for c: int in rolls.size():
+				if typeof(rolls[c]) == TYPE_DICTIONARY:
+					_chain_targets((rolls[c] as Dictionary).get("next"), chain, entries, reached,
+						file, "%s.chance[%d].next" % [option_path, c], errors)
+	for id: String in entries:
+		var file: String = entries[id][0]
+		var path: String = entries[id][1]
+		var e: Dictionary = entries[id][2]
+		if str(e.get("kind", "")) != EventDef.KIND_CHAIN:
+			continue
+		var chain: String = str(e.get("chain", ""))
+		if int(starts.get(chain, 0)) != 1:
+			_add(errors, file, _join(path, "chain"),
+				"chain \"%s\" has %d starting steps; it needs exactly one"
+				% [chain, int(starts.get(chain, 0))])
+			starts[chain] = 1
+		if not bool(e.get("start", false)) and not reached.has(id):
+			_add(errors, file, _join(path, "id"),
+				"\"%s\" is neither the start of its chain nor named by any \"next\"" % id)
+
+
+static func _chain_targets(raw: Variant, chain: String, entries: Dictionary[String, Array],
+		reached: Dictionary[String, bool], file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if typeof(raw) != TYPE_ARRAY:
+		return
+	var list: Array = raw
+	for i: int in list.size():
+		if typeof(list[i]) != TYPE_DICTIONARY:
+			continue
+		var step: String = str((list[i] as Dictionary).get("step", ""))
+		if step.is_empty():
+			continue
+		var step_path: String = "%s[%d].step" % [path, i]
+		if not entries.has(step):
+			_add(errors, file, step_path, "unknown event \"%s\"" % step)
+			continue
+		var target: Dictionary = entries[step][2]
+		if str(target.get("kind", "")) != EventDef.KIND_CHAIN \
+				or str(target.get("chain", "")) != chain:
+			_add(errors, file, step_path,
+				"\"%s\" is not a step of the chain \"%s\"" % [step, chain])
+			continue
+		reached[step] = true
+
+
 # --------------------------------------------------------------- headlines.json
 
 
@@ -1651,6 +2117,7 @@ static func _tech_cycles(order: PackedStringArray,
 static func validate_headlines(file: String, raw: Variant, balance_raw: Variant,
 		regions: Dictionary[String, String], regions_known: bool, tech_raws: Array,
 		statuses: Dictionary[String, int], abilities: Dictionary[String, bool],
+		events: Dictionary[String, Array],
 		strings: Dictionary[String, bool], strings_known: bool,
 		errors: Array[ValidationError]) -> void:
 	if typeof(raw) != TYPE_DICTIONARY:
@@ -1672,12 +2139,19 @@ static func validate_headlines(file: String, raw: Variant, balance_raw: Variant,
 	var status_ids: Dictionary[String, bool] = {}
 	for status_id: String in statuses:
 		status_ids[status_id] = true
+	var event_ids: Dictionary[String, bool] = {}
+	var option_ids: Dictionary[String, Array] = {}
+	for event_id: String in events:
+		event_ids[event_id] = true
+		option_ids[event_id] = events[event_id]
 	var known: Dictionary[String, Dictionary] = {
 		"node": _tech_ids(tech_raws),
 		"region": _region_ids(regions, regions_known),
 		"milestone": _milestone_ids(balance_raw, regions, regions_known),
 		"status": status_ids,
 		"ability": abilities,
+		"def": event_ids,
+		"options": option_ids,
 	}
 	var seen: Dictionary[String, bool] = {}
 	for i: int in list.size():
@@ -1812,6 +2286,29 @@ static func _headline_data(raw: Variant, event: String, file: String, path: Stri
 			var field_path: String = _join(path, field)
 			var value_path: String = "%s[%d]" % [field_path, i] if listed else field_path
 			_headline_value(values[i], field, event, file, value_path, known, balance_raw, errors)
+	if data.has("option"):
+		_headline_option(data, file, path, known, errors)
+
+
+## `option` names an answer, which only means something next to the `def` it
+## belongs to (`loop-content.md` §9.3).
+static func _headline_option(data: Dictionary, file: String, path: String,
+		known: Dictionary[String, Dictionary], errors: Array[ValidationError]) -> void:
+	if not data.has("def"):
+		_add(errors, file, _join(path, "option"), "\"option\" needs a \"def\" beside it")
+		return
+	var defs: Array = data["def"] if typeof(data["def"]) == TYPE_ARRAY else [data["def"]]
+	var options: Array = data["option"] if typeof(data["option"]) == TYPE_ARRAY \
+		else [data["option"]]
+	var allowed: Dictionary = known["options"]
+	for option: Variant in options:
+		var found: bool = false
+		for def: Variant in defs:
+			if allowed.has(str(def)) and (allowed[str(def)] as Array).has(str(option)):
+				found = true
+		if not found:
+			_add(errors, file, _join(path, "option"),
+				"\"%s\" is not an option of %s" % [option, defs])
 
 
 static func _headline_value(value: Variant, field: String, event: String, file: String,
@@ -1834,7 +2331,7 @@ static func _headline_value(value: Variant, field: String, event: String, file: 
 static func _headline_domain(field: String, event: String,
 		known: Dictionary[String, Dictionary]) -> Array[String]:
 	match field:
-		"node", "region", "milestone", "status", "ability":
+		"node", "region", "milestone", "status", "ability", "def":
 			var ids: Array[String] = []
 			for id: String in known[field]:
 				ids.append(id)
@@ -1883,8 +2380,11 @@ static func _headline_attrs(raw: Variant, event: String, file: String, path: Str
 				RegionDef.TIER_MAX)
 
 
+## `story_flags` lets a flag list name any id: an event's `when` may read a
+## story flag, which no vocabulary lists (a flag may be set for a later chain).
 static func _headline_when(raw: Variant, file: String, path: String,
-		known: Dictionary[String, Dictionary], errors: Array[ValidationError]) -> void:
+		known: Dictionary[String, Dictionary], errors: Array[ValidationError],
+		story_flags: bool = false) -> void:
 	if not _is_object(raw, file, path, errors):
 		return
 	var when: Dictionary = raw
@@ -1892,12 +2392,28 @@ static func _headline_when(raw: Variant, file: String, path: String,
 	_check_keys(when, keys, file, path, errors)
 	for raw_key: Variant in when.keys():
 		if typeof(raw_key) == TYPE_STRING and keys.has(str(raw_key)):
-			_headline_condition(when, str(raw_key), file, path, known, errors)
+			_headline_condition(when, str(raw_key), file, path, known, errors, story_flags)
 	_headline_bounds(when, file, path, errors)
 
 
 static func _headline_condition(when: Dictionary, key: String, file: String, path: String,
-		known: Dictionary[String, Dictionary], errors: Array[ValidationError]) -> void:
+		known: Dictionary[String, Dictionary], errors: Array[ValidationError],
+		story_flags: bool = false) -> void:
+	if HeadlineConditions.TABLE_KEYS.has(key):
+		_when_table(when, key, file, path, errors)
+		return
+	if HeadlineConditions.STATUS_LISTS.has(key) or key == HeadlineConditions.KEY_ABILITY_UNLOCKED:
+		var vocabulary: String = "ability" if key == HeadlineConditions.KEY_ABILITY_UNLOCKED \
+			else "status"
+		var ids: Array[String] = []
+		for id: String in known[vocabulary]:
+			ids.append(id)
+		_headline_id_list(when, key, ids, file, path, errors)
+		return
+	if HeadlineConditions.STORY_FLAG_LISTS.has(key) \
+			or (story_flags and HeadlineConditions.FLAG_LISTS.has(key)):
+		_id_list(when, key, file, path, errors)
+		return
 	if key == HeadlineConditions.KEY_DISCOVERED:
 		if typeof(when[key]) != TYPE_BOOL:
 			_add(errors, file, _join(path, key),
@@ -1920,6 +2436,29 @@ static func _headline_condition(when: Dictionary, key: String, file: String, pat
 		_integer(when, key, file, path, errors, 0)
 	else:
 		_number(when, key, file, path, errors, -INF)
+
+
+## `faction_min` and friends: `{id: bound}`, the ids from the right vocabulary.
+## A faction id may be the unified track, which reads as the highest one.
+static func _when_table(when: Dictionary, key: String, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	var table_path: String = _join(path, key)
+	if not _is_object(when[key], file, table_path, errors):
+		return
+	var table: Dictionary = when[key]
+	var factions: bool = key.begins_with("faction")
+	for raw_name: Variant in table:
+		var name: String = str(raw_name)
+		if factions and not Faction.FACTION_IDS.has(name) and name != World.FACTION_UNIFIED:
+			_add(errors, file, _join(table_path, name), "unknown faction \"%s\"" % name)
+			continue
+		if not factions and not AssetDef.KINDS.has(name):
+			_add(errors, file, _join(table_path, name), "unknown asset kind \"%s\"" % name)
+			continue
+		if factions:
+			_number(table, name, file, table_path, errors, 0.0, 1.0)
+		else:
+			_integer(table, name, file, table_path, errors, 0)
 
 
 ## No condition may be written so that it can never hold.

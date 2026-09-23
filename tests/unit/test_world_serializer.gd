@@ -520,4 +520,4 @@ func test_a_status_in_a_region_the_content_lost_is_content_missing() -> void:
 	var save: Dictionary = _parse(WorldSerializer.to_json(sim))
 	var statuses: Array = (save["world"] as Dictionary)["statuses"]
 	(statuses[0] as Dictionary)["region"] = "fx_nowhere"
-	assert_eq(_load(save).reason, WorldSerializer.REASON_CORRUPT)
+	assert_eq(_load(save).reason, WorldSerializer.REASON_CONTENT_MISSING)

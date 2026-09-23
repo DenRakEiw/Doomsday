@@ -149,3 +149,44 @@ func test_greedy_is_never_rejected_over_three_hundred_days() -> void:
 		placed += sim.world.regions[i].asset_count(AssetDef.KIND_FLEET)
 	assert_eq(rejected, 0)
 	assert_gt(placed, 0, "and it placed the fixture fleet by itself")
+
+
+## §19: a bot answers the oldest open event with its default, first thing.
+func test_answer_events_answers_the_oldest_with_its_default() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	var policy: Policy = GreedyPolicy.new()
+	policy.setup(sim.db, Policy.seed_for(1))
+	assert_null(policy.answer_events(sim), "nothing open, nothing to answer")
+	var first: OpenEvent = Fixtures.open_event(sim, Fixtures.COUNTER_EVENT, "fx_alder",
+		"governments")
+	Fixtures.open_event(sim, Fixtures.OPENING_EVENT)
+	var command: Command = policy.answer_events(sim)
+	assert_true(command is ChooseEventOptionCommand)
+	var answer: ChooseEventOptionCommand = command
+	assert_eq(answer.event, first.id)
+	assert_eq(answer.option, "ride")
+	assert_eq(policy.next_command(sim).to_dict(), command.to_dict(), "before anything else")
+
+
+## §19: with every bot answering at once, no event ever runs into its deadline.
+func test_greedy_never_lets_an_event_expire_over_six_hundred_days() -> void:
+	var sim: Simulation = Fixtures.sim()
+	var policy: Policy = GreedyPolicy.new()
+	policy.setup(sim.db, Policy.seed_for(1))
+	var expired: int = 0
+	var opened: int = 0
+	for day: int in 600:
+		for i: int in Policy.MAX_COMMANDS_PER_DAY:
+			var command: Command = policy.next_command(sim)
+			if command == null:
+				break
+			assert_true(sim.apply(command).ok)
+		if not sim.tick():
+			break
+		for event: SimEvent in sim.outbox:
+			if event.type == SimEvent.EVENT_EXPIRED:
+				expired += 1
+			elif event.type == SimEvent.EVENT_OPENED:
+				opened += 1
+	assert_gt(opened, 0, "events did open")
+	assert_eq(expired, 0)
