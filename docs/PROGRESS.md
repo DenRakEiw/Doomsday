@@ -1362,6 +1362,27 @@ two, the Merge/Terror exclusion, the cadence table). Changes go into the spec be
 
 ## Balance baselines
 
+**2026-09-23 (S4.4) — four factions, the M3 bots, 200 seeds each** (`sim_report --seeds=1..200`,
+33 minutes). The per-faction tracks change the outcome mix a lot against the stale G3 table:
+`greedy` 72 % Ascendance (was 57 %), `stealth` 59 %, `cyber_rush` 55 %, `stealth_spread` 94 %,
+`persuader` 93 %, `idle` always contained.
+
+| Policy | Lost to (labs · gov · researchers · public) | Leading at the end (same order) | Days p50 | Discovery p50 | Containment p50 |
+| --- | --- | --- | --- | --- | --- |
+| `idle` | 0 · 5 · 95 · 0 % | 0 · 5 · 95 · 0 % | 1504 | 798 | 1.00 |
+| `greedy` | 0 · 4 · 25 · 0 % | 0 · 13 · 87 · 0 % | 660 | 171 | 0.85 |
+| `stealth` | 0 · 0 · 41 · 0 % | 0 · 0 · 100 · 0 % | 815 | 212 | 0.93 |
+| `cyber_rush` | 0 · 35 · 11 · 0 % | 0 · 78 · 23 · 0 % | 601 | 109 | 0.74 |
+| `stealth_spread` | 0 · 0 · 6 · 0 % | 1 · 0 · 100 · 0 % | 914 | 253 | 0.77 |
+| `persuader` | 0 · 0 · 8 · 0 % | 1 · 0 · 95 · 0 % | 661 | 223 | 0.57 |
+
+**S4.4's acceptance is met for two factions of four.** The researchers (share weight 1.5 over
+the whole seeded world) lead almost every wide run, the governments every Cyber run — as §5.7
+predicts. The labs and the public end no run: none of these bots buys the research vectors or
+puts fleets and deaths on the map the way §5.7's Biology and Robotics runs would, and the moves
+(S4.5) do not exist yet. **S4.10's strategy bots re-measure it; G4 tunes the weights** if the
+labs and the public still never lead then. No counter-moves in these numbers.
+
 **Stale since S4.1.** The table below was measured on the M3 numbers. S4.1 changed five of them (`spread.origin_penetration` 0.25, `compute.start` 8, `compute.cost_step` 1.5, `anomaly.spawn_chance` 0.12, `max_active` 3, `base_value` 3.0) and made anomalies one world-wide roll a day, so every row here is the M3 reference and nothing else. **S4.10 measures the new ones** (loop-mechanics §18); G4 is the pass that retunes them.
 
 **2026-09-23 (G3) — the G3 baseline: the retuned data, six policies, 500 seeds each.**
