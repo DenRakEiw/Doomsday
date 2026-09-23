@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S4.6 — Trees v3 and the remaining abilities** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/loop-content.md` §3, §6, §15.1, §16) |
+| **Next step** | **S4.7 — Chains** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/loop-content.md` §8, §15.2, §16 and `docs/specs/chains.md`) |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S4.7 … S4.10 → D4.5 → G4 (the gates still need the user) |
-| **Last completed** | S4.5 — Counter-moves, Societal Function, Autophagy: `CounterMoveSystem` (prepare, alternate, variants, fire at the level the track calls for, hold at the cap, drop with nowhere to land), `CounterMoveRules` (six target rules, `seeds_by_kind_max`), `SocietalFunctionSystem` (disorder, six stages, the capacity and the yield cut that spares the agent's own hardware), `LOSE_AUTOPHAGY` after 30 days of zero income unless `compute_independent`; the next-move rows on the panel, the Society row, the starving chip, five console lines; `s4_5.json` merged, `data/headlines_staging/` deleted. 1142 tests, all green (2026-09-23) |
-| **Before that** | S4.4 — Four factions (2026-09-23) |
+| **After it** | S4.8 … S4.10 → D4.5 → G4 (the gates still need the user) |
+| **Last completed** | S4.6 — Trees v3 and the remaining abilities: the three v3 files moved from `data/tech_staging/` to `data/tech/` (folder deleted) and load clean; the vector group, the two doors, every deploy, Release's labs, all ten abilities at both levels and Cyber's +14 / 0 Harm asserted on `res://data`; greedy 900 days with zero rejected commands. 1152 tests, all green (2026-09-23) |
+| **Before that** | S4.5 — Counter-moves, Societal Function, Autophagy (2026-09-23) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 177 scripts compile (68 judged by the suite), 1142 tests, **all green since S4.5**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 177 scripts compile (68 judged by the suite), 1152 tests, **all green since S4.6**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -105,8 +105,8 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S4.3 [O] Map events
 - [x] S4.4 [O] Four factions
 - [x] S4.5 [O] Counter-moves, Societal Function, Autophagy
-- [ ] **S4.6 [O] Trees v3 and the remaining abilities**
-- [ ] S4.7 [O] Chains
+- [x] S4.6 [O] Trees v3 and the remaining abilities
+- [ ] **S4.7 [O] Chains**
 - [ ] S4.8 [O] Analysis screen
 - [ ] S4.9 [O] Localisation tooling and overflow screenshots
 - [ ] S4.10 [O] Strategy bots, second generation — ⇄ **then `/model fable`**
@@ -794,6 +794,11 @@ hold starves on the day the status ends, before any society collapses. Oppositio
 agent pressing the tempting button once dies from it. Options: `autophagy_days` above the
 Harvest (e.g. 40), Harvest 25 days, or the grant counting as income that day.
 
+**From S4.6 (German fit, for D4.5): the phone's top bar.** `RECHENLEISTUNG` with `13,6 ▲ +0,1 /
+Tag` needs 246 px of the 400; the row does not fit whenever the rate has a decimal. S4.6 lets the
+value end in an ellipsis on the phone (the rate is what is lost). Options: drop the rate from the
+compact bar (it is in the sheet), or a short rate form (`+0,1/T`).
+
 **Parked for a later Fable step (not questions, reminders):**
 - **M6 (VISUALS):** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the 8192-px
   masks anti-alias the coast but not the borders between regions. Acceptable for M2–M5; a vector
@@ -852,6 +857,18 @@ Harvest (e.g. 40), Harvest 25 days, or the grant counting as income that day.
   something per row — it belongs with the rest of D4.5's layout findings.
 
 ## Deviations from the plan or a spec
+
+- **2026-09-23** (S4.6) — **Every ability was already loadable and usable** (S4.2 loaded all ten
+  and the live trees carried the `ability` fields); S4.6 is the data move, the §15.1 tests
+  (`tests/integration/test_abilities_content.gd`) and the older tests the v3 trees broke:
+  `test_tech_trees` buys each tree twice, once through each door, with the agent in every region
+  so that a deploy has a site; the persuasion brake is 0.2731 and −2 Footprint now (Voluntary
+  Pause gave ×0.85 and −2 to the Pause status); the ticker test buys the first node that places
+  nothing; the region panel's deaths test sets the deaths directly (the `greedy` bot presses no
+  Harm button before S4.10 and kills nobody in the USA in 1 500 days).
+- **2026-09-23** (S4.6) — **The phone top bar's compute figure ends in an ellipsis**: with a
+  rate like `13,6 ▲ +0,1 / Tag` the compact row was 412 px of 400 (the HUD test had only ever
+  seen `±0`). See *Design questions*.
 
 - **2026-09-23** (S4.5) — **The cap counts the moves on their way**: `max_active_moves` is
   checked against the world's statuses *plus* the counter-move events open or pending
@@ -1552,6 +1569,12 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — S4.6 Trees v3 and the remaining abilities [O]
+- `data/tech_staging/*.json` moved over `data/tech/` and the folder deleted; the loader took the
+  v3 fields as they were (S4.1 had built them). New `test_abilities_content.gd` (the §15.1 list),
+  `test_tech_trees.gd` bought through each door; three older tests adjusted to the v3 world, one
+  real phone-layout overflow found and trimmed. 1152 tests green. Next: **S4.7**.
 
 ### 2026-09-23 — S4.5 Counter-moves, Societal Function, Autophagy [O]
 - **Core:** `CounterMoveSystem` in the tick after containment (prepare on a containment or risk

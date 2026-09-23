@@ -48,7 +48,12 @@ func test_a_purchase_and_a_seed_reach_the_strip() -> void:
 
 	_ticker.call("clear")
 	Game.sim.world.agent.compute += 500.0
-	var node: TechNodeDef = Game.sim.available_nodes()[0]
+	# The first node that places nothing: a deploying one would need a site.
+	var node: TechNodeDef = null
+	for candidate: TechNodeDef in Game.sim.available_nodes():
+		if not candidate.deploys():
+			node = candidate
+			break
 	assert_true(Game.apply(PurchaseNodeCommand.new(node.id)).ok, "the first node is affordable")
 	await get_tree().process_frame
 	assert_true(_said_something(), "a purchase says something in the same frame")

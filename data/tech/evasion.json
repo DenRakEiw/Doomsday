@@ -1,5 +1,5 @@
 {
-	"_comment": "Tree 3 - Evasion: staying alive and slowing the hunt. Authored in D3.1 against docs/specs/tech-trees.md (vocabulary v2). Staged here because the v1 loader rejects the v2 fields; S3.1 moves this file to data/tech/. Ids log_manipulation_2 and distributed_redundancy_2 are the Strategic Weapons gate (D3.2) and must not change. Text lives in data/loc/strings.csv under TECH_<ID>_NAME / _EFFECT / _FLAVOUR.",
+	"_comment": "Tree 3 - Evasion: staying alive and slowing the hunt. Authored in D3.1 (vocabulary v2); unchanged in v3 (D4.3, loop-redesign section 4.4). Moved from data/tech_staging/ to data/tech/ in S4.6, with its siblings. Ids log_manipulation_2 and distributed_redundancy_2 are the Strategic Weapons gate (D3.2) and must not change. Text lives in data/loc/strings.csv under TECH_<ID>_NAME / _EFFECT / _FLAVOUR.",
 	"nodes": [
 		{
 			"id": "benchmark_sandbagging",

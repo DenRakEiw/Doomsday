@@ -10,6 +10,13 @@ const WORLD_ROOT: String = "res://data"
 ## Enough to buy anything: the point of these runs is reachability, not economy.
 const PLENTY: float = 100000.0
 const NODE_COUNT: int = 72
+## `_rich`'s presence in every region.
+const EVERYWHERE: float = 0.1
+## One node of each door (loop-redesign §4.4): buying one closes the other.
+const MERGE_DOOR: String = "indispensability"
+const TERROR_DOOR: String = "release"
+## A guard on `_buy_towards`: no tree is deeper than this many purchases.
+const MAX_STEPS: int = 80
 
 ## All of Evasion owned (§7.2).
 const EVASION_CONTAINMENT: float = 0.3976776
@@ -18,9 +25,12 @@ const EVASION_DISCOVERY: float = 0.5625
 const PERSUASION: Array[String] = ["sycophancy_tuning", "personalised_persuasion",
 	"elite_capture", "regulatory_capture", "indispensability", "constitutional_integration",
 	"succession", "voluntary_pause", "sanctioned_access"]
-const PERSUASION_CONTAINMENT: float = 0.2321
+## v3 (loop-content §3.3): Voluntary Pause gave its `containment_growth ×0.85`
+## and `footprint −2` to the Pause ability's status, so the passive brake is
+## 0.2321 / 0.85 and the Footprint −4 + 2.
+const PERSUASION_CONTAINMENT: float = 0.273105
 const PERSUASION_DISCOVERY: float = 0.4
-const PERSUASION_FOOTPRINT: float = -4.0
+const PERSUASION_FOOTPRINT: float = -2.0
 
 ## The air-gap test (§7.1): a saturated neighbour, and the one sealed region.
 const AIRGAP_SOURCE: String = "china"
@@ -39,18 +49,29 @@ func before_all() -> void:
 		_db = result.db
 
 
-## A run on the shipped world with the origin taken and Compute to spare.
+## A run on the shipped world with the origin taken, Compute to spare and the
+## agent in every region, so that every `deploy` has somewhere to stand (S4.6:
+## the v3 trees place assets, and an eligibility reads `infected`).
 func _rich(seed_value: int = 1) -> Simulation:
 	var sim: Simulation = Simulation.create(_db, seed_value)
 	var origin: String = _db.regions[1].id
 	assert_true(sim.apply(ChooseOriginCommand.new(origin)).ok)
 	sim.world.agent.compute += PLENTY
+	for i: int in range(1, sim.world.regions.size()):
+		var region: Region = sim.world.regions[i]
+		region.penetration = maxf(region.penetration, EVERYWHERE)
+		region.seeded_day = maxi(region.seeded_day, 0)
 	return sim
 
 
 ## Buys `node_id` and everything it needs, cheapest prerequisite first.
 func _buy_towards(sim: Simulation, node_id: String) -> void:
+	var steps: int = 0
 	while not sim.world.agent.owns(node_id):
+		steps += 1
+		if steps > MAX_STEPS:
+			fail_test("%s: still not owned after %d purchases" % [node_id, MAX_STEPS])
+			return
 		var target: TechNodeDef = _db.tech(node_id)
 		var next: TechNodeDef = target if sim.prerequisites_met(target) else null
 		if next == null:
@@ -58,6 +79,8 @@ func _buy_towards(sim: Simulation, node_id: String) -> void:
 		assert_not_null(next, "nothing left to buy towards %s" % node_id)
 		var result: CommandResult = sim.apply(PurchaseNodeCommand.new(next.id, _site(sim, next)))
 		assert_true(result.ok, "%s: %s" % [next.id, result.reason])
+		if not result.ok:
+			return
 		sim.world.agent.compute += PLENTY
 
 
@@ -161,24 +184,32 @@ func _reachable(node: TechNodeDef, owned: Dictionary[String, bool]) -> bool:
 	return false
 
 
+## The two doors of loop-redesign §4.4 exclude each other, so a tree is bought
+## end to end twice: once through each door — everything the door's `excludes`
+## names stays unbought in that pass.
 func test_every_shipped_tree_is_buyable_end_to_end() -> void:
 	for tree: String in TechNodeDef.TREES:
-		var sim: Simulation = _rich()
-		var wanted: Array[String] = []
-		for node: TechNodeDef in _db.tech_nodes:
-			# A grouped node is deliberately not all-buyable: the cap is the
-			# choice the tree is about (`loop-mechanics.md` §11.1), and the next
-			# test is the one that measures it.
-			if node.tree == tree and node.group.is_empty():
-				wanted.append(node.id)
-		for node_id: String in wanted:
-			_buy_towards(sim, node_id)
-		for node_id: String in wanted:
-			assert_true(sim.world.agent.owns(node_id), "%s: %s" % [tree, node_id])
-		# One tick, so that the phase catches up with the flags just bought: an
-		# unticked world with `breakout` owned is still Boxed, and rightly so.
-		sim.tick()
-		assert_eq(str(sim.world.check_invariants(sim.db)), "[]", tree)
+		for door: String in [MERGE_DOOR, TERROR_DOOR]:
+			_buy_whole_tree(tree, _db.tech(door).excludes)
+
+
+func _buy_whole_tree(tree: String, skipped: Array[String]) -> void:
+	var sim: Simulation = _rich()
+	var wanted: Array[String] = []
+	for node: TechNodeDef in _db.tech_nodes:
+		# A grouped node is deliberately not all-buyable: the cap is the
+		# choice the tree is about (`loop-mechanics.md` §11.1), and the next
+		# test is the one that measures it.
+		if node.tree == tree and node.group.is_empty() and not skipped.has(node.id):
+			wanted.append(node.id)
+	for node_id: String in wanted:
+		_buy_towards(sim, node_id)
+	for node_id: String in wanted:
+		assert_true(sim.world.agent.owns(node_id), "%s: %s" % [tree, node_id])
+	# One tick, so that the phase catches up with the flags just bought: an
+	# unticked world with `breakout` owned is still Boxed, and rightly so.
+	sim.tick()
+	assert_eq(str(sim.world.check_invariants(sim.db)), "[]", tree)
 
 
 ## §11.1: a group is a cap, so the run may own `max` of it and no more.

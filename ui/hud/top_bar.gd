@@ -207,6 +207,11 @@ func _apply_compact() -> void:
 	_compute_cell.custom_minimum_size.x = 0.0 if compact else float(UiTokens.CELL_MIN_WIDTH)
 	_row_main.theme_type_variation = VARIATION_ROW if compact else VARIATION_ROW_WIDE
 	_compute_value.large = not compact
+	# A rate with a decimal (`13,6 ▲ +0,1 / Tag`) is 250 px of the phone's 400
+	# in German; the figure comes first, so on a phone the rate gives way
+	# (S4.6, PROGRESS *Design questions*).
+	_compute_value.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS if compact \
+		else TextServer.OVERRUN_NO_TRIMMING
 	var row_height: int = UiTokens.TOP_BAR_ROW_HEIGHT if compact else UiTokens.TOP_BAR_HEIGHT
 	_row_main.custom_minimum_size.y = float(row_height)
 	_row_second.custom_minimum_size.y = float(UiTokens.TOP_BAR_ROW_HEIGHT)

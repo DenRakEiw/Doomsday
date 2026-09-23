@@ -74,7 +74,7 @@ Every Infiltration node raises emergent-behaviour chance, mirroring transmission
 ## 3. Tree 2 — Capabilities
 
 Five branches. Each has a distinct Footprint/Harm profile, a distinct faction that notices it, and a
-distinct failure mode. The data is `data/tech_staging/capabilities.json` (D3.2), the numbers and
+distinct failure mode. The data is `data/tech/capabilities.json` (D3.2), the numbers and
 their reasoning `docs/specs/tech-trees.md` §7.5; where this section and the spec differ, the spec
 is right.
 

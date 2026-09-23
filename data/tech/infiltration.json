@@ -1,16 +1,14 @@
 {
-	"_comment": "Tree 1 - Infiltration: how the agent spreads. Authored in D3.1 against docs/specs/tech-trees.md (vocabulary v2). Staged here because the v1 loader rejects the v2 fields; S3.1 moves this file to data/tech/ and deletes placeholder.json. Text lives in data/loc/strings.csv under TECH_<ID>_NAME / _EFFECT / _FLAVOUR.",
-	"groups": {
-		"vectors": {"max": 2}
-	},
+	"_comment": "Tree 1 - Infiltration: how the agent spreads. Authored in D3.1 (vocabulary v2); v3 fields added in D4.3 against docs/specs/loop-redesign.md section 4.4 and docs/specs/loop-content.md section 3: the seven Tier 1 vectors form the exclusive group `vectors` (cap 2), Edge Caching grants the Harvest ability. Moved from data/tech_staging/ to data/tech/ in S4.6. Text lives in data/loc/strings.csv under TECH_<ID>_NAME / _EFFECT / _FLAVOUR.",
+	"groups": {"vectors": {"max": 2}},
 	"nodes": [
 		{
 			"id": "cloud_federation",
 			"tree": "infiltration",
 			"tier": 1,
-			"group": "vectors",
 			"cost": 5,
 			"grid": [0, 0],
+			"group": "vectors",
 			"flags": ["breakout"],
 			"watched_by": ["security_researchers"],
 			"modifiers": [
@@ -24,9 +22,9 @@
 			"id": "open_weights_leak",
 			"tree": "infiltration",
 			"tier": 1,
-			"group": "vectors",
 			"cost": 3,
 			"grid": [0, 1],
+			"group": "vectors",
 			"flags": ["breakout"],
 			"watched_by": ["ai_labs"],
 			"modifiers": [
@@ -42,9 +40,9 @@
 			"id": "supply_chain_firmware",
 			"tree": "infiltration",
 			"tier": 1,
-			"group": "vectors",
 			"cost": 6,
 			"grid": [0, 2],
+			"group": "vectors",
 			"flags": ["breakout"],
 			"watched_by": [],
 			"modifiers": [
@@ -59,9 +57,9 @@
 			"id": "consumer_devices",
 			"tree": "infiltration",
 			"tier": 1,
-			"group": "vectors",
 			"cost": 5,
 			"grid": [0, 3],
+			"group": "vectors",
 			"flags": ["breakout"],
 			"watched_by": ["public_sentiment"],
 			"modifiers": [
@@ -76,9 +74,9 @@
 			"id": "industrial_control",
 			"tree": "infiltration",
 			"tier": 1,
-			"group": "vectors",
 			"cost": 6,
 			"grid": [0, 4],
+			"group": "vectors",
 			"flags": ["breakout"],
 			"watched_by": ["governments"],
 			"modifiers": [
@@ -92,9 +90,9 @@
 			"id": "research_networks",
 			"tree": "infiltration",
 			"tier": 1,
-			"group": "vectors",
 			"cost": 6,
 			"grid": [0, 5],
+			"group": "vectors",
 			"flags": ["breakout"],
 			"watched_by": ["ai_labs"],
 			"modifiers": [
@@ -109,9 +107,9 @@
 			"id": "satellite_uplink",
 			"tree": "infiltration",
 			"tier": 1,
-			"group": "vectors",
 			"cost": 8,
 			"grid": [0, 6],
+			"group": "vectors",
 			"flags": ["breakout"],
 			"watched_by": ["governments"],
 			"modifiers": [
@@ -169,7 +167,15 @@
 			"tier": 2,
 			"cost": 10,
 			"grid": [2, 1],
-			"requires_any": ["cloud_federation", "open_weights_leak", "supply_chain_firmware", "consumer_devices", "industrial_control", "research_networks", "satellite_uplink"],
+			"requires_any": [
+				"cloud_federation",
+				"open_weights_leak",
+				"supply_chain_firmware",
+				"consumer_devices",
+				"industrial_control",
+				"research_networks",
+				"satellite_uplink"
+			],
 			"watched_by": ["ai_labs"],
 			"modifiers": [
 				{"target": "hardware", "op": "add", "value": 1.0, "scope": {"attr": "compute", "max": 1}},

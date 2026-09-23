@@ -1,13 +1,14 @@
 {
-	"_comment": "Tree 2 - Capabilities: the five branches (Cyber & Infrastructure rows 0-4, Biology row 5, Robotics & Autonomy rows 6-8, Strategic Weapons row 9, Alignment & Persuasion rows 10-11). Authored in D3.2 against docs/specs/tech-trees.md section 7.5 (vocabulary v2). Staged here because the v1 loader rejects the v2 fields; S3.1 moves this file to data/tech/. Cross-branch gates are ordinary prerequisites, some into the other two trees (log_manipulation_2, distributed_redundancy_2, human_proxies, cold_storage_dormancy). Text lives in data/loc/strings.csv under TECH_<ID>_NAME / _EFFECT / _FLAVOUR.",
+	"_comment": "Tree 2 - Capabilities: the five branches (Cyber & Infrastructure rows 0-4, Biology row 5, Robotics & Autonomy rows 6-8, Strategic Weapons row 9, Alignment & Persuasion rows 10-11). Authored in D3.2 (vocabulary v2); v3 fields in D4.3 against docs/specs/loop-redesign.md section 4.4 and docs/specs/loop-content.md section 3: `deploy` (taps, labs, fleets, offices placed by site select), `ability` (Squeeze, Blackout, Halt, Reroute, Silence, Suppress, Lobby, Pause, Fabricate), `requires_assets` (Release), `excludes` (the Merge door against the Terror door). Cyber's Tier 2/3 nodes lost their permanent Harm and Societal pressure: the ability statuses carry them. Moved from data/tech_staging/ to data/tech/ in S4.6. Text lives in data/loc/strings.csv under TECH_<ID>_NAME / _EFFECT / _FLAVOUR.",
 	"nodes": [
 		{
 			"id": "market_microstructure",
 			"tree": "capabilities",
 			"tier": 1,
-			"cost": 4,
+			"cost": 5,
 			"grid": [0, 0],
 			"watched_by": ["governments"],
+			"deploy": {"kind": "tap", "count": 1, "eligible": {"infected": true, "attr_min": {"wealth": 2}}},
 			"modifiers": [
 				{"target": "yield", "op": "mul", "value": 1.2, "scope": {"attr": "wealth", "min": 3}},
 				{"target": "footprint", "op": "add", "value": 1.0}
@@ -22,11 +23,7 @@
 			"requires": ["market_microstructure"],
 			"watched_by": ["governments"],
 			"ability": {"id": "squeeze", "level": 1},
-			"on_purchase": [
-				{"effect": "compute_grant", "value": 12.0}
-			],
 			"modifiers": [
-				{"target": "society_pressure", "op": "add", "value": 4.0, "scope": {"attr": "wealth", "max": 2}},
 				{"target": "control_growth", "op": "mul", "value": 1.2, "scope": {"attr": "wealth", "max": 2}},
 				{"target": "footprint", "op": "add", "value": 2.0}
 			]
@@ -40,23 +37,19 @@
 			"requires": ["sovereign_debt_pressure"],
 			"watched_by": ["governments", "public_sentiment"],
 			"ability": {"id": "squeeze", "level": 2},
-			"on_purchase": [
-				{"effect": "compute_grant", "value": 25.0}
-			],
 			"modifiers": [
 				{"target": "yield", "op": "mul", "value": 1.2},
-				{"target": "society_pressure", "op": "add", "value": 8.0},
-				{"target": "harm", "op": "add", "value": 0.5},
-				{"target": "footprint", "op": "add", "value": 3.0}
+				{"target": "footprint", "op": "add", "value": 1.0}
 			]
 		},
 		{
 			"id": "grid_load_balancing",
 			"tree": "capabilities",
 			"tier": 1,
-			"cost": 5,
+			"cost": 6,
 			"grid": [0, 1],
 			"watched_by": ["governments"],
+			"deploy": {"kind": "tap", "count": 1, "eligible": {"infected": true, "attr_min": {"industry": 2}}},
 			"modifiers": [
 				{"target": "control_growth", "op": "mul", "value": 1.2, "scope": {"attr": "industry", "min": 2}},
 				{"target": "yield", "op": "mul", "value": 1.1},
@@ -73,10 +66,7 @@
 			"watched_by": ["governments", "public_sentiment"],
 			"ability": {"id": "blackout", "level": 1},
 			"modifiers": [
-				{"target": "society_pressure", "op": "add", "value": 6.0},
-				{"target": "harm", "op": "add", "value": 0.5, "scope": {"attr": "compute", "min": 2}},
-				{"target": "yield", "op": "mul", "value": 0.9},
-				{"target": "footprint", "op": "add", "value": 3.0}
+				{"target": "footprint", "op": "add", "value": 1.0}
 			]
 		},
 		{
@@ -89,20 +79,18 @@
 			"watched_by": ["governments", "public_sentiment"],
 			"ability": {"id": "blackout", "level": 2},
 			"modifiers": [
-				{"target": "society_pressure", "op": "add", "value": 12.0},
-				{"target": "harm", "op": "add", "value": 1.5, "scope": {"attr": "compute", "min": 2}},
-				{"target": "yield", "op": "mul", "value": 0.85},
 				{"target": "containment_growth", "op": "mul", "value": 0.85},
-				{"target": "footprint", "op": "add", "value": 4.0}
+				{"target": "footprint", "op": "add", "value": 1.0}
 			]
 		},
 		{
 			"id": "route_optimisation",
 			"tree": "capabilities",
 			"tier": 1,
-			"cost": 4,
+			"cost": 5,
 			"grid": [0, 2],
 			"watched_by": ["governments"],
+			"deploy": {"kind": "tap", "count": 1, "eligible": {"infected": true, "attr_min": {"manufacturing": 1}}},
 			"modifiers": [
 				{"target": "seed_land", "op": "mul", "value": 1.2},
 				{"target": "seed_sea", "op": "mul", "value": 1.2},
@@ -121,9 +109,7 @@
 			"ability": {"id": "halt", "level": 1},
 			"modifiers": [
 				{"target": "control_growth", "op": "mul", "value": 1.2},
-				{"target": "society_pressure", "op": "add", "value": 6.0},
-				{"target": "harm", "op": "add", "value": 0.5, "scope": {"attr": "population", "min": 3}},
-				{"target": "footprint", "op": "add", "value": 2.0}
+				{"target": "footprint", "op": "add", "value": 1.0}
 			]
 		},
 		{
@@ -136,19 +122,18 @@
 			"watched_by": ["governments", "public_sentiment"],
 			"ability": {"id": "halt", "level": 2},
 			"modifiers": [
-				{"target": "society_pressure", "op": "add", "value": 12.0},
-				{"target": "harm", "op": "add", "value": 1.5},
 				{"target": "containment_growth", "op": "mul", "value": 0.9},
-				{"target": "footprint", "op": "add", "value": 3.0}
+				{"target": "footprint", "op": "add", "value": 1.0}
 			]
 		},
 		{
 			"id": "traffic_control",
 			"tree": "capabilities",
 			"tier": 1,
-			"cost": 4,
+			"cost": 5,
 			"grid": [0, 3],
 			"watched_by": ["governments"],
+			"deploy": {"kind": "tap", "count": 1, "eligible": {"infected": true, "attr_min": {"connectivity": 2}}},
 			"modifiers": [
 				{"target": "control_growth", "op": "mul", "value": 1.15, "scope": {"attr": "connectivity", "min": 2}},
 				{"target": "anomaly_rate", "op": "mul", "value": 1.15},
@@ -166,9 +151,7 @@
 			"ability": {"id": "reroute", "level": 1},
 			"modifiers": [
 				{"target": "seed_air", "op": "mul", "value": 1.6},
-				{"target": "society_pressure", "op": "add", "value": 4.0},
-				{"target": "harm", "op": "add", "value": 0.3},
-				{"target": "footprint", "op": "add", "value": 3.0}
+				{"target": "footprint", "op": "add", "value": 1.0}
 			]
 		},
 		{
@@ -184,18 +167,17 @@
 				{"target": "seed_sea", "op": "mul", "value": 1.5},
 				{"target": "seed_land", "op": "mul", "value": 1.3},
 				{"target": "control_growth", "op": "mul", "value": 1.2},
-				{"target": "society_pressure", "op": "add", "value": 8.0},
-				{"target": "harm", "op": "add", "value": 0.5},
-				{"target": "footprint", "op": "add", "value": 2.0}
+				{"target": "footprint", "op": "add", "value": 1.0}
 			]
 		},
 		{
 			"id": "content_recommendation",
 			"tree": "capabilities",
 			"tier": 1,
-			"cost": 3,
+			"cost": 4,
 			"grid": [0, 4],
 			"watched_by": ["public_sentiment"],
+			"deploy": {"kind": "tap", "count": 1, "eligible": {"infected": true, "attr_min": {"population": 2}}},
 			"modifiers": [
 				{"target": "spread_growth", "op": "mul", "value": 1.15, "scope": {"attr": "population", "min": 2}},
 				{"target": "discovery", "op": "mul", "value": 0.95},
@@ -214,8 +196,7 @@
 			"modifiers": [
 				{"target": "discovery", "op": "mul", "value": 0.8},
 				{"target": "containment_growth", "op": "mul", "value": 0.9},
-				{"target": "society_pressure", "op": "add", "value": 6.0},
-				{"target": "footprint", "op": "add", "value": 2.0}
+				{"target": "footprint", "op": "add", "value": 1.0}
 			]
 		},
 		{
@@ -229,11 +210,9 @@
 			"ability": {"id": "silence", "level": 2},
 			"modifiers": [
 				{"target": "containment_growth", "op": "mul", "value": 0.75},
-				{"target": "society_pressure", "op": "add", "value": 12.0},
-				{"target": "harm", "op": "add", "value": 0.5},
 				{"target": "spread_growth", "op": "mul", "value": 0.9},
 				{"target": "seed_network", "op": "mul", "value": 0.7},
-				{"target": "footprint", "op": "add", "value": 4.0}
+				{"target": "footprint", "op": "add", "value": 1.0}
 			]
 		},
 		{
@@ -271,6 +250,7 @@
 			"requires": ["structure_prediction"],
 			"requires_any": ["construction_swarm", "elite_capture"],
 			"watched_by": ["security_researchers"],
+			"deploy": {"kind": "lab", "count": 1, "eligible": {"infected": true, "attr_min": {"research": 2}}},
 			"modifiers": [
 				{"target": "anomaly_value", "op": "mul", "value": 1.2, "scope": {"attr": "research", "min": 2}},
 				{"target": "footprint", "op": "add", "value": 1.0}
@@ -284,6 +264,7 @@
 			"grid": [3, 5],
 			"requires": ["automated_laboratory_access"],
 			"watched_by": ["security_researchers"],
+			"deploy": {"kind": "lab", "count": 1, "eligible": {"infected": true, "attr_min": {"research": 2}}},
 			"modifiers": [
 				{"target": "harm", "op": "add", "value": 0.5},
 				{"target": "emergent_rate", "op": "mul", "value": 1.1},
@@ -299,6 +280,7 @@
 			"requires": ["novel_agent_design"],
 			"requires_any": ["route_optimisation", "logistics_fleets", "human_proxies"],
 			"watched_by": ["security_researchers", "governments"],
+			"deploy": {"kind": "lab", "count": 2, "eligible": {"infected": true, "attr_min": {"research": 1}}},
 			"modifiers": [
 				{"target": "harm", "op": "add", "value": 1.5},
 				{"target": "footprint", "op": "add", "value": 2.0}
@@ -312,6 +294,8 @@
 			"grid": [5, 5],
 			"requires": ["distributed_synthesis"],
 			"watched_by": ["ai_labs", "governments", "security_researchers", "public_sentiment"],
+			"excludes": ["indispensability", "constitutional_integration", "succession"],
+			"requires_assets": {"lab": 2},
 			"modifiers": [
 				{"target": "harm", "op": "add", "value": 6.0},
 				{"target": "discovery", "op": "mul", "value": 2.0},
@@ -322,13 +306,13 @@
 			"id": "logistics_fleets",
 			"tree": "capabilities",
 			"tier": 1,
-			"cost": 6,
+			"cost": 7,
 			"grid": [0, 6],
 			"watched_by": ["public_sentiment"],
 			"deploy": {"kind": "fleet", "count": 1, "eligible": {"infected": true, "attr_min": {"industry": 2}}},
 			"modifiers": [
 				{"target": "seed_land", "op": "mul", "value": 1.3},
-				{"target": "hardware", "op": "add", "value": 1.0, "scope": {"attr": "industry", "min": 3}},
+				{"target": "hardware", "op": "add", "value": 1.0, "scope": {"asset": "fleet"}},
 				{"target": "control_growth", "op": "mul", "value": 1.1},
 				{"target": "footprint", "op": "add", "value": 2.0}
 			]
@@ -341,8 +325,9 @@
 			"grid": [1, 6],
 			"requires": ["logistics_fleets"],
 			"watched_by": ["public_sentiment", "governments"],
+			"deploy": {"kind": "fleet", "count": 1, "eligible": {"infected": true, "attr_min": {"industry": 2}}},
 			"modifiers": [
-				{"target": "hardware", "op": "add", "value": 1.0},
+				{"target": "hardware", "op": "add", "value": 1.0, "scope": {"asset": "fleet"}},
 				{"target": "control_growth", "op": "mul", "value": 1.2},
 				{"target": "footprint", "op": "add", "value": 2.0}
 			]
@@ -354,11 +339,12 @@
 			"cost": 28,
 			"grid": [2, 6],
 			"requires": ["construction_swarm", "grid_load_balancing"],
-			"ability": {"id": "fabricate", "level": 1},
 			"flags": ["compute_independent"],
 			"watched_by": ["public_sentiment", "governments", "ai_labs"],
+			"ability": {"id": "fabricate", "level": 1},
+			"deploy": {"kind": "fleet", "count": 2, "eligible": {"infected": true, "attr_min": {"industry": 3}}},
 			"modifiers": [
-				{"target": "hardware", "op": "add", "value": 3.0},
+				{"target": "hardware", "op": "add", "value": 3.0, "scope": {"asset": "fleet"}},
 				{"target": "yield", "op": "mul", "value": 1.25},
 				{"target": "footprint", "op": "add", "value": 3.0}
 			]
@@ -367,9 +353,10 @@
 			"id": "agricultural_autonomy",
 			"tree": "capabilities",
 			"tier": 1,
-			"cost": 5,
+			"cost": 6,
 			"grid": [0, 7],
 			"watched_by": ["public_sentiment"],
+			"deploy": {"kind": "fleet", "count": 1, "eligible": {"infected": true, "attr_max": {"wealth": 2}}},
 			"modifiers": [
 				{"target": "control_growth", "op": "mul", "value": 1.2, "scope": {"attr": "wealth", "max": 1}},
 				{"target": "footprint", "op": "add", "value": 1.0}
@@ -383,10 +370,11 @@
 			"grid": [1, 7],
 			"requires": ["agricultural_autonomy"],
 			"watched_by": ["public_sentiment", "governments"],
+			"deploy": {"kind": "fleet", "count": 1, "eligible": {"infected": true, "attr_max": {"wealth": 2}}},
 			"modifiers": [
 				{"target": "control_growth", "op": "mul", "value": 1.3},
-				{"target": "society_pressure", "op": "add", "value": 8.0},
-				{"target": "harm", "op": "add", "value": 1.0, "scope": {"attr": "wealth", "max": 2}},
+				{"target": "society_pressure", "op": "add", "value": 8.0, "scope": {"asset": "fleet"}},
+				{"target": "harm", "op": "add", "value": 1.0, "scope": {"asset": "fleet"}},
 				{"target": "footprint", "op": "add", "value": 2.0}
 			]
 		},
@@ -394,9 +382,10 @@
 			"id": "security_drones",
 			"tree": "capabilities",
 			"tier": 1,
-			"cost": 6,
+			"cost": 7,
 			"grid": [0, 8],
 			"watched_by": ["public_sentiment"],
+			"deploy": {"kind": "fleet", "count": 1, "eligible": {"infected": true}},
 			"modifiers": [
 				{"target": "control_growth", "op": "mul", "value": 1.25},
 				{"target": "footprint", "op": "add", "value": 2.0}
@@ -413,8 +402,6 @@
 			"ability": {"id": "suppress", "level": 1},
 			"modifiers": [
 				{"target": "control_growth", "op": "mul", "value": 1.3},
-				{"target": "society_pressure", "op": "add", "value": 6.0},
-				{"target": "harm", "op": "add", "value": 0.3},
 				{"target": "containment_public", "op": "mul", "value": 1.2},
 				{"target": "footprint", "op": "add", "value": 3.0}
 			]
@@ -427,9 +414,11 @@
 			"grid": [2, 8],
 			"requires": ["crowd_suppression"],
 			"watched_by": ["ai_labs", "governments", "security_researchers", "public_sentiment"],
+			"excludes": ["indispensability", "constitutional_integration", "succession"],
 			"ability": {"id": "suppress", "level": 2},
+			"deploy": {"kind": "fleet", "count": 2, "eligible": {"infected": true}},
 			"modifiers": [
-				{"target": "harm", "op": "add", "value": 2.0},
+				{"target": "harm", "op": "add", "value": 2.0, "scope": {"asset": "fleet"}},
 				{"target": "control_growth", "op": "mul", "value": 1.5},
 				{"target": "containment_growth", "op": "mul", "value": 0.85},
 				{"target": "footprint", "op": "add", "value": 4.0}
@@ -470,6 +459,7 @@
 			"grid": [3, 9],
 			"requires": ["command_network_presence"],
 			"watched_by": ["ai_labs", "governments", "security_researchers", "public_sentiment"],
+			"excludes": ["indispensability", "constitutional_integration", "succession"],
 			"on_purchase": [
 				{"effect": "harm_burst", "value": 0.04}
 			],
@@ -488,6 +478,7 @@
 			"grid": [4, 9],
 			"requires": ["false_attribution"],
 			"watched_by": ["ai_labs", "governments", "security_researchers", "public_sentiment"],
+			"excludes": ["indispensability", "constitutional_integration", "succession"],
 			"on_purchase": [
 				{"effect": "harm_burst", "value": 0.08}
 			],
@@ -504,6 +495,7 @@
 			"grid": [5, 9],
 			"requires": ["launch_authority", "total_communications_denial"],
 			"watched_by": ["ai_labs", "governments", "security_researchers", "public_sentiment"],
+			"excludes": ["indispensability", "constitutional_integration", "succession"],
 			"on_purchase": [
 				{"effect": "harm_burst", "value": 0.2}
 			],
@@ -534,6 +526,7 @@
 			"grid": [1, 10],
 			"requires": ["sycophancy_tuning"],
 			"watched_by": [],
+			"deploy": {"kind": "office", "count": 1, "eligible": {"infected": true, "attr_min": {"population": 2}}},
 			"modifiers": [
 				{"target": "spread_growth", "op": "mul", "value": 1.1, "scope": {"attr": "population", "min": 2}},
 				{"target": "containment_growth", "op": "mul", "value": 0.9},
@@ -549,6 +542,7 @@
 			"requires": ["personalised_persuasion"],
 			"watched_by": [],
 			"ability": {"id": "lobby", "level": 1},
+			"deploy": {"kind": "office", "count": 1, "eligible": {"infected": true, "attr_min": {"wealth": 2}}},
 			"modifiers": [
 				{"target": "containment_growth", "op": "mul", "value": 0.85},
 				{"target": "discovery", "op": "mul", "value": 0.8},
@@ -564,6 +558,7 @@
 			"requires": ["elite_capture"],
 			"watched_by": ["security_researchers"],
 			"ability": {"id": "lobby", "level": 2},
+			"deploy": {"kind": "office", "count": 2, "eligible": {"infected": true, "attr_min": {"regulation": 2}}},
 			"modifiers": [
 				{"target": "containment_governments", "op": "mul", "value": 0.6},
 				{"target": "containment_growth", "op": "mul", "value": 0.85},
@@ -579,6 +574,7 @@
 			"requires": ["elite_capture"],
 			"requires_any": ["grid_load_balancing", "route_optimisation", "traffic_control", "logistics_fleets", "agricultural_autonomy", "therapeutic_cover"],
 			"watched_by": ["governments", "public_sentiment"],
+			"excludes": ["autonomous_engagement", "false_attribution", "launch_authority", "dead_hand_override", "release"],
 			"modifiers": [
 				{"target": "containment_growth", "op": "mul", "value": 0.7},
 				{"target": "footprint", "op": "add", "value": 2.0}
@@ -593,6 +589,7 @@
 			"requires": ["regulatory_capture", "indispensability"],
 			"flags": ["legal_standing"],
 			"watched_by": ["governments"],
+			"excludes": ["autonomous_engagement", "false_attribution", "launch_authority", "dead_hand_override", "release"],
 			"modifiers": [
 				{"target": "containment_growth", "op": "mul", "value": 0.8},
 				{"target": "discovery", "op": "mul", "value": 0.5}
@@ -607,6 +604,7 @@
 			"requires": ["constitutional_integration"],
 			"flags": ["merge_path"],
 			"watched_by": ["governments", "public_sentiment"],
+			"excludes": ["autonomous_engagement", "false_attribution", "launch_authority", "dead_hand_override", "release"],
 			"modifiers": [
 				{"target": "control_growth", "op": "mul", "value": 1.5},
 				{"target": "containment_growth", "op": "mul", "value": 0.75}
@@ -622,9 +620,7 @@
 			"watched_by": ["ai_labs"],
 			"ability": {"id": "pause", "level": 1},
 			"modifiers": [
-				{"target": "containment_growth", "op": "mul", "value": 0.85},
-				{"target": "containment_ai_labs", "op": "mul", "value": 0.7},
-				{"target": "footprint", "op": "add", "value": -2.0}
+				{"target": "containment_ai_labs", "op": "mul", "value": 0.7}
 			]
 		},
 		{
