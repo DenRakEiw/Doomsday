@@ -16,7 +16,7 @@ rather than struck through.
 | --- | --- |
 | **Next step** | **G3, the gate itself: play one run, answer the four questions under *Waiting on the user*** — the balance pass is done (`docs/BALANCE.md`). Then D4.1 |
 | **Model for it** | **Fable** (no switch) |
-| **After it** | `/clear` → D4.1 (Fable). The punch list for S3.P has five items and waits at the head of Block 8; the user may pull it forward to play the gate at the new clock |
+| **After it** | `/clear` → D4.1 (Fable). The punch list for S3.P has eight items and waits at the head of Block 8; the user may pull it forward to play the gate at the new clock |
 | **Last completed** | G3 balance pass 1 — clock 0.5 + stretch 2.5, `containment.base_rate` 0.0014, seven node names, anomaly headlines (2026-09-23) |
 | **Milestone** | M2 gated; **M3 built and balanced, gate decisions pending** |
 | **Branch** | `main` |
@@ -534,6 +534,16 @@ without new information.
 - **2026-09-23** (G3) — **The M1 `stealth` policy is obsolete as a reference** (price-blind, found
   earlier than `greedy`, collapses when containment bites) and stays in the report for continuity
   only; `stealth_spread` is the careful reference.
+- **2026-09-23** (G3) — **An anomaly's remaining time is a countdown ring, not a red blink.**
+  Red was read as a warning at the play-through; `ALERT` stays reserved for moments (G2). → S3.P 7.
+- **2026-09-23** (G3, user) — **Embodied AI gets more weight in the theme:** humanoid robots,
+  physical AI, the Skynet/Terminator register. Today it lives only in the Robotics & Autonomy
+  branch (8 nodes, `control_growth` and `hardware`) and a few headlines. Where it lands: D4.1 gives
+  Robotics a visible faction reaction (public sentiment watches it) and the map a robotics overlay;
+  D4.2/D4.3 author at least one event chain around embodiment (a humanoid workforce, a factory
+  that builds its own successors, the first robot on the street) — candidate names to be decided
+  in D4.2; D5.2 gives the Robotics win its own Ascendance text (machines in the open, not servers in
+  the dark). The content rule holds: outcome, never method. (User direction, recorded at G3.)
 
 ## Design questions for Fable
 
@@ -604,6 +614,29 @@ change either way. (S2.4's second question — the dark chip — was answered at
    now come after day ~700); advance far enough or pick the day from the run. And item 3's
    `KNOWN_OVERFLOW`: the measured list is already `[]`, so every English name fits and the constant
    simply empties. **CI is red until S3.P closes these two.**
+6. **`ui/screens/results.tscn`: the results panel collapses to 32 px.** Seen at the G3 play-through
+   (a won run, day 980): `Centre/ResultsPanel/Scroll` is a `ScrollContainer` with no minimum height
+   inside a `PanelContainer` inside a `CenterContainer`, so its minimum size is 0 and the whole
+   panel is a bare strip while `Body` (536 px) sits inside it unseen. Give the scroll a height —
+   the body's height up to the safe area (`get_viewport_rect().size.y` minus `SPACE_6` × 2, or the
+   §7.4 modal height if the spec names one) — set in `show_result` or through a `MarginContainer`
+   with expand flags instead of the `CenterContainer`. The integration test for the results
+   screen must assert the panel's height ≥ the body's height (capped) after `show_result`; today
+   it checks texts only, which is why this passed.
+7. **An expiring anomaly is no longer red.** `game/map/anomaly_marker.gd` blinks the disc between
+   `ACCENT` and `ALERT` in its last `BLINK_DAYS` (solid `ALERT` with motion off). At the
+   play-through the red disc read as "danger, do not touch", not "hurry" — G2 decided `ALERT`
+   marks a moment, not a standing state, and this is a standing state. Replace the blink with a
+   countdown: the disc stays `ACCENT`, and a ring around it empties as `days_left / lifetime_days`
+   (`b.anomaly.lifetime_days`, now 50), so time is shown as time; reduced motion draws the same ring
+   without the pulse. Tooltip unchanged (`UI_REGION_ANOMALY_EXPIRES`). `test_anomaly_marker.gd` (or
+   wherever `disc_color` is asserted) follows.
+8. **Anomaly markers did not always take a click.** Reported at the play-through, not reproduced
+   yet. Reproduce with `game_click` (`button: 1`) on live markers at several zooms and with the
+   region panel open; suspects: the panel or the status strip covering the anchor, the 24-px
+   `HIT_RADIUS_PX` at `zoom_min` where the disc is small, a marker in `fade_out` still drawn but no
+   longer hit. If the radius is the cause, raise it to `HIT_MIN` (48) — the target, not the disc, is
+   what the spec sizes. Record what it was.
 
 ## Deviations from the plan or a spec
 
@@ -1157,7 +1190,10 @@ seeds and set to 0.0014: `greedy` 57 %, `cyber_rush` 33 %, `stealth_spread` 67 %
 93 % at 500 seeds — a won run is 24–36 min. Seven S3.x design questions answered (drivers add,
 Harm bar = max over regions, seven English names shortened, anomaly headlines ×3 variants, `±0`),
 `docs/BALANCE.md` written, five-item punch list for S3.P, two tests red until then. The
-play-through and the four gate questions wait under *Waiting on the user*.
+play-through and the four gate questions wait under *Waiting on the user*. First play-through
+done at the old clock: a win by Ascendance on day 980 with 60 % dead and containment peaking at
+73 % — the results panel rendered as an empty strip (punch list 6); the red expiring anomaly
+read as a warning (7); some markers did not take a click (8).
 
 ### 2026-09-23 — S3.6 Strategy bots and batch reporting [O]
 `CyberRushPolicy`, `StealthSpreadPolicy` and `PersuaderPolicy` (`tech-trees.md` §7.3 and §7.5.6),
