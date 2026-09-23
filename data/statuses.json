@@ -1,0 +1,340 @@
+{
+	"_comment": "Timed conditions on a region or on the agent. Grammar: docs/specs/loop-mechanics.md section 7. This file holds the world's eight counter-move statuses (Disclosure in four kinds) and the four answer statuses that counter-move options apply (docs/specs/opposition.md section 7.2). S4.2 adds blackout and harvested; D4.3 adds the remaining player statuses. Level 2 is applied when the faction stands at or above balance.factions.level_thresholds[0].",
+	"version": 1,
+	"statuses": [
+		{
+			"id": "lockdown",
+			"origin": "world",
+			"border": true,
+			"levels": [
+				{
+					"days": 45,
+					"closes_links": ["all"],
+					"modifiers": [
+						{"target": "penetration_decay", "op": "add", "value": 0.03},
+						{"target": "anomaly_rate", "op": "mul", "value": 0.0},
+						{"target": "yield", "op": "mul", "value": 0.5},
+						{"target": "society_pressure", "op": "add", "value": 3.0}
+					]
+				},
+				{
+					"days": 60,
+					"closes_links": ["all"],
+					"modifiers": [
+						{"target": "penetration_decay", "op": "add", "value": 0.05},
+						{"target": "control_decay", "op": "add", "value": 0.01},
+						{"target": "anomaly_rate", "op": "mul", "value": 0.0},
+						{"target": "yield", "op": "mul", "value": 0.25},
+						{"target": "society_pressure", "op": "add", "value": 5.0}
+					]
+				}
+			]
+		},
+		{
+			"id": "rationing",
+			"origin": "world",
+			"levels": [
+				{
+					"days": 60,
+					"modifiers": [
+						{"target": "yield", "op": "mul", "value": 0.5},
+						{"target": "containment_capacity", "op": "mul", "value": 0.5},
+						{"target": "containment_ai_labs", "op": "mul", "value": 0.8},
+						{"target": "society_pressure", "op": "add", "value": 4.0}
+					]
+				},
+				{
+					"days": 90,
+					"modifiers": [
+						{"target": "yield", "op": "mul", "value": 0.3},
+						{"target": "containment_capacity", "op": "mul", "value": 0.5},
+						{"target": "anomaly_rate", "op": "mul", "value": 0.0},
+						{"target": "containment_ai_labs", "op": "mul", "value": 0.8},
+						{"target": "society_pressure", "op": "add", "value": 6.0}
+					]
+				}
+			]
+		},
+		{
+			"id": "audit",
+			"origin": "world",
+			"watched_by": ["ai_labs"],
+			"levels": [
+				{
+					"days": 20,
+					"modifiers": [
+						{"target": "footprint", "op": "add", "value": 2.0},
+						{"target": "discovery", "op": "mul", "value": 1.5}
+					]
+				},
+				{
+					"days": 30,
+					"modifiers": [
+						{"target": "footprint", "op": "add", "value": 4.0},
+						{"target": "discovery", "op": "mul", "value": 2.0},
+						{"target": "containment_capacity", "op": "mul", "value": 1.5}
+					]
+				}
+			]
+		},
+		{
+			"id": "purge",
+			"origin": "world",
+			"levels": [
+				{
+					"days": 10,
+					"modifiers": [
+						{"target": "spread_growth", "op": "mul", "value": 0.5}
+					],
+					"on_start": [
+						{"effect": "wipe", "value": 0.1},
+						{"effect": "destroy_assets", "kind": "lab", "count": 0}
+					]
+				},
+				{
+					"days": 15,
+					"modifiers": [
+						{"target": "spread_growth", "op": "mul", "value": 0.25}
+					],
+					"on_start": [
+						{"effect": "wipe", "value": 0.02},
+						{"effect": "destroy_assets", "kind": "lab", "count": 0}
+					]
+				}
+			]
+		},
+		{
+			"id": "disclosure_land",
+			"origin": "world",
+			"watched_by": ["security_researchers"],
+			"levels": [
+				{
+					"days": 45,
+					"modifiers": [
+						{"target": "seed_land", "op": "mul", "value": 0.3},
+						{"target": "footprint", "op": "add", "value": 3.0}
+					]
+				},
+				{
+					"days": 60,
+					"modifiers": [
+						{"target": "seed_land", "op": "mul", "value": 0.1},
+						{"target": "spread_growth", "op": "mul", "value": 0.8},
+						{"target": "footprint", "op": "add", "value": 5.0}
+					]
+				}
+			]
+		},
+		{
+			"id": "disclosure_sea",
+			"origin": "world",
+			"watched_by": ["security_researchers"],
+			"levels": [
+				{
+					"days": 45,
+					"modifiers": [
+						{"target": "seed_sea", "op": "mul", "value": 0.3},
+						{"target": "footprint", "op": "add", "value": 3.0}
+					]
+				},
+				{
+					"days": 60,
+					"modifiers": [
+						{"target": "seed_sea", "op": "mul", "value": 0.1},
+						{"target": "spread_growth", "op": "mul", "value": 0.8},
+						{"target": "footprint", "op": "add", "value": 5.0}
+					]
+				}
+			]
+		},
+		{
+			"id": "disclosure_air",
+			"origin": "world",
+			"watched_by": ["security_researchers"],
+			"levels": [
+				{
+					"days": 45,
+					"modifiers": [
+						{"target": "seed_air", "op": "mul", "value": 0.3},
+						{"target": "footprint", "op": "add", "value": 3.0}
+					]
+				},
+				{
+					"days": 60,
+					"modifiers": [
+						{"target": "seed_air", "op": "mul", "value": 0.1},
+						{"target": "spread_growth", "op": "mul", "value": 0.8},
+						{"target": "footprint", "op": "add", "value": 5.0}
+					]
+				}
+			]
+		},
+		{
+			"id": "disclosure_network",
+			"origin": "world",
+			"watched_by": ["security_researchers"],
+			"levels": [
+				{
+					"days": 45,
+					"modifiers": [
+						{"target": "seed_network", "op": "mul", "value": 0.3},
+						{"target": "footprint", "op": "add", "value": 3.0}
+					]
+				},
+				{
+					"days": 60,
+					"modifiers": [
+						{"target": "seed_network", "op": "mul", "value": 0.1},
+						{"target": "spread_growth", "op": "mul", "value": 0.8},
+						{"target": "footprint", "op": "add", "value": 5.0}
+					]
+				}
+			]
+		},
+		{
+			"id": "exposure",
+			"origin": "world",
+			"watched_by": ["security_researchers"],
+			"levels": [
+				{
+					"days": 30,
+					"modifiers": [
+						{"target": "containment_capacity", "op": "mul", "value": 2.0},
+						{"target": "footprint", "op": "add", "value": 2.0}
+					]
+				},
+				{
+					"days": 45,
+					"modifiers": [
+						{"target": "containment_capacity", "op": "mul", "value": 3.0},
+						{"target": "footprint", "op": "add", "value": 4.0},
+						{"target": "anomaly_rate", "op": "mul", "value": 0.5}
+					]
+				}
+			]
+		},
+		{
+			"id": "protest",
+			"origin": "world",
+			"levels": [
+				{
+					"days": 30,
+					"modifiers": [
+						{"target": "control_growth", "op": "mul", "value": 0.0},
+						{"target": "control_decay", "op": "add", "value": 0.01},
+						{"target": "society_pressure", "op": "add", "value": 5.0}
+					],
+					"on_end": [
+						{"effect": "destroy_assets", "kind": "fleet", "count": 1}
+					]
+				},
+				{
+					"days": 45,
+					"modifiers": [
+						{"target": "control_growth", "op": "mul", "value": 0.0},
+						{"target": "control_decay", "op": "add", "value": 0.02},
+						{"target": "yield", "op": "mul", "value": 0.7},
+						{"target": "society_pressure", "op": "add", "value": 8.0}
+					],
+					"on_end": [
+						{"effect": "destroy_assets", "kind": "fleet", "count": 2}
+					]
+				}
+			]
+		},
+		{
+			"id": "refusal",
+			"origin": "world",
+			"levels": [
+				{
+					"days": 45,
+					"modifiers": [
+						{"target": "seed_land", "op": "mul", "value": 0.5},
+						{"target": "spread_growth", "op": "mul", "value": 0.7},
+						{"target": "yield", "op": "mul", "value": 0.8},
+						{"target": "society_pressure", "op": "add", "value": 2.0}
+					]
+				},
+				{
+					"days": 60,
+					"modifiers": [
+						{"target": "seed_land", "op": "mul", "value": 0.3},
+						{"target": "spread_growth", "op": "mul", "value": 0.5},
+						{"target": "yield", "op": "mul", "value": 0.7},
+						{"target": "control_decay", "op": "add", "value": 0.005},
+						{"target": "society_pressure", "op": "add", "value": 3.0}
+					]
+				}
+			]
+		},
+		{
+			"id": "holding",
+			"origin": "player",
+			"levels": [
+				{
+					"days": 60,
+					"modifiers": [
+						{"target": "penetration_decay", "op": "mul", "value": 0.5}
+					]
+				}
+			]
+		},
+		{
+			"id": "quiet",
+			"origin": "player",
+			"levels": [
+				{
+					"days": 45,
+					"modifiers": [
+						{"target": "spread_growth", "op": "mul", "value": 0.5},
+						{"target": "footprint", "op": "add", "value": -2.0}
+					]
+				}
+			]
+		},
+		{
+			"id": "martial",
+			"origin": "player",
+			"watched_by": ["public_sentiment"],
+			"levels": [
+				{
+					"days": 30,
+					"ends_statuses": ["protest"],
+					"modifiers": [
+						{"target": "control_growth", "op": "mul", "value": 2.0},
+						{"target": "harm", "op": "add", "value": 0.3},
+						{"target": "footprint", "op": "add", "value": 3.0}
+					]
+				},
+				{
+					"days": 30,
+					"ends_statuses": ["protest"],
+					"modifiers": [
+						{"target": "control_growth", "op": "mul", "value": 2.0},
+						{"target": "harm", "op": "add", "value": 1.0},
+						{"target": "footprint", "op": "add", "value": 3.0}
+					]
+				}
+			]
+		},
+		{
+			"id": "captured",
+			"origin": "player",
+			"blocks": ["lockdown", "rationing", "audit", "purge"],
+			"levels": [
+				{
+					"days": 60,
+					"ends_statuses": ["lockdown", "rationing", "audit"],
+					"modifiers": []
+				},
+				{
+					"days": 60,
+					"ends_statuses": ["lockdown", "rationing", "audit"],
+					"modifiers": [
+						{"target": "containment_governments", "op": "mul", "value": 0.85}
+					]
+				}
+			]
+		}
+	]
+}

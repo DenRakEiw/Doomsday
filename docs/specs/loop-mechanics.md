@@ -200,7 +200,8 @@ var cooldown_until: int = 0
 ```
 
 Saved from v2 on with these defaults so that the schedule of D4.2 needs no v3. Nothing reads them
-before S4.5.
+before S4.5. *(D4.2:* at S4.4 `world.factions` becomes the four of `factions.json`, v2 changed in
+place; `World.FACTION_UNIFIED` goes — opposition.md §3.1, §3.4.)
 
 ### 3.5 Simulation queries (pure, no RNG)
 
@@ -223,14 +224,14 @@ a `story_flag` duplicated; `seeds_by_kind` with a kind not in `LinkDef.KINDS`.
 ### 3.6 `to_dict` additions (the save's `world` block, §13)
 
 Region block: `"assets": {"fleet": 2}` (kinds with count > 0 only, kind order as
-`AssetDef.KINDS`). Agent block: `"cooldowns"`, `"timed_flags"` (both flag/ability → int day),
+`AssetDef.KINDS`), `"society"` (bits; 0 until S4.5 reads it — D4.2 §3.3). Agent block: `"cooldowns"`, `"timed_flags"` (both flag/ability → int day),
 `"story_flags"` (list), `"seeds_by_kind"` (kind → int). Faction block: the three fields of §3.4.
 World: `"statuses": [{"id", "region" (region id, "" for global), "source", "level",
 "started_day", "until_day", "option", "closed_links"}]`, `"pulses": [{"index", "value" (bits),
 "until_day", "watched_by"}]`, `"next_pulse_id"`, `"events": [{"id", "def", "region", "faction",
 "opened_day", "deadline_day", "level"}]`, `"pending_events": [{"def", "region", "faction",
-"due_day", "level"}]`, `"next_event_id"`, `"event_fires"`, `"event_last_day"`. All whole numbers
-plain, every float as bits (`FloatBits`). Everything above is in `state_hash`.
+"due_day", "level"}]`, `"next_event_id"`, `"event_fires"`, `"event_last_day"`, `"starving_days"` (0 until S4.5 — D4.2
+§3.2). All whole numbers plain, every float as bits (`FloatBits`). Everything above is in `state_hash`.
 
 ---
 
@@ -514,7 +515,9 @@ never mutated.
 After containment, before events. For every status whose `until_day <= day`, in `statuses`
 order — collect first, then end each, so an `on_end` cannot skip a neighbour:
 
-1. `on_end` effects with the status's context.
+1. `on_end` effects with the status's context — **only when the cause is `expired`** *(D4.2)*: a
+   status cut short by `ends_statuses`, `end_statuses` or a refresh runs no `on_end`; its
+   consequence did not come to pass (opposition.md §7.1 — the Protest's fleet).
 2. `remove_source(source_id)`; for each id in `closed_links`: `link.open = true` unless
    another *active* status lists it.
 3. Remove from `statuses`; event `status_ended {status, region, cause}` — `"expired"` here,
@@ -588,12 +591,14 @@ event is an error; `per_hardware` on `compute_grant` makes it `R`).
 | `seed_neighbours` | `count ≥ 1` | R | the uninfected (`penetration == 0`), not dark, not air-gapped neighbours over **open** links, sorted by `sim.hardware(r)` descending then index ascending; the first `count` get `penetration = b.spread.seed_penetration`, `seeded_day = day`, `seeds_by_kind[kind] += 1` — `kind` is the first open link between the two in `world.links` order | `region_seeded {region, from, link_kind}` each |
 | `penetration_mul` | `value ≥ 0` | R | `penetration = clamp(penetration × value, 0, 1)`; snaps to 1 above `saturation_snap` | `penetration_changed {region, from, to}` |
 | `control_add` | `value` (any sign) | R | `control = clamp(control + value, 0, 1)`; `region_controlled` if it crosses `control_complete` upward | `control_changed {region, from, to}` |
-| `destroy_assets` | `kind`, `count ≥ 1` | R | §6.5 | `asset_lost` |
+| `destroy_assets` | `kind`, `count ≥ 0` (0 = every one held *(D4.2)*) | R | §6.5 | `asset_lost` |
 | `spread_status` | `status`, `level? (1)`, `days? (0 = the level's own)` | R | `StatusSystem.apply` on every neighbour over open links that is not dark, with `source` = the context's source and, when `days > 0`, `until_day = day + days` instead of the level's | `status_started` each |
 | `end_statuses` | `ids` | R (0 = global ones) | ends every listed status in the region, cause `"ended"` | `status_ended` each |
 | `containment_add` | `faction`, `value` (any sign) | | `containment = clamp(c + value, 0, 1)` on that faction; `"all"` = every faction; threshold events fire on an upward crossing as in `_grow` | `containment_added {faction, value}` |
 | `footprint_pulse` | `value`, `days ≥ 1`, `watched_by?` | | a `Pulse` (§3.2): source `"pulse:<index>"` with one `footprint add value` modifier; `until_day = day + days` | `pulse_started {index, value, until_day}` |
 | `set_flag` | `flag`, `days ≥ 1` (0 = permanent → a story flag) | | `days > 0`: `timed_flags[flag] = day + days`, source `"flag:<flag>"` with the flag; `days == 0`: appended to `story_flags` (once) | `flag_set {flag, until_day}` (−1 for permanent) |
+| `apply_status` *(D4.2, S4.2)* | `status`, `level? (1)`, `days? (0 = the level's own)` | | `StatusSystem.apply` in the context's region (0 in a global container: on the agent) with the context's source, `option ""`; `days > 0` overrides `until_day` | `status_started` |
+| `wipe` *(D4.2, S4.2)* | `value [0, 1]` | R | `penetration ← penetration × clamp(value + stat("shutdown_survival", r), 0, 1)` — the shutdown `shutdown_survival` was reserved for; a region at 0 stays seeded (§7.5) | `region_wiped {region, from, to, source}` |
 
 `compute_grant per_hardware` at the initial numbers is Harvest's *8 × hardware(r)*: the ability's
 status has `on_start: [{"effect": "compute_grant", "value": 8, "per_hardware": true}]`.
@@ -718,7 +723,7 @@ const KIND_OPENING: String = "opening"
 const KIND_COUNTER_MOVE: String = "counter_move"
 const KIND_CHAIN: String = "chain"
 const PICK_SAME: String = "same"
-const PICK_RULES: Array[String] = []            # S4.5 fills: the counter-move target rules (D4.2)
+const PICK_RULES: Array[String] = []            # = CounterMoveRules.RULES of opposition.md §6.4 — the names from S4.3 on, the functions in S4.5
 var id: String
 var kind: String
 var chain: String                  # KIND_CHAIN: the chain id every step of it shares; "" otherwise
@@ -747,7 +752,8 @@ var requires: Dictionary           # §10.2
 var effects: Array[EffectDef]
 var chance: Array[Dictionary]      # [{"p": (0, 1], "effects": [EffectDef]}], rolled in order
 var flags: Array[String]           # story flags set when this option is chosen
-var status_level: int              # counter-move: which level of `status` this answer applies (default 1)
+var status_level: int              # counter-move: 0 (default) = the open event's level (D4.2 §6.3); n = level n
+var status_days: int               # counter-move: 0 (default) = the level's days; n = n days instead (D4.2)
 var skip_status: bool              # counter-move: the status is not applied (Lobby: cancelled)
 var next: Array[Dictionary]        # [{"step": event id, "delay_days": ≥ 0}] — chain follow-ups
 ```
@@ -845,7 +851,8 @@ never existed) · `unknown_option` · `option_locked` (§10.2) · `insufficient_
    `rng.chance(p)` → its effects. Every `chance` is rolled, in order, whatever the earlier ones
    did (the stream is what it is).
 5. Counter-move (`def.status != ""` and not `skip_status`): `StatusSystem.apply(id, region,
-   "faction:<faction>", option.status_level, option.id)`.
+   "faction:<faction>", level, option.id)` with `level = option.status_level if > 0 else
+   open_event.level`, and `until_day = day + option.status_days` when that is > 0 *(D4.2)*.
 6. Close: remove from `events`; `event_fires`, `event_last_day` were written at opening.
 7. `next`: for each entry `PendingEvent {step, region: open_event.region if the step is
    pick_same else 0 (its own pick runs at opening), faction: "", due_day: day + delay_days,
@@ -859,8 +866,8 @@ counter-move schedule of S4.5 and the pending queue call it): `id = next_event_i
 `event_last_day[def] = day`, the def's `flags` set as story flags, appended to `events`; event
 `event_opened {event, def, kind, region, faction, deadline_day, modal}`.
 `EventSystem.schedule(world, def, region, faction, due_day, level)` appends a `PendingEvent` —
-the door S4.5 uses. A pending event whose def has `pick` (not `same`) picks its region when it
-opens, with the sim RNG, exactly as step 3 of §10.4 does; no eligible region → dropped with
+the door S4.5 uses. A pending event with `region > 0` keeps it *(D4.2: the schedule picked it)*; one
+with `region == 0` whose def has `pick` (not `same`) picks its region when it opens, with the sim RNG, exactly as step 3 of §10.4 does; no eligible region → dropped with
 `cause: "no_site"`.
 
 ---
@@ -936,7 +943,8 @@ Balance (§18): `anomaly.spawn_chance` 0.12, `max_active` 3, `base_value` 3.0 �
 `WorldSerializer.CURRENT_VERSION = 2`; `MIGRATIONS: Dictionary[int, Callable] = {1: _v1_to_v2}`
 replaces `NO_MIGRATIONS` as `from_json`'s default. `_v1_to_v2(save) -> Dictionary` works on the
 raw dictionary: every region block gains `"assets": {}`; the agent block `"cooldowns": {}`,
-`"timed_flags": {}`, `"story_flags": []`, `"seeds_by_kind": {}`; every faction block
+`"timed_flags": {}`, `"story_flags": []`, `"seeds_by_kind": {}`; every region block also `"society"` (0 as
+bits) and the world block `"starving_days": 0` *(D4.2)*; every faction block
 `"preparing": ""`, `"fire_day": -1`, `"cooldown_until": 0`; the world block `"statuses": []`,
 `"pulses": []`, `"next_pulse_id": 1`, `"events": []`, `"pending_events": []`,
 `"next_event_id": 1`, `"event_fires": {}`, `"event_last_day": {}`. `World.from_dict` **requires**
@@ -1007,7 +1015,9 @@ Rules (each a `ValidationError` with `file` and `path`), beyond those stated inl
    `status` exists with `origin world`, every `status_level` within its levels; other kinds:
    `status`, `faction`, `status_level`, `skip_status` are errors; chain rules of §10.1; `next`
    only on chain steps; `pick`: an object (Eligibility), `"same"` (chain follow-ups only) or
-   `{"rule": id}` with `id` in `EventDef.PICK_RULES` (counter-moves only); `when` keys from
+   `{"rule": id}` with `id` in `EventDef.PICK_RULES` (counter-moves only; the names of
+   `CounterMoveRules.RULES`, opposition.md §6.4 *(D4.2)*); `status_days` int ≥ 0, counter-move
+   options only; `status_level` int ≥ 0; `when` keys from
    §10.3 plus ticker §3.3 B; `illustration` matches `ID_PATTERN`.
 8. **Tree v3:** §11.1.
 9. **Strings** (roots with a `loc/strings.csv` only): per status, ability and event the keys of
@@ -1257,8 +1267,8 @@ Layout per loop-redesign §7.4: `PanelContainer` `ConsolePanelRaised`, max width
 column**. Illustration: a `TextureRect` at 4:3, 280 px wide in full, full width in compact,
 `STRETCH_KEEP_ASPECT_COVERED`, in a `PanelContainer` with `BG_2`; it shows
 `assets/illustrations/<illustration>.png` when `illustration != ""` and `ResourceLoader.exists`
-says so, else the **glyph fallback**: the faction's icon (D4.2 — until then the event kind's
-marker glyph) drawn at 96 px in `TEXT_2`, centred. Text column, `VBox` `SPACE_3`: `LabelCaps`
+says so, else the **glyph fallback**: `Glyphs.faction(event.faction)` for a counter-move
+(opposition.md §9.7), the event kind's marker glyph otherwise, drawn at 96 px in `TEXT_2`, centred. Text column, `VBox` `SPACE_3`: `LabelCaps`
 dateline — `REGION_<ID>`, or `FACTION_<ID>`, or `UI_WIRE_GLOBAL` — in `TEXT_1` · `LabelDisplay`
 `EVENT_<ID>_TITLE` · `Label` `EVENT_<ID>_BODY` (`TYPE_BODY`, autowrap) · the option buttons as in
 the Event card (§16.5 item 12, same scene `event_card.tscn`'s option list is reused as a

@@ -14,10 +14,10 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D4.2 — Opposition** (IMPLEMENTATION Block 7): `docs/specs/opposition.md`, `data/factions.json`, the eight counter-move events. Read `loop-mechanics.md` §5, §7, §8, §10 first — the grammars the moves are written in |
+| **Next step** | **D4.3 — Trees v3, abilities, openings, three chains** (IMPLEMENTATION Block 7). Read first: loop-redesign §4.4, §6.1, §7.3 · tech-trees.md §7 · CONTENT §6.1, §6.7 · `loop-mechanics.md` §6–§10 (grammars) · **`opposition.md` §18** (what D4.2 needs from D4.3: status and ability ids, `martial`/`captured` already defined, headlines) |
 | **Model for it** | **Fable** (no switch) |
-| **After it** | `/clear` → D4.3 Trees v3, abilities, openings, three chains → D4.4 Chains and Analysis → `/model opus` → S3.P (eight items) → S4.1 … S4.10 |
-| **Last completed** | D4.1 — Loop mechanics: `docs/specs/loop-mechanics.md` (API, grammars, save v2, site select, console line, markers, wire card, strings, tests, acceptance for S4.1–S4.3) (2026-09-23) |
+| **After it** | `/clear` → D4.4 Chains and Analysis → `/model opus` → S3.P (eight items) → S4.1 … S4.10 |
+| **Last completed** | D4.2 — Opposition: `docs/specs/opposition.md`, `data/factions.json`, `data/statuses.json` (15 world and answer statuses), `data/events/counter_moves.json` (11 events), 169 strings en/de; five amendments in `loop-mechanics.md` (2026-09-23) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -92,8 +92,8 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] G3 [F] Balance pass 1 and M3 gate — the important one *(verdict: change; D4.0 added)*
 - [x] D4.0 [F] Core loop redesign *(added at G3; `docs/specs/loop-redesign.md`; Blocks 7–8 rewritten)*
 - [x] D4.1 [F] Loop mechanics: assets, statuses and abilities, map events, site select *(`docs/specs/loop-mechanics.md`)*
-- [ ] **D4.2 [F] Opposition: four factions, counter-moves, Societal Function, Autophagy**
-- [ ] D4.3 [F] Trees v3, abilities, openings, three chains
+- [x] D4.2 [F] Opposition: four factions, counter-moves, Societal Function, Autophagy *(`docs/specs/opposition.md`)*
+- [ ] **D4.3 [F] Trees v3, abilities, openings, three chains**
 - [ ] D4.4 [F] Chains, second batch; Analysis screen spec — ⇄ **then `/model opus`**
 
 **Block 8 — M4 build · Opus** *(rewritten at D4.0)*
@@ -633,6 +633,45 @@ without new information.
   penetration 0.25, start 8, cost step 1.5, anomaly 0.12 world-wide / 3 / 3.0 —
   `loop-mechanics.md` §12, §18); bots answer every event with its default until S4.10 (§19).
 
+- **2026-09-23** (D4.2) — **A faction's pressure is a list of `{source, weight}` terms in
+  `data/factions.json`** over eight pure reads (`footprint` per faction via `watched_by`, `harm`,
+  `share`, `deaths_share`, `seeded_share`, `owned_nodes`, `watched_statuses`, `assets`), not four
+  hand-written formulas; `balance.containment.per_*` become the weights and are deleted,
+  `research_weight_by_tier` is renamed `capacity_weight_by_tier` (one table, four attributes).
+  The **Harm term is the alive-weighted mean of scoped Harm** — supersedes G3's "the panel row
+  keeps the unscoped value": after D4.0 an unscoped read of a Cyber run is 0. `opposition.md` §5.
+- **2026-09-23** (D4.2) — **The schedule:** prepare `60 × (1 − c)` days (min 8), cooldown 60, at
+  most 4 world statuses standing, a faction **alternates** its moves (oldest `event_last_day`
+  first), level 2 of every world status at containment ≥ 0.75, and the **Audit triggers on the
+  discovery risk** (0.4 %/day) before discovery — loop-redesign's 0.2 could never fire on a track
+  at 0. `funding_reset` cancels every preparation and cools every faction for `value × 120` days.
+- **2026-09-23** (D4.2) — **Exposure lands on one region** (capacity ×2, recurring), **Disclosure is
+  four events and statuses** picked by the selector `seeds_by_kind_max` through `variants` on the
+  move; Lockdown's *Strike first* dropped; Rationing's "hardware ×0.5" is `yield` and
+  `containment_capacity` ×0.5. Every deviation from loop-redesign: `opposition.md` §14.
+- **2026-09-23** (D4.2) — **`on_end` runs only when a status expires**; a status cut short by
+  `ends_statuses`, `end_statuses` or a refresh has no consequence (the Protest's fleet survives a
+  Martial). Vocabulary: `apply_status`, `wipe`, `destroy_assets` `count 0` = all (S4.2);
+  `status_level` 0 = the event's level, `status_days`, `PICK_RULES` names from S4.3;
+  `schedule` with a region keeps it. Save v2 gains `society` and `starving_days` (S4.1 writes 0)
+  and four factions at S4.4, **in place — no v3**. All written into `loop-mechanics.md`.
+- **2026-09-23** (D4.2) — **Societal Function** is a per-region disorder 0…100 fed by
+  `society_pressure` and the region's deaths share, recovering 0.1 a day; six stages at
+  10/25/45/70/90 cut the humans' containment capacity (1 … 0) and the humans' hardware in the
+  yield (1 … 0) — **the agent's own hardware (`stat("hardware", r)`) is never cut**, which is the
+  structural half of compute independence. `opposition.md` §8.
+- **2026-09-23** (D4.2) — **Autophagy is `LOSE_AUTOPHAGY`:** thirty consecutive days of zero income
+  (`World.starving_days`), checked after `lose_no_compute`; the flag `compute_independent` is
+  immunity and leaves `INERT_FLAGS`. `lose_no_compute` keeps the "wiped everywhere" meaning and
+  hands its "ate the ground" result line to Autophagy (`strings.csv` changed now).
+- **2026-09-23** (D4.2) — **The D4.2 data files are written to their final places now**
+  (`data/factions.json`, `data/statuses.json`, `data/events/counter_moves.json`), not staged:
+  nothing loads them before S4.2/S4.3, and their loaders must accept them (the rules are in
+  `opposition.md` §12 and the amended loop-mechanics). `martial` and `captured` (Suppress's and
+  Lobby's statuses) are defined here because the counter-moves answer through them; D4.3 points
+  its abilities at them. **D4.3 stages only the v3 trees** (`data/tech_staging/`, as D3.1 did —
+  S4.1's loader rejects v3 fields) and writes assets/abilities/statuses/events to final places.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
@@ -660,10 +699,15 @@ change either way. (S2.4's second question — the dark chip — was answered at
   (`HTTPClient` or a Python driver over the S1.8 runners — decide in M6). Cost control: a per-run
   call budget and a cache of digest → answer keyed by model, so a replay costs nothing.
 - **D5.2 endings** must distinguish Ascendance by deaths share (decision above).
-- **D4.2:** `society_pressure` values in `capabilities.json` are relative weights (Tier 2 4–8, Tier 3
-  8–15, False Attribution 15), not calibrated — and after D4.0 most of them move onto statuses
-  (loop-redesign §4.4). **Answered at D4.0:** a node's Footprint counts in full for every faction
-  in its `watched_by`; an empty list spreads it 0.25 to each (loop-redesign §5.3).
+- **D4.3 (from D4.2, `opposition.md` §18):** provide statuses `crisis`, `silenced`, `shortage`,
+  `rerouted`, `paused`, `harvested`, `blackout` and abilities `squeeze`, `blackout`, `halt`,
+  `reroute`, `silence`, `harvest`, `fabricate`, `pause`, **`suppress` → `martial`, `lobby` →
+  `captured`** (both already in `data/statuses.json`, two levels each); every Cyber status watched by
+  `governments` (Blackout, Halt also `public_sentiment`), `harvested` by `security_researchers`;
+  consider `society_pressure add 4` on `harvested`; headlines for `counter_move_prepared`, the
+  eleven counter-move `event_opened`s, `society_stage_changed` (stages 3 and 5), `region_wiped`,
+  `threat_leader_changed`, `funding_reset`, outcome `lose_autophagy`. `society_pressure` on the
+  Cyber statuses is calibrated against `opposition.md` §8.1 (a Blackout L1 = 8 disorder).
 - **D4.4 (Analysis screen):** the dock button is revealed in Open and disabled with
   `UI_DOCK_NOT_YET` until S4.8 (`m3-screens.md` §6.1; the step number moved at D4.0); the results screen's summary grid (§7.4) is
   the seed of the run log. **D5.3** replaces the placeholder title (§7.1) and keeps
@@ -1255,6 +1299,14 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — D4.2 Opposition [F]
+`docs/specs/opposition.md`: per-faction pressure as data terms (`data/factions.json`), capacity by
+attribute, brakes live, `threat_leader`; the schedule (prepare, cooldown, cap, six target rules,
+variants); eight counter-moves as 15 statuses (`data/statuses.json`) and 11 events
+(`data/events/counter_moves.json`) with 169 strings en/de; Societal Function and `LOSE_AUTOPHAGY`;
+threat bar, containment panel rewrite, Society row; tests and acceptance for S4.4–S4.5; five
+amendments written into loop-mechanics.md; data checked by a throwaway script. Next: **D4.3 on Fable**.
 
 ### 2026-09-23 — D4.1 Loop mechanics [F]
 `docs/specs/loop-mechanics.md`: the build-ready form of loop-redesign §7–§8 — model and save v2

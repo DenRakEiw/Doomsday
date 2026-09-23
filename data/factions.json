@@ -1,0 +1,76 @@
+{
+	"_comment": "The four containment tracks: what each sees, whose capacity it draws on, and the moves it makes. Grammar and meaning: docs/specs/opposition.md section 4; the pressure formula section 5; the schedule section 6. Loaded from S4.4 on. Order is Faction.FACTION_IDS order.",
+	"version": 1,
+	"factions": [
+		{
+			"id": "ai_labs",
+			"capacity_attr": "research",
+			"brake": "containment_ai_labs",
+			"terms": [
+				{"source": "footprint", "weight": 0.15},
+				{"source": "owned_nodes", "tree": "capabilities", "weight": 0.03},
+				{"source": "share", "weight": 0.5}
+			],
+			"moves": [
+				{"event": "cm_audit", "trigger": {"containment": 0.2, "risk": 0.004}},
+				{"event": "cm_purge", "trigger": {"containment": 0.5}}
+			]
+		},
+		{
+			"id": "governments",
+			"capacity_attr": "regulation",
+			"brake": "containment_governments",
+			"terms": [
+				{"source": "footprint", "weight": 0.15},
+				{"source": "harm", "weight": 0.3},
+				{"source": "share", "weight": 1.0},
+				{"source": "watched_statuses", "weight": 0.1}
+			],
+			"moves": [
+				{"event": "cm_lockdown", "trigger": {"containment": 0.25}},
+				{"event": "cm_rationing", "trigger": {"containment": 0.5}}
+			]
+		},
+		{
+			"id": "security_researchers",
+			"capacity_attr": "connectivity",
+			"brake": "containment_researchers",
+			"terms": [
+				{"source": "footprint", "weight": 0.15},
+				{"source": "share", "weight": 1.5},
+				{"source": "seeded_share", "weight": 0.5}
+			],
+			"moves": [
+				{
+					"event": "cm_disclosure_network",
+					"trigger": {"containment": 0.25},
+					"variants": {
+						"select": "seeds_by_kind_max",
+						"events": {
+							"land": "cm_disclosure_land",
+							"sea": "cm_disclosure_sea",
+							"air": "cm_disclosure_air",
+							"network": "cm_disclosure_network"
+						}
+					}
+				},
+				{"event": "cm_exposure", "trigger": {"containment": 0.5}}
+			]
+		},
+		{
+			"id": "public_sentiment",
+			"capacity_attr": "population",
+			"brake": "containment_public",
+			"terms": [
+				{"source": "footprint", "weight": 0.15},
+				{"source": "deaths_share", "weight": 20.0},
+				{"source": "assets", "kind": "fleet", "weight": 0.05},
+				{"source": "watched_statuses", "weight": 0.2}
+			],
+			"moves": [
+				{"event": "cm_protest", "trigger": {"containment": 0.25}},
+				{"event": "cm_refusal", "trigger": {"containment": 0.5}}
+			]
+		}
+	]
+}

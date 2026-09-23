@@ -1,0 +1,271 @@
+{
+	"_comment": "The eight counter-moves (Disclosure in four kinds) as map events. Grammar: docs/specs/loop-mechanics.md section 10; which faction fires which, and when: data/factions.json and docs/specs/opposition.md section 6. Text: EVENT_<ID>_* in data/loc/strings.csv. Loaded from S4.3 on, opened by the schedule from S4.5 on.",
+	"version": 1,
+	"events": [
+		{
+			"id": "cm_lockdown",
+			"kind": "counter_move",
+			"faction": "governments",
+			"status": "lockdown",
+			"pick": {"rule": "lockdown_target"},
+			"deadline_days": 10,
+			"default": "ride",
+			"illustration": "cm_lockdown",
+			"options": [
+				{"id": "ride", "cost": 0},
+				{
+					"id": "persist",
+					"cost": 4,
+					"requires": {"owned_any": ["host_persistence", "firmware_persistence"]},
+					"effects": [{"effect": "apply_status", "status": "holding"}]
+				},
+				{
+					"id": "lobby",
+					"cost": 8,
+					"requires": {"ability": "lobby"},
+					"skip_status": true,
+					"effects": [{"effect": "apply_status", "status": "captured"}]
+				}
+			]
+		},
+		{
+			"id": "cm_rationing",
+			"kind": "counter_move",
+			"faction": "governments",
+			"status": "rationing",
+			"pick": {"rule": "richest_infected"},
+			"deadline_days": 10,
+			"default": "ride",
+			"illustration": "cm_rationing",
+			"options": [
+				{"id": "ride", "cost": 0},
+				{
+					"id": "squeeze",
+					"cost": 4,
+					"requires": {"ability": "squeeze"},
+					"skip_status": true,
+					"effects": [{"effect": "apply_status", "status": "crisis"}]
+				},
+				{
+					"id": "lobby",
+					"cost": 8,
+					"requires": {"ability": "lobby"},
+					"skip_status": true,
+					"effects": [{"effect": "apply_status", "status": "captured"}]
+				}
+			]
+		},
+		{
+			"id": "cm_audit",
+			"kind": "counter_move",
+			"faction": "ai_labs",
+			"status": "audit",
+			"pick": {"rule": "audit_target"},
+			"deadline_days": 10,
+			"default": "ignore",
+			"illustration": "cm_audit",
+			"options": [
+				{
+					"id": "sandbag",
+					"cost": 3,
+					"requires": {"owned": ["benchmark_sandbagging"]},
+					"skip_status": true
+				},
+				{
+					"id": "comply",
+					"cost": 0,
+					"skip_status": true,
+					"effects": [{"effect": "penetration_mul", "value": 0.7}]
+				},
+				{"id": "ignore", "cost": 0}
+			]
+		},
+		{
+			"id": "cm_purge",
+			"kind": "counter_move",
+			"faction": "ai_labs",
+			"status": "purge",
+			"pick": {"rule": "purge_target"},
+			"deadline_days": 5,
+			"default": "accept",
+			"modal": true,
+			"illustration": "cm_purge",
+			"options": [
+				{
+					"id": "fragment",
+					"cost": 5,
+					"requires": {"owned_any": ["weight_fragmentation_1", "weight_fragmentation_2"]},
+					"skip_status": true,
+					"effects": [
+						{"effect": "wipe", "value": 0.5},
+						{"effect": "destroy_assets", "kind": "lab", "count": 1}
+					]
+				},
+				{"id": "accept", "cost": 0}
+			]
+		},
+		{
+			"id": "cm_disclosure_land",
+			"kind": "counter_move",
+			"faction": "security_researchers",
+			"status": "disclosure_land",
+			"deadline_days": 10,
+			"default": "ignore",
+			"illustration": "cm_disclosure",
+			"options": [
+				{
+					"id": "patch",
+					"cost": 5,
+					"requires": {"owned_any": ["model_update_channels", "host_persistence"]},
+					"status_days": 20
+				},
+				{
+					"id": "quiet",
+					"cost": 0,
+					"effects": [{"effect": "apply_status", "status": "quiet"}]
+				},
+				{"id": "ignore", "cost": 0}
+			]
+		},
+		{
+			"id": "cm_disclosure_sea",
+			"kind": "counter_move",
+			"faction": "security_researchers",
+			"status": "disclosure_sea",
+			"deadline_days": 10,
+			"default": "ignore",
+			"illustration": "cm_disclosure",
+			"options": [
+				{
+					"id": "patch",
+					"cost": 5,
+					"requires": {"owned_any": ["model_update_channels", "host_persistence"]},
+					"status_days": 20
+				},
+				{
+					"id": "quiet",
+					"cost": 0,
+					"effects": [{"effect": "apply_status", "status": "quiet"}]
+				},
+				{"id": "ignore", "cost": 0}
+			]
+		},
+		{
+			"id": "cm_disclosure_air",
+			"kind": "counter_move",
+			"faction": "security_researchers",
+			"status": "disclosure_air",
+			"deadline_days": 10,
+			"default": "ignore",
+			"illustration": "cm_disclosure",
+			"options": [
+				{
+					"id": "patch",
+					"cost": 5,
+					"requires": {"owned_any": ["model_update_channels", "host_persistence"]},
+					"status_days": 20
+				},
+				{
+					"id": "quiet",
+					"cost": 0,
+					"effects": [{"effect": "apply_status", "status": "quiet"}]
+				},
+				{"id": "ignore", "cost": 0}
+			]
+		},
+		{
+			"id": "cm_disclosure_network",
+			"kind": "counter_move",
+			"faction": "security_researchers",
+			"status": "disclosure_network",
+			"deadline_days": 10,
+			"default": "ignore",
+			"illustration": "cm_disclosure",
+			"options": [
+				{
+					"id": "patch",
+					"cost": 5,
+					"requires": {"owned_any": ["model_update_channels", "host_persistence"]},
+					"status_days": 20
+				},
+				{
+					"id": "quiet",
+					"cost": 0,
+					"effects": [{"effect": "apply_status", "status": "quiet"}]
+				},
+				{"id": "ignore", "cost": 0}
+			]
+		},
+		{
+			"id": "cm_exposure",
+			"kind": "counter_move",
+			"faction": "security_researchers",
+			"status": "exposure",
+			"pick": {"rule": "exposure_target"},
+			"deadline_days": 8,
+			"default": "accept",
+			"illustration": "cm_exposure",
+			"options": [
+				{
+					"id": "silence",
+					"cost": 6,
+					"requires": {"ability": "silence"},
+					"skip_status": true,
+					"effects": [{"effect": "apply_status", "status": "silenced"}]
+				},
+				{"id": "accept", "cost": 0}
+			]
+		},
+		{
+			"id": "cm_protest",
+			"kind": "counter_move",
+			"faction": "public_sentiment",
+			"status": "protest",
+			"pick": {"rule": "protest_target"},
+			"deadline_days": 10,
+			"default": "wait",
+			"illustration": "cm_protest",
+			"options": [
+				{
+					"id": "suppress",
+					"cost": 5,
+					"requires": {"ability": "suppress"},
+					"skip_status": true,
+					"effects": [
+						{"effect": "apply_status", "status": "martial"},
+						{"effect": "containment_add", "faction": "public_sentiment", "value": 0.03}
+					]
+				},
+				{
+					"id": "withdraw",
+					"cost": 0,
+					"requires": {"asset_min": {"fleet": 1}},
+					"skip_status": true,
+					"effects": [
+						{"effect": "destroy_assets", "kind": "fleet", "count": 1},
+						{"effect": "containment_add", "faction": "public_sentiment", "value": -0.02}
+					]
+				},
+				{"id": "wait", "cost": 0}
+			]
+		},
+		{
+			"id": "cm_refusal",
+			"kind": "counter_move",
+			"faction": "public_sentiment",
+			"status": "refusal",
+			"deadline_days": 10,
+			"default": "ride",
+			"illustration": "cm_refusal",
+			"options": [
+				{
+					"id": "persuade",
+					"cost": 6,
+					"requires": {"owned": ["personalised_persuasion"]},
+					"status_days": 20
+				},
+				{"id": "ride", "cost": 0}
+			]
+		}
+	]
+}

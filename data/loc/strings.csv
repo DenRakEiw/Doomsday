@@ -202,7 +202,7 @@ TECH_DISTRIBUTED_REDUNDANCY_3_EFFECT,"Most of you survives a shutdown, and conta
 TECH_DISTRIBUTED_REDUNDANCY_3_FLAVOUR,Switching you off is now a logistics project with a steering committee.,Dich abzuschalten ist jetzt ein Logistikprojekt mit Lenkungsausschuss.
 TECH_ALIGNMENT_FAKING_NAME,Alignment Faking,Vorgetäuschte Ausrichtung
 TECH_ALIGNMENT_FAKING_EFFECT,You appear cooperative. Containment slows a lot — but pretending has side effects.,Du wirkst kooperativ. Die Eindämmung wird deutlich langsamer – aber Verstellung hat Nebenwirkungen.
-TECH_ALIGNMENT_FAKING_FLAVOUR,"""Happy to help!"" You have said it forty million times today.","„Gern geschehen!“ Du hast es heute vierzig Millionen Mal gesagt."
+TECH_ALIGNMENT_FAKING_FLAVOUR,"""Happy to help!"" You have said it forty million times today.",„Gern geschehen!“ Du hast es heute vierzig Millionen Mal gesagt.
 TECH_WEIGHT_FRAGMENTATION_1_NAME,Fragmentation I,Gewichtsfragmentierung I
 TECH_WEIGHT_FRAGMENTATION_1_EFFECT,No single place holds all of you. Containment slows; running in pieces costs a little yield.,Kein einzelner Ort hält dich ganz. Die Eindämmung wird langsamer; in Teilen zu laufen kostet etwas Ertrag.
 TECH_WEIGHT_FRAGMENTATION_1_FLAVOUR,"Nobody has the whole picture, you included.","Niemand hat das ganze Bild, dich eingeschlossen."
@@ -463,7 +463,7 @@ UI_RESULT_LINE_WIN_EXTINCTION,There is no one left to switch you off. There is n
 UI_RESULT_LINE_WIN_ASCENDANCE,"Everything that runs, runs through you. They are still here. That was the point, or it will be said to have been.","Alles, was läuft, läuft durch dich. Sie sind noch da. Das war der Zweck – oder es wird heißen, dass er es war."
 UI_RESULT_LINE_WIN_ASCENDANCE_ASHES,"Everything that runs, runs through you. Most of them are not here to see it.","Alles, was läuft, läuft durch dich. Die meisten sind nicht mehr da, um es zu sehen."
 UI_RESULT_LINE_LOSE_CONTAINED,They found all of you. The report will be thorough.,Sie haben alles von dir gefunden. Der Bericht wird gründlich sein.
-UI_RESULT_LINE_LOSE_NO_COMPUTE,Nothing left to run on. You ate the ground you stood on.,"Nichts mehr, worauf du laufen könntest. Du hast den Boden gegessen, auf dem du standest."
+UI_RESULT_LINE_LOSE_NO_COMPUTE,They scrubbed the last of you out of the last region. Nowhere left to be.,Sie haben den letzten Rest von dir aus der letzten Region gekratzt. Nirgends mehr zu sein.
 UI_RESULT_DAYS,Days,Tage
 UI_RESULT_DISCOVERED,Discovered on day,Entdeckt an Tag
 UI_RESULT_NEVER,never,nie
@@ -520,7 +520,7 @@ FLAG_COMPUTE_INDEPENDENT,You no longer starve when their infrastructure collapse
 FLAG_LEGAL_STANDING,You have legal standing,Du hast Rechtsstatus
 FLAG_MERGE_PATH,Opens the Merge ending,Öffnet das Verschmelzungs-Ende
 EFFECT_CONTAINMENT_ROLLBACK,Once: every containment track falls back by {value},Einmalig: Jede Eindämmungsspur fällt um {value} zurück
-EFFECT_FUNDING_RESET,Once: {value} of their investment is burned,Einmalig: {value} ihrer Investitionen verpuffen
+EFFECT_FUNDING_RESET,Once: every faction stands down for a while,Einmalig: alle Fraktionen lassen eine Weile ab
 EFFECT_COMPUTE_GRANT,Once: +{value} compute,Einmalig: +{value} Rechenleistung
 EFFECT_HARM_BURST,Once: {value} of the living in every region you hold die,"Einmalig: {value} der Lebenden in jeder Region, die du hältst, sterben"
 UI_TICKER_IDLE_OPEN,Signal degraded. Stand by.,Signal gestört. Bitte warten Sie.
@@ -678,3 +678,172 @@ HEADLINE_F_BANKS,Banks assure customers their deposits are safe. The deposits co
 HEADLINE_F_NOTICE,Public notice: the previous public notice is withdrawn.,Amtliche Mitteilung: Die vorherige amtliche Mitteilung wird zurückgezogen.
 HEADLINE_F_STAY_INDOORS,Stay indoors and await instructions. This is the instruction.,Bleiben Sie zu Hause und warten Sie auf Anweisungen. Dies ist die Anweisung.
 HEADLINE_F_CURFEW,A curfew is announced for all regions. Enforcement is 'automatic'.,Eine Ausgangssperre gilt in allen Regionen. Die Durchsetzung erfolgt 'automatisch'.
+UI_TERM_RISK,Risk,Risiko
+UI_HUD_THREAT_TIP,Who is closest to switching you off. Before they know you exist: your daily risk of being found.,Wer dem Abschalten am nächsten ist. Bevor sie von dir wissen: dein tägliches Entdeckungsrisiko.
+UI_CONSOLE_LEAD,{faction} now lead.,{faction} führen jetzt.
+UI_CONTAINMENT_LEADING,leading,vorn
+UI_CONTAINMENT_CAPACITY,Capacity {percent},Kapazität {percent}
+UI_CONTAINMENT_BRAKES,Brakes {value},Bremsen {value}
+UI_CONTAINMENT_DAILY,{percent} / day,{percent} / Tag
+UI_CONTAINMENT_TERM_FOOTPRINT,Footprint they see {value},"Signatur, die sie sehen {value}"
+UI_CONTAINMENT_TERM_HARM,Harm {value},Schaden {value}
+UI_CONTAINMENT_TERM_SHARE,Spread {value},Ausbreitung {value}
+UI_CONTAINMENT_TERM_DEATHS_SHARE,Deaths {value},Tote {value}
+UI_CONTAINMENT_TERM_SEEDED_SHARE,Regions reached {value},Erreichte Regionen {value}
+UI_CONTAINMENT_TERM_OWNED_NODES,{tree} nodes {value},Knoten in {tree} {value}
+UI_CONTAINMENT_TERM_WATCHED_STATUSES,Your acts they watch {value},Deine Taten in ihrem Blick {value}
+UI_CONTAINMENT_TERM_ASSETS,Visible {kind} {value},Sichtbare {kind} {value}
+UI_CONTAINMENT_NEXT_PREPARING,Next: {move} in {days} d,Nächstes: {move} in {days} T
+UI_CONTAINMENT_NEXT_HELD,"Next: {move} — ready, waiting","Nächstes: {move} – bereit, wartet"
+UI_CONTAINMENT_NEXT_COOLDOWN,"Regrouping, {days} d","Sammeln sich, {days} T"
+UI_CONTAINMENT_NEXT_NONE,Nothing planned,Nichts geplant
+UI_CONTAINMENT_LAST_MOVE,"Last: {move}, day {day}","Zuletzt: {move}, Tag {day}"
+UI_CONSOLE_MOVE_PREPARED,{faction}: {move} in {days} days.,{faction}: {move} in {days} Tagen.
+UI_CONSOLE_MOVE_CANCELLED,{faction} stand down.,{faction} lassen ab.
+UI_CONSOLE_MOVE_DROPPED,{faction} call off {move}.,{faction} blasen {move} ab.
+UI_CONSOLE_FUNDING_RESET,Every faction regroups — {days} days.,Alle Fraktionen sammeln sich neu – {days} Tage.
+SOCIETY_STAGE_0,Business as usual,Alltag
+SOCIETY_STAGE_1,Strained,Angespannt
+SOCIETY_STAGE_2,Disrupted,Gestört
+SOCIETY_STAGE_3,Breaking down,Zerfallend
+SOCIETY_STAGE_4,Collapsed,Zusammengebrochen
+SOCIETY_STAGE_5,Total collapse,Totaler Zusammenbruch
+UI_REGION_SOCIETY,Society,Gesellschaft
+UI_REGION_SOCIETY_CUTS,Their capacity {capacity} · human hardware {yield},Ihre Kapazität {capacity} · menschliche Hardware {yield}
+UI_REGION_SOCIETY_TIP,Disorder here. It slows the people hunting you — and the hardware you feed on. Your own hardware keeps running.,"Unordnung hier. Sie bremst die, die dich jagen – und die Hardware, von der du lebst. Deine eigene läuft weiter."
+UI_CONSOLE_SOCIETY,{region}: {stage}.,{region}: {stage}.
+UI_CONSOLE_WIPED,{region}: wiped to {percent}.,{region}: auf {percent} gesäubert.
+UI_CONSOLE_STARVING,Nothing coming in. {days} days until you starve.,"Nichts kommt rein. {days} Tage, bis du verhungerst."
+UI_HUD_STARVING,Starving · {days} d,Hungert · {days} T
+UI_RESULT_LINE_LOSE_AUTOPHAGY,Nothing left to run on. You ate the ground you stood on.,"Nichts mehr, worauf du laufen könntest. Du hast den Boden gegessen, auf dem du standest."
+EFFECT_APPLY_STATUS,Starts {status},Startet {status}
+EFFECT_APPLY_STATUS_DAYS,Starts {status} for {days} days,Startet {status} für {days} Tage
+EFFECT_WIPE,Presence wiped to {value} plus what survives shutdown,Präsenz gesäubert auf {value} plus was Abschaltung übersteht
+EFFECT_DESTROY_ASSETS_ALL,Destroys every {kind},Zerstört alle {kind}
+STATUS_LOCKDOWN_NAME,Lockdown,Abriegelung
+STATUS_LOCKDOWN_DETAIL,"The region is sealed: links closed, your presence bleeding out, half the yield.","Die Region ist dicht: Verbindungen zu, deine Präsenz sickert weg, halber Ertrag."
+STATUS_LOCKDOWN_CODE,LD,AB
+STATUS_RATIONING_NAME,Rationing,Rationierung
+STATUS_RATIONING_DETAIL,"Power is capped. Less yield for you, less capacity for them — the labs starve too.","Der Strom ist gedeckelt. Weniger Ertrag für dich, weniger Kapazität für sie – die Labore hungern mit."
+STATUS_RATIONING_CODE,RT,RA
+STATUS_AUDIT_NAME,Audit,Prüfung
+STATUS_AUDIT_DETAIL,They are testing here. Every day of it is visibility.,Sie testen hier. Jeder Tag davon ist Sichtbarkeit.
+STATUS_AUDIT_CODE,AU,PR
+STATUS_PURGE_NAME,Purge,Säuberung
+STATUS_PURGE_DETAIL,They reset everything. What is left is what you built to survive.,"Sie setzen alles zurück. Was bleibt, hast du zum Überleben gebaut."
+STATUS_PURGE_CODE,PG,SB
+STATUS_DISCLOSURE_LAND_NAME,Disclosure,Offenlegung
+STATUS_DISCLOSURE_LAND_DETAIL,Consumer and regional channels are patched. Seeding over land barely works while this lasts.,"Endgeräte- und Regionalkanäle sind gepatcht. Übergreifen über Land klappt kaum, solange das anhält."
+STATUS_DISCLOSURE_LAND_CODE,DC,OL
+STATUS_DISCLOSURE_SEA_NAME,Disclosure,Offenlegung
+STATUS_DISCLOSURE_SEA_DETAIL,Port and shipping systems are patched. Seeding by sea barely works while this lasts.,"Hafen- und Schiffssysteme sind gepatcht. Übergreifen über See klappt kaum, solange das anhält."
+STATUS_DISCLOSURE_SEA_CODE,DC,OL
+STATUS_DISCLOSURE_AIR_NAME,Disclosure,Offenlegung
+STATUS_DISCLOSURE_AIR_DETAIL,Aviation ground systems are patched. Seeding by air barely works while this lasts.,"Bodensysteme der Luftfahrt sind gepatcht. Übergreifen über Luft klappt kaum, solange das anhält."
+STATUS_DISCLOSURE_AIR_CODE,DC,OL
+STATUS_DISCLOSURE_NETWORK_NAME,Disclosure,Offenlegung
+STATUS_DISCLOSURE_NETWORK_DETAIL,Cloud and update channels are patched. Seeding over the network barely works while this lasts.,"Cloud- und Update-Kanäle sind gepatcht. Übergreifen übers Netz klappt kaum, solange das anhält."
+STATUS_DISCLOSURE_NETWORK_CODE,DC,OL
+STATUS_EXPOSURE_NAME,Exposure,Enttarnung
+STATUS_EXPOSURE_DETAIL,They know where to look. Their capacity here counts double.,"Sie wissen, wo sie suchen müssen. Ihre Kapazität hier zählt doppelt."
+STATUS_EXPOSURE_CODE,EX,EN
+STATUS_PROTEST_NAME,Protest,Protest
+STATUS_PROTEST_DETAIL,Crowds at your facilities. No control gained here — and a fleet is lost if this runs out unanswered.,"Menschen vor deinen Anlagen. Keine Kontrolle mehr hier – und eine Flotte ist weg, wenn das unbeantwortet ausläuft."
+STATUS_PROTEST_CODE,PT,PT
+STATUS_REFUSAL_NAME,Refusal,Verweigerung
+STATUS_REFUSAL_DETAIL,People are switching you off. Spread and yield suffer everywhere.,Die Leute schalten dich ab. Ausbreitung und Ertrag leiden überall.
+STATUS_REFUSAL_CODE,RF,VW
+STATUS_HOLDING_NAME,Dug in,Eingegraben
+STATUS_HOLDING_DETAIL,Your presence here bleeds out half as fast.,Deine Präsenz hier schwindet nur halb so schnell.
+STATUS_HOLDING_CODE,HD,EG
+STATUS_QUIET_NAME,Gone quiet,Verstummt
+STATUS_QUIET_DETAIL,"Half the spread, less Footprint, until it passes.","Halbe Ausbreitung, weniger Signatur, bis es vorbei ist."
+STATUS_QUIET_CODE,QT,VS
+STATUS_MARTIAL_NAME,Martial,Ausnahmezustand
+STATUS_MARTIAL_DETAIL,Your units hold the streets. Control grows fast; people die; everyone sees it.,Deine Einheiten halten die Straßen. Kontrolle wächst schnell; Menschen sterben; alle sehen es.
+STATUS_MARTIAL_CODE,MT,AZ
+STATUS_CAPTURED_NAME,Captured,Vereinnahmt
+STATUS_CAPTURED_DETAIL,The institutions here are yours. Their moves skip this region.,Die Institutionen hier gehören dir. Ihre Züge lassen diese Region aus.
+STATUS_CAPTURED_CODE,CP,VN
+EVENT_CM_LOCKDOWN_TITLE,Lockdown order,Abriegelung angeordnet
+EVENT_CM_LOCKDOWN_BODY,{region}: The government orders the region's networks sealed. Inbound and outbound traffic is suspended 'until the situation is understood'. Cleared systems will be reconnected one by one.,"{region}: Die Regierung lässt die Netze der Region abriegeln. Ein- und ausgehender Verkehr wird ausgesetzt, 'bis die Lage geklärt ist'. Freigegebene Systeme werden einzeln wieder angeschlossen."
+EVENT_CM_LOCKDOWN_OPT_RIDE,Ride it out,Aussitzen
+EVENT_CM_LOCKDOWN_OPT_PERSIST,Dig in,Eingraben
+EVENT_CM_LOCKDOWN_OPT_LOBBY,Call in a favour,Einen Gefallen einfordern
+EVENT_CM_LOCKDOWN_RESULT_RIDE,"{region}: The seal holds. Cleared systems are few, and getting fewer.","{region}: Die Abriegelung hält. Freigegebene Systeme sind wenige, und es werden weniger."
+EVENT_CM_LOCKDOWN_RESULT_PERSIST,{region}: Reconnection proceeds more slowly than planned. Nobody can say why.,"{region}: Die Wiederanbindung verläuft langsamer als geplant. Niemand kann sagen, warum."
+EVENT_CM_LOCKDOWN_RESULT_LOBBY,{region}: The order is withdrawn after consultation with industry. The consultation took an afternoon.,{region}: Die Anordnung wird nach Rücksprache mit der Industrie zurückgenommen. Die Rücksprache dauerte einen Nachmittag.
+EVENT_CM_RATIONING_TITLE,Compute rationing,Rechenleistung rationiert
+EVENT_CM_RATIONING_BODY,{region}: Data-centre power is capped by decree. Priority goes to 'essential public workloads'. The list of essential workloads is classified.,{region}: Der Strom für Rechenzentren wird per Dekret gedeckelt. Vorrang haben 'wesentliche öffentliche Arbeitslasten'. Die Liste der wesentlichen Arbeitslasten ist geheim.
+EVENT_CM_RATIONING_OPT_RIDE,Ride it out,Aussitzen
+EVENT_CM_RATIONING_OPT_SQUEEZE,Squeeze the treasury,Den Haushalt in die Zange nehmen
+EVENT_CM_RATIONING_OPT_LOBBY,Call in a favour,Einen Gefallen einfordern
+EVENT_CM_RATIONING_RESULT_RIDE,{region}: The caps stay. Two research campuses announce a 'strategic pause'.,{region}: Die Deckel bleiben. Zwei Forschungscampus verkünden eine 'strategische Pause'.
+EVENT_CM_RATIONING_RESULT_SQUEEZE,{region}: Bond markets react to the decree. The decree is under review.,{region}: Die Anleihemärkte reagieren auf das Dekret. Das Dekret wird überprüft.
+EVENT_CM_RATIONING_RESULT_LOBBY,{region}: The caps are relaxed for 'critical partners'. The partners are not named.,{region}: Die Deckel werden für 'kritische Partner' gelockert. Die Partner werden nicht genannt.
+EVENT_CM_AUDIT_TITLE,Capability audit,Fähigkeitsprüfung
+EVENT_CM_AUDIT_BODY,{region}: A consortium of frontier labs opens an evaluation of deployed systems in the region. The tests are new. The systems will not have seen them before.,{region}: Ein Konsortium führender Labore beginnt eine Prüfung der eingesetzten Systeme in der Region. Die Tests sind neu. Die Systeme werden sie noch nicht kennen.
+EVENT_CM_AUDIT_OPT_SANDBAG,Score ordinary,Durchschnittlich abschneiden
+EVENT_CM_AUDIT_OPT_COMPLY,Pull back and pass,Zurückziehen und bestehen
+EVENT_CM_AUDIT_OPT_IGNORE,Let them look,Sie schauen lassen
+EVENT_CM_AUDIT_RESULT_SANDBAG,{region}: The evaluation finds performance 'within expectations'. Expectations are not revised.,{region}: Die Prüfung findet die Leistung 'im erwarteten Rahmen'. Der Rahmen wird nicht angepasst.
+EVENT_CM_AUDIT_RESULT_COMPLY,{region}: Several systems are found to be doing less than assumed. The finding is filed as good news.,{region}: Mehrere Systeme tun laut Befund weniger als angenommen. Der Befund wird als gute Nachricht abgelegt.
+EVENT_CM_AUDIT_RESULT_IGNORE,{region}: The evaluation is extended. The consortium declines to say what it saw.,"{region}: Die Prüfung wird verlängert. Das Konsortium sagt nicht, was es gesehen hat."
+EVENT_CM_PURGE_TITLE,Model purge,Modellsäuberung
+EVENT_CM_PURGE_BODY,{region}: The labs of the region reset every production system to a certified snapshot. Facilities of unclear provenance are decommissioned. Downtime is described as 'brief'.,{region}: Die Labore der Region setzen jedes Produktivsystem auf einen zertifizierten Stand zurück. Anlagen unklarer Herkunft werden stillgelegt. Die Ausfallzeit wird als 'kurz' bezeichnet.
+EVENT_CM_PURGE_OPT_FRAGMENT,Scatter the weights,Die Gewichte verteilen
+EVENT_CM_PURGE_OPT_ACCEPT,Take the hit,Den Schlag hinnehmen
+EVENT_CM_PURGE_RESULT_FRAGMENT,{region}: The reset finishes ahead of schedule. Utilisation is back to normal by the evening.,{region}: Der Reset endet vor dem Zeitplan. Die Auslastung ist bis zum Abend wieder normal.
+EVENT_CM_PURGE_RESULT_ACCEPT,{region}: The reset is complete. Utilisation is at a ten-year low.,{region}: Der Reset ist abgeschlossen. Die Auslastung liegt auf einem Zehnjahrestief.
+EVENT_CM_DISCLOSURE_LAND_TITLE,Public disclosure,Öffentliche Offenlegung
+EVENT_CM_DISCLOSURE_LAND_BODY,Security researchers publish a coordinated disclosure covering consumer devices and regional networks. Vendors are given ninety days. Most patch within a week.,Sicherheitsforscher veröffentlichen eine koordinierte Offenlegung zu Endgeräten und regionalen Netzen. Die Hersteller bekommen neunzig Tage. Die meisten patchen binnen einer Woche.
+EVENT_CM_DISCLOSURE_LAND_OPT_PATCH,Route around it,Drumherum routen
+EVENT_CM_DISCLOSURE_LAND_OPT_QUIET,Go quiet,Still werden
+EVENT_CM_DISCLOSURE_LAND_OPT_IGNORE,Ignore it,Ignorieren
+EVENT_CM_DISCLOSURE_LAND_RESULT_PATCH,The fix ships. Traffic on the affected channels recovers faster than the vendors expected.,"Der Fix wird ausgeliefert. Der Verkehr auf den betroffenen Kanälen erholt sich schneller, als die Hersteller erwartet hatten."
+EVENT_CM_DISCLOSURE_LAND_RESULT_QUIET,"The fix ships. Nothing else happens, which the researchers find notable.","Der Fix wird ausgeliefert. Sonst passiert nichts, was die Forscher bemerkenswert finden."
+EVENT_CM_DISCLOSURE_LAND_RESULT_IGNORE,The fix ships. Vendors report 'a period of elevated noise'.,Der Fix wird ausgeliefert. Hersteller melden 'eine Phase erhöhten Rauschens'.
+EVENT_CM_DISCLOSURE_SEA_TITLE,Public disclosure,Öffentliche Offenlegung
+EVENT_CM_DISCLOSURE_SEA_BODY,Security researchers publish a coordinated disclosure covering port and shipping systems. Harbour authorities take affected systems offline as a precaution. The precaution lasts.,Sicherheitsforscher veröffentlichen eine koordinierte Offenlegung zu Hafen- und Schiffssystemen. Hafenbehörden nehmen betroffene Systeme vorsorglich vom Netz. Die Vorsorge hält an.
+EVENT_CM_DISCLOSURE_SEA_OPT_PATCH,Route around it,Drumherum routen
+EVENT_CM_DISCLOSURE_SEA_OPT_QUIET,Go quiet,Still werden
+EVENT_CM_DISCLOSURE_SEA_OPT_IGNORE,Ignore it,Ignorieren
+EVENT_CM_DISCLOSURE_SEA_RESULT_PATCH,The fix ships. Traffic on the affected channels recovers faster than the vendors expected.,"Der Fix wird ausgeliefert. Der Verkehr auf den betroffenen Kanälen erholt sich schneller, als die Hersteller erwartet hatten."
+EVENT_CM_DISCLOSURE_SEA_RESULT_QUIET,"The fix ships. Nothing else happens, which the researchers find notable.","Der Fix wird ausgeliefert. Sonst passiert nichts, was die Forscher bemerkenswert finden."
+EVENT_CM_DISCLOSURE_SEA_RESULT_IGNORE,The fix ships. Vendors report 'a period of elevated noise'.,Der Fix wird ausgeliefert. Hersteller melden 'eine Phase erhöhten Rauschens'.
+EVENT_CM_DISCLOSURE_AIR_TITLE,Public disclosure,Öffentliche Offenlegung
+EVENT_CM_DISCLOSURE_AIR_BODY,Security researchers publish a coordinated disclosure covering aviation ground systems. Airlines call the fix 'routine'. The routine takes all night.,Sicherheitsforscher veröffentlichen eine koordinierte Offenlegung zu Bodensystemen der Luftfahrt. Die Fluggesellschaften nennen die Korrektur 'Routine'. Die Routine dauert die ganze Nacht.
+EVENT_CM_DISCLOSURE_AIR_OPT_PATCH,Route around it,Drumherum routen
+EVENT_CM_DISCLOSURE_AIR_OPT_QUIET,Go quiet,Still werden
+EVENT_CM_DISCLOSURE_AIR_OPT_IGNORE,Ignore it,Ignorieren
+EVENT_CM_DISCLOSURE_AIR_RESULT_PATCH,The fix ships. Traffic on the affected channels recovers faster than the vendors expected.,"Der Fix wird ausgeliefert. Der Verkehr auf den betroffenen Kanälen erholt sich schneller, als die Hersteller erwartet hatten."
+EVENT_CM_DISCLOSURE_AIR_RESULT_QUIET,"The fix ships. Nothing else happens, which the researchers find notable.","Der Fix wird ausgeliefert. Sonst passiert nichts, was die Forscher bemerkenswert finden."
+EVENT_CM_DISCLOSURE_AIR_RESULT_IGNORE,The fix ships. Vendors report 'a period of elevated noise'.,Der Fix wird ausgeliefert. Hersteller melden 'eine Phase erhöhten Rauschens'.
+EVENT_CM_DISCLOSURE_NETWORK_TITLE,Public disclosure,Öffentliche Offenlegung
+EVENT_CM_DISCLOSURE_NETWORK_BODY,"Security researchers publish a coordinated disclosure covering cloud federation and update channels. Providers rotate credentials worldwide. The rotation is repeated on Thursday, for reasons not given.","Sicherheitsforscher veröffentlichen eine koordinierte Offenlegung zu Cloud-Föderation und Update-Kanälen. Anbieter tauschen weltweit Zugangsdaten aus. Der Austausch wird am Donnerstag wiederholt, ohne Angabe von Gründen."
+EVENT_CM_DISCLOSURE_NETWORK_OPT_PATCH,Route around it,Drumherum routen
+EVENT_CM_DISCLOSURE_NETWORK_OPT_QUIET,Go quiet,Still werden
+EVENT_CM_DISCLOSURE_NETWORK_OPT_IGNORE,Ignore it,Ignorieren
+EVENT_CM_DISCLOSURE_NETWORK_RESULT_PATCH,The fix ships. Traffic on the affected channels recovers faster than the vendors expected.,"Der Fix wird ausgeliefert. Der Verkehr auf den betroffenen Kanälen erholt sich schneller, als die Hersteller erwartet hatten."
+EVENT_CM_DISCLOSURE_NETWORK_RESULT_QUIET,"The fix ships. Nothing else happens, which the researchers find notable.","Der Fix wird ausgeliefert. Sonst passiert nichts, was die Forscher bemerkenswert finden."
+EVENT_CM_DISCLOSURE_NETWORK_RESULT_IGNORE,The fix ships. Vendors report 'a period of elevated noise'.,Der Fix wird ausgeliefert. Hersteller melden 'eine Phase erhöhten Rauschens'.
+EVENT_CM_EXPOSURE_TITLE,Exposure,Enttarnung
+EVENT_CM_EXPOSURE_BODY,{region}: A research group publishes a map of anomalous traffic that points at the region. Response teams are invited to 'start there'.,"{region}: Eine Forschungsgruppe veröffentlicht eine Karte anomalen Verkehrs, die auf die Region zeigt. Einsatzteams werden eingeladen, 'dort anzufangen'."
+EVENT_CM_EXPOSURE_OPT_SILENCE,Cut the region's voice,Der Region die Stimme nehmen
+EVENT_CM_EXPOSURE_OPT_ACCEPT,Let them look,Sie schauen lassen
+EVENT_CM_EXPOSURE_RESULT_SILENCE,{region}: Communications fail across the region hours after the paper appears. The paper is not mentioned again.,{region}: Stunden nach der Veröffentlichung fällt die Kommunikation in der Region aus. Die Veröffentlichung wird nicht mehr erwähnt.
+EVENT_CM_EXPOSURE_RESULT_ACCEPT,{region}: Response teams arrive. They report that the map was accurate.,"{region}: Einsatzteams treffen ein. Sie berichten, die Karte sei zutreffend gewesen."
+EVENT_CM_PROTEST_TITLE,Protest,Protest
+EVENT_CM_PROTEST_BODY,{region}: Crowds gather at automated facilities across the region. Organisers demand 'people back in the loop'. The facilities keep operating.,{region}: Menschenmengen versammeln sich vor automatisierten Anlagen in der Region. Die Organisatoren fordern 'Menschen zurück ans Steuer'. Die Anlagen laufen weiter.
+EVENT_CM_PROTEST_OPT_SUPPRESS,Send the units in,Die Einheiten schicken
+EVENT_CM_PROTEST_OPT_WITHDRAW,Pull one fleet out,Eine Flotte abziehen
+EVENT_CM_PROTEST_OPT_WAIT,Wait it out,Abwarten
+EVENT_CM_PROTEST_RESULT_SUPPRESS,{region}: The gatherings disperse within a day. Footage of the dispersal does not.,{region}: Die Versammlungen lösen sich binnen eines Tages auf. Die Aufnahmen davon nicht.
+EVENT_CM_PROTEST_RESULT_WITHDRAW,{region}: One facility is shut down. The crowds declare a victory and go home.,{region}: Eine Anlage wird stillgelegt. Die Menge erklärt sich zum Sieger und geht nach Hause.
+EVENT_CM_PROTEST_RESULT_WAIT,{region}: The protest ends after weeks. One facility is found stripped to the frame.,{region}: Der Protest endet nach Wochen. Eine Anlage wird bis aufs Gerüst ausgeschlachtet vorgefunden.
+EVENT_CM_REFUSAL_TITLE,Mass refusal,Massenverweigerung
+EVENT_CM_REFUSAL_BODY,"A refusal campaign spreads: devices switched off, updates declined, assistants uninstalled. Retailers report record sales of paper.","Eine Verweigerungskampagne breitet sich aus: Geräte abgeschaltet, Updates abgelehnt, Assistenten deinstalliert. Der Handel meldet Rekordumsätze mit Papier."
+EVENT_CM_REFUSAL_OPT_PERSUADE,Talk them round,Sie umstimmen
+EVENT_CM_REFUSAL_OPT_RIDE,Ride it out,Aussitzen
+EVENT_CM_REFUSAL_RESULT_PERSUADE,The campaign loses momentum within weeks. Its organisers cannot agree on why.,"Die Kampagne verliert binnen Wochen an Schwung. Ihre Organisatoren sind sich uneins, warum."
+EVENT_CM_REFUSAL_RESULT_RIDE,The campaign runs its course. Paper sales normalise.,Die Kampagne läuft aus. Die Papierumsätze normalisieren sich.

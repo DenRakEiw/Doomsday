@@ -726,13 +726,15 @@ status rings, the *Actions* and *Status* rows, the console line.
 the modal, deadlines and defaults.
 **Done when:** an opening is a real decision in a hand-played Covert phase.
 ### S4.4 — Four factions **[O]** · **Read first:** `docs/specs/opposition.md` (factions)
-Per-faction pressure and capacity, the brakes live, the threat bar, the containment panel
-rewritten, `funding_reset` live, exclusive groups and `excludes` in core and modal.
+Per-faction pressure and capacity from `factions.json`, the brakes live, `threat_leader`, the
+threat bar, the containment panel rewritten, `funding_reset` live. (Exclusive groups and
+`excludes` are S4.1's since D4.1.)
 **Done when:** batch runs show each faction can be the one that ends a run.
 ### S4.5 — Counter-moves, Societal Function, Autophagy **[O]** · **Read first:** `opposition.md` (moves, society)
 The schedule, the eight moves as events, `society_pressure` live with the six stages, Autophagy.
-**Done when:** a region can be lost to a Lockdown and held through one; over-pushing Cyber without
-Robotics starves the player in batches.
+**Done when:** a region can be lost to a Lockdown and held through one; a scripted Cyber run
+without Robotics ends in Autophagy and the same script with Autonomous Fabrication does not
+(`opposition.md` §17) — the batch measurement is S4.10's.
 ### S4.6 — Trees v3 and the remaining abilities **[O]** · **Read first:** loop-redesign §4.4 · D4.3's data
 Load v3; every ability of loop-redesign §7.3 live; the passive changes applied.
 **Done when:** every node reachable, every ability usable, zero rejected bot commands.
