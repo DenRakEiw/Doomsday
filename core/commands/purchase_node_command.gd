@@ -71,6 +71,13 @@ func execute(sim: Simulation, events: Array[SimEvent]) -> void:
 	events.append(SimEvent.new(SimEvent.NODE_PURCHASED, sim.world.day,
 		{"node": node, "cost": cost}))
 	var site: int = _deploy(sim, definition, events)
+	if definition.grants_ability():
+		# After the deployment and before the one-shots (§9.2): the node placed
+		# what it places, and what it *gave* is the next thing the player hears.
+		events.append(SimEvent.new(SimEvent.ABILITY_UNLOCKED, sim.world.day, {
+			"ability": definition.ability_id,
+			"level": sim.ability_level(definition.ability_id),
+		}))
 	EffectRunner.apply_all(sim, definition.on_purchase, EffectContext.for_node(node, site),
 		events)
 

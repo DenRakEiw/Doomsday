@@ -1,0 +1,41 @@
+{
+	"_comment": "Fixture abilities. Four verbs that between them exercise every rule of the ability system; not game content. Described in docs/specs/loop-mechanics.md section 22. fx_zap has two levels, fx_reap is free, fx_forge deploys, fx_hush is global.",
+	"version": 1,
+	"abilities": [
+		{
+			"id": "fx_zap",
+			"target": "region",
+			"cost": 2,
+			"cooldown_days": 5,
+			"eligible": {"infected": true, "status_absent": ["fx_dim"]},
+			"applies": {"status": "fx_dim"},
+			"levels_from": ["fx_zap_1", "fx_zap_2"]
+		},
+		{
+			"id": "fx_reap",
+			"target": "region",
+			"cost": 0,
+			"cooldown_days": 4,
+			"eligible": {"infected": true, "not_dormant": true, "status_absent": ["fx_reaped"]},
+			"applies": {"status": "fx_reaped"},
+			"levels_from": ["fx_reap"]
+		},
+		{
+			"id": "fx_forge",
+			"target": "region",
+			"cost": 3,
+			"cooldown_days": 6,
+			"eligible": {"infected": true, "attr_min": {"industry": 2}},
+			"applies": {"deploy": {"kind": "fleet", "count": 1}},
+			"levels_from": ["fx_forge"]
+		},
+		{
+			"id": "fx_hush",
+			"target": "global",
+			"cost": 1,
+			"cooldown_days": 3,
+			"applies": {"status": "fx_hush"},
+			"levels_from": ["fx_hushbox"]
+		}
+	]
+}

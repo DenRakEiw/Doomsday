@@ -30,6 +30,10 @@ const FAIL_EXCLUDED_BY: String = "excluded_by"
 const FAIL_MISSING_ASSETS: String = "missing_assets"
 const FAIL_SITE_REQUIRED: String = "site_required"
 const FAIL_SITE_INELIGIBLE: String = "site_ineligible"
+## The three checks an ability adds (`loop-mechanics.md` §9.3).
+const FAIL_UNKNOWN_ABILITY: String = "unknown_ability"
+const FAIL_ABILITY_LOCKED: String = "ability_locked"
+const FAIL_ABILITY_COOLDOWN: String = "ability_cooldown"
 
 ## Set by `Simulation.apply` when the command is accepted; -1 until then.
 var day: int = -1

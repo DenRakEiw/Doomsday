@@ -21,6 +21,7 @@
 			"grid": [1, 0],
 			"requires": ["market_microstructure"],
 			"watched_by": ["governments"],
+			"ability": {"id": "squeeze", "level": 1},
 			"on_purchase": [
 				{"effect": "compute_grant", "value": 12.0}
 			],
@@ -38,6 +39,7 @@
 			"grid": [2, 0],
 			"requires": ["sovereign_debt_pressure"],
 			"watched_by": ["governments", "public_sentiment"],
+			"ability": {"id": "squeeze", "level": 2},
 			"on_purchase": [
 				{"effect": "compute_grant", "value": 25.0}
 			],
@@ -69,6 +71,7 @@
 			"grid": [1, 1],
 			"requires": ["grid_load_balancing"],
 			"watched_by": ["governments", "public_sentiment"],
+			"ability": {"id": "blackout", "level": 1},
 			"modifiers": [
 				{"target": "society_pressure", "op": "add", "value": 6.0},
 				{"target": "harm", "op": "add", "value": 0.5, "scope": {"attr": "compute", "min": 2}},
@@ -84,6 +87,7 @@
 			"grid": [2, 1],
 			"requires": ["regional_blackout"],
 			"watched_by": ["governments", "public_sentiment"],
+			"ability": {"id": "blackout", "level": 2},
 			"modifiers": [
 				{"target": "society_pressure", "op": "add", "value": 12.0},
 				{"target": "harm", "op": "add", "value": 1.5, "scope": {"attr": "compute", "min": 2}},
@@ -114,6 +118,7 @@
 			"grid": [1, 2],
 			"requires": ["route_optimisation"],
 			"watched_by": ["governments"],
+			"ability": {"id": "halt", "level": 1},
 			"modifiers": [
 				{"target": "control_growth", "op": "mul", "value": 1.2},
 				{"target": "society_pressure", "op": "add", "value": 6.0},
@@ -129,6 +134,7 @@
 			"grid": [2, 2],
 			"requires": ["supply_chain_halt"],
 			"watched_by": ["governments", "public_sentiment"],
+			"ability": {"id": "halt", "level": 2},
 			"modifiers": [
 				{"target": "society_pressure", "op": "add", "value": 12.0},
 				{"target": "harm", "op": "add", "value": 1.5},
@@ -157,6 +163,7 @@
 			"grid": [1, 3],
 			"requires": ["traffic_control"],
 			"watched_by": ["governments", "public_sentiment"],
+			"ability": {"id": "reroute", "level": 1},
 			"modifiers": [
 				{"target": "seed_air", "op": "mul", "value": 1.6},
 				{"target": "society_pressure", "op": "add", "value": 4.0},
@@ -172,6 +179,7 @@
 			"grid": [2, 3],
 			"requires": ["aviation_systems"],
 			"watched_by": ["governments"],
+			"ability": {"id": "reroute", "level": 2},
 			"modifiers": [
 				{"target": "seed_sea", "op": "mul", "value": 1.5},
 				{"target": "seed_land", "op": "mul", "value": 1.3},
@@ -202,6 +210,7 @@
 			"grid": [1, 4],
 			"requires": ["content_recommendation"],
 			"watched_by": ["governments", "public_sentiment"],
+			"ability": {"id": "silence", "level": 1},
 			"modifiers": [
 				{"target": "discovery", "op": "mul", "value": 0.8},
 				{"target": "containment_growth", "op": "mul", "value": 0.9},
@@ -217,6 +226,7 @@
 			"grid": [2, 4],
 			"requires": ["information_blackout"],
 			"watched_by": ["governments", "public_sentiment"],
+			"ability": {"id": "silence", "level": 2},
 			"modifiers": [
 				{"target": "containment_growth", "op": "mul", "value": 0.75},
 				{"target": "society_pressure", "op": "add", "value": 12.0},
@@ -344,6 +354,7 @@
 			"cost": 28,
 			"grid": [2, 6],
 			"requires": ["construction_swarm", "grid_load_balancing"],
+			"ability": {"id": "fabricate", "level": 1},
 			"flags": ["compute_independent"],
 			"watched_by": ["public_sentiment", "governments", "ai_labs"],
 			"modifiers": [
@@ -399,6 +410,7 @@
 			"grid": [1, 8],
 			"requires": ["security_drones"],
 			"watched_by": ["public_sentiment", "governments"],
+			"ability": {"id": "suppress", "level": 1},
 			"modifiers": [
 				{"target": "control_growth", "op": "mul", "value": 1.3},
 				{"target": "society_pressure", "op": "add", "value": 6.0},
@@ -415,6 +427,7 @@
 			"grid": [2, 8],
 			"requires": ["crowd_suppression"],
 			"watched_by": ["ai_labs", "governments", "security_researchers", "public_sentiment"],
+			"ability": {"id": "suppress", "level": 2},
 			"modifiers": [
 				{"target": "harm", "op": "add", "value": 2.0},
 				{"target": "control_growth", "op": "mul", "value": 1.5},
@@ -535,6 +548,7 @@
 			"grid": [2, 10],
 			"requires": ["personalised_persuasion"],
 			"watched_by": [],
+			"ability": {"id": "lobby", "level": 1},
 			"modifiers": [
 				{"target": "containment_growth", "op": "mul", "value": 0.85},
 				{"target": "discovery", "op": "mul", "value": 0.8},
@@ -549,6 +563,7 @@
 			"grid": [3, 10],
 			"requires": ["elite_capture"],
 			"watched_by": ["security_researchers"],
+			"ability": {"id": "lobby", "level": 2},
 			"modifiers": [
 				{"target": "containment_governments", "op": "mul", "value": 0.6},
 				{"target": "containment_growth", "op": "mul", "value": 0.85},
@@ -605,6 +620,7 @@
 			"grid": [3, 11],
 			"requires": ["personalised_persuasion", "cold_storage_dormancy"],
 			"watched_by": ["ai_labs"],
+			"ability": {"id": "pause", "level": 1},
 			"modifiers": [
 				{"target": "containment_growth", "op": "mul", "value": 0.85},
 				{"target": "containment_ai_labs", "op": "mul", "value": 0.7},

@@ -18,6 +18,12 @@ var headlines: Array[HeadlineDef] = []
 var headline_by_id: Dictionary[String, HeadlineDef] = {}
 ## The four asset kinds, in `AssetDef.KINDS` order.
 var assets: Dictionary[String, AssetDef] = {}
+## File order, which is the order the region panel lists them in.
+var statuses: Array[StatusDef] = []
+var status_by_id: Dictionary[String, StatusDef] = {}
+## File order, which is the order the region panel and the picker list them in.
+var abilities: Array[AbilityDef] = []
+var ability_by_id: Dictionary[String, AbilityDef] = {}
 ## Exclusive group id -> how many of its nodes may be owned (§11.1).
 var groups: Dictionary[String, int] = {}
 var balance: BalanceDef = null
@@ -54,3 +60,17 @@ func asset(kind: String) -> AssetDef:
 	if not assets.has(kind):
 		return null
 	return assets[kind]
+
+
+## The status definition with this id, or null.
+func status(id: String) -> StatusDef:
+	if not status_by_id.has(id):
+		return null
+	return status_by_id[id]
+
+
+## The ability definition with this id, or null.
+func ability(id: String) -> AbilityDef:
+	if not ability_by_id.has(id):
+		return null
+	return ability_by_id[id]

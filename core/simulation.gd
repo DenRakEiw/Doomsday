@@ -31,13 +31,25 @@ func _init() -> void:
 		PopulationSystem.new(),
 		# slot: SocietalFunctionSystem (M4)
 		ContainmentSystem.new(),
-		# slot: CounterActionSystem (M4)
-		# slot: BehaviourSystem (M4)
-		# slot: EventSystem (M4)
+		# slot: CounterMoveSystem (S4.5)
+		StatusSystem.new(),
+		# slot: BehaviourSystem (M5)
+		# slot: EventSystem (S4.3)
 		PhaseSystem.new(),
 		OutcomeSystem.new(),
 		HistorySystem.new(),
 	]
+
+
+## A simulation that is nothing but the content and a world: what a *system*
+## hands to `EffectRunner`, which needs the pair and no tick of its own. It
+## points at the same `World`, so an effect applied through it changes the run
+## it came from. Never ticked, never given a command.
+static func view(db: ContentDB, world: World) -> Simulation:
+	var sim: Simulation = Simulation.new()
+	sim.db = db
+	sim.world = world
+	return sim
 
 
 static func create(db: ContentDB, seed_value: int) -> Simulation:
@@ -140,6 +152,35 @@ func eligible_regions(rule: Eligibility) -> PackedInt32Array:
 	return out
 
 
+## A modifier target read for one region, or for the world when `region_index`
+## is 0. The spelling the spec's formulas use, so that a system and a reader of
+## `loop-mechanics.md` §7.5 see the same expression.
+func stat(target: String, region_index: int = 0) -> float:
+	if region_index <= 0 or region_index >= world.regions.size():
+		return world.modifiers.value(target)
+	return world.modifiers.value(target, world.regions[region_index].def)
+
+
+## The ability level the run has reached: the number of leading entries of
+## `levels_from` that are owned. 0 means locked (§9.2).
+func ability_level(ability_id: String) -> int:
+	var definition: AbilityDef = db.ability(ability_id)
+	if definition == null:
+		return 0
+	var level: int = 0
+	for node_id: String in definition.levels_from:
+		if not world.agent.owns(node_id):
+			break
+		level += 1
+	return level
+
+
+## The day an ability's cooldown clears; a day at or below the current one means
+## it is ready. An ability that was never used has no key and is ready (§9.3).
+func ability_ready_day(ability_id: String) -> int:
+	return int(world.agent.cooldowns.get(ability_id, 0))
+
+
 ## The hardware a region yields, which is the base tier plus whatever the agent
 ## brought with it. One place, because the yield, an anomaly's weight and
 ## `compute_grant per_hardware` all mean the same number. Region 0 has none.
@@ -237,6 +278,8 @@ func rebuild_modifiers() -> void:
 			continue
 		world.modifiers.add_source(ModifierStack.source_for_tech(node_id), node.modifiers,
 			node.flags)
+	# Last, so that a status still sits on top of the nodes it is fighting.
+	StatusSystem.rebuild_sources(world, db)
 
 
 ## The two pure queries of the containment system (`m3-screens.md` §10.5),

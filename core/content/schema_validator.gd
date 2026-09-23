@@ -45,6 +45,10 @@ const TECH_NODE_KEYS: Array[String] = ["id", "tree", "tier", "cost", "requires",
 	"modifiers", "flags", "grid", "watched_by", "on_purchase", "group", "excludes", "deploy",
 	"ability", "requires_assets"]
 const MODIFIER_KEYS: Array[String] = ["target", "op", "value", "scope"]
+## The two string keys every ability needs, `ABILITY_<ID>_<suffix>` (§17.5).
+const ABILITY_STRING_SUFFIXES: Array[String] = ["NAME", "DETAIL"]
+## The three every status needs.
+const STATUS_STRING_SUFFIXES: Array[String] = ["NAME", "DETAIL", "CODE"]
 ## The three string keys every node needs, `TECH_<ID>_<suffix>` (SCHEMA §7).
 const TECH_STRING_SUFFIXES: Array[String] = ["NAME", "EFFECT", "FLAVOUR"]
 const MILESTONE_KEYS: Array[String] = ["id", "kind", "threshold", "reward"]
@@ -54,7 +58,9 @@ const HEADLINES_VERSION: int = 1
 const REGION_EVENTS: Array[String] = [SimEvent.ASSET_DEPLOYED, SimEvent.ASSET_LOST,
 	SimEvent.ORIGIN_CHOSEN, SimEvent.REGION_SEEDED,
 	SimEvent.REGION_CONTROLLED, SimEvent.ANOMALY_SPAWNED, SimEvent.ANOMALY_EXPIRED,
-	SimEvent.ANOMALY_COLLECTED, SimEvent.REGION_DEPOPULATED, SimEvent.DORMANCY_CHANGED]
+	SimEvent.ANOMALY_COLLECTED, SimEvent.REGION_DEPOPULATED, SimEvent.DORMANCY_CHANGED,
+	SimEvent.ABILITY_USED, SimEvent.STATUS_STARTED, SimEvent.STATUS_ENDED,
+	SimEvent.PENETRATION_CHANGED, SimEvent.CONTROL_CHANGED, SimEvent.REGION_WIPED]
 
 ## Compiled once; `RegEx.create_from_string` on a literal pattern cannot fail.
 static var _id_regex: RegEx = RegEx.create_from_string(ID_PATTERN)
@@ -635,7 +641,7 @@ static func _content_version(d: Dictionary, file: String, errors: Array[Validati
 ## known yet (statuses before S4.2) is not checked rather than reported.
 static func _eligibility(raw: Variant, file: String, path: String,
 		continents: Dictionary[String, bool], continents_known: bool,
-		statuses: Dictionary[String, bool], statuses_known: bool,
+		statuses: Dictionary[String, int], statuses_known: bool,
 		errors: Array[ValidationError]) -> void:
 	if not _is_object(raw, file, path, errors):
 		return
@@ -717,10 +723,349 @@ static func _eligibility_bounds(e: Dictionary, file: String, path: String,
 		_add(errors, file, path, "a rule cannot be both \"origin\" and \"not_origin\"")
 
 
+# ------------------------------------------------------------- statuses.json
+
+
+## Appends every problem in `statuses.json` to `errors` and answers **status id
+## → how many levels it has** (§15.5), which is what the ability, eligibility and
+## effect checks that follow need.
+##
+## Two passes: the ids first, because a status may apply another status — a
+## `spread_status` naming its own id is the normal case (§7.1's Blackout).
+static func validate_statuses(file: String, raw: Variant, strings: Dictionary[String, bool],
+		strings_known: bool, errors: Array[ValidationError]) -> Dictionary[String, int]:
+	var levels: Dictionary[String, int] = {}
+	if typeof(raw) != TYPE_DICTIONARY:
+		return levels
+	var d: Dictionary = raw
+	_check_keys(d, ["version", StatusDef.ROOT_KEY], file, "", errors)
+	_content_version(d, file, errors)
+	if not _require(d, StatusDef.ROOT_KEY, file, "", errors):
+		return levels
+	if not _is_list(d[StatusDef.ROOT_KEY], file, StatusDef.ROOT_KEY, errors):
+		return levels
+	var list: Array = d[StatusDef.ROOT_KEY]
+
+	for i: int in list.size():
+		if typeof(list[i]) != TYPE_DICTIONARY:
+			continue
+		var s: Dictionary = list[i]
+		var id: String = str(s.get("id", ""))
+		if id.is_empty() or not _is_valid_id(id) or levels.has(id):
+			continue
+		levels[id] = (s["levels"] as Array).size() if typeof(s.get("levels")) == TYPE_ARRAY else 0
+
+	var seen: Dictionary[String, bool] = {}
+	for i: int in list.size():
+		var path: String = "%s[%d]" % [StatusDef.ROOT_KEY, i]
+		if not _is_object(list[i], file, path, errors):
+			continue
+		var s: Dictionary = list[i]
+		_check_keys(s, StatusDef.KEYS, file, path, errors)
+		var id: String = _id(s, "id", file, path, errors)
+		if id.is_empty():
+			continue
+		if seen.has(id):
+			_add(errors, file, _join(path, "id"), "duplicate id \"%s\"" % id)
+			continue
+		seen[id] = true
+		var origin: String = _text(s, "origin", file, path, errors)
+		if not origin.is_empty() and not StatusDef.ORIGINS.has(origin):
+			_add(errors, file, _join(path, "origin"), "unknown origin \"%s\"" % origin)
+		_watched_by(s, file, path, errors)
+		if s.has("border"):
+			_bool(s, "border", file, path, errors)
+		if s.has("cancellable"):
+			_bool(s, "cancellable", file, path, errors)
+		_status_id_list(s, "blocks", file, path, levels, errors)
+		_status_levels(s, file, path, levels, errors)
+		if strings_known:
+			for suffix: String in STATUS_STRING_SUFFIXES:
+				var key: String = "STATUS_%s_%s" % [id.to_upper(), suffix]
+				if not strings.has(key):
+					_add(errors, file, _join(path, "id"),
+						"no string \"%s\" with both an en and a de cell" % key)
+	return levels
+
+
+## The `levels` list of one status: at least one, each with a whole number of
+## days, unscoped modifiers, and effects that may run in a region only when the
+## status can be in one.
+static func _status_levels(s: Dictionary, file: String, path: String,
+		statuses: Dictionary[String, int], errors: Array[ValidationError]) -> void:
+	var levels_path: String = _join(path, "levels")
+	if not _require(s, "levels", file, path, errors):
+		return
+	if not _is_list(s["levels"], file, levels_path, errors):
+		return
+	var levels: Array = s["levels"]
+	if levels.is_empty():
+		_add(errors, file, levels_path, "a status needs at least one level")
+		return
+	for i: int in levels.size():
+		var level_path: String = "%s[%d]" % [levels_path, i]
+		if not _is_object(levels[i], file, level_path, errors):
+			continue
+		var l: Dictionary = levels[i]
+		_check_keys(l, StatusLevelDef.KEYS, file, level_path, errors)
+		_integer(l, "days", file, level_path, errors, 0)
+		_status_modifiers(l, file, level_path, errors)
+		_status_links(l, file, level_path, errors)
+		_status_id_list(l, "ends_statuses", file, level_path, statuses, errors)
+		# A status is applied to a region or to the agent, and the same
+		# definition may be used for both: an effect that needs a region may
+		# therefore not sit on one. The `global` key is what carries a status to
+		# the agent (§8.2), so this is the conservative reading.
+		for key: String in ["on_start", "on_end"]:
+			if not l.has(key):
+				continue
+			var effects_path: String = _join(level_path, key)
+			if not _is_list(l[key], file, effects_path, errors):
+				continue
+			var effects: Array = l[key]
+			for k: int in effects.size():
+				effect(effects[k], file, "%s[%d]" % [effects_path, k], true, statuses, true,
+					errors)
+
+
+## A status level's modifiers carry no scope: the region is injected when the
+## status is applied, so a scope in the file would be a second, silent one (§7.3).
+static func _status_modifiers(l: Dictionary, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if not l.has("modifiers"):
+		return
+	var modifiers_path: String = _join(path, "modifiers")
+	if not _is_list(l["modifiers"], file, modifiers_path, errors):
+		return
+	var modifiers: Array = l["modifiers"]
+	var no_regions: Dictionary[String, String] = {}
+	var no_continents: Dictionary[String, bool] = {}
+	for i: int in modifiers.size():
+		var entry_path: String = "%s[%d]" % [modifiers_path, i]
+		_modifier(modifiers[i], file, entry_path, no_regions, false, no_continents, errors, true)
+		if typeof(modifiers[i]) != TYPE_DICTIONARY:
+			continue
+		if (modifiers[i] as Dictionary).has("scope"):
+			_add(errors, file, _join(entry_path, "scope"),
+				"a status\'s modifier is scoped to its region when it is applied")
+
+
+static func _status_links(l: Dictionary, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if not l.has("closes_links"):
+		return
+	var listed: PackedStringArray = _id_list(l, "closes_links", file, path, errors)
+	var all: bool = listed.has(StatusDef.LINKS_ALL)
+	if all and listed.size() > 1:
+		_add(errors, file, _join(path, "closes_links"),
+			"\"%s\" is the whole list or none of it" % StatusDef.LINKS_ALL)
+	for i: int in listed.size():
+		if listed[i].is_empty() or listed[i] == StatusDef.LINKS_ALL:
+			continue
+		if not LinkDef.KINDS.has(listed[i]):
+			_add(errors, file, "%s.closes_links[%d]" % [path, i],
+				"unknown link kind \"%s\"" % listed[i])
+
+
+## A list of status ids, each of which has to exist.
+static func _status_id_list(d: Dictionary, key: String, file: String, path: String,
+		statuses: Dictionary[String, int], errors: Array[ValidationError]) -> void:
+	if not d.has(key):
+		return
+	var listed: PackedStringArray = _id_list(d, key, file, path, errors)
+	for i: int in listed.size():
+		if not listed[i].is_empty() and not statuses.has(listed[i]):
+			_add(errors, file, "%s.%s[%d]" % [path, key, i],
+				"unknown status \"%s\"" % listed[i])
+
+
+# ------------------------------------------------------------ abilities.json
+
+
+## Appends every problem in `abilities.json` to `errors` (§15.6). The tree is
+## read back here: a node named in `levels_from` has to name this ability back,
+## at the right level, so that the two sides cannot disagree (§9.1).
+static func validate_abilities(file: String, raw: Variant,
+		regions: Dictionary[String, String], regions_known: bool,
+		statuses: Dictionary[String, int], statuses_known: bool, tech_raws: Array,
+		strings: Dictionary[String, bool], strings_known: bool,
+		errors: Array[ValidationError]) -> void:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return
+	var d: Dictionary = raw
+	_check_keys(d, ["version", AbilityDef.ROOT_KEY], file, "", errors)
+	_content_version(d, file, errors)
+	if not _require(d, AbilityDef.ROOT_KEY, file, "", errors):
+		return
+	if not _is_list(d[AbilityDef.ROOT_KEY], file, AbilityDef.ROOT_KEY, errors):
+		return
+	var continents: Dictionary[String, bool] = {}
+	for continent: String in regions.values():
+		continents[continent] = true
+	var nodes: Dictionary[String, Dictionary] = _tech_node_map(tech_raws)
+	var list: Array = d[AbilityDef.ROOT_KEY]
+	var seen: Dictionary[String, bool] = {}
+	for i: int in list.size():
+		var path: String = "%s[%d]" % [AbilityDef.ROOT_KEY, i]
+		if not _is_object(list[i], file, path, errors):
+			continue
+		var a: Dictionary = list[i]
+		_check_keys(a, AbilityDef.KEYS, file, path, errors)
+		var id: String = _id(a, "id", file, path, errors)
+		if id.is_empty():
+			continue
+		if seen.has(id):
+			_add(errors, file, _join(path, "id"), "duplicate id \"%s\"" % id)
+			continue
+		seen[id] = true
+		var target: String = _text(a, "target", file, path, errors)
+		if not target.is_empty() and not AbilityDef.TARGETS.has(target):
+			_add(errors, file, _join(path, "target"), "unknown target \"%s\"" % target)
+		var regional: bool = target == AbilityDef.TARGET_REGION
+		_number(a, "cost", file, path, errors, 0.0)
+		_integer(a, "cooldown_days", file, path, errors, 0)
+		if a.has("eligible"):
+			if regional:
+				_eligibility(a["eligible"], file, _join(path, "eligible"), continents,
+					regions_known, statuses, statuses_known, errors)
+			else:
+				_add(errors, file, _join(path, "eligible"),
+					"a global ability targets no region")
+		if a.has("level_cap"):
+			_integer(a, "level_cap", file, path, errors, 1)
+		var levels: int = _ability_levels(a, id, file, path, nodes, errors)
+		_ability_applies(a, file, path, regional, levels, statuses, statuses_known, errors)
+		if strings_known:
+			for suffix: String in ABILITY_STRING_SUFFIXES:
+				var key: String = "ABILITY_%s_%s" % [id.to_upper(), suffix]
+				if not strings.has(key):
+					_add(errors, file, _join(path, "id"),
+						"no string \"%s\" with both an en and a de cell" % key)
+
+
+## `levels_from` and how many levels it grants. Each node exists, names this
+## ability back at its own position, and needs the level below it — otherwise
+## `Simulation.ability_level` could never reach the higher one (§9.2).
+static func _ability_levels(a: Dictionary, id: String, file: String, path: String,
+		nodes: Dictionary[String, Dictionary], errors: Array[ValidationError]) -> int:
+	var listed: PackedStringArray = _id_list(a, "levels_from", file, path, errors)
+	if listed.is_empty():
+		_add(errors, file, _join(path, "levels_from"),
+			"an ability needs at least one node to come from")
+		return 0
+	for i: int in listed.size():
+		var entry_path: String = "%s.levels_from[%d]" % [path, i]
+		var node_id: String = listed[i]
+		if node_id.is_empty():
+			continue
+		if not nodes.has(node_id):
+			_add(errors, file, entry_path, "unknown node \"%s\"" % node_id)
+			continue
+		var node: Dictionary = nodes[node_id]
+		var reference: Variant = node.get("ability")
+		if typeof(reference) != TYPE_DICTIONARY:
+			_add(errors, file, entry_path,
+				"\"%s\" does not grant an ability" % node_id)
+			continue
+		var back: Dictionary = reference
+		if str(back.get("id", "")) != id or int(back.get("level", 0)) != i + 1:
+			_add(errors, file, entry_path,
+				"\"%s\" grants \"%s\" level %s, not \"%s\" level %d"
+				% [node_id, back.get("id", ""), back.get("level", 0), id, i + 1])
+		if i == 0:
+			continue
+		var requires: Variant = node.get("requires")
+		if typeof(requires) != TYPE_ARRAY or not (requires as Array).has(listed[i - 1]):
+			_add(errors, file, entry_path,
+				"\"%s\" must require \"%s\", or its level could never be reached"
+				% [node_id, listed[i - 1]])
+	return listed.size()
+
+
+## `applies` has exactly one key, and whatever it names has to exist.
+static func _ability_applies(a: Dictionary, file: String, path: String, regional: bool,
+		levels: int, statuses: Dictionary[String, int], statuses_known: bool,
+		errors: Array[ValidationError]) -> void:
+	var applies_path: String = _join(path, "applies")
+	if not _require(a, "applies", file, path, errors):
+		return
+	if not _is_object(a["applies"], file, applies_path, errors):
+		return
+	var applies: Dictionary = a["applies"]
+	_check_keys(applies, AbilityDef.APPLIES_KINDS, file, applies_path, errors)
+	var given: Array[String] = []
+	for kind: String in AbilityDef.APPLIES_KINDS:
+		if applies.has(kind):
+			given.append(kind)
+	if given.size() != 1:
+		_add(errors, file, applies_path,
+			"an ability applies exactly one of %s, found %d"
+			% [str(AbilityDef.APPLIES_KINDS), given.size()])
+		return
+	match given[0]:
+		AbilityDef.APPLIES_STATUS:
+			var status: String = _id(applies, AbilityDef.APPLIES_STATUS, file, applies_path,
+				errors)
+			if status.is_empty() or not statuses_known:
+				return
+			if not statuses.has(status):
+				_add(errors, file, _join(applies_path, AbilityDef.APPLIES_STATUS),
+					"unknown status \"%s\"" % status)
+				return
+			var needed: int = int(a.get("level_cap", levels))
+			if statuses[status] < needed:
+				_add(errors, file, _join(applies_path, AbilityDef.APPLIES_STATUS),
+					"\"%s\" has %d levels; this ability reaches level %d"
+					% [status, statuses[status], needed])
+		AbilityDef.APPLIES_DEPLOY:
+			if not regional:
+				_add(errors, file, _join(applies_path, AbilityDef.APPLIES_DEPLOY),
+					"a global ability has nowhere to place anything")
+			var deploy_path: String = _join(applies_path, AbilityDef.APPLIES_DEPLOY)
+			if not _is_object(applies[AbilityDef.APPLIES_DEPLOY], file, deploy_path, errors):
+				return
+			var deploy: Dictionary = applies[AbilityDef.APPLIES_DEPLOY]
+			_check_keys(deploy, AbilityDef.DEPLOY_KEYS, file, deploy_path, errors)
+			var kind: String = _id(deploy, "kind", file, deploy_path, errors)
+			if not kind.is_empty() and not AssetDef.KINDS.has(kind):
+				_add(errors, file, _join(deploy_path, "kind"),
+					"unknown asset kind \"%s\"" % kind)
+			_integer(deploy, "count", file, deploy_path, errors, 1)
+		AbilityDef.APPLIES_EFFECTS:
+			var effects_path: String = _join(applies_path, AbilityDef.APPLIES_EFFECTS)
+			if not _is_list(applies[AbilityDef.APPLIES_EFFECTS], file, effects_path, errors):
+				return
+			var effects: Array = applies[AbilityDef.APPLIES_EFFECTS]
+			for i: int in effects.size():
+				effect(effects[i], file, "%s[%d]" % [effects_path, i], regional, statuses,
+					statuses_known, errors)
+
+
+## Node id → its raw entry, across every technology file. Built once per pass
+## that has to read the tree back.
+static func _tech_node_map(tech_raws: Array) -> Dictionary[String, Dictionary]:
+	var nodes: Dictionary[String, Dictionary] = {}
+	for raw: Variant in tech_raws:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var d: Dictionary = raw
+		if typeof(d.get("nodes")) != TYPE_ARRAY:
+			continue
+		for entry: Variant in d["nodes"]:
+			if typeof(entry) != TYPE_DICTIONARY:
+				continue
+			var node: Dictionary = entry
+			var id: String = str(node.get("id", ""))
+			if not id.is_empty() and not nodes.has(id):
+				nodes[id] = node
+	return nodes
+
+
 ## Appends every problem in the technology files to `errors`. Ids are unique
 ## across all of them, so the files are validated together.
 static func validate_tech(files: PackedStringArray, raws: Array,
 		regions: Dictionary[String, String], regions_known: bool,
+		statuses: Dictionary[String, int], statuses_known: bool,
 		strings: Dictionary[String, bool], strings_known: bool,
 		errors: Array[ValidationError]) -> void:
 	var continents: Dictionary[String, bool] = {}
@@ -746,8 +1091,10 @@ static func validate_tech(files: PackedStringArray, raws: Array,
 			var node: Dictionary = nodes[i]
 			_check_keys(node, TECH_NODE_KEYS, file, path, errors)
 			var id: String = _id(node, "id", file, path, errors)
-			_tech_node_fields(node, file, path, regions, regions_known, continents, errors)
-			_tech_node_v3(node, file, path, groups, continents, regions_known, errors)
+			_tech_node_fields(node, file, path, regions, regions_known, continents, statuses,
+				statuses_known, errors)
+			_tech_node_v3(node, file, path, groups, continents, regions_known, statuses,
+				statuses_known, errors)
 			var cell: Vector2i = _tech_grid(node, file, path, errors)
 			if id.is_empty():
 				continue
@@ -855,7 +1202,8 @@ static func _tech_groups(files: PackedStringArray, raws: Array,
 ## Tree v3's five fields (§11.1).
 static func _tech_node_v3(node: Dictionary, file: String, path: String,
 		groups: Dictionary[String, bool], continents: Dictionary[String, bool],
-		regions_known: bool, errors: Array[ValidationError]) -> void:
+		regions_known: bool, statuses: Dictionary[String, int], statuses_known: bool,
+		errors: Array[ValidationError]) -> void:
 	if node.has("group"):
 		var group: String = _id(node, "group", file, path, errors)
 		if not group.is_empty() and not groups.has(group):
@@ -873,7 +1221,7 @@ static func _tech_node_v3(node: Dictionary, file: String, path: String,
 					_add(errors, file, _join(needs_path, kind), "unknown asset kind \"%s\"" % kind)
 					continue
 				_integer(needed, kind, file, needs_path, errors, 1)
-	_tech_deploy(node, file, path, continents, regions_known, errors)
+	_tech_deploy(node, file, path, continents, regions_known, statuses, statuses_known, errors)
 	if node.has("ability"):
 		var ability_path: String = _join(path, "ability")
 		if _is_object(node["ability"], file, ability_path, errors):
@@ -885,6 +1233,7 @@ static func _tech_node_v3(node: Dictionary, file: String, path: String,
 
 static func _tech_deploy(node: Dictionary, file: String, path: String,
 		continents: Dictionary[String, bool], regions_known: bool,
+		statuses: Dictionary[String, int], statuses_known: bool,
 		errors: Array[ValidationError]) -> void:
 	if not node.has("deploy"):
 		return
@@ -898,9 +1247,8 @@ static func _tech_deploy(node: Dictionary, file: String, path: String,
 		_add(errors, file, _join(deploy_path, "kind"), "unknown asset kind \"%s\"" % kind)
 	_integer(deploy, "count", file, deploy_path, errors, 1)
 	if deploy.has("eligible"):
-		var no_statuses: Dictionary[String, bool] = {}
 		_eligibility(deploy["eligible"], file, _join(deploy_path, "eligible"), continents,
-			regions_known, no_statuses, false, errors)
+			regions_known, statuses, statuses_known, errors)
 
 
 ## Exclusions are symmetric: whatever a node closes has to close it back, or the
@@ -965,7 +1313,8 @@ static func _tech_nodes(file: String, raw: Variant, errors: Array[ValidationErro
 
 static func _tech_node_fields(node: Dictionary, file: String, path: String,
 		regions: Dictionary[String, String], regions_known: bool,
-		continents: Dictionary[String, bool], errors: Array[ValidationError]) -> void:
+		continents: Dictionary[String, bool], statuses: Dictionary[String, int],
+		statuses_known: bool, errors: Array[ValidationError]) -> void:
 	var tree: String = _text(node, "tree", file, path, errors)
 	if not tree.is_empty() and not TechNodeDef.TREES.has(tree):
 		_add(errors, file, _join(path, "tree"), "unknown tree \"%s\"" % tree)
@@ -996,7 +1345,8 @@ static func _tech_node_fields(node: Dictionary, file: String, path: String,
 			# effect that needs one may only sit on a node that has one (§8.3).
 			var has_region: bool = typeof(node.get("deploy")) == TYPE_DICTIONARY
 			for i: int in effects.size():
-				effect(effects[i], file, "%s[%d]" % [effects_path, i], has_region, errors)
+				effect(effects[i], file, "%s[%d]" % [effects_path, i], has_region, statuses,
+					statuses_known, errors)
 
 	if node.has("modifiers"):
 		var modifiers_path: String = _join(path, "modifiers")
@@ -1053,6 +1403,7 @@ static func _tech_grid(node: Dictionary, file: String, path: String,
 ## `has_region` says whether the container this effect sits in runs with a
 ## region; an effect that needs one and does not get one can never work.
 static func effect(raw: Variant, file: String, path: String, has_region: bool,
+		statuses: Dictionary[String, int], statuses_known: bool,
 		errors: Array[ValidationError]) -> void:
 	if not _is_object(raw, file, path, errors):
 		return
@@ -1073,7 +1424,7 @@ static func effect(raw: Variant, file: String, path: String, has_region: bool,
 		_add(errors, file, _join(path, "effect"),
 			"\"%s\" needs a region and this one never has one" % id)
 	_effect_numbers(e, id, file, path, errors)
-	_effect_ids(e, id, file, path, errors)
+	_effect_ids(e, id, file, path, statuses, statuses_known, errors)
 
 
 static func _effect_numbers(e: Dictionary, id: String, file: String, path: String,
@@ -1095,6 +1446,7 @@ static func _effect_numbers(e: Dictionary, id: String, file: String, path: Strin
 ## The content ids an effect names. Status ids are checked from S4.2 on, when
 ## `statuses.json` exists; everything else is a closed vocabulary already.
 static func _effect_ids(e: Dictionary, id: String, file: String, path: String,
+		statuses: Dictionary[String, int], statuses_known: bool,
 		errors: Array[ValidationError]) -> void:
 	if e.has("kind"):
 		var kind: String = _id(e, "kind", file, path, errors)
@@ -1113,7 +1465,16 @@ static func _effect_ids(e: Dictionary, id: String, file: String, path: String,
 	if e.has("watched_by"):
 		_watched_by(e, file, path, errors)
 	if id == EffectDef.END_STATUSES:
-		_id_list(e, "ids", file, path, errors)
+		var listed: PackedStringArray = _id_list(e, "ids", file, path, errors)
+		if statuses_known:
+			for i: int in listed.size():
+				if not listed[i].is_empty() and not statuses.has(listed[i]):
+					_add(errors, file, "%s.ids[%d]" % [path, i],
+						"unknown status \"%s\"" % listed[i])
+	if e.has("status"):
+		var status: String = _id(e, "status", file, path, errors)
+		if statuses_known and not status.is_empty() and not statuses.has(status):
+			_add(errors, file, _join(path, "status"), "unknown status \"%s\"" % status)
 
 
 ## Every node needs its three strings, in both languages. The table is read from
@@ -1127,9 +1488,13 @@ static func _tech_strings(id: String, strings: Dictionary[String, bool], file: S
 				"no string \"%s\" with both an en and a de cell" % key)
 
 
+## `allow_zero_mul` is a status's (§7.1): a `mul 0` is what "no capacity at all"
+## means, and the clamp's floor is 0 anyway. On a technology node it stays an
+## error — a node that multiplies a stat away is a node nothing can undo.
 static func _modifier(raw: Variant, file: String, path: String,
 		regions: Dictionary[String, String], regions_known: bool,
-		continents: Dictionary[String, bool], errors: Array[ValidationError]) -> void:
+		continents: Dictionary[String, bool], errors: Array[ValidationError],
+		allow_zero_mul: bool = false) -> void:
 	if not _is_object(raw, file, path, errors):
 		return
 	var m: Dictionary = raw
@@ -1146,8 +1511,12 @@ static func _modifier(raw: Variant, file: String, path: String,
 		_add(errors, file, _join(path, "op"), "unknown operator \"%s\"" % op)
 
 	var value: float = _number(m, "value", file, path, errors, -INF)
-	if op == ModifierDef.OP_NAMES[ModifierDef.Op.MUL] and not is_nan(value) and value <= 0.0:
-		_add(errors, file, _join(path, "value"), "a \"mul\" value must be greater than 0")
+	if op == ModifierDef.OP_NAMES[ModifierDef.Op.MUL] and not is_nan(value):
+		if allow_zero_mul and value < 0.0:
+			_add(errors, file, _join(path, "value"), "a \"mul\" value cannot be negative")
+		elif not allow_zero_mul and value <= 0.0:
+			_add(errors, file, _join(path, "value"),
+				"a \"mul\" value must be greater than 0")
 
 	if not m.has("scope"):
 		return
@@ -1281,6 +1650,7 @@ static func _tech_cycles(order: PackedStringArray,
 ## can never point at a region, node, milestone or threshold that is not there.
 static func validate_headlines(file: String, raw: Variant, balance_raw: Variant,
 		regions: Dictionary[String, String], regions_known: bool, tech_raws: Array,
+		statuses: Dictionary[String, int], abilities: Dictionary[String, bool],
 		strings: Dictionary[String, bool], strings_known: bool,
 		errors: Array[ValidationError]) -> void:
 	if typeof(raw) != TYPE_DICTIONARY:
@@ -1296,10 +1666,18 @@ static func validate_headlines(file: String, raw: Variant, balance_raw: Variant,
 	if list.is_empty():
 		_add(errors, file, "headlines", "expected at least one headline")
 
+	# Every `data` field a headline may filter on, with the ids it may name
+	# (loop-content.md §9.3). A vocabulary the step has not introduced yet is an
+	# empty table, which leaves the field unchecked rather than rejecting it.
+	var status_ids: Dictionary[String, bool] = {}
+	for status_id: String in statuses:
+		status_ids[status_id] = true
 	var known: Dictionary[String, Dictionary] = {
 		"node": _tech_ids(tech_raws),
 		"region": _region_ids(regions, regions_known),
 		"milestone": _milestone_ids(balance_raw, regions, regions_known),
+		"status": status_ids,
+		"ability": abilities,
 	}
 	var seen: Dictionary[String, bool] = {}
 	for i: int in list.size():
@@ -1456,7 +1834,7 @@ static func _headline_value(value: Variant, field: String, event: String, file: 
 static func _headline_domain(field: String, event: String,
 		known: Dictionary[String, Dictionary]) -> Array[String]:
 	match field:
-		"node", "region", "milestone":
+		"node", "region", "milestone", "status", "ability":
 			var ids: Array[String] = []
 			for id: String in known[field]:
 				ids.append(id)

@@ -142,6 +142,7 @@
 			"grid": [1, 2],
 			"requires_any": ["cloud_federation", "consumer_devices", "research_networks"],
 			"watched_by": ["security_researchers"],
+			"ability": {"id": "harvest", "level": 1},
 			"modifiers": [
 				{"target": "spread_growth", "op": "mul", "value": 1.2},
 				{"target": "yield", "op": "mul", "value": 1.2, "scope": {"attr": "connectivity", "min": 2}},

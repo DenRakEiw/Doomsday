@@ -53,10 +53,10 @@ const INERT_EFFECTS: Array[String] = ["funding_reset"]
 const NEEDS_REGION: Array[String] = ["seed_neighbours", "penetration_mul", "control_add",
 	"destroy_assets", "spread_status", "end_statuses", "wipe", "grant_assets"]
 
-## The effects the runner does not carry out yet, with the step that makes each
-## live. They validate and they load; running one is a no-op until then.
-const PENDING_EFFECTS: Array[String] = ["spread_status", "end_statuses", "footprint_pulse",
-	"set_flag", "apply_status", "wipe"]
+## The effects the runner does not carry out yet. S4.2 emptied it: every effect
+## but the inert `funding_reset` is live. Kept as the one place a later step
+## parks a newly authored effect until its system lands.
+const PENDING_EFFECTS: Array[String] = []
 
 ## Effect id → the fields it must carry, beyond `effect` itself.
 const REQUIRED_FIELDS: Dictionary[String, Array] = {

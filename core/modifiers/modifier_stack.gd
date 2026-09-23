@@ -55,9 +55,9 @@ const CLAMPS: Dictionary[String, Array] = {
 ## Targets that are loaded, validated and evaluated here, and read by no system
 ## yet (`docs/specs/tech-trees.md` §3.3). Each leaves this list in the step that
 ## makes its system live; the content is authored once, now.
-const INERT_TARGETS: Array[String] = ["shutdown_survival", "society_pressure", "emergent_rate",
+const INERT_TARGETS: Array[String] = ["society_pressure", "emergent_rate",
 	"containment_ai_labs", "containment_governments", "containment_researchers",
-	"containment_public", "containment_capacity", "penetration_decay", "control_decay"]
+	"containment_public"]
 ## The same for flags: `has_flag` answers truthfully, nobody asks yet.
 const INERT_FLAGS: Array[String] = ["compute_independent", "legal_standing", "merge_path"]
 
@@ -65,6 +65,9 @@ const INERT_FLAGS: Array[String] = ["compute_independent", "legal_standing", "me
 const SOURCE_TECH: String = "tech"
 ## The prefix of an asset kind's base-effect source (§6.2).
 const SOURCE_ASSET: String = "asset"
+## The prefix of a timed flag's source: a source with no modifiers whose only
+## job is to make `has_flag` answer yes while it stands (§8.2, `set_flag`).
+const SOURCE_FLAG: String = "flag"
 
 var _bases: Dictionary[String, float] = {}
 ## Source id → its modifiers, in activation order.
@@ -97,6 +100,11 @@ static func source_for_tech(node_id: String) -> String:
 ## one, so "active while the agent has at least one" needs no bookkeeping (§6.2).
 static func source_for_asset(kind: String) -> String:
 	return "%s:%s" % [SOURCE_ASSET, kind]
+
+
+## The source id a timed flag is active under (§8.2).
+static func source_for_flag(flag: String) -> String:
+	return "%s:%s" % [SOURCE_FLAG, flag]
 
 
 ## How many assets of a kind stand in a region, as the stack sees it.

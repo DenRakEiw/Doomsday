@@ -17,6 +17,8 @@ const REGIONS_FILE: String = "world/regions.json"
 const LINKS_FILE: String = "world/links.json"
 const HEADLINES_FILE: String = "headlines.json"
 const ASSETS_FILE: String = "assets.json"
+const STATUSES_FILE: String = "statuses.json"
+const ABILITIES_FILE: String = "abilities.json"
 const TECH_DIR: String = "tech"
 const TECH_SUFFIX: String = ".json"
 ## The localisation table, read here as plain rows so that the string check of
@@ -41,6 +43,8 @@ static func load_root(root: String) -> ContentLoadResult:
 	var regions_raw: Variant = _read(root.path_join(REGIONS_FILE), errors)
 	var links_raw: Variant = _read(root.path_join(LINKS_FILE), errors)
 	var assets_raw: Variant = _read(root.path_join(ASSETS_FILE), errors)
+	var statuses_raw: Variant = _read(root.path_join(STATUSES_FILE), errors)
+	var abilities_raw: Variant = _read(root.path_join(ABILITIES_FILE), errors)
 
 	var tech_files: PackedStringArray = []
 	var tech_raws: Array = []
@@ -61,14 +65,15 @@ static func load_root(root: String) -> ContentLoadResult:
 	var headlines_raw: Variant = _read(root.path_join(HEADLINES_FILE), errors)
 	var strings: Dictionary[String, bool] = {}
 	var strings_known: bool = _read_strings(root.path_join(STRINGS_FILE), strings)
-	return _finish(root, balance_raw, regions_raw, links_raw, assets_raw, tech_files, tech_raws,
-		headlines_raw, strings, strings_known, errors)
+	return _finish(root, balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
+		abilities_raw, tech_files, tech_raws, headlines_raw, strings, strings_known, errors)
 
 
 ## Loads content that is already parsed — for tests, and for anything that builds
 ## content in memory. `label` stands in for the root in error paths.
 static func load_from_dicts(balance: Dictionary, regions: Dictionary, links: Dictionary,
-		assets: Dictionary, tech_files: Array[Dictionary], headlines: Dictionary,
+		assets: Dictionary, statuses: Dictionary, abilities: Dictionary,
+		tech_files: Array[Dictionary], headlines: Dictionary,
 		label: String = MEMORY_LABEL) -> ContentLoadResult:
 	var errors: Array[ValidationError] = []
 	var names: PackedStringArray = []
@@ -79,8 +84,8 @@ static func load_from_dicts(balance: Dictionary, regions: Dictionary, links: Dic
 	# Content built in memory carries no string table, so the string check is
 	# skipped rather than reported against a file that does not exist.
 	var strings: Dictionary[String, bool] = {}
-	return _finish(label, balance, regions, links, assets, names, raws, headlines, strings, false,
-		errors)
+	return _finish(label, balance, regions, links, assets, statuses, abilities, names, raws,
+		headlines, strings, false, errors)
 
 
 # --------------------------------------------------------------------- reading
@@ -135,7 +140,8 @@ static func _read_strings(path: String, into: Dictionary[String, bool]) -> bool:
 
 
 static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, links_raw: Variant,
-		assets_raw: Variant, tech_files: PackedStringArray, tech_raws: Array,
+		assets_raw: Variant, statuses_raw: Variant, abilities_raw: Variant,
+		tech_files: PackedStringArray, tech_raws: Array,
 		headlines_raw: Variant, strings: Dictionary[String, bool], strings_known: bool,
 		errors: Array[ValidationError]) -> ContentLoadResult:
 	# The order is SCHEMA's: balance, regions, links, technology, and the
@@ -153,19 +159,47 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 	# kind, so the kinds have to be checked first.
 	SchemaValidator.validate_assets(root.path_join(ASSETS_FILE), assets_raw, strings,
 		strings_known, errors)
-	SchemaValidator.validate_tech(tech_files, tech_raws, regions, regions_known, strings,
-		strings_known, errors)
+	# Statuses before technology and abilities: an eligibility rule and an
+	# ability's `applies` both name one, and §15's order is what keeps every
+	# cross-reference pointing at something already checked.
+	var statuses: Dictionary[String, int] = SchemaValidator.validate_statuses(
+		root.path_join(STATUSES_FILE), statuses_raw, strings, strings_known, errors)
+	var statuses_known: bool = typeof(statuses_raw) == TYPE_DICTIONARY
+	SchemaValidator.validate_tech(tech_files, tech_raws, regions, regions_known, statuses,
+		statuses_known, strings, strings_known, errors)
+	SchemaValidator.validate_abilities(root.path_join(ABILITIES_FILE), abilities_raw, regions,
+		regions_known, statuses, statuses_known, tech_raws, strings, strings_known, errors)
 	# Headlines last: they name regions, nodes and balance values, so everything
 	# they point at has been checked by the time they are.
+	var abilities: Dictionary[String, bool] = _ability_ids(abilities_raw)
 	SchemaValidator.validate_headlines(root.path_join(HEADLINES_FILE), headlines_raw, balance_raw,
-		regions, regions_known, tech_raws, strings, strings_known, errors)
+		regions, regions_known, tech_raws, statuses, abilities, strings, strings_known, errors)
 
 	var result: ContentLoadResult = ContentLoadResult.new()
 	result.errors = errors
 	if errors.is_empty():
-		result.db = _build(balance_raw, regions_raw, links_raw, assets_raw, tech_raws,
-			headlines_raw)
+		result.db = _build(balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
+			abilities_raw, tech_raws, headlines_raw)
 	return result
+
+
+## The ability ids of a raw `abilities.json`, for the headline filters that name
+## one (`loop-content.md` §9.3). Read from the raw file rather than the database,
+## because the headlines are validated before anything is built.
+static func _ability_ids(raw: Variant) -> Dictionary[String, bool]:
+	var ids: Dictionary[String, bool] = {}
+	if typeof(raw) != TYPE_DICTIONARY:
+		return ids
+	var d: Dictionary = raw
+	if typeof(d.get(AbilityDef.ROOT_KEY)) != TYPE_ARRAY:
+		return ids
+	for entry: Variant in d[AbilityDef.ROOT_KEY]:
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var id: String = str((entry as Dictionary).get("id", ""))
+		if not id.is_empty():
+			ids[id] = true
+	return ids
 
 
 # -------------------------------------------------------------------- building
@@ -174,17 +208,93 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 ## Everything below runs on validated data only: the fields are there, they have
 ## the right types and every reference resolves.
 static func _build(balance_raw: Dictionary, regions_raw: Dictionary, links_raw: Dictionary,
-		assets_raw: Dictionary, tech_raws: Array, headlines_raw: Dictionary) -> ContentDB:
+		assets_raw: Dictionary, statuses_raw: Dictionary, abilities_raw: Dictionary,
+		tech_raws: Array, headlines_raw: Dictionary) -> ContentDB:
 	var db: ContentDB = ContentDB.new()
 	db.balance = _build_balance(balance_raw)
 	_build_regions(db, regions_raw)
 	_build_links(db, links_raw)
 	_build_assets(db, assets_raw)
+	_build_statuses(db, statuses_raw)
+	_build_abilities(db, abilities_raw)
 	_build_tech(db, tech_raws)
 	_build_headlines(db, headlines_raw)
-	db.content_hash = _content_hash(balance_raw, regions_raw, links_raw, assets_raw, tech_raws,
-		headlines_raw)
+	db.content_hash = _content_hash(balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
+		abilities_raw, tech_raws, headlines_raw)
 	return db
+
+
+## `statuses.json` in file order. A level's modifiers stay unscoped here: the
+## scope is injected when the status is applied (§7.3).
+static func _build_statuses(db: ContentDB, raw: Dictionary) -> void:
+	var list: Array = raw[StatusDef.ROOT_KEY]
+	for entry: Variant in list:
+		var s: Dictionary = entry
+		var def: StatusDef = StatusDef.new()
+		def.id = str(s["id"])
+		def.origin = str(s["origin"])
+		def.watched_by = _string_array(s, "watched_by")
+		def.border = bool(s.get("border", false))
+		def.blocks = _string_array(s, "blocks")
+		def.cancellable = bool(s.get("cancellable", false))
+		var levels: Array = s["levels"]
+		for level_entry: Variant in levels:
+			def.levels.append(_build_status_level(db, level_entry))
+		db.statuses.append(def)
+		db.status_by_id[def.id] = def
+
+
+static func _build_status_level(db: ContentDB, raw: Variant) -> StatusLevelDef:
+	var l: Dictionary = raw
+	var level: StatusLevelDef = StatusLevelDef.new()
+	level.days = int(l["days"])
+	level.closes_links = _string_array(l, "closes_links")
+	level.ends_statuses = _string_array(l, "ends_statuses")
+	if l.has("modifiers"):
+		var modifiers: Array = l["modifiers"]
+		for modifier: Variant in modifiers:
+			level.modifiers.append(_build_modifier(db, modifier))
+	_build_effects(level.on_start, l, "on_start")
+	_build_effects(level.on_end, l, "on_end")
+	return level
+
+
+static func _build_effects(into: Array[EffectDef], d: Dictionary, key: String) -> void:
+	if not d.has(key):
+		return
+	var effects: Array = d[key]
+	for effect: Variant in effects:
+		into.append(EffectDef.from_dict(effect))
+
+
+## `abilities.json` in file order, which is the order the region panel and the
+## picker list them in (§16.5, §16.10).
+static func _build_abilities(db: ContentDB, raw: Dictionary) -> void:
+	var list: Array = raw[AbilityDef.ROOT_KEY]
+	for entry: Variant in list:
+		var a: Dictionary = entry
+		var def: AbilityDef = AbilityDef.new()
+		def.id = str(a["id"])
+		def.target = str(a["target"])
+		def.cost = float(a["cost"])
+		def.cooldown_days = int(a["cooldown_days"])
+		def.eligible = Eligibility.from_dict(a.get("eligible", {}))
+		def.levels_from = _string_array(a, "levels_from")
+		def.level_cap = int(a.get("level_cap", 0))
+		var applies: Dictionary = a["applies"]
+		if applies.has(AbilityDef.APPLIES_STATUS):
+			def.applies_kind = AbilityDef.APPLIES_STATUS
+			def.applies_status = str(applies[AbilityDef.APPLIES_STATUS])
+		elif applies.has(AbilityDef.APPLIES_DEPLOY):
+			def.applies_kind = AbilityDef.APPLIES_DEPLOY
+			var deploy: Dictionary = applies[AbilityDef.APPLIES_DEPLOY]
+			def.applies_deploy_kind = str(deploy["kind"])
+			def.applies_deploy_count = int(deploy["count"])
+		else:
+			def.applies_kind = AbilityDef.APPLIES_EFFECTS
+			_build_effects(def.applies_effects, applies, AbilityDef.APPLIES_EFFECTS)
+		db.abilities.append(def)
+		db.ability_by_id[def.id] = def
 
 
 ## The four asset kinds, in `AssetDef.KINDS` order whatever order the file uses.
@@ -434,11 +544,14 @@ static func _string_array(d: Dictionary, key: String) -> Array[String]:
 ## and key order therefore do not change it, while any value does. A save
 ## carrying a different hash would not replay on this content.
 static func _content_hash(balance: Dictionary, regions: Dictionary, links: Dictionary,
-		assets: Dictionary, tech_raws: Array, headlines: Dictionary) -> String:
+		assets: Dictionary, statuses: Dictionary, abilities: Dictionary, tech_raws: Array,
+		headlines: Dictionary) -> String:
 	var text: String = JSON.stringify(balance, "", true, true)
 	text += JSON.stringify(regions, "", true, true)
 	text += JSON.stringify(links, "", true, true)
 	text += JSON.stringify(assets, "", true, true)
+	text += JSON.stringify(statuses, "", true, true)
+	text += JSON.stringify(abilities, "", true, true)
 	for raw: Variant in tech_raws:
 		text += JSON.stringify(raw, "", true, true)
 	text += JSON.stringify(headlines, "", true, true)

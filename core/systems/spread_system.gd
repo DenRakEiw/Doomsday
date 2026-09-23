@@ -9,6 +9,11 @@ extends SimSystem
 
 ## The source a test grants `breakout` through before S1.4 can buy it.
 const TEST_SOURCE: String = "test"
+## The three regional targets a status uses to push the agent back out of a
+## region (`loop-mechanics.md` §7.5). Live from S4.2.
+const TARGET_PENETRATION_DECAY: String = "penetration_decay"
+const TARGET_CONTROL_DECAY: String = "control_decay"
+const TARGET_SHUTDOWN_SURVIVAL: String = "shutdown_survival"
 
 
 func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
@@ -27,6 +32,18 @@ func _grow(world: World, db: ContentDB) -> void:
 		if region.dark or region.dormant or region.penetration <= 0.0:
 			continue
 		var p: float = region.penetration
+		# §7.5: the decay comes off before the growth, so a Lockdown is felt on
+		# the day it starts and not a day later. What survives a shutdown
+		# survives this too — that is what `shutdown_survival` was bought for.
+		var decay: float = world.modifiers.value(TARGET_PENETRATION_DECAY, region.def)
+		if decay > 0.0:
+			var survival: float = world.modifiers.value(TARGET_SHUTDOWN_SURVIVAL, region.def)
+			p = maxf(0.0, p - p * decay * (1.0 - survival))
+			if p <= 0.0:
+				# Not infected any more. `seeded_day` stays: it was reached once,
+				# and it can be reached again.
+				region.penetration = 0.0
+				continue
 		var growth: float = db.balance.spread_base_growth \
 			* world.modifiers.value("spread_growth", region.def) * p * (1.0 - p)
 		p = minf(1.0, p + growth)
@@ -100,7 +117,14 @@ func _control(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 	var threshold: float = db.balance.control_threshold
 	for i: int in range(1, world.regions.size()):
 		var region: Region = world.regions[i]
-		if region.dark or region.dormant or region.penetration <= threshold:
+		if region.dark or region.dormant:
+			continue
+		# §7.5: control is lost before it is gained, and it is lost whether the
+		# region is still worth holding or not.
+		if region.control > 0.0:
+			region.control = maxf(0.0,
+				region.control - world.modifiers.value(TARGET_CONTROL_DECAY, region.def))
+		if region.penetration <= threshold:
 			continue
 		var before: float = region.control
 		var gain: float = db.balance.control_rate * (region.penetration - threshold) \

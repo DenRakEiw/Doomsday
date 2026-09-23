@@ -27,3 +27,27 @@ static func for_node(node_id: String, region_index: int = 0) -> EffectContext:
 	context.source = "%s:%s" % [SOURCE_TECH, node_id]
 	context.node = node_id
 	return context
+
+
+## A status level's `on_start` or `on_end` (§7.2 step 7, §7.4 step 1).
+static func for_status(status_id: String, region_index: int) -> EffectContext:
+	var context: EffectContext = EffectContext.new()
+	context.region = region_index
+	context.source = "%s:%s" % [SOURCE_STATUS, status_id]
+	return context
+
+
+## An ability's `applies.effects` (§9.1).
+static func for_ability(ability_id: String, region_index: int) -> EffectContext:
+	var context: EffectContext = EffectContext.new()
+	context.region = region_index
+	context.source = "%s:%s" % [SOURCE_ABILITY, ability_id]
+	return context
+
+
+## An event option's `effects` (S4.3, §10.5).
+static func for_event(event_def: String, region_index: int) -> EffectContext:
+	var context: EffectContext = EffectContext.new()
+	context.region = region_index
+	context.source = "%s:%s" % [SOURCE_EVENT, event_def]
+	return context

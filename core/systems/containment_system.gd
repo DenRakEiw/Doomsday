@@ -22,6 +22,9 @@ const DRIVER_SHARE: String = "share"
 const DRIVER_CAPACITY: String = "capacity"
 const DRIVER_BRAKES: String = "brakes"
 const DRIVER_GAIN: String = "gain"
+## The regional target a status uses to take a region's research capacity away
+## (`loop-mechanics.md` §7.5). Live from S4.2.
+const TARGET_CAPACITY: String = "containment_capacity"
 
 
 ## The daily discovery risk of §7.5, without rolling for it. The three terms are
@@ -115,6 +118,10 @@ func _grow(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 ## How much of the world's research is still alive and still its own, weighted by
 ## research tier. Every region counts towards the denominator, so a dark region
 ## does not make the survivors look more capable.
+##
+## `containment_capacity` scales the numerator only (§7.5): a region whose
+## laboratories are dark lowers the world's capacity, it does not vanish from the
+## world — which is what a denominator scaled with it would mean.
 static func _capacity(world: World, db: ContentDB) -> float:
 	var weighted: float = 0.0
 	var total: float = 0.0
@@ -123,7 +130,8 @@ static func _capacity(world: World, db: ContentDB) -> float:
 		var weight: float = db.balance.containment_research_weight_by_tier[
 			region.def.attr("research")]
 		total += weight
-		weighted += weight * (region.alive / float(region.def.population)) * (1.0 - region.control)
+		weighted += weight * world.modifiers.value(TARGET_CAPACITY, region.def) \
+			* (region.alive / float(region.def.population)) * (1.0 - region.control)
 	if total <= 0.0:
 		return 0.0
 	return weighted / total

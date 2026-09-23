@@ -35,11 +35,17 @@ func test_a_missing_file_is_one_error() -> void:
 
 
 func test_a_root_without_technology_is_valid() -> void:
-	var files: Dictionary[String, String] = Fixtures.root_files(Fixtures.raw_content())
+	var content: Dictionary = Fixtures.raw_content()
+	# An ability comes from a node, so a root with no technology has no
+	# abilities either (§9.1) — dropping only the tree would be a root whose
+	# abilities point at nothing, which is a different test.
+	(content["abilities"] as Dictionary)["abilities"] = []
+	var files: Dictionary[String, String] = Fixtures.root_files(content)
 	files.erase("tech/fixture.json")
 	var result: ContentLoadResult = ContentLoader.load_root(Fixtures.write_root("no_tech", files))
 	assert_true(result.ok(), result.error_text())
 	assert_eq(result.db.tech_nodes.size(), 0)
+	assert_eq(result.db.abilities.size(), 0)
 
 
 func test_a_top_level_of_any_other_json_type_does_not_crash() -> void:

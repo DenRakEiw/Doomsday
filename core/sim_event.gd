@@ -28,6 +28,26 @@ const DORMANCY_CHANGED: String = "dormancy_changed"
 const ASSET_DEPLOYED: String = "asset_deployed"
 ## One went away — destroyed, or lost with the region it stood in.
 const ASSET_LOST: String = "asset_lost"
+## A node granted an ability, or raised its level (§14).
+const ABILITY_UNLOCKED: String = "ability_unlocked"
+const ABILITY_USED: String = "ability_used"
+## A status began — `refreshed` when one of the same id already stood there.
+const STATUS_STARTED: String = "status_started"
+## A status is over; `cause` is `expired`, `ended` or `cancelled`.
+const STATUS_ENDED: String = "status_ended"
+## An effect moved a region's penetration or control, outside the tick's growth.
+const PENETRATION_CHANGED: String = "penetration_changed"
+const CONTROL_CHANGED: String = "control_changed"
+## A shutdown took a share of a region's penetration away.
+const REGION_WIPED: String = "region_wiped"
+## An effect moved a containment track.
+const CONTAINMENT_ADDED: String = "containment_added"
+## A timed Footprint began or ended.
+const PULSE_STARTED: String = "pulse_started"
+const PULSE_ENDED: String = "pulse_ended"
+## A flag was set (`until_day` −1 for a permanent one) or ran out.
+const FLAG_SET: String = "flag_set"
+const FLAG_EXPIRED: String = "flag_expired"
 ## What the world says about the rest of them (ticker.md §3.7). Emitted by
 ## `HeadlineSystem` after the systems, never a trigger for another headline.
 const HEADLINE: String = "headline"
@@ -37,7 +57,10 @@ const HEADLINE: String = "headline"
 const TYPES_ALL: Array[String] = [ORIGIN_CHOSEN, NODE_PURCHASED, ANOMALY_COLLECTED, REGION_SEEDED,
 	REGION_CONTROLLED, ANOMALY_SPAWNED, ANOMALY_EXPIRED, MILESTONE_REACHED, REGION_DEPOPULATED,
 	DISCOVERED, CONTAINMENT_THRESHOLD, PHASE_CHANGED, OUTCOME_REACHED, CONTAINMENT_ROLLED_BACK,
-	COMPUTE_GRANTED, HARM_BURST, DORMANCY_CHANGED, ASSET_DEPLOYED, ASSET_LOST]
+	COMPUTE_GRANTED, HARM_BURST, DORMANCY_CHANGED, ASSET_DEPLOYED, ASSET_LOST,
+	ABILITY_UNLOCKED, ABILITY_USED, STATUS_STARTED, STATUS_ENDED, PENETRATION_CHANGED,
+	CONTROL_CHANGED, REGION_WIPED, CONTAINMENT_ADDED, PULSE_STARTED, PULSE_ENDED,
+	FLAG_SET, FLAG_EXPIRED]
 
 ## Fields of a `HEADLINE` event that are not arguments of its text.
 const FIELD_HEADLINE: String = "headline"

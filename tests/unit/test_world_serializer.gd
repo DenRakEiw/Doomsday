@@ -443,3 +443,81 @@ func test_a_v2_save_with_an_asset_kind_the_content_does_not_have_is_corrupt() ->
 	(regions[0] as Dictionary)["assets"] = {"drone": 1}
 	var loaded: LoadResult = WorldSerializer.from_json(JSON.stringify(save), Fixtures.db())
 	assert_eq(loaded.reason, WorldSerializer.REASON_CORRUPT)
+
+
+# ---------------------------------------------------- S4.2: statuses and pulses
+
+
+## The save carries every running status by region **id**, and a load restores
+## its modifier source along with it (`loop-mechanics.md` §13).
+func test_a_running_status_survives_a_save_and_a_load() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	var events: Array[SimEvent] = []
+	StatusSystem.apply(sim.world, sim.db, "fx_dim", 2, Status.SOURCE_EFFECT, 2, "seed", events)
+	StatusSystem.apply(sim.world, sim.db, "fx_hush", 0, Status.SOURCE_EFFECT, 1, "", events)
+	StatusSystem.add_pulse(sim.world, 2.5, sim.world.day + 4, ["governments"] as Array[String],
+		events)
+	sim.world.agent.cooldowns["fx_zap"] = sim.world.day + 5
+	sim.world.agent.timed_flags["fx_seen"] = sim.world.day + 3
+
+	var loaded: LoadResult = WorldSerializer.from_json(WorldSerializer.to_json(sim),
+		Fixtures.db())
+	assert_true(loaded.ok(), loaded.reason)
+	var after: World = loaded.sim.world
+	assert_eq(after.statuses.size(), sim.world.statuses.size())
+
+	var dim: Status = after.status_in_region("fx_dim", 2)
+	assert_not_null(dim)
+	assert_eq(dim.level, 2)
+	assert_eq(dim.source, Status.SOURCE_EFFECT)
+	assert_eq(dim.option, "seed")
+	assert_eq(dim.until_day, sim.world.status_in_region("fx_dim", 2).until_day)
+	assert_eq(dim.closed_links, sim.world.status_in_region("fx_dim", 2).closed_links)
+	assert_true(after.has_status("fx_hush", 0), "a global status reads back as region 0")
+
+	assert_eq(after.pulses.size(), 1)
+	assert_almost_eq(after.pulses[0].value, 2.5, 1e-12)
+	assert_eq(after.pulses[0].watched_by, ["governments"] as Array[String])
+
+	assert_eq(int(after.agent.cooldowns.get("fx_zap", 0)),
+		int(sim.world.agent.cooldowns["fx_zap"]))
+	assert_eq(int(after.agent.timed_flags.get("fx_seen", 0)),
+		int(sim.world.agent.timed_flags["fx_seen"]))
+	assert_eq(loaded.sim.state_hash(), sim.state_hash(), "and the whole world is the same")
+
+
+## The stack is derived state: a load rebuilds it, statuses and pulses included.
+func test_a_loaded_status_is_active_in_the_modifier_stack_again() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	var events: Array[SimEvent] = []
+	StatusSystem.apply(sim.world, sim.db, "fx_dim", 2, Status.SOURCE_EFFECT, 1, "", events)
+	StatusSystem.add_pulse(sim.world, 2.0, sim.world.day + 4, [] as Array[String], events)
+	StatusSystem.set_timed_flag(sim.world, "fx_seen", sim.world.day + 3, events)
+
+	var loaded: LoadResult = WorldSerializer.from_json(WorldSerializer.to_json(sim),
+		Fixtures.db())
+	assert_true(loaded.ok(), loaded.reason)
+	assert_almost_eq(loaded.sim.stat("yield", 2), 0.5, 1e-9)
+	assert_almost_eq(loaded.sim.stat("yield", 1), 1.0, 1e-9)
+	assert_almost_eq(loaded.sim.world.footprint(), sim.world.footprint(), 1e-9)
+	assert_true(loaded.sim.world.modifiers.has_flag("fx_seen"))
+
+
+func test_a_status_block_that_is_not_a_block_is_corrupt() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	for broken: Variant in [3, [3], [{"id": "fx_dim"}]]:
+		var save: Dictionary = _parse(WorldSerializer.to_json(sim))
+		(save["world"] as Dictionary)["statuses"] = broken
+		assert_eq(_load(save).reason, WorldSerializer.REASON_CORRUPT, str(broken))
+
+
+## §13: a status naming a region the content does not have is a content problem,
+## not a corrupt file — the save reader says which.
+func test_a_status_in_a_region_the_content_lost_is_content_missing() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	var events: Array[SimEvent] = []
+	StatusSystem.apply(sim.world, sim.db, "fx_dim", 2, Status.SOURCE_EFFECT, 1, "", events)
+	var save: Dictionary = _parse(WorldSerializer.to_json(sim))
+	var statuses: Array = (save["world"] as Dictionary)["statuses"]
+	(statuses[0] as Dictionary)["region"] = "fx_nowhere"
+	assert_eq(_load(save).reason, WorldSerializer.REASON_CORRUPT)

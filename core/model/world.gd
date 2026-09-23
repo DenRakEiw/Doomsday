@@ -42,12 +42,14 @@ var history: Array[HistorySample] = []
 ## How long the world has been starving. Saved from v2 on; nothing reads it
 ## before S4.5 (D4.2 §3.2).
 var starving_days: int = 0
-## The records of S4.2 and S4.3, in the save from v2 on. Until those steps they
-## are always empty; keeping them here is what lets S4.1 write and read a v2
-## file that S4.2 does not have to migrate again (§13).
-var statuses: Array = []
-var pulses: Array = []
+## Every status running right now, in application order (§3.2).
+var statuses: Array[Status] = []
+## Every timed Footprint running right now, in creation order.
+var pulses: Array[Pulse] = []
 var next_pulse_id: int = 1
+## The records of S4.3, in the save from v2 on. Until that step they are always
+## empty; keeping them here is what lets S4.1 write and read a v2 file that
+## S4.3 does not have to migrate again (§13).
 var events: Array = []
 var pending_events: Array = []
 var next_event_id: int = 1
@@ -137,12 +139,52 @@ func asset_total(kind: String) -> int:
 	return total
 
 
+## The status of this id running in the region, or null. Region 0 is the agent.
+## At most one of an id ever stands in one region (§7.2).
+func status_in_region(status_id: String, region_index: int) -> Status:
+	for status: Status in statuses:
+		if status.id == status_id and status.region == region_index:
+			return status
+	return null
+
+
 ## Whether a status of this id is running in the region — region 0 is the agent.
-## `statuses` arrives with S4.2; until then nothing is ever running, and the
-## eligibility grammar can already ask the question.
-@warning_ignore("unused_parameter")
 func has_status(status_id: String, region_index: int) -> bool:
+	return status_in_region(status_id, region_index) != null
+
+
+## Every status running in one region, in application order. Region 0 gives the
+## agent's own.
+func statuses_in_region(region_index: int) -> Array[Status]:
+	var out: Array[Status] = []
+	for status: Status in statuses:
+		if status.region == region_index:
+			out.append(status)
+	return out
+
+
+## Every region a status of this id is running in, in application order.
+func statuses_of(status_id: String) -> Array[Status]:
+	var out: Array[Status] = []
+	for status: Status in statuses:
+		if status.id == status_id:
+			out.append(status)
+	return out
+
+
+## Whether any running status is holding this link closed. A link reopens only
+## once the last of them is gone (§7.4).
+func link_held_closed(link_id: String) -> bool:
+	for status: Status in statuses:
+		if status.closed_links.has(link_id):
+			return true
 	return false
+
+
+## Whether a timed flag is set on `day` — `set_flag` with a `days` (§8.2). A
+## story flag is `Agent.has_story_flag`; the modifier flags are the stack's.
+func has_timed_flag(flag: String, day: int) -> bool:
+	return agent.timed_flags.has(flag) and agent.timed_flags[flag] > day
 
 
 func seeded_count() -> int:
@@ -257,6 +299,17 @@ func to_dict() -> Dictionary:
 	for sample: HistorySample in history:
 		history_list.append(sample.to_dict())
 
+	# A status names its region by id like everything else in a save; the agent's
+	# own statuses carry "" for region 0 (§3.6).
+	var status_list: Array = []
+	for status: Status in statuses:
+		status_list.append(status.to_dict(
+			"" if status.region == 0 else regions[status.region].def.id))
+
+	var pulse_list: Array = []
+	for pulse: Pulse in pulses:
+		pulse_list.append(pulse.to_dict())
+
 	return {
 		"day": day,
 		"origin_day": origin_day,
@@ -283,11 +336,10 @@ func to_dict() -> Dictionary:
 		"milestones_fired": milestones_fired.duplicate(),
 		"history": history_list,
 		"starving_days": starving_days,
-		# The status, pulse and event blocks of save v2. S4.1 writes them empty
-		# and reads them back; S4.2 and S4.3 fill them with the records they add
-		# (`loop-mechanics.md` §13).
-		"statuses": statuses.duplicate(),
-		"pulses": pulses.duplicate(),
+		# The status, pulse and event blocks of save v2. S4.3 still writes its
+		# own two empty (`loop-mechanics.md` §13).
+		"statuses": status_list,
+		"pulses": pulse_list,
 		"next_pulse_id": next_pulse_id,
 		"events": events.duplicate(),
 		"pending_events": pending_events.duplicate(),
@@ -348,10 +400,8 @@ static func from_dict(d: Dictionary, db: ContentDB) -> World:
 	world.starving_days = int(d["starving_days"])
 	world.next_pulse_id = int(d["next_pulse_id"])
 	world.next_event_id = int(d["next_event_id"])
-	# The records themselves are S4.2's and S4.3's; until then the lists are
-	# always empty and are carried through as they were written.
-	world.statuses = (d["statuses"] as Array).duplicate()
-	world.pulses = (d["pulses"] as Array).duplicate()
+	# The event records are S4.3's; until then the lists are always empty and are
+	# carried through as they were written.
 	world.events = (d["events"] as Array).duplicate()
 	world.pending_events = (d["pending_events"] as Array).duplicate()
 	if not _read_counts(world.event_fires, d["event_fires"]) \
@@ -361,6 +411,13 @@ static func from_dict(d: Dictionary, db: ContentDB) -> World:
 	if not _read_regions(world, d["regions"], db):
 		return null
 	if not _read_links(world, d["closed_links"], db):
+		return null
+	# After the regions: a status names its region by id, and the map from id to
+	# index is the content's, but a region out of range would still index a list
+	# that is only built above.
+	if not _read_statuses(world, d["statuses"], db):
+		return null
+	if not _read_pulses(world, d["pulses"]):
 		return null
 	if not _read_agent(world, d["agent"], db):
 		return null
@@ -451,6 +508,62 @@ static func _read_regions(world: World, raw: Variant, db: ContentDB) -> bool:
 				return false
 			region.assets[str(kind)] = int(count)
 		world.regions[i + 1] = region
+	return true
+
+
+## The running statuses of a save (§13). A status naming a region the content
+## does not have is a content problem and was refused before this point; here
+## anything ill-typed is simply a corrupt file.
+static func _read_statuses(world: World, raw: Variant, db: ContentDB) -> bool:
+	var list: Array = raw
+	for entry: Variant in list:
+		if typeof(entry) != TYPE_DICTIONARY:
+			return false
+		var d: Dictionary = entry
+		if not _str(d, "id") or not _str(d, "region") or not _str(d, "source") \
+				or not _str(d, "option"):
+			return false
+		if not _num(d, "level") or not _num(d, "started_day") or not _num(d, "until_day"):
+			return false
+		if not _arr(d, "closed_links"):
+			return false
+		var status: Status = Status.new()
+		status.id = str(d["id"])
+		var region_id: String = str(d["region"])
+		if region_id.is_empty():
+			status.region = 0
+		elif db.region_index_by_id.has(region_id):
+			status.region = db.region_index_by_id[region_id]
+		else:
+			return false
+		status.source = str(d["source"])
+		status.level = int(d["level"])
+		status.started_day = int(d["started_day"])
+		status.until_day = int(d["until_day"])
+		status.option = str(d["option"])
+		if not _read_strings(status.closed_links, d["closed_links"]):
+			return false
+		world.statuses.append(status)
+	return true
+
+
+static func _read_pulses(world: World, raw: Variant) -> bool:
+	var list: Array = raw
+	for entry: Variant in list:
+		if typeof(entry) != TYPE_DICTIONARY:
+			return false
+		var d: Dictionary = entry
+		if not _num(d, "index") or not _real(d, "value") or not _num(d, "until_day"):
+			return false
+		if not _arr(d, "watched_by"):
+			return false
+		var pulse: Pulse = Pulse.new()
+		pulse.index = int(d["index"])
+		pulse.value = FloatBits.from_variant(d["value"])
+		pulse.until_day = int(d["until_day"])
+		if not _read_strings(pulse.watched_by, d["watched_by"]):
+			return false
+		world.pulses.append(pulse)
 	return true
 
 
@@ -656,6 +769,8 @@ func check_invariants(db: ContentDB = null) -> Array[String]:
 		if not LinkDef.KINDS.has(kind):
 			problems.append("seeds_by_kind names the unknown link kind %s" % kind)
 
+	problems.append_array(_status_problems(db))
+
 	var seen_regions: Dictionary[int, bool] = {}
 	for anomaly: Anomaly in anomalies:
 		if seen_regions.has(anomaly.region):
@@ -675,6 +790,48 @@ func check_invariants(db: ContentDB = null) -> Array[String]:
 		if phase < required:
 			problems.append("phase is %s but should be at least %s"
 				% [PHASE_IDS[phase], PHASE_IDS[required]])
+	return problems
+
+
+## Everything that must never be true of the running statuses, pulses, cooldowns
+## and timed flags (§3.5). A day one tick in the past is normal: the tick that
+## expires them runs after everything else that day.
+func _status_problems(db: ContentDB) -> Array[String]:
+	var problems: Array[String] = []
+	var seen: Dictionary[String, bool] = {}
+	for status: Status in statuses:
+		var where: String = "status %s" % status.id
+		if status.region < 0 or status.region >= regions.size():
+			problems.append("%s: region %d does not exist" % [where, status.region])
+			continue
+		if status.region > 0 and regions[status.region].dark:
+			problems.append("%s: in the dark region %s"
+				% [where, regions[status.region].def.id])
+		if not status.is_standing() and status.until_day <= status.started_day:
+			problems.append("%s: ends on day %d, which is not after day %d"
+				% [where, status.until_day, status.started_day])
+		var key: String = "%s|%d" % [status.id, status.region]
+		if seen.has(key):
+			problems.append("%s: running twice in one region" % where)
+		seen[key] = true
+		if db == null:
+			continue
+		var definition: StatusDef = db.status(status.id)
+		if definition == null:
+			problems.append("%s: unknown to the content" % where)
+		elif status.level < 1 or status.level > definition.levels.size():
+			problems.append("%s: level %d is outside its %d levels"
+				% [where, status.level, definition.levels.size()])
+	for pulse: Pulse in pulses:
+		if pulse.until_day < day - 1:
+			problems.append("pulse %d expired on day %d" % [pulse.index, pulse.until_day])
+	for ability_id: String in agent.cooldowns:
+		if agent.cooldowns[ability_id] < day - 1:
+			problems.append("cooldown %s cleared on day %d"
+				% [ability_id, agent.cooldowns[ability_id]])
+	for flag: String in agent.timed_flags:
+		if agent.timed_flags[flag] < day - 1:
+			problems.append("timed flag %s expired on day %d" % [flag, agent.timed_flags[flag]])
 	return problems
 
 

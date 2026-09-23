@@ -18,16 +18,56 @@ const TEMP_ROOT: String = "user://test_content"
 
 const REGION_COUNT: int = 6
 const LINK_COUNT: int = 7
-const TECH_NODE_COUNT: int = 18
+const TECH_NODE_COUNT: int = 23
+const STATUS_COUNT: int = 4
+const ABILITY_COUNT: int = 4
 ## The fixture nodes a dormancy test needs, in purchase order.
 const DORMANCY_NODES: Array[String] = ["fx_quiet", "fx_hold"]
 ## The fixture's deploying nodes and the group the two vectors share (S4.1).
 const DEPLOY_FLEET_NODE: String = "fx_fleet"
 const DEPLOY_LAB_NODE: String = "fx_lab"
 const VECTOR_GROUP: String = "fx_vectors"
+## The fixture's abilities and the nodes that grant them, in level order (S4.2).
+const ZAP_ABILITY: String = "fx_zap"
+const ZAP_NODES: Array[String] = ["fx_zap_1", "fx_zap_2"]
+const ZAP_STATUS: String = "fx_dim"
+const REAP_ABILITY: String = "fx_reap"
+const REAP_NODES: Array[String] = ["fx_reap"]
+const REAP_STATUS: String = "fx_reaped"
+const FORGE_ABILITY: String = "fx_forge"
+const FORGE_NODES: Array[String] = ["fx_fleet", "fx_forge"]
+const HUSH_ABILITY: String = "fx_hush"
+const HUSH_NODES: Array[String] = ["fx_hushbox"]
+const HUSH_STATUS: String = "fx_hush"
+## The world's own status, which no ability applies.
+const WORLD_STATUS: String = "fx_lock"
 
 ## Loaded once: the database is immutable, so every test may share it.
 static var _db: ContentDB = null
+
+
+## Buys the nodes an ability comes from and uses it, asserting both. Returns the
+## command's result so that a test can assert on the events it produced.
+static func use(simulation: Simulation, ability: String, region_id: String = "",
+		nodes: Array[String] = []) -> CommandResult:
+	if simulation.ability_level(ability) == 0 and not nodes.is_empty():
+		grant(simulation, 100.0)
+		buy(simulation, nodes)
+	var result: CommandResult = simulation.apply(UseAbilityCommand.new(ability, region_id))
+	assert(result.ok, "using %s must be accepted: %s" % [ability, result.reason])
+	return result
+
+
+## A run with one status already running, written straight into the world — the
+## situation a test wants, without the ability that would produce it.
+static func sim_with_status(status_id: String, region_id: String = "fx_alder",
+		level: int = 1, seed_value: int = 1) -> Simulation:
+	var simulation: Simulation = sim_with_origin("fx_alder", seed_value)
+	var index: int = int(simulation.db.region_index_by_id.get(region_id, 0))
+	var events: Array[SimEvent] = []
+	StatusSystem.apply(simulation.world, simulation.db, status_id, index,
+		Status.SOURCE_EFFECT, level, "", events)
+	return simulation
 
 
 ## The fixture world, loaded and asserted to be clean.
@@ -188,6 +228,8 @@ static func raw_content() -> Dictionary:
 		"regions": read_json(WORLD_SMALL.path_join("world/regions.json")),
 		"links": read_json(WORLD_SMALL.path_join("world/links.json")),
 		"assets": read_json(WORLD_SMALL.path_join("assets.json")),
+		"statuses": read_json(WORLD_SMALL.path_join("statuses.json")),
+		"abilities": read_json(WORLD_SMALL.path_join("abilities.json")),
 		"tech": [read_json(WORLD_SMALL.path_join("tech/fixture.json"))],
 		"headlines": read_json(WORLD_SMALL.path_join("headlines.json")),
 	}
@@ -199,7 +241,8 @@ static func load_raw(content: Dictionary) -> ContentLoadResult:
 	for entry: Variant in content["tech"]:
 		tech.append(entry)
 	return ContentLoader.load_from_dicts(content["balance"], content["regions"], content["links"],
-		content["assets"], tech, content["headlines"])
+		content["assets"], content["statuses"], content["abilities"], tech,
+		content["headlines"])
 
 
 ## The four files of a content root as text, so that a test can write a root that
@@ -214,6 +257,8 @@ static func root_files(content: Dictionary, indent: String = "\t") -> Dictionary
 		"world/regions.json": JSON.stringify(content["regions"], indent, true, true),
 		"world/links.json": JSON.stringify(content["links"], indent, true, true),
 		"assets.json": JSON.stringify(content["assets"], indent, true, true),
+		"statuses.json": JSON.stringify(content["statuses"], indent, true, true),
+		"abilities.json": JSON.stringify(content["abilities"], indent, true, true),
 		"tech/fixture.json": JSON.stringify(tech[0], indent, true, true),
 		"headlines.json": JSON.stringify(content["headlines"], indent, true, true),
 	}

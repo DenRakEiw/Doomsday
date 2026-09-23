@@ -1,0 +1,79 @@
+{
+	"_comment": "Fixture statuses. Four conditions that between them exercise every rule of the status system; not game content. Described in docs/specs/loop-mechanics.md section 22. fx_dim has two levels and closes the sea links, fx_reaped carries an on_start and an on_end effect, fx_lock is the world's and draws a border, fx_hush is the global one an ability puts on the agent.",
+	"version": 1,
+	"statuses": [
+		{
+			"id": "fx_dim",
+			"origin": "player",
+			"watched_by": ["governments"],
+			"levels": [
+				{
+					"days": 5,
+					"closes_links": ["sea"],
+					"modifiers": [
+						{"target": "yield", "op": "mul", "value": 0.5},
+						{"target": "footprint", "op": "add", "value": 2.0}
+					]
+				},
+				{
+					"days": 10,
+					"closes_links": ["sea"],
+					"modifiers": [
+						{"target": "yield", "op": "mul", "value": 0.5},
+						{"target": "footprint", "op": "add", "value": 4.0}
+					],
+					"on_start": [
+						{"effect": "spread_status", "status": "fx_dim", "level": 1, "days": 3}
+					]
+				}
+			]
+		},
+		{
+			"id": "fx_reaped",
+			"origin": "player",
+			"levels": [
+				{
+					"days": 6,
+					"modifiers": [
+						{"target": "yield", "op": "mul", "value": 0.0}
+					],
+					"on_start": [
+						{"effect": "compute_grant", "value": 2.0, "per_hardware": true}
+					],
+					"on_end": [
+						{"effect": "footprint_pulse", "value": 1.0, "days": 2}
+					]
+				}
+			]
+		},
+		{
+			"id": "fx_lock",
+			"origin": "world",
+			"border": true,
+			"blocks": ["fx_lock"],
+			"levels": [
+				{
+					"days": 8,
+					"closes_links": ["all"],
+					"ends_statuses": ["fx_dim"],
+					"modifiers": [
+						{"target": "penetration_decay", "op": "add", "value": 0.1}
+					]
+				}
+			]
+		},
+		{
+			"id": "fx_hush",
+			"origin": "player",
+			"levels": [
+				{
+					"days": 4,
+					"modifiers": [
+						{"target": "spread_growth", "op": "mul", "value": 0.5},
+						{"target": "footprint", "op": "add", "value": -2.0}
+					]
+				}
+			]
+		}
+	]
+}

@@ -1,6 +1,7 @@
 extends GutTest
-## S4.1 — `EffectRunner` (`docs/specs/loop-mechanics.md` §8). The four one-shots
-## of S3.1 keep their results and gain a `source`; the two asset effects are new.
+## S4.1 / S4.2 — `EffectRunner` (`docs/specs/loop-mechanics.md` §8). The four
+## one-shots of S3.1 keep their results and gain a `source`; the two asset
+## effects are S4.1's, and the ten below them went live with the statuses.
 
 const ORIGIN: int = 1
 const NEIGHBOUR: int = 2
@@ -129,13 +130,15 @@ func test_a_region_going_dark_loses_what_it_held() -> void:
 		"and the stack heard about it")
 
 
-## The effects the status machinery carries out land with S4.2; until then they
-## load and validate and do nothing, rather than doing something half-right.
-func test_the_pending_effects_are_carried_out_by_nobody_yet() -> void:
+## S4.2 emptied the list: every effect but `funding_reset` is live now.
+func test_nothing_is_pending_any_more() -> void:
+	assert_eq(EffectDef.PENDING_EFFECTS.size(), 0)
+
+
+## §20 item 9: it validates, it loads, and D4.2's system is what will run it.
+func test_funding_reset_does_nothing_and_says_nothing() -> void:
 	var before: String = sim.state_hash()
-	for id: String in EffectDef.PENDING_EFFECTS:
-		EffectRunner.apply(sim, _effect({"effect": id, "status": "fx_dim", "ids": [],
-			"value": 0.5, "days": 1, "flag": "fx_seen"}), _context(ORIGIN), events)
+	_apply({"effect": EffectDef.FUNDING_RESET, "value": 0.5})
 	assert_eq(sim.state_hash(), before)
 	assert_eq(events.size(), 0)
 

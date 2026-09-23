@@ -5,11 +5,11 @@ changes a loader, a format or the vocabulary changes this file in the same commi
 `SchemaValidator` enforces everything stated here; where this file and the validator disagree, that
 is a bug in one of them.
 
-Version: **v3** (D1.1 — regions, links, technology nodes, balance; D3.1 — the node grid, the
+Version: **v4** (D1.1 — regions, links, technology nodes, balance; D3.1 — the node grid, the
 factions that watch a node, one-shot effects, the targets and flags of the three trees; D3.4 —
 `headlines.json` and the `headlines` balance section; D4.1 — `assets.json`, the `asset` scope, the
-eligibility grammar, the effect vocabulary as one list, and the tree v3 fields). Later specs add
-sections.
+eligibility grammar, the effect vocabulary as one list, the tree v3 fields, and — written up here
+at S4.2 — `statuses.json` and `abilities.json`). Later specs add sections.
 
 ## 1. General rules
 
@@ -32,6 +32,8 @@ Layout of a content root (`res://data` or a test fixture directory — both have
 <root>/world/regions.json
 <root>/world/links.json
 <root>/assets.json
+<root>/statuses.json
+<root>/abilities.json
 <root>/tech/*.json          every file, in ascending file-name order
 <root>/headlines.json
 ```
@@ -184,19 +186,19 @@ lists the inert ones in `INERT_TARGETS`, and a system's spec deletes its row fro
 | --- | --- | --- | --- | --- | --- |
 | `hardware` | regional | 0 | 0…10 | live | hardware the agent brings to the region; added to the region's hardware in the **yield** sum only, never to `infected_share` |
 | `node_cost_infiltration` `node_cost_capabilities` `node_cost_evasion` | global | 1 | 0.1…10 | live | multiplier on the cost of that tree's nodes, on top of `node_cost` |
-| `shutdown_survival` | regional | 0 | 0…1 | `counter_actions` (S4.3) | share of penetration the region keeps when a shutdown hits it |
+| `shutdown_survival` | regional | 0 | 0…1 | live | share of penetration the region keeps when a shutdown hits it |
 | `emergent_rate` | global | 1 | 0…20 | `emergent` (S4.4) | multiplier on the daily chance of an emergent behaviour |
 | `containment_ai_labs` `containment_governments` `containment_researchers` `containment_public` | global | 1 | 0…20 | `factions` (S4.1) | multiplier on that faction's containment gain, after `containment_growth`. The unified M1–M3 track ignores them |
-| `society_pressure` | regional | 0 | 0…100 | `society` (S4.2) | daily pressure on Societal Function in the region |
+| `society_pressure` | regional | 0 | 0…100 | `society` (S4.5) | daily pressure on Societal Function in the region |
 
 **Targets v3** (D4.1 §7.5). The three the status system reads; the steps in the *System* column
 are the ones that make them live.
 
 | Target | Kind | Base | Clamp | System | Meaning |
 | --- | --- | --- | --- | --- | --- |
-| `containment_capacity` | regional | 1 | 0…20 | `statuses` (S4.2) | multiplier on the region's weight in the containment numerator; the denominator keeps the plain tier weight |
-| `penetration_decay` | regional | 0 | 0…1 | `statuses` (S4.2) | share of penetration the region loses each day, reduced by `shutdown_survival` |
-| `control_decay` | regional | 0 | 0…1 | `statuses` (S4.2) | control lost each day, before the day's gain |
+| `containment_capacity` | regional | 1 | 0…20 | live | multiplier on the region's weight in the containment numerator; the denominator keeps the plain tier weight |
+| `penetration_decay` | regional | 0 | 0…1 | live | share of penetration the region loses each day, reduced by `shutdown_survival` |
+| `control_decay` | regional | 0 | 0…1 | live | control lost each day, before the day's gain |
 
 An `add` may be negative — the clamp decides what comes of it; only a `mul` of 0 or less is an
 error.
@@ -227,7 +229,7 @@ Boolean unlocks that a source grants while it is active.
 | --- | --- | --- |
 | `breakout` | live | ends the Boxed phase: seeding across links becomes possible |
 | `dormancy` | live | unlocks `set_dormancy` (§4.5) |
-| `compute_independent` | `autophagy` (S4.2) | the agent no longer starves when the infrastructure it runs on collapses |
+| `compute_independent` | `autophagy` (S4.5) | the agent no longer starves when the infrastructure it runs on collapses |
 | `legal_standing` | `endings` (S5.6) | reserved |
 | `merge_path` | `endings` (S5.6) | reserved: opens the Merge ending |
 
@@ -253,16 +255,16 @@ region it deployed into and in no other.
 | `funding_reset` | `value` (0, 1] | | `factions` (S4.4) | burns that share of every faction's preparation. Inert: accepted, no effect |
 | `destroy_assets` | `kind`, `count` ≥ 0 | R | live | removes `min(count, held)` of the kind; 0 means every one held |
 | `grant_assets` | `kind`, `count` ≥ 1 | R | live | the mirror: the region gains that many |
-| `seed_neighbours` | `count` ≥ 1 | R | `events` (S4.2) | seeds the best uninfected neighbours over open links |
-| `penetration_mul` | `value` ≥ 0 | R | `statuses` (S4.2) | `penetration ← penetration × value` |
-| `control_add` | `value` | R | `statuses` (S4.2) | `control ← clamp(control + value, 0, 1)` |
-| `spread_status` | `status`, `level`?, `days`? | R | `statuses` (S4.2) | applies the status to every neighbour over an open link |
-| `end_statuses` | `ids`, `global`? | R | `statuses` (S4.2) | ends every listed status in the region |
-| `apply_status` | `status`, `level`?, `days`?, `global`? | | `statuses` (S4.2) | applies it in the context's region, or on the agent when `global` |
-| `wipe` | `value` [0, 1] | R | `statuses` (S4.2) | a shutdown: `penetration ← penetration × (value + shutdown_survival)` |
-| `containment_add` | `faction`, `value` | | `statuses` (S4.2) | adds to one faction's containment, or to every one with `"all"` |
-| `footprint_pulse` | `value`, `days` ≥ 1, `watched_by`? | | `statuses` (S4.2) | a timed Footprint bump with no status behind it |
-| `set_flag` | `flag`, `days` ≥ 1 (0 = permanent) | | `statuses` (S4.2) | a timed flag, or a story flag that never expires |
+| `seed_neighbours` | `count` ≥ 1 | R | live | seeds the best uninfected neighbours over open links |
+| `penetration_mul` | `value` ≥ 0 | R | live | `penetration ← penetration × value` |
+| `control_add` | `value` | R | live | `control ← clamp(control + value, 0, 1)` |
+| `spread_status` | `status`, `level`?, `days`? | R | live | applies the status to every neighbour over an open link |
+| `end_statuses` | `ids`, `global`? | R | live | ends every listed status in the region |
+| `apply_status` | `status`, `level`?, `days`?, `global`? | | live | applies it in the context's region, or on the agent when `global` |
+| `wipe` | `value` [0, 1] | R | live | a shutdown: `penetration ← penetration × (value + shutdown_survival)` |
+| `containment_add` | `faction`, `value` | | live | adds to one faction's containment, or to every one with `"all"` |
+| `footprint_pulse` | `value`, `days` ≥ 1, `watched_by`? | | live | a timed Footprint bump with no status behind it |
+| `set_flag` | `flag`, `days` ≥ 1 (0 = permanent) | | live | a timed flag, or a story flag that never expires |
 
 A field an effect does not take is an unknown field and therefore an error. A `flag` that collides
 with a §4.3 modifier flag is an error.
@@ -336,6 +338,80 @@ stands (D4.1 §6). Required; exactly the four kinds, each once.
 
 The sources are always active — an asset-scoped modifier matches nothing until a region holds one,
 so "active while the agent has at least one" needs no bookkeeping.
+
+## 6a. `statuses.json`
+
+Every timed condition a region or the agent can be under (D4.1 §7.1). Required from S4.2 on.
+A status is the only timed thing in the game: the player's abilities apply them, the world's
+counter-moves apply them, an event's option applies them.
+
+```json
+{"version": 1, "statuses": [
+	{"id": "blackout", "origin": "player", "watched_by": ["governments"],
+	 "levels": [
+		{"days": 20,
+		 "modifiers": [{"target": "yield", "op": "mul", "value": 0.5}],
+		 "closes_links": ["sea"],
+		 "ends_statuses": ["quiet"],
+		 "on_start": [{"effect": "spread_status", "status": "blackout", "level": 1, "days": 10}],
+		 "on_end": []}
+	 ]}
+]}
+```
+
+| Field | Type | Required | Rule |
+| --- | --- | --- | --- |
+| `id` | id | yes | unique |
+| `origin` | string | yes | `player` or `world`. What the content *means*; which colour a running status takes is read off the **source** it was applied with, so a chain may hand a world status to a region with no faction behind it |
+| `levels` | [level] | yes | at least one; level *n* is `levels[n − 1]` |
+| `watched_by` | [faction id] | no (`[]`) | as on a node |
+| `border` | bool | no (`false`) | draw the region's border in the status colour |
+| `blocks` | [status id] | no (`[]`) | status ids the world's moves skip in the region (read from S4.5) |
+| `cancellable` | bool | no (`false`) | reserved for the region panel's *Cancel*; no status has it |
+
+A level:
+
+| Field | Type | Required | Rule |
+| --- | --- | --- | --- |
+| `days` | int ≥ 0 | yes | how long it runs. **0 means standing**: it never expires by itself and only something that ends it can (D4.4) |
+| `modifiers` | [modifier] | no (`[]`) | **no scope** — a regional target is scoped to the region when the status is applied, and a status on the agent scopes nothing, which is how a global `spread_growth ×0.5` reaches every region. Unlike a node's, a `mul` of **0** is allowed here: "no capacity at all" is a thing a status says, and the clamp's floor is 0 |
+| `on_start` / `on_end` | [effect] | no (`[]`) | §4.4. `on_end` runs **only** on expiry: a status cut short never had its consequence come to pass |
+| `closes_links` | [link kind] | no (`[]`) | kinds of the region's links this level closes, or `["all"]` alone. A link stays closed until the last status holding it is gone |
+| `ends_statuses` | [status id] | no (`[]`) | ended in the same region, first, when this level starts |
+
+Strings per status: `STATUS_<ID>_NAME` · `_DETAIL` · `_CODE` (the two or three capitals the ring
+carries), each in `en` and `de`.
+
+## 6b. `abilities.json`
+
+The player's verbs (D4.1 §9.1). Required from S4.2 on. An ability is bought once as a technology
+node and used again and again: it costs Compute, it has a cooldown, and it applies exactly one of
+three things.
+
+```json
+{"version": 1, "abilities": [
+	{"id": "blackout", "target": "region", "cost": 6, "cooldown_days": 45,
+	 "eligible": {"infected": true, "status_absent": ["blackout"]},
+	 "applies": {"status": "blackout"},
+	 "levels_from": ["regional_blackout", "cascading_grid_failure"]}
+]}
+```
+
+| Field | Type | Required | Rule |
+| --- | --- | --- | --- |
+| `id` | id | yes | unique |
+| `target` | string | yes | `region` or `global` |
+| `cost` | number ≥ 0 | yes | Compute, paid on use |
+| `cooldown_days` | int ≥ 0 | yes | 0 leaves no cooldown behind at all |
+| `eligible` | eligibility | no (`{}`) | §7. A `region` ability only; on a `global` one it is an error |
+| `applies` | object | yes | **exactly one** of `status` (a status id), `deploy` (`{"kind", "count" ≥ 1}`; a `region` ability only) or `effects` (§4.4) |
+| `levels_from` | [node id] | yes | one node per level, in level order. Each names this ability back through its own `ability` field (§4), at its own position; and from the second on, each must `require` the one before it, or its level could never be reached |
+| `level_cap` | int ≥ 1 | no | the highest status level this ability applies. Without it the status must have at least `levels_from.size()` levels |
+
+The level a run has reached is how many **leading** entries of `levels_from` are owned — which is
+why the prerequisite rule above is enforced rather than assumed.
+
+Strings per ability: `ABILITY_<ID>_NAME` · `_DETAIL`, each in `en` and `de`.
 
 ## 7. Eligibility
 
@@ -426,6 +502,10 @@ from content ids so that data files never carry text:
 | region `fx_alder` | `REGION_FX_ALDER` |
 | continent `europe` | `CONTINENT_EUROPE` |
 | tech node `cloud_federation` | `TECH_CLOUD_FEDERATION_NAME` · `…_EFFECT` · `…_FLAVOUR` — all three required, in `en` **and** `de`, for every shipped node |
+| asset kind `fleet` | `ASSET_FLEET_NAME` · `…_PLURAL` |
+| status `blackout` | `STATUS_BLACKOUT_NAME` · `…_DETAIL` · `…_CODE` — all three required, in both languages |
+| ability `blackout` | `ABILITY_BLACKOUT_NAME` · `…_DETAIL` — both required, in both languages |
+| exclusive group `vectors` | `GROUP_VECTORS` |
 | headline `seed_first` | `HEADLINE_SEED_FIRST` — required, in `en` **and** `de`, for every shipped headline |
 | command failure `insufficient_compute` | `CMD_FAIL_INSUFFICIENT_COMPUTE` |
 | interface text | `UI_<SCREEN>_<ELEMENT>` |

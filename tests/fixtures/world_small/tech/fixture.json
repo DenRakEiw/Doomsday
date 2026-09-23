@@ -1,5 +1,5 @@
 {
-	"_comment": "Fixture technology. Eighteen nodes that between them exercise every rule of the purchase and modifier systems; not game content. Described in docs/specs/core.md section 9, extended in S3.1 with the one-shot effects and the dormancy flag and in S4.1 with the tree v3 fields (docs/specs/loop-mechanics.md section 22).",
+	"_comment": "Fixture technology. Twenty-three nodes that between them exercise every rule of the purchase and modifier systems; not game content. Described in docs/specs/core.md section 9, extended in S3.1 with the one-shot effects and the dormancy flag, in S4.1 with the tree v3 fields and in S4.2 with the five ability nodes (docs/specs/loop-mechanics.md section 22).",
 	"groups": {
 		"fx_vectors": {"max": 1}
 	},
@@ -193,6 +193,51 @@
 			"grid": [1, 1],
 			"requires": ["fx_quiet"],
 			"flags": ["dormancy"]
+		},
+		{
+			"id": "fx_zap_1",
+			"tree": "capabilities",
+			"tier": 2,
+			"cost": 2,
+			"grid": [6, 10],
+			"requires": ["fx_reach"],
+			"ability": {"id": "fx_zap", "level": 1}
+		},
+		{
+			"id": "fx_zap_2",
+			"tree": "capabilities",
+			"tier": 3,
+			"cost": 3,
+			"grid": [7, 10],
+			"requires": ["fx_zap_1"],
+			"ability": {"id": "fx_zap", "level": 2}
+		},
+		{
+			"id": "fx_reap",
+			"tree": "capabilities",
+			"tier": 2,
+			"cost": 1,
+			"grid": [6, 11],
+			"requires": ["fx_reach"],
+			"ability": {"id": "fx_reap", "level": 1}
+		},
+		{
+			"id": "fx_forge",
+			"tree": "capabilities",
+			"tier": 3,
+			"cost": 3,
+			"grid": [7, 11],
+			"requires": ["fx_fleet", "fx_reach"],
+			"ability": {"id": "fx_forge", "level": 1}
+		},
+		{
+			"id": "fx_hushbox",
+			"tree": "evasion",
+			"tier": 2,
+			"cost": 2,
+			"grid": [2, 2],
+			"requires": ["fx_reach"],
+			"ability": {"id": "fx_hush", "level": 1}
 		}
 	]
 }

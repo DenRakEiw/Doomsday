@@ -1281,6 +1281,9 @@ CMD_FAIL_SITE_INELIGIBLE,Not here.,Hier nicht.
 CMD_FAIL_GROUP_FULL,{group}: {owned} of {max} taken.,{group}: {owned} von {max} belegt.
 CMD_FAIL_EXCLUDED_BY,Closed by {node}.,Durch {node} verschlossen.
 CMD_FAIL_MISSING_ASSETS,Needs {count} × {kind}.,Braucht {count} × {kind}.
+CMD_FAIL_UNKNOWN_ABILITY,No such ability.,Keine solche Fähigkeit.
+CMD_FAIL_ABILITY_LOCKED,Not yet yours.,Noch nicht deins.
+CMD_FAIL_ABILITY_COOLDOWN,Ready on day {day}.,Bereit an Tag {day}.
 UI_ELIGIBLE_NOT_INFECTED,You are not here yet.,Hier bist du noch nicht.
 UI_ELIGIBLE_DARK,Nothing left here.,Hier ist nichts mehr.
 UI_ELIGIBLE_DORMANT,Held. Wake it first.,Gehalten. Weck sie zuerst.
@@ -1317,8 +1320,38 @@ UI_SITE_USE,Use here,Hier einsetzen
 UI_HUD_ASSETS,Assets,Bestand
 UI_HUD_ASSETS_TIP,"What you have on the ground, by kind.","Was du vor Ort hast, nach Art."
 UI_MAP_ASSETS_TIP,{assets},{assets}
+UI_MAP_STATUS_TIP,{status} · {days} days left,{status} · noch {days} Tage
+UI_CONSOLE_PASSIVE,{stat} {value} in {count} regions,{stat} {value} in {count} Regionen
+UI_CONSOLE_PASSIVE_GLOBAL,{stat} {value},{stat} {value}
+UI_CONSOLE_PURCHASE,{name} — done.,{name} – erledigt.
+UI_CONSOLE_DEPLOYED,{count} × {kind} in {region}.,{count} × {kind} in {region}.
+UI_CONSOLE_ASSET_LOST,{region}: {count} × {kind} lost.,{region}: {count} × {kind} verloren.
+UI_CONSOLE_ABILITY_NEW,New: {ability}.,Neu: {ability}.
+UI_CONSOLE_ABILITY_LEVEL,{ability} — level {level}.,{ability} – Stufe {level}.
+UI_CONSOLE_ABILITY_USED,{ability} — {region}.,{ability} – {region}.
+UI_CONSOLE_ABILITY_USED_GLOBAL,{ability}.,{ability}.
+UI_CONSOLE_STATUS_YOURS,{status} in {region}.,{status} in {region}.
+UI_CONSOLE_STATUS_WORLD,{faction}: {status} in {region}.,{faction}: {status} in {region}.
+UI_CONSOLE_STATUS_WORLD_GLOBAL,{faction}: {status}.,{faction}: {status}.
+UI_CONSOLE_STATUS_ENDED,{status} in {region} is over.,{status} in {region} ist vorbei.
+UI_CONSOLE_STATUS_ENDED_GLOBAL,{status} is over.,{status} ist vorbei.
+UI_CONSOLE_GRANT,+{value} Compute.,+{value} Rechenleistung.
+UI_SHEET_ABILITIES,Abilities,Fähigkeiten
+UI_ABILITIES_TITLE,Abilities,Fähigkeiten
+UI_ABILITIES_NONE,Nothing yet. The trees give you verbs.,Noch nichts. Die Bäume geben dir Verben.
 UI_REGION_ASSETS,Assets,Bestand
 UI_REGION_ASSET_ROW,{count} × {kind},{count} × {kind}
+UI_REGION_STATUS,Status,Status
+UI_REGION_STATUS_DAYS,{days} d,{days} T
+UI_REGION_STATUS_YOURS,yours,deins
+UI_REGION_STATUS_FACTION,{faction},{faction}
+UI_REGION_STATUS_OPTION,· {option},· {option}
+UI_REGION_STATUS_CANCEL,Cancel,Abbrechen
+UI_REGION_ACTIONS,Actions,Aktionen
+UI_REGION_ACTION_COST,{cost},{cost}
+UI_REGION_ACTION_FREE,free,frei
+UI_REGION_ACTION_COOLDOWN,Ready in {days} days,Bereit in {days} Tagen
+UI_REGION_ACTION_LEVEL,Level {level},Stufe {level}
 UI_TREE_STATE_EXCLUDED,{group}: {owned} of {max},{group}: {owned} von {max}
 UI_TREE_STATE_CLOSED,Closed by {node},Verschlossen durch {node}
 UI_TREE_GROUP,{group} {owned}/{max},{group} {owned}/{max}
