@@ -710,10 +710,12 @@ run log (events, statuses and counter-moves included), history sampling.
 
 ### S3.P — Punch list from G3 **[O]** · eight items in `PROGRESS.md`
 ### S4.1 — Assets and site select **[O]** · **Read first:** `docs/specs/loop-mechanics.md` (assets, site select)
-`Region.assets`, the `asset` scope, `deploy`, `PurchaseNodeCommand.region`, `requires_assets`;
-site select generalised from the origin prompt; asset glyphs; the region panel's *Assets* row;
-the tree modal's *Deploys* row and *Buy and place*; save v2.
-**Done when:** a fleet can be placed by hand and by a bot and the map shows it.
+`Region.assets`, the `asset` scope, `deploy`, `PurchaseNodeCommand.region`, `requires_assets`,
+`group` and `excludes`; `EffectDef` + `EffectRunner`; site select generalised from the origin
+prompt; asset glyphs; the region panel's *Assets* row; the tree modal's *Deploys* row and *Buy
+and place*; save v2 with the v1 → v2 migration; **the economy numbers and the anomaly beat**
+(`loop-mechanics.md` §12, §18, `SimRng.weighted_pick`).
+**Done when:** a fleet can be placed by hand and by a bot and the map shows it; a v1 save loads.
 ### S4.2 — Statuses and abilities **[O]** · **Read first:** `loop-mechanics.md` (statuses, abilities, effects)
 `Status`, the two data files, `UseAbilityCommand`, cooldowns, `containment_capacity` /
 `penetration_decay` / `control_decay` / `shutdown_survival` live, link closures, one-shot effects,

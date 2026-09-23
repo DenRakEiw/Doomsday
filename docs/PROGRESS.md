@@ -14,10 +14,10 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **The user reads `docs/specs/loop-redesign.md`** (the gate inside D4.0; its §12 lists what to judge). Then **D4.1 — Loop mechanics** (IMPLEMENTATION Block 7, rewritten) |
+| **Next step** | **D4.2 — Opposition** (IMPLEMENTATION Block 7): `docs/specs/opposition.md`, `data/factions.json`, the eight counter-move events. Read `loop-mechanics.md` §5, §7, §8, §10 first — the grammars the moves are written in |
 | **Model for it** | **Fable** (no switch) |
-| **After it** | `/clear` → D4.2 Opposition → D4.3 Trees v3, abilities, openings, three chains → D4.4 Chains and Analysis → `/model opus` → S3.P (eight items) → S4.1 … S4.10 |
-| **Last completed** | D4.0 — Core loop redesign: `docs/specs/loop-redesign.md`; PLAN §3, CONTENT, UI and IMPLEMENTATION Blocks 7–8 carry the changes (2026-09-23) |
+| **After it** | `/clear` → D4.3 Trees v3, abilities, openings, three chains → D4.4 Chains and Analysis → `/model opus` → S3.P (eight items) → S4.1 … S4.10 |
+| **Last completed** | D4.1 — Loop mechanics: `docs/specs/loop-mechanics.md` (API, grammars, save v2, site select, console line, markers, wire card, strings, tests, acceptance for S4.1–S4.3) (2026-09-23) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -91,8 +91,8 @@ which file was being edited, and anything learned that the files do not show)*
 **Block 7 — M3 gate, M4 design · Fable**
 - [x] G3 [F] Balance pass 1 and M3 gate — the important one *(verdict: change; D4.0 added)*
 - [x] D4.0 [F] Core loop redesign *(added at G3; `docs/specs/loop-redesign.md`; Blocks 7–8 rewritten)*
-- [ ] **D4.1 [F] Loop mechanics: assets, statuses and abilities, map events, site select**
-- [ ] D4.2 [F] Opposition: four factions, counter-moves, Societal Function, Autophagy
+- [x] D4.1 [F] Loop mechanics: assets, statuses and abilities, map events, site select *(`docs/specs/loop-mechanics.md`)*
+- [ ] **D4.2 [F] Opposition: four factions, counter-moves, Societal Function, Autophagy**
 - [ ] D4.3 [F] Trees v3, abilities, openings, three chains
 - [ ] D4.4 [F] Chains, second batch; Analysis screen spec — ⇄ **then `/model opus`**
 
@@ -604,6 +604,34 @@ without new information.
   never carry a picture. D4.1 specifies the slot; D4.3/D4.4 name the ids (loop-redesign §7.4).
 - **2026-09-23** (D4.0) — **Earlier specs and `BALANCE.md` keep the old step numbers**; the map
   old → new is in loop-redesign §10. Only PROGRESS and IMPLEMENTATION carry the new sheet.
+- **2026-09-23** (D4.1) — **One effect vocabulary, one runner.** `PurchaseEffectDef` becomes
+  `EffectDef` (`loop-mechanics.md` §8) and `EffectRunner` applies every one-shot — node
+  `on_purchase`, status `on_start`/`on_end`, ability `effects`, event options — with a context
+  `{region, source, node}`. Nine effects join the four of S3.1; `funding_reset` stays inert until
+  S4.4.
+- **2026-09-23** (D4.1) — **The `asset` scope is answered by the stack, not the def**
+  (`ModifierStack.asset_counts`, mirrored from `Region.assets` through `World.set_assets`, the one
+  writer); the four asset kinds' base effects are always-on sources scoped by asset (§6).
+- **2026-09-23** (D4.1) — **Statuses carry no scope in the file**; a regional target gets the
+  region scope at application, a global status leaves regional targets unscoped (everywhere) —
+  that is how *Pause* works (§7.3). One status per id per region; applying again refreshes.
+- **2026-09-23** (D4.1) — **`footprint_pulse` and `set_flag` are small timed records** (`Pulse`,
+  `Agent.timed_flags`), expired by `StatusSystem`; permanent flags are `Agent.story_flags`;
+  `Simulation.has_flag` reads modifier, timed and story flags alike, and so do `requires.flag`
+  and `when.flag` (§8.2, §10.2 — an extension of ticker §3.3 B).
+- **2026-09-23** (D4.1) — **Event grammar:** `next` sits on the option; chain starts are rolled
+  with the openings from one weighted list; at most `events.max_open` (3) stand open and the
+  rest wait in `pending_events` in due order; a deadline chooses the `default`, which must be
+  free and unlocked (§10). Counter-move target rules are a `{"rule": id}` hook for D4.2/S4.5.
+- **2026-09-23** (D4.1) — **The data texture gets a second row** (status colour index, site-select
+  eligibility, scope flash, lockdown border) — loop-redesign §8.2's bits 5–7 collide with
+  `dormant` (§16.3.1). **Faction colours:** AI Labs `CAT_SKY`, Governments `CAT_ORANGE`,
+  Researchers `CAT_GREEN`, Public `CAT_PINK`; `CAT_YELLOW` stays free (§16.12).
+- **2026-09-23** (D4.1) — **Save format v2** with a v1 → v2 migration in production (§13);
+  faction schedule fields are reserved in v2 so D4.2 needs no v3.
+- **2026-09-23** (D4.1) — **S4.1 carries the economy numbers and the anomaly beat** (origin
+  penetration 0.25, start 8, cost step 1.5, anomaly 0.12 world-wide / 3 / 3.0 —
+  `loop-mechanics.md` §12, §18); bots answer every event with its default until S4.10 (§19).
 
 ## Design questions for Fable
 
@@ -1227,6 +1255,16 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — D4.1 Loop mechanics [F]
+`docs/specs/loop-mechanics.md`: the build-ready form of loop-redesign §7–§8 — model and save v2
+(assets, statuses, pulses, timed and story flags, cooldowns, open and pending events), the
+`Eligibility` grammar, `EffectDef` + `EffectRunner`, `AssetDef`/`StatusDef`/`AbilityDef`/`EventDef`
+with their files and validation, tree v3 fields and the eleven-check purchase order, the three
+commands, `StatusSystem`/`EventSystem` in the tick order, three targets live, the anomaly beat and
+`weighted_pick`, site select, console line, the texture's second row, three marker kinds, four
+region-panel rows, tree modal states, the wire card with its slot, ~130 strings en/de, fixture
+additions, tests and acceptance per S4.1–S4.3. Eight decisions recorded. Next: **D4.2 on Fable**.
 
 ### 2026-09-23 — D4.0 Core loop redesign [F]
 Measured the gate's complaint on a `greedy` run (Boxed one tick, 49 compute in the first ten
