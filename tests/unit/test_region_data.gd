@@ -38,12 +38,12 @@ func test_the_row_is_the_size_and_format_the_shader_expects() -> void:
 ## §16.3.1: row 1 is the interface's own row. Site select writes G, the scope
 ## flash writes B, and the status colour and the border flag arrive with S4.2.
 func test_row_one_carries_the_eligible_set() -> void:
-	var plain: Color = RegionData.encode_row1(_sim.world, 1, false, false)
+	var plain: Color = RegionData.encode_row1(_sim.world, _db, 1, false, false)
 	assert_eq(plain, Color(0.0, 0.0, 0.0, 0.0), "nothing to say about the region")
-	var eligible: Color = RegionData.encode_row1(_sim.world, 1, true, false)
+	var eligible: Color = RegionData.encode_row1(_sim.world, _db, 1, true, false)
 	assert_eq(eligible.g, RegionData.ON, "an eligible site")
 	assert_eq(eligible.b, RegionData.OFF)
-	var flashing: Color = RegionData.encode_row1(_sim.world, 1, false, true)
+	var flashing: Color = RegionData.encode_row1(_sim.world, _db, 1, false, true)
 	assert_eq(flashing.b, RegionData.ON, "a scope flash")
 	assert_eq(flashing.g, RegionData.OFF)
 

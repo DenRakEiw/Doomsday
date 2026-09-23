@@ -65,30 +65,58 @@ static func write(image: Image, world: World, db: ContentDB,
 		image.set_pixel(i, ROW_REGION,
 			encode(world.regions[i], db.balance.control_complete, with_anomaly.has(i)))
 		image.set_pixel(i, ROW_INTERFACE,
-			encode_row1(world, i, eligible.has(i), flashing.has(i)))
+			encode_row1(world, db, i, eligible.has(i), flashing.has(i)))
 	return true
 
 
 ## Row 1 of §16.3.1. The status colour is read off the status's **source**: a
 ## world status a chain applied has no faction, so anything that is not
 ## `faction:<id>` is the player's own colour.
-##
-## Statuses arrive with S4.2; until then the channel is always 0 and the row
-## carries the eligibility of site select alone.
-static func encode_row1(world: World, region_index: int, eligible: bool,
+static func encode_row1(world: World, db: ContentDB, region_index: int, eligible: bool,
 		flashing: bool) -> Color:
 	return Color(
 		float(status_index(world, region_index)) / 255.0,
 		ON if eligible else OFF,
 		ON if flashing else OFF,
-		OFF)
+		ON if has_border(world, db, region_index) else OFF)
 
 
-## The status colour index of a region (§16.3.1). 0 until S4.2 fills
-## `World.statuses`.
-@warning_ignore("unused_parameter")
+## The status colour index of a region (§16.3.1): 0 for none, 1 for one of the
+## player's own, and the faction's index + 2 for the world's.
+##
+## The world wins over the player's; among the world's, the one with the most
+## days left — a standing status (−1 day left) never wins that, because the one
+## that is about to end is the one the border is about to lose.
 static func status_index(world: World, region_index: int) -> int:
-	return STATUS_NONE
+	var best: int = STATUS_NONE
+	var best_days: int = -2
+	for status: Status in world.statuses_in_region(region_index):
+		var faction: String = status.faction()
+		if faction.is_empty():
+			if best == STATUS_NONE:
+				best = STATUS_PLAYER
+			continue
+		var index: int = Faction.FACTION_IDS.find(faction)
+		if index < 0:
+			continue
+		var days: int = status.days_left(world.day)
+		if best >= STATUS_FACTION_BASE and days <= best_days:
+			continue
+		best = STATUS_FACTION_BASE + index
+		best_days = days
+	return best
+
+
+## Whether a status standing in the region draws its border (§16.3.1). The A
+## channel is a flag on row 1, not the bit field row 0 carries.
+static func has_border(world: World, db: ContentDB, region_index: int) -> bool:
+	if db == null:
+		return false
+	for status: Status in world.statuses_in_region(region_index):
+		var definition: StatusDef = db.status(status.id)
+		if definition != null and definition.border:
+			return true
+	return false
 
 
 ## One region as the pixel §7.2 describes. `alive / population` rather than the

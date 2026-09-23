@@ -52,6 +52,7 @@ const HOLD_ORIGIN: StringName = &"origin"
 @onready var _containment: ContainmentPanel = %ContainmentPanel
 @onready var _discovery: DiscoveryModal = %DiscoveryModal
 @onready var _pause_menu: PauseMenu = %PauseMenu
+@onready var _ability_picker: Control = %AbilityPicker
 @onready var _results: Results = %Results
 @onready var _camera: MapCamera = %MapCamera
 @onready var _menu_sheet: SlidePanel = %MenuSheet
@@ -78,6 +79,8 @@ func _ready() -> void:
 	_hud.call(&"set_menu_sheet", _menu_sheet)
 	_menu_sheet.connect(&"destination_requested", _on_destination_requested)
 	_menu_sheet.connect(&"pause_requested", _open_pause_menu)
+	_menu_sheet.connect(&"abilities_requested", _toggle_ability_picker)
+	_ability_picker.connect(&"closed", _close_ability_picker)
 	_tech_tree.closed.connect(_on_tech_tree_closed)
 	_tech_tree.reopen_requested.connect(_on_tech_tree_reopen_requested)
 	_discovery.dismissed.connect(_on_discovery_dismissed)
@@ -119,6 +122,8 @@ func _input(event: InputEvent) -> void:
 			_toggle_tech_tree()
 		KEY_C:
 			_toggle_containment()
+		KEY_A:
+			_toggle_ability_picker()
 		KEY_ESCAPE:
 			if _modals.is_open():
 				# The modal host answers `Escape` itself (m3-screens §10.4).
@@ -168,6 +173,22 @@ func _on_tech_tree_reopen_requested(node_id: String) -> void:
 		return
 	_modals.open(_tech_tree)
 	_tech_tree.open_on(node_id)
+
+
+## §16.10: `A` opens the picker and `A` closes it again. It holds no clock —
+## the run keeps going while the player reads their own verbs.
+func _toggle_ability_picker() -> void:
+	if _ability_picker.visible:
+		_close_ability_picker()
+		return
+	if Game.sim == null or _modals.is_open():
+		return
+	_ability_picker.call(&"refresh")
+	_modals.open(_ability_picker)
+
+
+func _close_ability_picker() -> void:
+	_modals.close()
 
 
 ## §4.1: the containment panel is not a modal — the game keeps running behind

@@ -242,7 +242,9 @@ func _fill_v3(definition: TechNodeDef, sim: Simulation) -> void:
 				_add_caption(_v3_rows, tr(PREFIX_ELIGIBLE_NEEDS + str(row[0]).to_upper())
 					.format(_requirement_args(row[1])))
 	if definition.grants_ability():
-		_add_heading(KEY_GRANTS)
+		# One key, not a heading and a row: `UI_TREE_GRANTS` is the whole
+		# sentence (§16.6). The heading it used to get printed its own
+		# placeholders, which nothing saw until a live node granted an ability.
 		_add_row(tr(KEY_GRANTS).format({
 			"ability": tr(PREFIX_ABILITY + definition.ability_id.to_upper() + SUFFIX_NAME),
 			"level": definition.ability_level,

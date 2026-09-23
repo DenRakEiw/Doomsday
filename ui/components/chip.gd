@@ -18,6 +18,15 @@ const LABEL_VARIATION: String = "ChipLabel"
 @export var kind: Kind = Kind.DEFAULT:
 	set(value):
 		kind = value
+		faction = ""
+		_apply_variation()
+
+## The faction whose colour the text takes, or "" for one of the three `Kind`s
+## (`loop-mechanics.md` §16.5: the `ChipFaction` variation). The theme carries
+## one variation per faction, so this is still a variation and not an override.
+@export var faction: String = "":
+	set(value):
+		faction = value
 		_apply_variation()
 
 ## The `data/loc/strings.csv` key of the badge text.
@@ -67,7 +76,18 @@ func _build_label() -> void:
 	_apply_variation()
 
 
+## The variation suffix a faction id stands for: `governments` → `Governments`,
+## so the theme's names stay readable and are built from the ids themselves.
+static func faction_suffix(faction_id: String) -> String:
+	var out: String = ""
+	for part: String in faction_id.split("_", false):
+		out += part.substr(0, 1).to_upper() + part.substr(1)
+	return out
+
+
 func _apply_variation() -> void:
-	theme_type_variation = StringName(VARIATION + KIND_SUFFIX[kind])
+	var suffix: String = KIND_SUFFIX[kind] if faction.is_empty() \
+		else faction_suffix(faction)
+	theme_type_variation = StringName(VARIATION + suffix)
 	if _label != null:
-		_label.theme_type_variation = StringName(LABEL_VARIATION + KIND_SUFFIX[kind])
+		_label.theme_type_variation = StringName(LABEL_VARIATION + suffix)

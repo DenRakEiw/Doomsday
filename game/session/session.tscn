@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://game/session/session.gd" id="1_session"]
 [ext_resource type="PackedScene" path="res://game/map/map_view.tscn" id="2_map_view"]
@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" path="res://ui/modals/discovery_modal.tscn" id="12_discovery"]
 [ext_resource type="PackedScene" path="res://ui/modals/pause_menu.tscn" id="13_pause_menu"]
 [ext_resource type="PackedScene" path="res://ui/screens/results.tscn" id="14_results"]
+[ext_resource type="PackedScene" path="res://ui/modals/ability_picker.tscn" id="15_ability_picker"]
 [ext_resource type="PackedScene" path="res://ui/hud/menu_sheet.tscn" id="15_menu_sheet"]
 
 [node name="Session" type="Control"]
@@ -91,6 +92,10 @@ unique_name_in_owner = true
 visible = false
 
 [node name="DiscoveryModal" parent="ModalLayer/ModalHost" instance=ExtResource("12_discovery")]
+unique_name_in_owner = true
+visible = false
+
+[node name="AbilityPicker" parent="ModalLayer/ModalHost" instance=ExtResource("15_ability_picker")]
 unique_name_in_owner = true
 visible = false
 

@@ -69,6 +69,30 @@ const KEY_ASSET_ROW: String = "UI_REGION_ASSET_ROW"
 ## §16.5: the glyph in an asset row.
 const ASSET_GLYPH_SIZE: float = 16.0
 
+## §16.5 item 10: what is running here, and who put it there.
+const KEY_STATUS: String = "UI_REGION_STATUS"
+const KEY_STATUS_DAYS: String = "UI_REGION_STATUS_DAYS"
+const KEY_STATUS_STANDING: String = "UI_REGION_STATUS_STANDING"
+const KEY_STATUS_YOURS: String = "UI_REGION_STATUS_YOURS"
+const KEY_STATUS_FACTION: String = "UI_REGION_STATUS_FACTION"
+const KEY_STATUS_WORLD: String = "UI_REGION_STATUS_WORLD"
+const KEY_STATUS_OPTION: String = "UI_REGION_STATUS_OPTION"
+## §16.5 item 13: the abilities that can be used here.
+const KEY_ACTIONS: String = "UI_REGION_ACTIONS"
+const KEY_ACTION_COST: String = "UI_REGION_ACTION_COST"
+const KEY_ACTION_FREE: String = "UI_REGION_ACTION_FREE"
+const KEY_ACTION_COOLDOWN: String = "UI_REGION_ACTION_COOLDOWN"
+const KEY_ACTION_LEVEL: String = "UI_REGION_ACTION_LEVEL"
+const PREFIX_FACTION: String = "FACTION_"
+const SUFFIX_DETAIL: String = "_DETAIL"
+const SUFFIX_CODE: String = "_CODE"
+const PLACEHOLDER_DAYS: String = "days"
+const PLACEHOLDER_COST: String = "cost"
+const PLACEHOLDER_LEVEL: String = "level"
+const PLACEHOLDER_STATUS: String = "status"
+const PLACEHOLDER_FACTION: String = "faction"
+const PLACEHOLDER_OPTION: String = "option"
+
 ## §5.6's profile, in the order it lists: attribute name → its label key.
 const ATTRIBUTE_KEYS: Dictionary[String, String] = {
 	"compute": "UI_ATTR_COMPUTE",
@@ -129,6 +153,12 @@ const STAT_BAR_SCENE: String = "res://ui/components/stat_bar.tscn"
 @onready var _assets_block: Control = %AssetsBlock
 @onready var _assets_title: Label = %AssetsTitle
 @onready var _assets: VBoxContainer = %Assets
+@onready var _status_block: Control = %StatusBlock
+@onready var _status_title: Label = %StatusTitle
+@onready var _statuses: VBoxContainer = %Statuses
+@onready var _actions_block: Control = %ActionsBlock
+@onready var _actions_title: Label = %ActionsTitle
+@onready var _actions: VBoxContainer = %Actions
 
 ## The region on show; 0 when the panel is closed.
 var _index: int = 0
@@ -169,6 +199,8 @@ func _refresh_strings() -> void:
 	_links_title.text = tr(KEY_LINKS)
 	_dark_detail.text = tr(KEY_STATE_DARK_DETAIL)
 	_assets_title.text = tr(KEY_ASSETS)
+	_status_title.text = tr(KEY_STATUS)
+	_actions_title.text = tr(KEY_ACTIONS)
 
 
 ## The region the panel is showing, 0 for none.
@@ -196,6 +228,8 @@ func refresh() -> void:
 	_refresh_links(world)
 	_refresh_anomaly(world)
 	_refresh_assets(region)
+	_refresh_statuses(world)
+	_refresh_actions()
 
 
 # ------------------------------------------------------------- the sections
@@ -318,6 +352,165 @@ func _asset_row(kind: String, count: int) -> Control:
 	})
 	row.add_child(label)
 	return row
+
+
+## §16.5 item 10: one row per running status, in application order, each saying
+## what it is, how long it has left and who put it there.
+func _refresh_statuses(world: World) -> void:
+	for child: Node in _statuses.get_children():
+		_statuses.remove_child(child)
+		child.queue_free()
+	var running: Array[Status] = world.statuses_in_region(_index)
+	_status_block.visible = not running.is_empty()
+	for status: Status in running:
+		_statuses.add_child(_status_row(status, world))
+
+
+func _status_row(status: Status, world: World) -> Control:
+	var box: VBoxContainer = VBoxContainer.new()
+	box.theme_type_variation = &"StackTight"
+	box.tooltip_text = tr(PREFIX_STATUS + status.id.to_upper() + SUFFIX_DETAIL)
+
+	var head: HBoxContainer = HBoxContainer.new()
+	head.theme_type_variation = VARIATION_ROW
+	var chip: Chip = Chip.new()
+	var faction: String = status.faction()
+	if faction.is_empty():
+		chip.kind = Chip.Kind.ACCENT
+	else:
+		chip.faction = faction
+	chip.set_label(PREFIX_STATUS + status.id.to_upper() + SUFFIX_CODE)
+	head.add_child(chip)
+	var name_label: Label = Label.new()
+	name_label.text = tr(PREFIX_STATUS + status.id.to_upper() + SUFFIX_NAME)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(name_label)
+	var days: Label = Label.new()
+	days.theme_type_variation = VARIATION_CAPTION
+	days.text = tr(KEY_STATUS_STANDING) if status.is_standing() \
+		else tr(KEY_STATUS_DAYS).format({PLACEHOLDER_DAYS: status.days_left(world.day)})
+	head.add_child(days)
+	box.add_child(head)
+
+	var source: Label = Label.new()
+	source.theme_type_variation = VARIATION_CAPTION
+	source.text = _status_source_text(status)
+	box.add_child(source)
+	return box
+
+
+## Whose status it is, and — when an event's option applied it — which option.
+## A world status with no faction behind it is the world's own (D4.3, §11.3).
+func _status_source_text(status: Status) -> String:
+	var line: String = ""
+	var faction: String = status.faction()
+	if not faction.is_empty():
+		line = tr(KEY_STATUS_FACTION).format(
+			{PLACEHOLDER_FACTION: tr(PREFIX_FACTION + faction.to_upper())})
+	elif _is_world_status(status):
+		line = tr(KEY_STATUS_WORLD)
+	else:
+		line = tr(KEY_STATUS_YOURS)
+	if status.option.is_empty():
+		return line
+	return line + tr(KEY_STATUS_OPTION).format({PLACEHOLDER_OPTION: status.option})
+
+
+func _is_world_status(status: Status) -> bool:
+	var definition: StatusDef = Game.db.status(status.id)
+	return definition != null and definition.origin == StatusDef.ORIGIN_WORLD
+
+
+## §16.5 item 13: one button per unlocked region ability, in `abilities.json`
+## order, enabled exactly when the command would be accepted.
+func _refresh_actions() -> void:
+	for child: Node in _actions.get_children():
+		_actions.remove_child(child)
+		child.queue_free()
+	var shown: int = 0
+	for ability: AbilityDef in Game.db.abilities:
+		if not ability.targets_region() or Game.sim.ability_level(ability.id) == 0:
+			continue
+		_actions.add_child(_action_row(ability))
+		shown += 1
+	_actions_block.visible = shown > 0
+
+
+func _action_row(ability: AbilityDef) -> Control:
+	var box: VBoxContainer = VBoxContainer.new()
+	box.theme_type_variation = &"StackTight"
+	var region_id: String = Game.sim.world.regions[_index].def.id
+	var reason: String = Game.sim.can_apply(UseAbilityCommand.new(ability.id, region_id))
+
+	var row: HBoxContainer = HBoxContainer.new()
+	row.theme_type_variation = VARIATION_ROW
+	var button: ConsoleButton = ConsoleButton.new()
+	button.label_key = AbilityDef.name_key(ability.id)
+	button.tooltip_key = AbilityDef.detail_key(ability.id)
+	button.disabled = not reason.is_empty()
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.pressed.connect(_on_action_pressed.bind(ability.id))
+	row.add_child(button)
+	var chip: Chip = Chip.new()
+	if ability.cost <= 0.0:
+		chip.set_label(KEY_ACTION_FREE)
+	else:
+		chip.set_label(KEY_ACTION_COST, {PLACEHOLDER_COST:
+			Format.number(ability.cost, Format.Kind.COMPUTE)})
+	row.add_child(chip)
+	box.add_child(row)
+
+	var caption: Label = Label.new()
+	caption.theme_type_variation = VARIATION_CAPTION
+	caption.text = _action_caption(ability, reason)
+	caption.visible = not caption.text.is_empty()
+	box.add_child(caption)
+	return box
+
+
+## The cooldown first — it is the one reason that passes on its own — then why
+## the region does not take it, then the level when there is more than one.
+func _action_caption(ability: AbilityDef, reason: String) -> String:
+	if reason == Command.FAIL_ABILITY_COOLDOWN:
+		var days: int = Game.sim.ability_ready_day(ability.id) - Game.sim.world.day
+		return tr(KEY_ACTION_COOLDOWN).format({PLACEHOLDER_DAYS: maxi(0, days)})
+	if not reason.is_empty():
+		if Eligibility.REASONS.has(reason):
+			return tr(PREFIX_ELIGIBLE + reason.to_upper()).format(
+				_ability_args(ability))
+		return tr(PREFIX_FAIL + reason.to_upper())
+	if ability.max_level() > 1:
+		return tr(KEY_ACTION_LEVEL).format(
+			{PLACEHOLDER_LEVEL: Game.sim.ability_level(ability.id)})
+	return ""
+
+
+## The failing eligibility key's own arguments, with every id turned into a name.
+func _ability_args(ability: AbilityDef) -> Dictionary:
+	if ability.eligible == null:
+		return {}
+	var raw: Dictionary = ability.eligible.detail(Game.sim.world, _index)
+	var args: Dictionary = raw.duplicate()
+	if raw.has("attr"):
+		args["attr"] = tr(PREFIX_ATTR + str(raw["attr"]).to_upper())
+	if raw.has("kind"):
+		args["kind"] = TechText.asset_name(str(raw["kind"]), int(raw.get("count", 1)))
+	if raw.has("status"):
+		args["status"] = tr(PREFIX_STATUS + str(raw["status"]).to_upper() + SUFFIX_NAME)
+	if raw.has("value"):
+		args["value"] = Format.percent(float(raw["value"]))
+	if raw.has("continent"):
+		args["continent"] = tr(KEY_CONTINENT + str(raw["continent"]).to_upper())
+	return args
+
+
+## Sends the ability at this region. A refusal shows under its own button, as
+## everywhere else on this panel.
+func _on_action_pressed(ability_id: String) -> void:
+	if Game.sim == null or _index <= 0:
+		return
+	Game.apply(UseAbilityCommand.new(ability_id, Game.sim.world.regions[_index].def.id))
+	refresh()
 
 
 func _refresh_presence(region: Region) -> void:

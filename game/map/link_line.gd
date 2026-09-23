@@ -64,6 +64,9 @@ static var _white: ImageTexture = null
 var kind: String = LinkDef.KIND_LAND
 
 var _open: bool = true
+## The colour of whatever is holding the link shut; transparent when
+## nothing is (§16.4).
+var _closed_color: Color = Color(0.0, 0.0, 0.0, 0.0)
 var _flowing: bool = false
 ## Which way the pattern travels: a → b, or back.
 var _forward: bool = true
@@ -190,10 +193,13 @@ static func width_of(link_kind: String) -> float:
 	return NETWORK_WIDTH_PX if link_kind == LinkDef.KIND_NETWORK else WIDTH_PX
 
 
-## §7.8's rest, flow and closed colours.
-static func color_for(open: bool, flowing: bool) -> Color:
+## §7.8's rest, flow and closed colours — and, from S4.2, the colour of
+## whatever is holding a link closed (`loop-mechanics.md` §16.4). A link nothing
+## holds shut is closed by the world itself and keeps the old muted line.
+static func color_for(open: bool, flowing: bool,
+		closed_color: Color = Color(0, 0, 0, 0)) -> Color:
 	if not open:
-		return UiTokens.color(&"LINE_2")
+		return UiTokens.color(&"LINE_2") if closed_color.a <= 0.0 else closed_color
 	return UiTokens.color(&"ACCENT") if flowing else UiTokens.color(&"ACCENT_DIM")
 
 
@@ -238,7 +244,7 @@ func set_flowing(flowing: bool, forward: bool) -> void:
 	_apply_state()
 
 
-## Nothing closes a link in M2; M4's counter-actions do, and the gallery shows
+## Nothing closes a link in M2; from S4.2 a status does, and the gallery shows
 ## what it looks like.
 func set_open(is_open: bool) -> void:
 	if is_open == _open:
@@ -246,6 +252,21 @@ func set_open(is_open: bool) -> void:
 	_open = is_open
 	_apply_state()
 	queue_redraw()
+
+
+## §16.4: the colour of the status holding this link shut, or a transparent
+## colour when nothing is — which is the muted line it always had.
+func set_closed_color(color: Color) -> void:
+	if color == _closed_color:
+		return
+	_closed_color = color
+	_apply_state()
+	queue_redraw()
+
+
+## The colour a closed line is drawn in, for the tests.
+func closed_color() -> Color:
+	return _closed_color
 
 
 func is_flowing() -> bool:
@@ -304,11 +325,12 @@ func _draw() -> void:
 		return
 	var arm: float = CLOSED_CROSS_PX * 0.5 / _zoom
 	var stroke: float = WIDTH_PX / _zoom
+	# The cross takes the status's colour too: what closed the link and the mark
+	# that says it is closed must not disagree (§16.4).
+	var mark: Color = UiTokens.color(&"ALERT") if _closed_color.a <= 0.0 else _closed_color
 	for point: Vector2 in _midpoints:
-		draw_line(point + Vector2(-arm, -arm), point + Vector2(arm, arm),
-			UiTokens.color(&"ALERT"), stroke)
-		draw_line(point + Vector2(-arm, arm), point + Vector2(arm, -arm),
-			UiTokens.color(&"ALERT"), stroke)
+		draw_line(point + Vector2(-arm, -arm), point + Vector2(arm, arm), mark, stroke)
+		draw_line(point + Vector2(-arm, arm), point + Vector2(arm, -arm), mark, stroke)
 
 
 func _build_lines() -> void:
@@ -351,7 +373,7 @@ func _make_line() -> Line2D:
 
 ## Colour, brightness and the broken midpoint — everything the state decides.
 func _apply_state() -> void:
-	var color: Color = color_for(_open, _flowing)
+	var color: Color = color_for(_open, _flowing, _closed_color)
 	var solid: bool = dash_of(kind).y <= 0.0
 	var bright: float = BRIGHT_PX if _flowing and _open and solid else 0.0
 	var base_alpha: float = FLOW_SOLID_BASE_ALPHA if bright > 0.0 else 1.0

@@ -144,8 +144,13 @@ const VARIATIONS: Dictionary[String, String] = {
 	"ChipLabel": "LabelCaps",
 	"ChipLabelAccent": "LabelCaps",
 	"ChipLabelAlert": "LabelCaps",
+	"ChipLabelAiLabs": "LabelCaps",
+	"ChipLabelGovernments": "LabelCaps",
+	"ChipLabelSecurityResearchers": "LabelCaps",
+	"ChipLabelPublicSentiment": "LabelCaps",
 	"MapTooltip": PANEL_CONTAINER,
 	"MapTooltipLabel": "LabelCaption",
+	"LabelConsoleLine": "LabelCaption",
 	"LabelCaptionAlert": "LabelCaption",
 	"ConsoleButtonFlat": BUTTON,
 	"TechGrid": "GridContainer",
@@ -207,6 +212,12 @@ static func _colours() -> Theme:
 	theme.set_color(COLOR_FONT, "LabelHeading", UiTokens.color(&"TEXT_0"))
 	theme.set_color(COLOR_FONT, "ChipLabel", UiTokens.color(&"TEXT_1"))
 	theme.set_color(COLOR_FONT, "ChipLabelAccent", UiTokens.color(&"ACCENT"))
+	# The console line is the agent's own voice, so it wears the accent
+	# (`loop-mechanics.md` §16.2).
+	theme.set_color(COLOR_FONT, "LabelConsoleLine", UiTokens.color(&"ACCENT"))
+	for faction: String in Faction.FACTION_IDS:
+		theme.set_color(COLOR_FONT, "ChipLabel%s" % Chip.faction_suffix(faction),
+			UiTokens.faction_color(faction))
 	theme.set_color(COLOR_FONT, "ChipLabelAlert", UiTokens.color(&"ALERT"))
 	theme.set_color(COLOR_FONT, "Ticker", UiTokens.color(&"TEXT_1"))
 	# §7.7: the tooltip is a caption on a chip-shaped box, but it is read over a
@@ -255,6 +266,8 @@ static func _typography() -> Theme:
 	_type(theme, "LabelCaption", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
 	_type(theme, "LabelCaptionAlert", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
 	_type(theme, "MapTooltipLabel", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
+	_type(theme, "LabelConsoleLine", mono_regular, UiTokens.TYPE_CAPTION,
+		UiTokens.LINE_CAPTION)
 	_type(theme, "LabelDisplay", display, UiTokens.TYPE_DISPLAY, UiTokens.LINE_DISPLAY)
 	_type(theme, "LabelDisplayXL", display, UiTokens.TYPE_DISPLAY_XL, UiTokens.LINE_DISPLAY_XL)
 	_type(theme, "LabelDisplayXLWin", display, UiTokens.TYPE_DISPLAY_XL, UiTokens.LINE_DISPLAY_XL)
@@ -311,6 +324,13 @@ static func _panels() -> Theme:
 		_flat(UiTokens.color(&"BG_3"), UiTokens.color(&"ACCENT_DIM"), UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
 	theme.set_stylebox(STYLE_PANEL, "ChipAlert",
 		_flat(UiTokens.color(&"BG_3"), UiTokens.color(&"ALERT"), UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
+	# §16.5: a world status wears the colour of the faction behind it. One
+	# variation per faction rather than a colour written onto the node, so the
+	# ban on per-node overrides holds.
+	for faction: String in Faction.FACTION_IDS:
+		theme.set_stylebox(STYLE_PANEL, "Chip%s" % Chip.faction_suffix(faction),
+			_flat(UiTokens.color(&"BG_3"), UiTokens.faction_color(faction), UiTokens.BORDER,
+				UiTokens.RADIUS_S, chip_pad))
 	# §7.7: chip-shaped, but on `BG_2` — it sits over the map, not on a panel.
 	theme.set_stylebox(STYLE_PANEL, "MapTooltip",
 		_flat(UiTokens.color(&"BG_2"), UiTokens.color(&"LINE_1"), UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))

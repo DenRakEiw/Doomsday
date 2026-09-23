@@ -92,9 +92,24 @@ func refresh() -> void:
 		var line: LinkLine = _lines[index]
 		var flowing: bool = _flow_until.has(index)
 		line.set_open(link.open)
+		line.set_closed_color(_closed_color(world, link))
 		line.set_flowing(flowing, bool(_flow_forward.get(index, true)))
 		line.set_drawn(is_drawn(link.def.kind, world.regions[link.def.a],
 			world.regions[link.def.b], flowing))
+
+
+## §16.4: a link a status closed is drawn in that status's colour — the
+## player's accent, or the faction's. A transparent colour means nothing is
+## holding it, so the muted line of §7.8 stands.
+func _closed_color(world: World, link: Link) -> Color:
+	if link.open:
+		return Color(0.0, 0.0, 0.0, 0.0)
+	for status: Status in world.statuses:
+		if not status.closed_links.has(link.def.id):
+			continue
+		var faction: String = status.faction()
+		return UiTokens.color(&"ACCENT") if faction.is_empty() 			else UiTokens.faction_color(faction)
+	return Color(0.0, 0.0, 0.0, 0.0)
 
 
 ## The line of a link, for the tests and the gallery.
@@ -125,6 +140,11 @@ func _on_command_applied(_command: Command, result: CommandResult) -> void:
 
 ## A seeding names its link by its two region ids and the kind (core.md §6.4).
 func _on_sim_event(event: SimEvent) -> void:
+	# §16.4: a status that closes or reopens a link changes the colour of the
+	# line as well as its state, so the lines are re-read on both.
+	if event.type == SimEvent.STATUS_STARTED or event.type == SimEvent.STATUS_ENDED:
+		refresh()
+		return
 	if event.type != SimEvent.REGION_SEEDED:
 		return
 	var from_id: String = str(event.data.get("from", ""))

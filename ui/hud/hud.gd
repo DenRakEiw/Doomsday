@@ -69,9 +69,25 @@ func apply_reveal() -> void:
 	_overlay_picker.call(&"apply_reveal", phase)
 	_dock.call(&"apply_reveal", phase, world.max_containment(), world.discovered,
 		Game.db.balance.containment_thresholds)
+	# §16.8: the sheet's abilities entry appears with the first ability, the way
+	# every other row of the reveal table does — read off the state, not off the
+	# event that got there.
+	if _sheet != null:
+		_sheet.call(&"apply_abilities_reveal", _has_ability())
 	if phase != _phase:
 		_phase = phase
 		phase_reached.emit(phase)
+
+
+## Whether any ability is unlocked (§16.8). The picker's key is always live —
+## it says so itself when there is nothing yet — but the sheet's row is not.
+func _has_ability() -> bool:
+	if Game.sim == null or Game.db == null:
+		return false
+	for ability: AbilityDef in Game.db.abilities:
+		if Game.sim.ability_level(ability.id) > 0:
+			return true
+	return false
 
 
 func _on_tick_advanced(_day: int) -> void:

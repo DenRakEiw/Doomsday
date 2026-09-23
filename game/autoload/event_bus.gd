@@ -34,3 +34,6 @@ signal hold_changed(held: bool)
 ## appears, the map outlines what is eligible, and the region panel offers the
 ## one button that answers.
 signal site_select_changed(active: bool)
+## The console line's input (`loop-mechanics.md` §16.2). Anything may push a
+## line; the line itself decides when it is shown and for how long.
+signal console_pushed(text: String)

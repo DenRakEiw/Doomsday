@@ -134,6 +134,19 @@ static func node_name(node_id: String) -> String:
 	return tr_key(PREFIX_TECH + node_id.to_upper() + SUFFIX_NAME)
 
 
+## The player-facing name of a modifier target (§17.6).
+static func stat_name(target: String) -> String:
+	return tr_key(PREFIX_STAT + target.to_upper())
+
+
+## One modifier's number the way the detail pane writes it: a factor for a
+## `mul`, a signed number for an `add` (`loop-mechanics.md` §16.2).
+static func modifier_value(modifier: ModifierDef) -> String:
+	if modifier.op == ModifierDef.Op.MUL:
+		return Format.factor(modifier.value)
+	return _signed(modifier.value)
+
+
 ## `tr` belongs to `Object`; a static function asks the server itself.
 static func tr_key(key: String) -> String:
 	return String(TranslationServer.translate(key))

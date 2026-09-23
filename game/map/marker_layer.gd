@@ -30,12 +30,20 @@ const PLACEHOLDER_VALUE: String = "value"
 const KEY_ASSETS_TIP: String = "UI_MAP_ASSETS_TIP"
 const PLACEHOLDER_ASSETS: String = "assets"
 const ASSET_JOIN: String = " · "
+## §16.3.2: what a status ring says when the pointer rests on it.
+const KEY_STATUS_TIP: String = "UI_MAP_STATUS_TIP"
+const PLACEHOLDER_STATUS: String = "status"
+const PLACEHOLDER_DAYS: String = "days"
+## The caption a standing status shows where a number of days would be (§17.4).
+const KEY_STANDING: String = "UI_REGION_STATUS_STANDING"
 
 ## Anomaly id → its marker. Only markers that are still collectable are in here;
 ## a fading one has been taken out already.
 var _markers: Dictionary[int, AnomalyMarker] = {}
 ## Region index → its asset row. A region that holds nothing has none (§16.3.2).
 var _assets: Dictionary[int, AssetMarker] = {}
+## Region index → its status rings. A region with nothing running has none.
+var _statuses: Dictionary[int, StatusMarker] = {}
 ## Anchors of the regions that have gone dark, in map pixels.
 var _dark_anchors: PackedVector2Array = PackedVector2Array()
 var _camera: MapCamera = null
@@ -46,6 +54,8 @@ var _tooltip_label: Label = null
 var _hovered_id: int = 0
 ## The region whose asset row the pointer is over, or 0 (§16.3.2).
 var _hovered_assets: int = 0
+## The region whose status rings the pointer is over, or 0.
+var _hovered_status: int = 0
 
 
 func _ready() -> void:
@@ -96,13 +106,16 @@ func try_tap(screen: Vector2) -> bool:
 func hover(screen: Vector2) -> void:
 	var marker: AnomalyMarker = marker_at(screen)
 	_hover(marker)
-	# An anomaly sits on the anchor and the asset row below it, so the anomaly is
-	# asked first and only a miss falls through to the row.
-	_hover_assets(0 if marker != null else asset_row_at(screen))
+	# An anomaly sits on the anchor, the status rings around it and the asset row
+	# below it, so they are asked in that order and only a miss falls through.
+	_hover_status(0 if marker != null else status_ring_at(screen))
+	_hover_assets(0 if marker != null or _hovered_status != 0 else asset_row_at(screen))
 	# The box is placed in screen space, so it follows a map that moved under a
 	# resting pointer as well as a pointer that moved to another marker.
 	if _hovered_id != 0:
 		_place_tooltip_at(marker.position)
+	elif _hovered_status != 0:
+		_place_tooltip_at(_statuses[_hovered_status].position)
 	elif _hovered_assets != 0:
 		_place_tooltip_at(_assets[_hovered_assets].position)
 
@@ -164,7 +177,11 @@ func rebuild() -> void:
 	for index: int in _assets:
 		_assets[index].queue_free()
 	_assets.clear()
+	for index: int in _statuses:
+		_statuses[index].queue_free()
+	_statuses.clear()
 	_hovered_assets = 0
+	_hovered_status = 0
 	_dark_anchors = PackedVector2Array()
 	_hover(null)
 	if Game.sim != null:
@@ -175,6 +192,7 @@ func rebuild() -> void:
 			if world.regions[i].dark:
 				_dark_anchors.append(Vector2(world.regions[i].def.anchor))
 			_refresh_assets(i, false)
+			_refresh_statuses(i)
 	queue_redraw()
 
 
@@ -205,6 +223,74 @@ func _refresh_assets(region_index: int, commission: bool) -> void:
 	marker.counts = counts
 	if commission:
 		marker.commission()
+
+
+## The status rings of one region, rebuilt from the world. A region with nothing
+## running loses its marker (§16.3.2).
+func _refresh_statuses(region_index: int) -> void:
+	if Game.sim == null or region_index <= 0:
+		return
+	var running: Array[Status] = Game.sim.world.statuses_in_region(region_index)
+	if running.is_empty():
+		if _statuses.has(region_index):
+			_statuses[region_index].queue_free()
+			_statuses.erase(region_index)
+			if _hovered_status == region_index:
+				_hovered_status = 0
+				_hide_tooltip()
+		return
+	var marker: StatusMarker = _statuses.get(region_index, null)
+	if marker == null:
+		marker = StatusMarker.new()
+		marker.position = Vector2(Game.sim.world.regions[region_index].def.anchor)
+		marker.scale = Vector2.ONE / _zoom
+		add_child(marker)
+		_statuses[region_index] = marker
+	var rows: Array[Dictionary] = []
+	for status: Status in running:
+		rows.append(StatusMarker.row(tr(StatusDef.code_key(status.id)),
+			_status_share(status), _status_color(status)))
+	marker.rows = rows
+
+
+## How much of a status ring is left. A standing status has no clock, so its
+## ring stands full (§7.1).
+func _status_share(status: Status) -> float:
+	if status.is_standing():
+		return 1.0
+	return Rings.share_of(float(status.days_left(Game.sim.world.day)),
+		float(status.days_total()))
+
+
+## §16.3.1: the colour is read off the **source**, never off the definition —
+## a world status a chain applied has no faction behind it.
+func _status_color(status: Status) -> Color:
+	var faction: String = status.faction()
+	if faction.is_empty():
+		return UiTokens.color(&"ACCENT")
+	return UiTokens.faction_color(faction)
+
+
+## The status rings on the map, for the tests.
+func status_count() -> int:
+	return _statuses.size()
+
+
+func status_marker_of(region_index: int) -> StatusMarker:
+	return _statuses.get(region_index, null)
+
+
+## The region whose status rings lie under a screen point, or 0. The rings sit on
+## the anchor, so the reach is the outermost one (§16.3.2).
+func status_ring_at(screen: Vector2) -> int:
+	if _camera == null:
+		return 0
+	var point: Vector2 = _camera.canvas_transform().affine_inverse() * screen
+	for index: int in _statuses:
+		var marker: StatusMarker = _statuses[index]
+		if marker.position.distance_to(point) * _zoom <= marker.outer_radius():
+			return index
+	return 0
 
 
 ## The asset rows on the map, for the tests.
@@ -251,6 +337,9 @@ func _on_tick_advanced(day: int) -> void:
 	for id: int in _markers:
 		var marker: AnomalyMarker = _markers[id]
 		marker.days_left = marker.expires_day - day
+	# A status ring empties by the day, so every one of them is re-read.
+	for index: int in _statuses.keys():
+		_refresh_statuses(index)
 
 
 func _on_sim_event(event: SimEvent) -> void:
@@ -265,6 +354,10 @@ func _on_sim_event(event: SimEvent) -> void:
 			_refresh_assets(_region_index(str(event.data.get("region", ""))), true)
 		SimEvent.ASSET_LOST:
 			_refresh_assets(_region_index(str(event.data.get("region", ""))), false)
+		SimEvent.STATUS_STARTED, SimEvent.STATUS_ENDED:
+			# A global status has no region and no ring: it shows in the HUD
+			# instead (§16.9).
+			_refresh_statuses(_region_index(str(event.data.get("region", ""))))
 
 
 func _spawn(event: SimEvent) -> void:
@@ -325,10 +418,36 @@ func _hover(marker: AnomalyMarker) -> void:
 		_tooltip.visible = false
 		return
 	_hovered_assets = 0
+	_hovered_status = 0
 	_tooltip_label.text = tr(KEY_ANOMALY).format(
 		{PLACEHOLDER_VALUE: Format.number(marker.value, Format.Kind.COMPUTE)})
 	_tooltip.visible = true
 	_place_tooltip_at(marker.position)
+
+
+## §16.3.2: the innermost status names itself and says how long it still has.
+func _hover_status(region_index: int) -> void:
+	if region_index == _hovered_status:
+		return
+	_hovered_status = region_index
+	if region_index == 0:
+		if _hovered_id == 0 and _hovered_assets == 0:
+			_hide_tooltip()
+		return
+	_hovered_assets = 0
+	var status: Status = Game.sim.world.statuses_in_region(region_index)[0]
+	var days: String = tr(KEY_STANDING) if status.is_standing() \
+		else str(status.days_left(Game.sim.world.day))
+	_tooltip_label.text = tr(KEY_STATUS_TIP).format({
+		PLACEHOLDER_STATUS: tr(StatusDef.name_key(status.id)),
+		PLACEHOLDER_DAYS: days,
+	})
+	_tooltip.visible = true
+	_place_tooltip_at(_statuses[region_index].position)
+
+
+func _hide_tooltip() -> void:
+	_tooltip.visible = false
 
 
 ## §16.3.2: the kinds and counts of a row, joined by ` · `.
@@ -337,8 +456,8 @@ func _hover_assets(region_index: int) -> void:
 		return
 	_hovered_assets = region_index
 	if region_index == 0:
-		if _hovered_id == 0:
-			_tooltip.visible = false
+		if _hovered_id == 0 and _hovered_status == 0:
+			_hide_tooltip()
 		return
 	var marker: AssetMarker = _assets[region_index]
 	var parts: Array[String] = []
@@ -400,8 +519,12 @@ func _on_camera_view_changed(_center: Vector2, zoom_level: float) -> void:
 			_markers[id].scale = marker_scale
 		for index: int in _assets:
 			_assets[index].scale = marker_scale
+		for index: int in _statuses:
+			_statuses[index].scale = marker_scale
 		queue_redraw()
 	if _hovered_id != 0:
 		_place_tooltip_at(_markers[_hovered_id].position)
+	elif _hovered_status != 0 and _statuses.has(_hovered_status):
+		_place_tooltip_at(_statuses[_hovered_status].position)
 	elif _hovered_assets != 0 and _assets.has(_hovered_assets):
 		_place_tooltip_at(_assets[_hovered_assets].position)

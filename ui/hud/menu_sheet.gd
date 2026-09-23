@@ -11,9 +11,12 @@ extends SlidePanel
 ## A destination was chosen (`dock.gd`'s `DESTINATION_*`).
 signal destination_requested(index: int)
 signal pause_requested
+## §16.10: the picker's entry, which is the compact layout's `A` key.
+signal abilities_requested
 
 const DOCK: GDScript = preload("res://ui/hud/dock.gd")
 const KEY_PAUSE: String = "UI_MENU_PAUSE"
+const KEY_ABILITIES: String = "UI_SHEET_ABILITIES"
 const KEY_TITLE: String = "UI_MENU_TITLE"
 const KEY_NOT_YET: String = "UI_DOCK_NOT_YET"
 
@@ -22,6 +25,7 @@ const KEY_NOT_YET: String = "UI_DOCK_NOT_YET"
 @onready var _bars_slot: VBoxContainer = %BarsSlot
 @onready var _destinations: VBoxContainer = %Destinations
 @onready var _pause_entry: ConsoleButton = %PauseEntry
+@onready var _abilities_entry: ConsoleButton = %AbilitiesEntry
 
 var _buttons: Array[ConsoleButton] = []
 ## Where the stat row came from, so it can go home — and who owned it, because
@@ -41,6 +45,7 @@ func _ready() -> void:
 	_build_destinations()
 	_close_button.pressed.connect(close)
 	_pause_entry.pressed.connect(_on_pause_pressed)
+	_abilities_entry.pressed.connect(_on_abilities_pressed)
 	_refresh_strings()
 
 
@@ -104,6 +109,7 @@ func _build_destinations() -> void:
 func _refresh_strings() -> void:
 	_title.text = tr(KEY_TITLE)
 	_pause_entry.label_key = KEY_PAUSE
+	_abilities_entry.label_key = KEY_ABILITIES
 
 
 func _on_destination_pressed(index: int) -> void:
@@ -114,3 +120,14 @@ func _on_destination_pressed(index: int) -> void:
 func _on_pause_pressed() -> void:
 	close()
 	pause_requested.emit()
+
+
+## §16.8: the entry appears with the first ability, like every other row.
+func _on_abilities_pressed() -> void:
+	close()
+	abilities_requested.emit()
+
+
+## The entry is there once any ability is unlocked (§16.8).
+func apply_abilities_reveal(unlocked: bool) -> void:
+	_abilities_entry.visible = unlocked

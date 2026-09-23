@@ -7,6 +7,9 @@ extends HBoxContainer
 ## once any asset exists and then stays, because a row that comes and goes is a
 ## row the eye has to find again (§16.8).
 ##
+## The agent's own **global** statuses live here too (§16.9): they are on the
+## agent rather than on a region, so no ring on the map can carry them.
+##
 ## The same component in both layouts: the top bar after the day cell, the
 ## status strip's second row on a phone.
 
@@ -15,6 +18,14 @@ const KEY_TIP: String = "UI_HUD_ASSETS_TIP"
 ## §16.3.2: the fleet leads and is drawn larger than the rest.
 const GLYPH_LEAD: float = 16.0
 const GLYPH: float = 12.0
+## §16.9: a chip per global status, after the counts.
+const PREFIX_STATUS: String = "STATUS_"
+const SUFFIX_CODE: String = "_CODE"
+const SUFFIX_NAME: String = "_NAME"
+const KEY_STATUS_DAYS: String = "UI_REGION_STATUS_DAYS"
+const KEY_STATUS_STANDING: String = "UI_REGION_STATUS_STANDING"
+const PLACEHOLDER_DAYS: String = "days"
+const TOOLTIP_JOIN: String = " · "
 
 ## Kind → the number beside its glyph.
 var _values: Dictionary[String, ValueLabel] = {}
@@ -30,6 +41,8 @@ var _icons: Dictionary[String, GlyphIcon] = {}
 ## True once anything has ever stood anywhere (§16.8).
 var _revealed: bool = false
 var _caption: CapsLabel = null
+## The chips of the agent's global statuses, rebuilt whenever they change.
+var _status_chips: Array[Chip] = []
 
 
 func _ready() -> void:
@@ -66,8 +79,34 @@ func refresh() -> void:
 		_icons[kind].visible = total > 0
 		if total > 0:
 			_values[kind].set_number(float(total), Format.Kind.PLAIN)
+	_refresh_statuses(world)
 	_revealed = _revealed or any
-	visible = _revealed and enabled
+	# A global status alone is worth the row: it is the one place it shows.
+	visible = enabled and (_revealed or not _status_chips.is_empty())
+
+
+## §16.9: one chip per status on the agent, with its code and, in the tooltip,
+## its name and what is left of it.
+func _refresh_statuses(world: World) -> void:
+	for chip: Chip in _status_chips:
+		remove_child(chip)
+		chip.queue_free()
+	_status_chips.clear()
+	for status: Status in world.statuses_in_region(0):
+		var chip: Chip = Chip.new()
+		chip.kind = Chip.Kind.ACCENT
+		chip.set_label(PREFIX_STATUS + status.id.to_upper() + SUFFIX_CODE)
+		var days: String = tr(KEY_STATUS_STANDING) if status.is_standing() \
+			else tr(KEY_STATUS_DAYS).format({PLACEHOLDER_DAYS: status.days_left(world.day)})
+		chip.tooltip_text = TOOLTIP_JOIN.join([
+			tr(PREFIX_STATUS + status.id.to_upper() + SUFFIX_NAME), days])
+		add_child(chip)
+		_status_chips.append(chip)
+
+
+## How many global statuses the readout is showing, for the tests.
+func status_chip_count() -> int:
+	return _status_chips.size()
 
 
 ## Whether the readout has appeared at all, for the reveal test.

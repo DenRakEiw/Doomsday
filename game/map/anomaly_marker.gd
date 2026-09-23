@@ -19,11 +19,10 @@ const RING_RADIUS_MIN: float = 10.0
 const RING_RADIUS_MAX: float = 24.0
 const RING_ALPHA_MAX: float = 0.8
 ## The countdown ring of the days left, which stands still in both modes: with
-## motion off it is the only ring the marker has.
+## motion off it is the only ring the marker has. It is drawn by `Rings`, which
+## every marker with a clock shares (§16.3.2).
 const COUNTDOWN_RADIUS: float = 14.0
 const COUNTDOWN_ALPHA: float = 0.6
-## It empties clockwise from the top, the way a clock is read.
-const COUNTDOWN_START: float = -PI * 0.5
 ## How far from the anchor a tap still counts — half of `HIT_MIN`, so the target
 ## is the 48 px of §3.3 whatever the zoom does.
 const HIT_RADIUS_PX: float = 24.0
@@ -92,7 +91,7 @@ static func ring_for(phase: float) -> Array:
 static func countdown_for(days: int, lifetime: int) -> float:
 	if lifetime <= 0:
 		return 0.0
-	return clampf(float(days) / float(lifetime), 0.0, 1.0)
+	return Rings.share_of(float(days), float(lifetime))
 
 
 ## Whether a tap at `point` (both in map pixels) hits a marker at `at`. The
@@ -110,13 +109,10 @@ func _draw() -> void:
 		pulse.a = float(ring[1])
 		draw_arc(Vector2.ZERO, float(ring[0]), 0.0, TAU, RING_SEGMENTS, pulse,
 			RING_STROKE, true)
-	var remaining: float = countdown_for(days_left, lifetime_days)
-	if remaining > 0.0:
-		var countdown: Color = UiTokens.color(&"ACCENT")
-		countdown.a = COUNTDOWN_ALPHA
-		draw_arc(Vector2.ZERO, COUNTDOWN_RADIUS, COUNTDOWN_START,
-			COUNTDOWN_START + TAU * remaining, RING_SEGMENTS, countdown,
-			RING_STROKE, true)
+	var countdown: Color = UiTokens.color(&"ACCENT")
+	countdown.a = COUNTDOWN_ALPHA
+	Rings.draw_countdown(self, Vector2.ZERO, COUNTDOWN_RADIUS,
+		countdown_for(days_left, lifetime_days), countdown, RING_STROKE)
 	draw_circle(Vector2.ZERO, DISC_RADIUS, UiTokens.color(&"ACCENT"))
 
 

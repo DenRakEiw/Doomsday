@@ -117,3 +117,25 @@ func test_escape_with_nothing_open_is_left_to_whatever_else_wants_it() -> void:
 	_press(KEY_ESCAPE)
 
 	assert_signal_not_emitted(EventBus, "region_selected")
+
+
+## S4.2 — `A` opens the ability picker and `A` closes it again (§16.10). The
+## picker holds no clock: the run keeps going while it is up.
+func test_a_opens_and_closes_the_ability_picker() -> void:
+	_start()
+	Game.set_speed(1)
+	var picker: Control = _session.get_node("%AbilityPicker") as Control
+	assert_false(picker.visible)
+
+	_press(KEY_A)
+	assert_true(picker.visible)
+	assert_eq(Game.speed, 1, "the picker holds no clock")
+
+	_press(KEY_A)
+	assert_false(picker.visible)
+
+
+func test_a_without_a_run_opens_nothing() -> void:
+	var picker: Control = _session.get_node("%AbilityPicker") as Control
+	_press(KEY_A)
+	assert_false(picker.visible)

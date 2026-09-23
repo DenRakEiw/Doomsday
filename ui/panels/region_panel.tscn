@@ -241,6 +241,38 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"StackTight"
 
+[node name="StatusBlock" type="VBoxContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="StatusTitle" type="Label" parent="Panel/Scroll/Body/StatusBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelHeading"
+
+[node name="Statuses" type="VBoxContainer" parent="Panel/Scroll/Body/StatusBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="ActionsBlock" type="VBoxContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="ActionsTitle" type="Label" parent="Panel/Scroll/Body/ActionsBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelHeading"
+
+[node name="Actions" type="VBoxContainer" parent="Panel/Scroll/Body/ActionsBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
 [node name="Extra" type="VBoxContainer" parent="Panel/Scroll/Body"]
 layout_mode = 2
 theme_type_variation = &"StackTight"
