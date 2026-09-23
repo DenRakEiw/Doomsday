@@ -248,6 +248,7 @@ before the *next* row; "—" means stay on the same model.
 | 32 | S3.5 Ticker component and headline system | [O] | — |
 | 33 | S3.6 Strategy bots and batch reporting | [O] | **`/model fable`** |
 | 34 | **G3 Balance pass 1 and M3 gate — the important one** | **[F]** | — |
+| 34a | **D4.0 Core loop redesign** *(added at G3: the loop was judged "middling")* | **[F]** | — |
 | 35 | D4.1 Opposition: factions, Societal Function, counter-actions | **[F]** | — |
 | 36 | D4.2 Emergent behaviours; event format; two proving chains | **[F]** | — |
 | 37 | D4.3 Event chains, second batch | **[F]** | — |
@@ -631,6 +632,38 @@ Findings go to `docs/BALANCE.md`: method, numbers, what changed and why.
 **With the user:** a full run that can be won and lost. Decide and record: is the loop fun; four
 containment tracks or two (PLAN §6); UI question 1; VISUALS question 5 (DPITexture).
 **If the loop is not fun, D4.1–D4.4 are replaced by a redesign step and this file is rewritten.**
+
+### D4.0 — Core loop redesign **[F]** *(added at G3, 2026-09-23)*
+**Read first:** PLAN §1, §3.1–§3.7, §3.9 · `docs/BALANCE.md` §3 · PROGRESS *Decisions* (G3) · UI §2–§3
+· CONTENT §1–§2 (skim)
+**Why:** the M3 gate's verdict was "macht so mittel Spaß" with three named gaps — **the theme does
+not come through** (a map colouring itself, not an AI takeover), **decisions carry no felt weight**
+(a purchase changes nothing the player can see), **no felt opposition** (containment is one bar).
+The user chose a redesign step before the M4 design rather than trusting M4's depth to fix it.
+**Produce:** `docs/specs/loop-redesign.md`, and the edits to PLAN/CONTENT/UI and to Blocks 7–8
+of this file that follow from it. The spec answers, with mechanics and initial numbers, not with
+adjectives:
+1. **What the player does per phase and why it reads as a takeover** — the fantasy per phase
+   (Boxed / Covert / Emergent / Open), the one verb each phase adds, and where embodied AI
+   (humanoids, physical systems, the Skynet register — user direction at G3) enters the loop, not
+   only the text.
+2. **Every purchase has a visible consequence within seconds** — what the map, the HUD, the
+   ticker and the region panel show the moment a node is bought; which nodes become *choices*
+   (mutually exclusive branches, tier gates that close doors) rather than a shopping list; the
+   cost curve that makes a purchase rare enough to matter. Includes what changes in the tech
+   trees' data (D3.1/D3.2) and what stays.
+3. **Opposition the player can see and answer** — the world's counter-moves as concrete, named
+   events on the map (regions shut down, a faction announces, a lab goes dark), each with a
+   response the player can buy or choose; decides **PLAN §6, four tracks or two**, from that
+   angle. Pulls forward from D4.1/D4.3 whatever this needs and says what M4 keeps.
+4. **What fills the waiting** — the Covert phase's texture beyond anomalies (the ticker is not
+   enough); the target cadence of decisions per minute per phase at the G3 clock.
+5. **The rewritten run sheet** for Blocks 7–8: which D4.x steps change, merge or go; which S4.x
+   builds follow; the bots (S4.9) and the balance pass (G4) keep their place. The step may
+   shrink M4's content scope; it may not grow the milestone count.
+**Done when:** the spec meets §1.1; PLAN §3, CONTENT and UI carry the changes; this file's Blocks
+7–8 are rewritten; PROGRESS *Now* points at the first rewritten step. **The user reads the spec
+before the block continues** (a gate inside a design step — the only one).
 
 ### D4.1 — Opposition **[F]**
 **Read first:** PLAN §3.2 (harvesting), §3.6, §3.7, §3.10 (first paragraph)

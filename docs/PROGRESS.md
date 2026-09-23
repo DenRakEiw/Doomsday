@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G3, the gate itself: play one run, answer the four questions under *Waiting on the user*** — the balance pass is done (`docs/BALANCE.md`). Then D4.1 |
+| **Next step** | **D4.0 — Core loop redesign** (added at G3; IMPLEMENTATION Block 7, read its *Why* first) |
 | **Model for it** | **Fable** (no switch) |
-| **After it** | `/clear` → D4.1 (Fable). The punch list for S3.P has eight items and waits at the head of Block 8; the user may pull it forward to play the gate at the new clock |
-| **Last completed** | G3 balance pass 1 — clock 0.5 + stretch 2.5, `containment.base_rate` 0.0014, seven node names, anomaly headlines (2026-09-23) |
-| **Milestone** | M2 gated; **M3 built and balanced, gate decisions pending** |
+| **After it** | `/clear` → whatever D4.0's rewritten run sheet names first (D4.1 as it stands, unless the redesign changes it). The punch list for S3.P (eight items) waits at the head of Block 8 |
+| **Last completed** | G3 — balance pass 1 and the M3 gate: **the loop is "middling", a redesign step (D4.0) goes before D4.1** (2026-09-23) |
+| **Milestone** | M2 gated; **M3 gated: change** — the scope stays, the loop design is revisited in D4.0 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
@@ -89,7 +89,8 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S3.6 [O] Strategy bots and batch reporting — ⇄ **then `/model fable`**
 
 **Block 7 — M3 gate, M4 design · Fable**
-- [ ] **G3 [F] Balance pass 1 and M3 gate — the important one** *(balance pass done 2026-09-23; the play-through and the four gate decisions are pending — see *Waiting on the user*)*
+- [x] G3 [F] Balance pass 1 and M3 gate — the important one *(verdict: change; D4.0 added)*
+- [ ] **D4.0 [F] Core loop redesign** *(added at G3)*
 - [ ] D4.1 [F] Opposition: factions, Societal Function, counter-actions
 - [ ] D4.2 [F] Emergent behaviours; event format; two proving chains
 - [ ] D4.3 [F] Event chains, second batch
@@ -534,6 +535,21 @@ without new information.
 - **2026-09-23** (G3) — **The M1 `stealth` policy is obsolete as a reference** (price-blind, found
   earlier than `greedy`, collapses when containment bites) and stays in the report for continuity
   only; `stealth_spread` is the careful reference.
+- **2026-09-23** (G3, user) — **M3 gate: change.** The play-through's verdict was "macht so mittel
+  Spaß"; the three gaps named: the theme does not come through, decisions carry no felt weight,
+  no felt opposition (the fourth option, "too much waiting", was not picked). The user chose a
+  **redesign step before the M4 design** over "M4 as planned" and over "M4 with the theme pulled
+  forward": **D4.0 Core loop redesign** (IMPLEMENTATION Block 7) precedes D4.1 and rewrites
+  Blocks 7–8. Scope is not cut; the loop design is. (User decision, options presented.)
+- **2026-09-23** (G3) — **PLAN §6 (four tracks or two) is decided inside D4.0**, from the angle of
+  opposition the player can see and answer, not at the gate. G3's recommendation stands as the
+  default (four).
+- **2026-09-23** (G3) — **UI question 1 confirmed:** the tech tree pauses by a setting, on by
+  default on desktop, off on mobile (D3.3 as built). Not raised at the play-through; the user did
+  not object.
+- **2026-09-23** (G3) — **VISUALS question 5:** `DPITexture` for the icon set, source SVGs kept, a
+  PNG-atlas fallback as a build step; executed in M6 when the set is real. Not raised at the
+  play-through; the user did not object.
 - **2026-09-23** (G3) — **An anomaly's remaining time is a countdown ring, not a red blink.**
   Red was read as a warning at the play-through; `ALERT` stays reserved for moments (G2). → S3.P 7.
 - **2026-09-23** (G3, user) — **Embodied AI gets more weight in the theme:** humanoid robots,
@@ -1030,25 +1046,7 @@ change either way. (S2.4's second question — the dark chip — was answered at
 
 ## Waiting on the user
 
-**G3, the gate (2026-09-23).** The balance pass is in; the gate needs the user's eyes. Play one full
-run (`run_project` → New run → an origin with hardware → 1×; a win is ~12 minutes at today's clock
-and ~24 after S3.P item 1, a loss comes sooner) and answer:
-
-1. **Is the loop fun?** The only question that can change the plan: if not, D4.1–D4.4 become a
-   redesign step (IMPLEMENTATION §1.7). What to watch: does Boxed → first vector feel like a
-   decision; is discovery a moment; is the Emergent phase a race the player can read on the
-   containment panel; does the Open phase feel like a sprint or a wait.
-2. **Four containment tracks or two** (PLAN §6). *Recommendation: four.* D3.1/D3.2 already put
-   per-faction brakes on twelve nodes, the Weapons chain is watched by all four, and Persuasion's
-   identity (Regulatory Capture → governments, Sycophancy → public) is per faction; two tracks would
-   strand half of that. The HUD shows one bar (the maximum) either way; the panel lists the tracks.
-3. **UI question 1 — does the tree pause the game?** D3.3 decided *by a setting, on by default on
-   desktop, off on mobile*. *Recommendation: confirm.*
-4. **VISUALS question 5 — `DPITexture` for the icons?** *Recommendation: yes*, with the source SVGs
-   kept and a PNG-atlas fallback as a build step (VISUALS already proposes exactly that); the icon
-   set is not real yet, so this is a direction for M6, not a change now.
-
-Record the answers under *Decisions* (G3), tick G3, commit `G3: gate decisions`.
+*(nothing — the G3 gate was answered on 2026-09-23; D4.0 ends with the user reading its spec)*
 
 ## Balance baselines
 
@@ -1183,7 +1181,7 @@ takes an OS path, which is worth knowing).
 
 ## Session log
 
-### 2026-09-23 — G3 Balance pass 1 [F] *(gate decisions pending)*
+### 2026-09-23 — G3 Balance pass 1 and M3 gate [F]
 Every per-day rate of `balance.json` divided by 2.5 and every duration multiplied (a two-second
 day, `TICKS_PER_SECOND` 0.5 → S3.P), then `containment.base_rate` swept over 14 variants × 100
 seeds and set to 0.0014: `greedy` 57 %, `cyber_rush` 33 %, `stealth_spread` 67 %, `persuader`
@@ -1193,7 +1191,9 @@ Harm bar = max over regions, seven English names shortened, anomaly headlines ×
 play-through and the four gate questions wait under *Waiting on the user*. First play-through
 done at the old clock: a win by Ascendance on day 980 with 60 % dead and containment peaking at
 73 % — the results panel rendered as an empty strip (punch list 6); the red expiring anomaly
-read as a warning (7); some markers did not take a click (8).
+read as a warning (7); some markers did not take a click (8). **Gate verdict: "mittel" — theme,
+decision weight and opposition named as the gaps; D4.0 Core loop redesign added before D4.1**
+(user decision). Next: **D4.0 on Fable**, no switch.
 
 ### 2026-09-23 — S3.6 Strategy bots and batch reporting [O]
 `CyberRushPolicy`, `StealthSpreadPolicy` and `PersuaderPolicy` (`tech-trees.md` §7.3 and §7.5.6),
