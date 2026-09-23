@@ -56,6 +56,13 @@ const EVENT_ANSWERED: String = "event_answered"
 const EVENT_EXPIRED: String = "event_expired"
 ## A pending event could not open: its region went dark, or nowhere was eligible.
 const EVENT_DROPPED: String = "event_dropped"
+## The faction closest to switching the agent off changed (opposition.md §5.6);
+## `from` is "" on the first tick after discovery.
+const THREAT_LEADER_CHANGED: String = "threat_leader_changed"
+## `funding_reset` ran: every faction stands down until `until_day` (§6.5).
+const FUNDING_RESET: String = "funding_reset"
+## A faction's preparation was cancelled before it fired.
+const COUNTER_MOVE_CANCELLED: String = "counter_move_cancelled"
 ## What the world says about the rest of them (ticker.md §3.7). Emitted by
 ## `HeadlineSystem` after the systems, never a trigger for another headline.
 const HEADLINE: String = "headline"
@@ -68,7 +75,8 @@ const TYPES_ALL: Array[String] = [ORIGIN_CHOSEN, NODE_PURCHASED, ANOMALY_COLLECT
 	COMPUTE_GRANTED, HARM_BURST, DORMANCY_CHANGED, ASSET_DEPLOYED, ASSET_LOST,
 	ABILITY_UNLOCKED, ABILITY_USED, STATUS_STARTED, STATUS_ENDED, PENETRATION_CHANGED,
 	CONTROL_CHANGED, REGION_WIPED, CONTAINMENT_ADDED, PULSE_STARTED, PULSE_ENDED,
-	FLAG_SET, FLAG_EXPIRED, EVENT_OPENED, EVENT_ANSWERED, EVENT_EXPIRED, EVENT_DROPPED]
+	FLAG_SET, FLAG_EXPIRED, EVENT_OPENED, EVENT_ANSWERED, EVENT_EXPIRED, EVENT_DROPPED,
+	THREAT_LEADER_CHANGED, FUNDING_RESET, COUNTER_MOVE_CANCELLED]
 
 ## Fields of a `HEADLINE` event that are not arguments of its text.
 const FIELD_HEADLINE: String = "headline"

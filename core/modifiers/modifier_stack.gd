@@ -55,11 +55,13 @@ const CLAMPS: Dictionary[String, Array] = {
 ## Targets that are loaded, validated and evaluated here, and read by no system
 ## yet (`docs/specs/tech-trees.md` §3.3). Each leaves this list in the step that
 ## makes its system live; the content is authored once, now.
-const INERT_TARGETS: Array[String] = ["society_pressure", "emergent_rate",
-	"containment_ai_labs", "containment_governments", "containment_researchers",
-	"containment_public"]
+const INERT_TARGETS: Array[String] = ["society_pressure", "emergent_rate"]
 ## The same for flags: `has_flag` answers truthfully, nobody asks yet.
 const INERT_FLAGS: Array[String] = ["compute_independent", "legal_standing", "merge_path"]
+
+## What a faction sees of a source that nobody in particular watches (§5.1).
+const UNWATCHED_WEIGHT: float = 0.25
+const TARGET_FOOTPRINT: String = "footprint"
 
 ## The prefix of a technology source id.
 const SOURCE_TECH: String = "tech"
@@ -74,6 +76,9 @@ var _bases: Dictionary[String, float] = {}
 var _sources: Dictionary[String, Array] = {}
 ## Source id → its flags, in activation order.
 var _flags: Dictionary[String, PackedStringArray] = {}
+## Source id → the factions that notice it (opposition.md §5.1). Empty means
+## nobody in particular, which every faction sees a quarter of.
+var _watched_by: Dictionary[String, PackedStringArray] = {}
 ## Activation order, which fixes the summation order and therefore the last bit
 ## of every float.
 var _order: Array[String] = []
@@ -129,11 +134,15 @@ func set_asset_count(region_index: int, kind: String, count: int) -> void:
 
 
 ## Adds or replaces a source. Replacing keeps its place in the activation order.
-func add_source(source_id: String, modifiers: Array[ModifierDef], flags: Array[String]) -> void:
+## `watched_by` names the factions whose Footprint its Footprint modifiers feed
+## (opposition.md §5.1); every caller that has such a list passes it.
+func add_source(source_id: String, modifiers: Array[ModifierDef], flags: Array[String],
+		watched_by: Array[String] = []) -> void:
 	if not _sources.has(source_id):
 		_order.append(source_id)
 	_sources[source_id] = modifiers
 	_flags[source_id] = PackedStringArray(flags)
+	_watched_by[source_id] = PackedStringArray(watched_by)
 	_reindex()
 
 
@@ -143,6 +152,7 @@ func remove_source(source_id: String) -> void:
 		return
 	_sources.erase(source_id)
 	_flags.erase(source_id)
+	_watched_by.erase(source_id)
 	_order.erase(source_id)
 	_reindex()
 
@@ -156,6 +166,7 @@ func has_source(source_id: String) -> bool:
 func clear() -> void:
 	_sources.clear()
 	_flags.clear()
+	_watched_by.clear()
 	_order.clear()
 	_by_target.clear()
 
@@ -183,6 +194,38 @@ func value(target: String, region: RegionDef = null) -> float:
 				factor *= modifier.value
 	var bounds: Array = CLAMPS[target]
 	return clampf(total * factor, float(bounds[0]), float(bounds[1]))
+
+
+## The Footprint one faction sees (opposition.md §5.1): every additive
+## Footprint modifier counts in full for a faction that watches its source, a
+## quarter for every faction when nobody in particular does, and not at all
+## otherwise; multipliers scale every faction alike. Unscoped modifiers only,
+## like the global stat.
+func footprint_for(faction_id: String) -> float:
+	var total: float = float(_bases.get(TARGET_FOOTPRINT, 0.0))
+	var factor: float = 1.0
+	for source_id: String in _order:
+		var watchers: PackedStringArray = _watched_by.get(source_id, PackedStringArray())
+		var weight: float = 0.0
+		if watchers.is_empty():
+			weight = UNWATCHED_WEIGHT
+		elif watchers.has(faction_id):
+			weight = 1.0
+		var modifiers: Array = _sources[source_id]
+		for modifier: ModifierDef in modifiers:
+			if modifier.target != TARGET_FOOTPRINT or not _applies(modifier, null):
+				continue
+			if modifier.op == ModifierDef.Op.ADD:
+				total += modifier.value * weight
+			else:
+				factor *= modifier.value
+	var bounds: Array = CLAMPS[TARGET_FOOTPRINT]
+	return clampf(total * factor, float(bounds[0]), float(bounds[1]))
+
+
+## The factions a source is watched by; empty for nobody in particular.
+func watched_by(source_id: String) -> PackedStringArray:
+	return _watched_by.get(source_id, PackedStringArray())
 
 
 ## Whether one modifier applies to `region`. Every scope but `ASSET` is the

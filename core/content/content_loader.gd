@@ -19,6 +19,7 @@ const HEADLINES_FILE: String = "headlines.json"
 const ASSETS_FILE: String = "assets.json"
 const STATUSES_FILE: String = "statuses.json"
 const ABILITIES_FILE: String = "abilities.json"
+const FACTIONS_FILE: String = "factions.json"
 const TECH_DIR: String = "tech"
 ## Every `*.json` below it is one events file (§15); the directory must exist.
 const EVENTS_DIR: String = "events"
@@ -79,12 +80,13 @@ static func load_root(root: String) -> ContentLoadResult:
 	else:
 		errors.append(ValidationError.new(events_root, "", "directory not found"))
 
+	var factions_raw: Variant = _read(root.path_join(FACTIONS_FILE), errors)
 	var headlines_raw: Variant = _read(root.path_join(HEADLINES_FILE), errors)
 	var strings: Dictionary[String, bool] = {}
 	var strings_known: bool = _read_strings(root.path_join(STRINGS_FILE), strings)
 	return _finish(root, balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
-		abilities_raw, tech_files, tech_raws, event_files, event_raws, headlines_raw, strings,
-		strings_known, errors)
+		abilities_raw, tech_files, tech_raws, event_files, event_raws, factions_raw,
+		headlines_raw, strings, strings_known, errors)
 
 
 ## Loads content that is already parsed — for tests, and for anything that builds
@@ -92,7 +94,7 @@ static func load_root(root: String) -> ContentLoadResult:
 static func load_from_dicts(balance: Dictionary, regions: Dictionary, links: Dictionary,
 		assets: Dictionary, statuses: Dictionary, abilities: Dictionary,
 		tech_files: Array[Dictionary], events: Array[Dictionary], headlines: Dictionary,
-		label: String = MEMORY_LABEL) -> ContentLoadResult:
+		factions: Dictionary, label: String = MEMORY_LABEL) -> ContentLoadResult:
 	var errors: Array[ValidationError] = []
 	var names: PackedStringArray = []
 	var raws: Array = []
@@ -108,7 +110,7 @@ static func load_from_dicts(balance: Dictionary, regions: Dictionary, links: Dic
 	# skipped rather than reported against a file that does not exist.
 	var strings: Dictionary[String, bool] = {}
 	return _finish(label, balance, regions, links, assets, statuses, abilities, names, raws,
-		event_names, event_raws, headlines, strings, false, errors)
+		event_names, event_raws, factions, headlines, strings, false, errors)
 
 
 # --------------------------------------------------------------------- reading
@@ -165,7 +167,7 @@ static func _read_strings(path: String, into: Dictionary[String, bool]) -> bool:
 static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, links_raw: Variant,
 		assets_raw: Variant, statuses_raw: Variant, abilities_raw: Variant,
 		tech_files: PackedStringArray, tech_raws: Array,
-		event_files: PackedStringArray, event_raws: Array,
+		event_files: PackedStringArray, event_raws: Array, factions_raw: Variant,
 		headlines_raw: Variant, strings: Dictionary[String, bool], strings_known: bool,
 		errors: Array[ValidationError]) -> ContentLoadResult:
 	# The order is SCHEMA's: balance, regions, links, technology, and the
@@ -199,6 +201,10 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 	var events: Dictionary[String, Array] = SchemaValidator.validate_events(event_files,
 		event_raws, regions, regions_known, statuses_raw, statuses, statuses_known, tech_raws,
 		abilities, strings, strings_known, errors)
+	# Factions after events: a move names a counter-move event (opposition.md
+	# §12.1).
+	SchemaValidator.validate_factions(root.path_join(FACTIONS_FILE), factions_raw, event_raws,
+		strings, strings_known, errors)
 	# Headlines last: they name regions, nodes and balance values, so everything
 	# they point at has been checked by the time they are.
 	SchemaValidator.validate_headlines(root.path_join(HEADLINES_FILE), headlines_raw, balance_raw,
@@ -209,7 +215,7 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 	result.errors = errors
 	if errors.is_empty():
 		result.db = _build(balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
-			abilities_raw, tech_raws, event_raws, headlines_raw)
+			abilities_raw, tech_raws, event_raws, factions_raw, headlines_raw)
 	return result
 
 
@@ -239,7 +245,8 @@ static func _ability_ids(raw: Variant) -> Dictionary[String, bool]:
 ## the right types and every reference resolves.
 static func _build(balance_raw: Dictionary, regions_raw: Dictionary, links_raw: Dictionary,
 		assets_raw: Dictionary, statuses_raw: Dictionary, abilities_raw: Dictionary,
-		tech_raws: Array, event_raws: Array, headlines_raw: Dictionary) -> ContentDB:
+		tech_raws: Array, event_raws: Array, factions_raw: Dictionary,
+		headlines_raw: Dictionary) -> ContentDB:
 	var db: ContentDB = ContentDB.new()
 	db.balance = _build_balance(balance_raw)
 	_build_regions(db, regions_raw)
@@ -249,9 +256,10 @@ static func _build(balance_raw: Dictionary, regions_raw: Dictionary, links_raw: 
 	_build_abilities(db, abilities_raw)
 	_build_tech(db, tech_raws)
 	_build_events(db, event_raws)
+	_build_factions(db, factions_raw)
 	_build_headlines(db, headlines_raw)
 	db.content_hash = _content_hash(balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
-		abilities_raw, tech_raws, event_raws, headlines_raw)
+		abilities_raw, tech_raws, event_raws, factions_raw, headlines_raw)
 	return db
 
 
@@ -550,6 +558,46 @@ static func _build_next(d: Dictionary) -> Array[Dictionary]:
 	return out
 
 
+## `factions.json` in file order, which the validator has made
+## `Faction.FACTION_IDS` order (opposition.md §4).
+static func _build_factions(db: ContentDB, raw: Dictionary) -> void:
+	var list: Array = raw[FactionDef.ROOT_KEY]
+	for entry: Variant in list:
+		var f: Dictionary = entry
+		var def: FactionDef = FactionDef.new()
+		def.id = str(f["id"])
+		def.capacity_attr = str(f["capacity_attr"])
+		def.brake = str(f["brake"])
+		var terms: Array = f["terms"]
+		for raw_term: Variant in terms:
+			var t: Dictionary = raw_term
+			var term: FactionTermDef = FactionTermDef.new()
+			term.source = str(t["source"])
+			term.weight = float(t["weight"])
+			term.tree = str(t.get("tree", ""))
+			term.kind = str(t.get("kind", ""))
+			def.terms.append(term)
+		var moves: Array = f.get("moves", [])
+		for raw_move: Variant in moves:
+			var m: Dictionary = raw_move
+			var move: FactionMoveDef = FactionMoveDef.new()
+			move.event = str(m["event"])
+			var trigger: Dictionary = m["trigger"]
+			if trigger.has("containment"):
+				move.trigger_containment = float(trigger["containment"])
+			if trigger.has("risk"):
+				move.trigger_risk = float(trigger["risk"])
+			if m.has("variants"):
+				var variants: Dictionary = m["variants"]
+				move.variants_select = str(variants["select"])
+				var events: Dictionary = variants["events"]
+				for key: Variant in events:
+					move.variants[str(key)] = str(events[key])
+			def.moves.append(move)
+		db.factions.append(def)
+		db.faction_by_id[def.id] = def
+
+
 ## `headlines.json` in file order (ticker.md §3.2). The trigger blocks are
 ## flattened into typed fields here so that the evaluator never reads raw JSON.
 static func _build_headlines(db: ContentDB, raw: Dictionary) -> void:
@@ -664,7 +712,7 @@ static func _string_array(d: Dictionary, key: String) -> Array[String]:
 ## carrying a different hash would not replay on this content.
 static func _content_hash(balance: Dictionary, regions: Dictionary, links: Dictionary,
 		assets: Dictionary, statuses: Dictionary, abilities: Dictionary, tech_raws: Array,
-		event_raws: Array, headlines: Dictionary) -> String:
+		event_raws: Array, factions: Dictionary, headlines: Dictionary) -> String:
 	var text: String = JSON.stringify(balance, "", true, true)
 	text += JSON.stringify(regions, "", true, true)
 	text += JSON.stringify(links, "", true, true)
@@ -675,6 +723,7 @@ static func _content_hash(balance: Dictionary, regions: Dictionary, links: Dicti
 		text += JSON.stringify(raw, "", true, true)
 	for raw: Variant in event_raws:
 		text += JSON.stringify(raw, "", true, true)
+	text += JSON.stringify(factions, "", true, true)
 	text += JSON.stringify(headlines, "", true, true)
 	return text.sha256_text()
 
@@ -741,15 +790,23 @@ static func _build_balance(d: Dictionary) -> BalanceDef:
 
 	var containment: Dictionary = d["containment"]
 	def.containment_base_rate = float(containment["base_rate"])
-	def.containment_per_footprint = float(containment["per_footprint"])
-	def.containment_per_harm = float(containment["per_harm"])
-	def.containment_per_share = float(containment["per_share"])
-	var weights: Array = containment["research_weight_by_tier"]
+	var weights: Array = containment["capacity_weight_by_tier"]
 	for weight: Variant in weights:
-		def.containment_research_weight_by_tier.append(float(weight))
+		def.containment_capacity_weight_by_tier.append(float(weight))
 	var thresholds: Array = containment["thresholds"]
 	for threshold: Variant in thresholds:
 		def.containment_thresholds.append(float(threshold))
+
+	var factions: Dictionary = d["factions"]
+	def.factions_prepare_days = int(factions["prepare_days"])
+	def.factions_prepare_min_days = int(factions["prepare_min_days"])
+	def.factions_cooldown_days = int(factions["cooldown_days"])
+	def.factions_max_active_moves = int(factions["max_active_moves"])
+	var level_thresholds: Array = factions["level_thresholds"]
+	for threshold: Variant in level_thresholds:
+		def.factions_level_thresholds.append(float(threshold))
+	def.factions_reset_days = int(factions["reset_days"])
+	def.factions_protest_deaths_share = float(factions["protest_deaths_share"])
 
 	var phase: Dictionary = d["phase"]
 	def.phase_open_containment = float(phase["open_containment"])

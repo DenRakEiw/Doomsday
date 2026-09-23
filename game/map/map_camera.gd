@@ -277,7 +277,8 @@ func zoom_by(factor: float, screen_point: Vector2, tweened: bool) -> void:
 	var from_center: Vector2 = target_center()
 	var from_zoom: float = target_zoom()
 	var target: float = clampf(from_zoom * factor, zoom_min, ZOOM_MAX)
-	var world: Vector2 = transform_for(from_center, from_zoom, size).affine_inverse() 		* screen_point
+	var world: Vector2 = transform_for(from_center, from_zoom, size).affine_inverse() \
+		* screen_point
 	var center: Vector2 = center_keeping_point(world, screen_point, target, size)
 	var seconds: float = UiTokens.duration(UiTokens.MOTION_QUICK) if tweened else 0.0
 	if seconds <= 0.0:

@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://ui/components/stat_bar.gd" id="1_stat_bar"]
 [ext_resource type="Script" path="res://ui/components/caps_label.gd" id="2_caps_label"]
 [ext_resource type="Script" path="res://ui/components/value_label.gd" id="3_value_label"]
 [ext_resource type="Script" path="res://ui/components/stat_bar_fill.gd" id="4_stat_bar_fill"]
+[ext_resource type="Script" path="res://ui/components/glyph_icon.gd" id="5_glyph_icon"]
 
 [node name="StatBar" type="Control"]
 anchors_preset = 10
@@ -29,6 +30,14 @@ unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 theme_type_variation = &"StatBarRow"
+
+[node name="Glyph" type="Control" parent="Rows/Head"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("5_glyph_icon")
 
 [node name="NameLabel" type="Label" parent="Rows/Head"]
 unique_name_in_owner = true

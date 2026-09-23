@@ -1803,6 +1803,11 @@
 		{"id": "e_bm_exposed", "stream": "reaction", "register": "any", "on": {"event": "event_opened", "data": {"def": "bm_exposed"}}},
 		{"id": "e_si_emergence", "stream": "consequence", "register": "any", "on": {"event": "event_opened", "data": {"def": "si_emergence"}}},
 		{"id": "e_si_betray", "stream": "reaction", "register": "any", "on": {"event": "event_answered", "data": {"def": "si_emergence", "option": "betray"}}},
-		{"id": "e_si_autopsy", "stream": "reaction", "register": "any", "on": {"event": "event_opened", "data": {"def": "si_autopsy"}}}
+		{"id": "e_si_autopsy", "stream": "reaction", "register": "any", "on": {"event": "event_opened", "data": {"def": "si_autopsy"}}},
+		{"id": "lead_ai_labs", "stream": "reaction", "register": "institutional", "on": {"event": "threat_leader_changed", "data": {"to": "ai_labs"}}, "cooldown_days": 30},
+		{"id": "lead_governments", "stream": "reaction", "register": "institutional", "on": {"event": "threat_leader_changed", "data": {"to": "governments"}}, "cooldown_days": 30},
+		{"id": "lead_security_researchers", "stream": "reaction", "register": "institutional", "on": {"event": "threat_leader_changed", "data": {"to": "security_researchers"}}, "cooldown_days": 30},
+		{"id": "lead_public_sentiment", "stream": "reaction", "register": "institutional", "on": {"event": "threat_leader_changed", "data": {"to": "public_sentiment"}}, "cooldown_days": 30},
+		{"id": "funding_reset", "stream": "reaction", "register": "any", "on": {"event": "funding_reset"}, "cooldown_days": 5}
 	]
 }

@@ -1,7 +1,6 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://ui/hud/status_strip.gd" id="1_status_strip"]
-[ext_resource type="Script" path="res://ui/components/chip.gd" id="2_chip"]
 [ext_resource type="Script" path="res://ui/components/icon_button.gd" id="3_icon_button"]
 
 [node name="StatusStrip" type="PanelContainer"]
@@ -23,14 +22,6 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"RowSnug"
-
-[node name="StripChip" type="PanelContainer" parent="StripRows/Body"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-size_flags_vertical = 4
-theme_type_variation = &"Chip"
-script = ExtResource("2_chip")
 
 [node name="StripMenu" type="Button" parent="StripRows/Body"]
 unique_name_in_owner = true

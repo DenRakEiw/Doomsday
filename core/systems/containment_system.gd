@@ -1,10 +1,10 @@
 class_name ContainmentSystem
 extends SimSystem
-## Being found, and then being hunted (core.md §7.5).
+## Being found, and then being hunted (core.md §7.5, opposition.md §5).
 ##
-## M1 has one track. S4.1 gives the four factions their own watched signals and
-## timescales; the loop below already runs over `world.factions`, so nothing here
-## has to be rewritten for that.
+## Four factions, each with its own eyes (the Footprint it sees and the terms of
+## `factions.json`), its own hands (the regions whose capacity it draws on) and
+## its own brake.
 ##
 ## The two formulas are also the two pure queries of `m3-screens.md` §10.5: the
 ## containment panel asks for exactly what the tick is about to do, and reads it
@@ -15,13 +15,19 @@ const RISK_TOTAL: String = "total"
 const RISK_TIME: String = "time"
 const RISK_FOOTPRINT: String = "footprint"
 const RISK_BREADTH: String = "breadth"
-## Keys of `containment_breakdown`.
-const DRIVER_FOOTPRINT: String = "footprint"
-const DRIVER_HARM: String = "harm"
-const DRIVER_SHARE: String = "share"
-const DRIVER_CAPACITY: String = "capacity"
-const DRIVER_BRAKES: String = "brakes"
-const DRIVER_GAIN: String = "gain"
+## Keys of `containment_breakdown(faction)` (opposition.md §5.5).
+const TERMS: String = "terms"
+const PRESSURE: String = "pressure"
+const CAPACITY: String = "capacity"
+const BRAKES: String = "brakes"
+const GAIN: String = "gain"
+## Keys of one entry of `TERMS`.
+const TERM_SOURCE: String = "source"
+const TERM_TREE: String = "tree"
+const TERM_KIND: String = "kind"
+const TERM_WEIGHT: String = "weight"
+const TERM_VALUE: String = "value"
+const TERM_CONTRIBUTION: String = "contribution"
 ## The regional target a status uses to take a region's research capacity away
 ## (`loop-mechanics.md` §7.5). Live from S4.2.
 const TARGET_CAPACITY: String = "containment_capacity"
@@ -46,26 +52,53 @@ static func discovery_risk(world: World, db: ContentDB) -> Dictionary:
 	}
 
 
-## What the next tick will add to every containment track, and what it is made
-## of. `footprint`, `harm` and `share` are the three terms of the pressure sum as
-## §4.1 shows them — each `1 + rate × value`; the pressure itself is their sum
-## minus 2, because the 1 is counted once (PROGRESS.md, *Design questions*).
-static func containment_breakdown(world: World, db: ContentDB) -> Dictionary:
-	var share: float = world.infected_share(db)
-	var footprint: float = 1.0 + db.balance.containment_per_footprint * world.footprint()
-	var harm: float = 1.0 + db.balance.containment_per_harm * world.modifiers.value("harm")
-	var spread: float = 1.0 + db.balance.containment_per_share * share
-	var capacity: float = _capacity(world, db)
-	var brakes: float = world.modifiers.value("containment_growth")
+## What the next tick will add to one faction's track, and what it is made of
+## (opposition.md §5.5). The terms in file order, each with its weight, value
+## and contribution; the pressure is `1 + Σ contribution`.
+static func containment_breakdown(world: World, db: ContentDB, faction_id: String) -> Dictionary:
+	var definition: FactionDef = db.faction(faction_id)
+	if definition == null:
+		push_error("unknown faction \"%s\"" % faction_id)
+		return {}
+	var terms: Array[Dictionary] = []
+	var sum: float = 0.0
+	for term: FactionTermDef in definition.terms:
+		var value: float = term.value(world, db, faction_id)
+		var contribution: float = term.weight * value
+		sum += contribution
+		terms.append({
+			TERM_SOURCE: term.source,
+			TERM_TREE: term.tree,
+			TERM_KIND: term.kind,
+			TERM_WEIGHT: term.weight,
+			TERM_VALUE: value,
+			TERM_CONTRIBUTION: contribution,
+		})
+	var pressure: float = 1.0 + sum
+	var capacity: float = _capacity(world, db, definition.capacity_attr)
+	var brakes: float = world.modifiers.value("containment_growth") \
+		* world.modifiers.value(definition.brake)
 	return {
-		DRIVER_FOOTPRINT: footprint,
-		DRIVER_HARM: harm,
-		DRIVER_SHARE: spread,
-		DRIVER_CAPACITY: capacity,
-		DRIVER_BRAKES: brakes,
-		DRIVER_GAIN: db.balance.containment_base_rate * (footprint + harm + spread - 2.0)
-			* capacity * brakes,
+		TERMS: terms,
+		PRESSURE: pressure,
+		CAPACITY: capacity,
+		BRAKES: brakes,
+		GAIN: db.balance.containment_base_rate * pressure * capacity * brakes,
 	}
+
+
+## The faction closest to switching the agent off: "" before discovery, else
+## the highest track, ties to the earlier in `world.factions` (§5.6).
+static func threat_leader(world: World) -> String:
+	if not world.discovered:
+		return ""
+	var leader: String = ""
+	var highest: float = -1.0
+	for faction: Faction in world.factions:
+		if faction.containment > highest:
+			highest = faction.containment
+			leader = faction.id
+	return leader
 
 
 func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
@@ -99,14 +132,20 @@ func _try_discovery(world: World, db: ContentDB, events: Array[SimEvent]) -> voi
 	events.append(SimEvent.new(SimEvent.DISCOVERED, world.day, {"cause": cause}))
 
 
-## Killing or controlling the regions that do the research is what slows this
-## down — the race both win conditions are built on.
+## Killing or controlling the regions a faction draws on is what slows it down
+## — the race both win conditions are built on. Every gain is read before any
+## track moves, so the order of the factions changes nothing but the order of
+## the events.
 func _grow(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
-	var gain: float = float(containment_breakdown(world, db)[DRIVER_GAIN])
-
+	var leader_before: String = _leader_tracked(world)
+	var gains: Array[float] = []
 	for faction: Faction in world.factions:
+		gains.append(float(containment_breakdown(world, db, faction.id)[GAIN]))
+
+	for i: int in world.factions.size():
+		var faction: Faction = world.factions[i]
 		var before: float = faction.containment
-		faction.containment = minf(1.0, faction.containment + gain)
+		faction.containment = minf(1.0, faction.containment + gains[i])
 		for threshold: float in db.balance.containment_thresholds:
 			if threshold > before and threshold <= faction.containment:
 				events.append(SimEvent.new(SimEvent.CONTAINMENT_THRESHOLD, world.day, {
@@ -114,21 +153,37 @@ func _grow(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 					"threshold": threshold,
 				}))
 
+	var leader_after: String = threat_leader(world)
+	if leader_after != leader_before:
+		events.append(SimEvent.new(SimEvent.THREAT_LEADER_CHANGED, world.day, {
+			"from": leader_before,
+			"to": leader_after,
+		}))
 
-## How much of the world's research is still alive and still its own, weighted by
-## research tier. Every region counts towards the denominator, so a dark region
-## does not make the survivors look more capable.
+
+## The leader as the tick found it. On the first tick after discovery nobody has
+## led yet, so `from` is "" and the console can say who leads now (§5.6).
+static func _leader_tracked(world: World) -> String:
+	if world.day - 1 <= world.discovery_day:
+		return ""
+	return threat_leader(world)
+
+
+## How much of the capacity a faction draws on is still alive and still its own,
+## weighted by the tier of its capacity attribute (§5.2). Every region counts
+## towards the denominator, so a dark region does not make the survivors look
+## more capable.
 ##
-## `containment_capacity` scales the numerator only (§7.5): a region whose
+## `containment_capacity` scales the numerator only: a region whose
 ## laboratories are dark lowers the world's capacity, it does not vanish from the
 ## world — which is what a denominator scaled with it would mean.
-static func _capacity(world: World, db: ContentDB) -> float:
+static func _capacity(world: World, db: ContentDB, attribute: String) -> float:
 	var weighted: float = 0.0
 	var total: float = 0.0
 	for i: int in range(1, world.regions.size()):
 		var region: Region = world.regions[i]
-		var weight: float = db.balance.containment_research_weight_by_tier[
-			region.def.attr("research")]
+		var weight: float = db.balance.containment_capacity_weight_by_tier[
+			region.def.attr(attribute)]
 		total += weight
 		weighted += weight * world.modifiers.value(TARGET_CAPACITY, region.def) \
 			* (region.alive / float(region.def.population)) * (1.0 - region.control)

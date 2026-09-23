@@ -15,14 +15,16 @@ func _holds(when: Dictionary) -> bool:
 
 func test_faction_min_and_max_read_the_track() -> void:
 	sim.world.factions[0].containment = 0.4
-	assert_true(_holds({"faction_min": {World.FACTION_UNIFIED: 0.3}}))
-	assert_false(_holds({"faction_min": {World.FACTION_UNIFIED: 0.5}}))
-	assert_true(_holds({"faction_max": {World.FACTION_UNIFIED: 0.5}}))
-	assert_false(_holds({"faction_max": {World.FACTION_UNIFIED: 0.3}}))
+	assert_true(_holds({"faction_min": {"ai_labs": 0.3}}))
+	assert_false(_holds({"faction_min": {"ai_labs": 0.5}}))
+	assert_true(_holds({"faction_max": {"ai_labs": 0.5}}))
+	assert_false(_holds({"faction_max": {"ai_labs": 0.3}}))
 
 
 func test_a_faction_the_world_does_not_track_reads_the_highest_track() -> void:
 	sim.world.factions[0].containment = 0.4
+	# A hand-built world without the governments' track; content never has one.
+	sim.world.factions.remove_at(1)
 	assert_true(_holds({"faction_min": {Faction.ID_GOVERNMENTS: 0.4}}))
 	assert_false(_holds({"faction_min": {Faction.ID_GOVERNMENTS: 0.41}}))
 

@@ -28,6 +28,10 @@ var ability_by_id: Dictionary[String, AbilityDef] = {}
 ## the order the opening draw weighs them in (§10.4).
 var events: Array[EventDef] = []
 var event_by_id: Dictionary[String, EventDef] = {}
+## The four containment tracks in `Faction.FACTION_IDS` order — the order the
+## tick grows them in and the panel lists them in.
+var factions: Array[FactionDef] = []
+var faction_by_id: Dictionary[String, FactionDef] = {}
 ## Exclusive group id -> how many of its nodes may be owned (§11.1).
 var groups: Dictionary[String, int] = {}
 var balance: BalanceDef = null
@@ -78,6 +82,13 @@ func ability(id: String) -> AbilityDef:
 	if not ability_by_id.has(id):
 		return null
 	return ability_by_id[id]
+
+
+## The faction definition with this id, or null.
+func faction(id: String) -> FactionDef:
+	if not faction_by_id.has(id):
+		return null
+	return faction_by_id[id]
 
 
 ## The map event definition with this id, or null.

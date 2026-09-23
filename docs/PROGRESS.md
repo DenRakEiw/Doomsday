@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S4.4 — Four factions** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/opposition.md`, factions) |
-| **Model for it** | **Opus** — no switch. *This account has no Fable (user, 2026-09-23): the user said to go on without switching; see Decisions* |
-| **After it** | S4.5 … S4.10 (no switch) → D4.5 (Fable, or Opus while no Fable is available) |
-| **Last completed** | S4.3 — Map events: `EventDef`/`EventOptionDef`/`EventChanceDef`, all eight `events/*.json` loaded and validated, `OpenEvent`/`PendingEvent` in the world and save v2, `EventSystem` in the tick order, `ChooseEventOptionCommand`, the §10.3 `when` keys, bots answer every event with its default; event markers, the region panel's event card, the wire card, the discovery modal's picture slot, the top bar's pending chip, the console lines. 1021 tests, all green (2026-09-23) |
-| **Before that** | S4.2 — Statuses and abilities (2026-09-23) |
+| **Next step** | **S4.5 — Counter-moves, Societal Function, Autophagy** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/opposition.md`, moves and society) |
+| **Model for it** | **Opus** — no switch, ever: **every step runs on Opus from now on**, design steps included (user decision 2026-09-23, see Decisions) |
+| **After it** | S4.6 … S4.10 → D4.5 → G4 (the gates still need the user) |
+| **Last completed** | S4.4 — Four factions: `factions.json` loaded and validated (`FactionDef`/`FactionTermDef`/`FactionMoveDef`), per-faction Footprint (`watched_by` on every source), pressure terms, capacity per attribute, the four brakes live, `threat_leader` and its event, `funding_reset` live, four tracks in the save (v1 → four); the threat bar (risk face / leader face) and the phone's fourth readout, the containment panel's tracks with capacity, brakes, daily gain and the two largest terms, four faction glyphs; *lost to* in the report. 1084 tests, all green (2026-09-23) |
+| **Before that** | S4.3 — Map events (2026-09-23) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 169 scripts compile (66 judged by the suite), 1021 tests, **all green since S4.3**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 173 scripts compile (68 judged by the suite), 1084 tests, **all green since S4.4**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -103,8 +103,8 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S4.1 [O] Assets and site select
 - [x] S4.2 [O] Statuses and abilities
 - [x] S4.3 [O] Map events
-- [ ] **S4.4 [O] Four factions**
-- [ ] S4.5 [O] Counter-moves, Societal Function, Autophagy
+- [x] S4.4 [O] Four factions
+- [ ] **S4.5 [O] Counter-moves, Societal Function, Autophagy**
 - [ ] S4.6 [O] Trees v3 and the remaining abilities
 - [ ] S4.7 [O] Chains
 - [ ] S4.8 [O] Analysis screen
@@ -754,6 +754,16 @@ without new information.
 - **2026-09-23** (S4.3) — **Debug key F8 / `Game.debug_schedule_event`** (M2-only debug keys):
   a map event can be looked at without waiting for the roll. The S4.3 screenshots came from it.
 
+- **2026-09-23** (S4.4, user) — **No more model switches: every step runs on Opus 5.5**, the
+  design (`D`) and gate (`G`) steps included — *"mache keine modelwechsel mehr, das opus 5.5
+  besser geworden ist, sollte für die app reichen"*. The hand-over stays a spec file (design
+  steps still write `docs/specs/` before the build steps read them); only the switch is gone.
+  The gates still need the user's play-through and verdict. Supersedes the S4.3 note above about
+  asking before a design step. (User decision.)
+- **2026-09-23** (S4.4, user) — **Pushing is allowed without asking for the overnight run of
+  2026-09-23/24** (*"du kannst heute nacht auch für mich pushen"*). The standing rule (pushes are
+  asked for) applies again afterwards.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
@@ -771,6 +781,11 @@ containment track that is not moving reads **`+±0 % / Tag`** and a rising one `
 changed: drop the `+` from both columns of `UI_CONTAINMENT_RATE` (the arrow and the colour already
 say the direction), or say that the faction track should show the rate as a plain number
 (`set_number_in`) and lose the up/down colours. Seen in the component gallery, *FactionTrack*.
+
+**From S4.4 (German fit, for D4.5):** at 400 px the phone strip holds four readouts, and
+*Durchdringung* only fits as `DURCHDR…` (the others fit). Options: a short caption key for the
+strip (*Durchdr.* / *Netz*), or let the strip drop to three and put the threat in the sheet.
+Seen in the running game; the number itself is always visible now.
 
 **Parked for a later Fable step (not questions, reminders):**
 - **M6 (VISUALS):** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the 8192-px
@@ -825,6 +840,34 @@ say the direction), or say that the faction track should show the rate as a plai
   something per row — it belongs with the rest of D4.5's layout findings.
 
 ## Deviations from the plan or a spec
+
+- **2026-09-23** (S4.4) — **The fixture's factions move only through `fx_move`** (governments);
+  the other three have `moves: []` until S4.5 adds `fx_probe`, `fx_notice`, `fx_notice_sea` and
+  `fx_riot_move` with their statuses (opposition §16 lists them together; the validator demands
+  that every named move exists and every counter-move is named, so they arrive as a set). The
+  labs' `owned_nodes` term reads tree **`capabilities`**, not `fixture` — the fixture tree has no
+  tree of that name; the three real ones are the only valid ids.
+- **2026-09-23** (S4.4) — **`Glyphs.faction(id)` returns the `Glyph`**, not its name (§9.7 says
+  "its name"): the icon set is an enum, and the one caller draws it. **The wire card's
+  counter-move fallback is now the faction glyph** (S4.3's deviation, closed), still in `TEXT_2`.
+- **2026-09-23** (S4.4) — **A new leader flashes the threat bar's number**, not a border: a
+  `StatBar` has no border to flash. The swap of colour, glyph and label is the moment; the console
+  line says it.
+- **2026-09-23** (S4.4) — **A track's head row is an `HFlowContainer`**: *Sicherheitsforschung*
+  plus two chips plus `45 % +±0 % / Tag` is wider than the 400 px panel, and an `HBox` pushed the
+  whole body off the right edge (seen in the running game). The value wraps under the name when
+  it has to. **A `StatBar` without a head** (the track's bar) now stretches its fill and takes the
+  compact height — at 0 px tall the fill had drawn nothing, since S3.3 (the gallery showed empty
+  tracks too).
+- **2026-09-23** (S4.4) — **The phone strip's four captions end in an ellipsis** (`DURCHDR…`):
+  four readouts at 400 px pushed *Durchdringung*'s number out of its button. See *Design
+  questions*.
+- **2026-09-23** (S4.4) — **`Format.Kind.PERCENT_FINE`** added so a `StatBar` can read out the
+  risk; `Format.addend` writes a term's `+0,42`. `LabelCaptionAccent` added for a brake below 1.
+- **2026-09-23** (S4.4) — **`load_from_dicts` takes `factions` after the headlines**;
+  `Fixtures.raw_content()` has `"factions"`, `root_files` writes `factions.json`.
+- **2026-09-23** (S4.4) — **The report's *Leading at the end* table** was added beside *Lost to*:
+  who leads a won run says as much about the factions as who ends a lost one.
 
 - **2026-09-23** (S4.3) — **`EventOptionDef` holds `requires` as typed fields** (`requires_owned`,
   `requires_flag`, …) and `chance` as `EventChanceDef` objects, not the `Dictionary` /
@@ -1451,6 +1494,21 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — S4.4 Four factions [O]
+- **Core:** `FactionDef`/`FactionTermDef`/`FactionMoveDef` and `factions.json` loaded, indexed and
+  validated (§12.1, one error per rule, after the events); `ModifierStack` keeps `watched_by` per
+  source and answers `footprint_for` (full / a quarter / nothing); `ContainmentSystem` grows four
+  tracks from `containment_breakdown(faction)` (terms, pressure, capacity by the faction's
+  attribute, brakes × its own brake), `threat_leader` and `threat_leader_changed`; `funding_reset`
+  live; four factions in `World.create`, the save and the v1 → v2 migration; `capacity_weight_by_
+  tier`, the `factions` balance block; `s4_4.json` merged and deleted; SCHEMA v6 with §6d.
+- **Interface:** the threat bar (risk face in Covert, the leader's colour, glyph and rate after
+  discovery), the phone strip's fourth readout, the containment panel's four tracks with capacity,
+  brakes, daily gain and the two largest terms and the leader's chip, four faction glyphs, three
+  console lines; the wire card's counter-move fallback is the faction glyph. Seen in the running
+  game at 1920 × 1080 and 400 × 860; two layout defects found there and fixed (a track wider than
+  the panel, a headless `StatBar` 0 px tall since S3.3). 1084 tests green. Next: **S4.5**.
 
 ### 2026-09-23 — S4.3 Map events [O]
 - **Core:** `EventDef` / `EventOptionDef` / `EventChanceDef`, every `events/*.json` loaded (the

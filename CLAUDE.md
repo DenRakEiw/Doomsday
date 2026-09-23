@@ -10,9 +10,9 @@ remembered except what is written down.**
 
 1. Read `docs/PROGRESS.md` — it names the next step, **the model it runs on**, and holds all
    decisions so far.
-2. **Check the model.** Design steps (`D…`, `G…`, tagged **[F]**) run on **Fable**; build steps
-   (`S…`, tagged **[O]**) run on **Opus**. If you are not the model the step asks for, say so and
-   stop — the user switches with `/model fable` or `/model opus`.
+2. **Model.** Since 2026-09-23 every step runs on **Opus**, design (`D…`) and gate (`G…`) steps
+   included — no switches (user decision, `PROGRESS.md` *Decisions*). The **[F]**/**[O]** tags
+   still say which *kind* of step it is and which rules below apply.
 3. Read that step in `docs/IMPLEMENTATION.md`, then only what its *Read first* lists. Do not read
    the design documents end to end.
 4. Do the step. Session rules and the definition of done: `docs/IMPLEMENTATION.md` §1.
@@ -20,9 +20,9 @@ remembered except what is written down.**
    always asked for), then tell the user: step done → `/clear` → model switch if the run sheet
    says so → next step id.
 
-**Fable designs, Opus builds, and the hand-over is a file.** On Fable: write specs
-(`docs/specs/`), content data, text in both languages, balance values, reviews — no GDScript,
-scenes or shaders. On Opus: build from the spec, make no design decisions; a design gap gets a
+**Design steps design, build steps build, and the hand-over is a file.** In a design step: write
+specs (`docs/specs/`), content data, text in both languages, balance values, reviews — no
+GDScript, scenes or shaders. In a build step: build from the spec, make no design decisions; a design gap gets a
 conservative placeholder marked `# DESIGN?` and an entry under *Design questions for Fable* in
 `PROGRESS.md`.
 

@@ -410,7 +410,16 @@ func test_a_v1_save_loads_through_its_migration_and_continues() -> void:
 	assert_eq(loaded.sim.world.statuses.size(), 0)
 	assert_eq(loaded.sim.world.next_event_id, 1)
 	assert_eq(loaded.sim.world.agent.seeds_by_kind, {} as Dictionary[String, int])
-	assert_eq(loaded.sim.world.factions[0].fire_day, -1)
+	assert_eq(loaded.sim.world.factions.size(), 4, "the one v1 track became four")
+	var v1: Dictionary = JSON.parse_string(text)
+	var unified: float = FloatBits.from_variant(
+		((v1["world"] as Dictionary)["factions"] as Array)[0]["containment"])
+	for i: int in Faction.FACTION_IDS.size():
+		var faction: Faction = loaded.sim.world.factions[i]
+		assert_eq(faction.id, Faction.FACTION_IDS[i])
+		assert_eq(faction.containment, unified, "each starts where the one track stood")
+		assert_eq(faction.fire_day, -1)
+		assert_eq(faction.preparing, "")
 	for i: int in range(1, loaded.sim.world.regions.size()):
 		assert_false(loaded.sim.world.regions[i].has_assets(), "nothing was on the ground in v1")
 
@@ -521,3 +530,45 @@ func test_a_status_in_a_region_the_content_lost_is_content_missing() -> void:
 	var statuses: Array = (save["world"] as Dictionary)["statuses"]
 	(statuses[0] as Dictionary)["region"] = "fx_nowhere"
 	assert_eq(_load(save).reason, WorldSerializer.REASON_CONTENT_MISSING)
+
+
+# -------------------------------------------------- S4.4: the four factions
+
+
+func test_a_factions_block_out_of_order_is_corrupt() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	var save: Dictionary = JSON.parse_string(WorldSerializer.to_json(sim))
+	var factions: Array = (save["world"] as Dictionary)["factions"]
+	var first: Variant = factions[0]
+	factions[0] = factions[1]
+	factions[1] = first
+	var loaded: LoadResult = WorldSerializer.from_json(JSON.stringify(save), Fixtures.db())
+	assert_eq(loaded.reason, WorldSerializer.REASON_CORRUPT)
+
+
+func test_a_development_save_with_one_unified_track_is_corrupt() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	var save: Dictionary = JSON.parse_string(WorldSerializer.to_json(sim))
+	var factions: Array = (save["world"] as Dictionary)["factions"]
+	var only: Dictionary = factions[0]
+	only["id"] = "unified"
+	(save["world"] as Dictionary)["factions"] = [only]
+	var loaded: LoadResult = WorldSerializer.from_json(JSON.stringify(save), Fixtures.db())
+	assert_eq(loaded.reason, WorldSerializer.REASON_CORRUPT)
+
+
+func test_four_tracks_and_the_schedule_fields_round_trip() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	sim.world.faction("ai_labs").containment = 0.1
+	sim.world.faction("public_sentiment").containment = 0.35
+	sim.world.faction("governments").cooldown_until = 44
+	sim.world.regions[2].society = 12.5
+	sim.world.starving_days = 3
+	var loaded: LoadResult = WorldSerializer.from_json(WorldSerializer.to_json(sim), sim.db)
+	assert_true(loaded.ok(), loaded.reason)
+	assert_eq(loaded.sim.world.faction("ai_labs").containment, 0.1)
+	assert_eq(loaded.sim.world.faction("public_sentiment").containment, 0.35)
+	assert_eq(loaded.sim.world.faction("governments").cooldown_until, 44)
+	assert_eq(loaded.sim.world.regions[2].society, 12.5)
+	assert_eq(loaded.sim.world.starving_days, 3)
+	assert_eq(loaded.sim.state_hash(), sim.state_hash())

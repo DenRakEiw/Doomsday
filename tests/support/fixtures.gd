@@ -251,6 +251,7 @@ static func raw_content() -> Dictionary:
 		"tech": [read_json(WORLD_SMALL.path_join("tech/fixture.json"))],
 		"events": [read_json(WORLD_SMALL.path_join("events/fixture.json"))],
 		"headlines": read_json(WORLD_SMALL.path_join("headlines.json")),
+		"factions": read_json(WORLD_SMALL.path_join("factions.json")),
 	}
 
 
@@ -264,7 +265,7 @@ static func load_raw(content: Dictionary) -> ContentLoadResult:
 		events.append(entry)
 	return ContentLoader.load_from_dicts(content["balance"], content["regions"], content["links"],
 		content["assets"], content["statuses"], content["abilities"], tech, events,
-		content["headlines"])
+		content["headlines"], content["factions"])
 
 
 ## The four files of a content root as text, so that a test can write a root that
@@ -283,6 +284,7 @@ static func root_files(content: Dictionary, indent: String = "\t") -> Dictionary
 		"abilities.json": JSON.stringify(content["abilities"], indent, true, true),
 		"tech/fixture.json": JSON.stringify(tech[0], indent, true, true),
 		"headlines.json": JSON.stringify(content["headlines"], indent, true, true),
+		"factions.json": JSON.stringify(content["factions"], indent, true, true),
 	}
 	var events: Array = content.get("events", [])
 	for i: int in events.size():

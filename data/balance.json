@@ -88,11 +88,18 @@
 	},
 	"containment": {
 		"base_rate": 0.0014,
-		"per_footprint": 0.15,
-		"per_harm": 0.3,
-		"per_share": 1.0,
-		"research_weight_by_tier": [0.2, 0.5, 1.0, 2.0, 4.0],
+		"capacity_weight_by_tier": [0.2, 0.5, 1.0, 2.0, 4.0],
 		"thresholds": [0.25, 0.5, 0.75]
+	},
+	"factions": {
+		"_comment": "The counter-move schedule (docs/specs/opposition.md section 6, section 11). reset_days is live from S4.4 (funding_reset); the rest from S4.5.",
+		"prepare_days": 60,
+		"prepare_min_days": 8,
+		"cooldown_days": 60,
+		"max_active_moves": 4,
+		"level_thresholds": [0.75],
+		"reset_days": 120,
+		"protest_deaths_share": 0.01
 	},
 	"phase": {
 		"open_containment": 0.5,

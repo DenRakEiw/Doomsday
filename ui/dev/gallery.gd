@@ -61,10 +61,12 @@ const CONTENT_ROOT: String = "res://data"
 const TECH_SAMPLE_ID: String = "cloud_federation"
 const TECH_SAMPLE_COST: float = 12.0
 ## In the order of `TechNode.State`.
-const TECH_STATE_NAMES: Array[String] = ["locked", "available", "affordable", "owned"]
+const TECH_STATE_NAMES: Array[String] = ["locked", "available", "affordable", "owned", "excluded",
+	"closed"]
 ## m3-screens §12.1: one track per band, and one showing a rollback.
 const FACTION_TRACK_SCENE: PackedScene = preload("res://ui/components/faction_track.tscn")
-const TRACK_KEY: String = "FACTION_UNIFIED"
+## One faction per band sample, so the four glyphs show too (opposition.md §9.7).
+const TRACK_PREFIX: String = "FACTION_"
 const TRACK_RATE: float = 0.004
 const TRACK_ROLLBACK: Array[float] = [0.8, 0.6]
 const TRACK_WIDTH: float = 320.0
@@ -381,17 +383,45 @@ func _build_faction_tracks() -> void:
 	var thresholds: Array[float] = _thresholds()
 	var samples: Array[float] = [0.1, thresholds[0], thresholds[1], thresholds[2]]
 	for i: int in samples.size():
-		_state(row, TRACK_BAND_NAMES[i], _track(samples[i], thresholds))
-	var rolled: FactionTrack = _track(TRACK_ROLLBACK[0], thresholds)
+		var track: FactionTrack = _track(samples[i], thresholds, Faction.FACTION_IDS[i])
+		_state(row, TRACK_BAND_NAMES[i], track)
+		if i == 0:
+			track.bind_detail.call_deferred(_sample_breakdown(), {}, -1, true)
+	var rolled: FactionTrack = _track(TRACK_ROLLBACK[0], thresholds, Faction.FACTION_IDS[1])
 	_state(row, "rollback", rolled)
 	rolled.flash_rollback.call_deferred(TRACK_ROLLBACK[0], TRACK_ROLLBACK[1])
 
 
-func _track(value: float, thresholds: Array[float]) -> FactionTrack:
+func _track(value: float, thresholds: Array[float], faction: String) -> FactionTrack:
 	var track: FactionTrack = FACTION_TRACK_SCENE.instantiate()
 	track.custom_minimum_size.x = TRACK_WIDTH
-	track.bind.call_deferred(TRACK_KEY, value, TRACK_RATE, thresholds)
+	track.bind.call_deferred(TRACK_PREFIX + faction.to_upper(), value, TRACK_RATE, thresholds)
+	track.set_faction.call_deferred(faction)
 	return track
+
+
+## A breakdown shaped like `ContainmentSystem.containment_breakdown`'s, so the
+## detail rows can be looked at without a run: a brake below 1 in the accent,
+## and two terms of three (the third is smaller).
+static func _sample_breakdown() -> Dictionary:
+	var terms: Array[Dictionary] = []
+	for sample: Array in [["footprint", "", 1.2, 0.18], ["owned_nodes", "capabilities", 12.0,
+			0.36], ["share", "", 0.4, 0.2]]:
+		terms.append({
+			ContainmentSystem.TERM_SOURCE: sample[0],
+			ContainmentSystem.TERM_TREE: sample[1],
+			ContainmentSystem.TERM_KIND: "",
+			ContainmentSystem.TERM_WEIGHT: float(sample[3]) / float(sample[2]),
+			ContainmentSystem.TERM_VALUE: sample[2],
+			ContainmentSystem.TERM_CONTRIBUTION: sample[3],
+		})
+	return {
+		ContainmentSystem.TERMS: terms,
+		ContainmentSystem.PRESSURE: 1.74,
+		ContainmentSystem.CAPACITY: 0.82,
+		ContainmentSystem.BRAKES: 0.85,
+		ContainmentSystem.GAIN: 0.0017,
+	}
 
 
 ## The real thresholds, so the gallery shows the bands the game has.

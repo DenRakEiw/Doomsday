@@ -58,14 +58,23 @@ static func _v1_to_v2(save: Dictionary) -> Dictionary:
 		agent["timed_flags"] = {}
 		agent["story_flags"] = []
 		agent["seeds_by_kind"] = {}
+	# v1 had one `unified` track; v2 has the four factions, each starting from
+	# the value the one track had (opposition.md §3.4).
 	if typeof(world.get("factions")) == TYPE_ARRAY:
-		for entry: Variant in world["factions"]:
-			if typeof(entry) != TYPE_DICTIONARY:
-				continue
-			var faction: Dictionary = entry
-			faction["preparing"] = ""
-			faction["fire_day"] = -1
-			faction["cooldown_until"] = 0
+		var old: Array = world["factions"]
+		var containment: Variant = FloatBits.to_hex(0.0)
+		if not old.is_empty() and typeof(old[0]) == TYPE_DICTIONARY:
+			containment = (old[0] as Dictionary).get("containment", containment)
+		var four: Array = []
+		for id: String in Faction.FACTION_IDS:
+			four.append({
+				"id": id,
+				"containment": containment,
+				"preparing": "",
+				"fire_day": -1,
+				"cooldown_until": 0,
+			})
+		world["factions"] = four
 	world["starving_days"] = 0
 	world["statuses"] = []
 	world["pulses"] = []

@@ -16,9 +16,6 @@ const PHASE_IDS: Array[String] = ["boxed", "covert", "emergent", "open"]
 const OUTCOME_IDS: Array[String] = ["none", "win_extinction", "win_ascendance",
 	"lose_contained", "lose_no_compute"]
 
-## M1 has one containment track. S4.4 adds three more without touching this file.
-const FACTION_UNIFIED: String = "unified"
-
 var day: int = 0
 ## Day the origin was chosen; -1 before that.
 var origin_day: int = -1
@@ -70,7 +67,10 @@ static func create(db: ContentDB, seed_value: int) -> World:
 		world.regions[i] = Region.create(db.regions[i])
 	for link: LinkDef in db.links:
 		world.links.append(Link.create(link))
-	world.factions.append(Faction.create(FACTION_UNIFIED))
+	# One track per faction of the content, in `Faction.FACTION_IDS` order — the
+	# validator makes the file's order that one (opposition.md §3.1).
+	for definition: FactionDef in db.factions:
+		world.factions.append(Faction.create(definition.id))
 	world.modifiers = ModifierStack.new(db.balance.stats)
 	world.add_asset_sources(db)
 	return world
@@ -126,7 +126,7 @@ func add_asset_sources(db: ContentDB) -> void:
 		if not db.assets.has(kind):
 			continue
 		modifiers.add_source(ModifierStack.source_for_asset(kind), db.assets[kind].modifiers,
-			no_flags)
+			no_flags, db.assets[kind].watched_by)
 	for i: int in range(1, regions.size()):
 		for kind: String in AssetDef.KINDS:
 			modifiers.set_asset_count(i, kind, regions[i].asset_count(kind))
@@ -262,6 +262,14 @@ func max_harm() -> float:
 	for i: int in range(1, regions.size()):
 		highest = maxf(highest, modifiers.value("harm", regions[i].def))
 	return highest
+
+
+## The track of one faction, or null.
+func faction(faction_id: String) -> Faction:
+	for track: Faction in factions:
+		if track.id == faction_id:
+			return track
+	return null
 
 
 ## The highest containment of any faction.
@@ -715,9 +723,12 @@ static func _read_agent(world: World, raw: Variant, db: ContentDB) -> bool:
 	return _read_strings(world.agent.owned_nodes, entry["owned_nodes"])
 
 
+## Exactly the four factions in `Faction.FACTION_IDS` order: a save from before
+## S4.4 with one `unified` track is a development save and is refused, not
+## migrated (opposition.md §3.4).
 static func _read_factions(world: World, raw: Variant) -> bool:
 	var list: Array = raw
-	if list.is_empty():
+	if list.size() != Faction.FACTION_IDS.size():
 		return false
 	for entry: Variant in list:
 		if typeof(entry) != TYPE_DICTIONARY:
@@ -727,6 +738,8 @@ static func _read_factions(world: World, raw: Variant) -> bool:
 			return false
 		if not _str(faction_dict, "preparing") or not _num(faction_dict, "fire_day") \
 				or not _num(faction_dict, "cooldown_until"):
+			return false
+		if str(faction_dict["id"]) != Faction.FACTION_IDS[world.factions.size()]:
 			return false
 		var faction: Faction = Faction.create(str(faction_dict["id"]))
 		faction.containment = FloatBits.from_variant(faction_dict["containment"])
@@ -851,6 +864,18 @@ func check_invariants(db: ContentDB = null) -> Array[String]:
 				or faction.containment > 1.0:
 			problems.append("%s: containment %s is outside [0, 1]"
 				% [faction.id, faction.containment])
+		if not faction.preparing.is_empty() and faction.fire_day < 0:
+			problems.append("%s: preparing %s without a fire day" % [faction.id,
+				faction.preparing])
+		if not faction.preparing.is_empty() and faction.fire_day >= 0 \
+				and faction.fire_day < day - 1:
+			problems.append("%s: %s should have fired on day %d" % [faction.id,
+				faction.preparing, faction.fire_day])
+		if db != null and not faction.preparing.is_empty():
+			var move: EventDef = db.event(faction.preparing)
+			if move == null or move.kind != EventDef.KIND_COUNTER_MOVE:
+				problems.append("%s: preparing %s, which is no counter-move" % [faction.id,
+					faction.preparing])
 
 	if not is_finite(agent.compute) or agent.compute < 0.0:
 		problems.append("compute %s is negative or not finite" % agent.compute)

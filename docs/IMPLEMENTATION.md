@@ -46,6 +46,11 @@ from that spec. For this to work:
 
 ### 1.2 Clearing and switching
 
+> **Since 2026-09-23 (S4.4, user decision): no more model switches.** Every step, design and gate
+> steps included, runs on Opus. The split of work below stays — a design step still ends in a
+> spec that the build step reads — but the `/model` column of the run sheet is history. Gates
+> still need the user.
+
 - **`/clear` after every step, without exception.** One step, one conversation.
 - **Switch the model only where the run sheet in §4 says so.** Steps are ordered so that design
   comes in blocks ahead of the build block it feeds: ten switches across M0–M5, not one per step.

@@ -317,6 +317,21 @@ const ALERT_FLASH_ALPHA: float = 0.25
 const RESULTS_DELAY: int = 800
 const AUTOSAVE_INTERVAL_DAYS: int = 7
 
+## opposition.md §9.6: the discovery risk that fills the threat bar before
+## discovery, and the last days of starving that turn the chip red.
+const RISK_BAR_MAX: float = 0.02
+const STARVING_ALERT_DAYS: int = 5
+## §9.1: the size of the faction glyph beside the threat bar's label.
+const FACTION_GLYPH: float = 16.0
+## §9.6: the `StatBar` variation of the risk face and of each faction's face.
+const STAT_BAR_RISK: StringName = &"StatBarRisk"
+const STAT_BAR_FACTIONS: Dictionary[String, StringName] = {
+	"ai_labs": &"StatBarAiLabs",
+	"governments": &"StatBarGovernments",
+	"security_researchers": &"StatBarResearchers",
+	"public_sentiment": &"StatBarPublic",
+}
+
 ## §4.2: how tall one containment track is, and §9.1's strip.
 const TRACK_HEIGHT: int = 72
 const STATUS_STRIP_HEIGHT: int = 56
@@ -406,6 +421,12 @@ static func reduced_motion() -> bool:
 		return false
 	var settings: Node = tree.root.get_node_or_null(SETTINGS_PATH)
 	return settings != null and bool(settings.get(SETTING_REDUCED_MOTION))
+
+
+## The threat bar's variation for a faction (opposition.md §9.6); the plain
+## containment bar for an id that is no faction.
+static func stat_bar_variation(faction_id: String) -> StringName:
+	return STAT_BAR_FACTIONS.get(faction_id, &"StatBarContainment")
 
 
 ## The colour a faction is drawn in. An unknown id — a world status that no

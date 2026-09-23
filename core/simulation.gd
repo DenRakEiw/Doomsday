@@ -283,7 +283,7 @@ func rebuild_modifiers() -> void:
 		if node == null:
 			continue
 		world.modifiers.add_source(ModifierStack.source_for_tech(node_id), node.modifiers,
-			node.flags)
+			node.flags, node.watched_by)
 	# Last, so that a status still sits on top of the nodes it is fighting.
 	StatusSystem.rebuild_sources(world, db)
 
@@ -295,8 +295,19 @@ func discovery_risk() -> Dictionary:
 	return ContainmentSystem.discovery_risk(world, db)
 
 
-func containment_breakdown() -> Dictionary:
-	return ContainmentSystem.containment_breakdown(world, db)
+## One faction's pressure terms, capacity, brakes and gain (opposition.md §5.5).
+func containment_breakdown(faction_id: String) -> Dictionary:
+	return ContainmentSystem.containment_breakdown(world, db, faction_id)
+
+
+## The Footprint one faction sees (§5.1).
+func footprint_for(faction_id: String) -> float:
+	return world.modifiers.footprint_for(faction_id)
+
+
+## The faction closest to switching the agent off; "" before discovery (§5.6).
+func threat_leader() -> String:
+	return ContainmentSystem.threat_leader(world)
 
 
 func state_hash() -> String:

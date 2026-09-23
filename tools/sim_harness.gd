@@ -20,8 +20,8 @@ const OUTCOME_TIMEOUT: String = "timeout"
 
 ## The order the summary's fields are printed and written in.
 const FIELDS: Array[String] = ["seed", "policy", "outcome", "days", "discovery_day", "phase",
-	"nodes_owned", "regions_seeded", "regions_dark", "deaths_share", "containment",
-	"compute_earned", "rejected_commands", "headlines_consequence", "headlines_reaction",
+	"nodes_owned", "regions_seeded", "regions_dark", "deaths_share", "containment", "leader",
+	"lost_to", "compute_earned", "rejected_commands", "headlines_consequence", "headlines_reaction",
 	"headlines_filler", "hash"]
 ## The summary field per headline stream (ticker.md §6).
 const HEADLINE_FIELD_PREFIX: String = "headlines_"
@@ -142,6 +142,8 @@ static func summarise(sim: Simulation, seed_value: int, policy_id: String, max_d
 		"regions_dark": dark,
 		"deaths_share": world.deaths_total() / sim.db.population_total,
 		"containment": world.max_containment(),
+		"leader": sim.threat_leader(),
+		"lost_to": lost_to(world),
 		"compute_earned": world.agent.compute_earned,
 		"rejected_commands": rejected,
 		"headlines_consequence": counts[HeadlineDef.STREAM_CONSEQUENCE],
@@ -149,6 +151,17 @@ static func summarise(sim: Simulation, seed_value: int, policy_id: String, max_d
 		"headlines_filler": counts[HeadlineDef.STREAM_FILLER],
 		"hash": world.state_hash(),
 	}
+
+
+## The faction whose track reached 1 and ended the run, or "" — the first in
+## `world.factions` order when two reached it on the same tick.
+static func lost_to(world: World) -> String:
+	if world.outcome != World.Outcome.LOSE_CONTAINED:
+		return ""
+	for faction: Faction in world.factions:
+		if faction.containment >= 1.0:
+			return faction.id
+	return ""
 
 
 ## Loads a content root, printing one line per error.

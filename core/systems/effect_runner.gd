@@ -52,11 +52,11 @@ static func apply(sim: Simulation, effect: EffectDef, context: EffectContext,
 			_end_statuses(sim, effect, context, events)
 		EffectDef.WIPE:
 			_wipe(sim, effect, context, events)
+		EffectDef.FUNDING_RESET:
+			_funding_reset(sim, effect, context, events)
 		_:
-			# `funding_reset` stays inert until S4.4 (§20 item 9). It validates
-			# and it loads; running it is a no-op until then. An unknown id
-			# never reaches here — the loader rejects it.
-			pass
+			# An unknown id never reaches here — the loader rejects it.
+			push_error("effect \"%s\" has no runner" % effect.effect)
 
 
 static func _compute_grant(sim: Simulation, effect: EffectDef, context: EffectContext,
@@ -70,6 +70,29 @@ static func _compute_grant(sim: Simulation, effect: EffectDef, context: EffectCo
 		"node": context.node,
 		"source": context.source,
 		"value": value,
+	}))
+
+
+## Every faction stands down (opposition.md §6.5): a preparation is cancelled,
+## and no faction prepares again for `value × factions.reset_days` days. A
+## cooldown that already ends later is left alone.
+static func _funding_reset(sim: Simulation, effect: EffectDef, context: EffectContext,
+		events: Array[SimEvent]) -> void:
+	var world: World = sim.world
+	var until_day: int = world.day + roundi(effect.value * float(sim.db.balance.factions_reset_days))
+	for faction: Faction in world.factions:
+		if not faction.preparing.is_empty():
+			events.append(SimEvent.new(SimEvent.COUNTER_MOVE_CANCELLED, world.day, {
+				"faction": faction.id,
+				"event": faction.preparing,
+			}))
+			faction.preparing = ""
+			faction.fire_day = -1
+		faction.cooldown_until = maxi(faction.cooldown_until, until_day)
+	events.append(SimEvent.new(SimEvent.FUNDING_RESET, world.day, {
+		"source": context.source,
+		"value": effect.value,
+		"until_day": until_day,
 	}))
 
 

@@ -33,6 +33,7 @@ const CONST_COMPACT_HEIGHT: StringName = &"compact_height"
 @onready var _rows: VBoxContainer = %Rows
 @onready var _head: HBoxContainer = %Head
 @onready var _compact_row: HBoxContainer = %CompactRow
+@onready var _glyph: GlyphIcon = %Glyph
 @onready var _name_label: CapsLabel = %NameLabel
 @onready var _value_label: ValueLabel = %Value
 @onready var _fill: StatBarFill = %Fill
@@ -91,6 +92,34 @@ func set_value_raw(share: float, shown: float, kind: Format.Kind) -> void:
 	_set_value(share, shown, kind)
 
 
+## A glyph before the name, in a colour token (opposition.md §9.1's faction
+## face). Hidden until set.
+func set_glyph(glyph: Glyphs.Glyph, color_token: StringName, box: float) -> void:
+	_glyph.glyph = glyph
+	_glyph.color_token = color_token
+	_glyph.box_size = box
+	_glyph.visible = true
+
+
+func clear_glyph() -> void:
+	_glyph.visible = false
+
+
+## The rate beside the number, as `ValueLabel.set_delta_in` writes it.
+func set_delta_in(key: String, placeholder: String, delta: float, kind: Format.Kind) -> void:
+	_value_label.set_delta_in(key, placeholder, delta, kind)
+
+
+func clear_delta() -> void:
+	_value_label.clear_delta()
+
+
+## Lights the number up once — a change that is not a change of the value
+## (the threat bar's new leader).
+func flash() -> void:
+	_value_label.flash()
+
+
 ## What the bar currently shows, after clamping.
 func value() -> float:
 	return _value
@@ -122,15 +151,21 @@ func _apply_compact() -> void:
 		_head.visible = false
 		_compact_row.visible = false
 		_move(_fill, _rows)
+		# Alone in its column the fill has no minimum height of its own; without
+		# the stretch it would be 0 px tall and draw nothing a track can see.
+		_fill.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		_apply_variation()
 		_apply_heights()
 		return
 	_rows.visible = not compact
 	_compact_row.visible = compact
 	if compact:
+		_move(_glyph, _compact_row)
 		_move(_name_label, _compact_row)
 		_move(_fill, _compact_row)
 		_move(_value_label, _compact_row)
 	else:
+		_move(_glyph, _head)
 		_move(_name_label, _head)
 		_move(_value_label, _head)
 		_move(_fill, _rows)
@@ -157,5 +192,7 @@ func _apply_variation() -> void:
 
 
 func _apply_heights() -> void:
-	var key: StringName = CONST_COMPACT_HEIGHT if compact else CONST_MIN_HEIGHT
+	# Without its own name and number the bar is one row, like the compact one.
+	var key: StringName = CONST_COMPACT_HEIGHT if compact or not show_head \
+		else CONST_MIN_HEIGHT
 	custom_minimum_size.y = float(get_theme_constant(key))

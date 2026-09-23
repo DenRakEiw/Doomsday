@@ -67,7 +67,7 @@ func execute(sim: Simulation, events: Array[SimEvent]) -> void:
 	sim.world.agent.compute -= cost
 	sim.world.agent.owned_nodes.append(node)
 	sim.world.modifiers.add_source(ModifierStack.source_for_tech(node), definition.modifiers,
-		definition.flags)
+		definition.flags, definition.watched_by)
 	events.append(SimEvent.new(SimEvent.NODE_PURCHASED, sim.world.day,
 		{"node": node, "cost": cost}))
 	var site: int = _deploy(sim, definition, events)

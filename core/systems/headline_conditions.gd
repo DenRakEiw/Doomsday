@@ -220,8 +220,8 @@ static func _condition_holds(key: String, expected: Variant, world: World,
 
 
 ## A faction's containment, or the agent's total of an asset kind, against a
-## bound per id. An unknown faction — the unified track's world before S4.4 —
-## reads as the highest track there is.
+## bound per id. An id the world does not track reads as the highest track there
+## is (the content is validated, so only a hand-built world can have one).
 static func _table_holds(key: String, expected: Variant, world: World) -> bool:
 	if typeof(expected) != TYPE_DICTIONARY:
 		return false

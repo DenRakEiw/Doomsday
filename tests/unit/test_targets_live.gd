@@ -113,10 +113,10 @@ func test_control_decay_applies_below_the_growth_threshold_too() -> void:
 ## does not vanish from the denominator, which would raise everyone else's share.
 func test_capacity_lowers_the_world_s_by_that_region_s_share() -> void:
 	var before: float = float(
-		sim.containment_breakdown()[ContainmentSystem.DRIVER_CAPACITY])
+		sim.containment_breakdown("ai_labs")[ContainmentSystem.CAPACITY])
 	_grant_mul(ContainmentSystem.TARGET_CAPACITY, 0.0, ORIGIN)
 	var after: float = float(
-		sim.containment_breakdown()[ContainmentSystem.DRIVER_CAPACITY])
+		sim.containment_breakdown("ai_labs")[ContainmentSystem.CAPACITY])
 	assert_lt(after, before)
 	assert_gt(after, 0.0, "the rest of the world still researches")
 
@@ -124,17 +124,17 @@ func test_capacity_lowers_the_world_s_by_that_region_s_share() -> void:
 func test_capacity_everywhere_at_zero_is_no_capacity_at_all() -> void:
 	_grant_mul(ContainmentSystem.TARGET_CAPACITY, 0.0)
 	assert_almost_eq(
-		float(sim.containment_breakdown()[ContainmentSystem.DRIVER_CAPACITY]), 0.0, 1e-9)
+		float(sim.containment_breakdown("ai_labs")[ContainmentSystem.CAPACITY]), 0.0, 1e-9)
 
 
 # ----------------------------------------------------------------- the list
 
 
-## The four targets S4.2 made live are no longer on the inert list, and what is
-## left on it is exactly what D4.2 and M5 still owe.
+## The four targets S4.2 made live are no longer on the inert list, nor the four
+## brakes S4.4 made live; what is left is exactly what S4.5 and M5 still owe.
 func test_the_inert_list_is_shorter_by_four() -> void:
 	for live: String in [ContainmentSystem.TARGET_CAPACITY,
 			SpreadSystem.TARGET_PENETRATION_DECAY, SpreadSystem.TARGET_CONTROL_DECAY,
 			SpreadSystem.TARGET_SHUTDOWN_SURVIVAL]:
 		assert_false(ModifierStack.INERT_TARGETS.has(live), live)
-	assert_eq(ModifierStack.INERT_TARGETS.size(), 6)
+	assert_eq(ModifierStack.INERT_TARGETS, ["society_pressure", "emergent_rate"] as Array[String])

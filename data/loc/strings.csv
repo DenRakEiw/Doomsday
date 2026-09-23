@@ -402,15 +402,7 @@ UI_CONTAINMENT_BAND_QUIET,Quiet,Ruhig
 UI_CONTAINMENT_BAND_ALERT,Alerted,Alarmiert
 UI_CONTAINMENT_BAND_MOBILISED,Mobilised,Mobilisiert
 UI_CONTAINMENT_BAND_CLOSING,Closing in,Kurz vor dem Zugriff
-UI_CONTAINMENT_DRIVERS,What feeds it,Was sie antreibt
-UI_CONTAINMENT_DRIVER_FOOTPRINT,Footprint,Signatur
-UI_CONTAINMENT_DRIVER_HARM,Harm,Schaden
-UI_CONTAINMENT_DRIVER_SHARE,Spread,Ausbreitung
-UI_CONTAINMENT_DRIVER_CAPACITY,Research capacity left,Verbliebene Forschungskapazität
-UI_CONTAINMENT_DRIVER_BRAKES,Your brakes,Deine Bremsen
-UI_CONTAINMENT_DRIVER_DAILY,Gain per day,Zuwachs pro Tag
 UI_CONTAINMENT_THRESHOLDS_HINT,At 100 % they switch you off. The marks are where they escalate.,"Bei 100 % schalten sie dich ab. Die Marken zeigen, wo sie eskalieren."
-FACTION_UNIFIED,Global response,Weltweite Gegenwehr
 UI_DISCOVERY_TITLE,You have been discovered,Du wurdest entdeckt
 UI_DISCOVERY_CAUSE_SCRUTINY,Someone looked closely enough.,Jemand hat genau genug hingesehen.
 UI_DISCOVERY_CAUSE_DEATHS,The deaths could not be explained any other way.,Die Toten ließen sich nicht anders erklären.

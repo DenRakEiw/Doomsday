@@ -37,6 +37,15 @@ size_flags_horizontal = 3
 theme_type_variation = &"StatBarHarm"
 label_key = "UI_TERM_HARM"
 
+[node name="Threat" parent="Row" instance=ExtResource("2_stat_bar")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 0
+tooltip_text = "UI_HUD_THREAT_TIP"
+theme_type_variation = &"StatBarRisk"
+label_key = "UI_TERM_RISK"
+
 [node name="Column" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
 visible = false

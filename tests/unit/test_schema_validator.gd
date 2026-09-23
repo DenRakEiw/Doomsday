@@ -40,8 +40,10 @@ func test_a_root_without_technology_is_valid() -> void:
 	# abilities either (§9.1) — dropping only the tree would be a root whose
 	# abilities point at nothing, which is a different test.
 	(content["abilities"] as Dictionary)["abilities"] = []
-	# The same for the map events: an option may require a node.
+	# The same for the map events: an option may require a node — and for the
+	# move that names the counter-move among them.
 	content["events"] = []
+	((content["factions"] as Dictionary)["factions"] as Array)[1]["moves"] = []
 	var files: Dictionary[String, String] = Fixtures.root_files(content)
 	files.erase("tech/fixture.json")
 	var result: ContentLoadResult = ContentLoader.load_root(Fixtures.write_root("no_tech", files))

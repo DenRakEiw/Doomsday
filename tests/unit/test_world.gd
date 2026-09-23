@@ -18,8 +18,9 @@ func test_create_builds_one_state_object_per_definition() -> void:
 	assert_eq(world.regions.size(), db.regions.size())
 	assert_null(world.regions[0], "index 0 stays \"no region\"")
 	assert_eq(world.links.size(), db.links.size())
-	assert_eq(world.factions.size(), 1, "M1 has one containment track")
-	assert_eq(world.factions[0].id, World.FACTION_UNIFIED)
+	assert_eq(world.factions.size(), 4, "one containment track per faction")
+	for i: int in Faction.FACTION_IDS.size():
+		assert_eq(world.factions[i].id, Faction.FACTION_IDS[i], "in FACTION_IDS order")
 	assert_eq(world.day, 0)
 	assert_eq(world.phase, World.Phase.BOXED)
 	assert_eq(world.outcome, World.Outcome.NONE)

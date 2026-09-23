@@ -38,6 +38,10 @@ const KEY_GRANT: String = "UI_CONSOLE_GRANT"
 const KEY_EVENT: String = "UI_CONSOLE_EVENT"
 const KEY_EVENT_GLOBAL: String = "UI_CONSOLE_EVENT_GLOBAL"
 const KEY_EVENT_EXPIRED: String = "UI_CONSOLE_EVENT_EXPIRED"
+## opposition.md §9.5.
+const KEY_LEAD: String = "UI_CONSOLE_LEAD"
+const KEY_MOVE_CANCELLED: String = "UI_CONSOLE_MOVE_CANCELLED"
+const KEY_FUNDING_RESET: String = "UI_CONSOLE_FUNDING_RESET"
 const PLACEHOLDER_TITLE: String = "title"
 const PLACEHOLDER_DAYS: String = "days"
 const PLACEHOLDER_OPTION: String = "option"
@@ -189,6 +193,16 @@ func _on_sim_event(event: SimEvent) -> void:
 			_event_opened(event)
 		SimEvent.EVENT_EXPIRED:
 			_event_expired(event)
+		SimEvent.THREAT_LEADER_CHANGED:
+			push(tr(KEY_LEAD).format({PLACEHOLDER_FACTION:
+				_faction(str(event.data.get("to", "")))}))
+		SimEvent.COUNTER_MOVE_CANCELLED:
+			push(tr(KEY_MOVE_CANCELLED).format({PLACEHOLDER_FACTION:
+				_faction(str(event.data.get("faction", "")))}))
+		SimEvent.FUNDING_RESET:
+			push(tr(KEY_FUNDING_RESET).format({PLACEHOLDER_DAYS: Format.number(
+				float(int(event.data.get("until_day", event.day)) - event.day),
+				Format.Kind.DAYS)}))
 
 
 ## §16.2: a map event came up — where, what, and how long there is to answer.
@@ -335,6 +349,10 @@ func _scope_count(modifier: ModifierDef) -> int:
 
 func _region(region_id: String) -> String:
 	return tr(PREFIX_REGION + region_id.to_upper())
+
+
+func _faction(faction_id: String) -> String:
+	return tr(PREFIX_FACTION + faction_id.to_upper())
 
 
 func _on_run_started(_seed_value: int) -> void:

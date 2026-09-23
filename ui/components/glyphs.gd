@@ -12,7 +12,8 @@ extends RefCounted
 
 enum Glyph { PAUSE, PLAY, FAST_2, FAST_4, CLOSE, CHEVRON_LEFT, CHEVRON_RIGHT, CHEVRON_DOWN,
 	OVERLAY, CHECK, LOCK, EXTERNAL, MENU, DORMANT, ASSET_FLEET, ASSET_LAB, ASSET_TAP,
-	ASSET_OFFICE, EVENT_COUNTER, EVENT_OPENING, EVENT_CHAIN }
+	ASSET_OFFICE, EVENT_COUNTER, EVENT_OPENING, EVENT_CHAIN, FACTION_AI_LABS,
+	FACTION_GOVERNMENTS, FACTION_RESEARCHERS, FACTION_PUBLIC }
 
 ## The names `assets.json` may give as a kind's `glyph`, in `AssetDef.KINDS`
 ## order. The validator checks against this list, `asset_glyph` turns a name into
@@ -59,6 +60,19 @@ const EVENT_DIAMOND: float = 8.0
 const EVENT_CHAIN_DEPTH: float = 5.0
 const EVENT_CHAIN_GAP: float = 6.0
 
+## The four faction glyphs (opposition.md §9.7), placeholders until the icon set.
+const FACTION_HEX_RADIUS: float = 9.0
+const FACTION_HEX_SIDES: int = 6
+const FACTION_LINTEL: Rect2 = Rect2(3.0, 5.0, 18.0, 0.0)
+const FACTION_PILLAR_XS: Array[float] = [6.0, 12.0, 18.0]
+const FACTION_PILLAR_TOP: float = 8.0
+const FACTION_PILLAR_BOTTOM: float = 20.0
+const FACTION_LENS_CENTRE: Vector2 = Vector2(10.0, 10.0)
+const FACTION_LENS_RADIUS: float = 6.0
+const FACTION_HANDLE_TO: Vector2 = Vector2(20.0, 20.0)
+const FACTION_HEADS: Array[Vector2] = [Vector2(5.5, 14.0), Vector2(12.0, 10.0),
+	Vector2(18.5, 14.0)]
+const FACTION_HEAD_RADIUS: float = 3.5
 const DORMANT_RADIUS: float = 8.0
 const DORMANT_CUT_RADIUS: float = 6.0
 const DORMANT_CUT_OFFSET: Vector2 = Vector2(4.0, -3.0)
@@ -110,6 +124,20 @@ static func draw(canvas: CanvasItem, glyph: Glyph, box: Rect2, color: Color,
 			_event_diamond(canvas, box, color, stroke)
 		Glyph.EVENT_CHAIN:
 			_event_chain(canvas, box, color, stroke)
+		Glyph.FACTION_AI_LABS:
+			_faction_hexagon(canvas, box, color, stroke)
+		Glyph.FACTION_GOVERNMENTS:
+			_faction_pillars(canvas, box, color, stroke)
+		Glyph.FACTION_RESEARCHERS:
+			canvas.draw_arc(_at(box, FACTION_LENS_CENTRE), FACTION_LENS_RADIUS, 0.0, TAU,
+				ARC_SEGMENTS, color, stroke)
+			var rim: Vector2 = FACTION_LENS_CENTRE \
+				+ (FACTION_HANDLE_TO - FACTION_LENS_CENTRE).normalized() * FACTION_LENS_RADIUS
+			canvas.draw_line(_at(box, rim), _at(box, FACTION_HANDLE_TO), color, stroke)
+		Glyph.FACTION_PUBLIC:
+			for head: Vector2 in FACTION_HEADS:
+				canvas.draw_arc(_at(box, head), FACTION_HEAD_RADIUS, 0.0, TAU, ARC_SEGMENTS,
+					color, stroke)
 		_:
 			_chevron(canvas, glyph, box, color, stroke)
 
@@ -136,6 +164,21 @@ static func event_glyph(kind: String) -> Glyph:
 		EventDef.KIND_CHAIN:
 			return Glyph.EVENT_CHAIN
 	return Glyph.EVENT_OPENING
+
+
+## The glyph of a faction (opposition.md §9.7). An id that is no faction — a
+## world status nobody owns — gets the counter-move's `!`.
+static func faction(faction_id: String) -> Glyph:
+	match faction_id:
+		Faction.ID_AI_LABS:
+			return Glyph.FACTION_AI_LABS
+		Faction.ID_GOVERNMENTS:
+			return Glyph.FACTION_GOVERNMENTS
+		Faction.ID_SECURITY_RESEARCHERS:
+			return Glyph.FACTION_RESEARCHERS
+		Faction.ID_PUBLIC_SENTIMENT:
+			return Glyph.FACTION_PUBLIC
+	return Glyph.EVENT_COUNTER
 
 
 ## A point of the 24 box in the canvas' coordinates.
@@ -276,6 +319,26 @@ static func _event_chain(canvas: CanvasItem, box: Rect2, color: Color, stroke: f
 			- EVENT_CHAIN_GAP * 0.5, 0.0) - Vector2(EVENT_CHAIN_DEPTH * 0.5, 0.0)
 		canvas.draw_line(tip + Vector2(-EVENT_CHAIN_DEPTH, -EVENT_CHAIN_DEPTH), tip, color, stroke)
 		canvas.draw_line(tip + Vector2(-EVENT_CHAIN_DEPTH, EVENT_CHAIN_DEPTH), tip, color, stroke)
+
+
+## A hexagon outline, pointy side up.
+static func _faction_hexagon(canvas: CanvasItem, box: Rect2, color: Color, stroke: float) -> void:
+	var centre: Vector2 = box.get_center()
+	var points: PackedVector2Array = []
+	# One point more than sides, so the outline closes on itself.
+	for i: int in FACTION_HEX_SIDES + 1:
+		var angle: float = -PI * 0.5 + TAU * float(i) / float(FACTION_HEX_SIDES)
+		points.append(centre + Vector2(cos(angle), sin(angle)) * FACTION_HEX_RADIUS)
+	canvas.draw_polyline(points, color, stroke)
+
+
+## A lintel over three pillars.
+static func _faction_pillars(canvas: CanvasItem, box: Rect2, color: Color, stroke: float) -> void:
+	canvas.draw_line(_at(box, FACTION_LINTEL.position),
+		_at(box, FACTION_LINTEL.position + Vector2(FACTION_LINTEL.size.x, 0.0)), color, stroke)
+	for x: float in FACTION_PILLAR_XS:
+		canvas.draw_line(_at(box, Vector2(x, FACTION_PILLAR_TOP)),
+			_at(box, Vector2(x, FACTION_PILLAR_BOTTOM)), color, stroke)
 
 
 ## `draw_rect` cannot round its corners, and a `StyleBox` here would be a colour

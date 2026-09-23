@@ -9,7 +9,7 @@ extends RefCounted
 ##
 ## Never instantiated; a namespace of static functions.
 
-enum Kind { PLAIN, COMPUTE, COMPACT, PERCENT, DAYS }
+enum Kind { PLAIN, COMPUTE, COMPACT, PERCENT, DAYS, PERCENT_FINE }
 
 ## U+2212. A hyphen is not a minus sign, and at 16 px the difference shows.
 const MINUS: String = "−"
@@ -52,6 +52,9 @@ static func number(value: float, kind: Kind) -> String:
 			text = _integer(roundi(magnitude), german, false)
 		Kind.COMPACT:
 			text = _compact(magnitude, german)
+		Kind.PERCENT_FINE:
+			# `percent_fine` as a kind, so a `StatBar` can read the risk out.
+			text = _decimal(magnitude * PERCENT_SCALE, german) + _unit_gap(german) + "%"
 		_:
 			text = _decimal(magnitude, german)
 	return (MINUS if value < 0.0 else "") + text
@@ -79,6 +82,13 @@ static func factor(value: float) -> String:
 	if not is_equal_approx(value, snappedf(value, DECIMAL_STEP)):
 		decimals = DECIMALS_TWO
 	return TIMES + _decimal(absf(value), is_german(), decimals)
+
+
+## A contribution to a sum, signed, up to two decimals: `+0.42`, `+1.5`, `+0`
+## (opposition.md §9.2's pressure terms).
+static func addend(value: float) -> String:
+	var body: String = _decimal(absf(value), is_german(), DECIMALS_TWO)
+	return (MINUS if value < 0.0 else "+") + body
 
 
 ## Uppercase for `TYPE_LABEL` (§3.2). Godot's `to_upper` leaves ß alone, which

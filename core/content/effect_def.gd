@@ -46,7 +46,8 @@ const EFFECTS: Array[String] = ["compute_grant", "containment_rollback", "harm_b
 	"apply_status", "wipe", "grant_assets"]
 
 ## Accepted and validated, carried out by nothing until the named system lands.
-const INERT_EFFECTS: Array[String] = ["funding_reset"]
+## S4.4 emptied it (`funding_reset`); kept as the place a later step parks one.
+const INERT_EFFECTS: Array[String] = []
 
 ## The effects that must run with a region (§8.2's `R` column). `compute_grant`
 ## joins them when `per_hardware` is set, which is why it is not in the list.
@@ -54,7 +55,7 @@ const NEEDS_REGION: Array[String] = ["seed_neighbours", "penetration_mul", "cont
 	"destroy_assets", "spread_status", "end_statuses", "wipe", "grant_assets"]
 
 ## The effects the runner does not carry out yet. S4.2 emptied it: every effect
-## but the inert `funding_reset` is live. Kept as the one place a later step
+## is live. Kept as the one place a later step
 ## parks a newly authored effect until its system lands.
 const PENDING_EFFECTS: Array[String] = []
 

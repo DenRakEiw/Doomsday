@@ -74,7 +74,8 @@ func test_containment_rollback_lets_thresholds_fire_again() -> void:
 		var events: Array[SimEvent] = []
 		system.tick(_sim.world, _sim.db, events)
 		for event: SimEvent in _of_type(events, SimEvent.CONTAINMENT_THRESHOLD):
-			if is_equal_approx(float(event.data["threshold"]), threshold):
+			if is_equal_approx(float(event.data["threshold"]), threshold) \
+					and event.data["faction"] == _sim.world.factions[0].id:
 				announced += 1
 		if _sim.world.factions[0].containment >= threshold:
 			break
@@ -105,12 +106,13 @@ func test_purchase_events_are_ordered() -> void:
 		assert_ne(events[i].type, SimEvent.NODE_PURCHASED)
 
 
-func test_an_inert_effect_does_nothing_and_says_nothing() -> void:
-	# `fx_rollback` also carries `funding_reset`, which S4.1 makes live.
+func test_the_rollback_node_also_resets_the_funding() -> void:
+	# `fx_rollback` also carries `funding_reset`, live since S4.4.
 	var events: Array[SimEvent] = _buy(ROLLBACK_NODE, ["fx_quiet"])
 	assert_eq(_of_type(events, SimEvent.CONTAINMENT_ROLLED_BACK).size(),
 		_sim.world.factions.size())
-	assert_eq(events.size(), 1 + _sim.world.factions.size(), "and nothing else happened")
+	assert_eq(_of_type(events, SimEvent.FUNDING_RESET).size(), 1)
+	assert_eq(events.size(), 2 + _sim.world.factions.size(), "and nothing else happened")
 
 
 func test_on_purchase_is_not_reapplied_on_load() -> void:

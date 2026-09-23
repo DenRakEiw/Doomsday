@@ -118,6 +118,9 @@ func _refresh(event: OpenEvent, sim: Simulation) -> void:
 	if def == null:
 		return
 	var fallback: Glyphs.Glyph = Glyphs.event_glyph(def.kind)
+	# opposition.md §9.7: a counter-move's card shows who made it.
+	if def.kind == EventDef.KIND_COUNTER_MOVE:
+		fallback = Glyphs.faction(event.faction if not event.faction.is_empty() else def.faction)
 	_illustration.show_illustration(def.illustration, fallback)
 	_dateline.text = Format.caps(EventView.dateline(event, sim.world))
 	_title.text = EventView.title(def.id, sim.world, event.region)

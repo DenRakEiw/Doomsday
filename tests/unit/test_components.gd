@@ -8,7 +8,7 @@ extends GutTest
 
 ## The nine glyphs of ui-foundation §4.3, the five of m3-screens §3.4.1, and the
 ## four asset shapes and the three event marks of loop-mechanics §16.3.2.
-const GLYPH_COUNT: int = 21
+const GLYPH_COUNT: int = 25
 
 const STAT_BAR: PackedScene = preload("res://ui/components/stat_bar.tscn")
 
@@ -110,8 +110,9 @@ func test_an_icon_button_is_a_square_of_the_minimum_target() -> void:
 
 
 func test_every_glyph_of_the_spec_draws() -> void:
-	# ui-foundation §4.3 lists nine, m3-screens §3.4.1 five more; drawing each one
-	# is what proves there is no unhandled case.
+	# ui-foundation §4.3 lists nine, m3-screens §3.4.1 five more, M4 the asset,
+	# event and (opposition.md §9.7) faction glyphs; drawing each one is what
+	# proves there is no unhandled case.
 	assert_eq(IconButton.Glyph.size(), GLYPH_COUNT)
 	assert_eq(Glyphs.Glyph.size(), GLYPH_COUNT, "the button's alias is the same enum")
 	for glyph: int in IconButton.Glyph.values():
@@ -332,7 +333,7 @@ func test_the_fill_is_the_same_type_as_the_bar_so_the_variation_colours_it() -> 
 func test_the_compact_bar_puts_the_same_three_nodes_on_one_row() -> void:
 	var bar: StatBar = _stat_bar(true)
 	var row: HBoxContainer = bar.get_node("%CompactRow") as HBoxContainer
-	assert_eq(row.get_child_count(), 3, "label, bar and value share one row")
+	assert_eq(row.get_child_count(), 4, "glyph, label, bar and value share one row")
 	assert_true(row.visible)
 	assert_false((bar.get_node("%Rows") as Control).visible)
 	assert_eq(bar.custom_minimum_size.y, float(UiTokens.BAR_COMPACT_HEIGHT))
@@ -340,7 +341,8 @@ func test_the_compact_bar_puts_the_same_three_nodes_on_one_row() -> void:
 
 func test_the_full_bar_is_two_rows_and_the_taller_minimum() -> void:
 	var bar: StatBar = _stat_bar(false)
-	assert_eq((bar.get_node("%Head") as Control).get_child_count(), 2)
+	assert_eq((bar.get_node("%Head") as Control).get_child_count(), 3,
+		"the glyph slot, the name and the value")
 	assert_eq(bar.custom_minimum_size.y, float(UiTokens.BAR_MIN_HEIGHT))
 
 

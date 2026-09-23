@@ -88,11 +88,17 @@
 	},
 	"containment": {
 		"base_rate": 0.0012,
-		"per_footprint": 0.15,
-		"per_harm": 0.3,
-		"per_share": 1.0,
-		"research_weight_by_tier": [0.2, 0.5, 1.0, 2.0, 4.0],
+		"capacity_weight_by_tier": [0.2, 0.5, 1.0, 2.0, 4.0],
 		"thresholds": [0.25, 0.5, 0.75]
+	},
+	"factions": {
+		"prepare_days": 6,
+		"prepare_min_days": 2,
+		"cooldown_days": 5,
+		"max_active_moves": 2,
+		"level_thresholds": [0.5],
+		"reset_days": 10,
+		"protest_deaths_share": 0.01
 	},
 	"phase": {
 		"open_containment": 0.5,

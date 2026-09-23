@@ -73,12 +73,37 @@ func test_harm_burst_kills_a_share_of_the_infected_living() -> void:
 	assert_eq(burst[0].data["source"], "tech:fx_grant")
 
 
-func test_funding_reset_is_inert() -> void:
-	sim.world.factions[0].containment = 0.4
+## opposition.md §6.5: a preparation is cancelled and said so.
+func test_funding_reset_cancels_a_preparation() -> void:
+	var governments: Faction = sim.world.faction("governments")
+	governments.preparing = "fx_move"
+	governments.fire_day = sim.world.day + 4
+	governments.containment = 0.4
 	_apply({"effect": EffectDef.FUNDING_RESET, "value": 0.5})
-	assert_almost_eq(sim.world.factions[0].containment, 0.4, 1e-9)
-	assert_eq(events.size(), 0, "an inert effect says nothing")
-	assert_true(_effect({"effect": EffectDef.FUNDING_RESET, "value": 0.5}).is_inert())
+	assert_eq(governments.preparing, "")
+	assert_eq(governments.fire_day, -1)
+	assert_almost_eq(governments.containment, 0.4, 1e-12, "the track itself is untouched")
+	var cancelled: Array[SimEvent] = _events_of(SimEvent.COUNTER_MOVE_CANCELLED)
+	assert_eq(cancelled.size(), 1, "only the faction that was preparing")
+	assert_eq(cancelled[0].data["faction"], "governments")
+	assert_eq(cancelled[0].data["event"], "fx_move")
+
+
+func test_funding_reset_cools_every_faction_without_shortening_a_cooldown() -> void:
+	var day: int = sim.world.day
+	# reset_days is 10 in the fixture: 0.5 of it is 5 days.
+	sim.world.faction("security_researchers").cooldown_until = day + 30
+	_apply({"effect": EffectDef.FUNDING_RESET, "value": 0.5})
+	assert_eq(sim.world.faction("ai_labs").cooldown_until, day + 5)
+	assert_eq(sim.world.faction("governments").cooldown_until, day + 5)
+	assert_eq(sim.world.faction("security_researchers").cooldown_until, day + 30,
+		"a later cooldown is not lowered")
+	var reset: Array[SimEvent] = _events_of(SimEvent.FUNDING_RESET)
+	assert_eq(reset.size(), 1)
+	assert_eq(reset[0].data["until_day"], day + 5)
+	assert_eq(reset[0].data["source"], "tech:fx_grant")
+	assert_almost_eq(float(reset[0].data["value"]), 0.5, 1e-12)
+	assert_false(_effect({"effect": EffectDef.FUNDING_RESET, "value": 0.5}).is_inert())
 
 
 func test_destroy_assets_takes_no_more_than_the_region_has() -> void:
@@ -130,17 +155,10 @@ func test_a_region_going_dark_loses_what_it_held() -> void:
 		"and the stack heard about it")
 
 
-## S4.2 emptied the list: every effect but `funding_reset` is live now.
-func test_nothing_is_pending_any_more() -> void:
+## S4.2 emptied the pending list and S4.4 the inert one: every effect is live.
+func test_nothing_is_pending_or_inert_any_more() -> void:
 	assert_eq(EffectDef.PENDING_EFFECTS.size(), 0)
-
-
-## §20 item 9: it validates, it loads, and D4.2's system is what will run it.
-func test_funding_reset_does_nothing_and_says_nothing() -> void:
-	var before: String = sim.state_hash()
-	_apply({"effect": EffectDef.FUNDING_RESET, "value": 0.5})
-	assert_eq(sim.state_hash(), before)
-	assert_eq(events.size(), 0)
+	assert_eq(EffectDef.INERT_EFFECTS.size(), 0)
 
 
 func test_apply_all_runs_them_in_order() -> void:

@@ -95,6 +95,10 @@ func _print_report(rows: Array[Dictionary], bounds: PackedInt32Array) -> void:
 		func(run: Dictionary, column: String) -> String: return _spread(run, column))
 	_print_table(rows, "Pressure", ["deaths_share", "containment", "compute_earned"],
 		func(run: Dictionary, column: String) -> String: return _spread(run, column))
+	_print_table(rows, "Lost to", Faction.FACTION_IDS, func(run: Dictionary,
+		column: String) -> String: return "%.0f %%" % (100.0 * _share(run, "lost_to", column)))
+	_print_table(rows, "Leading at the end", Faction.FACTION_IDS, func(run: Dictionary,
+		column: String) -> String: return "%.0f %%" % (100.0 * _share(run, "leader", column)))
 	_print_table(rows, "Bought", _node_columns(), func(run: Dictionary,
 		column: String) -> String: return "%.1f" % _mean(run, column))
 	_print_table(rows, "Said", ["headlines_consequence", "headlines_reaction",

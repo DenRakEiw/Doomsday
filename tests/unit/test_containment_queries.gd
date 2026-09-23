@@ -40,31 +40,36 @@ func test_containment_breakdown_adds_up_to_the_gain() -> void:
 	_sim.world.discovery_day = 1
 	_sim.world.regions[1].penetration = 1.0
 	Fixtures.buy(_sim, ["fx_harm_1"])
-	var breakdown: Dictionary = _sim.containment_breakdown()
-	var pressure: float = float(breakdown[ContainmentSystem.DRIVER_FOOTPRINT]) \
-		+ float(breakdown[ContainmentSystem.DRIVER_HARM]) \
-		+ float(breakdown[ContainmentSystem.DRIVER_SHARE]) - 2.0
-	var expected: float = _sim.db.balance.containment_base_rate * pressure \
-		* float(breakdown[ContainmentSystem.DRIVER_CAPACITY]) \
-		* float(breakdown[ContainmentSystem.DRIVER_BRAKES])
-	assert_almost_eq(float(breakdown[ContainmentSystem.DRIVER_GAIN]), expected, 1e-12)
+	for faction: Faction in _sim.world.factions:
+		var breakdown: Dictionary = _sim.containment_breakdown(faction.id)
+		var expected: float = _sim.db.balance.containment_base_rate \
+			* float(breakdown[ContainmentSystem.PRESSURE]) \
+			* float(breakdown[ContainmentSystem.CAPACITY]) \
+			* float(breakdown[ContainmentSystem.BRAKES])
+		assert_almost_eq(float(breakdown[ContainmentSystem.GAIN]), expected, 1e-12, faction.id)
 
 
 func test_the_breakdown_is_what_the_next_tick_adds() -> void:
 	_sim.world.discovered = true
 	_sim.world.discovery_day = 1
 	_sim.world.regions[1].penetration = 1.0
-	var before: float = _sim.world.factions[0].containment
-	var gain: float = float(_sim.containment_breakdown()[ContainmentSystem.DRIVER_GAIN])
-	_sim.tick()
-	# The tick moves the world before containment runs — the spread grows and the
-	# share with it — so the promise is the day's number to within that drift.
-	assert_almost_eq(_sim.world.factions[0].containment - before, gain, 1e-5,
-		"what the panel promised is what the day did")
+	for faction: Faction in _sim.world.factions:
+		var before: float = faction.containment
+		var gain: float = float(_sim.containment_breakdown(faction.id)[ContainmentSystem.GAIN])
+		var probe: Simulation = Simulation.from_world(_sim.db,
+			World.from_dict(_sim.world.to_dict(), _sim.db), [])
+		probe.tick()
+		# The tick moves the world before containment runs — the spread grows and
+		# the share with it — so the promise is the day's number to within that
+		# drift.
+		assert_almost_eq(probe.world.faction(faction.id).containment - before, gain, 1e-5,
+			"what the panel promised is what the day did: %s" % faction.id)
 
 
 func test_the_queries_draw_nothing_from_the_world_s_generator() -> void:
 	var before: String = _sim.world.rng.state_string()
 	_sim.discovery_risk()
-	_sim.containment_breakdown()
+	for faction: Faction in _sim.world.factions:
+		_sim.containment_breakdown(faction.id)
+	_sim.threat_leader()
 	assert_eq(_sim.world.rng.state_string(), before)

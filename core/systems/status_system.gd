@@ -67,7 +67,7 @@ static func apply(world: World, db: ContentDB, status_id: String, region: int, s
 	status.closed_links.clear()
 
 	world.modifiers.add_source(status.source_id(),
-		definition.scoped_modifiers(index, region), [])
+		definition.scoped_modifiers(index, region), [], definition.watched_by)
 	_close_links(world, definition, lvl, status)
 
 	events.append(SimEvent.new(SimEvent.STATUS_STARTED, world.day, {
@@ -138,7 +138,7 @@ static func add_pulse(world: World, value: float, until_day: int,
 	modifier.scope_kind = ModifierDef.ScopeKind.NONE
 	var modifiers: Array[ModifierDef] = [modifier]
 	var no_flags: Array[String] = []
-	world.modifiers.add_source(pulse.source_id(), modifiers, no_flags)
+	world.modifiers.add_source(pulse.source_id(), modifiers, no_flags, pulse.watched_by)
 	events.append(SimEvent.new(SimEvent.PULSE_STARTED, world.day, {
 		"index": pulse.index,
 		"value": value,
@@ -182,7 +182,7 @@ static func rebuild_sources(world: World, db: ContentDB) -> void:
 		if definition == null:
 			continue
 		world.modifiers.add_source(status.source_id(),
-			definition.scoped_modifiers(status.level, status.region), [])
+			definition.scoped_modifiers(status.level, status.region), [], definition.watched_by)
 	for pulse: Pulse in world.pulses:
 		var modifier: ModifierDef = ModifierDef.new()
 		modifier.target = TARGET_FOOTPRINT
@@ -191,7 +191,7 @@ static func rebuild_sources(world: World, db: ContentDB) -> void:
 		modifier.scope_kind = ModifierDef.ScopeKind.NONE
 		var modifiers: Array[ModifierDef] = [modifier]
 		var no_flags: Array[String] = []
-		world.modifiers.add_source(pulse.source_id(), modifiers, no_flags)
+		world.modifiers.add_source(pulse.source_id(), modifiers, no_flags, pulse.watched_by)
 	for flag: String in world.agent.timed_flags:
 		var no_modifiers: Array[ModifierDef] = []
 		var flags: Array[String] = [flag]

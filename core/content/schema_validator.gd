@@ -26,8 +26,8 @@ const TIER_TABLE_SIZE: int = 5
 const INTEGER_MAX: int = 9007199254740992
 
 const BALANCE_KEYS: Array[String] = ["stats", "population_tiers", "spread", "control", "compute",
-	"anomaly", "milestones", "harm", "discovery", "containment", "phase", "headlines", "results",
-	"history", "events"]
+	"anomaly", "milestones", "harm", "discovery", "containment", "factions", "phase", "headlines",
+	"results", "history", "events"]
 const REGION_KEYS: Array[String] = ["index", "id", "continent", "population", "air_gapped",
 	"anchor", "attributes"]
 const LINK_KEYS: Array[String] = ["a", "b", "kind"]
@@ -101,6 +101,8 @@ static func validate_balance(file: String, raw: Variant, errors: Array[Validatio
 		_balance_discovery(d["discovery"], file, errors)
 	if _require(d, "containment", file, "", errors):
 		_balance_containment(d["containment"], file, errors)
+	if _require(d, "factions", file, "", errors):
+		_balance_factions(d["factions"], file, errors)
 	if _require(d, "phase", file, "", errors):
 		_balance_phase(d["phase"], file, errors)
 	if _require(d, "headlines", file, "", errors):
@@ -269,16 +271,12 @@ static func _balance_containment(raw: Variant, file: String,
 	if not _is_object(raw, file, path, errors):
 		return
 	var d: Dictionary = raw
-	_check_keys(d, ["base_rate", "per_footprint", "per_harm", "per_share",
-		"research_weight_by_tier", "thresholds"], file, path, errors)
+	_check_keys(d, ["base_rate", "capacity_weight_by_tier", "thresholds"], file, path, errors)
 	_number(d, "base_rate", file, path, errors)
-	_number(d, "per_footprint", file, path, errors)
-	_number(d, "per_harm", file, path, errors)
-	_number(d, "per_share", file, path, errors)
 
-	if _require(d, "research_weight_by_tier", file, path, errors):
-		var weight_path: String = "containment.research_weight_by_tier"
-		var weights: Array[float] = _float_list(d["research_weight_by_tier"], file, weight_path,
+	if _require(d, "capacity_weight_by_tier", file, path, errors):
+		var weight_path: String = "containment.capacity_weight_by_tier"
+		var weights: Array[float] = _float_list(d["capacity_weight_by_tier"], file, weight_path,
 			errors, TIER_TABLE_SIZE)
 		var sum: float = 0.0
 		for weight: float in weights:
@@ -302,6 +300,29 @@ static func _balance_containment(raw: Variant, file: String,
 					"thresholds must ascend strictly")
 			previous = thresholds[i]
 			has_previous = true
+
+
+## The counter-move schedule (opposition.md §11).
+static func _balance_factions(raw: Variant, file: String, errors: Array[ValidationError]) -> void:
+	var path: String = "factions"
+	if not _is_object(raw, file, path, errors):
+		return
+	var d: Dictionary = raw
+	_check_keys(d, ["prepare_days", "prepare_min_days", "cooldown_days", "max_active_moves",
+		"level_thresholds", "reset_days", "protest_deaths_share"], file, path, errors)
+	_integer(d, "prepare_days", file, path, errors, 1)
+	_integer(d, "prepare_min_days", file, path, errors, 1)
+	_integer(d, "cooldown_days", file, path, errors, 0)
+	_integer(d, "max_active_moves", file, path, errors, 1)
+	_integer(d, "reset_days", file, path, errors, 1)
+	_number(d, "protest_deaths_share", file, path, errors, 0.0, 1.0, true)
+	if _require(d, "level_thresholds", file, path, errors):
+		var level_path: String = "factions.level_thresholds"
+		var levels: Array[float] = _float_list(d["level_thresholds"], file, level_path, errors,
+			-1, 0.0, 1.0, true, true)
+		for i: int in range(1, levels.size()):
+			if not is_nan(levels[i]) and not is_nan(levels[i - 1]) and levels[i] <= levels[i - 1]:
+				_add(errors, file, "%s[%d]" % [level_path, i], "thresholds must ascend strictly")
 
 
 static func _balance_phase(raw: Variant, file: String, errors: Array[ValidationError]) -> void:
@@ -2108,6 +2129,211 @@ static func _chain_targets(raw: Variant, chain: String, entries: Dictionary[Stri
 		reached[step] = true
 
 
+# ---------------------------------------------------------------- factions.json
+
+
+## Appends every problem in `factions.json` (opposition.md §12.1). Runs after
+## the events: a move names a counter-move event, and every counter-move event
+## must be named by exactly one move.
+static func validate_factions(file: String, raw: Variant, event_raws: Array,
+		strings: Dictionary[String, bool], strings_known: bool,
+		errors: Array[ValidationError]) -> void:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return
+	var d: Dictionary = raw
+	_check_keys(d, ["version", FactionDef.ROOT_KEY], file, "", errors)
+	_content_version(d, file, errors)
+	if not _require(d, FactionDef.ROOT_KEY, file, "", errors):
+		return
+	if not _is_list(d[FactionDef.ROOT_KEY], file, FactionDef.ROOT_KEY, errors):
+		return
+	var list: Array = d[FactionDef.ROOT_KEY]
+	if list.size() != Faction.FACTION_IDS.size():
+		_add(errors, file, FactionDef.ROOT_KEY, "expected the %d factions %s, found %d entries"
+			% [Faction.FACTION_IDS.size(), Faction.FACTION_IDS, list.size()])
+	# Counter-move event id → its faction, from the raw events.
+	var counter_moves: Dictionary[String, String] = _counter_move_factions(event_raws)
+	# Event id → the faction whose move names it.
+	var named: Dictionary[String, String] = {}
+	for i: int in list.size():
+		var path: String = "%s[%d]" % [FactionDef.ROOT_KEY, i]
+		if not _is_object(list[i], file, path, errors):
+			continue
+		var f: Dictionary = list[i]
+		_check_keys(f, FactionDef.KEYS, file, path, errors)
+		var id: String = _id(f, "id", file, path, errors)
+		if id.is_empty():
+			continue
+		if not Faction.FACTION_IDS.has(id):
+			_add(errors, file, _join(path, "id"), "unknown faction \"%s\"" % id)
+			continue
+		if i >= Faction.FACTION_IDS.size() or Faction.FACTION_IDS[i] != id:
+			_add(errors, file, _join(path, "id"), "\"%s\" is out of order; the order is %s"
+				% [id, Faction.FACTION_IDS])
+		var attr: String = _text(f, "capacity_attr", file, path, errors)
+		if not attr.is_empty() and not RegionDef.ATTRIBUTES_ALL.has(attr):
+			_add(errors, file, _join(path, "capacity_attr"), "unknown attribute \"%s\"" % attr)
+		var brake: String = _text(f, "brake", file, path, errors)
+		if not brake.is_empty() and not ModifierDef.TARGETS_GLOBAL.has(brake):
+			_add(errors, file, _join(path, "brake"), "\"%s\" is not a global target" % brake)
+		_faction_terms(f, file, path, errors)
+		_faction_moves(f, id, counter_moves, named, file, path, errors)
+		if strings_known and not strings.has(FactionDef.name_key(id)):
+			_add(errors, file, _join(path, "id"),
+				"no string \"%s\" with both an en and a de cell" % FactionDef.name_key(id))
+	for event_id: String in counter_moves:
+		if not named.has(event_id):
+			_add(errors, file, FactionDef.ROOT_KEY,
+				"counter-move \"%s\" is named by no faction's moves" % event_id)
+
+
+## Every counter-move event in the raw events files, with its faction.
+static func _counter_move_factions(event_raws: Array) -> Dictionary[String, String]:
+	var out: Dictionary[String, String] = {}
+	for raw: Variant in event_raws:
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var d: Dictionary = raw
+		if typeof(d.get(EventDef.ROOT_KEY)) != TYPE_ARRAY:
+			continue
+		for entry: Variant in d[EventDef.ROOT_KEY]:
+			if typeof(entry) != TYPE_DICTIONARY:
+				continue
+			var e: Dictionary = entry
+			if str(e.get("kind", "")) != EventDef.KIND_COUNTER_MOVE:
+				continue
+			out[str(e.get("id", ""))] = str(e.get("faction", ""))
+	return out
+
+
+static func _faction_terms(f: Dictionary, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if not _require(f, "terms", file, path, errors):
+		return
+	var terms_path: String = _join(path, "terms")
+	if not _is_list(f["terms"], file, terms_path, errors):
+		return
+	var terms: Array = f["terms"]
+	if terms.is_empty():
+		_add(errors, file, terms_path, "a faction needs at least one term")
+	for i: int in terms.size():
+		var term_path: String = "%s[%d]" % [terms_path, i]
+		if not _is_object(terms[i], file, term_path, errors):
+			continue
+		var t: Dictionary = terms[i]
+		_check_keys(t, FactionTermDef.KEYS, file, term_path, errors)
+		_number(t, "weight", file, term_path, errors)
+		var source: String = _text(t, "source", file, term_path, errors)
+		if source.is_empty():
+			continue
+		if not FactionTermDef.SOURCES.has(source):
+			_add(errors, file, _join(term_path, "source"), "unknown source \"%s\"" % source)
+			continue
+		if source == FactionTermDef.SOURCE_OWNED_NODES:
+			var tree: String = _text(t, "tree", file, term_path, errors)
+			if not tree.is_empty() and not TechNodeDef.TREES.has(tree):
+				_add(errors, file, _join(term_path, "tree"), "unknown tree \"%s\"" % tree)
+		elif t.has("tree"):
+			_add(errors, file, _join(term_path, "tree"), "only an owned_nodes term has a tree")
+		if source == FactionTermDef.SOURCE_ASSETS:
+			var kind: String = _text(t, "kind", file, term_path, errors)
+			if not kind.is_empty() and not AssetDef.KINDS.has(kind):
+				_add(errors, file, _join(term_path, "kind"), "unknown asset kind \"%s\"" % kind)
+		elif t.has("kind"):
+			_add(errors, file, _join(term_path, "kind"), "only an assets term has a kind")
+
+
+static func _faction_moves(f: Dictionary, faction: String,
+		counter_moves: Dictionary[String, String], named: Dictionary[String, String],
+		file: String, path: String, errors: Array[ValidationError]) -> void:
+	if not f.has("moves"):
+		return
+	var moves_path: String = _join(path, "moves")
+	if not _is_list(f["moves"], file, moves_path, errors):
+		return
+	var moves: Array = f["moves"]
+	if moves.size() > FactionDef.MOVES_MAX:
+		_add(errors, file, moves_path, "at most %d moves, found %d"
+			% [FactionDef.MOVES_MAX, moves.size()])
+	var previous: float = NAN
+	for i: int in moves.size():
+		var move_path: String = "%s[%d]" % [moves_path, i]
+		if not _is_object(moves[i], file, move_path, errors):
+			continue
+		var m: Dictionary = moves[i]
+		_check_keys(m, FactionMoveDef.KEYS, file, move_path, errors)
+		var event: String = _id(m, "event", file, move_path, errors)
+		if not event.is_empty():
+			_faction_move_event(event, faction, counter_moves, named, file,
+				_join(move_path, "event"), errors)
+		if _require(m, "trigger", file, move_path, errors):
+			var trigger_path: String = _join(move_path, "trigger")
+			if _is_object(m["trigger"], file, trigger_path, errors):
+				var trigger: Dictionary = m["trigger"]
+				_check_keys(trigger, FactionMoveDef.TRIGGER_KEYS, file, trigger_path, errors)
+				if not trigger.has("containment") and not trigger.has("risk"):
+					_add(errors, file, trigger_path, "needs containment, risk or both")
+				if trigger.has("risk"):
+					_number(trigger, "risk", file, trigger_path, errors, 0.0, 1.0, true)
+				if trigger.has("containment"):
+					var value: float = _number(trigger, "containment", file, trigger_path, errors,
+						0.0, 1.0, true, true)
+					if not is_nan(value) and not is_nan(previous) and value < previous:
+						_add(errors, file, _join(trigger_path, "containment"),
+							"move triggers must ascend")
+					if not is_nan(value):
+						previous = value
+		if m.has("variants"):
+			_faction_variants(m["variants"], faction, counter_moves, named, file,
+				_join(move_path, "variants"), errors)
+
+
+static func _faction_move_event(event: String, faction: String,
+		counter_moves: Dictionary[String, String], named: Dictionary[String, String],
+		file: String, path: String, errors: Array[ValidationError]) -> void:
+	if not counter_moves.has(event):
+		_add(errors, file, path, "\"%s\" is not a counter-move event" % event)
+		return
+	if counter_moves[event] != faction:
+		_add(errors, file, path, "\"%s\" is a move of %s, not of %s"
+			% [event, counter_moves[event], faction])
+		return
+	if named.has(event) and named[event] != faction:
+		_add(errors, file, path, "\"%s\" is already a move of %s" % [event, named[event]])
+		return
+	named[event] = faction
+
+
+static func _faction_variants(raw: Variant, faction: String,
+		counter_moves: Dictionary[String, String], named: Dictionary[String, String],
+		file: String, path: String, errors: Array[ValidationError]) -> void:
+	if not _is_object(raw, file, path, errors):
+		return
+	var v: Dictionary = raw
+	_check_keys(v, FactionMoveDef.VARIANTS_KEYS, file, path, errors)
+	var select: String = _text(v, "select", file, path, errors)
+	if not select.is_empty() and not FactionMoveDef.SELECTORS.has(select):
+		_add(errors, file, _join(path, "select"), "unknown selector \"%s\"" % select)
+		select = ""
+	if not _require(v, "events", file, path, errors):
+		return
+	var events_path: String = _join(path, "events")
+	if not _is_object(v["events"], file, events_path, errors):
+		return
+	var events: Dictionary = v["events"]
+	for raw_key: Variant in events:
+		var key: String = str(raw_key)
+		var entry_path: String = _join(events_path, key)
+		if select == FactionMoveDef.SELECTOR_SEEDS_BY_KIND_MAX and not LinkDef.KINDS.has(key):
+			_add(errors, file, entry_path, "\"%s\" is not a link kind" % key)
+		if typeof(events[raw_key]) != TYPE_STRING:
+			_add(errors, file, entry_path, "expected a string, found %s"
+				% type_string(typeof(events[raw_key])))
+			continue
+		_faction_move_event(str(events[raw_key]), faction, counter_moves, named, file,
+			entry_path, errors)
+
+
 # --------------------------------------------------------------- headlines.json
 
 
@@ -2343,6 +2569,8 @@ static func _headline_domain(field: String, event: String,
 		"outcome":
 			return World.OUTCOME_IDS
 		"to", "from":
+			if event == SimEvent.THREAT_LEADER_CHANGED:
+				return Faction.FACTION_IDS
 			return World.PHASE_IDS if event == SimEvent.PHASE_CHANGED else []
 	return []
 
@@ -2439,7 +2667,6 @@ static func _headline_condition(when: Dictionary, key: String, file: String, pat
 
 
 ## `faction_min` and friends: `{id: bound}`, the ids from the right vocabulary.
-## A faction id may be the unified track, which reads as the highest one.
 static func _when_table(when: Dictionary, key: String, file: String, path: String,
 		errors: Array[ValidationError]) -> void:
 	var table_path: String = _join(path, key)
@@ -2449,7 +2676,7 @@ static func _when_table(when: Dictionary, key: String, file: String, path: Strin
 	var factions: bool = key.begins_with("faction")
 	for raw_name: Variant in table:
 		var name: String = str(raw_name)
-		if factions and not Faction.FACTION_IDS.has(name) and name != World.FACTION_UNIFIED:
+		if factions and not Faction.FACTION_IDS.has(name):
 			_add(errors, file, _join(table_path, name), "unknown faction \"%s\"" % name)
 			continue
 		if not factions and not AssetDef.KINDS.has(name):

@@ -146,9 +146,9 @@ func test_a_negative_add_is_clamped_at_zero() -> void:
 
 
 func test_an_inert_target_is_evaluated_and_read_by_nothing() -> void:
-	# A multiplier says nothing about a target whose base is 0, so the one the
-	# spec names is the one used: a containment track S4.1 will read.
-	var target: String = "containment_ai_labs"
+	# A multiplier says nothing about a target whose base is 0, so the one used
+	# has a base of 1: the emergent rate D5.1 will read.
+	var target: String = "emergent_rate"
 	assert_true(ModifierStack.INERT_TARGETS.has(target))
 	var stack: ModifierStack = _stack()
 	_add(stack, "a", [_modifier(target, ModifierDef.Op.MUL, 0.5)])
@@ -234,3 +234,61 @@ func test_clear_keeps_the_asset_counts() -> void:
 	stack.clear()
 	assert_eq(stack.asset_count(1, AssetDef.KIND_FLEET), 2)
 	assert_eq(stack.sources().size(), 0)
+
+
+# ------------------------------------------ S4.4: the Footprint a faction sees
+
+
+func _watched(stack: ModifierStack, source: String, value: float,
+		watched_by: Array[String]) -> void:
+	var no_flags: Array[String] = []
+	var modifiers: Array[ModifierDef] = [_modifier("footprint", ModifierDef.Op.ADD, value)]
+	stack.add_source(source, modifiers, no_flags, watched_by)
+
+
+func test_a_watched_source_counts_in_full_for_its_watcher_only() -> void:
+	var stack: ModifierStack = _stack()
+	_watched(stack, "a", 4.0, ["governments"] as Array[String])
+	assert_eq(stack.footprint_for("governments"), 4.0)
+	for faction: String in ["ai_labs", "security_researchers", "public_sentiment"]:
+		assert_eq(stack.footprint_for(faction), 0.0, faction)
+	assert_eq(stack.value("footprint"), 4.0, "the unscoped stat is unchanged")
+
+
+func test_an_unwatched_source_counts_a_quarter_for_everyone() -> void:
+	var stack: ModifierStack = _stack()
+	_watched(stack, "a", 4.0, [] as Array[String])
+	for faction: String in Faction.FACTION_IDS:
+		assert_eq(stack.footprint_for(faction), 1.0, faction)
+
+
+func test_a_negative_add_is_weighted_the_same_way() -> void:
+	var stack: ModifierStack = _stack()
+	_watched(stack, "a", 4.0, ["ai_labs"] as Array[String])
+	_watched(stack, "b", -2.0, [] as Array[String])
+	assert_eq(stack.footprint_for("ai_labs"), 3.5, "4 - a quarter of 2")
+	assert_eq(stack.footprint_for("governments"), 0.0, "clamped at 0")
+
+
+func test_a_footprint_multiplier_scales_every_faction() -> void:
+	var stack: ModifierStack = _stack()
+	_watched(stack, "a", 4.0, ["ai_labs", "governments"] as Array[String])
+	_add(stack, "b", [_modifier("footprint", ModifierDef.Op.MUL, 0.5)])
+	assert_eq(stack.footprint_for("ai_labs"), 2.0)
+	assert_eq(stack.footprint_for("governments"), 2.0)
+
+
+func test_a_removed_source_leaves_every_factions_footprint() -> void:
+	var stack: ModifierStack = _stack()
+	_watched(stack, "a", 4.0, ["public_sentiment"] as Array[String])
+	stack.remove_source("a")
+	assert_eq(stack.footprint_for("public_sentiment"), 0.0)
+	assert_eq(stack.watched_by("a").size(), 0)
+
+
+func test_a_nodes_watchers_reach_the_stack_when_it_is_bought() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	Fixtures.grant(sim, 100.0)
+	Fixtures.buy(sim, ["fx_harm_1"])
+	# fx_harm_1 carries +3 Footprint and no watchers: a quarter each.
+	assert_almost_eq(sim.footprint_for("governments"), 0.75, 1e-12)

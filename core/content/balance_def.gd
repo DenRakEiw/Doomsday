@@ -49,13 +49,21 @@ var discovery_breadth_free: float
 var discovery_deaths_certain_share: float
 
 var containment_base_rate: float
-var containment_per_footprint: float
-var containment_per_harm: float
-var containment_per_share: float
-## Weight per `research` tier; the index is the tier.
-var containment_research_weight_by_tier: Array[float] = []
+## Weight per tier of a faction's capacity attribute; the index is the tier
+## (opposition.md §5.2 — one table for all four attributes).
+var containment_capacity_weight_by_tier: Array[float] = []
 ## Ascending, each in (0, 1); announced once when crossed.
 var containment_thresholds: Array[float] = []
+
+## The counter-move schedule (opposition.md §6, §11). `factions_reset_days` is
+## read from S4.4 on (`funding_reset`), the rest from S4.5.
+var factions_prepare_days: int
+var factions_prepare_min_days: int
+var factions_cooldown_days: int
+var factions_max_active_moves: int
+var factions_level_thresholds: Array[float] = []
+var factions_reset_days: int
+var factions_protest_deaths_share: float
 
 var phase_open_containment: float
 var phase_open_world_share: float

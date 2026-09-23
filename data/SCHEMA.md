@@ -5,12 +5,14 @@ changes a loader, a format or the vocabulary changes this file in the same commi
 `SchemaValidator` enforces everything stated here; where this file and the validator disagree, that
 is a bug in one of them.
 
-Version: **v5** (D1.1 — regions, links, technology nodes, balance; D3.1 — the node grid, the
+Version: **v6** (D1.1 — regions, links, technology nodes, balance; D3.1 — the node grid, the
 factions that watch a node, one-shot effects, the targets and flags of the three trees; D3.4 —
 `headlines.json` and the `headlines` balance section; D4.1 — `assets.json`, the `asset` scope, the
 eligibility grammar, the effect vocabulary as one list, the tree v3 fields, and — written up here
 at S4.2 — `statuses.json` and `abilities.json`; at S4.3 — `events/*.json`, the `events`
-balance section and the `when` keys of loop-mechanics §10.3). Later specs add sections.
+balance section and the `when` keys of loop-mechanics §10.3; at S4.4 — `factions.json`, the
+`factions` balance section, `capacity_weight_by_tier`, the four brakes and `funding_reset` live).
+Later specs add sections.
 
 ## 1. General rules
 
@@ -190,7 +192,7 @@ lists the inert ones in `INERT_TARGETS`, and a system's spec deletes its row fro
 | `node_cost_infiltration` `node_cost_capabilities` `node_cost_evasion` | global | 1 | 0.1…10 | live | multiplier on the cost of that tree's nodes, on top of `node_cost` |
 | `shutdown_survival` | regional | 0 | 0…1 | live | share of penetration the region keeps when a shutdown hits it |
 | `emergent_rate` | global | 1 | 0…20 | `emergent` (S4.4) | multiplier on the daily chance of an emergent behaviour |
-| `containment_ai_labs` `containment_governments` `containment_researchers` `containment_public` | global | 1 | 0…20 | `factions` (S4.1) | multiplier on that faction's containment gain, after `containment_growth`. The unified M1–M3 track ignores them |
+| `containment_ai_labs` `containment_governments` `containment_researchers` `containment_public` | global | 1 | 0…20 | `ContainmentSystem` (S4.4) | multiplier on that faction's containment gain, after `containment_growth` — the faction's `brake` in `factions.json` |
 | `society_pressure` | regional | 0 | 0…100 | `society` (S4.5) | daily pressure on Societal Function in the region |
 
 **Targets v3** (D4.1 §7.5). The three the status system reads; the steps in the *System* column
@@ -254,7 +256,7 @@ region it deployed into and in no other.
 | `compute_grant` | `value` ≥ 0, `per_hardware`? | if `per_hardware` | live | `compute` and `compute_earned` both rise by `value`, times the region's hardware when `per_hardware` |
 | `containment_rollback` | `value` (0, 1] | | live | every faction: `containment ← containment × (1 − value)`. A threshold that is crossed again is announced again |
 | `harm_burst` | `value` (0, 1] | | live | one wave of deaths at once: every region that is not dark, not dormant and infected loses `value × penetration × alive` people; a region that empties goes dark as in `docs/specs/core.md` §7.4 |
-| `funding_reset` | `value` (0, 1] | | `factions` (S4.4) | burns that share of every faction's preparation. Inert: accepted, no effect |
+| `funding_reset` | `value` (0, 1] | | `EffectRunner` (S4.4) | every faction's preparation is cancelled (`counter_move_cancelled`) and no faction prepares for `round(value × factions.reset_days)` days; a later cooldown is kept (opposition.md §6.5) |
 | `destroy_assets` | `kind`, `count` ≥ 0 | R | live | removes `min(count, held)` of the kind; 0 means every one held |
 | `grant_assets` | `kind`, `count` ≥ 1 | R | live | the mirror: the region gains that many |
 | `seed_neighbours` | `count` ≥ 1 | R | live | seeds the best uninfected neighbours over open links |
@@ -298,9 +300,15 @@ as ≥ 0 unless stated. The meaning of each constant is defined by the formula t
 | `milestones` | [milestone] | below |
 | `harm.daily_rate` | float | |
 | `discovery.scrutiny_per_day` `.per_footprint` `.breadth_rate` `.breadth_free` `.deaths_certain_share` | float | the last two are shares of the world, in [0, 1] |
-| `containment.base_rate` `.per_footprint` `.per_harm` `.per_share` | float | |
-| `containment.research_weight_by_tier` | [float × 5] | index = `research` tier; sum > 0 |
+| `containment.base_rate` | float | the gain per day at pressure 1, capacity 1, brakes 1 (opposition.md §5.4) |
+| `containment.capacity_weight_by_tier` | [float × 5] | index = the tier of a faction's `capacity_attr`; sum > 0 — one table for all four attributes |
 | `containment.thresholds` | [float] | ascending, each in (0, 1); announced once when crossed |
+| `factions.prepare_days` `.prepare_min_days` | int | ≥ 1; a move is prepared for `max(min, round(prepare × (1 − containment)))` days (S4.5) |
+| `factions.cooldown_days` | int | ≥ 0; days after a move before the faction prepares again (S4.5) |
+| `factions.max_active_moves` | int | ≥ 1; world statuses that may stand at once (S4.5) |
+| `factions.level_thresholds` | [float] | ascending, each in (0, 1); containment from which a move is at level 2, 3 … (S4.5) |
+| `factions.reset_days` | int | ≥ 1; `funding_reset` value 1 is this many days of quiet |
+| `factions.protest_deaths_share` | float | in (0, 1]; the Protest's target rule (S4.5) |
 | `phase.open_containment` `.open_world_share` | float | in (0, 1] |
 | `headlines.max_per_tick` `.max_per_command` | int | ≥ 1; how many lines one tick or one command may say |
 | `headlines.reaction_gap_days` | int | ≥ 0; days between two state-triggered reactions |
@@ -474,6 +482,47 @@ A chain step that is not `start` and that no `next` names is an error.
 Strings per event: `EVENT_<ID>_TITLE` · `_BODY`, per option `EVENT_<ID>_OPT_<OPTION>` ·
 `EVENT_<ID>_RESULT_<OPTION>`, each in `en` and `de`; `{region}` in a text is the event's region.
 
+## 6d. `factions.json`
+
+The four containment tracks (opposition.md §4). `{"version": 1, "factions": [ … ]}` with exactly
+the four faction ids **in `Faction.FACTION_IDS` order**: `ai_labs`, `governments`,
+`security_researchers`, `public_sentiment`.
+
+```json
+{"id": "security_researchers", "capacity_attr": "connectivity", "brake": "containment_researchers",
+ "terms": [{"source": "footprint", "weight": 0.15}, {"source": "share", "weight": 1.5}],
+ "moves": [{"event": "cm_disclosure_network", "trigger": {"containment": 0.25},
+            "variants": {"select": "seeds_by_kind_max", "events": {"sea": "cm_disclosure_sea"}}}]}
+```
+
+| Field | Type | Required | Rule |
+| --- | --- | --- | --- |
+| `id` | faction id | yes | in order, no repeats |
+| `capacity_attr` | attribute | yes | a region attribute of §2, `population` included; weighs each region's capacity by `containment.capacity_weight_by_tier` |
+| `brake` | target | yes | a global target of §4.1 — the faction's own `containment_<…>` |
+| `terms` | [term] | yes, ≥ 1 | the pressure is `1 + Σ weight × value` |
+| `moves` | [move] | no, 0…4 | `trigger.containment` ascending where given |
+
+Term: `{"source", "weight" ≥ 0, "tree"?, "kind"?}`, nothing else.
+
+| `source` | Value |
+| --- | --- |
+| `footprint` | the Footprint this faction sees: a source's additive Footprint counts in full for a faction in its `watched_by`, a quarter for every faction when `watched_by` is empty, not at all otherwise; multipliers for all |
+| `harm` | the alive-weighted mean of the scoped Harm over regions not dark |
+| `share` | the infected share of the world's hardware |
+| `deaths_share` | deaths / world population |
+| `seeded_share` | regions ever seeded / regions |
+| `owned_nodes` | owned nodes of `tree` (required with this source only) |
+| `watched_statuses` | active statuses of `origin` `player` whose `watched_by` names this faction |
+| `assets` | the agent's total of `kind` (required with this source only) |
+
+Move: `{"event", "trigger": {"containment"? in (0, 1), "risk"? in (0, 1]}, "variants"?}`. `event`
+is a `counter_move` event whose `faction` is this faction; `trigger` needs at least one key
+(`risk` is the daily discovery risk, before discovery only). `variants`: `{"select":
+"seeds_by_kind_max", "events": {link kind: counter-move event of this faction}}` — a key the
+selector produces and the map lacks falls back to `event`. An event named by two factions' moves
+is an error; so is a counter-move event no move names. Strings: `FACTION_<ID>` in `en` and `de`.
+
 ## 7. Eligibility
 
 Where something may be placed, used or picked: a `deploy` site, an ability's target, an event's
@@ -549,7 +598,7 @@ true. A state-only headline is checked only once the run has an origin. `_min` i
 | `owned` `owned_any` `not_owned` | [node id] | all of them · at least one · none |
 | `owned_count_min` | int | nodes bought |
 | `flag` `not_flag` | [flag] | all of them set · none set — a modifier flag, a timed flag or a story flag |
-| `faction_min` `faction_max` | {faction id: float} | that faction's containment; an id the world does not track (the unified track until S4.4) reads the highest one |
+| `faction_min` `faction_max` | {faction id: float} | that faction's containment |
 | `asset_min` `asset_max` | {kind: int} | the agent's total of that kind |
 | `status_active` `status_inactive` | [status id] | each running somewhere · none running anywhere |
 | `ability_unlocked` | [ability id] | each at level 1 or more |

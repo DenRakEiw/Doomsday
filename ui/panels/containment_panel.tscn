@@ -93,22 +93,6 @@ layout_mode = 2
 autowrap_mode = 3
 theme_type_variation = &"LabelCaption"
 
-[node name="DriversBlock" type="VBoxContainer" parent="Panel/Scroll/Body"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-theme_type_variation = &"StackTight"
-
-[node name="DriversTitle" type="Label" parent="Panel/Scroll/Body/DriversBlock"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"LabelHeading"
-
-[node name="Drivers" type="VBoxContainer" parent="Panel/Scroll/Body/DriversBlock"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"StackTight"
-
 [node name="ThresholdsHint" type="Label" parent="Panel/Scroll/Body"]
 unique_name_in_owner = true
 layout_mode = 2

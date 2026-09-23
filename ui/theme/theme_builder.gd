@@ -127,6 +127,11 @@ const VARIATIONS: Dictionary[String, String] = {
 	"StatBarFootprint": STAT_BAR,
 	"StatBarHarm": STAT_BAR,
 	"StatBarContainment": STAT_BAR,
+	"StatBarRisk": STAT_BAR,
+	"StatBarAiLabs": STAT_BAR,
+	"StatBarGovernments": STAT_BAR,
+	"StatBarResearchers": STAT_BAR,
+	"StatBarPublic": STAT_BAR,
 	"StatBarRows": "VBoxContainer",
 	"StatBarRow": "HBoxContainer",
 	"ValueLabel": LABEL,
@@ -154,6 +159,7 @@ const VARIATIONS: Dictionary[String, String] = {
 	"MapTooltipLabel": "LabelCaption",
 	"LabelConsoleLine": "LabelCaption",
 	"LabelCaptionAlert": "LabelCaption",
+	"LabelCaptionAccent": "LabelCaption",
 	"ConsoleButtonFlat": BUTTON,
 	"TechGrid": "GridContainer",
 	"TechGridCompact": "GridContainer",
@@ -206,6 +212,8 @@ static func _colours() -> Theme:
 	# m3-screens §3.3: the reason a purchase was refused. Red is a moment, and a
 	# refusal is one.
 	theme.set_color(COLOR_FONT, "LabelCaptionAlert", UiTokens.color(&"ALERT"))
+	# opposition.md §9.2: a brake below 1 reads as the good news it is.
+	theme.set_color(COLOR_FONT, "LabelCaptionAccent", UiTokens.color(&"ACCENT"))
 	theme.set_color(COLOR_FONT, "LabelDisplay", UiTokens.color(&"TEXT_0"))
 	theme.set_color(COLOR_FONT, "LabelDisplayXL", UiTokens.color(&"TEXT_0"))
 	# m3-screens §7.4: a win is lit, a loss is not — and neither is `ALERT`,
@@ -267,6 +275,7 @@ static func _typography() -> Theme:
 	_type(theme, "LabelCaps", caps, UiTokens.TYPE_LABEL, UiTokens.LINE_LABEL)
 	_type(theme, "LabelCaption", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
 	_type(theme, "LabelCaptionAlert", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
+	_type(theme, "LabelCaptionAccent", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
 	_type(theme, "MapTooltipLabel", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
 	_type(theme, "LabelConsoleLine", mono_regular, UiTokens.TYPE_CAPTION,
 		UiTokens.LINE_CAPTION)
@@ -489,6 +498,12 @@ static func _bars() -> Theme:
 	# m3-screens §4.2: warm, and deliberately not `ALERT` — the bar is a state,
 	# and the one mark that *is* red is the end of the run.
 	theme.set_color(COLOR_FILL, "StatBarContainment", UiTokens.color(&"MAP_DEATH"))
+	# opposition.md §9.6: the threat bar before discovery is the risk, in the
+	# console's accent; after it, the leading faction in its own colour.
+	theme.set_color(COLOR_FILL, String(UiTokens.STAT_BAR_RISK), UiTokens.color(&"ACCENT"))
+	for faction: String in Faction.FACTION_IDS:
+		theme.set_color(COLOR_FILL, String(UiTokens.STAT_BAR_FACTIONS[faction]),
+			UiTokens.faction_color(faction))
 	return theme
 
 

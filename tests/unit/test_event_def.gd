@@ -121,6 +121,8 @@ func test_every_events_file_is_read_in_name_order() -> void:
 func test_an_empty_events_directory_loads() -> void:
 	var content: Dictionary = Fixtures.raw_content()
 	content["events"] = []
+	# The governments' move names the fixture's counter-move, which is gone too.
+	((content["factions"] as Dictionary)["factions"] as Array)[1]["moves"] = []
 	var result: ContentLoadResult = ContentLoader.load_root(Fixtures.write_root("events_empty",
 		Fixtures.root_files(content)))
 	assert_true(result.ok(), result.error_text())
