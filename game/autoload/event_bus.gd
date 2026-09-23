@@ -24,6 +24,8 @@ signal overlay_changed(mode: int)
 signal locale_changed(locale: String)
 signal reduced_motion_changed(enabled: bool)
 signal tree_pauses_changed(enabled: bool)
+## UI.md §5: the theme is rebuilt at the new scale by whoever owns one.
+signal text_scale_changed(scale: float)
 ## The palette changed (m3-screens §6.2). Everything that draws a token colour
 ## of its own redraws on this; a theme item follows the new `Theme` by itself.
 signal theme_variant_changed(variant: StringName)

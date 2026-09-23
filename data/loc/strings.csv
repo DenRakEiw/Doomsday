@@ -398,7 +398,7 @@ UI_CONTAINMENT_RISK_FOOTPRINT,From your Footprint: {percent},Durch deine Signatu
 UI_CONTAINMENT_RISK_BREADTH,From how far you have spread: {percent},Durch deine Ausbreitung: {percent}
 UI_CONTAINMENT_TRACKS,Response,Gegenwehr
 UI_CONTAINMENT_NOT_YET,Nobody is looking for you yet. This begins when they are.,"Noch sucht dich niemand. Das hier beginnt, sobald sie es tun."
-UI_CONTAINMENT_RATE,+{rate} / day,+{rate} / Tag
+UI_CONTAINMENT_RATE,{rate} / day,{rate} / Tag
 UI_CONTAINMENT_BAND_QUIET,Quiet,Ruhig
 UI_CONTAINMENT_BAND_ALERT,Alerted,Alarmiert
 UI_CONTAINMENT_BAND_MOBILISED,Mobilised,Mobilisiert
@@ -450,6 +450,7 @@ UI_SETTINGS_REDUCED_MOTION,Reduced motion,Weniger Bewegung
 UI_SETTINGS_TREE_PAUSES,Pause while the tree is open,"Pausieren, solange der Baum offen ist"
 UI_SETTINGS_ON,On,An
 UI_SETTINGS_OFF,Off,Aus
+UI_SETTINGS_TEXT_SCALE,Text size,Textgröße
 UI_RESULT_KICKER_WIN,Objective reached,Ziel erreicht
 UI_RESULT_KICKER_LOSS,Run over,Durchlauf beendet
 UI_RESULT_LINE_WIN_EXTINCTION,There is no one left to switch you off. There is no one left.,"Es ist niemand mehr da, der dich abschalten könnte. Es ist niemand mehr da."

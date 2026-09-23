@@ -178,9 +178,17 @@ const VARIATIONS: Dictionary[String, String] = {
 }
 
 
+## The text scale of the build in progress (UI.md §5). Like the token set, it is
+## switched on for the length of one call and put back.
+static var _text_scale: float = 1.0
+
+
 ## The theme for a token set. An unknown variant is the caller's mistake, not the
 ## player's, so it warns and hands back the cold set rather than failing (§3.7).
-static func build(variant: String) -> Theme:
+##
+## `text_scale` multiplies every font size and nothing else: spacing, bars and
+## panels keep their sizes, and the containers make room for the text.
+static func build(variant: String, text_scale: float = 1.0) -> Theme:
 	var wanted: String = variant
 	if not VARIANTS.has(wanted):
 		push_warning("theme variant '%s' does not exist — using '%s'" % [wanted, VARIANT_COLD])
@@ -189,15 +197,22 @@ static func build(variant: String) -> Theme:
 	# length of the build and put back: building a theme is not a phase change.
 	var previous: StringName = UiTokens.variant
 	UiTokens.variant = StringName(wanted)
+	_text_scale = clampf(text_scale, UiTokens.TEXT_SCALES.front(), UiTokens.TEXT_SCALES.back())
 	var theme: Theme = Theme.new()
 	for partial: Theme in [_colours(), _typography(), _panels(), _buttons(), _bars()]:
 		theme.merge_with(partial)
 	for name: String in VARIATIONS:
 		theme.set_type_variation(name, VARIATIONS[name])
 	theme.default_font = _mono(FONT_MONO_REGULAR)
-	theme.default_font_size = UiTokens.TYPE_BODY
+	theme.default_font_size = _scaled(UiTokens.TYPE_BODY)
 	UiTokens.variant = previous
+	_text_scale = 1.0
 	return theme
+
+
+## A size of §3.2 at the text scale of the build in progress, in whole pixels.
+static func _scaled(size: int) -> int:
+	return roundi(float(size) * _text_scale)
 
 
 # ------------------------------------------------------------------ partial 1
@@ -268,7 +283,7 @@ static func _typography() -> Theme:
 	var mono_regular: FontFile = _mono(FONT_MONO_REGULAR)
 	var mono_medium: FontFile = _mono(FONT_MONO_MEDIUM)
 	var mono_bold: FontFile = _mono(FONT_MONO_BOLD)
-	var caps: FontVariation = _tracked(mono_medium, UiTokens.TYPE_LABEL)
+	var caps: FontVariation = _tracked(mono_medium, _scaled(UiTokens.TYPE_LABEL))
 	var display: FontVariation = _display(WEIGHT_SEMI_BOLD)
 	var heading: FontVariation = _display(WEIGHT_MEDIUM)
 
@@ -296,7 +311,7 @@ static func _typography() -> Theme:
 	for button: String in ["ConsoleButton", "ConsoleButtonPrimary", "ConsoleButtonCompact",
 			"ConsoleButtonPrimaryCompact", "IconButton"]:
 		theme.set_font(ITEM_FONT, button, caps)
-		theme.set_font_size(ITEM_FONT_SIZE, button, UiTokens.TYPE_LABEL)
+		theme.set_font_size(ITEM_FONT_SIZE, button, _scaled(UiTokens.TYPE_LABEL))
 	_type(theme, "Ticker", mono_regular, UiTokens.TYPE_BODY, UiTokens.LINE_BODY)
 
 	# A tech node's own labels: the name tracks like every `LabelCaps`, the cost
@@ -309,7 +324,7 @@ static func _typography() -> Theme:
 		_type(theme, caption, mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
 	# §3.6 item 6: a row that reads as a line of text, not as a shouted label.
 	theme.set_font(ITEM_FONT, "ConsoleButtonFlat", mono_regular)
-	theme.set_font_size(ITEM_FONT_SIZE, "ConsoleButtonFlat", UiTokens.TYPE_BODY)
+	theme.set_font_size(ITEM_FONT_SIZE, "ConsoleButtonFlat", _scaled(UiTokens.TYPE_BODY))
 	return theme
 
 
@@ -522,9 +537,10 @@ static func _bars() -> Theme:
 ## One font entry: family, size, and the line height of §3.2 as the extra pixels
 ## a `Label` puts between two lines.
 static func _type(theme: Theme, type: String, font: Font, size: int, line: float) -> void:
+	var px: int = _scaled(size)
 	theme.set_font(ITEM_FONT, type, font)
-	theme.set_font_size(ITEM_FONT_SIZE, type, size)
-	theme.set_constant(CONST_LINE_SPACING, type, roundi(float(size) * (line - 1.0)))
+	theme.set_font_size(ITEM_FONT_SIZE, type, px)
+	theme.set_constant(CONST_LINE_SPACING, type, roundi(float(px) * (line - 1.0)))
 
 
 static func _button_styles(theme: Theme, type: String, pad: Vector2i, normal: Color,

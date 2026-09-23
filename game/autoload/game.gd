@@ -33,6 +33,7 @@ const MIN_SEED: int = 1
 ## The debug run of §10.2. M2 only — the keys and this constant go in M6.
 const DEBUG_SEED: int = 1
 const DEBUG_SAVE_SLOT: String = "debug"
+const DEBUG_SHOT_PATH: String = "user://shots/%s.png"
 
 ## Null before a run.
 var sim: Simulation = null
@@ -362,8 +363,9 @@ func _day_line() -> String:
 
 
 ## §10.2: F5/F6/F7 start a bot run — with Shift, the three strategy bots of
-## S3.6 instead of the shape bots of S1.8 — L and M toggle the two settings, F9
-## and F10 save and load. All of this goes away in M6, when the real screens
+## S3.6 instead of the shape bots of S1.8 — L and M toggle the two settings
+## (Shift+L the pseudo-locale of S4.9), K steps the text scale, F9 and F10 save
+## and load. All of this goes away in M6, when the real screens
 ## exist.
 func _unhandled_key_input(event: InputEvent) -> void:
 	var key: InputEventKey = event as InputEventKey
@@ -378,8 +380,15 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_F7:
 			_start_debug_run(PersuaderPolicy.ID if strategy else IdlePolicy.ID)
 		KEY_L:
-			Settings.toggle_locale()
-			print("locale: %s" % Settings.locale)
+			if strategy:
+				Settings.set_pseudo_locale(not Settings.pseudo_locale)
+				print("pseudo-locale: %s" % Settings.pseudo_locale)
+			else:
+				Settings.toggle_locale()
+				print("locale: %s" % Settings.locale)
+		KEY_K:
+			Settings.cycle_text_scale()
+			print("text scale: %s" % Settings.text_scale)
 		KEY_M:
 			Settings.set_reduced_motion(not Settings.reduced_motion)
 			print("reduced motion: %s" % Settings.reduced_motion)
@@ -421,6 +430,36 @@ func debug_schedule_event(def_id: String, region_id: String = "") -> void:
 	EventSystem.schedule(sim.world, def_id, region, db.event(def_id).faction,
 		sim.world.day + 1, 1)
 	print("event %s scheduled for day %d" % [def_id, sim.world.day + 1])
+
+
+## Writes the view to `user://shots/<shot_name>.png` and answers the OS path, or an
+## error. S4.9's screenshot set for D4.5 came from this through godot-mcp, whose
+## `eval` cannot run in a project that treats an untyped function as an error.
+func debug_shot(shot_name: String) -> String:
+	var path: String = DEBUG_SHOT_PATH % shot_name
+	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
+	var error: Error = get_viewport().get_texture().get_image().save_png(path)
+	return ProjectSettings.globalize_path(path) if error == OK else error_string(error)
+
+
+## The settings a screenshot is taken under, in one call from godot-mcp. The
+## stored settings change with it; `debug_settings("en", 1.0, false)` puts them
+## back.
+func debug_settings(locale: String, text_scale: float, pseudo: bool) -> String:
+	Settings.set_pseudo_locale(false)
+	Settings.set_locale(locale)
+	Settings.set_text_scale(text_scale)
+	Settings.set_pseudo_locale(pseudo)
+	return "%s %.2f pseudo=%s" % [TranslationServer.get_locale(), Settings.text_scale, pseudo]
+
+
+## Announces a discovery the world did not have, so the discovery modal can be
+## looked at (S4.9's screenshots); the world itself is left as it is.
+func debug_discovery_modal() -> void:
+	if sim == null:
+		return
+	EventBus.sim_event.emit(SimEvent.new(SimEvent.DISCOVERED, sim.world.day,
+		{"cause": SimEvent.CAUSE_SCRUTINY}))
 
 
 func _start_debug_run(policy_id: String) -> void:

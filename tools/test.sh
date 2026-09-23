@@ -20,4 +20,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # every script is checked in between.
 "$GODOT" --headless --path "$ROOT" -s tools/check_scripts.gd
 
+# A key the code names and the string table lacks fails here, before any test
+# could render it as its own name (UI.md §4).
+"$GODOT" --headless --path "$ROOT" -s tools/check_strings.gd
+
 "$GODOT" --headless --path "$ROOT" -s addons/gut/gut_cmdln.gd -gconfig=.gutconfig.json -gexit "$@"

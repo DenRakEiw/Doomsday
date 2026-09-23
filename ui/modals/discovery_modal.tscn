@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://ui/modals/discovery_modal.gd" id="1_discovery"]
 [ext_resource type="Script" path="res://ui/components/console_button.gd" id="2_console_button"]
 [ext_resource type="Script" path="res://ui/components/illustration_slot.gd" id="3_illustration"]
+[ext_resource type="Script" path="res://ui/components/modal_panel.gd" id="9_modal_panel"]
 
 [node name="DiscoveryModal" type="Control"]
 layout_mode = 3
@@ -25,9 +26,9 @@ mouse_filter = 2
 
 [node name="DiscoveryPanel" type="PanelContainer" parent="Centre"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(560, 0)
 layout_mode = 2
 theme_type_variation = &"ConsolePanelAlert"
+script = ExtResource("9_modal_panel")
 
 [node name="Layout" type="BoxContainer" parent="Centre/DiscoveryPanel"]
 unique_name_in_owner = true
@@ -65,10 +66,10 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
 
-[node name="Buttons" type="HBoxContainer" parent="Centre/DiscoveryPanel/Layout/Body"]
+[node name="Buttons" type="HFlowContainer" parent="Centre/DiscoveryPanel/Layout/Body"]
 layout_mode = 2
 alignment = 2
-theme_type_variation = &"Row"
+theme_type_variation = &"Flow"
 
 [node name="ContinueButton" type="Button" parent="Centre/DiscoveryPanel/Layout/Body/Buttons"]
 unique_name_in_owner = true

@@ -43,6 +43,8 @@ const PHASE_CHIP_KINDS: Array[Chip.Kind] = [Chip.Kind.DEFAULT, Chip.Kind.ACCENT,
 ## The gap between the cells: §5.2's `SPACE_5` when there is room for it.
 const VARIATION_ROW_WIDE: StringName = &"RowWide"
 const VARIATION_ROW: StringName = &"Row"
+## The compute cell's share of the phone row against the phase and day cells.
+const COMPUTE_STRETCH: float = 2.0
 
 ## §5.7: one row of `TOP_BAR_HEIGHT`, or two of `TOP_BAR_ROW_HEIGHT`.
 var compact: bool = false:
@@ -210,8 +212,17 @@ func _apply_compact() -> void:
 	# A rate with a decimal (`13,6 ▲ +0,1 / Tag`) is 250 px of the phone's 400
 	# in German; the figure comes first, so on a phone the rate gives way
 	# (S4.6, PROGRESS *Design questions*).
-	_compute_value.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS if compact \
+	var overrun: TextServer.OverrunBehavior = TextServer.OVERRUN_TRIM_ELLIPSIS if compact \
 		else TextServer.OVERRUN_NO_TRIMMING
+	_compute_value.text_overrun_behavior = overrun
+	# S4.9: German at 150 % makes `RECHENLEISTUNG` half the phone's width. The
+	# caption gives way before the figure under it does; each cell's first child
+	# is its caption.
+	for cell: Control in [_compute_cell, _phase_cell, _day_cell]:
+		(cell.get_child(0) as Label).text_overrun_behavior = overrun
+	# With the captions free to shrink, the three cells would share the row in
+	# thirds; the compute cell carries a figure and a rate, so it takes two.
+	_compute_cell.size_flags_stretch_ratio = COMPUTE_STRETCH if compact else 1.0
 	var row_height: int = UiTokens.TOP_BAR_ROW_HEIGHT if compact else UiTokens.TOP_BAR_HEIGHT
 	_row_main.custom_minimum_size.y = float(row_height)
 	_row_second.custom_minimum_size.y = float(UiTokens.TOP_BAR_ROW_HEIGHT)

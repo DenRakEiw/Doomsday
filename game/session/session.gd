@@ -74,7 +74,7 @@ func _ready() -> void:
 	# §5.1: the session root carries the theme. `project.godot` names the same
 	# theme so the editor knows the type variations, but only an assignment here
 	# can be swapped at runtime — which is what D3.3's phase palette needs.
-	theme = ThemeBuilder.build(ThemeBuilder.VARIANT_COLD)
+	_set_theme(ThemeBuilder.build(ThemeBuilder.VARIANT_COLD, Settings.text_scale))
 	get_window().size_changed.connect(_on_window_size_changed)
 	# The HUD owns the breakpoint (§5.7); the panel beside it only has to be told
 	# which edge it comes in from and how much of the screen it must leave alone.
@@ -108,6 +108,7 @@ func _ready() -> void:
 	_analysis.back_requested.connect(_on_analysis_back)
 	EventBus.speed_changed.connect(_on_speed_changed)
 	EventBus.tick_advanced.connect(_on_tick_advanced)
+	EventBus.text_scale_changed.connect(_on_text_scale_changed)
 	_apply_logical_scale()
 	_apply_safe_area()
 
@@ -432,7 +433,7 @@ func _apply_variant(variant: StringName) -> void:
 	if UiTokens.variant == variant:
 		return
 	UiTokens.variant = variant
-	theme = ThemeBuilder.build(String(variant))
+	_set_theme(ThemeBuilder.build(String(variant), Settings.text_scale))
 	EventBus.theme_variant_changed.emit(variant)
 
 
@@ -464,6 +465,11 @@ func _on_tick_advanced(day: int) -> void:
 func _on_speed_changed(speed: int) -> void:
 	if speed > 0:
 		_last_speed = speed
+
+
+## UI.md §5: the palette stays, the type grows.
+func _on_text_scale_changed(scale: float) -> void:
+	_set_theme(ThemeBuilder.build(String(UiTokens.variant), scale))
 
 
 func _on_window_size_changed() -> void:
@@ -555,3 +561,18 @@ func _safe_area_margins() -> Vector4i:
 		roundi(float(safe.position.y) * per_px.y),
 		roundi(float(window_px.x - safe.end.x) * per_px.x),
 		roundi(float(window_px.y - safe.end.y) * per_px.y))
+
+
+## A `CanvasLayer` ends theme inheritance: a control under one looks for its
+## theme among the controls above it inside the layer, then falls back to the
+## project theme. So the session hands its theme to the top controls of every
+## layer — without that, the phase palette and the text scale reached nothing
+## but the session root (found in S4.9's screenshots).
+func _set_theme(value: Theme) -> void:
+	theme = value
+	for layer: Node in get_children():
+		if not layer is CanvasLayer:
+			continue
+		for child: Node in layer.get_children():
+			if child is Control:
+				(child as Control).theme = value

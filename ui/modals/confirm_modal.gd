@@ -18,7 +18,6 @@ const KEY_CONFIRM: String = "UI_COMMON_CONFIRM"
 
 
 func _ready() -> void:
-	_panel.custom_minimum_size.x = float(UiTokens.MODAL_MAX_WIDTH)
 	_cancel.pressed.connect(_answer.bind(false))
 	_confirm.pressed.connect(_answer.bind(true))
 	visible = false

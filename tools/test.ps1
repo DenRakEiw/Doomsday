@@ -26,6 +26,11 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & $godot --headless --path $root -s tools/check_scripts.gd
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+# A key the code names and the string table lacks fails here, before any test
+# could render it as its own name (UI.md §4).
+& $godot --headless --path $root -s tools/check_strings.gd
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
 # The GUT arguments are quoted: PowerShell otherwise splits `-name=value` into
 # two tokens and GUT rejects the value as an unknown argument.
 & $godot --headless --path $root -s addons/gut/gut_cmdln.gd "-gconfig=.gutconfig.json" "-gexit" @args

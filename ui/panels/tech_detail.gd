@@ -215,7 +215,8 @@ func _prerequisite_row(node_id: String, tree: String, sim: Simulation) -> Contro
 	row.add_child(button)
 	var state: Chip = Chip.new()
 	var node_state: TechNode.State = TechNode.state_for(definition, sim)
-	state.set_label(STATE_KEY[node_state])
+	# The excluded and closed states name a group or a node (S4.9 screenshots).
+	state.set_label(STATE_KEY[node_state], TechNode.state_args(definition, sim))
 	state.kind = Chip.Kind.ACCENT if STATE_IS_ACCENT[node_state] else Chip.Kind.DEFAULT
 	row.add_child(state)
 	if definition.tree != tree:

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://ui/modals/confirm_modal.gd" id="1_confirm"]
 [ext_resource type="Script" path="res://ui/components/console_button.gd" id="2_console_button"]
+[ext_resource type="Script" path="res://ui/components/modal_panel.gd" id="9_modal_panel"]
 
 [node name="ConfirmModal" type="Control"]
 layout_mode = 3
@@ -23,9 +24,9 @@ mouse_filter = 2
 
 [node name="ConfirmPanel" type="PanelContainer" parent="Centre"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(560, 0)
 layout_mode = 2
 theme_type_variation = &"ConsolePanelRaised"
+script = ExtResource("9_modal_panel")
 
 [node name="Body" type="VBoxContainer" parent="Centre/ConfirmPanel"]
 layout_mode = 2

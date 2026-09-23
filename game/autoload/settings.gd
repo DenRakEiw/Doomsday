@@ -17,8 +17,10 @@ const DEFAULT_REDUCED_MOTION: bool = false
 ## m3-screens §3.1: the tech tree pauses the run on desktop and does not on a
 ## phone, where the modal covers the whole screen anyway.
 const FEATURE_MOBILE: String = "mobile"
-## Stored from M2 on and applied from M5 on (§9.3).
+## Stored from M2 on, applied from S4.9 on (UI.md §5).
 const DEFAULT_TEXT_SCALE: float = 1.0
+## Two scales closer than this are the same step.
+const TEXT_SCALE_EPSILON: float = 0.001
 
 ## The keys of the dictionary `values_from` returns and `to_dict` writes.
 const KEY_VERSION: String = "version"
@@ -26,11 +28,15 @@ const KEY_LOCALE: String = "locale"
 const KEY_REDUCED_MOTION: String = "reduced_motion"
 const KEY_TEXT_SCALE: String = "text_scale"
 const KEY_TREE_PAUSES: String = "tree_pauses"
+## After `--` on the command line: start with the pseudo-locale on (UI.md §4).
+const ARG_PSEUDO: String = "--pseudo"
 
 var locale: String = LOCALE_EN
 var reduced_motion: bool = DEFAULT_REDUCED_MOTION
 var text_scale: float = DEFAULT_TEXT_SCALE
 var tree_pauses: bool = true
+## The overflow check of UI.md §4. A development switch, never written to the file.
+var pseudo_locale: bool = false
 
 
 func _ready() -> void:
@@ -41,6 +47,8 @@ func _ready() -> void:
 	tree_pauses = bool(values[KEY_TREE_PAUSES])
 	TranslationServer.set_locale(locale)
 	write()
+	if OS.get_cmdline_user_args().has(ARG_PSEUDO):
+		set_pseudo_locale(true)
 
 
 ## Whether opening the tech tree should pause the run when the file says nothing.
@@ -100,6 +108,44 @@ func set_reduced_motion(enabled: bool) -> void:
 	reduced_motion = enabled
 	write()
 	EventBus.reduced_motion_changed.emit(reduced_motion)
+
+
+## UI.md §5. A value between the steps of `UiTokens.TEXT_SCALES` is kept as it
+## is; the theme clamps it to the range.
+func set_text_scale(value: float) -> void:
+	if is_equal_approx(value, text_scale):
+		return
+	text_scale = value
+	write()
+	EventBus.text_scale_changed.emit(text_scale)
+
+
+## The settings button: the next step up, and after the largest the smallest.
+func cycle_text_scale() -> void:
+	for step: float in UiTokens.TEXT_SCALES:
+		if step > text_scale + TEXT_SCALE_EPSILON:
+			set_text_scale(step)
+			return
+	set_text_scale(UiTokens.TEXT_SCALES.front())
+
+
+## Shows the pseudo-locale in place of English, whatever the stored locale is;
+## off, the stored locale comes back. Nothing is written.
+func set_pseudo_locale(enabled: bool) -> void:
+	if enabled == pseudo_locale:
+		return
+	if enabled and not PseudoLocale.enable():
+		push_warning("pseudo-locale: there is no string table to build it from")
+		return
+	if not enabled:
+		PseudoLocale.disable()
+	pseudo_locale = enabled
+	var shown: String = LOCALE_EN if enabled else locale
+	TranslationServer.set_locale(shown)
+	# Swapping a translation under an unchanged locale notifies nobody, and the
+	# texts on screen would stay English until something else changed the locale.
+	get_tree().root.propagate_notification(NOTIFICATION_TRANSLATION_CHANGED)
+	EventBus.locale_changed.emit(shown)
 
 
 func set_tree_pauses(enabled: bool) -> void:

@@ -168,6 +168,12 @@ func _apply_compact() -> void:
 		# padding of `ConsoleButtonCompact`.
 		button.custom_minimum_size.x = 0.0 if compact else float(UiTokens.DOCK_BUTTON_WIDTH)
 		button.compact = compact
+		# S4.9: at 150 % no padding is tight enough, so on the bar a label that
+		# does not fit its third ends in an ellipsis rather than pushing the bar
+		# off the screen. `clip_text` is what takes the text out of the minimum.
+		button.clip_text = compact
+		button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS if compact \
+			else TextServer.OVERRUN_NO_TRIMMING
 
 
 func _move(node: Control, parent: Container) -> void:

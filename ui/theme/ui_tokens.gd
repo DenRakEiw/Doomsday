@@ -214,6 +214,9 @@ const LINE_CAPTION: float = 1.3
 ## Only `TYPE_LABEL` tracks, and only it is uppercased — by the component, never
 ## in the string table.
 const TRACKING_LABEL: float = 0.08
+## UI.md §5: the text scales the settings offer, smallest first. The theme
+## multiplies every font size by one of them; the layout is tested at the last.
+const TEXT_SCALES: Array[float] = [1.0, 1.25, 1.5]
 
 
 # ------------------------------------------------ §3.3 spacing, radii, borders

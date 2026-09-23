@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S4.9 — Localisation tooling and overflow screenshots** (IMPLEMENTATION Block 8; *Read first* is UI §4 "Localisation", §5) |
+| **Next step** | **S4.10 — Strategy bots, second generation** (IMPLEMENTATION Block 8; *Read first* is loop-redesign §9) |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S4.10 → D4.5 → G4 (the gates still need the user) |
-| **Last completed** | S4.8 — Analysis screen: per-day history thinned at 400 samples with the D4.4 fields, the run log (300) in the core and the save, `LineChart` / `TimelineStrip` / `RunLogText`, the Analysis sheet (`G`, the dock and the sheet from Covert, three-way panel exclusion) with Run / Opposition / World / Log, the table twin and *Review the run* on the results; the gallery's *Charts*. 1230 tests, all green (2026-09-24) |
-| **Before that** | S4.7 — Chains (2026-09-23) |
+| **After it** | D4.5 → G4 (the gates still need the user) |
+| **Last completed** | S4.9 — Localisation tooling and overflow screenshots: `tools/check_strings.gd` in `tools/test.sh` (keys named in code and scenes, empty cells, placeholders, duplicates, content), the pseudo-locale (`-- --pseudo`, Shift+L), the text scale (100 / 125 / 150 %, settings row, K), the session theme handed to every `CanvasLayer`, `ModalPanel`, and the German screenshot set (54 shots, list in the session log) with its fixes and findings. 1253 tests, all green (2026-09-24) |
+| **Before that** | S4.8 — Analysis screen (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 177 scripts compile (68 judged by the suite), 1230 tests, **all green since S4.8**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 202 scripts compile (75 judged by the suite), then `tools/check_strings.gd`, 1253 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -108,8 +108,8 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S4.6 [O] Trees v3 and the remaining abilities
 - [x] S4.7 [O] Chains
 - [x] S4.8 [O] Analysis screen
-- [ ] **S4.9 [O] Localisation tooling and overflow screenshots**
-- [ ] S4.10 [O] Strategy bots, second generation — ⇄ **then `/model fable`**
+- [x] S4.9 [O] Localisation tooling and overflow screenshots
+- [ ] **S4.10 [O] Strategy bots, second generation**
 
 **Block 9 — M4 gate, M5 design · Fable**
 - [ ] D4.5 [F] German review in context
@@ -763,11 +763,51 @@ without new information.
 - **2026-09-23** (S4.4, user) — **Pushing is allowed without asking for the overnight run of
   2026-09-23/24** (*"du kannst heute nacht auch für mich pushen"*). The standing rule (pushes are
   asked for) applies again afterwards.
+- **2026-09-24** (S4.9) — **The text scale multiplies font sizes and nothing else**, in three
+  steps (`UiTokens.TEXT_SCALES` 1.0 · 1.25 · 1.5, clamped to that range); spacing, bars and
+  panels keep their sizes and the containers make room. It is the settings menu's fourth row
+  and debug key **K**. D4.5 may name other steps (*Design questions*).
+- **2026-09-24** (S4.9) — **The session hands its theme to the top control of every
+  `CanvasLayer`** (`Session._set_theme`). A layer ends theme inheritance, so before S4.9 the HUD,
+  the panels and the modals drew with the project theme: the text scale would have reached
+  nothing, and **D3.3's phase palette never recoloured a themed control** (labels, panels,
+  buttons stayed cold in Emergent and Open; only the controls that draw through `UiTokens.color`
+  switched). From S4.9 the open palette's amber shows in the HUD — first seen in
+  `de_1920_150_01_session_region.png`. G4 looks at it in play.
+- **2026-09-24** (S4.9) — **A modal's width is `ModalPanel`'s**: `MODAL_MAX_WIDTH`, or the
+  window less a gutter each side. The five modals set 560 px themselves and ran off a 400 px
+  phone. Their button rows are `HFlowContainer`s, so a row that does not fit wraps instead of
+  widening the modal, and below the breakpoint the slot and results buttons take the compact
+  padding.
+- **2026-09-24** (S4.9) — **The pseudo-locale replaces English in place** (locale stays `en`,
+  numbers stay English) and is built from `strings.csv` at run time — a development switch that
+  an exported build, which has no CSV, silently lacks. Placeholders and BBCode tags are copied
+  untouched, so every `format()` still fills.
 
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
+
+**From S4.9's German screenshot set, for D4.5** (shots under
+`C:/Users/schoeneberg/AppData/Roaming/Godot/app_userdata/Doomsday/shots/s4_9/`, list in the S4.9
+session log):
+1. **Three things are called *Fähigkeiten*:** the dock button to the tech tree, one of the tree's
+   three tabs (Capabilities) and the ability picker (Abilities); the results' *Dominanter Baum:
+   Fähigkeiten* inherits the clash. German needs two or three words where English has
+   Capabilities / Abilities.
+2. **German quotation marks:** the strings use straight `'…'` (`'nicht deklarierte Fähigkeiten'`
+   in the wire card and the ticker); German typography is `„…“`.
+3. **Wording:** `Braucht eins von:` (event option requirement) reads colloquial — *Erfordert eines
+   von:*? The chart title *Reichweite* and its table column *Erreichte Bevölkerung* name one
+   series twice. The settings opened from the title say *Einstellungen* twice (title and section
+   caption).
+4. **A stale hint:** the tree's empty detail pane says *der erste Vektor beendet deine Isolation*
+   in Covert too, when Isolation is long over (`de_1920_08_tree_infiltration.png`).
+5. **The phone's tree title** at 100 % German is `Fähigkeit…` next to the compute figure since
+   S4.9 made it fit — a shorter title or the clash of item 1 settles it.
+6. **Text scale steps:** S4.9 offers 100 / 125 / 150 % and applies the scale to font sizes only
+   (spacing, bars and panels keep their sizes). Confirm, or name other steps.
 
 **Deferred by G2 to D4.5 (German review in context):** **How does German uppercase spell ß?**
 `Format.caps()` (`ui/components/format.gd`) maps ß → SS before `to_upper()`, so `UI_COMMON_CLOSE`
@@ -841,6 +881,44 @@ compact bar (it is in the sheet), or a short rate form (`+0,1/T`).
 
 ## Punch list for Opus
 
+- **(S4.9, layout findings from the German screenshot set — for D4.5 to confirm or drop)**
+  1. The dock's *EINDÄMMUNG* label is overlapped by its containment chip (`50 %`) at 1920 in
+     German (`de_1920_22_session_open.png`).
+  2. The containment panel's faction rows (`RUHIG · VORN · 7 % ±0 % / Tag`) run under the
+     scrollbar at 1920 (`de_1920_20_containment_exposed_OLD.png`) — the S4.2 scrollbar item below,
+     one more instance.
+  3. Chart axes pick non-round ticks for counts (`61 · 45,8 · 30,5 · 15,3`, `5 · 3,8 · 2,5 ·
+     1,3`) and round `0,25` to `0,3` (`de_1920_14_analysis_world.png`,
+     `de_400_07_analysis_opposition.png`).
+  4. A chart legend does not wrap: on a phone *Eindämmung je Fraktion* lists two of the four
+     factions (`de_400_07_analysis_opposition.png`).
+  5. The analysis table left-aligns its numbers, and on a phone the *Tag* column is too narrow
+     for three digits (`107` shows as `10`; `de_400_10_analysis_table.png`).
+  6. The log's plain rows and region rows have different heights, and small dots sit at the
+     left edge of the region rows at 1920 (`de_1920_15_analysis_log.png`).
+  7. The results show a lone `0` under the grid when nobody died (`DeathsDetail`,
+     `de_1920_23_results.png`).
+  8. `Escape` does not close the phone's menu sheet (its × does).
+  9. Long German names overflow the fixed-width tech cards (`PROTOKOLLMANIPULATION`,
+     `GEWICHTSFRAGMENTIERUNG`, `INDUSTRIESTEUERUNG`; `de_1920_10_tree_evasion.png`), and the
+     phone's detail sheet breaks its title mid-word (`Bandbreitensteuerun|g`,
+     `de_400_05_tree_detail_sheet.png`). Soft hyphens in `strings.csv` would fix both — a
+     D4.5 wording decision first.
+- **(S4.9, the text scale at 150 % — the layouts that do not grow with the type)**
+  1. **Tech cards** are fixed-size (`TECH_NODE_*` tokens) and the board places them on that
+     grid: at 150 % names overlap and owned cards push their footer out to the left
+     (`de_1920_150_04_tree.png`; the pseudo-locale does the same at 100 %,
+     `xx_1920_03_tree_detail.png`). The card size and the board's pitch should follow the scale.
+  2. **Charts** reserve fixed `CHART_AXIS_W` / `CHART_TITLE_H`: at 150 % the axis labels run into
+     the titles and the x-axis caption into the last tick (`de_1920_150_05_analysis_run.png`).
+  3. **The desktop stat row** at 150 %: *SCHADEN*'s value collides with the threat bar's caption,
+     and the threat bar's rate runs off the right edge (`de_1920_150_01_session_region.png`).
+  4. **The phone's status strip** has fixed row heights: at 150 % the *BESTAND* row overlaps the
+     values and the ticker slides under the strip (`de_400_150_01_session.png`).
+  5. The dock's containment chip covers more of *EINDÄMMUNG* (item 1 above, worse).
+  Not affected at 150 %, by test (`tests/integration/test_localisation.gd`): the phone's top bar
+  and dock, the five modals on a phone, the tech tree's phone header.
+
 - **(S4.5)** The region panel's *Status* row prints the answering option's **id**
   (`Regierungen · ride`), not its text: `Status` keeps `option` but not the event def, so the
   panel cannot build `EVENT_<DEF>_OPT_<OPTION>`. Keep the def id on the status (save field) or
@@ -857,6 +935,14 @@ compact bar (it is in the sheet), or a short rate form (`+0,1/T`).
   something per row — it belongs with the rest of D4.5's layout findings.
 
 ## Deviations from the plan or a spec
+
+- **2026-09-24** (S4.9) — **`text_scale` is applied from S4.9, not from M5** (ui-foundation.md
+  §9.3 stored it and ignored it until M5): IMPLEMENTATION's S4.9 asks for the setting at 150 %.
+  The settings file format is unchanged (`"text_scale"` was already there).
+- **2026-09-24** (S4.9) — **The results' buttons wrap on the desktop too**: in German the three
+  buttons are 620 px, the modal 560, so *Noch einmal* sits on its own line under the other two
+  (`de_1920_24_results_fitted.png`). Before S4.9 the modal simply grew. D4.5 may shorten a label
+  instead.
 
 - **2026-09-24** (S4.8) — **The panel is built in code** (`analysis_panel.tscn` is the root and
   its script): the tabs and the log are rebuilt from the world, and a moved `%` subtree loses its
@@ -1451,6 +1537,25 @@ two, the Merge/Terror exclusion, the cadence table). Changes go into the spec be
 
 ## Balance baselines
 
+**2026-09-24 (S4.5 content, commit 20ebfea) — counter-moves, Societal Function, Autophagy; the M3
+bots, 500 seeds each** (`sim_report --seeds=1..500`, run from a worktree snapshot during S4.6–S4.9,
+99 minutes). **S4.5's acceptance holds: 0 rejected bot commands in all 3000 runs.** No run went
+dark and none starved. The counter-moves shift wins to the wide bots and lengthen the stealthy
+ones; the researchers still end nearly every contained run, the governments only Cyber's.
+
+| Policy | Outcome (Ascendance) | Lost to (labs · gov · researchers · public) | Leading at the end (same order) | Days p50 | Discovery p50 | Containment p50 | Deaths p50 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 0 % | 0 · 0 · 100 · 0 % | 0 · 0 · 100 · 0 % | 1430 | 815 | 1.00 | 0 |
+| `greedy` | 59 % | 0 · 0 · 41 · 0 % | 0 · 1 · 99 · 0 % | 665 | 140 | 0.95 | 0.117 |
+| `stealth` | 60 % | 0 · 0 · 40 · 0 % | 0 · 0 · 100 · 0 % | 835 | 208 | 0.93 | 0 |
+| `cyber_rush` | 82 % | 0 · 5 · 13 · 0 % | 0 · 30 · 70 · 0 % | 735 | 102 | 0.86 | 0.319 |
+| `stealth_spread` | 82 % | 0 · 0 · 18 · 0 % | 0 · 0 · 100 · 0 % | 910 | 253 | 0.80 | 0.004 |
+| `persuader` | 88 % | 0 · 0 · 12 · 0 % | 1 · 0 · 95 · 0 % | 657 | 206 | 0.65 | 0 |
+
+Measured on S4.5's trees (v2), before S4.6's v3 and S4.7's chains, so it is the counter-move
+baseline and not the current game's; S4.10 measures the current one with the second-generation
+bots.
+
 **2026-09-23 (S4.4) — four factions, the M3 bots, 200 seeds each** (`sim_report --seeds=1..200`,
 33 minutes). The per-faction tracks change the outcome mix a lot against the stale G3 table:
 `greedy` 72 % Ascendance (was 57 %), `stealth` 59 %, `cyber_rush` 55 %, `stealth_spread` 94 %,
@@ -1604,6 +1709,46 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — S4.9 Localisation tooling and overflow screenshots [O]
+- **Tooling:** `StringTable` (the CSV as rows), `tools/string_scan.gd` + `tools/check_strings.gd`
+  (in `tools/test.sh` / `test.ps1` after the script check; 338 keys named in code and scenes, 1394
+  rows), `PseudoLocale` (`-- --pseudo`, Shift+L, `Settings.set_pseudo_locale`), the text scale
+  (`UiTokens.TEXT_SCALES`, `ThemeBuilder.build(variant, text_scale)`, `Settings.set_text_scale` /
+  `cycle_text_scale`, `EventBus.text_scale_changed`, the settings row *Textgröße*, key K),
+  `Game.debug_shot` / `debug_settings` / `debug_discovery_modal`, a GUT pre-run hook that starts
+  the suite at 100 % whatever the settings file says. Tests: `test_localisation.gd` (15),
+  `test_modal_panel.gd`, and regression tests in the pause menu, tech tree, threat bar and
+  analysis panel suites.
+- **Fixed on the way, all found by the screenshots:** the settings opened from the title were an
+  empty strip (pause menu scroll had no height); a tech prerequisite chip showed
+  `{GROUP}: {OWNED} VON {MAX}`; the rate read `+±0 % / Tag` (`UI_CONTAINMENT_RATE` carried its
+  own `+`); every modal was 560 px on a 400 px phone (`ModalPanel`), the results' German buttons
+  made them 620 px on the desktop too (flow rows, wrapping captions, compact buttons when
+  narrow); the tree's phone header ran off the screen (heading title, normal figure, title
+  gives way); the log's region rows overlapped when wrapped; the session theme never reached
+  the `CanvasLayer`s (see *Decisions* — the phase palette now shows in the HUD); the pseudo-locale
+  did not reach labels already on screen. Phone top bar and dock survive 150 % (captions and
+  dock labels trim, compute cell takes two shares).
+- **Frame budget (S4.8's leftover):** a greedy run at 4× with the Analysis *World* tab open at
+  1920 × 1080: 118–120 fps, the heaviest tick frame ~19 ms, at most one tick per frame — far from
+  `MAX_TICKS_PER_FRAME` 8.
+- **The screenshot set for D4.5** — 56 PNGs in
+  `C:/Users/schoeneberg/AppData/Roaming/Godot/app_userdata/Doomsday/shots/s4_9/`, `de_` German,
+  `xx_` pseudo-locale, then the width (`1920`, `400`), `150` for 150 % text:
+  desktop `de_1920_01_title` · `02_settings` · `03_origin_prompt` · `04_region_origin` ·
+  `05_session_covert` · `06_region_panel` · `07_containment` · `08/09/10_tree_*` (three tabs) ·
+  `11_abilities_empty` · `12–15_analysis_*` (run, opposition, world, log) · `16_analysis_table` ·
+  `17_pause_menu` · `18_event_card` · `19_exposed_region_actions` · `20_wire_card` ·
+  `21_discovery` · `22_session_open` · `23_results` (before the fit) · `24_results_fitted`;
+  `20_containment_exposed_OLD` shows the `+±0` bug before its fix. Phone `de_400_01_session_covert`
+  · `02_region_panel` · `03_containment` · `04_tree` · `05_tree_detail_sheet` · `06–09_analysis_*`
+  (all four tabs) · `10_analysis_table` · `11_menu_sheet` · `12_pause_menu` · `13_event_card` ·
+  `14_wire_card` · `15_discovery` · `16_results`. At 150 %: `de_1920_150_01_session_region` ·
+  `02_settings` · `03_containment` · `04_tree` · `05_analysis_run` · `06_pause_menu`;
+  `de_400_150_01_session` · `02_region_panel` · `03_pause_menu`. Pseudo: `xx_1920_01–04`,
+  `xx_400_01–02`. Taken before some fixes where noted; the fixes are in the tests. Findings for
+  D4.5 are under *Design questions* and the *Punch list*. Next: **S4.10**.
 
 ### 2026-09-24 — S4.8 Analysis screen [O]
 - **Core:** `HistorySample` with the D4.4 fields and its codec, `HistorySystem` sampling every

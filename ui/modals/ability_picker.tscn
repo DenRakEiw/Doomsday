@@ -1,6 +1,7 @@
 [gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://ui/modals/ability_picker.gd" id="1_ability_picker"]
+[ext_resource type="Script" path="res://ui/components/modal_panel.gd" id="9_modal_panel"]
 
 [node name="AbilityPicker" type="Control"]
 layout_mode = 3
@@ -22,9 +23,9 @@ mouse_filter = 2
 
 [node name="AbilitiesPanel" type="PanelContainer" parent="Centre"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(560, 0)
 layout_mode = 2
 theme_type_variation = &"ConsolePanel"
+script = ExtResource("9_modal_panel")
 
 [node name="Body" type="VBoxContainer" parent="Centre/AbilitiesPanel"]
 layout_mode = 2

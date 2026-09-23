@@ -125,3 +125,17 @@ func test_the_phone_strip_carries_the_same_readout() -> void:
 	assert_eq(glyph.glyph, Glyphs.Glyph.FACTION_RESEARCHERS)
 	var value: ValueLabel = strip.get(&"_threat_value") as ValueLabel
 	assert_string_contains(value.text, Format.percent(0.2))
+
+
+## S4.9: the rate string carried a `+` of its own in front of the value label's
+## sign, and the screenshots showed `+±0 % / Tag`.
+func test_the_rate_carries_one_sign() -> void:
+	_start()
+	_set_phase(World.Phase.EMERGENT)
+	Game.sim.world.discovered = true
+	Game.sim.world.discovery_day = 1
+	Game.sim.world.faction("public_sentiment").containment = 0.4
+	_refresh()
+	var shown: String = (_threat().get_node("%Value") as Label).text
+	for doubled: String in ["+±", "+▲", "+▼", "++"]:
+		assert_false(shown.contains(doubled), shown)

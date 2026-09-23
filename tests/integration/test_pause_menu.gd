@@ -105,3 +105,15 @@ func test_settings_only_hides_the_run_s_half() -> void:
 	assert_false((_menu.get_node("%QuitButton") as Control).visible)
 	assert_true((_menu.get_node("%SettingsRows") as Control).visible)
 	assert_eq((_menu.get_node("%PauseTitle") as Label).text, tr("UI_SETTINGS_TITLE"))
+
+
+## S4.9: a `ScrollContainer` has no height of its own, and the settings opened
+## from the title were an empty strip until the scroll was fitted to the body.
+func test_the_menu_is_as_tall_as_what_it_shows() -> void:
+	_menu.open_settings_only()
+	var scroll: ScrollContainer = _menu.get_node("%Scroll") as ScrollContainer
+	var body: Control = _menu.get_node("%Body") as Control
+	assert_gt(scroll.custom_minimum_size.y, 0.0)
+	assert_almost_eq(scroll.custom_minimum_size.y,
+		minf(body.get_combined_minimum_size().y,
+			_menu.get_viewport_rect().size.y - float(UiTokens.SPACE_6) * 2.0), 1.0)

@@ -53,7 +53,6 @@ var _values: Array[Label] = []
 
 
 func _ready() -> void:
-	_panel.custom_minimum_size.x = float(UiTokens.MODAL_MAX_WIDTH)
 	_build_rows()
 	_title_button.pressed.connect(title_requested.emit)
 	_again.pressed.connect(again_requested.emit)
@@ -93,6 +92,11 @@ func show_result(sim: Simulation) -> void:
 ## The scroll is given the body's height, capped at the safe area, which leaves
 ## it scrolling only on a window too short for the content.
 func _fit_scroll() -> void:
+	# Below the breakpoint the three buttons take the compact padding: at 150 %
+	# the longest German one is wider than a phone's modal otherwise (S4.9).
+	var narrow: bool = get_viewport_rect().size.x < float(UiTokens.COMPACT_WIDTH)
+	for button: Node in _again.get_parent().get_children():
+		(button as ConsoleButton).compact = narrow
 	var available: float = get_viewport_rect().size.y - float(UiTokens.SPACE_6) * 2.0
 	_scroll.custom_minimum_size.y = minf(_body.get_combined_minimum_size().y,
 		maxf(available, 0.0))
@@ -117,6 +121,11 @@ func _build_rows() -> void:
 	for key: String in ROW_KEYS:
 		var name_label: CapsLabel = CapsLabel.new()
 		name_label.label_key = key
+		# S4.9: `VERDIENTE RECHENLEISTUNG` and its figure were 4 px wider than a
+		# phone's modal. The caption takes the room the figure leaves and wraps
+		# where there is none.
+		name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_grid.add_child(name_label)
 		var value: ValueLabel = ValueLabel.new()
 		_grid.add_child(value)

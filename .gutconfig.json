@@ -7,5 +7,6 @@
   "log_level": 1,
   "disable_colors": true,
   "hide_orphans": false,
+  "pre_run_script": "res://tests/support/pre_run.gd",
   "failure_error_types": ["engine", "gut", "push_error"]
 }

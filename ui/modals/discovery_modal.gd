@@ -37,7 +37,6 @@ var _day_value: int = 0
 
 
 func _ready() -> void:
-	_panel.custom_minimum_size.x = float(UiTokens.MODAL_MAX_WIDTH)
 	_illustration.show_illustration(ILLUSTRATION, Glyphs.Glyph.EVENT_COUNTER, &"ALERT")
 	get_viewport().size_changed.connect(_apply_layout)
 	_apply_layout()

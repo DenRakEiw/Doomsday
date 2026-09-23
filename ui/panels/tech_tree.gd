@@ -176,6 +176,19 @@ func set_compact(compact: bool) -> void:
 	_compute_cell.custom_minimum_size.x = 0.0 if compact else float(UiTokens.CELL_MIN_WIDTH)
 	# A phone's header has no room for the wide gaps of a desktop title row.
 	_header.theme_type_variation = &"RowSnug" if compact else &"RowWide"
+	# S4.9 screenshots: the display title, the large figure and the close button
+	# came to 420 px on a 400 px phone, and the modal ran off both edges. On a
+	# phone the title is a heading and the figure the top bar's size, as there;
+	# should that still not fit (150 % text), the title gives way first.
+	_title.theme_type_variation = &"LabelHeading" if compact else &"LabelDisplay"
+	_title.size_flags_horizontal = int(Control.SIZE_EXPAND_FILL) if compact \
+		else int(Control.SIZE_FILL)
+	_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS if compact \
+		else TextServer.OVERRUN_NO_TRIMMING
+	_compute.large = not compact
+	# The expanding title does the gap's work, and a second expander would take
+	# half of the room the title needs.
+	(_header.get_node(^"Gap") as Control).visible = not compact
 	if compact:
 		_sheet.close()
 	_apply_detail_width()

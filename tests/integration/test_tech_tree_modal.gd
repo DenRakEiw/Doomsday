@@ -243,3 +243,41 @@ func test_a_grouped_node_shows_the_group_and_closes_when_it_is_full() -> void:
 	var args: Dictionary = TechNode.state_args(closed, Game.sim)
 	assert_eq(args["max"], Game.db.groups[VECTOR_GROUP])
 	assert_eq(args["owned"], bought)
+
+
+## S4.9: a prerequisite row's state chip showed `{GROUP}: {OWNED} VON {MAX}` —
+## the excluded state names its group, and the row passed no values.
+func test_no_detail_text_is_left_unformatted_with_a_full_group() -> void:
+	_start(200.0)
+	var bought: int = 0
+	for node: TechNodeDef in Game.db.tech_nodes:
+		if node.group != VECTOR_GROUP or bought >= Game.db.groups[VECTOR_GROUP]:
+			continue
+		assert_true(Game.apply(PurchaseNodeCommand.new(node.id)).ok, node.id)
+		bought += 1
+	for node: TechNodeDef in Game.db.tech_nodes:
+		_tree.call("_select", node.id)
+		for label: Node in _detail.find_children("*", "Label", true, false):
+			assert_false((label as Label).text.contains("{"),
+				"%s: %s" % [node.id, (label as Label).text])
+
+
+## S4.9 screenshots: on a phone the header came to 420 px, and the modal ran off
+## both edges of a 400 px screen. German, at 100 % and at the largest scale.
+func test_the_compact_header_fits_a_phone_in_german() -> void:
+	var locale: String = Settings.locale
+	var text_scale: float = Settings.text_scale
+	Settings.set_locale("de")
+	_start()
+	var header: Control = _tree.get_node("%Header") as Control
+	var room: float = 400.0 - float(UiTokens.GUTTER) * 2.0
+	for scale: float in [1.0, UiTokens.TEXT_SCALES.back()]:
+		Settings.set_text_scale(scale)
+		await wait_process_frames(2)
+		# A new theme makes the HUD re-read the (desktop-wide) test viewport and
+		# put the tree back to its wide form, so the phone form is asked for after.
+		_tree.set_compact(true)
+		await wait_process_frames(2)
+		assert_lt(header.get_combined_minimum_size().x, room, "at %s" % scale)
+	Settings.set_text_scale(text_scale)
+	Settings.set_locale(locale)

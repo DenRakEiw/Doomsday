@@ -170,3 +170,21 @@ func test_review_opens_from_the_results_and_goes_back() -> void:
 	assert_false(modals.is_open())
 	_panel.close()
 	assert_eq(modals.current(), results, "back to the results")
+
+
+## S4.9 screenshots: on a phone a wrapped line was taller than its button, and
+## the rows about a region ran into each other.
+func test_a_wrapped_log_row_makes_its_button_taller() -> void:
+	_start()
+	var holder: VBoxContainer = VBoxContainer.new()
+	holder.theme = _session.theme
+	holder.size = Vector2(160.0, 0.0)
+	add_child_autofree(holder)
+	var entry: RunLogEntry = Game.sim.world.run_log.front()
+	var button: Control = _panel.call("_log_row", entry, Game.sim.world) as Control
+	assert_true(button is ConsoleButton, "the origin line is a way to the origin")
+	holder.add_child(button)
+	await wait_process_frames(3)
+	var row: Control = button.find_children("*", "HBoxContainer", false, false)[0] as Control
+	assert_gt(row.get_combined_minimum_size().y, float(UiTokens.HIT_MIN), "the line wraps")
+	assert_gte(button.size.y, row.get_combined_minimum_size().y)

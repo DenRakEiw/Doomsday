@@ -441,6 +441,12 @@ func _log_row(entry: RunLogEntry, world: World) -> Control:
 	button.pressed.connect(_on_log_region_pressed.bind(region))
 	row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	button.add_child(row)
+	# A button does not measure what it carries, and on a phone a wrapped line is
+	# taller than the hit target: the rows ran into each other (S4.9 screenshots).
+	# The button grows with its row.
+	row.minimum_size_changed.connect(func() -> void:
+		button.custom_minimum_size.y = maxf(float(UiTokens.HIT_MIN),
+			row.get_combined_minimum_size().y))
 	return button
 
 

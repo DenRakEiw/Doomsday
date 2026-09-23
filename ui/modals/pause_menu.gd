@@ -29,6 +29,7 @@ const KEY_LOCALE_EN: String = "UI_SETTINGS_LOCALE_EN"
 const KEY_LOCALE_DE: String = "UI_SETTINGS_LOCALE_DE"
 const KEY_REDUCED_MOTION: String = "UI_SETTINGS_REDUCED_MOTION"
 const KEY_TREE_PAUSES: String = "UI_SETTINGS_TREE_PAUSES"
+const KEY_TEXT_SCALE: String = "UI_SETTINGS_TEXT_SCALE"
 const KEY_ON: String = "UI_SETTINGS_ON"
 const KEY_OFF: String = "UI_SETTINGS_OFF"
 
@@ -41,6 +42,8 @@ const PLACEHOLDER_REASON: String = "reason"
 const SLOTS: Array[String] = ["slot_1", "slot_2", "slot_3"]
 
 @onready var _panel: PanelContainer = %PausePanel
+@onready var _scroll: ScrollContainer = %Scroll
+@onready var _body: VBoxContainer = %Body
 @onready var _title: Label = %PauseTitle
 @onready var _caption: Label = %PauseCaption
 @onready var _resume: ConsoleButton = %ResumeButton
@@ -67,12 +70,15 @@ var _setting_buttons: Array[ConsoleButton] = []
 
 
 func _ready() -> void:
-	_panel.custom_minimum_size.x = float(UiTokens.MODAL_MAX_WIDTH)
 	_resume.pressed.connect(_on_resume_pressed)
 	_quit.pressed.connect(_on_quit_pressed)
 	_build_slots()
 	_build_settings()
 	_refresh_strings()
+	# The same fit as the results (G3): a `ScrollContainer` has no height of its
+	# own, and without one the menu opened as an empty strip (S4.9 screenshots).
+	_body.minimum_size_changed.connect(_fit_scroll)
+	get_viewport().size_changed.connect(_fit_scroll)
 
 
 func _notification(what: int) -> void:
@@ -86,6 +92,7 @@ func open_menu() -> void:
 	settings_only = false
 	_apply_mode()
 	refresh()
+	_fit_scroll()
 	_resume.grab_focus.call_deferred()
 
 
@@ -95,6 +102,7 @@ func open_settings_only() -> void:
 	_apply_mode()
 	refresh()
 	visible = true
+	_fit_scroll()
 	_setting_buttons[0].grab_focus.call_deferred()
 
 
@@ -166,14 +174,17 @@ func _slot_button(into: Container, action: Callable, with_caption: bool) -> Cons
 	return button
 
 
-## §7.3 item 5: three settings, each a label and a button that says the state.
+## §7.3 item 5: the settings, each a label and a button that says the state. The
+## text scale of UI.md §5 came last, in S4.9, and so it is the last row.
 func _build_settings() -> void:
-	for key: String in [KEY_LOCALE, KEY_REDUCED_MOTION, KEY_TREE_PAUSES]:
+	for key: String in [KEY_LOCALE, KEY_REDUCED_MOTION, KEY_TREE_PAUSES, KEY_TEXT_SCALE]:
 		var row: HBoxContainer = HBoxContainer.new()
 		row.theme_type_variation = &"Row"
 		var label: Label = Label.new()
 		label.theme_type_variation = &"LabelCaption"
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		# A long German setting would hold the menu wider than a phone (S4.9).
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.text = tr(key)
 		label.set_meta(&"key", key)
 		row.add_child(label)
@@ -192,6 +203,7 @@ func _refresh_settings() -> void:
 		else KEY_LOCALE_EN))
 	_setting_buttons[1].text = Format.caps(tr(KEY_ON if Settings.reduced_motion else KEY_OFF))
 	_setting_buttons[2].text = Format.caps(tr(KEY_ON if Settings.tree_pauses else KEY_OFF))
+	_setting_buttons[3].text = Format.number(Settings.text_scale, Format.Kind.PERCENT)
 
 
 # ------------------------------------------------------------------ actions
@@ -228,8 +240,10 @@ func _on_setting_pressed(index: int) -> void:
 			Settings.toggle_locale()
 		1:
 			Settings.set_reduced_motion(not Settings.reduced_motion)
-		_:
+		2:
 			Settings.set_tree_pauses(not Settings.tree_pauses)
+		_:
+			Settings.cycle_text_scale()
 	_refresh_settings()
 
 
@@ -241,3 +255,17 @@ func _on_quit_pressed() -> void:
 func _show_failure(key: String, reason: String) -> void:
 	_failure.visible = true
 	_failure.text = tr(key).format({PLACEHOLDER_REASON: tr(reason.to_upper())})
+
+
+## Fits the menu to the window. The scroll takes the body's height, capped at
+## the window, so it scrolls only on a window too short for the menu — at 150 %
+## text on a phone, say.
+func _fit_scroll() -> void:
+	# Three slot buttons with the desktop padding are wider than a phone's menu;
+	# below the breakpoint they take the compact bar's padding (S4.9).
+	var narrow: bool = get_viewport_rect().size.x < float(UiTokens.COMPACT_WIDTH)
+	for button: ConsoleButton in _save_buttons + _load_buttons:
+		button.compact = narrow
+	var available: float = get_viewport_rect().size.y - float(UiTokens.SPACE_6) * 2.0
+	_scroll.custom_minimum_size.y = minf(_body.get_combined_minimum_size().y,
+		maxf(available, 0.0))
