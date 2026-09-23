@@ -48,7 +48,11 @@ const LINK_CELL: Vector2 = Vector2(160.0, 56.0)
 ## §7.7's marker in its two states; the box is wide enough for the ring at its
 ## widest.
 const MARKER_CELL: Vector2 = Vector2(56.0, 56.0)
-const MARKER_DAYS_LEFT: int = 12
+## The gallery has no run behind it, so the marker's clock is given by hand:
+## `balance.anomaly.lifetime_days`, half of it, and three days from fading.
+const MARKER_LIFETIME_DAYS: int = 50
+const MARKER_DAYS_HALF: int = 25
+const MARKER_DAYS_LEFT: int = 3
 
 const STAT_BAR_SCENE: String = "res://ui/components/stat_bar.tscn"
 ## m3-screens §12.1: the tech node section shows a real node of the real content.
@@ -277,8 +281,9 @@ func _build_map_layers() -> void:
 	_state(links, "closed", _link_cell(LinkDef.KIND_LAND, false, false))
 
 	var markers: HFlowContainer = _section("Anomaly marker (§7.7)")
-	_state(markers, "collectable", _marker_cell(MARKER_DAYS_LEFT))
-	_state(markers, "last days", _marker_cell(AnomalyMarker.BLINK_DAYS))
+	_state(markers, "fresh", _marker_cell(MARKER_LIFETIME_DAYS))
+	_state(markers, "half gone", _marker_cell(MARKER_DAYS_HALF))
+	_state(markers, "last days", _marker_cell(MARKER_DAYS_LEFT))
 
 
 ## The slide panel lives over everything else, so it is a child of the root and
@@ -487,6 +492,7 @@ func _marker_cell(days_left: int) -> Control:
 	var marker: AnomalyMarker = AnomalyMarker.new()
 	marker.position = MARKER_CELL * 0.5
 	cell.add_child(marker)
+	marker.lifetime_days = MARKER_LIFETIME_DAYS
 	marker.days_left = days_left
 	return cell
 

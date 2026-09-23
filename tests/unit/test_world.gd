@@ -38,6 +38,24 @@ func test_regions_start_full_and_clean() -> void:
 	assert_true(world.regions[6].air_gapped, "fx_fir carries its definition's air gap")
 
 
+## S3.P, from G3: half the Harm nodes are scoped, and the HUD reads the
+## maximum over the regions instead of the unscoped stat (m3-screens §6.1).
+func test_max_harm_reads_the_highest_region_and_not_the_unscoped_stat() -> void:
+	var world: World = _world()
+	assert_eq(world.max_harm(), 0.0, "nothing owned, nothing harmed")
+	var scoped: ModifierDef = ModifierDef.new()
+	scoped.target = "harm"
+	scoped.op = ModifierDef.Op.ADD
+	scoped.value = 2.0
+	scoped.scope_kind = ModifierDef.ScopeKind.REGION
+	scoped.scope_region = 1
+	var modifiers: Array[ModifierDef] = [scoped]
+	var no_flags: Array[String] = []
+	world.modifiers.add_source("test_scoped_harm", modifiers, no_flags)
+	assert_eq(world.modifiers.value("harm"), 0.0, "the unscoped stat sees none of it")
+	assert_almost_eq(world.max_harm(), 2.0, 1e-9, "the region that carries it wins")
+
+
 func test_links_start_open() -> void:
 	var world: World = _world()
 	for link: Link in world.links:

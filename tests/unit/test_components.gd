@@ -220,6 +220,7 @@ func test_a_delta_of_zero_is_muted_and_has_no_arrow() -> void:
 	label.set_delta(0.0, Format.Kind.COMPUTE)
 	assert_false(label.text.contains(ValueLabel.ARROW_UP))
 	assert_false(label.text.contains(ValueLabel.ARROW_DOWN))
+	assert_true(label.text.contains(ValueLabel.PLUS_MINUS), "the zero carries a sign")
 	assert_eq(String(label.theme_type_variation), "ValueLabelMuted")
 
 
@@ -241,7 +242,7 @@ func test_a_negative_delta_that_formats_as_zero_is_not_a_minus_zero() -> void:
 	_add(label)
 	label.set_number(10.0, Format.Kind.COMPUTE)
 	label.set_delta(-0.03, Format.Kind.COMPUTE)
-	assert_eq(label.text, "10 0")
+	assert_eq(label.text, "10 %s0" % ValueLabel.PLUS_MINUS)
 	assert_eq(String(label.theme_type_variation), "ValueLabelMuted")
 
 

@@ -127,13 +127,23 @@ func test_a_seeded_region_shows_how_far_in_it_is() -> void:
 	assert_almost_eq(penetration.value(), region.penetration, 0.001)
 
 
+## G3 stretched every per-day rate by 2.5, so the first death of a `greedy` run
+## on this seed is several hundred days in. The test advances until one lands
+## instead of naming a day that the next balance pass would move again.
+const DEATH_SEARCH_DAYS: int = 1500
+const DEATH_SEARCH_STEP: int = 50
+
+
 func test_the_deaths_row_appears_only_once_somebody_has_died() -> void:
 	_start(1)
-	_select(REGION_USA)
+	var index: int = _select(REGION_USA)
 	assert_false((_node("DeathsRow") as Control).visible, "nobody has died on day 1")
-	Game.advance(400)
-	assert_true(Game.sim.world.regions[_index_of(REGION_USA)].deaths >= 1.0,
-		"the run did not get far enough to kill anybody")
+	var advanced: int = 0
+	while Game.sim.world.regions[index].deaths < 1.0 and advanced < DEATH_SEARCH_DAYS:
+		Game.advance(DEATH_SEARCH_STEP)
+		advanced += DEATH_SEARCH_STEP
+	assert_true(Game.sim.world.regions[index].deaths >= 1.0,
+		"the run did not get far enough to kill anybody in %d days" % advanced)
 	assert_true((_node("DeathsRow") as Control).visible)
 
 

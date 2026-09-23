@@ -202,6 +202,7 @@ func _add_marker(anomaly_id: int, region_index: int, value: float,
 	marker.anomaly_id = anomaly_id
 	marker.value = value
 	marker.expires_day = expires_day
+	marker.lifetime_days = Game.db.balance.anomaly_lifetime_days
 	marker.position = Vector2(Game.sim.world.regions[region_index].def.anchor)
 	marker.scale = Vector2.ONE / _zoom
 	add_child(marker)

@@ -13,7 +13,6 @@ signal menu_requested
 
 const KEYS: Array[String] = ["UI_TERM_PENETRATION", "UI_TERM_FOOTPRINT", "UI_TERM_HARM"]
 const KINDS: Array[Format.Kind] = [Format.Kind.PERCENT, Format.Kind.PLAIN, Format.Kind.PLAIN]
-const TARGET_HARM: String = "harm"
 
 @onready var _row: HBoxContainer = %StripRow
 @onready var _chip: Chip = %StripChip
@@ -41,7 +40,7 @@ func refresh() -> void:
 	var penetration: float = world.infected_share(Game.db)
 	_values[0].set_number(penetration, KINDS[0])
 	_values[1].set_number(world.footprint(), KINDS[1])
-	_values[2].set_number(world.modifiers.value(TARGET_HARM), KINDS[2])
+	_values[2].set_number(world.max_harm(), KINDS[2])
 	_chip.visible = world.discovered
 	if world.discovered:
 		_chip.set_text(Format.percent(world.max_containment()))

@@ -11,8 +11,6 @@ extends PanelContainer
 const KEY_PENETRATION: String = "UI_TERM_PENETRATION"
 const KEY_FOOTPRINT: String = "UI_TERM_FOOTPRINT"
 const KEY_HARM: String = "UI_TERM_HARM"
-## The modifier target the harm bar reads (`data/SCHEMA.md` §4.1).
-const TARGET_HARM: String = "harm"
 
 ## §5.7: three bars side by side, or stacked in their compact form.
 var compact: bool = false:
@@ -69,7 +67,8 @@ func refresh() -> void:
 	var footprint: float = world.footprint()
 	_footprint.set_value_raw(footprint / UiTokens.FOOTPRINT_BAR_MAX, footprint,
 		Format.Kind.PLAIN)
-	var harm: float = world.modifiers.value(TARGET_HARM)
+	# §6.1: the maximum over regions, because half the Harm nodes are scoped.
+	var harm: float = world.max_harm()
 	_harm.set_value_raw(harm / UiTokens.HARM_BAR_MAX, harm, Format.Kind.PLAIN)
 
 

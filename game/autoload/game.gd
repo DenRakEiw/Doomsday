@@ -12,17 +12,16 @@ extends Node
 
 const CONTENT_ROOT: String = "res://data"
 
-## Days per second at 1×; 2× and 4× multiply it. Tuned at G3 against the
-## 25–40 minute target.
-const TICKS_PER_SECOND: float = 1.0
+## Days per second at 1×: one day every two seconds; 2× and 4× multiply it.
+## Tuned at G3 against the 25–40 minute target.
+const TICKS_PER_SECOND: float = 0.5
 ## A frame that was away for seconds catches up this far and drops the rest, so
 ## a stall can never spiral into a hang.
 const MAX_TICKS_PER_FRAME: int = 8
 const SPEEDS: Array[int] = [0, 1, 2, 4]
-## Sixty frames of 1/60 add up to a hair under a quarter of a second fifteen
-## times over, so an exact comparison drops one tick in four at 4×. The tolerance
-## is far below a frame and makes a second of real time a second of game time at
-## every speed.
+## Frames of 1/60 never sum to exactly the half second a tick takes at 4×, so an
+## exact comparison drops one tick in four there. The tolerance is far below a
+## frame and makes a second of real time a second of game time at every speed.
 const TICK_EPSILON: float = 1e-9
 
 ## Why `apply` refused without ever reaching the simulation.

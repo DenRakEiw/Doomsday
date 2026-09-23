@@ -1,13 +1,13 @@
 extends GutTest
 ## S2.6 — what an anomaly marker looks like (spec ui-foundation.md §7.7).
 ##
-## The pulse, the blink and the hit area are pure functions of a phase, a number
-## of days and a zoom, so all three are checked as values. Whether the ring is
-## actually painted is the running game's business (and G2's).
+## The pulse, the countdown and the hit area are pure functions of a phase, a
+## number of days and a zoom, so all three are checked as values. Whether the
+## ring is actually painted is the running game's business (and G2's).
 
 func test_the_ring_grows_out_of_the_disc_and_fades_as_it_goes() -> void:
-	var start: Array = AnomalyMarker.ring_for(0.0, false)
-	var end: Array = AnomalyMarker.ring_for(1.0, false)
+	var start: Array = AnomalyMarker.ring_for(0.0)
+	var end: Array = AnomalyMarker.ring_for(1.0)
 	assert_almost_eq(float(start[0]), AnomalyMarker.RING_RADIUS_MIN, 0.001)
 	assert_almost_eq(float(start[1]), AnomalyMarker.RING_ALPHA_MAX, 0.001)
 	assert_almost_eq(float(end[0]), AnomalyMarker.RING_RADIUS_MAX, 0.001)
@@ -16,40 +16,29 @@ func test_the_ring_grows_out_of_the_disc_and_fades_as_it_goes() -> void:
 
 func test_the_ring_never_leaves_its_range() -> void:
 	for phase: float in [-1.0, 0.5, 2.0]:
-		var ring: Array = AnomalyMarker.ring_for(phase, false)
+		var ring: Array = AnomalyMarker.ring_for(phase)
 		assert_between(float(ring[0]), AnomalyMarker.RING_RADIUS_MIN,
 			AnomalyMarker.RING_RADIUS_MAX, "radius at %f" % phase)
 		assert_between(float(ring[1]), 0.0, AnomalyMarker.RING_ALPHA_MAX,
 			"alpha at %f" % phase)
 
 
-func test_with_motion_off_the_ring_stands_still() -> void:
-	for phase: float in [0.0, 0.3, 0.9]:
-		var ring: Array = AnomalyMarker.ring_for(phase, true)
-		assert_eq(float(ring[0]), AnomalyMarker.RING_STATIC_RADIUS, "radius")
-		assert_eq(float(ring[1]), AnomalyMarker.RING_STATIC_ALPHA, "alpha")
+## S3.P, from G3: the last days used to blink the disc red, which read as
+## "danger, do not touch" rather than "hurry". Time is shown as time instead.
+func test_the_countdown_ring_empties_with_the_days_left() -> void:
+	const LIFETIME: int = 50
+	assert_almost_eq(AnomalyMarker.countdown_for(LIFETIME, LIFETIME), 1.0, 0.001,
+		"a whole ring on the day it spawned")
+	assert_almost_eq(AnomalyMarker.countdown_for(LIFETIME / 2, LIFETIME), 0.5, 0.001,
+		"half way through, half a ring")
+	assert_eq(AnomalyMarker.countdown_for(0, LIFETIME), 0.0,
+		"and nothing on the day it fades")
 
 
-func test_an_anomaly_with_time_left_is_the_accent() -> void:
-	for elapsed: float in [0.0, 0.3, 1.7]:
-		assert_eq(AnomalyMarker.disc_color(AnomalyMarker.BLINK_DAYS + 1, elapsed, false),
-			UiTokens.ACCENT, "at %f" % elapsed)
-
-
-func test_the_last_days_blink_between_the_accent_and_the_alert() -> void:
-	var half: float = 0.5 / AnomalyMarker.BLINK_HZ
-	assert_eq(AnomalyMarker.disc_color(AnomalyMarker.BLINK_DAYS, 0.0, false),
-		UiTokens.ACCENT, "the first half of a period")
-	assert_eq(AnomalyMarker.disc_color(AnomalyMarker.BLINK_DAYS, half + 0.01, false),
-		UiTokens.ALERT, "the second")
-	assert_eq(AnomalyMarker.disc_color(1, half * 2.0 + 0.01, false),
-		UiTokens.ACCENT, "and round again")
-
-
-func test_with_motion_off_the_last_days_are_simply_the_alert() -> void:
-	for elapsed: float in [0.0, 0.4]:
-		assert_eq(AnomalyMarker.disc_color(1, elapsed, true), UiTokens.ALERT,
-			"'now' still has to be visible at %f" % elapsed)
+func test_the_countdown_ring_never_leaves_its_range() -> void:
+	assert_eq(AnomalyMarker.countdown_for(-3, 50), 0.0, "a marker past its day")
+	assert_eq(AnomalyMarker.countdown_for(80, 50), 1.0, "one that outlived its lifetime")
+	assert_eq(AnomalyMarker.countdown_for(5, 0), 0.0, "and one without a lifetime at all")
 
 
 func test_the_target_is_the_same_size_on_screen_at_every_zoom() -> void:

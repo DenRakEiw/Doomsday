@@ -16,6 +16,8 @@ extends Label
 const ARROW_UP: String = "▲"
 const ARROW_DOWN: String = "▼"
 const PLUS: String = "+"
+## U+00B1, the sign a delta of zero carries instead of an arrow (G3).
+const PLUS_MINUS: String = "±"
 
 const VARIATION: StringName = &"ValueLabel"
 const VARIATION_LARGE: String = "Large"
@@ -72,8 +74,8 @@ func set_number_in(key: String, placeholder: String, value: float,
 	_apply_text()
 
 
-## Appends the change since the last reading: `" ▲ +12"`, `" ▼ −3"`, or the bare
-## number when it is zero. The direction colours the label.
+## Appends the change since the last reading: `" ▲ +12"`, `" ▼ −3"`, or `" ±0"`
+## when it is zero. The direction colours the label.
 func set_delta(delta: float, kind: Format.Kind) -> void:
 	_set_delta(delta, kind, "", "")
 
@@ -92,8 +94,9 @@ func _set_delta(delta: float, kind: Format.Kind, key: String, placeholder: Strin
 	var zero: String = Format.number(0.0, kind)
 	var body: String = ""
 	if Format.number(absf(delta), kind) == zero:
+		# G3: a bare `0` next to the value read as two numbers, so the sign stays.
 		_state = State.MUTED
-		body = zero
+		body = PLUS_MINUS + zero
 	elif delta > 0.0:
 		_state = State.UP
 		body = "%s %s%s" % [ARROW_UP, PLUS, formatted]

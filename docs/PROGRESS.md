@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S3.P — Punch list from G3** (IMPLEMENTATION Block 8; the eight items under *Punch list for Opus* below — each a decision already made). Run the suite first: two tests are red on purpose (items 3 and 5). |
-| **Model for it** | **Opus** — `/model opus` |
-| **After it** | `/clear` → S4.1 … S4.10 (no switch) → `/model fable` → D4.5 |
-| **Last completed** | D4.4 — Chains, second batch and the Analysis spec: `docs/specs/chains.md`, `docs/specs/analysis.md`; The Operator / The Benchmark / Second Instance as `data/events/*.json`; `operator_link`, `grace` in `statuses.json`; 8 headlines staged; 167 strings en/de; four vocabulary extensions (2026-09-23) |
-| **Before that** | D4.3 — Loop content: `docs/specs/loop-content.md`; v3 trees staged in `data/tech_staging/`; `data/assets.json`, 9 player statuses, `data/abilities.json` (10), 8 openings, The Grid Bill / The Researcher / The Factory as `data/events/*.json`; 62 headlines staged per build step in `data/headlines_staging/`; 305 strings en/de (2026-09-23) |
+| **Next step** | **S4.1 — Assets and site select** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/loop-mechanics.md`, assets and site select) |
+| **Model for it** | **Opus** — no switch |
+| **After it** | S4.2 … S4.10 (no switch) → `/model fable` → D4.5 |
+| **Last completed** | S3.P — Punch list from G3, all eight items: the two-second day, Harm as the maximum over regions (`World.max_harm`), `±0`, the results panel's height, the anomaly countdown ring, and the tap rule (press → release, not the path walked). 677 tests, all green (2026-09-23) |
+| **Before that** | D4.4 — Chains, second batch and the Analysis spec: `docs/specs/chains.md`, `docs/specs/analysis.md`; The Operator / The Benchmark / Second Instance as `data/events/*.json`; `operator_link`, `grace` in `statuses.json`; 8 headlines staged; 167 strings en/de; four vocabulary extensions (2026-09-23) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 132 scripts compile (53 judged by the suite), 675 tests — **673 green since G3's retune, the two red ones are S3.P items 3 and 5.** The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 132 scripts compile (53 judged by the suite), 677 tests, **all green since S3.P**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Run it** | `run_project` starts at the **title** (`game/main.tscn`); New run → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 stealth · F7 idle (**with Shift**: cyber_rush · stealth_spread · persuader) · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
@@ -98,8 +98,8 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] D4.4 [F] Chains, second batch; Analysis screen spec *(`docs/specs/chains.md`, `analysis.md`)* — ⇄ **then `/model opus`**
 
 **Block 8 — M4 build · Opus** *(rewritten at D4.0)*
-- [ ] **S3.P [O] Punch list from G3 (eight items)**
-- [ ] S4.1 [O] Assets and site select
+- [x] S3.P [O] Punch list from G3 (eight items)
+- [ ] **S4.1 [O] Assets and site select**
 - [ ] S4.2 [O] Statuses and abilities
 - [ ] S4.3 [O] Map events
 - [ ] S4.4 [O] Four factions
@@ -746,6 +746,14 @@ without new information.
 reads `SCHLIESSEN`; the alternative is the capital ẞ (U+1E9E), which both fonts carry. A one-line
 change either way. (S2.4's second question — the dark chip — was answered at G2, see *Decisions*.)
 
+**From S3.P (item 4, the `±0`):** **`UI_CONTAINMENT_RATE` carries a `+` of its own**
+(`+{rate} / day` / `+{rate} / Tag`), and the value it wraps now brings its own sign — so a
+containment track that is not moving reads **`+±0 % / Tag`** and a rising one `+▲ +0,4 % / Tag`.
+`UI_HUD_COMPUTE_RATE` has no `+` and reads correctly. The string is Fable's, so nothing was
+changed: drop the `+` from both columns of `UI_CONTAINMENT_RATE` (the arrow and the colour already
+say the direction), or say that the faction track should show the rate as a plain number
+(`set_number_in`) and lose the up/down colours. Seen in the component gallery, *FactionTrack*.
+
 **Parked for a later Fable step (not questions, reminders):**
 - **M6 (VISUALS):** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the 8192-px
   masks anti-alias the coast but not the borders between regions. Acceptable for M2–M5; a vector
@@ -785,59 +793,29 @@ change either way. (S2.4's second question — the dark chip — was answered at
 
 ## Punch list for Opus
 
-**S3.P — from G3 (2026-09-23).** Each item is a decision already made; nothing here needs design.
-
-1. **`game/autoload/game.gd`: `TICKS_PER_SECOND` 1.0 → 0.5** (one day every two seconds at 1×; 2×
-   and 4× multiply). `tests/unit/test_game_accumulator.gd` follows: 120 frames of 1/60 at 1× are
-   one tick, at 2× two, at 4× four; the test names say "two seconds". `ui-foundation.md` §10.2 and
-   §10.3 already say 0.5.
-2. **The HUD's Harm reads the maximum over regions.** `ui/hud/hud.gd`, `status_strip.gd`,
-   `stat_row.gd` (`TARGET_HARM`) bind `stat("harm")`, which is 0 while a player who owns only scoped
-   Harm nodes (Regional Blackout, Supply Chain Halt, …) kills people. Bar, readout and the §6.1
-   reveal use `max over regions of stat("harm", r)` (a `World`/`ModifierStack` query if none
-   exists — `core/` may gain the pure function); the containment panel's `_DRIVER_HARM` row keeps the
-   unscoped value. `m3-screens.md` §6.1 has the rule. Test: a fixture with one scoped Harm node shows
-   the bar.
-3. **`tests/unit/test_tech_node.gd`: `KNOWN_OVERFLOW` → `[]`.** G3 shortened the seven English
-   names in `strings.csv` (Communications Denial, Transport Control, Automated Lab Access, Command
-   Net Presence, Fragmentation I/II, Replicating Agents). If one still needs three lines at 160 px,
-   report it under *Design questions* rather than widening the cell.
-4. **`ui/components/value_label.gd`, the `State.MUTED` branch: the zero delta reads `±0`**
-   (`" ±0"` with the muted colour, no arrow), so the compute cell no longer shows `1,4 0 / day`.
-   `ui-foundation.md` §4.5 updated. String unchanged.
-5. **Tests that depended on the M3 pace.** G3 stretched every per-day rate by 2.5 (see *Decisions*);
-   the suite was run afterwards (675 tests, 673 green) and exactly two fail, both expected:
-   `tests/integration/test_region_panel.gd` `test_the_deaths_row_appears_only_once_somebody_has_died`
-   — `Game.advance(400)` no longer reaches a death on seed 1 (the first deaths of a `greedy` run
-   now come after day ~700); advance far enough or pick the day from the run. And item 3's
-   `KNOWN_OVERFLOW`: the measured list is already `[]`, so every English name fits and the constant
-   simply empties. **CI is red until S3.P closes these two.**
-6. **`ui/screens/results.tscn`: the results panel collapses to 32 px.** Seen at the G3 play-through
-   (a won run, day 980): `Centre/ResultsPanel/Scroll` is a `ScrollContainer` with no minimum height
-   inside a `PanelContainer` inside a `CenterContainer`, so its minimum size is 0 and the whole
-   panel is a bare strip while `Body` (536 px) sits inside it unseen. Give the scroll a height —
-   the body's height up to the safe area (`get_viewport_rect().size.y` minus `SPACE_6` × 2, or the
-   §7.4 modal height if the spec names one) — set in `show_result` or through a `MarginContainer`
-   with expand flags instead of the `CenterContainer`. The integration test for the results
-   screen must assert the panel's height ≥ the body's height (capped) after `show_result`; today
-   it checks texts only, which is why this passed.
-7. **An expiring anomaly is no longer red.** `game/map/anomaly_marker.gd` blinks the disc between
-   `ACCENT` and `ALERT` in its last `BLINK_DAYS` (solid `ALERT` with motion off). At the
-   play-through the red disc read as "danger, do not touch", not "hurry" — G2 decided `ALERT`
-   marks a moment, not a standing state, and this is a standing state. Replace the blink with a
-   countdown: the disc stays `ACCENT`, and a ring around it empties as `days_left / lifetime_days`
-   (`b.anomaly.lifetime_days`, now 50), so time is shown as time; reduced motion draws the same ring
-   without the pulse. Tooltip unchanged (`UI_REGION_ANOMALY_EXPIRES`). `test_anomaly_marker.gd` (or
-   wherever `disc_color` is asserted) follows.
-8. **Anomaly markers did not always take a click.** Reported at the play-through, not reproduced
-   yet. Reproduce with `game_click` (`button: 1`) on live markers at several zooms and with the
-   region panel open; suspects: the panel or the status strip covering the anchor, the 24-px
-   `HIT_RADIUS_PX` at `zoom_min` where the disc is small, a marker in `fade_out` still drawn but no
-   longer hit. If the radius is the cause, raise it to `HIT_MIN` (48) — the target, not the disc, is
-   what the spec sizes. Record what it was.
+*(empty — S3.P closed G3's eight items on 2026-09-23; the next one comes from D4.5 and G4 as
+S4.P.)*
 
 ## Deviations from the plan or a spec
 
+- **2026-09-23** (S3.P) — **The anomaly marker's blink became a countdown ring** (punch list item
+  7), so `ui-foundation.md` §7.7's sentence about the last three days no longer describes the
+  build: the disc is always `ACCENT`, a ring at radius 14 empties clockwise from the top as
+  `days_left / lifetime_days`, and the pulsing ring is drawn only when motion is on — with motion
+  off the countdown ring is the standing circle §7.7 asks for. `ring_for` lost its `reduced`
+  argument, `disc_color`/`BLINK_DAYS`/`BLINK_HZ` are gone, `AnomalyMarker.lifetime_days` is handed
+  over by the layer from `balance.anomaly.lifetime_days`.
+- **2026-09-23** (S3.P) — **A tap is measured from the press, not along the path** (item 8). §7.4
+  says "movement under 8 px between press and release"; `MapCamera` summed the length of every
+  motion in between, so a hand that shook while it clicked walked past `DRAG_SLOP_PX` without the
+  pointer ever leaving the target and the tap was dropped — the reported "marker did not take a
+  click". `_travelled_px` is now `_press_screen` and the release is compared to it.
+- **2026-09-23** (S3.P) — **The results panel's height is set in code, not in the scene.**
+  `results.gd` gives `%Scroll` a minimum height (the body's, capped at the viewport minus
+  `SPACE_6` × 2) on `show_result`, on `minimum_size_changed` and on a resize; `%Scroll` and `%Body`
+  gained unique names for it. The integration test asserts the panel's *minimum* size, because a
+  headless run sorts the modal's `CenterContainer` once, before it is shown, and never again — the
+  laid-out size stays 32 px there however tall the content is.
 - **2026-09-23** (S3.6) — **A Capabilities branch is a band of grid rows**, read by
   `TechNodeDef.branch()`. `tech-trees.md` §7.5 gives the five branches as row bands and no node
   carries a branch field, so the layout is the definition; the alternative was a list of ids in
@@ -1133,6 +1111,13 @@ change either way. (S2.4's second question — the dark chip — was answered at
   *Parser Error: Function "execute()" has no static return type*, every later command times out,
   and the only way on is `stop_project`. **Read state with `game_get_property` and
   `game_call_method` instead**; `game_script` has the same problem for the same reason.
+- **`stop_project`, `get_debug_output` and `game_get_errors` return the whole engine log** —
+  ~57 KB per call at S3.P, every warning of every script in it. Call them once at the end, and grep
+  the saved file for `ERROR:` rather than reading it.
+- **A `run_project` straight after a `stop_project` can come up without the interaction server**
+  (`Failed to instantiate an autoload, can't load from path: res://mcp_interaction_server.gd`, then
+  *Not connected* on every command). The stop deleted the script but left the autoload line.
+  `git checkout project.godot`, then run again.
 - **godot-mcp edits `project.godot` while it runs** — it adds its `McpInteractionServer` autoload
   and leaves blank lines behind under `[autoload]` when a run is killed. A run that dies with
   "Failed to instantiate an autoload" is that. **Strip only the injected lines; never
@@ -1150,8 +1135,17 @@ change either way. (S2.4's second question — the dark chip — was answered at
 - **An anomaly marker is hard to catch in a live run.** Every bot collects an anomaly within a tick
   or two of its spawning, so `marker_count()` is 0 almost always and the hover tooltip of §7.7 could
   not be photographed at S2.P — its box, its text and the push back inside the viewport are covered
-  by `test_marker_layer.gd` instead. To see it by hand: run greedy at 4× for ~40 s, poll
-  `game_call_method MarkerLayer marker_count`, and pause the moment it is not 0.
+  by `test_marker_layer.gd` instead. **The recipe that worked at S3.P:** patch
+  `data/balance.json` `anomaly.spawn_chance` to 0.9 (revert afterwards — the suite's
+  `test_save_continue` fails while it is up), `game_call_method /root/Game start_run [1]` (no
+  policy, so nothing collects), choose the origin by clicking the region and its *Hier beginnen*,
+  then `set_speed [0]` and `advance [40]`. A marker's node is
+  `game_find_nodes_by_class Node2D` under `MarkerLayer`; its screen point is
+  `view/2 + (position − camera.position) × zoom`. A **collect is the only unambiguous signal** that
+  a tap landed (`marker_count` drops) — `selected_index` staying put proves nothing.
+  `MarkerLayer._add_marker(id, region, value, expires_day)` puts a marker on the map without a
+  simulation for a pure hit test; `game_set_property /root/Game policy null` does **not** clear the
+  policy.
 - **`ConsolePanel` destroys `%UniqueName` for everything inside it.** `_build_content` moves the
   authored children into its `Content` box, and taking a node out of the tree clears the owner of
   its whole subtree — every unique name registered below it is gone, and `@onready var x = %X`
@@ -1364,6 +1358,17 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — S3.P Punch list from G3 [O]
+All eight items. The day is two seconds (`TICKS_PER_SECOND` 0.5, the accumulator test with it);
+the HUD's Harm is `World.max_harm()` — the maximum over the regions, because half the Harm nodes
+are scoped and an unscoped read of a scoped modifier is 0; a zero delta reads `±0`;
+`KNOWN_OVERFLOW` is empty; the results panel is as tall as its body again (the `ScrollContainer`
+had no minimum height); the marker's red blink became a countdown ring. **Item 8:** the panel and
+the strips were cleared (a click through the bottom strip collects), the 24-px target holds at
+`zoom_min` — what drops a tap is the drag rule, which summed the path walked instead of measuring
+press to release (deviation above). 677 tests green; results modal, gallery and a live collect
+looked at. Next: **S4.1 on Opus**.
 
 ### 2026-09-23 — D4.4 Chains, second batch; Analysis screen spec [F]
 `docs/specs/chains.md`: The Operator (3 steps, starts at the origin, a standing `yield ×1.1`

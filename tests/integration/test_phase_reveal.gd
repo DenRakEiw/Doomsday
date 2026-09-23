@@ -97,6 +97,27 @@ func test_the_harm_bar_appears_with_the_first_harm() -> void:
 	assert_true(_bar("Harm").visible, "the bar is there the moment there is harm")
 
 
+## S3.P, from G3: the reveal reads the maximum over the regions, so a player
+## who owns only scoped Harm gets the bar too (§6.1).
+func test_a_scoped_harm_node_reveals_the_bar_too() -> void:
+	_start()
+	_set_phase(World.Phase.COVERT)
+	assert_false(_bar("Harm").visible)
+	var harm: ModifierDef = ModifierDef.new()
+	harm.target = TARGET_HARM
+	harm.op = ModifierDef.Op.ADD
+	harm.value = 1.0
+	harm.scope_kind = ModifierDef.ScopeKind.REGION
+	harm.scope_region = Game.sim.world.agent.origin
+	var modifiers: Array[ModifierDef] = [harm]
+	var no_flags: Array[String] = []
+	Game.sim.world.modifiers.add_source("test_scoped_harm", modifiers, no_flags)
+	assert_eq(Game.sim.world.modifiers.value(TARGET_HARM), 0.0,
+		"the unscoped stat the HUD used to read is still 0")
+	_hud.call(&"apply_reveal")
+	assert_true(_bar("Harm").visible, "one region is harmed, so the bar is there")
+
+
 func test_open_swaps_the_variant_once() -> void:
 	_start()
 	assert_eq(String(UiTokens.variant), String(UiTokens.VARIANT_COLD))

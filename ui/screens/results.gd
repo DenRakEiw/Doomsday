@@ -35,6 +35,8 @@ const ROW_KEYS: Array[String] = ["UI_RESULT_DAYS", "UI_RESULT_DISCOVERED", "UI_R
 	"UI_RESULT_COMPUTE_EARNED", "UI_RESULT_NODES", "UI_RESULT_DOMINANT"]
 
 @onready var _panel: PanelContainer = %ResultsPanel
+@onready var _scroll: ScrollContainer = %Scroll
+@onready var _body: VBoxContainer = %Body
 @onready var _kicker: Label = %ResultKicker
 @onready var _outcome: Label = %ResultOutcome
 @onready var _verdict: Label = %ResultVerdict
@@ -52,6 +54,10 @@ func _ready() -> void:
 	_build_rows()
 	_title_button.pressed.connect(title_requested.emit)
 	_again.pressed.connect(again_requested.emit)
+	# The height is content-driven and the content wraps, so it is recomputed
+	# whenever the body or the window changes rather than once.
+	_body.minimum_size_changed.connect(_fit_scroll)
+	get_viewport().size_changed.connect(_fit_scroll)
 	visible = false
 
 
@@ -66,7 +72,21 @@ func show_result(sim: Simulation) -> void:
 	_seed_label.text = tr(KEY_SEED).format({PLACEHOLDER_SEED: Game.run_seed()})
 	_fill_rows(sim)
 	visible = true
+	_fit_scroll()
+	# The wrapped lines only know their height once they have their width, so
+	# the fit is taken again after the layout pass this filling caused.
+	_fit_scroll.call_deferred()
 	_again.grab_focus.call_deferred()
+
+
+## A `ScrollContainer` has no minimum height of its own, so the panel around it
+## collapsed to a strip while the body sat inside it unseen (G3 play-through).
+## The scroll is given the body's height, capped at the safe area, which leaves
+## it scrolling only on a window too short for the content.
+func _fit_scroll() -> void:
+	var available: float = get_viewport_rect().size.y - float(UiTokens.SPACE_6) * 2.0
+	_scroll.custom_minimum_size.y = minf(_body.get_combined_minimum_size().y,
+		maxf(available, 0.0))
 
 
 ## `Escape` on the results does nothing: the run is over and the two buttons are

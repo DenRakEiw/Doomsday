@@ -160,6 +160,25 @@ func test_a_tiny_wobble_is_still_a_tap() -> void:
 	assert_eq(_view.selected_index, index)
 
 
+## S3.P item 8: the rule was the length of the path walked between press and
+## release, so a hand that shakes while it clicks lost the tap although the
+## pointer never left the target. §7.4 measures press to release.
+func test_a_shaky_click_that_ends_where_it_began_is_still_a_tap() -> void:
+	Game.start_run(1, GreedyPolicy.ID)
+	Game.set_speed(0)
+	var index: int = Game.db.region_index_by_id["japan"]
+	_camera.set_view(Vector2(Game.db.regions[index].anchor), 3.0)
+	var at: Vector2 = _screen_of(index)
+
+	_camera.handle_pointer(_press(at))
+	# Six pixels out and six back: twelve walked, two from where it started.
+	_camera.handle_pointer(_drag(at + Vector2(6.0, 0.0), Vector2(6.0, 0.0)))
+	_camera.handle_pointer(_drag(at + Vector2(2.0, 0.0), Vector2(-4.0, 0.0)))
+	_camera.handle_pointer(_release(at + Vector2(2.0, 0.0)))
+
+	assert_eq(_view.selected_index, index, "the target never left the pointer")
+
+
 func test_a_tap_on_open_water_deselects() -> void:
 	Game.start_run(1, GreedyPolicy.ID)
 	Game.set_speed(0)

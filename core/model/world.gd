@@ -118,6 +118,18 @@ func anomaly_in_region(region_index: int) -> Anomaly:
 	return null
 
 
+## The highest Harm any region carries, which is what the interface shows
+## (m3-screens.md §6.1). Half the Harm nodes are scoped, and an unscoped read of
+## a scoped modifier is 0, so a player who owns only those would watch a Harm
+## bar of zero while people die. The containment system keeps the unscoped
+## value: that is the one core.md §7.5 multiplies.
+func max_harm() -> float:
+	var highest: float = modifiers.value("harm")
+	for i: int in range(1, regions.size()):
+		highest = maxf(highest, modifiers.value("harm", regions[i].def))
+	return highest
+
+
 ## The highest containment of any faction.
 func max_containment() -> float:
 	var highest: float = 0.0

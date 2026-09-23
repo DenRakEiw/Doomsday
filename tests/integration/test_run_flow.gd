@@ -117,3 +117,31 @@ func test_the_results_read_the_run_that_ended() -> void:
 	assert_string_contains((results.get_node("%ResultOutcome") as Label).text,
 		tr("UI_OUTCOME_WIN_ASCENDANCE"))
 	assert_string_contains((results.get_node("%ResultSeed") as Label).text, "1")
+
+
+## S3.P, from G3: the panel was a 32 px strip with the body inside it unseen,
+## because the `ScrollContainer` between them has no minimum height of its own.
+## The old test read the texts, which were filled in correctly all along.
+##
+## The assertion is on the minimum size, which is what a `CenterContainer` gives
+## its child and what the defect was: a headless run lays the modal out once,
+## before it is shown, and never again.
+func test_the_results_panel_is_as_tall_as_what_it_shows() -> void:
+	var session: Control = SESSION.instantiate()
+	add_child_autofree(session)
+	Game.start_run(1)
+	_choose_origin()
+	Game.advance(5)
+	Game.sim.world.outcome = World.Outcome.WIN_ASCENDANCE
+	var results: Results = session.get_node("ModalLayer/ModalHost/Results")
+	results.show_result(Game.sim)
+	await get_tree().process_frame
+	var panel: Control = results.get_node("%ResultsPanel") as Control
+	var body: Control = results.get_node("%Body") as Control
+	var available: float = results.get_viewport_rect().size.y - float(UiTokens.SPACE_6) * 2.0
+	var wanted: float = minf(body.get_combined_minimum_size().y, available)
+	assert_gt(wanted, 0.0, "the body wants a height at all")
+	assert_gte(panel.get_combined_minimum_size().y, wanted,
+		"the panel is as tall as the body it holds, up to the safe area")
+	assert_lte((results.get_node("%Scroll") as Control).custom_minimum_size.y, available,
+		"and never taller than the window")

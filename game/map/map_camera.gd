@@ -65,7 +65,8 @@ var zoom_min: float = 1.0
 var _panning: bool = false
 ## Screen pixels travelled since the press — a straight distance would call a
 ## circle back to its start a tap.
-var _travelled_px: float = 0.0
+## Where the button went down, so that a release near it is a tap (§7.4).
+var _press_screen: Vector2 = Vector2.ZERO
 var _velocity: Vector2 = Vector2.ZERO
 var _velocity_samples: Array[Vector2] = []
 var _tween: Tween = null
@@ -366,7 +367,7 @@ func _handle_button(button: InputEventMouseButton) -> bool:
 			return true
 		MOUSE_BUTTON_LEFT:
 			if button.pressed:
-				_begin_pan()
+				_begin_pan(button.position)
 			else:
 				_end_pan(button.position)
 			return true
@@ -376,7 +377,6 @@ func _handle_button(button: InputEventMouseButton) -> bool:
 func _handle_motion(motion: InputEventMouseMotion) -> bool:
 	if not _panning:
 		return false
-	_travelled_px += motion.relative.length()
 	set_view(position - motion.relative / zoom.x, zoom.x)
 	_velocity_samples.append(motion.velocity)
 	if _velocity_samples.size() > VELOCITY_FRAMES:
@@ -384,20 +384,24 @@ func _handle_motion(motion: InputEventMouseMotion) -> bool:
 	return true
 
 
-func _begin_pan() -> void:
+func _begin_pan(screen: Vector2) -> void:
 	_panning = true
-	_travelled_px = 0.0
+	_press_screen = screen
 	_velocity_samples.clear()
 	_stop_inertia()
 	# A tween still running would fight the finger.
 	_stop_tween()
 
 
+## §7.4: a tap is a release under `DRAG_SLOP_PX` **from the press**. It used to
+## be the length of the path walked in between, which a hand that shakes while
+## it clicks exceeds without the pointer ever leaving the target — S3.P item 8,
+## where an anomaly marker sometimes swallowed a click without collecting.
 func _end_pan(screen: Vector2) -> void:
 	if not _panning:
 		return
 	_panning = false
-	if _travelled_px < DRAG_SLOP_PX:
+	if screen.distance_to(_press_screen) < DRAG_SLOP_PX:
 		_dispatch_tap(screen)
 		return
 	_velocity = _mean_velocity()

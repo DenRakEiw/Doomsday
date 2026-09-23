@@ -12,9 +12,6 @@ extends Control
 ##
 ## Scene-specific, so no `class_name`.
 
-## The stat the harm bar appears with (§6.1).
-const TARGET_HARM: String = "harm"
-
 ## Emitted when the layout changed, so that the region panel can take the edge
 ## and the insets that go with it (§5.6, §4.6).
 signal layout_changed(compact: bool)
@@ -66,7 +63,7 @@ func apply_reveal() -> void:
 	if world == null:
 		return
 	var phase: World.Phase = world.phase
-	var harm: float = world.modifiers.value(TARGET_HARM)
+	var harm: float = world.max_harm()
 	_stat_row.call(&"apply_reveal", phase, harm)
 	_status_strip.call(&"apply_reveal", phase, harm)
 	_overlay_picker.call(&"apply_reveal", phase)

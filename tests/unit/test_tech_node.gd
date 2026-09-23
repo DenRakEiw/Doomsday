@@ -73,20 +73,11 @@ func test_the_footer_shows_the_node_s_own_footprint() -> void:
 		"a node without one says nothing")
 
 
-## §3.4 promises two lines and no ellipsis. It holds for every German name at
-## both cell sizes, and for every English one at the full cell but seven — see
-## PROGRESS.md, *Design questions for Fable*. The list is asserted exactly, so a
-## name that is shortened makes this test fail until the entry goes with it, and
-## a new name that overflows fails it at once.
-const KNOWN_OVERFLOW: Array[String] = [
-	"en 200 total_communications_denial",
-	"en 160 rail_and_shipping_control",
-	"en 160 total_communications_denial",
-	"en 160 automated_laboratory_access",
-	"en 160 command_network_presence",
-	"en 160 weight_fragmentation_2",
-	"en 160 self_replicating_agents",
-]
+## §3.4 promises two lines and no ellipsis. It holds for every name in both
+## languages at both cell sizes since G3 shortened the seven English ones that
+## did not. The list is asserted exactly, so a name that overflows fails this
+## test at once; a new entry belongs on the punch list, never a wider cell.
+const KNOWN_OVERFLOW: Array[String] = []
 
 
 func test_every_german_name_fits_two_lines() -> void:
@@ -97,7 +88,7 @@ func test_every_german_name_fits_two_lines() -> void:
 	assert_eq(too_long.size(), 0, str(too_long))
 
 
-func test_the_english_names_over_two_lines_are_the_ones_on_the_punch_list() -> void:
+func test_every_english_name_fits_two_lines() -> void:
 	var too_long: Array[String] = []
 	TranslationServer.set_locale("en")
 	for cell: Vector2 in [UiTokens.TECH_CELL, UiTokens.TECH_CELL_COMPACT]:
