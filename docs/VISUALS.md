@@ -303,6 +303,8 @@ models including an instruction-driven editing model, which is the one that matt
 well suited to:
 
 - ending illustrations and scenario key art,
+- **wire-card illustrations** for the event modal — the narrative chain steps, the eight
+  counter-move announcements, the discovery moment: about 25, `loop-redesign.md` §7.4 (D4.0),
 - region vignettes and backdrops,
 - Codex illustrations,
 - store page and marketing art.
@@ -392,5 +394,6 @@ cheap to control now and expensive to fix later.
 3. How far does the phase palette shift go before it stops being atmosphere and starts being
    unreadable? Cap it and test at the reduced-motion setting.
 4. Do region vignettes justify their cost, or is the map plus the ticker enough? Decide at M4.
+   *(D4.0: the wire card takes the story-picture role first; vignettes are judged after it exists.)*
 5. Is `DPITexture`'s experimental status acceptable for ~140 shipped icons, or do we keep a PNG
    atlas fallback permanently in the build? Decide at M3, once the icon set is real.

@@ -695,13 +695,14 @@ threat bar and the containment panel rewrite; strings. Decides nothing loop-rede
 **Produce:** `data/tech/*.json` v3 exactly per loop-redesign §4.4 (ids, grids, prerequisites
 unchanged), `data/assets.json`, `data/statuses.json`, `data/abilities.json` with final numbers
 and text; the eight openings; **The Grid Bill**, **The Researcher** (proving pair) and **The
-Factory** (the embodiment chain, G3 direction) in the event format; headlines for abilities,
+Factory** (the embodiment chain, G3 direction) in the event format, each `modal` step with its
+`illustration` id (loop-redesign §7.4 — the picture itself is M6); headlines for abilities,
 statuses, assets and events; every string in both languages.
 
 ### D4.4 — Chains, second batch; Analysis screen spec **[F]** *(rewritten at D4.0)*
 **Read first:** CONTENT §6.2, §6.3, §6.5 · UI §3 (Analysis) · the event grammar in `loop-mechanics.md`
 **Produce:** **The Operator**, **The Benchmark** (as a variant of the AI Labs Audit), **Second
-Instance** — data and text. A needed effect that does not exist is requested as a vocabulary
+Instance** — data and text, `illustration` ids on the `modal` steps. A needed effect that does not exist is requested as a vocabulary
 extension in the spec, never worked around. Plus `docs/specs/analysis.md`: series, charts, the
 run log (events, statuses and counter-moves included), history sampling.
 
@@ -797,6 +798,9 @@ deliberately coarse because it depends on what M3–M5 taught us.
 
 Post-processing pass (layer 1025 from script), scanlines, dither, aberration, own bloom ·
 phase-shift theme variants · icon pipeline (sets, DPITexture or PNG atlas, ~25 custom silhouettes)
+· **wire-card illustrations [F]** — one style reference, then the ~25 pictures the event data
+names, each with its model in `ASSET_LICENCES.md` (loop-redesign §7.4; the glyph fallback ships
+until then)
 · audio · tutorial · accessibility · performance on a low-end target · `PlatformService`,
 GodotSteam, achievements · credits and licences screen · export presets and release CI · final
 balance · **spectator and benchmark mode** (decided at G1, 2026-09-22): first a headless tool — a

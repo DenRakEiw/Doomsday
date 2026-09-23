@@ -568,6 +568,32 @@ as the event modal UI.md §3 describes, centred, `Game.hold("event")`; the regio
 pause the game — the deadline is the pressure. Chain steps that need the modal's typographic care
 (the narrative ones) set `"modal": true` and open the modal even with a region.
 
+**The wire card** (added 2026-09-23, user question). The event modal is the one surface that
+carries a picture. Layout: a `PanelContainer` `ConsolePanelRaised`, max width `MODAL_MAX_WIDTH`
+× 1.5 (840), an `HBox` in full layout — the **illustration** left at 4:3, 280 px wide, the text
+column right — and a `VBox` in compact — illustration on top at full width, text below. Text:
+`LabelCaps` dateline (the region, or the faction, or `UI_WIRE_GLOBAL`) · `LabelDisplay` title ·
+`Label` body in the world's voice (CONTENT §10.1: wire copy, never *you*) · the options as
+buttons, each with its cost chip and lock reason · the deadline as a caption. The card is the
+genre's "a story arrives" moment, in our register: an agency bulletin or a ministry notice, not
+a newspaper page — nothing of *Plague Inc.*'s layout, icons or phrasing (CLAUDE.md).
+
+The illustration is optional data: `"illustration": "<id>"` on the event or step names a file
+`assets/illustrations/<id>.png` (source `.png` at 1120 × 840, imported with mipmaps, shown at
+280 or full width). **Absent, or the file missing, the slot shows a large glyph** — the
+faction's icon or the event kind's marker glyph — on `BG_2`, so no build waits for a picture.
+Only these get one: the narrative chain steps (The Researcher, The Grid Bill, The Factory, The
+Operator, The Benchmark, Second Instance — the steps marked `modal`), the discovery modal (§5 of
+m3-screens gains the same slot), the eight counter-move announcements (one per move, reused),
+and the endings (D5.2). Openings and the region panel's event card never carry a picture: they
+are small, frequent and would break the beat. Budget: about 25 pictures inside VISUALS §4's
+~30, generated locally from **one fixed style reference** with the editing model (VISUALS
+§3.4): dark, near-monochrome with the interface's one accent, no text in the image, no
+recognisable people, brands or places, outcome never method; every file with its model named
+in `docs/ASSET_LICENCES.md` before it ships. The pictures are an **M6 [F] step** (style
+reference, then the set); D4.1 specifies the slot and the fallback, D4.3/D4.4 name the
+illustration id per step so the list exists when M6 starts.
+
 ### 7.5 Site select
 
 One map mode serves the origin (exists, m3-screens §7.2), deploy purchases and region-targeted
@@ -703,7 +729,7 @@ count is unchanged. What moves to M5 is listed at the end.
 
 | Step | Produces |
 | --- | --- |
-| **D4.1 Loop mechanics** | `docs/specs/loop-mechanics.md`: the typed API of §7 (commands, `Status`, `OpenEvent`, `Eligibility`, the effect list, `SimRng.weighted_pick`), the grammars of `assets.json`, `statuses.json`, `abilities.json`, `events/*.json` and the tree v3 fields with validation rules, the tick-order change, save format v2, site select and the region panel rows (§8), the console line, map markers and data-texture changes, string tables for all of it, tests, acceptance. Answers the *Design questions* D4.1 held before (per-faction weighting of `watched_by`: §5.3; `funding_reset`: §7.8) |
+| **D4.1 Loop mechanics** | `docs/specs/loop-mechanics.md`: the wire card (§7.4) with its illustration slot and glyph fallback; the typed API of §7 (commands, `Status`, `OpenEvent`, `Eligibility`, the effect list, `SimRng.weighted_pick`), the grammars of `assets.json`, `statuses.json`, `abilities.json`, `events/*.json` and the tree v3 fields with validation rules, the tick-order change, save format v2, site select and the region panel rows (§8), the console line, map markers and data-texture changes, string tables for all of it, tests, acceptance. Answers the *Design questions* D4.1 held before (per-faction weighting of `watched_by`: §5.3; `funding_reset`: §7.8) |
 | **D4.2 Opposition** | `docs/specs/opposition.md` + `data/factions.json` + the eight counter-move events with text: §5.3's formula with final weights, capacity attributes, the schedule, the eight moves and their options; Societal Function's six stages (capacity and yield cuts), `society_pressure` made live, Autophagy; the threat bar and the containment panel; strings in both languages |
 | **D4.3 Trees v3, abilities, openings, two chains** | `data/tech/*.json` v3 per §4.4 (+ strings for new rows), `data/assets.json`, `data/statuses.json`, `data/abilities.json` with final numbers and text, the eight openings, **The Grid Bill** and **The Researcher** as the proving chains in the §7.4 format, plus **The Factory** (the embodiment chain, G3 direction), headlines for abilities, statuses and assets in both languages |
 | **D4.4 Chains and Analysis** | **The Operator**, **The Benchmark** (as an AI Labs Audit variant), **Second Instance**; `docs/specs/analysis.md` (series, charts, the run log now including events and statuses); the Analysis dock button goes live in S4.9 |
@@ -756,6 +782,9 @@ and the four inert reserved items stay in the data, inert one milestone longer.
 8. Emergent behaviours and four chains move to M5; M4 gains S4.1–S4.3 and S4.10 (§10).
 9. The console line is the console's channel to the player; the ticker stays the world's (§8.1).
 10. The Response Task Force is a fifth mover on the same machinery, unchanged in M5 (§5.5).
+11. The event modal is a *wire card* with an optional illustration and a glyph fallback; ~25
+    pictures for chain steps, counter-moves, discovery and endings, generated in M6 from one
+    style reference (§7.4, user question 2026-09-23).
 
 ## 12. What the user should judge when reading this
 

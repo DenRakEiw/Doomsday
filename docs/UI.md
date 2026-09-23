@@ -110,7 +110,9 @@ Everything below sits over the map. The map is never fully covered.
   its known cost but not its full consequence. These are the moments the player will remember, so
   they get the most typographic care in the game. *(D4.0: only global events and the narrative
   steps marked `modal` open it; region-bound events — openings, counter-moves, most chain steps —
-  are markers on the map and a card in the region panel, with a deadline instead of a pause.)*
+  are markers on the map and a card in the region panel, with a deadline instead of a pause. The
+  modal is the **wire card**: an optional illustration left, the text right, a glyph fallback when
+  no picture exists — `loop-redesign.md` §7.4.)*
 
 **Added at D4.0** (`loop-redesign.md` §8): the **threat bar** as the stat row's fourth bar (discovery
 risk before discovery, the leading faction after); the **console line** under the top bar — the

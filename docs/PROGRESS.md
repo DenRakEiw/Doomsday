@@ -597,6 +597,11 @@ without new information.
   gains S4.1–S4.3 (assets, statuses/abilities, map events) and S4.10; five chains ship in M4
   (Researcher, Grid Bill, **The Factory** — the embodiment chain —, Operator, Benchmark as an
   Audit variant, Second Instance). No milestone added.
+- **2026-09-23** (D4.0, user question) — **The event modal is a wire card with an optional
+  illustration** (left, 4:3) and a glyph fallback; about 25 pictures for chain steps, the eight
+  counter-moves, discovery and endings, generated in an M6 [F] step from one style reference,
+  every file with its model in `ASSET_LICENCES.md`. Openings and the region panel's event card
+  never carry a picture. D4.1 specifies the slot; D4.3/D4.4 name the ids (loop-redesign §7.4).
 - **2026-09-23** (D4.0) — **Earlier specs and `BALANCE.md` keep the old step numbers**; the map
   old → new is in loop-redesign §10. Only PROGRESS and IMPLEMENTATION carry the new sheet.
 
@@ -1231,7 +1236,8 @@ player abilities and by faction counter-moves, map events (openings, counter-mov
 steps), one verb per phase, purchase feedback contract, exclusive groups and the Merge/Terror
 doors, economy numbers, four tracks behind one threat bar, cadence targets, Blocks 7–8 rewritten
 (S4.1–S4.3 and S4.10 new; emergent behaviours and four chains to M5). PLAN §3, CONTENT, UI and
-IMPLEMENTATION carry the changes. Next: **the user reads the spec**, then **D4.1 on Fable**.
+IMPLEMENTATION carry the changes. The user's read raised the wire card (an illustrated event
+modal), added to §7.4 and to M6. Next: **D4.1 on Fable**.
 
 ### 2026-09-23 — G3 Balance pass 1 and M3 gate [F]
 Every per-day rate of `balance.json` divided by 2.5 and every duration multiplied (a two-second
