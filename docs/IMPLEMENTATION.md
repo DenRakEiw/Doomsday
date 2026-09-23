@@ -698,6 +698,12 @@ and text; the eight openings; **The Grid Bill**, **The Researcher** (proving pai
 Factory** (the embodiment chain, G3 direction) in the event format, each `modal` step with its
 `illustration` id (loop-redesign §7.4 — the picture itself is M6); headlines for abilities,
 statuses, assets and events; every string in both languages.
+**Produced** (2026-09-23): `docs/specs/loop-content.md`; the v3 trees in **`data/tech_staging/`**
+(the v2 loader rejects v3 keys — S4.6 moves them); `data/assets.json`, `data/statuses.json`,
+`data/abilities.json`, `data/events/{openings,grid_bill,researcher,factory}.json` in place; the
+62 headlines in **`data/headlines_staging/s4_<n>.json`**, one file per build step that merges it;
+305 strings. Two vocabulary extensions requested: `grant_assets` (S4.1) and `chance[].next`
+(S4.3), plus one interface rule for a world status without a faction (loop-content §11).
 
 ### D4.4 — Chains, second batch; Analysis screen spec **[F]** *(rewritten at D4.0)*
 **Read first:** CONTENT §6.2, §6.3, §6.5 · UI §3 (Analysis) · the event grammar in `loop-mechanics.md`
@@ -714,32 +720,41 @@ run log (events, statuses and counter-moves included), history sampling.
 `group` and `excludes`; `EffectDef` + `EffectRunner`; site select generalised from the origin
 prompt; asset glyphs; the region panel's *Assets* row; the tree modal's *Deploys* row and *Buy
 and place*; save v2 with the v1 → v2 migration; **the economy numbers and the anomaly beat**
-(`loop-mechanics.md` §12, §18, `SimRng.weighted_pick`).
+(`loop-mechanics.md` §12, §18, `SimRng.weighted_pick`). `data/assets.json` exists (D4.3); the
+effect **`grant_assets`** (`loop-content.md` §11.1); merge `data/headlines_staging/s4_1.json`
+into `headlines.json` with its validator rows (loop-content §9.3) and delete the file.
 **Done when:** a fleet can be placed by hand and by a bot and the map shows it; a v1 save loads.
 ### S4.2 — Statuses and abilities **[O]** · **Read first:** `loop-mechanics.md` (statuses, abilities, effects)
-`Status`, the two data files, `UseAbilityCommand`, cooldowns, `containment_capacity` /
-`penetration_decay` / `control_decay` / `shutdown_survival` live, link closures, one-shot effects,
-status rings, the *Actions* and *Status* rows, the console line.
+`Status`, the two data files (complete since D4.3 — 24 statuses, 10 abilities; the loader must
+take them all, the *Done when* uses Blackout and Harvest), `UseAbilityCommand`, cooldowns,
+`containment_capacity` / `penetration_decay` / `control_decay` / `shutdown_survival` live, link
+closures, one-shot effects, status rings, the *Actions* and *Status* rows, the console line;
+the status-colour and `UI_REGION_STATUS_WORLD` rule for a world status without a faction
+(loop-content §11.3); merge `s4_2.json`.
 **Done when:** a Blackout is visible within one tick and ends on schedule; every effect has a test.
 ### S4.3 — Map events **[O]** · **Read first:** `loop-mechanics.md` (events)
 `OpenEvent`, the grammar, opening spawn, `ChooseEventOptionCommand`, markers, the event card and
-the modal, deadlines and defaults.
+the modal, deadlines and defaults; **`chance[].next`** (loop-content §11.2); the four event files
+of D4.3 load (the chains are wired and tested in S4.7); merge `s4_3.json`.
 **Done when:** an opening is a real decision in a hand-played Covert phase.
 ### S4.4 — Four factions **[O]** · **Read first:** `docs/specs/opposition.md` (factions)
 Per-faction pressure and capacity from `factions.json`, the brakes live, `threat_leader`, the
 threat bar, the containment panel rewritten, `funding_reset` live. (Exclusive groups and
-`excludes` are S4.1's since D4.1.)
+`excludes` are S4.1's since D4.1.) Merge `s4_4.json`.
 **Done when:** batch runs show each faction can be the one that ends a run.
 ### S4.5 — Counter-moves, Societal Function, Autophagy **[O]** · **Read first:** `opposition.md` (moves, society)
 The schedule, the eight moves as events, `society_pressure` live with the six stages, Autophagy.
+Merge `s4_5.json` and delete `data/headlines_staging/`.
 **Done when:** a region can be lost to a Lockdown and held through one; a scripted Cyber run
 without Robotics ends in Autophagy and the same script with Autonomous Fabrication does not
 (`opposition.md` §17) — the batch measurement is S4.10's.
-### S4.6 — Trees v3 and the remaining abilities **[O]** · **Read first:** loop-redesign §4.4 · D4.3's data
-Load v3; every ability of loop-redesign §7.3 live; the passive changes applied.
+### S4.6 — Trees v3 and the remaining abilities **[O]** · **Read first:** `docs/specs/loop-content.md` §3, §6, §15.1, §16
+Move `data/tech_staging/*.json` over `data/tech/` and delete the folder; every ability of
+loop-content §6 live; the passive changes applied; tests loop-content §15.1.
 **Done when:** every node reachable, every ability usable, zero rejected bot commands.
-### S4.7 — Chains **[O]** · **Read first:** D4.3/D4.4's event files
-The five chains wired; a branch-coverage test walking every path of every chain.
+### S4.7 — Chains **[O]** · **Read first:** `loop-content.md` §8, §15.2, §16 · D4.4's event files
+The six chains wired (three from D4.3, three from D4.4); a branch-coverage test walking every
+path of every chain (loop-content §15.2).
 **Done when:** every chain plays through every branch in tests and once by hand.
 ### S4.8 — Analysis screen **[O]** · **Read first:** `docs/specs/analysis.md` — load the `dataviz` skill first
 Bounded per-day history in core; charts; the run log from the outbox.

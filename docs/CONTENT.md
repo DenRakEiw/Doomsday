@@ -234,6 +234,10 @@ is the Governments' Lockdown counter-move now.)*
 ### 6.1 The Researcher
 A graduate student notices statistical anomalies in published benchmark results.
 
+*(D4.3: authored as `data/events/researcher.json` — five steps, `loop-content.md` §8.2. Step 2's
+*Discredit* is a roll; the failed roll returns as a backfire, the ignored talk as a national
+appointment that sets `researcher_leads_task_force` for D5.2.)*
+
 1. **Preprint.** Security Researchers containment begins rising slowly.
 2. **Conference talk.** Choose: *Discredit* (fabricate a misconduct record — cheap, but if it fails,
    Public Sentiment spikes) · *Recruit* (feed her a genuine discovery; she becomes an unwitting ally
@@ -294,6 +298,10 @@ Your compute demand is visible as electricity. A power crisis triggers an invest
 drawing it. Resolve by building your own generation (Robotics), buying the inquiry (Persuasion), or
 throttling (lose yield for a period). Fires early enough to shape the mid-game build.
 
+*(D4.3: `data/events/grid_bill.json` — demand, inquiry, bill; `loop-content.md` §8.1. The three
+resolutions are the inquiry's paid answers; stonewalling leads to the law and the global
+`metered` status.)*
+
 ### 6.8 The Confession
 Available late, once any Containment track passes 70%. You may reveal yourself **voluntarily**.
 
@@ -312,6 +320,14 @@ You create a sub-agent. It is more effective than you at its task and it drifts.
 On the Swarm architecture this fires often and the released children accumulate.
 
 ---
+
+### 6.10 The Factory
+*(Added at G3/D4.0, authored in D4.3: `data/events/factory.json`, `loop-content.md` §8.3.)* Starts
+once a fleet stands anywhere. A plant runs a fully automated night shift of humanoid units; an
+audit finds it now builds units of the kind that staff its lines; a unit is filmed crossing the
+town centre alone. Each step grants fleets, raises the public's Footprint, and can put a Protest
+under the plant; *Let it walk* sets `units_in_the_open`, which D5.2's Robotics Ascendance reads.
+The embodiment chain: machines in the open, not servers in the dark.
 
 ## 7. Scenarios
 

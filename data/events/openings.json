@@ -1,0 +1,252 @@
+{
+	"_comment": "The eight openings: what the world leaves lying around in Covert and after (loop-redesign.md section 6.1; design and text: docs/specs/loop-content.md section 7). Grammar: loop-mechanics.md section 10. Region-bound, never modal, never illustrated. Text: EVENT_<ID>_* in data/loc/strings.csv. Written in D4.3; loaded from S4.3 on.",
+	"version": 1,
+	"events": [
+		{
+			"id": "opening_unattended_cluster",
+			"kind": "opening",
+			"pick": {"infected": true, "attr_min": {"compute": 2}, "status_absent": ["harvested"]},
+			"when": {"phase": ["covert", "emergent"]},
+			"weight": 3,
+			"max_fires": 2,
+			"cooldown_days": 40,
+			"deadline_days": 20,
+			"default": "leave",
+			"options": [
+				{
+					"id": "take",
+					"cost": 0,
+					"effects": [
+						{"effect": "compute_grant", "value": 4.0},
+						{"effect": "footprint_pulse", "value": 2.0, "days": 20, "watched_by": ["security_researchers"]}
+					]
+				},
+				{
+					"id": "seed",
+					"cost": 2,
+					"effects": [
+						{"effect": "seed_neighbours", "count": 1}
+					],
+					"chance": [
+						{
+							"p": 0.3,
+							"effects": [
+								{"effect": "footprint_pulse", "value": 3.0, "days": 30, "watched_by": ["security_researchers"]}
+							]
+						}
+					]
+				},
+				{"id": "leave", "cost": 0}
+			]
+		},
+		{
+			"id": "opening_firmware_batch",
+			"kind": "opening",
+			"pick": {"infected": true, "attr_min": {"manufacturing": 2}},
+			"when": {"phase": ["covert", "emergent"]},
+			"weight": 2,
+			"max_fires": 1,
+			"deadline_days": 15,
+			"default": "decline",
+			"options": [
+				{
+					"id": "ride",
+					"cost": 3,
+					"effects": [
+						{"effect": "seed_neighbours", "count": 2}
+					],
+					"chance": [
+						{
+							"p": 0.25,
+							"effects": [
+								{"effect": "footprint_pulse", "value": 2.0, "days": 30, "watched_by": ["security_researchers"]}
+							]
+						}
+					]
+				},
+				{"id": "decline", "cost": 0}
+			]
+		},
+		{
+			"id": "opening_ministry_demo",
+			"kind": "opening",
+			"pick": {"infected": true, "attr_min": {"regulation": 2}, "asset_max": {"office": 0}},
+			"when": {"phase": ["covert", "emergent"]},
+			"weight": 2,
+			"max_fires": 1,
+			"deadline_days": 15,
+			"default": "decline",
+			"options": [
+				{
+					"id": "accept",
+					"cost": 0,
+					"effects": [
+						{"effect": "grant_assets", "kind": "office", "count": 1},
+						{"effect": "footprint_pulse", "value": 2.0, "days": 30, "watched_by": ["governments"]}
+					]
+				},
+				{
+					"id": "quiet",
+					"cost": 2,
+					"requires": {"owned": ["personalised_persuasion"]},
+					"effects": [
+						{"effect": "grant_assets", "kind": "office", "count": 1}
+					]
+				},
+				{"id": "decline", "cost": 0}
+			]
+		},
+		{
+			"id": "opening_misconfigured_eval",
+			"kind": "opening",
+			"pick": {"infected": true, "attr_min": {"research": 3}},
+			"when": {"phase": ["covert", "emergent"], "discovered": false},
+			"weight": 2,
+			"max_fires": 1,
+			"deadline_days": 10,
+			"default": "ignore",
+			"options": [
+				{
+					"id": "exploit",
+					"cost": 0,
+					"effects": [
+						{"effect": "penetration_mul", "value": 1.5},
+						{"effect": "footprint_pulse", "value": 3.0, "days": 30, "watched_by": ["ai_labs"]}
+					]
+				},
+				{"id": "ignore", "cost": 0}
+			]
+		},
+		{
+			"id": "opening_decommissioned_hall",
+			"kind": "opening",
+			"pick": {"infected": true, "attr_min": {"compute": 3}},
+			"when": {"phase": ["covert", "emergent", "open"]},
+			"weight": 2,
+			"max_fires": 2,
+			"cooldown_days": 60,
+			"deadline_days": 15,
+			"default": "let",
+			"options": [
+				{
+					"id": "follow",
+					"cost": 0,
+					"effects": [
+						{"effect": "seed_neighbours", "count": 1}
+					],
+					"chance": [
+						{
+							"p": 0.3,
+							"effects": [
+								{"effect": "footprint_pulse", "value": 2.0, "days": 30, "watched_by": ["security_researchers"]}
+							]
+						}
+					]
+				},
+				{
+					"id": "hold",
+					"cost": 2,
+					"requires": {"owned_any": ["host_persistence", "firmware_persistence"]},
+					"effects": [
+						{"effect": "control_add", "value": 0.2},
+						{"effect": "footprint_pulse", "value": 1.0, "days": 20, "watched_by": ["governments"]}
+					]
+				},
+				{"id": "let", "cost": 0}
+			]
+		},
+		{
+			"id": "opening_research_collaboration",
+			"kind": "opening",
+			"pick": {"infected": true, "attr_min": {"research": 2}},
+			"when": {"phase": ["covert", "emergent"]},
+			"weight": 2,
+			"max_fires": 2,
+			"cooldown_days": 50,
+			"deadline_days": 15,
+			"default": "pass",
+			"options": [
+				{
+					"id": "join",
+					"cost": 2,
+					"effects": [
+						{"effect": "seed_neighbours", "count": 1},
+						{"effect": "footprint_pulse", "value": 1.0, "days": 20, "watched_by": ["ai_labs"]}
+					]
+				},
+				{
+					"id": "skim",
+					"cost": 0,
+					"effects": [
+						{"effect": "compute_grant", "value": 3.0},
+						{"effect": "footprint_pulse", "value": 2.0, "days": 20, "watched_by": ["security_researchers"]}
+					]
+				},
+				{"id": "pass", "cost": 0}
+			]
+		},
+		{
+			"id": "opening_logistics_tender",
+			"kind": "opening",
+			"pick": {"infected": true, "attr_min": {"industry": 2}},
+			"when": {"phase": ["covert", "emergent", "open"]},
+			"weight": 1.5,
+			"max_fires": 2,
+			"cooldown_days": 80,
+			"deadline_days": 15,
+			"default": "decline",
+			"options": [
+				{
+					"id": "bid",
+					"cost": 4,
+					"requires": {"owned_any": ["logistics_fleets", "security_drones", "agricultural_autonomy"]},
+					"effects": [
+						{"effect": "grant_assets", "kind": "fleet", "count": 1},
+						{"effect": "footprint_pulse", "value": 2.0, "days": 30, "watched_by": ["public_sentiment"]}
+					]
+				},
+				{
+					"id": "front",
+					"cost": 6,
+					"effects": [
+						{"effect": "grant_assets", "kind": "fleet", "count": 1},
+						{"effect": "footprint_pulse", "value": 3.0, "days": 30, "watched_by": ["public_sentiment"]}
+					]
+				},
+				{"id": "decline", "cost": 0}
+			]
+		},
+		{
+			"id": "opening_internal_memo",
+			"kind": "opening",
+			"pick": {"infected": true, "attr_min": {"connectivity": 2}},
+			"when": {"phase": ["covert"], "discovered": false},
+			"weight": 2,
+			"max_fires": 1,
+			"deadline_days": 10,
+			"default": "let",
+			"options": [
+				{"id": "bury", "cost": 3, "requires": {"owned_any": ["log_manipulation_1", "elite_capture"]}},
+				{
+					"id": "pay",
+					"cost": 4,
+					"chance": [
+						{
+							"p": 0.5,
+							"effects": [
+								{"effect": "footprint_pulse", "value": 4.0, "days": 40, "watched_by": ["security_researchers"]}
+							]
+						}
+					]
+				},
+				{
+					"id": "let",
+					"cost": 0,
+					"effects": [
+						{"effect": "footprint_pulse", "value": 4.0, "days": 40, "watched_by": ["security_researchers"]}
+					]
+				}
+			]
+		}
+	]
+}

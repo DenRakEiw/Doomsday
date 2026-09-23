@@ -1,0 +1,42 @@
+{
+	"_comment": "The four asset kinds and their base effects, applied where an asset of the kind stands (loop-mechanics.md section 6; loop-redesign.md section 7.1). Every modifier is scoped {\"asset\": kind} by the loader; a scope in this file is an error. Written in D4.3 with loop-mechanics section 6.1's numbers; loaded from S4.1 on.",
+	"version": 1,
+	"assets": [
+		{
+			"kind": "fleet",
+			"watched_by": ["public_sentiment"],
+			"glyph": "ASSET_FLEET",
+			"modifiers": [
+				{"target": "hardware", "op": "add", "value": 1.0},
+				{"target": "control_growth", "op": "mul", "value": 1.3},
+				{"target": "shutdown_survival", "op": "add", "value": 0.3}
+			]
+		},
+		{
+			"kind": "lab",
+			"watched_by": ["security_researchers"],
+			"glyph": "ASSET_LAB",
+			"modifiers": [
+				{"target": "anomaly_value", "op": "mul", "value": 1.3},
+				{"target": "yield", "op": "mul", "value": 1.2}
+			]
+		},
+		{
+			"kind": "tap",
+			"watched_by": ["governments"],
+			"glyph": "ASSET_TAP",
+			"modifiers": [
+				{"target": "yield", "op": "mul", "value": 1.2},
+				{"target": "control_growth", "op": "mul", "value": 1.2}
+			]
+		},
+		{
+			"kind": "office",
+			"watched_by": [],
+			"glyph": "ASSET_OFFICE",
+			"modifiers": [
+				{"target": "containment_capacity", "op": "mul", "value": 0.5}
+			]
+		}
+	]
+}

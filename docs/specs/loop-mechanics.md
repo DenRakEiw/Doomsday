@@ -71,9 +71,9 @@ illustration slot (M6).
 | `core/command.gd` `command_codec.gd` `sim_event.gd` `sim_rng.gd` `simulation.gd` | each | reasons (§11.3, §9.3, §10.5), codec rows, event constants (§14), `weighted_pick` (§12), tick order (§4), queries (§3.5) |
 | `core/save/world_serializer.gd` | S4.1 | v2 and the migration (§13) |
 | `core/policy/policy.gd` and the six policies | S4.1 / S4.3 | `best_site`, `answer_events` (§19) |
-| `data/assets.json` | S4.1 | the four kinds with loop-redesign §7.1's base effects — **S4.1 writes it from §6.2**; D4.3 may retune the numbers, not the shape |
-| `data/statuses.json` `data/abilities.json` | S4.2 | S4.2 writes the **two** entries §21.2 needs to prove the machinery (`blackout` and `harvested` with `blackout` and `harvest`); D4.3 writes the rest |
-| `data/events/openings.json` | S4.3 | S4.3 writes **one** opening (§21.3); D4.3 writes the eight |
+| `data/assets.json` | S4.1 | the four kinds with loop-redesign §7.1's base effects — **written by D4.3** (`loop-content.md` §4) with §6.2's numbers; S4.1 loads it *(D4.3)* |
+| `data/statuses.json` `data/abilities.json` | S4.2 | **written in full by D4.2 and D4.3** (24 statuses, 10 abilities — `loop-content.md` §5, §6); S4.2 loads them and proves the machinery on `blackout` and `harvested` *(D4.3)* |
+| `data/events/openings.json` and the three chain files | S4.3 | **written by D4.3** (`loop-content.md` §7, §8); S4.3 loads every `events/*.json` and proves the machinery on `opening_unattended_cluster` *(D4.3)* |
 | `data/tech/*.json` | S4.1 | **only** `groups` and `group: "vectors"` on the seven Tier 1 Infiltration vectors, and `deploy` on Logistics Fleets (S4.1's *Done when* needs one deploy node); every other v3 field is D4.3's |
 | `data/balance.json` | S4.1 / S4.3 | §18 |
 | `data/SCHEMA.md` | each | the new files and fields, the way S3.1 did it for v2 |
@@ -599,6 +599,7 @@ event is an error; `per_hardware` on `compute_grant` makes it `R`).
 | `set_flag` | `flag`, `days ≥ 1` (0 = permanent → a story flag) | | `days > 0`: `timed_flags[flag] = day + days`, source `"flag:<flag>"` with the flag; `days == 0`: appended to `story_flags` (once) | `flag_set {flag, until_day}` (−1 for permanent) |
 | `apply_status` *(D4.2, S4.2)* | `status`, `level? (1)`, `days? (0 = the level's own)` | | `StatusSystem.apply` in the context's region (0 in a global container: on the agent) with the context's source, `option ""`; `days > 0` overrides `until_day` | `status_started` |
 | `wipe` *(D4.2, S4.2)* | `value [0, 1]` | R | `penetration ← penetration × clamp(value + stat("shutdown_survival", r), 0, 1)` — the shutdown `shutdown_survival` was reserved for; a region at 0 stays seeded (§7.5) | `region_wiped {region, from, to, source}` |
+| `grant_assets` *(D4.3, S4.1)* | `kind`, `count ≥ 1` | R | the mirror of `destroy_assets`: `set_assets(region, kind, held + count)` — an asset the world hands over (an opening, a chain step) | `asset_deployed {node: "", ability: "", kind, region, count}` |
 
 `compute_grant per_hardware` at the initial numbers is Harvest's *8 × hardware(r)*: the ability's
 status has `on_start: [{"effect": "compute_grant", "value": 8, "per_hardware": true}]`.
@@ -750,7 +751,7 @@ var id: String                     # unique within the event; snake case
 var cost: float                    # ≥ 0
 var requires: Dictionary           # §10.2
 var effects: Array[EffectDef]
-var chance: Array[Dictionary]      # [{"p": (0, 1], "effects": [EffectDef]}], rolled in order
+var chance: Array[Dictionary]      # [{"p": (0, 1], "effects": [EffectDef], "next"?: [...]}], rolled in order; `next` on chain steps only (D4.3)
 var flags: Array[String]           # story flags set when this option is chosen
 var status_level: int              # counter-move: 0 (default) = the open event's level (D4.2 §6.3); n = level n
 var status_days: int               # counter-move: 0 (default) = the level's days; n = n days instead (D4.2)
@@ -779,6 +780,11 @@ with `"start": true`, its `pick` and `when` like an opening's; the other steps `
 an eligibility of their own, or omitted = global) and reachable only through `next`. `next` on an
 option schedules the step `delay_days` after the answer (§10.4); a step named by nobody and not
 `start` is a validation error, and so is a `next` into another chain or into a non-chain event.
+*(D4.3)* A `chance` entry of a chain step may carry its own `next` (same shape, possibly empty):
+**when that entry's roll succeeds, its `next` replaces the option's `next` for this answer**; a
+failed roll leaves the option's `next` in force; of several successful entries with `next` the
+last wins. An empty `next` on a successful roll ends the chain. That is how a step routes on a
+roll (The Researcher's *Discredit*, `loop-content.md` §8.2) without a reveal step.
 Strings per event: `EVENT_<ID>_TITLE`, `EVENT_<ID>_BODY`, per option `EVENT_<ID>_OPT_<OPTION>` and
 `EVENT_<ID>_RESULT_<OPTION>` (§17.5).
 
@@ -849,7 +855,8 @@ never existed) · `unknown_option` · `option_locked` (§10.2) · `insufficient_
 3. `flags` of the option → `set_flag` semantics with `days 0` (story flags).
 4. `effects` in order, context `{region, source: "event:<def id>"}`; then each `chance` entry:
    `rng.chance(p)` → its effects. Every `chance` is rolled, in order, whatever the earlier ones
-   did (the stream is what it is).
+   did (the stream is what it is). *(D4.3)* A successful entry with `next` sets the `next` list
+   step 7 schedules (the last such entry wins); otherwise step 7 uses the option's.
 5. Counter-move (`def.status != ""` and not `skip_status`): `StatusSystem.apply(id, region,
    "faction:<faction>", level, option.id)` with `level = option.status_level if > 0 else
    open_event.level`, and `until_day = day + option.status_days` when that is > 0 *(D4.2)*.
@@ -1007,7 +1014,7 @@ Rules (each a `ValidationError` with `file` and `path`), beyond those stated inl
    fields for that effect; `R` effects in a global container; `status` / `faction` / `kind` /
    `ids` ids exist (`faction` may be `"all"`); a `flag` colliding with `ModifierDef.FLAGS`; a
    `set_flag` flag or a `flags` entry that no `requires.flag` / `when` ever reads is **not** an
-   error (a flag may be set for a later chain).
+   error (a flag may be set for a later chain); `grant_assets`: `kind` a kind, `count` ≥ 1 *(D4.3)*.
 5. **Statuses:** §7.1; `closes_links` kinds in `LinkDef.KINDS` or `["all"]` alone.
 6. **Abilities:** §9.1; `target` one of two; `applies` exactly one key; `deploy` kind exists.
 7. **Events:** §10.1; `kind` one of three; `options` 2…4 with unique ids; `default` names an
@@ -1018,7 +1025,8 @@ Rules (each a `ValidationError` with `file` and `path`), beyond those stated inl
    `{"rule": id}` with `id` in `EventDef.PICK_RULES` (counter-moves only; the names of
    `CounterMoveRules.RULES`, opposition.md §6.4 *(D4.2)*); `status_days` int ≥ 0, counter-move
    options only; `status_level` int ≥ 0; `when` keys from
-   §10.3 plus ticker §3.3 B; `illustration` matches `ID_PATTERN`.
+   §10.3 plus ticker §3.3 B; `illustration` matches `ID_PATTERN`; `chance[].next` only on chain
+   steps, with the rules of an option's `next` (an empty list is legal) *(D4.3)*.
 8. **Tree v3:** §11.1.
 9. **Strings** (roots with a `loc/strings.csv` only): per status, ability and event the keys of
    §17.5 with non-empty `en` **and** `de`; `ASSET_<KIND>_NAME` / `_PLURAL` for the four kinds;
@@ -1129,7 +1137,7 @@ per region:
 
 | Channel | Value |
 | --- | --- |
-| R | **status colour index** / 255: 0 none · 1 a player status (`ACCENT`) · 2…5 the faction of the world status (`Faction.FACTION_IDS` index + 2). With several statuses: the world's wins over the player's; among world statuses the one with the most days left |
+| R | **status colour index** / 255: 0 none · 1 a player status (`ACCENT`) · 2…5 the faction of the world status (`Faction.FACTION_IDS` index + 2). With several statuses: the world's wins over the player's; among world statuses the one with the most days left. *(D4.3)* The index is read off the status's **source**: `faction:<id>` → that faction; anything else (`ability:`, `event:`, `effect`) → 1, whatever the def's `origin` — a world status a chain applies (`metered`) has no faction |
 | G | 255 while the region is **eligible** in site select, else 0 |
 | B | 255 while the region is in a **scope flash** (§16.2), else 0 |
 | A | 255 if a standing status has `border: true` (Lockdown), else 0 |
@@ -1191,8 +1199,9 @@ order, each hidden when empty:
     region, application order: `LabelCaption` `STATUS_<ID>_CODE` in a `Chip` (`ChipAccent` for a
     player status, a `ChipFaction` variation — `BG_3` fill, the faction colour as text — for the
     world's) · `Label` `STATUS_<ID>_NAME` · `LabelCaption` `UI_REGION_STATUS_DAYS` (`{days}`) ·
-    a second line `LabelCaption` in `TEXT_1`: `UI_REGION_STATUS_YOURS` or
-    `UI_REGION_STATUS_FACTION` (`{faction}`), followed by `UI_REGION_STATUS_OPTION` (`{option}`
+    a second line `LabelCaption` in `TEXT_1`: `UI_REGION_STATUS_YOURS`, or
+    `UI_REGION_STATUS_FACTION` (`{faction}`) for a `faction:` source, or `UI_REGION_STATUS_WORLD`
+    for a world status with no faction *(D4.3)*, followed by `UI_REGION_STATUS_OPTION` (`{option}`
     = `EVENT_<DEF>_OPT_<OPTION>`, only when `option != ""` — the def id comes from the status's
     `source` `event:<id>` or, for a faction status, from the counter-move def whose `status` it
     is) · tooltip on the row `STATUS_<ID>_DETAIL`. The *Cancel* `ConsoleButton`
@@ -1423,6 +1432,7 @@ differently in German, this line follows it.
 | `UI_REGION_STATUS_YOURS` | yours | deins |
 | `UI_REGION_STATUS_FACTION` | {faction} | {faction} |
 | `UI_REGION_STATUS_OPTION` | · {option} | · {option} |
+| `UI_REGION_STATUS_WORLD` *(D4.3, in the table)* | the world | die Welt |
 | `UI_REGION_STATUS_CANCEL` | Cancel | Abbrechen |
 | `UI_REGION_ACTIONS` | Actions | Aktionen |
 | `UI_REGION_ACTION_COST` | {cost} | {cost} |
@@ -1512,6 +1522,7 @@ Niemand hat etwas bemerkt. — `{region}` in a body is `REGION_<ID>`, filled by 
 | `EFFECT_FOOTPRINT_PULSE` | Footprint {value} for {days} days | Fußabdruck {value} für {days} Tage |
 | `EFFECT_SET_FLAG` | For {days} days | Für {days} Tage |
 | `EFFECT_SET_FLAG_PERMANENT` | From now on | Von jetzt an |
+| `EFFECT_GRANT_ASSETS` *(D4.3, in the table)* | Gains {count} × {kind} here | Erhält {count} × {kind} hier |
 
 The existing `EFFECT_COMPUTE_GRANT`, `_CONTAINMENT_ROLLBACK`, `_HARM_BURST`, `_FUNDING_RESET`
 *(exist)*. Signed values use `Format` `PLAIN`; `{statuses}` joins names.

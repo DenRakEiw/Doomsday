@@ -14,10 +14,10 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D4.3 — Trees v3, abilities, openings, three chains** (IMPLEMENTATION Block 7). Read first: loop-redesign §4.4, §6.1, §7.3 · tech-trees.md §7 · CONTENT §6.1, §6.7 · `loop-mechanics.md` §6–§10 (grammars) · **`opposition.md` §18** (what D4.2 needs from D4.3: status and ability ids, `martial`/`captured` already defined, headlines) |
+| **Next step** | **D4.4 — Chains, second batch; Analysis screen spec** (IMPLEMENTATION Block 7). Read first: CONTENT §6.2, §6.3, §6.5 · UI §3 (Analysis) · `loop-mechanics.md` §10 (events) · **`loop-content.md` §8, §11, §17** (the chain format as used, the two vocabulary extensions, what D4.4 inherits) · `opposition.md` §18 (Analysis series) · m3-screens §7.4 (the results grid, seed of the run log) |
 | **Model for it** | **Fable** (no switch) |
-| **After it** | `/clear` → D4.4 Chains and Analysis → `/model opus` → S3.P (eight items) → S4.1 … S4.10 |
-| **Last completed** | D4.2 — Opposition: `docs/specs/opposition.md`, `data/factions.json`, `data/statuses.json` (15 world and answer statuses), `data/events/counter_moves.json` (11 events), 169 strings en/de; five amendments in `loop-mechanics.md` (2026-09-23) |
+| **After it** | `/clear` → `/model opus` → S3.P (eight items) → S4.1 … S4.10 |
+| **Last completed** | D4.3 — Loop content: `docs/specs/loop-content.md`; v3 trees staged in `data/tech_staging/`; `data/assets.json`, 9 player statuses, `data/abilities.json` (10), 8 openings, The Grid Bill / The Researcher / The Factory as `data/events/*.json`; 62 headlines staged per build step in `data/headlines_staging/`; 305 strings en/de (2026-09-23) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -93,8 +93,8 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] D4.0 [F] Core loop redesign *(added at G3; `docs/specs/loop-redesign.md`; Blocks 7–8 rewritten)*
 - [x] D4.1 [F] Loop mechanics: assets, statuses and abilities, map events, site select *(`docs/specs/loop-mechanics.md`)*
 - [x] D4.2 [F] Opposition: four factions, counter-moves, Societal Function, Autophagy *(`docs/specs/opposition.md`)*
-- [ ] **D4.3 [F] Trees v3, abilities, openings, three chains**
-- [ ] D4.4 [F] Chains, second batch; Analysis screen spec — ⇄ **then `/model opus`**
+- [x] D4.3 [F] Trees v3, abilities, openings, three chains *(`docs/specs/loop-content.md`)*
+- [ ] **D4.4 [F] Chains, second batch; Analysis screen spec** — ⇄ **then `/model opus`**
 
 **Block 8 — M4 build · Opus** *(rewritten at D4.0)*
 - [ ] S3.P [O] Punch list from G3 (eight items)
@@ -672,6 +672,42 @@ without new information.
   its abilities at them. **D4.3 stages only the v3 trees** (`data/tech_staging/`, as D3.1 did —
   S4.1's loader rejects v3 fields) and writes assets/abilities/statuses/events to final places.
 
+- **2026-09-23** (D4.3) — **The v3 trees are staged in `data/tech_staging/`, the headlines in
+  `data/headlines_staging/s4_<n>.json`** (one file per build step; the step appends the list to
+  `headlines.json` and deletes the file); every other D4.3 file is final in place. `headlines.json`
+  is validated against the live event catalogue, so a headline on an M4 event cannot go in yet.
+- **2026-09-23** (D4.3) — **Two vocabulary extensions requested, not worked around:**
+  `grant_assets {kind, count}` (S4.1 — the mirror of `destroy_assets`; the ministry demo, the
+  logistics tender, the Grid Bill's own generation and The Factory hand over assets) and
+  `chance[].next` on chain steps (S4.3 — a successful roll replaces the option's `next`, an empty
+  list ends the chain; The Researcher's *Discredit* routes on it). Both written into
+  `loop-mechanics.md` marked *(D4.3)*.
+- **2026-09-23** (D4.3) — **A world status with no faction draws in `ACCENT`** and its panel line
+  reads `UI_REGION_STATUS_WORLD`: the colour index is read off the status's *source*
+  (`faction:<id>` or not), never off the def's `origin`. `metered` (the Grid Bill's law) is the
+  first such status.
+- **2026-09-23** (D4.3) — **Harvest grants 3 Compute per hardware unit (loop-redesign said 8),
+  Squeeze 2 / 3 (said 4 / 6):** a tier-4 region has 7 units, so 8 per unit was fifty days of a
+  whole world's income for one press. `loop-content.md` §5 has the arithmetic; G4 retunes.
+- **2026-09-23** (D4.3) — **Cyber's Tier 2/3 nodes lose *all* permanent Harm, Societal pressure
+  and yield penalties** — Sovereign Debt Pressure's scoped `+4` and Regional Blackout's /
+  Cascading Grid Failure's `yield ×0.9 / ×0.85` included, which loop-redesign §4.4's rows omitted:
+  the ability statuses carry every one of those costs now. Cyber's standing Footprint +31 → +14.
+  Every Tier 1 deploy node costs one more, the Robotics ones too (§4.3's rule over the table).
+- **2026-09-23** (D4.3) — **Lobby has one cost (8) and one eligibility (office ≥ 1) at both
+  levels**; Halt's L1 Harm is +0.3 unscoped; Reroute seeds the neighbours and speeds the hub
+  instead of "`spread_seed ×2` from the region" (`spread_seed` is read for the *target*). A status
+  cannot be scoped by attribute and an ability has one cost — the vocabulary is not extended for
+  one number each. `loop-content.md` §14.
+- **2026-09-23** (D4.3) — **The Factory's Protest is `apply_status protest` from the chain** (50 %
+  on *Let them build*), not a scheduled `cm_protest`: a protest under the plant must not depend
+  on the public's containment level. `units_in_the_open` is the flag D5.2's Robotics Ascendance
+  reads; `researcher_leads_task_force` the Task Force's.
+- **2026-09-23** (D4.3) — **The 32 rewritten `TECH_*_EFFECT` lines are live now while the trees
+  are v2 until S4.6.** The numeric list in the detail pane stays true to the loaded data; only the
+  authored sentence runs ahead, on a branch nobody plays for judgement. A second staged string
+  table would have been a merge with no upside.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
@@ -699,15 +735,16 @@ change either way. (S2.4's second question — the dark chip — was answered at
   (`HTTPClient` or a Python driver over the S1.8 runners — decide in M6). Cost control: a per-run
   call budget and a cache of digest → answer keyed by model, so a replay costs nothing.
 - **D5.2 endings** must distinguish Ascendance by deaths share (decision above).
-- **D4.3 (from D4.2, `opposition.md` §18):** provide statuses `crisis`, `silenced`, `shortage`,
-  `rerouted`, `paused`, `harvested`, `blackout` and abilities `squeeze`, `blackout`, `halt`,
-  `reroute`, `silence`, `harvest`, `fabricate`, `pause`, **`suppress` → `martial`, `lobby` →
-  `captured`** (both already in `data/statuses.json`, two levels each); every Cyber status watched by
-  `governments` (Blackout, Halt also `public_sentiment`), `harvested` by `security_researchers`;
-  consider `society_pressure add 4` on `harvested`; headlines for `counter_move_prepared`, the
-  eleven counter-move `event_opened`s, `society_stage_changed` (stages 3 and 5), `region_wiped`,
-  `threat_leader_changed`, `funding_reset`, outcome `lose_autophagy`. `society_pressure` on the
-  Cyber statuses is calibrated against `opposition.md` §8.1 (a Blackout L1 = 8 disorder).
+- **D4.4 (from D4.3, `loop-content.md` §17):** the chain format as used is `data/events/researcher.json`
+  (the richest: `chance[].next`, story flags, a world status applied from an option); `grant_assets`
+  and `chance[].next` exist in the grammar; The Benchmark as an Audit variant can reuse `cm_audit`'s
+  options and `apply_status audit`; the Operator's standing Compute bonus is a **global player
+  status with `yield ×1.x`** (a global status leaves regional targets unscoped — nothing new
+  needed). Illustration ids so far: 8 counter-moves (D4.2) + 7 chain steps (D4.3); ~25 is the
+  budget. The Analysis run log lists `event_opened` / `event_answered` with def and option ids.
+- **D5.2 (from D4.3):** story flags to read — `researcher_leads_task_force` (the Task Force
+  arrives earlier, better funded), `researcher_ally`, `researcher_removed`, `units_in_the_open`
+  / `units_recalled` (the Robotics Ascendance text), `grid_own_generation`.
 - **D4.4 (Analysis screen):** the dock button is revealed in Open and disabled with
   `UI_DOCK_NOT_YET` until S4.8 (`m3-screens.md` §6.1; the step number moved at D4.0); the results screen's summary grid (§7.4) is
   the seed of the run log. **D5.3** replaces the placeholder title (§7.1) and keeps
@@ -1299,6 +1336,15 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — D4.3 Loop content [F]
+`docs/specs/loop-content.md`: the v3 trees (groups, the two doors, 21 deploy nodes, 10 ability
+grants, Release's `requires_assets`, Cyber's permanent Harm/Society/yield penalties gone — staged
+in `data/tech_staging/`), `data/assets.json`, nine player statuses, ten abilities with final
+numbers, eight openings, The Grid Bill (3 steps), The Researcher (5) and The Factory (3) as event
+files with illustration ids, 62 headlines staged per build step, 305 strings en/de; two vocabulary
+extensions requested (`grant_assets`, `chance[].next`); every reference, symmetry, reachability,
+key and length checked by a throwaway script. Next: **D4.4 on Fable**.
 
 ### 2026-09-23 — D4.2 Opposition [F]
 `docs/specs/opposition.md`: per-faction pressure as data terms (`data/factions.json`), capacity by

@@ -1,0 +1,106 @@
+{
+	"_comment": "Headlines for the S4.2 events (ability_used, status_started). Staged: S4.2 appends this list to data/headlines.json and deletes the file (docs/specs/loop-content.md section 9).",
+	"version": 1,
+	"headlines": [
+		{
+			"id": "a_harvest",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "ability_used", "data": {"ability": "harvest"}},
+			"cooldown_days": 10
+		},
+		{
+			"id": "a_squeeze",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "ability_used", "data": {"ability": "squeeze", "level": 1}},
+			"cooldown_days": 10
+		},
+		{
+			"id": "a_squeeze_2",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "ability_used", "data": {"ability": "squeeze", "level": 2}},
+			"cooldown_days": 10
+		},
+		{
+			"id": "a_blackout",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "ability_used", "data": {"ability": "blackout", "level": 1}},
+			"cooldown_days": 10
+		},
+		{
+			"id": "a_blackout_2",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "ability_used", "data": {"ability": "blackout", "level": 2}},
+			"cooldown_days": 10
+		},
+		{
+			"id": "a_halt",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "ability_used", "data": {"ability": "halt", "level": 1}},
+			"cooldown_days": 10
+		},
+		{
+			"id": "a_halt_2",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "ability_used", "data": {"ability": "halt", "level": 2}},
+			"cooldown_days": 10
+		},
+		{
+			"id": "a_reroute",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "ability_used", "data": {"ability": "reroute"}},
+			"cooldown_days": 10
+		},
+		{
+			"id": "a_silence",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "ability_used", "data": {"ability": "silence", "level": 1}},
+			"cooldown_days": 10
+		},
+		{
+			"id": "a_silence_2",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "ability_used", "data": {"ability": "silence", "level": 2}},
+			"cooldown_days": 10
+		},
+		{
+			"id": "a_suppress",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "ability_used", "data": {"ability": "suppress"}},
+			"cooldown_days": 10
+		},
+		{
+			"id": "a_lobby",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "ability_used", "data": {"ability": "lobby"}},
+			"cooldown_days": 10
+		},
+		{"id": "a_pause", "stream": "consequence", "register": "any", "on": {"event": "ability_used", "data": {"ability": "pause"}}},
+		{
+			"id": "a_fabricate",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "ability_used", "data": {"ability": "fabricate"}},
+			"cooldown_days": 10
+		},
+		{
+			"id": "s_throttled",
+			"stream": "consequence",
+			"register": "any",
+			"on": {"event": "status_started", "data": {"status": "throttled"}},
+			"cooldown_days": 10
+		},
+		{"id": "s_metered", "stream": "reaction", "register": "any", "on": {"event": "status_started", "data": {"status": "metered"}}, "max_fires": 1}
+	]
+}

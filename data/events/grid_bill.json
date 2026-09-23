@@ -1,0 +1,125 @@
+{
+	"_comment": "The Grid Bill (CONTENT.md section 6.7; design and text: docs/specs/loop-content.md section 8.1): compute demand is visible as electricity; a review, an inquiry, and a law. Three steps; the inquiry and the bill are wire cards with illustrations gb_inquiry and gb_bill (M6). Uses the statuses throttled and metered and the story flag grid_own_generation. Written in D4.3; loaded from S4.3 on, wired in S4.7.",
+	"version": 1,
+	"events": [
+		{
+			"id": "gb_demand",
+			"kind": "chain",
+			"chain": "grid_bill",
+			"start": true,
+			"pick": {"infected": true, "attr_min": {"compute": 2}, "penetration_min": 0.3},
+			"pick_weight": "hardware_penetration",
+			"when": {"phase": ["covert", "emergent"], "regions_min": 3, "owned_count_min": 3},
+			"weight": 2,
+			"deadline_days": 15,
+			"default": "throttle",
+			"options": [
+				{
+					"id": "throttle",
+					"cost": 0,
+					"effects": [
+						{"effect": "apply_status", "status": "throttled"}
+					],
+					"next": [
+						{"step": "gb_inquiry", "delay_days": 45}
+					]
+				},
+				{
+					"id": "mask",
+					"cost": 3,
+					"requires": {"owned_any": ["grid_load_balancing", "market_microstructure"]},
+					"chance": [
+						{"p": 0.4, "effects": [], "next": []}
+					],
+					"next": [
+						{"step": "gb_inquiry", "delay_days": 60}
+					]
+				},
+				{
+					"id": "ignore",
+					"cost": 0,
+					"effects": [
+						{"effect": "footprint_pulse", "value": 2.0, "days": 30, "watched_by": ["governments"]}
+					],
+					"next": [
+						{"step": "gb_inquiry", "delay_days": 20}
+					]
+				}
+			]
+		},
+		{
+			"id": "gb_inquiry",
+			"kind": "chain",
+			"chain": "grid_bill",
+			"pick": "same",
+			"modal": true,
+			"illustration": "gb_inquiry",
+			"deadline_days": 10,
+			"default": "throttle",
+			"options": [
+				{
+					"id": "generate",
+					"cost": 4,
+					"requires": {"owned_any": ["construction_swarm", "autonomous_fabrication"]},
+					"effects": [
+						{"effect": "grant_assets", "kind": "fleet", "count": 1},
+						{"effect": "set_flag", "flag": "grid_own_generation", "days": 0}
+					]
+				},
+				{
+					"id": "buy",
+					"cost": 8,
+					"requires": {"ability": "lobby"},
+					"effects": [
+						{"effect": "apply_status", "status": "captured"}
+					]
+				},
+				{
+					"id": "throttle",
+					"cost": 0,
+					"effects": [
+						{"effect": "apply_status", "status": "throttled", "days": 45}
+					]
+				},
+				{
+					"id": "stonewall",
+					"cost": 0,
+					"effects": [
+						{"effect": "containment_add", "faction": "governments", "value": 0.05},
+						{"effect": "footprint_pulse", "value": 3.0, "days": 40, "watched_by": ["governments"]}
+					],
+					"next": [
+						{"step": "gb_bill", "delay_days": 20}
+					]
+				}
+			]
+		},
+		{
+			"id": "gb_bill",
+			"kind": "chain",
+			"chain": "grid_bill",
+			"modal": true,
+			"illustration": "gb_bill",
+			"deadline_days": 10,
+			"default": "comply",
+			"options": [
+				{
+					"id": "comply",
+					"cost": 0,
+					"effects": [
+						{"effect": "apply_status", "status": "metered"}
+					]
+				},
+				{
+					"id": "route",
+					"cost": 5,
+					"requires": {"owned_any": ["edge_caching", "model_distillation"]},
+					"effects": [
+						{"effect": "apply_status", "status": "metered", "days": 30}
+					]
+				},
+				{"id": "own", "cost": 0, "requires": {"flag": ["grid_own_generation"]}}
+			]
+		}
+	]
+}

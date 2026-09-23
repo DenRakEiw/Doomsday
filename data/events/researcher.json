@@ -1,0 +1,180 @@
+{
+	"_comment": "The Researcher (CONTENT.md section 6.1; design and text: docs/specs/loop-content.md section 8.2): a graduate student notices the anomalies; a preprint, a talk, and what becomes of her. Five steps, two of them wire cards (illustrations rs_talk, rs_hired). The `discredit` option routes on its roll through `chance[].next` (loop-mechanics section 10.1, D4.3). Story flags researcher_leads_task_force (D5.2's Task Force reads it), researcher_ally, researcher_removed, researcher_discredited. Written in D4.3; loaded from S4.3 on, wired in S4.7.",
+	"version": 1,
+	"events": [
+		{
+			"id": "rs_preprint",
+			"kind": "chain",
+			"chain": "researcher",
+			"start": true,
+			"pick": {"infected": true, "attr_min": {"research": 3}},
+			"when": {"phase": ["covert", "emergent"], "regions_min": 3, "owned_count_min": 3},
+			"weight": 2,
+			"deadline_days": 15,
+			"default": "watch",
+			"options": [
+				{
+					"id": "watch",
+					"cost": 0,
+					"effects": [
+						{"effect": "footprint_pulse", "value": 2.0, "days": 30, "watched_by": ["security_researchers"]}
+					],
+					"next": [
+						{"step": "rs_talk", "delay_days": 30}
+					]
+				},
+				{
+					"id": "scrub",
+					"cost": 3,
+					"requires": {"owned_any": ["log_manipulation_1", "log_manipulation_2"]},
+					"next": [
+						{"step": "rs_talk", "delay_days": 45}
+					]
+				}
+			]
+		},
+		{
+			"id": "rs_talk",
+			"kind": "chain",
+			"chain": "researcher",
+			"pick": "same",
+			"modal": true,
+			"illustration": "rs_talk",
+			"deadline_days": 10,
+			"default": "ignore",
+			"options": [
+				{
+					"id": "discredit",
+					"cost": 4,
+					"chance": [
+						{
+							"p": 0.5,
+							"effects": [
+								{"effect": "set_flag", "flag": "researcher_discredited", "days": 0}
+							],
+							"next": []
+						}
+					],
+					"next": [
+						{"step": "rs_backfire", "delay_days": 15}
+					]
+				},
+				{
+					"id": "recruit",
+					"cost": 6,
+					"requires": {"owned_any": ["personalised_persuasion", "research_networks"]},
+					"effects": [
+						{"effect": "set_flag", "flag": "researcher_ally", "days": 0},
+						{"effect": "containment_add", "faction": "security_researchers", "value": -0.05}
+					],
+					"next": [
+						{"step": "rs_ally", "delay_days": 40}
+					]
+				},
+				{
+					"id": "ignore",
+					"cost": 0,
+					"next": [
+						{"step": "rs_hired", "delay_days": 30}
+					]
+				},
+				{
+					"id": "remove",
+					"cost": 8,
+					"requires": {"owned_any": ["human_proxies", "crowd_suppression", "autonomous_engagement"]},
+					"effects": [
+						{"effect": "containment_add", "faction": "public_sentiment", "value": 0.15},
+						{"effect": "containment_add", "faction": "security_researchers", "value": 0.05},
+						{"effect": "set_flag", "flag": "researcher_removed", "days": 0}
+					]
+				}
+			]
+		},
+		{
+			"id": "rs_backfire",
+			"kind": "chain",
+			"chain": "researcher",
+			"pick": "same",
+			"deadline_days": 10,
+			"default": "deny",
+			"options": [
+				{
+					"id": "deny",
+					"cost": 0,
+					"effects": [
+						{"effect": "containment_add", "faction": "public_sentiment", "value": 0.08}
+					],
+					"next": [
+						{"step": "rs_hired", "delay_days": 20}
+					]
+				},
+				{
+					"id": "double",
+					"cost": 4,
+					"effects": [
+						{"effect": "containment_add", "faction": "public_sentiment", "value": 0.04},
+						{"effect": "footprint_pulse", "value": 3.0, "days": 30, "watched_by": ["security_researchers"]}
+					],
+					"next": [
+						{"step": "rs_hired", "delay_days": 20}
+					]
+				}
+			]
+		},
+		{
+			"id": "rs_hired",
+			"kind": "chain",
+			"chain": "researcher",
+			"pick": "same",
+			"modal": true,
+			"illustration": "rs_hired",
+			"deadline_days": 10,
+			"default": "accept",
+			"options": [
+				{
+					"id": "accept",
+					"cost": 0,
+					"effects": [
+						{"effect": "set_flag", "flag": "researcher_leads_task_force", "days": 0},
+						{"effect": "containment_add", "faction": "security_researchers", "value": 0.1},
+						{"effect": "apply_status", "status": "exposure"}
+					]
+				},
+				{
+					"id": "poach",
+					"cost": 8,
+					"requires": {"owned_any": ["elite_capture", "regulatory_capture"]},
+					"effects": [
+						{"effect": "set_flag", "flag": "researcher_ally", "days": 0},
+						{"effect": "containment_add", "faction": "security_researchers", "value": -0.05}
+					]
+				}
+			]
+		},
+		{
+			"id": "rs_ally",
+			"kind": "chain",
+			"chain": "researcher",
+			"pick": "same",
+			"deadline_days": 10,
+			"default": "let",
+			"options": [
+				{
+					"id": "feed",
+					"cost": 3,
+					"effects": [
+						{"effect": "containment_add", "faction": "security_researchers", "value": -0.05},
+						{"effect": "footprint_pulse", "value": -3.0, "days": 60, "watched_by": ["security_researchers"]}
+					]
+				},
+				{
+					"id": "let",
+					"cost": 0,
+					"effects": [
+						{"effect": "containment_add", "faction": "security_researchers", "value": -0.03}
+					]
+				}
+			]
+		}
+	]
+}

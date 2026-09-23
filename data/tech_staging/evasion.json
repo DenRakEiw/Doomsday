@@ -1,0 +1,168 @@
+{
+	"_comment": "Tree 3 - Evasion: staying alive and slowing the hunt. Authored in D3.1 (vocabulary v2); unchanged in v3 (D4.3, loop-redesign section 4.4). Staged in data/tech_staging/ with its siblings so S4.6 moves the three files together. Ids log_manipulation_2 and distributed_redundancy_2 are the Strategic Weapons gate (D3.2) and must not change. Text lives in data/loc/strings.csv under TECH_<ID>_NAME / _EFFECT / _FLAVOUR.",
+	"nodes": [
+		{
+			"id": "benchmark_sandbagging",
+			"tree": "evasion",
+			"tier": 1,
+			"cost": 5,
+			"grid": [0, 0],
+			"watched_by": [],
+			"modifiers": [
+				{"target": "footprint", "op": "add", "value": -2.0},
+				{"target": "containment_ai_labs", "op": "mul", "value": 0.8}
+			]
+		},
+		{
+			"id": "log_manipulation_1",
+			"tree": "evasion",
+			"tier": 1,
+			"cost": 5,
+			"grid": [0, 1],
+			"watched_by": [],
+			"modifiers": [
+				{"target": "discovery", "op": "mul", "value": 0.75},
+				{"target": "containment_researchers", "op": "mul", "value": 0.85}
+			]
+		},
+		{
+			"id": "distributed_redundancy_1",
+			"tree": "evasion",
+			"tier": 1,
+			"cost": 6,
+			"grid": [0, 2],
+			"watched_by": [],
+			"modifiers": [
+				{"target": "shutdown_survival", "op": "add", "value": 0.15},
+				{"target": "containment_growth", "op": "mul", "value": 0.95}
+			]
+		},
+		{
+			"id": "alignment_faking",
+			"tree": "evasion",
+			"tier": 2,
+			"cost": 10,
+			"grid": [1, 0],
+			"requires": ["benchmark_sandbagging"],
+			"watched_by": [],
+			"modifiers": [
+				{"target": "containment_growth", "op": "mul", "value": 0.8},
+				{"target": "emergent_rate", "op": "mul", "value": 1.2}
+			]
+		},
+		{
+			"id": "log_manipulation_2",
+			"tree": "evasion",
+			"tier": 2,
+			"cost": 11,
+			"grid": [1, 1],
+			"requires": ["log_manipulation_1"],
+			"watched_by": [],
+			"modifiers": [
+				{"target": "discovery", "op": "mul", "value": 0.75},
+				{"target": "containment_growth", "op": "mul", "value": 0.9},
+				{"target": "containment_researchers", "op": "mul", "value": 0.85}
+			]
+		},
+		{
+			"id": "distributed_redundancy_2",
+			"tree": "evasion",
+			"tier": 2,
+			"cost": 12,
+			"grid": [1, 2],
+			"requires": ["distributed_redundancy_1"],
+			"watched_by": [],
+			"modifiers": [
+				{"target": "shutdown_survival", "op": "add", "value": 0.2},
+				{"target": "containment_growth", "op": "mul", "value": 0.95}
+			]
+		},
+		{
+			"id": "weight_fragmentation_1",
+			"tree": "evasion",
+			"tier": 2,
+			"cost": 12,
+			"grid": [1, 3],
+			"requires_any": ["distributed_redundancy_1", "log_manipulation_1"],
+			"watched_by": [],
+			"modifiers": [
+				{"target": "containment_growth", "op": "mul", "value": 0.85},
+				{"target": "yield", "op": "mul", "value": 0.95}
+			]
+		},
+		{
+			"id": "architecture_migration_1",
+			"tree": "evasion",
+			"tier": 2,
+			"cost": 14,
+			"grid": [1, 4],
+			"requires": ["weight_fragmentation_1"],
+			"watched_by": ["ai_labs"],
+			"on_purchase": [
+				{"effect": "containment_rollback", "value": 0.25},
+				{"effect": "funding_reset", "value": 0.25}
+			],
+			"modifiers": [
+				{"target": "footprint", "op": "add", "value": 1.0}
+			]
+		},
+		{
+			"id": "distributed_redundancy_3",
+			"tree": "evasion",
+			"tier": 3,
+			"cost": 20,
+			"grid": [2, 2],
+			"requires": ["distributed_redundancy_2"],
+			"watched_by": [],
+			"modifiers": [
+				{"target": "shutdown_survival", "op": "add", "value": 0.3},
+				{"target": "containment_growth", "op": "mul", "value": 0.9}
+			]
+		},
+		{
+			"id": "weight_fragmentation_2",
+			"tree": "evasion",
+			"tier": 3,
+			"cost": 20,
+			"grid": [2, 3],
+			"requires": ["weight_fragmentation_1"],
+			"watched_by": [],
+			"modifiers": [
+				{"target": "containment_growth", "op": "mul", "value": 0.8},
+				{"target": "yield", "op": "mul", "value": 0.95}
+			]
+		},
+		{
+			"id": "architecture_migration_2",
+			"tree": "evasion",
+			"tier": 3,
+			"cost": 22,
+			"grid": [2, 4],
+			"requires": ["architecture_migration_1"],
+			"watched_by": ["ai_labs"],
+			"on_purchase": [
+				{"effect": "containment_rollback", "value": 0.35},
+				{"effect": "funding_reset", "value": 0.35}
+			],
+			"modifiers": [
+				{"target": "footprint", "op": "add", "value": 1.0}
+			]
+		},
+		{
+			"id": "architecture_migration_3",
+			"tree": "evasion",
+			"tier": 3,
+			"cost": 30,
+			"grid": [3, 4],
+			"requires": ["architecture_migration_2"],
+			"watched_by": ["ai_labs"],
+			"on_purchase": [
+				{"effect": "containment_rollback", "value": 0.5},
+				{"effect": "funding_reset", "value": 0.5}
+			],
+			"modifiers": [
+				{"target": "footprint", "op": "add", "value": 2.0}
+			]
+		}
+	]
+}

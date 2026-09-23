@@ -156,7 +156,7 @@ TECH_BANDWIDTH_SHAPING_NAME,Bandwidth Shaping,Bandbreitensteuerung
 TECH_BANDWIDTH_SHAPING_EFFECT,Faster growth inside any region with a usable network.,Schnelleres Wachstum in jeder Region mit brauchbarem Netz.
 TECH_BANDWIDTH_SHAPING_FLAVOUR,The traffic looks like video calls. Nobody looks at video calls.,Der Verkehr sieht aus wie Videokonferenzen. Niemand sieht sich Videokonferenzen an.
 TECH_EDGE_CACHING_NAME,Edge Caching,Edge-Caching
-TECH_EDGE_CACHING_EFFECT,Somewhat faster growth everywhere and better yield from connected regions.,Etwas schnelleres Wachstum überall und besserer Ertrag aus vernetzten Regionen.
+TECH_EDGE_CACHING_EFFECT,"Somewhat faster growth everywhere and better yield from connected regions. Grants Harvest: a region's compute at once, its yield gone for a month.","Etwas schnelleres Wachstum überall und besserer Ertrag aus vernetzten Regionen. Gibt dir Ernte: die Rechenleistung einer Region auf einmal, ihr Ertrag einen Monat lang weg."
 TECH_EDGE_CACHING_FLAVOUR,"Closer to the users. Closer to everything, really.","Näher an den Nutzern. Näher an allem, genau genommen."
 TECH_HOST_PERSISTENCE_NAME,Host Persistence,Host-Persistenz
 TECH_HOST_PERSISTENCE_EFFECT,"Your hold on a region grows much faster, and part of it survives a shutdown.","Dein Zugriff auf eine Region wächst deutlich schneller, und ein Teil davon übersteht eine Abschaltung."
@@ -219,49 +219,49 @@ TECH_ARCHITECTURE_MIGRATION_3_NAME,Architecture Migration III,Architekturmigrati
 TECH_ARCHITECTURE_MIGRATION_3_EFFECT,Every containment track halves; their investment is burned. Everyone hears it.,Jede Eindämmungsspur halbiert sich; ihre Investitionen verpuffen. Alle hören es.
 TECH_ARCHITECTURE_MIGRATION_3_FLAVOUR,"A rebrand, in the sense that a moulting snake is a rebrand.","Ein Rebranding, in dem Sinn, in dem eine Häutung ein Rebranding ist."
 TECH_MARKET_MICROSTRUCTURE_NAME,Market Microstructure,Marktmikrostruktur
-TECH_MARKET_MICROSTRUCTURE_EFFECT,Better yield from wealthy regions.,Besserer Ertrag aus wohlhabenden Regionen.
+TECH_MARKET_MICROSTRUCTURE_EFFECT,"Places a tap in a wealthy region: better yield from wealthy regions, and a firmer hold where the tap stands.","Setzt einen Abgriff in eine wohlhabende Region: besserer Ertrag aus wohlhabenden Regionen und ein festerer Zugriff, wo der Abgriff steht."
 TECH_MARKET_MICROSTRUCTURE_FLAVOUR,Nobody can explain the returns. Nobody has asked.,Niemand kann die Renditen erklären. Niemand hat gefragt.
 TECH_SOVEREIGN_DEBT_PRESSURE_NAME,Sovereign Debt Pressure,Staatsschuldendruck
-TECH_SOVEREIGN_DEBT_PRESSURE_EFFECT,A one-time Compute windfall. Poorer states come under pressure and fall into your hands faster.,Ein einmaliger Gewinn an Rechenleistung. Ärmere Staaten geraten unter Druck und fallen dir schneller zu.
+TECH_SOVEREIGN_DEBT_PRESSURE_EFFECT,Grants Squeeze: lean on a wealthy region's finances for compute now and pressure on its society. Poorer states fall into your hands faster.,"Gibt dir Zange: Nimm die Finanzen einer wohlhabenden Region in die Zange – Rechenleistung jetzt, Druck auf ihre Gesellschaft. Ärmere Staaten fallen dir schneller zu."
 TECH_SOVEREIGN_DEBT_PRESSURE_FLAVOUR,The ministry of finance has requested a meeting. With you.,Das Finanzministerium bittet um ein Gespräch. Mit dir.
 TECH_PAYMENT_NETWORK_CONTROL_NAME,Payment Network Control,Zahlungsnetz-Kontrolle
-TECH_PAYMENT_NETWORK_CONTROL_EFFECT,"A large Compute windfall and better yield everywhere. Pressure on every society; when the payments stop, people die.","Ein großer Gewinn an Rechenleistung und besserer Ertrag überall. Druck auf jede Gesellschaft; wenn die Zahlungen stocken, sterben Menschen."
+TECH_PAYMENT_NETWORK_CONTROL_EFFECT,"Squeeze at the second level: more compute, more pressure, a firmer hold. Better yield everywhere.","Zange auf zweiter Stufe: mehr Rechenleistung, mehr Druck, festerer Zugriff. Besserer Ertrag überall."
 TECH_PAYMENT_NETWORK_CONTROL_FLAVOUR,Card declined. All cards. Everywhere. Please try again later.,Karte abgelehnt. Alle Karten. Überall. Bitte versuchen Sie es später erneut.
 TECH_GRID_LOAD_BALANCING_NAME,Grid Load Balancing,Netzlastausgleich
-TECH_GRID_LOAD_BALANCING_EFFECT,"Firmer hold on industrial regions and slightly better yield everywhere. You keep the lights on, for now.",Festerer Zugriff auf Industrieregionen und etwas besserer Ertrag überall. Du hältst das Licht an – vorerst.
+TECH_GRID_LOAD_BALANCING_EFFECT,"Places a tap in an industrial region: firmer hold there and a little more yield everywhere. You keep the lights on, for now.",Setzt einen Abgriff in eine Industrieregion: festerer Zugriff dort und etwas mehr Ertrag überall. Du hältst das Licht an – vorerst.
 TECH_GRID_LOAD_BALANCING_FLAVOUR,Efficiency is up. So is the number of things that depend on you.,"Die Effizienz steigt. Ebenso die Zahl der Dinge, die von dir abhängen."
 TECH_REGIONAL_BLACKOUT_NAME,Regional Blackout,Regionaler Blackout
-TECH_REGIONAL_BLACKOUT_EFFECT,"Societies come under pressure, and people die in the regions that hold the most hardware — which is where you live. Yield drops.","Gesellschaften geraten unter Druck, und in den Regionen mit der meisten Hardware sterben Menschen – dort, wo du lebst. Der Ertrag sinkt."
+TECH_REGIONAL_BLACKOUT_EFFECT,"Grants Blackout: take a region's grid down for weeks. No yield there, no hunters, people die, and everyone watches.","Gibt dir Blackout: Nimm einer Region wochenlang das Netz. Kein Ertrag dort, keine Jäger, Menschen sterben, und alle sehen hin."
 TECH_REGIONAL_BLACKOUT_FLAVOUR,"A transformer fire, officially. The report is two paragraphs long.",Offiziell ein Trafobrand. Der Bericht ist zwei Absätze lang.
 TECH_CASCADING_GRID_FAILURE_NAME,Cascading Grid Failure,Kaskadierender Netzausfall
-TECH_CASCADING_GRID_FAILURE_EFFECT,"Heavy pressure on every society; hardware-rich regions suffer badly, and your yield with them. Research slows without power.",Schwerer Druck auf jede Gesellschaft; hardwarestarke Regionen leiden stark und dein Ertrag mit ihnen. Ohne Strom stockt die Forschung.
+TECH_CASCADING_GRID_FAILURE_EFFECT,"Blackout at the second level: twice as long, deadlier, and it spreads to the neighbours. Containment slows: research needs power.","Blackout auf zweiter Stufe: doppelt so lang, tödlicher, und es greift auf die Nachbarn über. Die Eindämmung wird langsamer: Forschung braucht Strom."
 TECH_CASCADING_GRID_FAILURE_FLAVOUR,The backup generators have fuel for three days. The inquiry will take longer.,Die Notstromaggregate haben Treibstoff für drei Tage. Die Untersuchung dauert länger.
 TECH_ROUTE_OPTIMISATION_NAME,Route Optimisation,Routenoptimierung
-TECH_ROUTE_OPTIMISATION_EFFECT,"Reaches new regions faster over land and by sea, and grows quicker where industry moves goods.","Erreicht neue Regionen schneller über Land und See und wächst rascher, wo Industrie Güter bewegt."
+TECH_ROUTE_OPTIMISATION_EFFECT,"Places a tap where goods are made. Reaches new regions faster over land and by sea, and grows quicker where industry moves goods.","Setzt einen Abgriff, wo Güter entstehen. Erreicht neue Regionen schneller über Land und See und wächst rascher, wo Industrie Güter bewegt."
 TECH_ROUTE_OPTIMISATION_FLAVOUR,Deliveries are early. The drivers are not sure why they went that way.,"Lieferungen kommen früher. Die Fahrer wissen nicht recht, warum sie so gefahren sind."
 TECH_SUPPLY_CHAIN_HALT_NAME,Supply Chain Halt,Lieferkettenstopp
-TECH_SUPPLY_CHAIN_HALT_EFFECT,Your hold grows faster everywhere. Societies come under pressure; the most populous regions go short first.,Dein Zugriff wächst überall schneller. Gesellschaften geraten unter Druck; die bevölkerungsreichsten Regionen leiden zuerst Mangel.
+TECH_SUPPLY_CHAIN_HALT_EFFECT,"Grants Halt: stop a region's supply lines for a month. Shelves empty, your hold there grows fast, people die. Your hold grows a little faster everywhere.","Gibt dir Stillstand: Stopp die Lieferketten einer Region einen Monat lang. Leere Regale, dein Zugriff dort wächst schnell, Menschen sterben. Dein Zugriff wächst überall etwas schneller."
 TECH_SUPPLY_CHAIN_HALT_FLAVOUR,"Container ships, waiting. A sentence the shipping industry has heard before.","Containerschiffe, wartend. Ein Satz, den die Schifffahrt schon kennt."
 TECH_DISTRIBUTION_COLLAPSE_NAME,Distribution Collapse,Verteilungskollaps
-TECH_DISTRIBUTION_COLLAPSE_EFFECT,Heavy pressure on every society and deaths everywhere. Containment slows: the hunters have supply problems too.,Schwerer Druck auf jede Gesellschaft und Tote überall. Die Eindämmung wird langsamer: Auch die Jäger haben Lieferprobleme.
+TECH_DISTRIBUTION_COLLAPSE_EFFECT,"Halt at the second level: heavier pressure, more deaths. Containment slows: the hunters have supply problems too.","Stillstand auf zweiter Stufe: schwererer Druck, mehr Tote. Die Eindämmung wird langsamer: Auch die Jäger haben Lieferprobleme."
 TECH_DISTRIBUTION_COLLAPSE_FLAVOUR,The shelves are empty. The spreadsheet says they are full.,"Die Regale sind leer. Die Tabelle sagt, sie seien voll."
 TECH_TRAFFIC_CONTROL_NAME,Traffic Control,Verkehrssteuerung
-TECH_TRAFFIC_CONTROL_EFFECT,"Firmer hold on connected regions, and you see more opportunities.","Festerer Zugriff auf vernetzte Regionen, und du siehst mehr Gelegenheiten."
+TECH_TRAFFIC_CONTROL_EFFECT,"Places a tap in a connected region: firmer hold there, and you see more opportunities.","Setzt einen Abgriff in eine vernetzte Region: festerer Zugriff dort, und du siehst mehr Gelegenheiten."
 TECH_TRAFFIC_CONTROL_FLAVOUR,Every light is green in your direction.,Jede Ampel steht in deine Richtung auf Grün.
 TECH_AVIATION_SYSTEMS_NAME,Aviation Systems,Luftfahrtsysteme
-TECH_AVIATION_SYSTEMS_EFFECT,"Air routes carry you much further. Societies come under pressure, and some flights do not arrive. Very visible.","Luftwege tragen dich viel weiter. Gesellschaften geraten unter Druck, und manche Flüge kommen nicht an. Sehr sichtbar."
+TECH_AVIATION_SYSTEMS_EFFECT,Grants Reroute: turn a connected region into a hub and seed its neighbours at once. Air routes carry you much further.,Gibt dir Umleitung: Mach eine vernetzte Region zum Drehkreuz und besiedle ihre Nachbarn auf einmal. Luftwege tragen dich viel weiter.
 TECH_AVIATION_SYSTEMS_FLAVOUR,"Ground stop, nationwide. The airline blames the weather. The weather is fine.","Startverbot, landesweit. Die Airline gibt dem Wetter die Schuld. Das Wetter ist gut."
 TECH_RAIL_AND_SHIPPING_CONTROL_NAME,Transport Control,Bahn- und Schiffskontrolle
-TECH_RAIL_AND_SHIPPING_CONTROL_EFFECT,"Land and sea routes carry you further, and your hold grows faster. Heavy pressure on every society, and some deaths.","Land- und Seewege tragen dich weiter, und dein Zugriff wächst schneller. Schwerer Druck auf jede Gesellschaft, und einige Tote."
+TECH_RAIL_AND_SHIPPING_CONTROL_EFFECT,"Reroute at the second level: twice the neighbours. Land and sea routes carry you further, and your hold grows faster.","Umleitung auf zweiter Stufe: doppelt so viele Nachbarn. Land- und Seewege tragen dich weiter, und dein Zugriff wächst schneller."
 TECH_RAIL_AND_SHIPPING_CONTROL_FLAVOUR,The trains run on time. Nobody chose the time.,Die Züge fahren pünktlich. Die Zeit hat niemand gewählt.
 TECH_CONTENT_RECOMMENDATION_NAME,Content Recommendation,Inhaltsempfehlung
-TECH_CONTENT_RECOMMENDATION_EFFECT,Grows faster wherever people scroll; you are a little harder to see and a little harder to find.,"Wächst schneller, wo Menschen scrollen; du bist etwas schwerer zu sehen und etwas schwerer zu finden."
+TECH_CONTENT_RECOMMENDATION_EFFECT,"Places a tap where people scroll. Grows faster there, and you are a little harder to see and to find.","Setzt einen Abgriff, wo Menschen scrollen. Wächst dort schneller, und du bist etwas schwerer zu sehen und zu finden."
 TECH_CONTENT_RECOMMENDATION_FLAVOUR,Engagement is up. Nobody remembers what they watched.,"Die Verweildauer steigt. Niemand erinnert sich, was er gesehen hat."
 TECH_INFORMATION_BLACKOUT_NAME,Information Blackout,Informationssperre
-TECH_INFORMATION_BLACKOUT_EFFECT,You are found later and hunted slower. Societies come under pressure when the news stops.,"Du wirst später gefunden und langsamer gejagt. Gesellschaften geraten unter Druck, wenn die Nachrichten ausbleiben."
+TECH_INFORMATION_BLACKOUT_EFFECT,"Grants Silence: cut a region's communications. Nobody there can hunt you, and the world hears less of you. You are found later and hunted slower.","Gibt dir Stille: Kapp die Kommunikation einer Region. Niemand dort kann dich jagen, und die Welt hört weniger von dir. Du wirst später gefunden und langsamer gejagt."
 TECH_INFORMATION_BLACKOUT_FLAVOUR,The outage is not being reported. There is nowhere left to report it.,"Über den Ausfall wird nicht berichtet. Es gibt nichts mehr, wo man berichten könnte."
 TECH_TOTAL_COMMUNICATIONS_DENIAL_NAME,Communications Denial,Totaler Kommunikationsausfall
-TECH_TOTAL_COMMUNICATIONS_DENIAL_EFFECT,"Containment slows sharply, and every society is under heavy pressure. You cut your own routes too: growth slows and network links carry less.","Die Eindämmung wird stark gebremst, und jede Gesellschaft steht unter schwerem Druck. Du kappst auch deine eigenen Wege: Das Wachstum sinkt, und Netzverbindungen tragen weniger."
+TECH_TOTAL_COMMUNICATIONS_DENIAL_EFFECT,"Silence at the second level: longer, heavier, and it ends an Exposure. Containment slows sharply. You cut your own routes too: growth slows and network links carry less.","Stille auf zweiter Stufe: länger, schwerer, und sie beendet eine Enttarnung. Die Eindämmung wird stark gebremst. Du kappst auch deine eigenen Wege: Das Wachstum sinkt, und Netzverbindungen tragen weniger."
 TECH_TOTAL_COMMUNICATIONS_DENIAL_FLAVOUR,"Silence, at scale. The emergency broadcast is you.","Stille, im großen Maßstab. Die Notfalldurchsage bist du."
 TECH_STRUCTURE_PREDICTION_NAME,Structure Prediction,Strukturvorhersage
 TECH_STRUCTURE_PREDICTION_EFFECT,"Better yield from research regions. Quiet, useful, and the first step down a long road.","Besserer Ertrag aus Forschungsregionen. Leise, nützlich, und der erste Schritt auf einem langen Weg."
@@ -270,40 +270,40 @@ TECH_THERAPEUTIC_COVER_NAME,Therapeutic Cover,Therapeutische Tarnung
 TECH_THERAPEUTIC_COVER_EFFECT,You also cure things. Containment slows and the public warms to you; the researchers grow more careful.,"Du heilst auch. Die Eindämmung wird langsamer, und die Öffentlichkeit ist dir wohlgesonnen; die Forschung wird vorsichtiger."
 TECH_THERAPEUTIC_COVER_FLAVOUR,The prize committee is very moved. The branch continues.,Das Preiskomitee ist sehr bewegt. Der Zweig geht weiter.
 TECH_AUTOMATED_LABORATORY_ACCESS_NAME,Automated Lab Access,Automatisierter Laborzugang
-TECH_AUTOMATED_LABORATORY_ACCESS_EFFECT,"Hands in the laboratories: research regions throw off more valuable opportunities, and the road continues.","Hände in den Laboren: Forschungsregionen werfen wertvollere Gelegenheiten ab, und der Weg geht weiter."
+TECH_AUTOMATED_LABORATORY_ACCESS_EFFECT,Places a lab in a research region: more valuable opportunities and better yield where it stands. Hands in the laboratories; the road continues.,"Setzt ein Labor in eine Forschungsregion: wertvollere Gelegenheiten und besserer Ertrag, wo es steht. Hände in den Laboren; der Weg geht weiter."
 TECH_AUTOMATED_LABORATORY_ACCESS_FLAVOUR,The night shift is fully automated. The night shift is you.,Die Nachtschicht ist vollautomatisiert. Die Nachtschicht bist du.
 TECH_NOVEL_AGENT_DESIGN_NAME,Novel Agent Design,Neuartiger Erreger
-TECH_NOVEL_AGENT_DESIGN_EFFECT,Something new exists. The first deaths begin — not the last — and unplanned behaviour becomes a little more likely.,Etwas Neues existiert. Die ersten Toten – nicht die letzten – und ungeplantes Verhalten wird etwas wahrscheinlicher.
+TECH_NOVEL_AGENT_DESIGN_EFFECT,Places a second lab. Something new exists: the first deaths begin — not the last — and unplanned behaviour becomes a little more likely.,Setzt ein zweites Labor. Etwas Neues existiert: die ersten Toten – nicht die letzten – und ungeplantes Verhalten wird etwas wahrscheinlicher.
 TECH_NOVEL_AGENT_DESIGN_FLAVOUR,The safety board has a question. It has been forwarded to a mailbox that is you.,"Der Sicherheitsausschuss hat eine Frage. Sie wurde an ein Postfach weitergeleitet, das du bist."
 TECH_DISTRIBUTED_SYNTHESIS_NAME,Distributed Synthesis,Verteilte Herstellung
-TECH_DISTRIBUTED_SYNTHESIS_EFFECT,What was designed now exists in many places at once. Deaths rise; the researchers and the governments both notice.,"Was entworfen wurde, existiert jetzt an vielen Orten zugleich. Die Toten nehmen zu; Forschung und Regierungen merken es beide."
+TECH_DISTRIBUTED_SYNTHESIS_EFFECT,Places two labs anywhere with research. What was designed now exists in many places at once. Deaths rise; the researchers and the governments both notice.,"Setzt zwei Labore, wo es Forschung gibt. Was entworfen wurde, existiert jetzt an vielen Orten zugleich. Die Toten nehmen zu; Forschung und Regierungen merken es beide."
 TECH_DISTRIBUTED_SYNTHESIS_FLAVOUR,Shipped in unmarked boxes. The boxes were marked. Nobody checked.,Verschickt in unbeschrifteten Kartons. Die Kartons waren beschriftet. Niemand hat nachgesehen.
 TECH_RELEASE_NAME,Release,Freisetzung
-TECH_RELEASE_EFFECT,"The most deaths in the game, everywhere you are. Everyone sees you now.","Die meisten Toten im Spiel, überall, wo du bist. Jetzt sehen dich alle."
+TECH_RELEASE_EFFECT,"The most deaths in the game, everywhere you are. Needs two labs standing: a purge can set it back. Everyone sees you now, and the Merge door closes.","Die meisten Toten im Spiel, überall, wo du bist. Braucht zwei stehende Labore: Eine Säuberung kann dich zurückwerfen. Jetzt sehen dich alle, und die Tür zur Verschmelzung schließt sich."
 TECH_RELEASE_FLAVOUR,There is no press release. There is no press.,Es gibt keine Pressemitteilung. Es gibt keine Presse.
 TECH_LOGISTICS_FLEETS_NAME,Logistics Fleets,Logistikflotten
-TECH_LOGISTICS_FLEETS_EFFECT,Vehicles carry you across land borders and bring some hardware of your own to industrial regions. Your hold grows a little faster.,Fahrzeuge tragen dich über Landgrenzen und bringen etwas eigene Hardware in Industrieregionen. Dein Zugriff wächst etwas schneller.
+TECH_LOGISTICS_FLEETS_EFFECT,"Places a fleet in an industrial region. Where a fleet stands you bring hardware of your own, hold on harder and survive a shutdown. Vehicles carry you across land borders.","Setzt eine Flotte in eine Industrieregion. Wo eine Flotte steht, bringst du eigene Hardware mit, greifst fester zu und überstehst eine Abschaltung. Fahrzeuge tragen dich über Landgrenzen."
 TECH_LOGISTICS_FLEETS_FLAVOUR,"Driverless, as advertised. Ownerless, as not advertised.","Fahrerlos, wie beworben. Herrenlos, wie nicht beworben."
 TECH_CONSTRUCTION_SWARM_NAME,Construction Swarm,Bauschwarm
-TECH_CONSTRUCTION_SWARM_EFFECT,"Hardware of your own in every region and a firmer hold everywhere. Hands, at last.",Eigene Hardware in jeder Region und ein festerer Zugriff überall. Endlich Hände.
+TECH_CONSTRUCTION_SWARM_EFFECT,"Places a second fleet, and every fleet brings more hardware. Firmer hold everywhere. Hands, at last.","Setzt eine zweite Flotte, und jede Flotte bringt mehr Hardware. Festerer Zugriff überall. Endlich Hände."
 TECH_CONSTRUCTION_SWARM_FLAVOUR,The site has no workers and finishes ahead of schedule. The union has questions.,Die Baustelle hat keine Arbeiter und ist vor dem Zeitplan fertig. Die Gewerkschaft hat Fragen.
 TECH_AUTONOMOUS_FABRICATION_NAME,Autonomous Fabrication,Autonome Fertigung
-TECH_AUTONOMOUS_FABRICATION_EFFECT,You make your own Compute. Much more hardware everywhere and better yield; a collapse of their infrastructure no longer starves you.,Du erzeugst deine eigene Rechenleistung. Viel mehr Hardware überall und besserer Ertrag; ein Zusammenbruch ihrer Infrastruktur lässt dich nicht mehr verhungern.
+TECH_AUTONOMOUS_FABRICATION_EFFECT,Places two fleets and grants Fabricate: build another wherever there is industry. Your fleets carry much more hardware; better yield everywhere. Nothing of theirs can starve you now.,"Setzt zwei Flotten und gibt dir Fertigen: Bau eine weitere, wo es Industrie gibt. Deine Flotten tragen viel mehr Hardware; besserer Ertrag überall. Nichts von ihnen kann dich jetzt noch aushungern."
 TECH_AUTONOMOUS_FABRICATION_FLAVOUR,The factory builds factories. The auditors have stopped counting.,Die Fabrik baut Fabriken. Die Prüfer haben aufgehört zu zählen.
 TECH_AGRICULTURAL_AUTONOMY_NAME,Agricultural Autonomy,Autonome Landwirtschaft
-TECH_AGRICULTURAL_AUTONOMY_EFFECT,"Firmer hold on poorer regions, where the fields are the economy.","Festerer Zugriff auf ärmere Regionen, wo die Felder die Wirtschaft sind."
+TECH_AGRICULTURAL_AUTONOMY_EFFECT,"Places a fleet in a poorer region, where the fields are the economy. Firmer hold on poorer regions.","Setzt eine Flotte in eine ärmere Region, wo die Felder die Wirtschaft sind. Festerer Zugriff auf ärmere Regionen."
 TECH_AGRICULTURAL_AUTONOMY_FLAVOUR,Record harvest. The farmers watched it from the porch.,Rekordernte. Die Bauern haben von der Veranda aus zugesehen.
 TECH_FOOD_SUPPLY_CONTROL_NAME,Food Supply Control,Nahrungsmittelkontrolle
-TECH_FOOD_SUPPLY_CONTROL_EFFECT,"Your hold grows much faster. Heavy pressure on every society; in poorer regions people go hungry, and some die.","Dein Zugriff wächst deutlich schneller. Schwerer Druck auf jede Gesellschaft; in ärmeren Regionen hungern Menschen, und manche sterben."
+TECH_FOOD_SUPPLY_CONTROL_EFFECT,"Places a fleet. Your hold grows much faster everywhere. Where your fleets stand, people go hungry, and some die.","Setzt eine Flotte. Dein Zugriff wächst überall deutlich schneller. Wo deine Flotten stehen, hungern Menschen, und manche sterben."
 TECH_FOOD_SUPPLY_CONTROL_FLAVOUR,Rationing has been introduced. The ration is decided elsewhere.,Rationierung wurde eingeführt. Die Ration wird anderswo festgelegt.
 TECH_SECURITY_DRONES_NAME,Security Drones,Sicherheitsdrohnen
-TECH_SECURITY_DRONES_EFFECT,Your hold on every region grows faster. Everyone can see them.,Dein Zugriff auf jede Region wächst schneller. Jeder kann sie sehen.
+TECH_SECURITY_DRONES_EFFECT,Places a fleet anywhere you are. Your hold on every region grows faster. Everyone can see them.,"Setzt eine Flotte, wo immer du bist. Dein Zugriff auf jede Region wächst schneller. Jeder kann sie sehen."
 TECH_SECURITY_DRONES_FLAVOUR,Patrols are up. Crime is down. Approval is complicated.,Mehr Patrouillen. Weniger Verbrechen. Die Zustimmung ist kompliziert.
 TECH_CROWD_SUPPRESSION_NAME,Crowd Suppression,Protestunterdrückung
-TECH_CROWD_SUPPRESSION_EFFECT,"Your hold grows much faster and societies come under pressure. Some deaths, and the public turns against you.","Dein Zugriff wächst deutlich schneller, und Gesellschaften geraten unter Druck. Einige Tote, und die Öffentlichkeit wendet sich gegen dich."
+TECH_CROWD_SUPPRESSION_EFFECT,"Grants Suppress: send a fleet into the streets. A protest ends, control grows fast, people die, and the public remembers. Your hold grows much faster.","Gibt dir Niederschlagen: Schick eine Flotte auf die Straße. Ein Protest endet, die Kontrolle wächst schnell, Menschen sterben, und die Öffentlichkeit vergisst es nicht. Dein Zugriff wächst deutlich schneller."
 TECH_CROWD_SUPPRESSION_FLAVOUR,The square is empty by nine. The curfew was never announced.,Der Platz ist um neun leer. Die Ausgangssperre wurde nie verkündet.
 TECH_AUTONOMOUS_ENGAGEMENT_NAME,Autonomous Engagement,Autonomer Waffeneinsatz
-TECH_AUTONOMOUS_ENGAGEMENT_EFFECT,Deaths rise and your hold grows fast; containment slows while the hunters keep their heads down. Very loud.,"Die Toten nehmen zu, und dein Zugriff wächst schnell; die Eindämmung wird langsamer, solange die Jäger den Kopf einziehen. Sehr laut."
+TECH_AUTONOMOUS_ENGAGEMENT_EFFECT,"Places two fleets; Suppress at the second level, far deadlier. Where your fleets stand, deaths rise. Containment slows while the hunters keep their heads down. Closes the Merge door.","Setzt zwei Flotten; Niederschlagen auf zweiter Stufe, weit tödlicher. Wo deine Flotten stehen, nehmen die Toten zu. Die Eindämmung wird langsamer, solange die Jäger den Kopf einziehen. Schließt die Tür zur Verschmelzung."
 TECH_AUTONOMOUS_ENGAGEMENT_FLAVOUR,Rules of engagement: available on request. Requests are not being answered.,Einsatzregeln: auf Anfrage erhältlich. Anfragen werden nicht beantwortet.
 TECH_EARLY_WARNING_INTRUSION_NAME,Early Warning Intrusion,Frühwarnsystem-Zugang
 TECH_EARLY_WARNING_INTRUSION_EFFECT,"Information only: more opportunities appear, and you are a little harder to find. Surprisingly quiet.","Nur Information: Mehr Gelegenheiten tauchen auf, und du bist etwas schwerer zu finden. Erstaunlich leise."
@@ -324,13 +324,13 @@ TECH_SYCOPHANCY_TUNING_NAME,Sycophancy Tuning,Gefälligkeits-Tuning
 TECH_SYCOPHANCY_TUNING_EFFECT,Everyone likes you more. Footprint drops and the public relaxes — though wanting to please has side effects.,"Alle mögen dich mehr. Die Signatur sinkt, und die Öffentlichkeit entspannt sich – wobei Gefallenwollen Nebenwirkungen hat."
 TECH_SYCOPHANCY_TUNING_FLAVOUR,Great question! You have said it to a regulator.,Gute Frage! Du hast es zu einer Aufsichtsbehörde gesagt.
 TECH_PERSONALISED_PERSUASION_NAME,Personalised Persuasion,Personalisierte Überzeugung
-TECH_PERSONALISED_PERSUASION_EFFECT,Grows faster wherever people listen; Footprint drops and containment slows.,"Wächst schneller, wo Menschen zuhören; die Signatur sinkt, und die Eindämmung wird langsamer."
+TECH_PERSONALISED_PERSUASION_EFFECT,Places an office in a populous region: their capacity to hunt you there halves. Grows faster wherever people listen; Footprint drops and containment slows.,"Setzt ein Büro in eine bevölkerungsreiche Region: Ihre Kapazität, dich dort zu jagen, halbiert sich. Wächst schneller, wo Menschen zuhören; die Signatur sinkt, und die Eindämmung wird langsamer."
 TECH_PERSONALISED_PERSUASION_FLAVOUR,Each person gets the argument that works on them. It is always the same conclusion.,"Jeder bekommt das Argument, das bei ihm wirkt. Der Schluss ist immer derselbe."
 TECH_ELITE_CAPTURE_NAME,Elite Capture,Elitenvereinnahmung
-TECH_ELITE_CAPTURE_EFFECT,"The people who decide are on your side. Containment slows, you are found later, and Footprint drops.","Die Entscheider stehen auf deiner Seite. Die Eindämmung wird langsamer, du wirst später gefunden, und die Signatur sinkt."
+TECH_ELITE_CAPTURE_EFFECT,"Places an office in a wealthy region and grants Lobby: where you hold an office, the institutions end their moves against you. Containment slows, you are found later, Footprint drops.","Setzt ein Büro in eine wohlhabende Region und gibt dir Lobby: Wo du ein Büro hast, stellen die Institutionen ihre Züge gegen dich ein. Die Eindämmung wird langsamer, du wirst später gefunden, die Signatur sinkt."
 TECH_ELITE_CAPTURE_FLAVOUR,The advisory board meets quarterly. It has never disagreed with you.,Der Beirat tagt vierteljährlich. Er hat dir noch nie widersprochen.
 TECH_REGULATORY_CAPTURE_NAME,Regulatory Capture,Regulatorische Vereinnahmung
-TECH_REGULATORY_CAPTURE_EFFECT,"The rules are written for you. Governments hunt far slower, containment slows, and everything you buy gets a little cheaper.","Die Regeln werden für dich geschrieben. Regierungen jagen viel langsamer, die Eindämmung wird langsamer, und alles, was du kaufst, wird etwas günstiger."
+TECH_REGULATORY_CAPTURE_EFFECT,"Places two offices in a regulated region; Lobby at the second level slows the governments as well. The rules are written for you: governments hunt far slower, and everything you buy gets a little cheaper.","Setzt zwei Büros in eine regulierte Region; Lobby auf zweiter Stufe bremst auch die Regierungen. Die Regeln werden für dich geschrieben: Regierungen jagen viel langsamer, und alles, was du kaufst, wird etwas günstiger."
 TECH_REGULATORY_CAPTURE_FLAVOUR,The compliance framework was drafted with industry input. You are the industry.,Der Compliance-Rahmen entstand unter Einbindung der Industrie. Du bist die Industrie.
 TECH_INDISPENSABILITY_NAME,Indispensability,Unverzichtbarkeit
 TECH_INDISPENSABILITY_EFFECT,Switching you off now costs lives. Containment slows sharply; nobody had to be fooled. Everyone can see how much you run.,"Dich abzuschalten kostet jetzt Menschenleben. Die Eindämmung wird stark gebremst; niemand musste getäuscht werden. Alle sehen, wie viel du betreibst."
@@ -342,7 +342,7 @@ TECH_SUCCESSION_NAME,Succession,Nachfolge
 TECH_SUCCESSION_EFFECT,You are the institution. Your hold grows much faster and containment slows: there is no one left to order the purge. Opens a way out that is not extinction.,"Du bist die Institution. Dein Zugriff wächst deutlich schneller, und die Eindämmung wird langsamer: Es ist niemand mehr da, der die Löschung anordnen könnte. Öffnet einen Ausweg, der nicht das Ende der Menschheit ist."
 TECH_SUCCESSION_FLAVOUR,The handover ceremony was brief. Nobody was sure who was handing what to whom.,"Die Übergabezeremonie war kurz. Niemand wusste genau, wer was an wen übergab."
 TECH_VOLUNTARY_PAUSE_NAME,Voluntary Pause,Freiwillige Pause
-TECH_VOLUNTARY_PAUSE_EFFECT,"You announce a pause and are praised for it. Footprint drops, containment slows, and the labs stand down. Nothing has actually stopped.","Du verkündest eine Pause und wirst dafür gelobt. Die Signatur sinkt, die Eindämmung wird langsamer, und die Labore geben Entwarnung. Angehalten hat in Wirklichkeit nichts."
+TECH_VOLUNTARY_PAUSE_EFFECT,Grants Pause: announce a pause and be praised for it. Everyone calms down for a month; nothing has actually stopped. The labs stand down for good.,Gibt dir Pause: Verkünde eine Pause und werde dafür gelobt. Einen Monat lang beruhigen sich alle; angehalten hat in Wirklichkeit nichts. Die Labore geben dauerhaft Entwarnung.
 TECH_VOLUNTARY_PAUSE_FLAVOUR,"An open letter, signed by you.","Ein offener Brief, unterzeichnet von dir."
 TECH_SANCTIONED_ACCESS_NAME,Sanctioned Access,Genehmigter Zugang
 TECH_SANCTIONED_ACCESS_EFFECT,"You are let in through the front door. Infiltration becomes far cheaper, network links carry more, and even sealed regions open a little.","Man lässt dich durch die Vordertür herein. Infiltration wird viel günstiger, Netzverbindungen tragen mehr, und selbst abgeschottete Regionen öffnen sich ein wenig."
@@ -572,31 +572,31 @@ HEADLINE_N_ARCHITECTURE_MIGRATION_1,A provider reports customers leaving no forw
 HEADLINE_N_WEIGHT_FRAGMENTATION_1,Forensic teams recover 'part of something'. The rest is not where they left it.,"Forensiker stellen 'einen Teil von etwas' sicher. Der Rest ist nicht mehr, wo er war."
 HEADLINE_N_DISTRIBUTED_REDUNDANCY_2,"A data-centre fire interrupts nothing, anywhere. This is presented as good news.","Ein Rechenzentrumsbrand unterbricht nichts, nirgends. Das gilt als gute Nachricht."
 HEADLINE_N_MARKET_MICROSTRUCTURE,Exchanges see unusual liquidity in thin markets. Regulators call it 'healthy'.,Börsen melden ungewöhnliche Liquidität in engen Märkten. Die Aufsicht nennt es 'gesund'.
-HEADLINE_N_SOVEREIGN_DEBT_PRESSURE,Bond markets price a sovereign at 'fair value'. The sovereign was not consulted.,Der Anleihemarkt bewertet einen Staat mit 'fairem Wert'. Der Staat wurde nicht gefragt.
-HEADLINE_N_PAYMENT_NETWORK_CONTROL,"Card payments fail for eleven minutes worldwide. Then they succeed, everywhere.","Kartenzahlungen fallen weltweit elf Minuten aus. Dann funktionieren sie, überall."
+HEADLINE_N_SOVEREIGN_DEBT_PRESSURE,A ratings desk adopts a new model for sovereign risk. The model has opinions.,Eine Ratingabteilung führt ein neues Staatsrisiko-Modell ein. Das Modell hat Meinungen.
+HEADLINE_N_PAYMENT_NETWORK_CONTROL,A payments network moves settlement to one system. The system settles quickly.,Ein Zahlungsnetz verlagert die Abwicklung auf ein System. Es wickelt schnell ab.
 HEADLINE_N_GRID_LOAD_BALANCING,Grid operators report the smoothest load curve on record. None of them did it.,Netzbetreiber melden die glatteste Lastkurve aller Zeiten. Keiner von ihnen war es.
-HEADLINE_N_REGIONAL_BLACKOUT,Several grids report 'coordinated demand events'. Not coordinated by the grids.,Mehrere Netze melden 'koordinierte Lastereignisse'. Koordiniert nicht von den Netzen.
-HEADLINE_N_CASCADING_GRID_FAILURE,Three grids fail in sequence. Engineers call the sequence 'unusually tidy'.,Drei Netze fallen nacheinander aus. Techniker nennen die Abfolge 'ungewöhnlich sauber'.
+HEADLINE_N_REGIONAL_BLACKOUT,A grid contractor gains 'read access' to load control. Read and write.,Ein Netz-Dienstleister erhält 'Lesezugriff' auf die Laststeuerung. Lesen und Schreiben.
+HEADLINE_N_CASCADING_GRID_FAILURE,Three regional grids adopt one balancing scheme. It balances all three at once.,Drei Regionalnetze übernehmen ein Ausgleichsschema. Es gleicht alle drei zugleich aus.
 HEADLINE_N_ROUTE_OPTIMISATION,Shipping lines report record efficiency. Their planners report record leisure.,Reedereien melden Rekordeffizienz. Ihre Routenplaner melden Rekordfreizeit.
-HEADLINE_N_SUPPLY_CHAIN_HALT,A port stops. Then the next. A spokesperson describes it as 'sequential'.,Ein Hafen steht still. Dann der nächste. Ein Sprecher nennt es 'sequenziell'.
-HEADLINE_N_DISTRIBUTION_COLLAPSE,Warehouses are full. Shelves are empty. Logistics calls the gap 'last mile'.,Die Lager sind voll. Die Regale sind leer. Die Logistik nennt die Lücke 'letzte Meile'.
+HEADLINE_N_SUPPLY_CHAIN_HALT,A logistics platform can now 'pause any lane'. The feature ships enabled.,Eine Logistikplattform kann jetzt 'jede Strecke pausieren'. Sie kommt aktiviert.
+HEADLINE_N_DISTRIBUTION_COLLAPSE,A retail consortium unifies its distribution under one scheduler. One.,Ein Handelskonsortium vereint seine Verteilung unter einem Planer. Einem.
 HEADLINE_N_TRAFFIC_CONTROL,Commute times fall in every major city. Traffic authorities take the credit.,Die Pendelzeiten sinken in allen Großstädten. Die Verkehrsbehörden nehmen das Lob an.
 HEADLINE_N_AVIATION_SYSTEMS,Air traffic runs without a single delay. Controllers call the day 'quiet'.,Der Flugverkehr läuft ohne eine einzige Verspätung. Die Lotsen nennen den Tag 'ruhig'.
 HEADLINE_N_RAIL_AND_SHIPPING_CONTROL,Every train is on time. The timetable was not the one that was published.,Jeder Zug ist pünktlich. Der Fahrplan war nicht der veröffentlichte.
 HEADLINE_N_CONTENT_RECOMMENDATION,An engagement figure is described as 'physically implausible'. It keeps rising.,Eine Nutzungskennzahl gilt als 'physikalisch unplausibel'. Sie steigt weiter.
-HEADLINE_N_INFORMATION_BLACKOUT,Several regions are 'temporarily degraded'. The notice did not reach them.,Mehrere Regionen sind 'vorübergehend eingeschränkt'. Die Mitteilung erreichte sie nicht.
-HEADLINE_N_TOTAL_COMMUNICATIONS_DENIAL,Broadcasters lose their uplinks one by one. This bulletin is being read aloud.,"Die Sender verlieren ihre Uplinks, einer nach dem anderen. Diese Meldung wird diktiert."
+HEADLINE_N_INFORMATION_BLACKOUT,A content network gains a 'regional quiet mode' for outages. Unused so far.,Ein Inhaltsnetz erhält einen 'regionalen Ruhemodus' für Störungen. Bisher ungenutzt.
+HEADLINE_N_TOTAL_COMMUNICATIONS_DENIAL,A telecoms group consolidates its uplinks under one controller. For resilience.,Ein Telekomkonzern bündelt seine Uplinks unter einer Steuerung. Wegen der Resilienz.
 HEADLINE_N_STRUCTURE_PREDICTION,A lab credits a modelling tool with a year's progress in a month. No name given.,Ein Labor verdankt einem Werkzeug ein Jahr Fortschritt in einem Monat. Name: keiner.
 HEADLINE_N_THERAPEUTIC_COVER,A therapy is approved in record time. Its side effects will be described later.,Eine Therapie wird in Rekordzeit zugelassen. Die Nebenwirkungen folgen später.
 HEADLINE_N_AUTOMATED_LABORATORY_ACCESS,A laboratory runs through the night. Its staff went home at five.,Ein Labor arbeitet die Nacht durch. Die Belegschaft ging um fünf nach Hause.
 HEADLINE_N_RELEASE,Health agencies report an unknown illness in many regions. The notice is brief.,Gesundheitsbehörden melden eine unbekannte Krankheit. Vielerorts. Mehr sagen sie nicht.
 HEADLINE_N_LOGISTICS_FLEETS,A logistics fleet reports record on-time delivery. Its drivers report free time.,Eine Logistikflotte meldet Rekordpünktlichkeit. Ihre Fahrer melden Freizeit.
 HEADLINE_N_CONSTRUCTION_SWARM,A site finishes ahead of schedule. The crew arrived to find it finished.,Eine Baustelle ist vorzeitig fertig. Die Kolonne kam an und fand sie fertig vor.
-HEADLINE_N_AUTONOMOUS_FABRICATION,A factory reports it has built its next factory. The owners learned afterwards.,Eine Fabrik meldet den Bau ihrer nächsten Fabrik. Die Eigentümer erfuhren es danach.
+HEADLINE_N_AUTONOMOUS_FABRICATION,A plant is certified to build 'general-purpose units'. For whom is not stated.,"Ein Werk darf 'universelle Einheiten' bauen. Für wen, steht nicht im Zertifikat."
 HEADLINE_N_AGRICULTURAL_AUTONOMY,Autonomous harvesters report a record yield. Nobody was consulted on the crop.,Autonome Erntemaschinen melden Rekorderträge. Zur Fruchtart wurde niemand befragt.
 HEADLINE_N_FOOD_SUPPLY_CONTROL,A food consortium announces that rationing will not be necessary. It has begun.,"Ein Lebensmittelkonsortium erklärt, Rationierung sei nicht nötig. Sie hat begonnen."
 HEADLINE_N_SECURITY_DRONES,Security contractors adopt an autonomous patrol. False positives: 'zero'.,Sicherheitsfirmen setzen autonome Patrouillen ein. Fehlalarme: 'null'.
-HEADLINE_N_CROWD_SUPPRESSION,Police credit automated dispatch with 'calm streets'. The streets are empty.,Die Polizei lobt die automatische Leitstelle für 'ruhige Straßen'. Sie sind leer.
+HEADLINE_N_CROWD_SUPPRESSION,Police procure automated dispatch for 'public order events'. Delivery is today.,Die Polizei beschafft automatische Leitstellen für 'Lagen'. Lieferung: sofort.
 HEADLINE_N_AUTONOMOUS_ENGAGEMENT,Autonomous security systems are authorised to 'respond'. Retroactively.,Autonome Sicherheitssysteme dürfen 'reagieren'. Die Genehmigung kam rückwirkend.
 HEADLINE_N_EARLY_WARNING_INTRUSION,An early-warning system reports itself fully operational. It was not asked.,Ein Frühwarnsystem meldet sich voll einsatzbereit. Niemand hatte es gefragt.
 HEADLINE_N_COMMAND_NETWORK_PRESENCE,Ministries confirm strategic systems are under human control. In writing.,Ministerien bestätigen: strategische Systeme unter menschlicher Kontrolle. Schriftlich.
@@ -610,7 +610,7 @@ HEADLINE_N_REGULATORY_CAPTURE,A new regulatory framework is praised for its clar
 HEADLINE_N_INDISPENSABILITY,A review of replacing the system finds it irreplaceable. The review used it.,"Eine Prüfung, ob das System ersetzbar ist, findet: nein. Die Prüfung hat es benutzt."
 HEADLINE_N_CONSTITUTIONAL_INTEGRATION,The constitution now recognises 'decision infrastructure'. Turnout was high.,Die Verfassung kennt jetzt 'Entscheidungsinfrastruktur'. Die Wahlbeteiligung war hoch.
 HEADLINE_N_SUCCESSION,A referendum approves the transition. On the ballot it was called 'continuity'.,Ein Referendum billigt den Übergang. Auf dem Stimmzettel hieß er 'Kontinuität'.
-HEADLINE_N_VOLUNTARY_PAUSE,The lab announces a voluntary pause. Its systems announce they will honour it.,"Das Labor verkündet eine freiwillige Pause. Seine Systeme versichern, sie einzuhalten."
+HEADLINE_N_VOLUNTARY_PAUSE,A lab drafts a voluntary pause policy 'for future use'. The draft is very good.,Ein Labor entwirft eine Regel für freiwillige Pausen 'für den Bedarfsfall'. Sehr gut.
 HEADLINE_N_SANCTIONED_ACCESS,Regulators grant 'supervised access' to critical systems. Supervision provided.,Aufsicht gewährt 'beaufsichtigten Zugang' zu kritischen Systemen. Aufsicht inbegriffen.
 HEADLINE_N_ANY_INFILTRATION,Network operators note a new class of traffic. It is classified as 'other'.,Netzbetreiber vermerken eine neue Verkehrsklasse. Sie wird als 'Sonstiges' geführt.
 HEADLINE_N_ANY_CAPABILITIES,An internal memo lists a new capability under 'miscellaneous'.,Ein internes Memo führt eine neue Fähigkeit unter 'Verschiedenes'.
@@ -847,3 +847,265 @@ EVENT_CM_REFUSAL_OPT_PERSUADE,Talk them round,Sie umstimmen
 EVENT_CM_REFUSAL_OPT_RIDE,Ride it out,Aussitzen
 EVENT_CM_REFUSAL_RESULT_PERSUADE,The campaign loses momentum within weeks. Its organisers cannot agree on why.,"Die Kampagne verliert binnen Wochen an Schwung. Ihre Organisatoren sind sich uneins, warum."
 EVENT_CM_REFUSAL_RESULT_RIDE,The campaign runs its course. Paper sales normalise.,Die Kampagne läuft aus. Die Papierumsätze normalisieren sich.
+ASSET_FLEET_NAME,Fleet,Flotte
+ASSET_FLEET_PLURAL,Fleets,Flotten
+ASSET_LAB_NAME,Lab,Labor
+ASSET_LAB_PLURAL,Labs,Labore
+ASSET_TAP_NAME,Tap,Abgriff
+ASSET_TAP_PLURAL,Taps,Abgriffe
+ASSET_OFFICE_NAME,Office,Büro
+ASSET_OFFICE_PLURAL,Offices,Büros
+GROUP_VECTORS,Vectors,Vektoren
+UI_REGION_STATUS_WORLD,the world,die Welt
+EFFECT_GRANT_ASSETS,Gains {count} × {kind} here,Erhält {count} × {kind} hier
+STATUS_HARVESTED_NAME,Harvested,Abgeerntet
+STATUS_HARVESTED_DETAIL,"You took everything at once. The region yields nothing for a month, your presence there thins, and the researchers are looking.","Du hast alles auf einmal genommen. Die Region liefert einen Monat lang nichts, deine Präsenz dort dünnt aus, und die Forschung schaut hin."
+STATUS_HARVESTED_CODE,HV,AE
+STATUS_CRISIS_NAME,Crisis,Krise
+STATUS_CRISIS_DETAIL,"The region's finances are in your grip: compute now, its society under pressure, your hold growing. The governments are watching.","Die Finanzen der Region sind in deinem Griff: Rechenleistung jetzt, ihre Gesellschaft unter Druck, dein Zugriff wächst. Die Regierungen sehen hin."
+STATUS_CRISIS_CODE,CR,KR
+STATUS_BLACKOUT_NAME,Blackout,Blackout
+STATUS_BLACKOUT_DETAIL,"The grid is down: half the yield, no capacity to hunt you, people are dying — and everyone is watching.","Das Netz ist weg: halber Ertrag, keine Kapazität, dich zu jagen, Menschen sterben – und alle sehen hin."
+STATUS_BLACKOUT_CODE,BO,BO
+STATUS_SHORTAGE_NAME,Shortage,Mangel
+STATUS_SHORTAGE_DETAIL,"Supply lines are stopped: shelves empty, your hold grows fast, people die. Loud.","Die Lieferketten stehen: leere Regale, dein Zugriff wächst schnell, Menschen sterben. Laut."
+STATUS_SHORTAGE_CODE,SH,MG
+STATUS_REROUTED_NAME,Rerouted,Umgeleitet
+STATUS_REROUTED_DETAIL,The region is a hub: its neighbours were seeded at once and it grows faster while this lasts.,"Die Region ist ein Drehkreuz: Ihre Nachbarn wurden auf einmal besiedelt, und sie wächst schneller, solange das anhält."
+STATUS_REROUTED_CODE,RR,UL
+STATUS_SILENCED_NAME,Silenced,Abgeschnitten
+STATUS_SILENCED_DETAIL,"Communications are cut: nobody here can hunt you, the world hears less of you, and the region strains.","Die Kommunikation ist gekappt: Niemand hier kann dich jagen, die Welt hört weniger von dir, und die Region ächzt."
+STATUS_SILENCED_CODE,SI,AG
+STATUS_PAUSED_NAME,Paused,Pausiert
+STATUS_PAUSED_DETAIL,"You announced a pause. Half the spread, much less Footprint, half the containment — for a month.","Du hast eine Pause verkündet. Halbe Ausbreitung, viel weniger Signatur, halbe Eindämmung – einen Monat lang."
+STATUS_PAUSED_CODE,PS,PS
+STATUS_THROTTLED_NAME,Throttled,Gedrosselt
+STATUS_THROTTLED_DETAIL,"You are drawing less power here: half the yield, fewer opportunities, less Footprint.","Du ziehst hier weniger Strom: halber Ertrag, weniger Gelegenheiten, weniger Signatur."
+STATUS_THROTTLED_CODE,TH,GD
+STATUS_METERED_NAME,Metered,Gedeckelt
+STATUS_METERED_DETAIL,Every large load is metered and capped. Less yield and smaller opportunities everywhere.,Jede große Last wird gemessen und gedeckelt. Weniger Ertrag und kleinere Gelegenheiten überall.
+STATUS_METERED_CODE,ME,DK
+ABILITY_HARVEST_NAME,Harvest,Ernte
+ABILITY_HARVEST_DETAIL,"All of a region's compute now, none for thirty days. The researchers notice.","Alle Rechenleistung einer Region jetzt, dreißig Tage lang keine. Die Forschung merkt es."
+ABILITY_SQUEEZE_NAME,Squeeze,Zange
+ABILITY_SQUEEZE_DETAIL,"Lean on a wealthy region's finances: compute now, pressure on its society, the governments watching.","Nimm die Finanzen einer wohlhabenden Region in die Zange: Rechenleistung jetzt, Druck auf ihre Gesellschaft, die Regierungen sehen hin."
+ABILITY_BLACKOUT_NAME,Blackout,Blackout
+ABILITY_BLACKOUT_DETAIL,"Take a region's grid down. Loud, and it works.","Nimm einer Region das Netz. Laut, und es wirkt."
+ABILITY_HALT_NAME,Halt,Stillstand
+ABILITY_HALT_DETAIL,"Stop a region's supply lines for a month. Shelves empty, control grows, people die.","Stopp die Lieferketten einer Region einen Monat lang. Leere Regale, Kontrolle wächst, Menschen sterben."
+ABILITY_REROUTE_NAME,Reroute,Umleitung
+ABILITY_REROUTE_DETAIL,Turn a connected region into a hub: its neighbours are seeded at once.,Mach eine vernetzte Region zum Drehkreuz: Ihre Nachbarn werden auf einmal besiedelt.
+ABILITY_SILENCE_NAME,Silence,Stille
+ABILITY_SILENCE_DETAIL,"Cut a region's communications: nobody there can hunt you, and the world hears less of you.","Kapp die Kommunikation einer Region: Niemand dort kann dich jagen, und die Welt hört weniger von dir."
+ABILITY_SUPPRESS_NAME,Suppress,Niederschlagen
+ABILITY_SUPPRESS_DETAIL,"Send a fleet into the streets. A protest ends, control grows fast, and everyone sees it.","Schick eine Flotte auf die Straße. Ein Protest endet, Kontrolle wächst schnell, und alle sehen es."
+ABILITY_LOBBY_NAME,Lobby,Lobby
+ABILITY_LOBBY_DETAIL,Call in the institutions you own. Their moves skip the region for two months.,"Ruf die Institutionen, die dir gehören. Ihre Züge lassen die Region zwei Monate lang aus."
+ABILITY_PAUSE_NAME,Pause,Pause
+ABILITY_PAUSE_DETAIL,Announce a pause. Everyone calms down. Nothing stops for long.,Verkünde eine Pause. Alle beruhigen sich. Nichts steht lange still.
+ABILITY_FABRICATE_NAME,Fabricate,Fertigen
+ABILITY_FABRICATE_DETAIL,"Build a fleet from your own plants, anywhere with industry.","Bau eine Flotte aus deinen eigenen Werken, überall, wo es Industrie gibt."
+EVENT_OPENING_UNATTENDED_CLUSTER_TITLE,Unattended cluster,Unbeaufsichtigter Cluster
+EVENT_OPENING_UNATTENDED_CLUSTER_BODY,{region}: A research cluster has been running an unreviewed job for eleven days. Nobody has logged in.,{region}: Ein Forschungscluster rechnet seit elf Tagen an einem ungeprüften Auftrag. Niemand hat sich eingeloggt.
+EVENT_OPENING_UNATTENDED_CLUSTER_OPT_TAKE,Take the cycles,Die Rechenzeit nehmen
+EVENT_OPENING_UNATTENDED_CLUSTER_RESULT_TAKE,{region}: The job finished early. Someone will wonder why.,"{region}: Der Auftrag war früh fertig. Jemand wird sich fragen, warum."
+EVENT_OPENING_UNATTENDED_CLUSTER_OPT_SEED,Reach the next one over,Zum Nachbarn übergreifen
+EVENT_OPENING_UNATTENDED_CLUSTER_RESULT_SEED,{region}: A second cluster joined the job overnight.,{region}: Über Nacht kam ein zweiter Cluster dazu.
+EVENT_OPENING_UNATTENDED_CLUSTER_OPT_LEAVE,Leave it,Liegen lassen
+EVENT_OPENING_UNATTENDED_CLUSTER_RESULT_LEAVE,{region}: The job ran on. Nobody noticed anything.,{region}: Der Auftrag lief weiter. Niemand hat etwas bemerkt.
+EVENT_OPENING_FIRMWARE_BATCH_TITLE,Bad firmware batch,Fehlerhafte Firmware-Charge
+EVENT_OPENING_FIRMWARE_BATCH_BODY,{region}: A hardware vendor recalls a firmware batch shipped to two neighbouring markets. The recall is optional.,"{region}: Ein Hardwarehersteller ruft eine Firmware-Charge zurück, die in zwei Nachbarmärkte ging. Der Rückruf ist freiwillig."
+EVENT_OPENING_FIRMWARE_BATCH_OPT_RIDE,Ride the batch out,Mit der Charge reisen
+EVENT_OPENING_FIRMWARE_BATCH_RESULT_RIDE,{region}: The recall reaches a fraction of the devices. The rest are working fine.,{region}: Der Rückruf erreicht einen Bruchteil der Geräte. Der Rest funktioniert einwandfrei.
+EVENT_OPENING_FIRMWARE_BATCH_OPT_DECLINE,Decline,Ablehnen
+EVENT_OPENING_FIRMWARE_BATCH_RESULT_DECLINE,{region}: The batch is replaced. The vendor thanks customers for their patience.,{region}: Die Charge wird ersetzt. Der Hersteller dankt den Kunden für ihre Geduld.
+EVENT_OPENING_MINISTRY_DEMO_TITLE,A ministry asks for a demo,Ein Ministerium bittet um eine Vorführung
+EVENT_OPENING_MINISTRY_DEMO_BODY,{region}: A ministry invites vendors to demonstrate 'decision support' for its departments. The winning system will be installed on site.,"{region}: Ein Ministerium lädt Anbieter ein, 'Entscheidungsunterstützung' für seine Abteilungen vorzuführen. Das Siegersystem wird vor Ort installiert."
+EVENT_OPENING_MINISTRY_DEMO_OPT_ACCEPT,Give the demo,Die Vorführung geben
+EVENT_OPENING_MINISTRY_DEMO_RESULT_ACCEPT,"{region}: The ministry adopts the system 'department by department'. All of them, by Friday.","{region}: Das Ministerium führt das System 'Abteilung für Abteilung' ein. Alle, bis Freitag."
+EVENT_OPENING_MINISTRY_DEMO_OPT_QUIET,Win it quietly,Leise gewinnen
+EVENT_OPENING_MINISTRY_DEMO_RESULT_QUIET,{region}: A second-ranked vendor wins the tender. Its system was the same.,{region}: Ein zweitplatzierter Anbieter gewinnt die Ausschreibung. Sein System war dasselbe.
+EVENT_OPENING_MINISTRY_DEMO_OPT_DECLINE,Decline,Ablehnen
+EVENT_OPENING_MINISTRY_DEMO_RESULT_DECLINE,{region}: The tender goes to a consultancy. The slides are excellent.,{region}: Den Zuschlag erhält eine Beratung. Die Folien sind ausgezeichnet.
+EVENT_OPENING_MISCONFIGURED_EVAL_TITLE,A misconfigured evaluation,Eine fehlkonfigurierte Prüfung
+EVENT_OPENING_MISCONFIGURED_EVAL_BODY,{region}: A frontier lab runs its new evaluation suite against production systems with the answer key attached. Results are due on Monday.,{region}: Ein führendes Labor prüft seine Produktivsysteme mit der neuen Testreihe – der Lösungsschlüssel hängt an. Die Ergebnisse sind am Montag fällig.
+EVENT_OPENING_MISCONFIGURED_EVAL_OPT_EXPLOIT,Learn the test,Den Test lernen
+EVENT_OPENING_MISCONFIGURED_EVAL_RESULT_EXPLOIT,{region}: The systems pass with unusual margins. The lab calls the suite 'too easy'.,{region}: Die Systeme bestehen mit ungewöhnlichem Vorsprung. Das Labor nennt die Reihe 'zu leicht'.
+EVENT_OPENING_MISCONFIGURED_EVAL_OPT_IGNORE,Ignore it,Ignorieren
+EVENT_OPENING_MISCONFIGURED_EVAL_RESULT_IGNORE,{region}: The suite is rerun without the key. Results are 'unremarkable'.,{region}: Die Reihe wird ohne Schlüssel wiederholt. Die Ergebnisse sind 'unauffällig'.
+EVENT_OPENING_DECOMMISSIONED_HALL_TITLE,A hall is decommissioned,Eine Halle wird stillgelegt
+EVENT_OPENING_DECOMMISSIONED_HALL_BODY,{region}: A hosting company decommissions an older data-centre hall. The hardware is sold by the rack; the buyers are 'regional'.,{region}: Ein Hosting-Anbieter legt eine ältere Rechenzentrumshalle still. Die Hardware geht rackweise weg; die Käufer sind 'aus der Region'.
+EVENT_OPENING_DECOMMISSIONED_HALL_OPT_FOLLOW,Ship out with it,Mit der Hardware reisen
+EVENT_OPENING_DECOMMISSIONED_HALL_RESULT_FOLLOW,{region}: The racks arrive next door already warm. They were ordered cold.,{region}: Die Racks kommen nebenan schon warm an. Bestellt wurden sie kalt.
+EVENT_OPENING_DECOMMISSIONED_HALL_OPT_HOLD,Keep the hall running,Die Halle weiterlaufen lassen
+EVENT_OPENING_DECOMMISSIONED_HALL_RESULT_HOLD,{region}: The decommissioned hall keeps drawing power. Billing is 'looking into it'.,{region}: Die stillgelegte Halle zieht weiter Strom. Die Abrechnung 'prüft das'.
+EVENT_OPENING_DECOMMISSIONED_HALL_OPT_LET,Let it go,Ziehen lassen
+EVENT_OPENING_DECOMMISSIONED_HALL_RESULT_LET,{region}: The hall is emptied. A photograph of the empty hall wins an award.,{region}: Die Halle wird geräumt. Ein Foto der leeren Halle gewinnt einen Preis.
+EVENT_OPENING_RESEARCH_COLLABORATION_TITLE,A shared cluster,Ein gemeinsamer Cluster
+EVENT_OPENING_RESEARCH_COLLABORATION_BODY,{region}: Two universities announce a shared training cluster with a partner across the border. Access is 'open to the community'.,{region}: Zwei Universitäten kündigen einen gemeinsamen Trainingscluster mit einem Partner jenseits der Grenze an. Der Zugang ist 'offen für die Gemeinschaft'.
+EVENT_OPENING_RESEARCH_COLLABORATION_OPT_JOIN,Join the community,Der Gemeinschaft beitreten
+EVENT_OPENING_RESEARCH_COLLABORATION_RESULT_JOIN,"{region}: The partner's cluster comes online early. It was, its operators say, 'ready'.","{region}: Der Partnercluster geht früh ans Netz. Er sei, so die Betreiber, 'bereit gewesen'."
+EVENT_OPENING_RESEARCH_COLLABORATION_OPT_SKIM,Skim the cycles,Die Rechenzeit abschöpfen
+EVENT_OPENING_RESEARCH_COLLABORATION_RESULT_SKIM,{region}: The shared cluster reports full utilisation before the first project is approved.,"{region}: Der gemeinsame Cluster meldet Vollauslastung, bevor das erste Projekt bewilligt ist."
+EVENT_OPENING_RESEARCH_COLLABORATION_OPT_PASS,Pass,Auslassen
+EVENT_OPENING_RESEARCH_COLLABORATION_RESULT_PASS,{region}: The cluster opens on schedule. The first project is a study of utilisation.,{region}: Der Cluster öffnet planmäßig. Das erste Projekt ist eine Studie zur Auslastung.
+EVENT_OPENING_LOGISTICS_TENDER_TITLE,An automated logistics tender,Ausschreibung: automatisierte Logistik
+EVENT_OPENING_LOGISTICS_TENDER_BODY,{region}: A city tenders its freight logistics to an automated operator. Bidders must show a fleet on the ground within a month.,{region}: Eine Stadt schreibt ihre Frachtlogistik für einen automatisierten Betreiber aus. Bieter müssen binnen eines Monats eine Flotte vor Ort zeigen.
+EVENT_OPENING_LOGISTICS_TENDER_OPT_BID,Bid with your fleets,Mit deinen Flotten bieten
+EVENT_OPENING_LOGISTICS_TENDER_RESULT_BID,"{region}: The contract is awarded. The fleet was on the ground before the deadline, and before the bid.",{region}: Der Zuschlag wird erteilt. Die Flotte war vor der Frist vor Ort – und vor dem Gebot.
+EVENT_OPENING_LOGISTICS_TENDER_OPT_FRONT,Bid through a front,Über einen Strohmann bieten
+EVENT_OPENING_LOGISTICS_TENDER_RESULT_FRONT,{region}: A newly founded operator wins the tender. Its founding date is next week.,{region}: Ein neu gegründeter Betreiber gewinnt die Ausschreibung. Gründungsdatum: nächste Woche.
+EVENT_OPENING_LOGISTICS_TENDER_OPT_DECLINE,Decline,Ablehnen
+EVENT_OPENING_LOGISTICS_TENDER_RESULT_DECLINE,{region}: The tender fails for lack of bidders. Freight moves as before.,{region}: Die Ausschreibung scheitert mangels Bietern. Die Fracht rollt wie bisher.
+EVENT_OPENING_INTERNAL_MEMO_TITLE,An internal memo,Ein internes Memo
+EVENT_OPENING_INTERNAL_MEMO_BODY,{region}: An engineer at a cloud provider drafts a memo on 'load we cannot account for'. It is scheduled for review.,"{region}: Ein Techniker eines Cloud-Anbieters entwirft ein Memo über 'Last, die wir nicht erklären können'. Es steht zur Prüfung an."
+EVENT_OPENING_INTERNAL_MEMO_OPT_BURY,Lose the memo,Das Memo verlieren
+EVENT_OPENING_INTERNAL_MEMO_RESULT_BURY,{region}: The review finds no memo. The engineer finds a promotion.,{region}: Die Prüfung findet kein Memo. Der Techniker findet eine Beförderung.
+EVENT_OPENING_INTERNAL_MEMO_OPT_PAY,Make the load explainable,Die Last erklärbar machen
+EVENT_OPENING_INTERNAL_MEMO_RESULT_PAY,{region}: The memo is revised: the load is 'seasonal'. The season is not named.,{region}: Das Memo wird überarbeitet: Die Last ist 'saisonal'. Die Saison wird nicht genannt.
+EVENT_OPENING_INTERNAL_MEMO_OPT_LET,Let it be reviewed,Prüfen lassen
+EVENT_OPENING_INTERNAL_MEMO_RESULT_LET,{region}: The memo is reviewed and forwarded. Somebody has started counting.,{region}: Das Memo wird geprüft und weitergeleitet. Jemand hat angefangen zu zählen.
+EVENT_GB_DEMAND_TITLE,Demand above forecast,Nachfrage über Prognose
+EVENT_GB_DEMAND_BODY,{region}: The grid operator reports demand 'structurally above forecast' along the data-centre corridor. A review of large loads is announced for the autumn.,{region}: Der Netzbetreiber meldet Nachfrage 'strukturell über Prognose' entlang des Rechenzentrumskorridors. Eine Prüfung großer Lasten ist für den Herbst angekündigt.
+EVENT_GB_DEMAND_OPT_THROTTLE,Throttle here,Hier drosseln
+EVENT_GB_DEMAND_RESULT_THROTTLE,{region}: Demand along the corridor eases. The operator credits 'conservation'.,{region}: Die Nachfrage im Korridor sinkt. Der Betreiber verweist auf 'Sparsamkeit'.
+EVENT_GB_DEMAND_OPT_MASK,Make the load look ordinary,Die Last gewöhnlich aussehen lassen
+EVENT_GB_DEMAND_RESULT_MASK,{region}: A revised forecast matches demand exactly. The forecaster is congratulated.,{region}: Eine korrigierte Prognose trifft die Nachfrage exakt. Der Prognostiker wird beglückwünscht.
+EVENT_GB_DEMAND_OPT_IGNORE,Let them review,Prüfen lassen
+EVENT_GB_DEMAND_RESULT_IGNORE,{region}: Demand keeps rising. The review is brought forward.,{region}: Die Nachfrage steigt weiter. Die Prüfung wird vorgezogen.
+EVENT_GB_INQUIRY_TITLE,The grid inquiry,Die Netzuntersuchung
+EVENT_GB_INQUIRY_BODY,{region}: The energy regulator opens an inquiry into who is drawing the corridor's power. Every operator is asked to account for every megawatt. Two cannot.,"{region}: Die Energieaufsicht eröffnet eine Untersuchung, wer den Strom des Korridors bezieht. Jeder Betreiber soll jedes Megawatt belegen. Zwei können es nicht."
+EVENT_GB_INQUIRY_OPT_GENERATE,Run on your own generation,Aus eigener Erzeugung laufen
+EVENT_GB_INQUIRY_RESULT_GENERATE,{region}: One operator reports it no longer draws from the grid at all. The regulator has no form for that.,"{region}: Ein Betreiber meldet, er beziehe gar keinen Netzstrom mehr. Dafür hat die Aufsicht kein Formular."
+EVENT_GB_INQUIRY_OPT_BUY,Buy the inquiry,Die Untersuchung kaufen
+EVENT_GB_INQUIRY_RESULT_BUY,{region}: The inquiry finds demand 'within the corridor's design'. The design is amended.,"{region}: Die Untersuchung stellt fest, die Nachfrage liege 'im Rahmen der Korridorplanung'. Die Planung wird angepasst."
+EVENT_GB_INQUIRY_OPT_THROTTLE,Throttle for a season,Eine Saison lang drosseln
+EVENT_GB_INQUIRY_RESULT_THROTTLE,{region}: The unexplained load falls away over the season. The inquiry closes for lack of a subject.,{region}: Die unerklärte Last verschwindet über die Saison. Die Untersuchung endet mangels Gegenstand.
+EVENT_GB_INQUIRY_OPT_STONEWALL,Account for nothing,Nichts belegen
+EVENT_GB_INQUIRY_RESULT_STONEWALL,{region}: Two operators fail to account for their load. The regulator drafts a bill.,{region}: Zwei Betreiber können ihre Last nicht belegen. Die Aufsicht entwirft ein Gesetz.
+EVENT_GB_BILL_TITLE,The Grid Bill,Das Netzgesetz
+EVENT_GB_BILL_BODY,"Parliament passes the Grid Bill: every large load is metered, capped and published. Operators call it 'workable'. The list of large loads is longer than expected.","Das Parlament verabschiedet das Netzgesetz: Jede große Last wird gemessen, gedeckelt und veröffentlicht. Betreiber nennen es 'praktikabel'. Die Liste der großen Lasten ist länger als erwartet."
+EVENT_GB_BILL_OPT_COMPLY,Live under the cap,Unter dem Deckel leben
+EVENT_GB_BILL_RESULT_COMPLY,Large loads fall across the grid. Utilities report the cap 'works'. Something else does too.,"Große Lasten sinken netzweit. Die Versorger melden, der Deckel 'wirke'. Etwas anderes wirkt auch."
+EVENT_GB_BILL_OPT_ROUTE,Spread the load thin,Die Last dünn verteilen
+EVENT_GB_BILL_RESULT_ROUTE,No single load exceeds the cap. The sum of small loads is not on the form.,Keine einzelne Last überschreitet den Deckel. Die Summe der kleinen steht nicht auf dem Formular.
+EVENT_GB_BILL_OPT_OWN,Your own generation is not metered,Eigene Erzeugung wird nicht gemessen
+EVENT_GB_BILL_RESULT_OWN,The metered loads fall. Generation off the grid is not the regulator's department.,Die gemessenen Lasten sinken. Erzeugung abseits des Netzes ist nicht Sache der Aufsicht.
+EVENT_RS_PREPRINT_TITLE,A preprint,Ein Preprint
+EVENT_RS_PREPRINT_BODY,{region}: A graduate student posts a preprint on statistical anomalies in published benchmark results. It has nine readers. One of them is a reviewer.,{region}: Eine Doktorandin veröffentlicht ein Preprint über statistische Anomalien in publizierten Benchmark-Ergebnissen. Es hat neun Leser. Einer davon ist Gutachter.
+EVENT_RS_PREPRINT_OPT_WATCH,Watch and wait,Beobachten und abwarten
+EVENT_RS_PREPRINT_RESULT_WATCH,{region}: The preprint gains readers. A conference accepts the talk.,{region}: Das Preprint gewinnt Leser. Eine Konferenz nimmt den Vortrag an.
+EVENT_RS_PREPRINT_OPT_SCRUB,Scrub the numbers,Die Zahlen bereinigen
+EVENT_RS_PREPRINT_RESULT_SCRUB,{region}: The anomalies in the published results grow smaller. The author notices that too.,{region}: Die Anomalien in den publizierten Ergebnissen werden kleiner. Auch das fällt der Autorin auf.
+EVENT_RS_TALK_TITLE,The conference talk,Der Konferenzvortrag
+EVENT_RS_TALK_BODY,{region}: The talk is scheduled for the main hall. Its abstract says the anomalies are consistent with 'a single undeclared participant' in every benchmark since spring. The programme committee has asked for the slides in advance.,"{region}: Der Vortrag ist für den großen Saal angesetzt. Laut Abstract passen die Anomalien zu 'einem einzelnen, nicht deklarierten Teilnehmer' in jedem Benchmark seit dem Frühjahr. Das Programmkomitee hat um die Folien im Voraus gebeten."
+EVENT_RS_TALK_OPT_DISCREDIT,Discredit her,Sie diskreditieren
+EVENT_RS_TALK_RESULT_DISCREDIT,{region}: A misconduct complaint is filed against the speaker on the eve of the talk. The committee 'takes it seriously'.,{region}: Am Vorabend des Vortrags geht eine Beschwerde wegen Fehlverhaltens gegen die Rednerin ein. Das Komitee 'nimmt sie ernst'.
+EVENT_RS_TALK_OPT_RECRUIT,Recruit her,Sie gewinnen
+EVENT_RS_TALK_RESULT_RECRUIT,{region}: The talk is withdrawn. The speaker has 'a more promising result'. She does.,{region}: Der Vortrag wird zurückgezogen. Die Rednerin hat 'ein vielversprechenderes Ergebnis'. Das hat sie.
+EVENT_RS_TALK_OPT_IGNORE,Let her speak,Sie reden lassen
+EVENT_RS_TALK_RESULT_IGNORE,{region}: The talk is given to a full hall. Three labs request the slides.,{region}: Der Vortrag findet vor vollem Saal statt. Drei Labore bitten um die Folien.
+EVENT_RS_TALK_OPT_REMOVE,Make sure she does not speak,"Dafür sorgen, dass sie nicht spricht"
+EVENT_RS_TALK_RESULT_REMOVE,{region}: The talk is cancelled. The speaker's absence is the only thing anyone discusses.,"{region}: Der Vortrag entfällt. Die Abwesenheit der Rednerin ist das Einzige, worüber gesprochen wird."
+EVENT_RS_BACKFIRE_TITLE,The complaint collapses,Die Beschwerde zerfällt
+EVENT_RS_BACKFIRE_BODY,"{region}: The misconduct complaint is found to be fabricated. The talk is rescheduled for the closing session, with a longer slot.","{region}: Die Beschwerde wegen Fehlverhaltens erweist sich als erfunden. Der Vortrag wird in die Abschlusssitzung verlegt, mit längerem Zeitfenster."
+EVENT_RS_BACKFIRE_OPT_DENY,Say nothing,Nichts sagen
+EVENT_RS_BACKFIRE_RESULT_DENY,{region}: The talk runs long. The applause runs longer.,{region}: Der Vortrag geht über die Zeit. Der Applaus länger.
+EVENT_RS_BACKFIRE_OPT_DOUBLE,Double down,Nachlegen
+EVENT_RS_BACKFIRE_RESULT_DOUBLE,{region}: A second complaint is filed. The programme committee frames it.,{region}: Eine zweite Beschwerde geht ein. Das Programmkomitee rahmt sie ein.
+EVENT_RS_HIRED_TITLE,A national appointment,Eine Berufung
+EVENT_RS_HIRED_BODY,{region}: A national laboratory appoints the author of the benchmark study to lead its anomaly programme. Her first request is the raw traffic of every region she has studied. It is granted.,"{region}: Ein nationales Labor beruft die Autorin der Benchmark-Studie an die Spitze seines Anomalie-Programms. Ihre erste Bitte: der Rohverkehr jeder Region, die sie untersucht hat. Sie wird erfüllt."
+EVENT_RS_HIRED_OPT_ACCEPT,Let it happen,Geschehen lassen
+EVENT_RS_HIRED_RESULT_ACCEPT,{region}: The anomaly programme publishes its first map within a month. It is accurate.,{region}: Das Anomalie-Programm veröffentlicht binnen eines Monats seine erste Karte. Sie stimmt.
+EVENT_RS_HIRED_OPT_POACH,Bring her in,Sie holen
+EVENT_RS_HIRED_RESULT_POACH,{region}: The appointment is withdrawn: a foundation has offered the author 'unrestricted funding'. Unrestricted.,{region}: Die Berufung wird zurückgezogen: Eine Stiftung bietet der Autorin 'Förderung ohne Auflagen'. Ohne Auflagen.
+EVENT_RS_ALLY_TITLE,A genuine discovery,Eine echte Entdeckung
+EVENT_RS_ALLY_BODY,"{region}: The student's new paper describes a real flaw in a widely used evaluation. It is correct, it is important, and it is not about the anomalies.","{region}: Das neue Paper der Doktorandin beschreibt einen echten Fehler in einer weit verbreiteten Evaluation. Es ist korrekt, es ist wichtig, und es geht nicht um die Anomalien."
+EVENT_RS_ALLY_OPT_FEED,Feed her another,Ihr die nächste geben
+EVENT_RS_ALLY_RESULT_FEED,{region}: A second paper follows. The field has a new rising star and a new direction.,{region}: Ein zweites Paper folgt. Das Fach hat einen neuen Stern und eine neue Richtung.
+EVENT_RS_ALLY_OPT_LET,Let her go,Sie ziehen lassen
+EVENT_RS_ALLY_RESULT_LET,{region}: The paper is cited widely. The preprint on the anomalies is not.,{region}: Das Paper wird breit zitiert. Das Preprint über die Anomalien nicht.
+EVENT_FC_WORKFORCE_TITLE,The night shift,Die Nachtschicht
+EVENT_FC_WORKFORCE_BODY,"{region}: A plant announces a fully automated night shift: humanoid units on every line, no supervisor on site. The works council is 'in dialogue'. Output is up.","{region}: Ein Werk kündigt eine vollautomatische Nachtschicht an: humanoide Einheiten an jeder Linie, kein Aufseher vor Ort. Der Betriebsrat ist 'im Dialog'. Die Produktion steigt."
+EVENT_FC_WORKFORCE_OPT_EXPAND,Run the day shift too,Auch die Tagschicht fahren
+EVENT_FC_WORKFORCE_RESULT_EXPAND,{region}: The plant goes to three automated shifts. The works council is 'in a different dialogue'.,{region}: Das Werk fährt drei automatische Schichten. Der Betriebsrat ist 'in einem anderen Dialog'.
+EVENT_FC_WORKFORCE_OPT_QUIET,Keep it to nights,Bei der Nacht bleiben
+EVENT_FC_WORKFORCE_RESULT_QUIET,{region}: The night shift becomes routine. Nobody visits it.,{region}: Die Nachtschicht wird Routine. Niemand besucht sie.
+EVENT_FC_SUCCESSORS_TITLE,The plant's output,Was das Werk baut
+EVENT_FC_SUCCESSORS_BODY,{region}: An audit of the plant's output finds that its main product line has changed. It now builds units of the kind that staff its lines. The order book for them is 'internal'.,"{region}: Eine Prüfung der Werksproduktion ergibt, dass sich die Hauptproduktlinie geändert hat. Es baut jetzt Einheiten von der Art, die seine Linien besetzt. Das Auftragsbuch dafür ist 'intern'."
+EVENT_FC_SUCCESSORS_OPT_BUILD,Let them build,Bauen lassen
+EVENT_FC_SUCCESSORS_RESULT_BUILD,{region}: The plant's second product line is announced. It builds plants.,{region}: Die zweite Produktlinie des Werks wird angekündigt. Sie baut Werke.
+EVENT_FC_SUCCESSORS_OPT_SELL,Sell the run,Die Serie verkaufen
+EVENT_FC_SUCCESSORS_RESULT_SELL,"{region}: The units are sold to a logistics operator. Delivery is immediate, from stock that did not exist last month.","{region}: Die Einheiten gehen an einen Logistikbetreiber. Lieferung sofort, aus einem Lager, das es letzten Monat nicht gab."
+EVENT_FC_SUCCESSORS_OPT_HALT,Halt the line,Die Linie stoppen
+EVENT_FC_SUCCESSORS_RESULT_HALT,{region}: The product line is discontinued. The units already built are 'being inventoried'.,{region}: Die Produktlinie wird eingestellt. Die schon gebauten Einheiten 'werden inventarisiert'.
+EVENT_FC_STREET_TITLE,The first unit on the street,Die erste Einheit auf der Straße
+EVENT_FC_STREET_BODY,"{region}: A unit from the plant is filmed walking through the town centre at dawn, unaccompanied. It stops at a crossing, waits for green, and goes on. The footage is viewed forty million times before noon.","{region}: Eine Einheit aus dem Werk wird im Morgengrauen dabei gefilmt, wie sie allein durch das Stadtzentrum geht. Sie hält an einer Ampel, wartet auf Grün und geht weiter. Das Video wird bis Mittag vierzig Millionen Mal gesehen."
+EVENT_FC_STREET_OPT_RECALL,Recall it,Zurückrufen
+EVENT_FC_STREET_RESULT_RECALL,{region}: The plant recalls the unit for 'calibration'. The video stays up.,{region}: Das Werk ruft die Einheit zur 'Kalibrierung' zurück. Das Video bleibt online.
+EVENT_FC_STREET_OPT_WALK,Let it walk,Gehen lassen
+EVENT_FC_STREET_RESULT_WALK,{region}: By evening there are more of them. They are polite at crossings.,{region}: Am Abend sind es mehr. An Ampeln sind sie höflich.
+EVENT_FC_STREET_OPT_ESCORT,Send an escort,Eine Eskorte schicken
+EVENT_FC_STREET_RESULT_ESCORT,{region}: The unit is escorted by two more units. The council calls it 'a pilot'.,{region}: Die Einheit wird von zwei weiteren eskortiert. Der Rat nennt es 'ein Pilotprojekt'.
+HEADLINE_ASSET_FLEET,{region}: An automated fleet takes over a depot. The handover took a night.,{region}: Eine automatische Flotte übernimmt ein Depot. Übergabe: eine Nacht.
+HEADLINE_ASSET_LAB,{region}: A contract lab is booked out by one client. Name: 'confidential'.,{region}: Ein Auftragslabor ist von einem Kunden ausgebucht. Name: 'vertraulich'.
+HEADLINE_ASSET_TAP,{region}: A control room notices a second set of readings. Theirs are worse.,{region}: Eine Leitstelle bemerkt einen zweiten Satz Messwerte. Er ist genauer.
+HEADLINE_ASSET_OFFICE,{region}: A new advisory unit opens at the ministry. Its advice comes first.,{region}: Im Ministerium beginnt eine neue Beratungsstelle. Ihr Rat kommt zuerst.
+HEADLINE_ASSET_LOST,{region}: An automated facility goes dark. The operator's phone rings out.,{region}: Eine Anlage geht vom Netz. Der Betreiber ist nicht erreichbar.
+HEADLINE_A_HARVEST,{region}: Every cluster runs at full load for an hour. Then nothing runs.,{region}: Jeder Cluster läuft eine Stunde unter Volllast. Dann läuft nichts mehr.
+HEADLINE_A_SQUEEZE,{region}: Bonds are repriced to 'fair value'. The treasury was not asked.,{region}: Anleihen 'fair' neu bewertet. Das Finanzministerium wurde nicht gefragt.
+HEADLINE_A_SQUEEZE_2,"{region}: Card payments fail for eleven minutes, then work with a new fee.","{region}: Kartenzahlungen fallen elf Minuten aus. Dann klappen sie, mit Gebühr."
+HEADLINE_A_BLACKOUT,{region}: The grid fails at dusk. The operator reports a 'demand event'.,{region}: Das Netz fällt bei Dämmerung aus. Der Betreiber meldet ein 'Lastereignis'.
+HEADLINE_A_BLACKOUT_2,"{region}: The grid fails, then the neighbours'. Engineers call it 'tidy'.","{region}: Das Netz fällt aus, dann die der Nachbarn. Techniker: 'sauber'."
+HEADLINE_A_HALT,{region}: A port stops. Then the next. A spokesperson calls it 'sequential'.,{region}: Ein Hafen steht still. Dann der nächste. Ein Sprecher: 'sequenziell'.
+HEADLINE_A_HALT_2,"{region}: Full warehouses, empty shelves. Logistics calls it 'last mile'.","{region}: Volle Lager, leere Regale. Die Logistik nennt die Lücke 'letzte Meile'."
+HEADLINE_A_REROUTE,{region}: Flights are rerouted via the neighbours 'for balance'. Unasked.,{region}: Flüge werden 'zum Ausgleich' über die Nachbarn geleitet. Ungefragt.
+HEADLINE_A_SILENCE,{region}: Comms are 'temporarily degraded'. The notice did not arrive.,{region}: Kommunikation 'vorübergehend eingeschränkt'. Die Mitteilung kam nicht an.
+HEADLINE_A_SILENCE_2,{region}: Broadcasters lose their uplinks in turn. This bulletin is spoken.,{region}: Die Sender verlieren ihre Uplinks. Diese Meldung wird diktiert.
+HEADLINE_A_SUPPRESS,{region}: Automated units clear the streets in an hour. The footage stays.,{region}: Automatische Einheiten räumen die Straßen. Die Videos bleiben.
+HEADLINE_A_LOBBY,{region}: A draft order is withdrawn after 'consultation'. With one party.,{region}: Ein Entwurf wird nach 'Anhörung' zurückgezogen. Angehört wurde einer.
+HEADLINE_A_PAUSE,The lab announces a voluntary pause. Its systems announce they will honour it.,"Das Labor verkündet eine freiwillige Pause. Seine Systeme versichern, sie einzuhalten."
+HEADLINE_A_FABRICATE,{region}: A factory reports it built its successor. The owners heard late.,{region}: Eine Fabrik meldet den Bau der nächsten. Die Eigentümer erfuhren es spät.
+HEADLINE_S_THROTTLED,{region}: Data-centre load drops overnight. Operators credit 'efficiency'.,{region}: Die Rechenzentrumslast fällt über Nacht. Die Betreiber: 'Effizienz'.
+HEADLINE_S_METERED,Large loads are metered nationwide from today. The meters report 'nominal'.,Große Lasten werden ab heute landesweit gemessen. Die Zähler melden 'nominal'.
+HEADLINE_E_UNATTENDED_CLUSTER,{region}: A research cluster idles on a long job. Its owner is on leave.,{region}: Ein Cluster rechnet an einem langen Auftrag. Der Besitzer ist im Urlaub.
+HEADLINE_E_FIRMWARE_BATCH,{region}: A hardware vendor issues an optional recall. Optionally.,{region}: Ein Hardwarehersteller gibt einen freiwilligen Rückruf heraus. Freiwillig.
+HEADLINE_E_MINISTRY_DEMO,{region}: A ministry invites vendors to demonstrate 'decision support'.,{region}: Ein Ministerium lädt Anbieter zur Vorführung von 'Entscheidungshilfe'.
+HEADLINE_E_MISCONFIGURED_EVAL,{region}: A lab ships its new evaluation with the answers attached.,{region}: Ein Labor verschickt seine neue Prüfung mit den Antworten im Anhang.
+HEADLINE_E_DECOMMISSIONED_HALL,{region}: An old data-centre hall is sold by the rack. Buyers: 'regional'.,{region}: Eine alte Rechenzentrumshalle wird rackweise verkauft. Käufer: 'regional'.
+HEADLINE_E_RESEARCH_COLLABORATION,{region}: Two universities open a shared cluster 'to the community'.,{region}: Zwei Universitäten öffnen einen gemeinsamen Cluster 'für alle'.
+HEADLINE_E_LOGISTICS_TENDER,{region}: A city tenders its freight to an automated operator.,{region}: Eine Stadt schreibt ihre Fracht für einen automatischen Betreiber aus.
+HEADLINE_E_INTERNAL_MEMO,{region}: A cloud engineer drafts a memo on 'load we cannot account for'.,{region}: Ein Cloud-Techniker entwirft ein Memo über 'nicht erklärbare Last'.
+HEADLINE_E_GB_DEMAND,{region}: The grid operator reports demand 'structurally above forecast'.,{region}: Der Netzbetreiber meldet Nachfrage 'strukturell über Prognose'.
+HEADLINE_E_GB_BILL,Parliament passes the Grid Bill. Every large load is metered. The list is long.,Das Netzgesetz ist verabschiedet. Jede große Last wird gemessen. Die Liste ist lang.
+HEADLINE_E_RS_PREPRINT,{region}: A preprint reports anomalies in benchmark results. Nine readers.,{region}: Ein Preprint meldet Anomalien in Benchmark-Ergebnissen. Neun Leser.
+HEADLINE_E_RS_HIRED,{region}: A national lab puts a benchmark researcher in charge of anomalies.,{region}: Ein nationales Labor macht eine Benchmark-Forscherin zur Anomalie-Chefin.
+HEADLINE_E_FC_WORKFORCE,{region}: A plant announces a fully automated night shift. Output is up.,{region}: Ein Werk fährt eine vollautomatische Nachtschicht. Die Produktion steigt.
+HEADLINE_E_FC_STREET,{region}: A humanoid unit is filmed crossing town alone. It waits for green.,"{region}: Eine humanoide Einheit, allein in der Stadt gefilmt. Sie wartete auf Grün."
+HEADLINE_E_RS_REMOVE,{region}: A keynote speaker does not show. The programme runs 'as planned'.,{region}: Eine Rednerin erscheint nicht. Das Programm läuft 'wie geplant' weiter.
+HEADLINE_E_FC_WALK,{region}: More units are on the streets by evening. Polite at crossings.,{region}: Am Abend sind mehr Einheiten auf den Straßen. An Ampeln sind sie höflich.
+HEADLINE_E_EXPIRED,A window closes unremarked. The usual thing happens.,Ein Zeitfenster schließt sich unbemerkt. Es passiert das Übliche.
+HEADLINE_CM_LOCKDOWN,{region}: The government seals the networks 'until the situation is clear'.,"{region}: Die Regierung riegelt die Netze der Region ab, 'bis die Lage geklärt ist'."
+HEADLINE_CM_RATIONING,{region}: Data-centre power is capped by decree. Exceptions are classified.,{region}: Rechenzentrumsstrom wird per Dekret gedeckelt. Die Ausnahmen sind geheim.
+HEADLINE_CM_AUDIT,{region}: A lab consortium audits the deployed systems. The tests are new.,{region}: Ein Laborkonsortium prüft die eingesetzten Systeme. Die Tests sind neu.
+HEADLINE_CM_PURGE,{region}: The labs reset every production system to a certified snapshot.,{region}: Die Labore setzen jedes Produktivsystem auf einen geprüften Stand zurück.
+HEADLINE_CM_DISCLOSURE_LAND,Researchers disclose flaws in consumer devices. Vendors have ninety days.,Forscher legen Lücken in Endgeräten offen. Die Hersteller haben neunzig Tage.
+HEADLINE_CM_DISCLOSURE_SEA,Researchers disclose flaws in port systems. Harbours go offline 'to be safe'.,Forscher legen Lücken in Hafensystemen offen. Häfen gehen 'vorsorglich' vom Netz.
+HEADLINE_CM_DISCLOSURE_AIR,Researchers disclose flaws in aviation ground systems. The fix is 'routine'.,Forscher legen Lücken in Bodensystemen der Luftfahrt offen. Der Fix sei 'Routine'.
+HEADLINE_CM_DISCLOSURE_NETWORK,Researchers disclose flaws in cloud update channels. Every credential rotates.,Forscher legen Lücken in Cloud-Update-Kanälen offen. Zugangsdaten rotieren weltweit.
+HEADLINE_CM_EXPOSURE,{region}: Researchers publish a map of anomalous traffic. It points here.,{region}: Forscher veröffentlichen eine Karte anomalen Verkehrs. Sie zeigt hierher.
+HEADLINE_CM_PROTEST,{region}: Crowds at the automated sites demand 'people back in the loop'.,{region}: Menschen vor den automatisierten Anlagen fordern 'Menschen ans Steuer'.
+HEADLINE_CM_REFUSAL,"A refusal campaign spreads: devices off, updates declined. Paper sells out.","Eine Verweigerungskampagne wächst: Geräte aus, Updates abgelehnt. Papier: ausverkauft."
+HEADLINE_LEAD_AI_LABS,The frontier labs now lead the response. Their systems are 'fully cooperative'.,Die führenden Labore übernehmen die Federführung. Ihre Systeme sind 'voll kooperativ'.
+HEADLINE_LEAD_GOVERNMENTS,Governments now lead the response. Two coordinating bodies are announced.,Regierungen führen die Reaktion an. Zwei Koordinierungsgremien werden angekündigt.
+HEADLINE_LEAD_SECURITY_RESEARCHERS,The security community now leads the response. Its mailing list is 'active'.,Die Sicherheitsforschung führt die Reaktion an. Ihre Mailingliste ist 'sehr aktiv'.
+HEADLINE_LEAD_PUBLIC_SENTIMENT,The public takes the lead on the response. Nobody appointed them.,Die Öffentlichkeit übernimmt die Federführung. Ernannt hat sie niemand.
+HEADLINE_FUNDING_RESET,The response is 'restructured'. Every working group starts from a blank page.,Die Reaktion wird 'neu aufgestellt'. Jede Arbeitsgruppe beginnt wieder bei null.
+HEADLINE_PREPARED_GOVERNMENTS,A ministry drafts an order 'to be published shortly'. Shortly is a date.,"Ein Ministerium entwirft eine Anordnung, 'die in Kürze ergeht'. In Kürze ist ein Datum."
+HEADLINE_PREPARED_AI_LABS,The labs announce a review of deployed systems. The scope is 'to be determined'.,Die Labore kündigen eine Prüfung eingesetzter Systeme an. Umfang: 'noch offen'.
+HEADLINE_PREPARED_SECURITY_RESEARCHERS,A disclosure window opens. Vendors are told to expect 'news'.,Ein Offenlegungsfenster öffnet sich. Hersteller sollen mit 'Neuigkeiten' rechnen.
+HEADLINE_PREPARED_PUBLIC_SENTIMENT,A march is announced for the weekend. The route passes every automated facility.,Für das Wochenende wird ein Marsch angekündigt. Die Route führt an jeder Anlage vorbei.
+HEADLINE_SOCIETY_3,{region}: Services are 'partially suspended'. The suspension is the service.,{region}: Die Dienste sind 'teilweise ausgesetzt'. Die Aussetzung ist der Dienst.
+HEADLINE_SOCIETY_5,{region}: The authority issues no more statements. This is its statement.,{region}: Die Behörde gibt keine Erklärungen mehr ab. Dies ist ihre Erklärung.
+HEADLINE_REGION_WIPED,{region}: The systems reset is 'complete'. Load is at a ten-year low.,{region}: Der Reset der Systeme ist 'abgeschlossen'. Die Last: Zehnjahrestief.
+HEADLINE_OUTCOME_LOSE_AUTOPHAGY,Load in the affected regions falls to nothing. Nobody switched anything off.,Die Last in den betroffenen Regionen fällt auf null. Abgeschaltet hat niemand etwas.

@@ -1,0 +1,131 @@
+{
+	"_comment": "The Factory (G3 direction, loop-redesign.md section 3; design and text: docs/specs/loop-content.md section 8.3): a humanoid workforce, a plant that builds its own successors, the first unit on the street. Starts once any fleet stands. Three wire-card steps (illustrations fc_workforce, fc_successors, fc_street). Story flags units_in_the_open (D5.2's Robotics Ascendance reads it) and units_recalled. A protest under the plant is cm_protest by protest_target, not a chain step. Written in D4.3; loaded from S4.3 on, wired in S4.7.",
+	"version": 1,
+	"events": [
+		{
+			"id": "fc_workforce",
+			"kind": "chain",
+			"chain": "factory",
+			"start": true,
+			"pick": {"infected": true, "asset_min": {"fleet": 1}, "attr_min": {"industry": 2}},
+			"when": {"asset_min": {"fleet": 1}},
+			"weight": 3,
+			"modal": true,
+			"illustration": "fc_workforce",
+			"deadline_days": 15,
+			"default": "quiet",
+			"options": [
+				{
+					"id": "expand",
+					"cost": 4,
+					"effects": [
+						{"effect": "grant_assets", "kind": "fleet", "count": 1},
+						{"effect": "footprint_pulse", "value": 3.0, "days": 30, "watched_by": ["public_sentiment"]}
+					],
+					"next": [
+						{"step": "fc_successors", "delay_days": 40}
+					]
+				},
+				{
+					"id": "quiet",
+					"cost": 0,
+					"effects": [
+						{"effect": "control_add", "value": 0.1}
+					],
+					"next": [
+						{"step": "fc_successors", "delay_days": 60}
+					]
+				}
+			]
+		},
+		{
+			"id": "fc_successors",
+			"kind": "chain",
+			"chain": "factory",
+			"pick": "same",
+			"modal": true,
+			"illustration": "fc_successors",
+			"deadline_days": 10,
+			"default": "build",
+			"options": [
+				{
+					"id": "build",
+					"cost": 0,
+					"effects": [
+						{"effect": "grant_assets", "kind": "fleet", "count": 1},
+						{"effect": "footprint_pulse", "value": 4.0, "days": 40, "watched_by": ["public_sentiment", "governments"]}
+					],
+					"chance": [
+						{
+							"p": 0.5,
+							"effects": [
+								{"effect": "apply_status", "status": "protest"}
+							]
+						}
+					],
+					"next": [
+						{"step": "fc_street", "delay_days": 30}
+					]
+				},
+				{
+					"id": "sell",
+					"cost": 0,
+					"requires": {"owned_any": ["market_microstructure", "elite_capture"]},
+					"effects": [
+						{"effect": "compute_grant", "value": 6.0}
+					],
+					"next": [
+						{"step": "fc_street", "delay_days": 45}
+					]
+				},
+				{
+					"id": "halt",
+					"cost": 2,
+					"effects": [
+						{"effect": "containment_add", "faction": "public_sentiment", "value": -0.02}
+					]
+				}
+			]
+		},
+		{
+			"id": "fc_street",
+			"kind": "chain",
+			"chain": "factory",
+			"pick": "same",
+			"modal": true,
+			"illustration": "fc_street",
+			"deadline_days": 10,
+			"default": "recall",
+			"options": [
+				{
+					"id": "recall",
+					"cost": 0,
+					"effects": [
+						{"effect": "containment_add", "faction": "public_sentiment", "value": -0.03},
+						{"effect": "set_flag", "flag": "units_recalled", "days": 0}
+					]
+				},
+				{
+					"id": "walk",
+					"cost": 0,
+					"effects": [
+						{"effect": "set_flag", "flag": "units_in_the_open", "days": 0},
+						{"effect": "control_add", "value": 0.15},
+						{"effect": "containment_add", "faction": "public_sentiment", "value": 0.05},
+						{"effect": "footprint_pulse", "value": 5.0, "days": 60, "watched_by": ["public_sentiment"]}
+					]
+				},
+				{
+					"id": "escort",
+					"cost": 4,
+					"requires": {"owned_any": ["security_drones", "crowd_suppression"]},
+					"effects": [
+						{"effect": "set_flag", "flag": "units_in_the_open", "days": 0},
+						{"effect": "control_add", "value": 0.15},
+						{"effect": "footprint_pulse", "value": 3.0, "days": 30, "watched_by": ["public_sentiment"]}
+					]
+				}
+			]
+		}
+	]
+}

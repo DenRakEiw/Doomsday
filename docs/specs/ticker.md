@@ -479,6 +479,9 @@ S3.5 on; `ContentDB.headlines: Array[HeadlineDef]` in file order, `headline(id) 
   must be a known node id; a `milestone` value must be a milestone id or `continent_<continent>`
   for a `continent_foothold` milestone; a `region` value a known region id; a `link_kind` a
   known kind; a `cause` one of `SimEvent.CAUSE_*`; a `to`/`from` on `phase_changed` a phase id;
+  *(D4.3)* the domain of a `data` field is **per event type** — the M4 events add `def`,
+  `ability` + `level`, `status`, `kind`, `option`, `faction`, `to`/`from` as faction ids or
+  society stages, listed in `loop-content.md` §9.3 with the step that adds each;
   an `outcome` an outcome id; a `threshold` one of `balance.containment.thresholds`.
 - `region_attr_*` keys are the eight region attributes, values whole in 0…4, and the event type
   is one that carries `region` (`origin_chosen`, `region_seeded`, `region_controlled`,
