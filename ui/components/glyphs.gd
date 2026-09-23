@@ -13,7 +13,7 @@ extends RefCounted
 enum Glyph { PAUSE, PLAY, FAST_2, FAST_4, CLOSE, CHEVRON_LEFT, CHEVRON_RIGHT, CHEVRON_DOWN,
 	OVERLAY, CHECK, LOCK, EXTERNAL, MENU, DORMANT, ASSET_FLEET, ASSET_LAB, ASSET_TAP,
 	ASSET_OFFICE, EVENT_COUNTER, EVENT_OPENING, EVENT_CHAIN, FACTION_AI_LABS,
-	FACTION_GOVERNMENTS, FACTION_RESEARCHERS, FACTION_PUBLIC }
+	FACTION_GOVERNMENTS, FACTION_RESEARCHERS, FACTION_PUBLIC, OUTCOME, LOG_YOURS, LOG_THEIRS }
 
 ## The names `assets.json` may give as a kind's `glyph`, in `AssetDef.KINDS`
 ## order. The validator checks against this list, `asset_glyph` turns a name into
@@ -73,6 +73,11 @@ const FACTION_HANDLE_TO: Vector2 = Vector2(20.0, 20.0)
 const FACTION_HEADS: Array[Vector2] = [Vector2(5.5, 14.0), Vector2(12.0, 10.0),
 	Vector2(18.5, 14.0)]
 const FACTION_HEAD_RADIUS: float = 3.5
+## analysis.md §8: the run log's row marks — the end of the run, what you did,
+## what they did.
+const OUTCOME_SQUARE: float = 12.0
+const LOG_CHEVRON: float = 5.0
+const LOG_DOT: float = 2.5
 const DORMANT_RADIUS: float = 8.0
 const DORMANT_CUT_RADIUS: float = 6.0
 const DORMANT_CUT_OFFSET: Vector2 = Vector2(4.0, -3.0)
@@ -138,6 +143,15 @@ static func draw(canvas: CanvasItem, glyph: Glyph, box: Rect2, color: Color,
 			for head: Vector2 in FACTION_HEADS:
 				canvas.draw_arc(_at(box, head), FACTION_HEAD_RADIUS, 0.0, TAU, ARC_SEGMENTS,
 					color, stroke)
+		Glyph.OUTCOME:
+			canvas.draw_rect(Rect2(box.get_center() - Vector2.ONE * OUTCOME_SQUARE * 0.5,
+				Vector2.ONE * OUTCOME_SQUARE), color)
+		Glyph.LOG_YOURS:
+			var tip: Vector2 = box.get_center() + Vector2(LOG_CHEVRON * 0.5, 0.0)
+			canvas.draw_line(tip + Vector2(-LOG_CHEVRON, -LOG_CHEVRON), tip, color, stroke)
+			canvas.draw_line(tip + Vector2(-LOG_CHEVRON, LOG_CHEVRON), tip, color, stroke)
+		Glyph.LOG_THEIRS:
+			canvas.draw_circle(box.get_center(), LOG_DOT, color)
 		_:
 			_chevron(canvas, glyph, box, color, stroke)
 

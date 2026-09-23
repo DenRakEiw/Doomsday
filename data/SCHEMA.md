@@ -323,7 +323,9 @@ as ≥ 0 unless stated. The meaning of each constant is defined by the formula t
 | `headlines.filler.silence_dark_regions` | int | ≥ 1; this many dark regions and the filler stops |
 | `headlines.filler.silence_deaths_share` | float | in (0, 1]; so does this share of the world dead |
 | `results.ashes_share` | float | in (0, 1]; Ascendance above it reads as ashes (m3-screens §7.4) |
-| `history.interval_days` | int | ≥ 1 |
+| `history.interval_days` | int | ≥ 1; the *initial* days between two samples from the origin (1 since S4.8) |
+| `history.max_samples` | int | ≥ 2; past this many samples every second one goes and the stride doubles (analysis.md §3.1) |
+| `history.log_max` | int | ≥ 1; the run log keeps its newest this many entries (analysis.md §4.3) |
 | `events.opening_chance` | {phase id: float} | exactly the four phase ids, each in [0, 1]; the daily opening roll (`boxed` 0) |
 | `events.opening_from_regions` | int | ≥ 1; openings roll only once this many regions were seeded |
 | `events.max_open` | int | ≥ 1; how many map events may stand at once |

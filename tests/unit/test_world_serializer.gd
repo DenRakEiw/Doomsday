@@ -572,3 +572,35 @@ func test_four_tracks_and_the_schedule_fields_round_trip() -> void:
 	assert_eq(loaded.sim.world.regions[2].society, 12.5)
 	assert_eq(loaded.sim.world.starving_days, 3)
 	assert_eq(loaded.sim.state_hash(), sim.state_hash())
+
+
+# --------------------------------------------------- S4.8: history and the log
+
+
+func test_the_v1_migration_fills_the_history_and_the_log() -> void:
+	var loaded: LoadResult = WorldSerializer.from_json(FileAccess.get_file_as_string(V1_SAVE),
+		_shipped_db())
+	assert_true(loaded.ok(), loaded.reason)
+	var world: World = loaded.sim.world
+	assert_eq(world.history_stride, 7, "v1's seven-day interval, so the old samples align")
+	assert_eq(world.run_log.size(), 0)
+	assert_gt(world.history.size(), 0)
+	var sample: HistorySample = world.history[0]
+	assert_eq(sample.containment_by_faction.size(), 4)
+	for faction: String in Faction.FACTION_IDS:
+		assert_eq(sample.containment_by_faction[faction], sample.containment)
+		assert_eq(sample.pressure_by_faction[faction], 1.0)
+	assert_eq(sample.stage_counts, PackedInt32Array([0, 0, 0, 0, 0, 0]))
+	assert_eq(sample.assets.size(), AssetDef.KINDS.size())
+
+
+func test_a_v2_save_without_the_history_stride_is_corrupt() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	var save: Dictionary = JSON.parse_string(WorldSerializer.to_json(sim))
+	(save["world"] as Dictionary).erase("history_stride")
+	assert_eq(WorldSerializer.from_json(JSON.stringify(save), Fixtures.db()).reason,
+		WorldSerializer.REASON_CORRUPT)
+	var no_log: Dictionary = JSON.parse_string(WorldSerializer.to_json(sim))
+	(no_log["world"] as Dictionary).erase("run_log")
+	assert_eq(WorldSerializer.from_json(JSON.stringify(no_log), Fixtures.db()).reason,
+		WorldSerializer.REASON_CORRUPT)

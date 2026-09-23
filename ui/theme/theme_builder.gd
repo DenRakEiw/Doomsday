@@ -156,6 +156,7 @@ const VARIATIONS: Dictionary[String, String] = {
 	"ChipLabelSecurityResearchers": "LabelCaps",
 	"ChipLabelPublicSentiment": "LabelCaps",
 	"MapTooltip": PANEL_CONTAINER,
+	"ChartFrame": PANEL_CONTAINER,
 	"MapTooltipLabel": "LabelCaption",
 	"LabelConsoleLine": "LabelCaption",
 	"LabelCaptionAlert": "LabelCaption",
@@ -360,6 +361,14 @@ static func _panels() -> Theme:
 	# §7.7: chip-shaped, but on `BG_2` — it sits over the map, not on a panel.
 	theme.set_stylebox(STYLE_PANEL, "MapTooltip",
 		_flat(UiTokens.color(&"BG_2"), UiTokens.color(&"LINE_1"), UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
+
+	# analysis.md §6.5: a chart's frame, and the accent border it wears with focus.
+	var chart_pad: Vector2i = Vector2i(UiTokens.SPACE_2, UiTokens.SPACE_2)
+	theme.set_stylebox(STYLE_PANEL, "ChartFrame",
+		_flat(UiTokens.color(&"BG_2"), UiTokens.color(&"LINE_1"), UiTokens.BORDER, UiTokens.RADIUS_M,
+			chart_pad))
+	theme.set_stylebox(STYLE_FOCUS, "ChartFrame", _flat(Color.TRANSPARENT,
+		UiTokens.color(&"ACCENT"), UiTokens.BORDER_FOCUS, UiTokens.RADIUS_M, chart_pad))
 
 	# §5.5: the ticker is a strip with a top border and no other edge.
 	var ticker: StyleBoxFlat = _flat(UiTokens.color(&"BG_2"), UiTokens.color(&"LINE_1"), 0, 0,

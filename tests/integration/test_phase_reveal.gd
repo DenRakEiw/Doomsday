@@ -69,15 +69,13 @@ func test_reveal_follows_the_table() -> void:
 	assert_false(_bar("Harm").visible, "no harm yet, no harm bar")
 	assert_true(_block("OverlayPicker").visible)
 	assert_true(_dock_button(1).visible, "containment is the Covert player's tool")
-	assert_false(_dock_button(2).visible)
+	# analysis.md §5.1: the Analysis from Covert too, and live.
+	assert_true(_dock_button(2).visible, "and the risk line creeping is the Analysis' first use")
+	assert_false((_dock_button(2) as Button).disabled)
 
 	_set_phase(World.Phase.EMERGENT)
 	assert_true(_bar("Harm").visible, "from Emergent it is always there")
-	assert_false(_dock_button(2).visible)
-
-	_set_phase(World.Phase.OPEN)
-	assert_true(_dock_button(2).visible, "analysis appears in Open, disabled")
-	assert_true((_dock_button(2) as Button).disabled)
+	assert_true(_dock_button(2).visible)
 
 
 func test_the_harm_bar_appears_with_the_first_harm() -> void:

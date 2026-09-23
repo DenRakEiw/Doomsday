@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://game/session/session.gd" id="1_session"]
 [ext_resource type="PackedScene" path="res://game/map/map_view.tscn" id="2_map_view"]
@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" path="res://ui/modals/ability_picker.tscn" id="15_ability_picker"]
 [ext_resource type="PackedScene" path="res://ui/hud/menu_sheet.tscn" id="15_menu_sheet"]
 [ext_resource type="PackedScene" path="res://ui/modals/wire_card.tscn" id="16_wire_card"]
+[ext_resource type="PackedScene" path="res://ui/panels/analysis_panel.tscn" id="17_analysis"]
 
 [node name="Session" type="Control"]
 layout_mode = 3
@@ -74,6 +75,9 @@ unique_name_in_owner = true
 unique_name_in_owner = true
 
 [node name="MenuSheet" parent="PanelLayer" instance=ExtResource("15_menu_sheet")]
+unique_name_in_owner = true
+
+[node name="AnalysisPanel" parent="PanelLayer" instance=ExtResource("17_analysis")]
 unique_name_in_owner = true
 
 [node name="ModalLayer" type="CanvasLayer" parent="."]

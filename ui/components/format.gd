@@ -84,6 +84,12 @@ static func factor(value: float) -> String:
 	return TIMES + _decimal(absf(value), is_german(), decimals)
 
 
+## A plain number with up to `decimals` places, trailing zeros dropped — a chart's
+## Harm and pressure read to two (analysis.md §5.3).
+static func decimal(value: float, decimals: int) -> String:
+	return (MINUS if value < 0.0 else "") + _decimal(absf(value), is_german(), decimals)
+
+
 ## A contribution to a sum, signed, up to two decimals: `+0.42`, `+1.5`, `+0`
 ## (opposition.md §9.2's pressure terms).
 static func addend(value: float) -> String:

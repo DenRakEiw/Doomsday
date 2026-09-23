@@ -16,16 +16,18 @@ const BUTTON_KEYS: Array[String] = ["UI_DOCK_CAPABILITIES", "UI_DOCK_CONTAINMENT
 	"UI_DOCK_ANALYSIS"]
 const KEY_NOT_YET: String = "UI_DOCK_NOT_YET"
 
-## The phase each destination appears in (m3-screens §6.1).
+## The phase each destination appears in (m3-screens §6.1; the Analysis from
+## Covert since analysis.md §5.1).
 const DESTINATION_PHASE: Array[World.Phase] = [World.Phase.BOXED, World.Phase.COVERT,
-	World.Phase.OPEN]
+	World.Phase.COVERT]
 
 const DESTINATION_CAPABILITIES: int = 0
 const DESTINATION_CONTAINMENT: int = 1
 const DESTINATION_ANALYSIS: int = 2
-## The screens that exist. S3.3 adds containment, S4.7 analysis; until then the
-## button is a promise with `UI_DOCK_NOT_YET` in its tooltip.
-const LIVE_DESTINATIONS: Array[int] = [DESTINATION_CAPABILITIES, DESTINATION_CONTAINMENT]
+## The screens that exist — all three since S4.8. A destination missing here is
+## a promise with `UI_DOCK_NOT_YET` in its tooltip.
+const LIVE_DESTINATIONS: Array[int] = [DESTINATION_CAPABILITIES, DESTINATION_CONTAINMENT,
+	DESTINATION_ANALYSIS]
 
 ## §5.7: an island of three stacked buttons, or a full-width bar of three.
 var compact: bool = false:

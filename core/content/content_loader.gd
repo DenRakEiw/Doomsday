@@ -845,6 +845,8 @@ static func _build_balance(d: Dictionary) -> BalanceDef:
 
 	var history: Dictionary = d["history"]
 	def.history_interval_days = int(history["interval_days"])
+	def.history_max_samples = int(history["max_samples"])
+	def.history_log_max = int(history["log_max"])
 
 	var events: Dictionary = d["events"]
 	var chances: Dictionary = events["opening_chance"]

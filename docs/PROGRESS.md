@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S4.8 — Analysis screen** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/analysis.md` — load the `dataviz` skill first) |
+| **Next step** | **S4.9 — Localisation tooling and overflow screenshots** (IMPLEMENTATION Block 8; *Read first* is UI §4 "Localisation", §5) |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S4.9, S4.10 → D4.5 → G4 (the gates still need the user) |
-| **Last completed** | S4.7 — Chains: the six chains (21 steps, every option) covered by `test_chains.gd` on `res://data` with each roll seen both ways at named seeds, the eight openings by `test_openings.gd`, every M4 headline shown to fire (`test_m4_headlines.gd`); the §9.3 `faction` domain and `society_stage_changed` as a region event; `bm_exposed` in German at 400 px seen in the running game. 1178 tests, all green (2026-09-23) |
-| **Before that** | S4.6 — Trees v3 and the remaining abilities (2026-09-23) |
+| **After it** | S4.10 → D4.5 → G4 (the gates still need the user) |
+| **Last completed** | S4.8 — Analysis screen: per-day history thinned at 400 samples with the D4.4 fields, the run log (300) in the core and the save, `LineChart` / `TimelineStrip` / `RunLogText`, the Analysis sheet (`G`, the dock and the sheet from Covert, three-way panel exclusion) with Run / Opposition / World / Log, the table twin and *Review the run* on the results; the gallery's *Charts*. 1230 tests, all green (2026-09-24) |
+| **Before that** | S4.7 — Chains (2026-09-23) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 177 scripts compile (68 judged by the suite), 1178 tests, **all green since S4.7**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 177 scripts compile (68 judged by the suite), 1230 tests, **all green since S4.8**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -107,8 +107,8 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S4.5 [O] Counter-moves, Societal Function, Autophagy
 - [x] S4.6 [O] Trees v3 and the remaining abilities
 - [x] S4.7 [O] Chains
-- [ ] **S4.8 [O] Analysis screen**
-- [ ] S4.9 [O] Localisation tooling and overflow screenshots
+- [x] S4.8 [O] Analysis screen
+- [ ] **S4.9 [O] Localisation tooling and overflow screenshots**
 - [ ] S4.10 [O] Strategy bots, second generation — ⇄ **then `/model fable`**
 
 **Block 9 — M4 gate, M5 design · Fable**
@@ -858,6 +858,28 @@ compact bar (it is in the sheet), or a short rate form (`+0,1/T`).
 
 ## Deviations from the plan or a spec
 
+- **2026-09-24** (S4.8) — **The panel is built in code** (`analysis_panel.tscn` is the root and
+  its script): the tabs and the log are rebuilt from the world, and a moved `%` subtree loses its
+  names (*Known issues*). `AnalysisTab` is a `VBoxContainer` per chart tab rather than a helper
+  object; the Opposition order is the tab's child order (risk, note, faction row; after
+  discovery faction row, risk).
+- **2026-09-24** (S4.8) — **The risk line ends the day before discovery**: the sample on the
+  discovery day reads 0 (there is no risk left to run), and drawn it was a cliff into the marker.
+- **2026-09-24** (S4.8) — **The x-axis caption ends at the frame's right edge** and the tick
+  labels under it give way: *Tage seit dem Ursprung* is wider than the 80 px label gutter.
+- **2026-09-24** (S4.8) — **The chart's tooltip and the strip's are drawn**, not `MapTooltip`
+  nodes: a chart is one `Control` with nothing inside it, and the strip's tip must show for a
+  keyboard reader too (it also becomes `accessibility_description`). Both use the `MapTooltip`
+  stylebox.
+- **2026-09-24** (S4.8) — **Marks carry a colour token as well as a colour** (`RunLogText._mark`):
+  a log row's `GlyphIcon` draws by token, so the Open palette reaches it.
+- **2026-09-24** (S4.8) — **Three glyphs added** (`OUTCOME` ■, `LOG_YOURS` ›, `LOG_THEIRS` ·);
+  `Format.decimal` and `UiTokens.series_color` / `ramp_color`; `World.controlled_count` /
+  `dark_count`. The first history sample is offset 1, not 0: the origin is chosen between ticks
+  and the history samples on ticks.
+- **2026-09-24** (S4.8) — **Not done in S4.8, left for S4.9's screenshot set:** the 400 px German
+  pass over all four tabs, and the 4× frame-budget check with the panel open (§16).
+
 - **2026-09-23** (S4.7) — **The chains needed no wiring**: S4.3's `EventSystem` already runs
   `next`, `chance[].next`, `pick: "same"`, a step's own pick, `origin`, standing statuses and
   `global` effects. S4.7 is the tests the two specs list. The rolls, as the tests print them:
@@ -1582,6 +1604,18 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — S4.8 Analysis screen [O]
+- **Core:** `HistorySample` with the D4.4 fields and its codec, `HistorySystem` sampling every
+  day from the origin and thinning past `max_samples`, `RunLogEntry` + `RunLog` (the kept types
+  and keys, the two filters, the cap) recorded from `tick` and `apply`; `history_stride` and
+  `run_log` in the world, the hash and save v2 (v1 migration fills them); `history.max_samples`,
+  `log_max`, `interval_days` 1.
+- **Interface:** `ChartSeries`, `LineChart` (scales, bands, moments, reference lines, end labels
+  with collision, stacked areas, cursor and tooltip, keyboard, table days), `TimelineStrip`,
+  `RunLogText`, the Analysis sheet with four tabs, the table twin, the log with filters and region
+  rows, *Review the run*; dock and sheet entry live from Covert. Seen in the running game on a
+  greedy run at day 333 (all four tabs) and in the gallery. 1230 tests green. Next: **S4.9**.
 
 ### 2026-09-23 — S4.7 Chains [O]
 - `test_chains.gd` (every option of the 21 chain steps, reachability, the Operator's standing

@@ -432,8 +432,10 @@ static func _balance_history(raw: Variant, file: String, errors: Array[Validatio
 	if not _is_object(raw, file, path, errors):
 		return
 	var d: Dictionary = raw
-	_check_keys(d, ["interval_days"], file, path, errors)
+	_check_keys(d, ["interval_days", "max_samples", "log_max"], file, path, errors)
 	_integer(d, "interval_days", file, path, errors, 1)
+	_integer(d, "max_samples", file, path, errors, 2)
+	_integer(d, "log_max", file, path, errors, 1)
 
 
 ## loop-mechanics §18: the opening roll per phase, when it starts, and how many

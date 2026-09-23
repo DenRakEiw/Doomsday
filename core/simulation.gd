@@ -107,6 +107,9 @@ func tick() -> bool:
 	world.day += 1
 	for system: SimSystem in systems:
 		system.tick(world, db, outbox)
+	# The run log keeps what the Analysis screen needs of the tick, before the
+	# headlines are added: a headline is never logged (analysis.md §4.2).
+	RunLog.record(world, db, outbox)
 	# Last, and with everything the tick produced: the headline system reads the
 	# outbox and never its own events.
 	outbox.append_array(headlines.on_tick(world, db, outbox))
@@ -122,6 +125,7 @@ func apply(command: Command) -> CommandResult:
 	command.day = world.day
 	command.execute(self, result.events)
 	command_log.append(command)
+	RunLog.record(world, db, result.events)
 	result.events.append_array(headlines.on_command(world, db, result.events))
 	return result
 

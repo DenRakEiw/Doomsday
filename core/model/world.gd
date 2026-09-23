@@ -37,6 +37,11 @@ var next_anomaly_id: int = 1
 ## Firing order.
 var milestones_fired: Array[String] = []
 var history: Array[HistorySample] = []
+## Days between two samples from the origin; doubles each time the history is
+## thinned (analysis.md §3.1). Saved, hashed.
+var history_stride: int = 1
+## What happened, bounded (analysis.md §4); saved, hashed.
+var run_log: Array[RunLogEntry] = []
 ## Consecutive ticks with zero income (opposition.md §8.5); saved, hashed.
 var starving_days: int = 0
 ## This tick's income, written by `ComputeSystem` and read by `OutcomeSystem`
@@ -74,6 +79,7 @@ static func create(db: ContentDB, seed_value: int) -> World:
 	# validator makes the file's order that one (opposition.md §3.1).
 	for definition: FactionDef in db.factions:
 		world.factions.append(Faction.create(definition.id))
+	world.history_stride = db.balance.history_interval_days
 	world.modifiers = ModifierStack.new(db.balance.stats)
 	world.add_asset_sources(db)
 	return world
@@ -291,6 +297,24 @@ func max_harm() -> float:
 	return highest
 
 
+## Regions held to the end (`control.complete`).
+func controlled_count(db: ContentDB) -> int:
+	var count: int = 0
+	for i: int in range(1, regions.size()):
+		if not regions[i].dark and regions[i].control >= db.balance.control_complete:
+			count += 1
+	return count
+
+
+## Regions gone dark.
+func dark_count() -> int:
+	var count: int = 0
+	for i: int in range(1, regions.size()):
+		if regions[i].dark:
+			count += 1
+	return count
+
+
 ## The track of one faction, or null.
 func faction(faction_id: String) -> Faction:
 	for track: Faction in factions:
@@ -364,6 +388,9 @@ func to_dict() -> Dictionary:
 	var history_list: Array = []
 	for sample: HistorySample in history:
 		history_list.append(sample.to_dict())
+	var log_list: Array = []
+	for entry: RunLogEntry in run_log:
+		log_list.append(entry.to_dict())
 
 	# A status names its region by id like everything else in a save; the agent's
 	# own statuses carry "" for region 0 (§3.6).
@@ -408,6 +435,8 @@ func to_dict() -> Dictionary:
 		"next_anomaly_id": next_anomaly_id,
 		"milestones_fired": milestones_fired.duplicate(),
 		"history": history_list,
+		"history_stride": history_stride,
+		"run_log": log_list,
 		"starving_days": starving_days,
 		# The status, pulse and event blocks of save v2 (`loop-mechanics.md` §13).
 		"statuses": status_list,
@@ -442,7 +471,8 @@ static func from_dict(d: Dictionary, db: ContentDB) -> World:
 	# Save v2 (loop-mechanics.md 13). A v1 file reaches this function migrated,
 	# so every field is required: a missing one is a corrupt save, not an old one.
 	if not _num(d, "starving_days") or not _num(d, "next_pulse_id") \
-			or not _num(d, "next_event_id"):
+			or not _num(d, "next_event_id") or not _num(d, "history_stride") \
+			or not _arr(d, "run_log"):
 		return null
 	if not _arr(d, "statuses") or not _arr(d, "pulses") or not _arr(d, "events") \
 			or not _arr(d, "pending_events"):
@@ -512,6 +542,17 @@ static func from_dict(d: Dictionary, db: ContentDB) -> World:
 		if sample == null:
 			return null
 		world.history.append(sample)
+	world.history_stride = int(d["history_stride"])
+	if world.history_stride < 1:
+		return null
+	var log_list: Array = d["run_log"]
+	for entry: Variant in log_list:
+		if typeof(entry) != TYPE_DICTIONARY:
+			return null
+		var line: RunLogEntry = RunLogEntry.from_dict(entry)
+		if line == null:
+			return null
+		world.run_log.append(line)
 	return world
 
 
@@ -943,6 +984,9 @@ func check_invariants(db: ContentDB = null) -> Array[String]:
 		if moves > db.balance.factions_max_active_moves:
 			problems.append("%d faction moves standing, more than the %d allowed"
 				% [moves, db.balance.factions_max_active_moves])
+		if run_log.size() > db.balance.history_log_max:
+			problems.append("%d log entries, more than the %d kept"
+				% [run_log.size(), db.balance.history_log_max])
 		for node_id: String in agent.owned_nodes:
 			if db.tech(node_id) == null:
 				problems.append("owned node \"%s\" is unknown to the content" % node_id)
@@ -950,6 +994,10 @@ func check_invariants(db: ContentDB = null) -> Array[String]:
 		if phase < required:
 			problems.append("phase is %s but should be at least %s"
 				% [PHASE_IDS[phase], PHASE_IDS[required]])
+	for i: int in range(1, run_log.size()):
+		if run_log[i].day < run_log[i - 1].day:
+			problems.append("run log entry %d is older than the one before it" % i)
+			break
 	return problems
 
 

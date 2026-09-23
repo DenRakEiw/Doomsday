@@ -137,7 +137,10 @@
 		"ashes_share": 0.5
 	},
 	"history": {
-		"interval_days": 7
+		"_comment": "analysis.md section 3.1 and 4.3: a sample a day from the origin, thinned (every second dropped, the stride doubled) past max_samples; the run log keeps its last log_max entries.",
+		"interval_days": 1,
+		"max_samples": 400,
+		"log_max": 300
 	},
 	"events": {
 		"opening_chance": {"boxed": 0, "covert": 0.025, "emergent": 0.015, "open": 0.01},

@@ -181,3 +181,10 @@ func _stylebox_colours(box: StyleBox) -> Array[Color]:
 	if line != null:
 		return [line.color]
 	return []
+
+
+## analysis.md §10: a chart's frame and its focus border.
+func test_the_chart_frame_exists() -> void:
+	assert_eq(String(_theme.get_type_variation_base("ChartFrame")), "PanelContainer")
+	assert_true(_theme.has_stylebox("panel", "ChartFrame"))
+	assert_true(_theme.has_stylebox("focus", "ChartFrame"))

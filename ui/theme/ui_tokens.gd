@@ -332,6 +332,43 @@ const STAT_BAR_FACTIONS: Dictionary[String, StringName] = {
 	"public_sentiment": &"StatBarPublic",
 }
 
+## analysis.md §10: the Analysis sheet, its charts, the timeline strip and the
+## log. Chart geometry is drawn, so it lives here rather than in the theme.
+const ANALYSIS_HEIGHT_SHARE: float = 0.55
+const ANALYSIS_HEIGHT_SHARE_COMPACT: float = 0.85
+const CHART_MIN_HEIGHT: int = 200
+const CHART_MIN_HEIGHT_COMPACT: int = 160
+const CHART_MIN_HEIGHT_SMALL: int = 120
+const CHART_TITLE_H: float = 24.0
+const CHART_LEGEND_H: float = 20.0
+const CHART_AXIS_W: float = 56.0
+const CHART_LABEL_W: float = 80.0
+const CHART_AXIS_H: float = 20.0
+const CHART_LINE_W: float = 2.0
+const CHART_MARK_R: float = 4.0
+const CHART_RING_W: float = 2.0
+const CHART_AREA_ALPHA: float = 0.10
+const CHART_STACK_ALPHA: float = 0.6
+const CHART_TICK_MIN_PX: float = 80.0
+const CHART_X_TICKS: Array[int] = [10, 25, 50, 100, 250, 500, 1000]
+const MIN_SPAN_DAYS: int = 30
+const TABLE_ROWS: int = 16
+const STRIP_H: int = 28
+const STRIP_SLOT: float = 12.0
+const LOG_ROW_MIN_H: int = 28
+const LOG_DAY_W: int = 56
+## §9: the colour of each entity, fixed and never by position — `single` for any
+## one-series chart.
+const SERIES: Dictionary[StringName, StringName] = {
+	&"single": &"ACCENT",
+	&"reached": &"STAT_PENETRATION",
+	&"controlled": &"ACCENT",
+	&"dark": &"MAP_DEATH",
+	&"alive": &"TEXT_1",
+	&"dead": &"MAP_DEATH",
+}
+
+
 ## §4.2: how tall one containment track is, and §9.1's strip.
 const TRACK_HEIGHT: int = 72
 const STATUS_STRIP_HEIGHT: int = 56
@@ -427,6 +464,19 @@ static func reduced_motion() -> bool:
 ## containment bar for an id that is no faction.
 static func stat_bar_variation(faction_id: String) -> StringName:
 	return STAT_BAR_FACTIONS.get(faction_id, &"StatBarContainment")
+
+
+## The colour of a chart entity (§9's table).
+static func series_color(entity: StringName) -> Color:
+	return color(SERIES.get(entity, &"ACCENT"))
+
+
+## A share of the magnitude ramp (§9: the society stages), 0…1.
+static func ramp_color(share: float) -> Color:
+	var gradient: Gradient = Gradient.new()
+	gradient.offsets = PackedFloat32Array(RAMP_OFFSETS)
+	gradient.colors = PackedColorArray(RAMP_COLORS)
+	return gradient.sample(clampf(share, 0.0, 1.0))
 
 
 ## The colour a faction is drawn in. An unknown id — a world status that no

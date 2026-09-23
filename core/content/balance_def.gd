@@ -93,6 +93,10 @@ var headlines_filler_silence_deaths_share: float
 ## m3-screens §7.4: Ascendance over this share of the world dead reads as ashes.
 var results_ashes_share: float = 0.5
 var history_interval_days: int
+## analysis.md §3.1, §4.3: the most samples kept before thinning, the most log
+## entries kept.
+var history_max_samples: int
+var history_log_max: int
 
 ## loop-mechanics §18: the daily opening roll per phase id (the key set is
 ## `World.PHASE_IDS`), how many seeded regions it takes before openings roll at

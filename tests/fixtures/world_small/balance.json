@@ -135,7 +135,9 @@
 		"ashes_share": 0.5
 	},
 	"history": {
-		"interval_days": 7
+		"interval_days": 7,
+		"max_samples": 400,
+		"log_max": 300
 	},
 	"events": {
 		"opening_chance": {"boxed": 0, "covert": 0.5, "emergent": 0.5, "open": 0.5},

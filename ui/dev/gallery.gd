@@ -65,6 +65,11 @@ const TECH_STATE_NAMES: Array[String] = ["locked", "available", "affordable", "o
 	"closed"]
 ## m3-screens §12.1: one track per band, and one showing a rollback.
 const FACTION_TRACK_SCENE: PackedScene = preload("res://ui/components/faction_track.tscn")
+## The chart section's made-up run: its length, a sample every few days, a width.
+const CHART_DAYS: int = 240
+const CHART_STEP: int = 5
+const CHART_CURSOR: int = 180
+const CHART_WIDTH: float = 520.0
 ## One faction per band sample, so the four glyphs show too (opposition.md §9.7).
 const TRACK_PREFIX: String = "FACTION_"
 const TRACK_RATE: float = 0.004
@@ -112,6 +117,7 @@ func _ready() -> void:
 	_build_tech_nodes()
 	_build_tree_lines()
 	_build_faction_tracks()
+	_build_charts()
 	_build_slide_panel()
 	var cycle: Timer = Timer.new()
 	cycle.wait_time = CYCLE_SECONDS
@@ -441,6 +447,65 @@ func _section(title: String) -> HFlowContainer:
 	row.theme_type_variation = &"Flow"
 	_column.add_child(row)
 	return row
+
+
+## analysis.md §15: a three-series chart with its cursor on a fixed day, a stack,
+## a small multiple, and the strip with two crowded slots — made-up numbers, the
+## real colours.
+func _build_charts() -> void:
+	var row: HFlowContainer = _section("Charts (analysis.md §6–§7)")
+	var days: PackedInt32Array = PackedInt32Array()
+	var curves: Array[PackedFloat32Array] = [PackedFloat32Array(), PackedFloat32Array(),
+		PackedFloat32Array()]
+	for day: int in range(0, CHART_DAYS + 1, CHART_STEP):
+		days.append(day)
+		var t: float = float(day) / float(CHART_DAYS)
+		curves[0].append(t * t)
+		curves[1].append(t * 0.6)
+		curves[2].append(minf(1.0, t * 1.4) * 0.3)
+	var three: Array[ChartSeries] = []
+	for i: int in Faction.FACTION_IDS.size() - 1:
+		three.append(ChartSeries.create("FACTION_" + Faction.FACTION_IDS[i].to_upper(),
+			UiTokens.faction_color(Faction.FACTION_IDS[i]), days, curves[i]))
+	var lines: LineChart = _chart("UI_CHART_CONTAINMENT", three, 1.0)
+	lines.kind = Format.Kind.PERCENT
+	lines.set_bands([{"from": 0, "to": 120, "key": "UI_PHASE_COVERT"},
+		{"from": 120, "to": CHART_DAYS, "key": "UI_PHASE_EMERGENT"}] as Array[Dictionary])
+	lines.set_cursor.call_deferred(CHART_CURSOR)
+	_state(row, "three series · cursor", lines)
+	var stack: Array[ChartSeries] = []
+	for stage: int in range(1, 4):
+		stack.append(ChartSeries.create("SOCIETY_STAGE_%d" % stage,
+			UiTokens.ramp_color(float(stage - 1) * 0.5), days, curves[stage - 1], true))
+	_state(row, "stacked", _chart("UI_CHART_SOCIETY", stack, 0.0))
+	var single: Array[ChartSeries] = [ChartSeries.create("ASSET_FLEET_PLURAL",
+		UiTokens.series_color(&"single"), days, curves[0])]
+	var small: LineChart = _chart("ASSET_FLEET_PLURAL", single, 0.0)
+	small.small = true
+	_state(row, "small multiple", small)
+	var strip: TimelineStrip = TimelineStrip.new()
+	strip.custom_minimum_size.x = CHART_WIDTH
+	strip.set_domain(CHART_DAYS)
+	strip.set_marks([
+		{"day": 40, "glyph": Glyphs.Glyph.EVENT_OPENING, "color": UiTokens.color(&"ACCENT"),
+			"priority": 1, "text": "opening"},
+		{"day": 41, "glyph": Glyphs.Glyph.EVENT_CHAIN, "color": UiTokens.color(&"TEXT_0"),
+			"priority": 2, "text": "chain"},
+		{"day": 120, "glyph": Glyphs.Glyph.EVENT_COUNTER, "color": UiTokens.color(&"ALERT"),
+			"priority": 4, "text": "discovered"},
+		{"day": 121, "glyph": Glyphs.Glyph.EVENT_COUNTER,
+			"color": UiTokens.faction_color("governments"), "priority": 3, "text": "lockdown"},
+	] as Array[Dictionary])
+	_state(row, "strip · two crowded slots", strip)
+
+
+func _chart(title_key: String, series: Array[ChartSeries], y_max: float) -> LineChart:
+	var chart: LineChart = LineChart.new()
+	chart.title_key = title_key
+	chart.custom_minimum_size.x = CHART_WIDTH
+	chart.set_series(series)
+	chart.set_domain(CHART_DAYS, y_max)
+	return chart
 
 
 ## One state: the component with its name underneath.

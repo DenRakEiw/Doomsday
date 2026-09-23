@@ -24,6 +24,8 @@ const REASON_CORRUPT: String = "save_corrupt"
 const REASON_FROM_FUTURE: String = "save_from_future"
 const REASON_MIGRATION_MISSING: String = "save_migration_missing"
 const REASON_CONTENT_MISSING: String = "save_content_missing"
+## v1 sampled its history every seven days (analysis.md §3.4).
+const V1_HISTORY_STRIDE: int = 7
 
 ## The production migration table. Every save older than `CURRENT_VERSION` is
 ## brought forward here, on the raw dictionary, before anything reads it.
@@ -75,6 +77,35 @@ static func _v1_to_v2(save: Dictionary) -> Dictionary:
 				"cooldown_until": 0,
 			})
 		world["factions"] = four
+	# analysis.md §3.4: v1 sampled every seven days and had no log; each old
+	# sample gets the D4.4 fields at the value a world without them carries.
+	world["history_stride"] = V1_HISTORY_STRIDE
+	world["run_log"] = []
+	if typeof(world.get("history")) == TYPE_ARRAY:
+		for entry: Variant in world["history"]:
+			if typeof(entry) != TYPE_DICTIONARY:
+				continue
+			var sample: Dictionary = entry
+			var by_faction: Dictionary = {}
+			var pressure: Dictionary = {}
+			for id: String in Faction.FACTION_IDS:
+				by_faction[id] = sample.get("containment", zero)
+				pressure[id] = FloatBits.to_hex(1.0)
+			sample["containment_by_faction"] = by_faction
+			sample["pressure_by_faction"] = pressure
+			sample["risk"] = zero
+			sample["harm"] = zero
+			sample["controlled"] = 0
+			sample["dark"] = 0
+			var stages: Array = []
+			stages.resize(HistorySample.STAGE_COUNT)
+			stages.fill(0)
+			sample["stage_counts"] = stages
+			var kinds: Dictionary = {}
+			for kind: String in AssetDef.KINDS:
+				kinds[kind] = 0
+			sample["assets"] = kinds
+			sample["starving_days"] = 0
 	world["starving_days"] = 0
 	world["statuses"] = []
 	world["pulses"] = []

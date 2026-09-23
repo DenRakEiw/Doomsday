@@ -37,6 +37,7 @@ const ContainmentPanel: GDScript = preload("res://ui/panels/containment_panel.gd
 const DiscoveryModal: GDScript = preload("res://ui/modals/discovery_modal.gd")
 const PauseMenu: GDScript = preload("res://ui/modals/pause_menu.gd")
 const Results: GDScript = preload("res://ui/screens/results.gd")
+const AnalysisPanel: GDScript = preload("res://ui/panels/analysis_panel.gd")
 
 ## The holds of m3-screens §10.2 this screen takes.
 const HOLD_DISCOVERY: StringName = &"discovery"
@@ -59,6 +60,7 @@ const HOLD_EVENT: StringName = &"event"
 @onready var _results: Results = %Results
 @onready var _camera: MapCamera = %MapCamera
 @onready var _menu_sheet: SlidePanel = %MenuSheet
+@onready var _analysis: AnalysisPanel = %AnalysisPanel
 
 ## The speed `Space` toggles against; the last one the player ran at.
 var _last_speed: int = SPEED_DEFAULT
@@ -102,6 +104,8 @@ func _ready() -> void:
 	_pause_menu.quit_requested.connect(_on_quit_requested)
 	_results.again_requested.connect(_on_again_requested)
 	_results.title_requested.connect(_on_results_title_requested)
+	_results.review_requested.connect(_on_results_review_requested)
+	_analysis.back_requested.connect(_on_analysis_back)
 	EventBus.speed_changed.connect(_on_speed_changed)
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	_apply_logical_scale()
@@ -129,6 +133,8 @@ func _input(event: InputEvent) -> void:
 			_toggle_tech_tree()
 		KEY_C:
 			_toggle_containment()
+		KEY_G:
+			_toggle_analysis()
 		KEY_A:
 			_toggle_ability_picker()
 		KEY_ESCAPE:
@@ -144,6 +150,10 @@ func _input(event: InputEvent) -> void:
 				return
 			if _containment.is_open:
 				_containment.close()
+				get_viewport().set_input_as_handled()
+				return
+			if _analysis.is_open:
+				_analysis.close()
 				get_viewport().set_input_as_handled()
 				return
 			if _region_panel.is_open:
@@ -207,7 +217,33 @@ func _toggle_containment() -> void:
 	if Game.sim == null:
 		return
 	EventBus.region_selected.emit(0)
+	_analysis.close()
 	_containment.open()
+
+
+## analysis.md §5.1: the sheet over the live map; `G` opens and closes it, and
+## it never shares the screen with the other two panels.
+func _toggle_analysis() -> void:
+	if _analysis.is_open:
+		_analysis.close()
+		return
+	if Game.sim == null or _modals.is_open():
+		return
+	EventBus.region_selected.emit(0)
+	_containment.close()
+	_menu_sheet.close()
+	_analysis.open()
+
+
+## §5.9: the results step aside for the sheet, the hold stays.
+func _on_results_review_requested() -> void:
+	_modals.close()
+	_analysis.open_review()
+
+
+func _on_analysis_back() -> void:
+	if Game.sim != null and Game.sim.world.outcome != World.Outcome.NONE:
+		_modals.open(_results)
 
 
 ## §9.2: the sheet is a panel like the others, so it never shares the screen
@@ -215,6 +251,7 @@ func _toggle_containment() -> void:
 func _on_sheet_requested(_with_bars: bool) -> void:
 	EventBus.region_selected.emit(0)
 	_containment.close()
+	_analysis.close()
 	_menu_sheet.open()
 
 
@@ -222,6 +259,7 @@ func _on_region_selected(index: int) -> void:
 	if index > 0:
 		_containment.close()
 		_menu_sheet.close()
+		_analysis.close()
 
 
 func _on_destination_requested(index: int) -> void:
@@ -230,6 +268,8 @@ func _on_destination_requested(index: int) -> void:
 		_toggle_tech_tree()
 	elif index == int(constants["DESTINATION_CONTAINMENT"]):
 		_toggle_containment()
+	elif index == int(constants["DESTINATION_ANALYSIS"]):
+		_toggle_analysis()
 
 
 func _on_tech_tree_closed() -> void:
@@ -439,7 +479,8 @@ func _on_hud_layout_changed(compact: bool) -> void:
 	# §4.1: the containment panel comes in from the right, and from the bottom on
 	# a phone like every other panel.
 	_containment.edge = SlidePanel.Edge.BOTTOM if compact else SlidePanel.Edge.RIGHT
-	for panel: SlidePanel in [_region_panel, _containment, _menu_sheet]:
+	_analysis.compact = compact
+	for panel: SlidePanel in [_region_panel, _containment, _menu_sheet, _analysis]:
 		panel.top_inset = float(_hud.call(&"top_inset"))
 		panel.bottom_inset = float(_hud.call(&"bottom_inset"))
 

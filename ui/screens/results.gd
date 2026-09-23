@@ -9,6 +9,8 @@ extends Control
 
 signal again_requested
 signal title_requested
+## analysis.md §5.9: *Review the run* — the Analysis sheet over the ended map.
+signal review_requested
 
 const KEY_KICKER_WIN: String = "UI_RESULT_KICKER_WIN"
 const KEY_KICKER_LOSS: String = "UI_RESULT_KICKER_LOSS"
@@ -16,6 +18,7 @@ const KEY_SEED: String = "UI_RESULT_SEED"
 const KEY_NEVER: String = "UI_RESULT_NEVER"
 const KEY_NONE: String = "UI_RESULT_NONE"
 const PREFIX_OUTCOME: String = "UI_OUTCOME_"
+const KEY_REVIEW: String = "UI_ANALYSIS_REVIEW"
 const PREFIX_TREE: String = "UI_TREE_TAB_"
 const PLACEHOLDER_SEED: String = "seed"
 const PLACEHOLDER_COUNT: String = "count"
@@ -54,6 +57,12 @@ func _ready() -> void:
 	_build_rows()
 	_title_button.pressed.connect(title_requested.emit)
 	_again.pressed.connect(again_requested.emit)
+	var review: ConsoleButton = ConsoleButton.new()
+	review.name = "ResultReviewButton"
+	review.label_key = KEY_REVIEW
+	review.pressed.connect(review_requested.emit)
+	_again.get_parent().add_child(review)
+	_again.get_parent().move_child(review, 0)
 	# The height is content-driven and the content wraps, so it is recomputed
 	# whenever the body or the window changes rather than once.
 	_body.minimum_size_changed.connect(_fit_scroll)
