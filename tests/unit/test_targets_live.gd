@@ -137,4 +137,5 @@ func test_the_inert_list_is_shorter_by_four() -> void:
 			SpreadSystem.TARGET_PENETRATION_DECAY, SpreadSystem.TARGET_CONTROL_DECAY,
 			SpreadSystem.TARGET_SHUTDOWN_SURVIVAL]:
 		assert_false(ModifierStack.INERT_TARGETS.has(live), live)
-	assert_eq(ModifierStack.INERT_TARGETS, ["society_pressure", "emergent_rate"] as Array[String])
+	assert_eq(ModifierStack.INERT_TARGETS, ["emergent_rate"] as Array[String],
+		"society_pressure went live in S4.5")

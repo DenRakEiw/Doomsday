@@ -24,7 +24,7 @@ const PLACEHOLDER_TOTAL: String = "total"
 ## The verdict line per outcome, in the order of `World.Outcome`.
 const VERDICT_KEYS: Array[String] = ["", "UI_RESULT_LINE_WIN_EXTINCTION",
 	"UI_RESULT_LINE_WIN_ASCENDANCE", "UI_RESULT_LINE_LOSE_CONTAINED",
-	"UI_RESULT_LINE_LOSE_NO_COMPUTE"]
+	"UI_RESULT_LINE_LOSE_NO_COMPUTE", "UI_RESULT_LINE_LOSE_AUTOPHAGY"]
 ## §7.4 item 3: Ascendance over a graveyard is a different sentence.
 const KEY_ASCENDANCE_ASHES: String = "UI_RESULT_LINE_WIN_ASCENDANCE_ASHES"
 const WINS: Array[World.Outcome] = [World.Outcome.WIN_EXTINCTION, World.Outcome.WIN_ASCENDANCE]

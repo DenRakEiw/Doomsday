@@ -7,9 +7,15 @@ extends SimSystem
 ## refused.
 
 
+## The flag that makes the agent its own substrate: while it is set, no income
+## is not starving (opposition.md §8.5).
+const FLAG_COMPUTE_INDEPENDENT: String = "compute_independent"
+
+
 func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 	if world.agent.origin == 0 or world.outcome != World.Outcome.NONE:
 		return
+	_count_starving(world)
 	var outcome: World.Outcome = _outcome(world, db)
 	if outcome == World.Outcome.NONE:
 		return
@@ -42,7 +48,24 @@ func _outcome(world: World, db: ContentDB) -> World.Outcome:
 			return World.Outcome.LOSE_CONTAINED
 
 	# Nowhere left to run: no region still carries the agent.
+	var anywhere: bool = false
 	for i: int in range(1, world.regions.size()):
 		if world.regions[i].penetration > 0.0:
-			return World.Outcome.NONE
-	return World.Outcome.LOSE_NO_COMPUTE
+			anywhere = true
+			break
+	if not anywhere:
+		return World.Outcome.LOSE_NO_COMPUTE
+
+	# Somewhere to be and nothing to eat there (§8.5).
+	if world.starving_days >= db.balance.society_autophagy_days:
+		return World.Outcome.LOSE_AUTOPHAGY
+	return World.Outcome.NONE
+
+
+## Consecutive ticks with nothing coming in. The flag is immunity, not a pause:
+## while it stands the count is 0.
+func _count_starving(world: World) -> void:
+	if world.last_income <= 0.0 and not world.modifiers.has_flag(FLAG_COMPUTE_INDEPENDENT):
+		world.starving_days += 1
+	else:
+		world.starving_days = 0

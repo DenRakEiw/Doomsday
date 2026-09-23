@@ -808,6 +808,22 @@ static func _build_balance(d: Dictionary) -> BalanceDef:
 	def.factions_reset_days = int(factions["reset_days"])
 	def.factions_protest_deaths_share = float(factions["protest_deaths_share"])
 
+	var society: Dictionary = d["society"]
+	var stage_thresholds: Array = society["stage_thresholds"]
+	for threshold: Variant in stage_thresholds:
+		def.society_stage_thresholds.append(float(threshold))
+	def.society_gain_scale = float(society["gain_scale"])
+	def.society_recovery_per_day = float(society["recovery_per_day"])
+	def.society_deaths_weight = float(society["deaths_weight"])
+	var stages: Array = society["stages"]
+	for raw_stage: Variant in stages:
+		var stage: Dictionary = raw_stage
+		def.society_stages.append({
+			"capacity_mul": float(stage["capacity_mul"]),
+			"yield_mul": float(stage["yield_mul"]),
+		})
+	def.society_autophagy_days = int(society["autophagy_days"])
+
 	var phase: Dictionary = d["phase"]
 	def.phase_open_containment = float(phase["open_containment"])
 	def.phase_open_world_share = float(phase["open_world_share"])

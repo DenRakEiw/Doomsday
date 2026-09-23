@@ -186,7 +186,8 @@ static func _capacity(world: World, db: ContentDB, attribute: String) -> float:
 			region.def.attr(attribute)]
 		total += weight
 		weighted += weight * world.modifiers.value(TARGET_CAPACITY, region.def) \
-			* (region.alive / float(region.def.population)) * (1.0 - region.control)
+			* (region.alive / float(region.def.population)) * (1.0 - region.control) \
+			* SocietalFunctionSystem.capacity_mul(region.society, db.balance)
 	if total <= 0.0:
 		return 0.0
 	return weighted / total

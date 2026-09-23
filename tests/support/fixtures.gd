@@ -17,11 +17,13 @@ const WORLD_SMALL: String = "res://tests/fixtures/world_small"
 const TEMP_ROOT: String = "user://test_content"
 
 const REGION_COUNT: int = 6
+## Far past any run a test plays (`quiet_factions`).
+const QUIET_UNTIL: int = 1000000
 const LINK_COUNT: int = 7
 const TECH_NODE_COUNT: int = 23
-const STATUS_COUNT: int = 4
+const STATUS_COUNT: int = 8
 const ABILITY_COUNT: int = 4
-const EVENT_COUNT: int = 4
+const EVENT_COUNT: int = 8
 ## The fixture nodes a dormancy test needs, in purchase order.
 const DORMANCY_NODES: Array[String] = ["fx_quiet", "fx_hold"]
 ## The fixture's deploying nodes and the group the two vectors share (S4.1).
@@ -48,6 +50,13 @@ const COUNTER_EVENT: String = "fx_move"
 const CHAIN_START: String = "fx_chain_1"
 const CHAIN_STEP: String = "fx_chain_2"
 const CHAIN_FLAG: String = "fx_seen"
+## The factions' moves (opposition.md §16): the labs' global probe on a risk or
+## a containment trigger, the researchers' notice and its sea variant, the
+## public's riot where the fleets are.
+const PROBE_EVENT: String = "fx_probe"
+const NOTICE_EVENT: String = "fx_notice"
+const NOTICE_SEA_EVENT: String = "fx_notice_sea"
+const RIOT_EVENT: String = "fx_riot_move"
 
 ## Loaded once: the database is immutable, so every test may share it.
 static var _db: ContentDB = null
@@ -135,6 +144,50 @@ static func sim_with_origin(region_id: String = "fx_alder", seed_value: int = 1)
 	var result: CommandResult = simulation.apply(ChooseOriginCommand.new(region_id))
 	assert(result.ok, "the origin %s must be acceptable: %s" % [region_id, result.reason])
 	return simulation
+
+
+## A discovered run with one faction's track set directly (opposition.md §16):
+## the situation a schedule test starts from.
+static func sim_with_containment(faction_id: String, value: float, seed_value: int = 1) -> Simulation:
+	var simulation: Simulation = sim_with_origin("fx_alder", seed_value)
+	simulation.world.discovered = true
+	simulation.world.discovery_day = simulation.world.day
+	simulation.world.faction(faction_id).containment = value
+	return simulation
+
+
+## Ticks until the faction prepares a move, at most `limit` days. True when it did.
+static func prepare(simulation: Simulation, faction_id: String, limit: int = 50) -> bool:
+	for i: int in limit:
+		if not simulation.world.faction(faction_id).preparing.is_empty():
+			return true
+		simulation.tick()
+	return not simulation.world.faction(faction_id).preparing.is_empty()
+
+
+## Sets `compute_independent` without buying anything (opposition.md §8.5): for a
+## test that starves the agent on purpose — every region dormant, a world
+## killed off — and is about something other than Autophagy.
+static func make_immune(simulation: Simulation) -> void:
+	var none: Array[ModifierDef] = []
+	var flags: Array[String] = [OutcomeSystem.FLAG_COMPUTE_INDEPENDENT]
+	simulation.world.modifiers.add_source("test:immune", none, flags)
+
+
+## Keeps every faction in cooldown for good, so no counter-move ever comes: for
+## a test of spread or harm over a whole run that assumes nobody fights back.
+static func quiet_factions(simulation: Simulation) -> void:
+	for faction: Faction in simulation.world.factions:
+		faction.cooldown_until = QUIET_UNTIL
+
+
+## A world with nothing coming in and no content changed: every region the
+## agent holds goes dormant, which leaves the yield (§8.5's starving test).
+static func push_income_to_zero(simulation: Simulation) -> void:
+	for i: int in range(1, simulation.world.regions.size()):
+		var region: Region = simulation.world.regions[i]
+		if region.penetration > 0.0 and not region.dark:
+			region.dormant = true
 
 
 ## Grants `breakout` without buying anything, so that a spread test does not
@@ -253,6 +306,16 @@ static func raw_content() -> Dictionary:
 		"headlines": read_json(WORLD_SMALL.path_join("headlines.json")),
 		"factions": read_json(WORLD_SMALL.path_join("factions.json")),
 	}
+
+
+## Empties the moves of every faction but those named — for a test that removes
+## the counter-move events a move would name (opposition.md §12.1 rejects both a
+## move without its event and an event without its move).
+static func drop_moves(content: Dictionary, keep: Array[String] = []) -> void:
+	for entry: Variant in (content["factions"] as Dictionary)["factions"]:
+		var faction: Dictionary = entry
+		if not keep.has(str(faction["id"])):
+			faction["moves"] = []
 
 
 ## Loads `raw_content` and hands the parts to `ContentLoader` in its own order.

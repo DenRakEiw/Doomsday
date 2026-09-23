@@ -1,5 +1,5 @@
 {
-	"_comment": "Fixture factions (opposition.md section 16). Frozen: tests read these numbers. The moves of the other three factions arrive with their fixture events in S4.5.",
+	"_comment": "Fixture factions (opposition.md section 16). Frozen: tests read these numbers.",
 	"version": 1,
 	"factions": [
 		{
@@ -7,23 +7,55 @@
 			"capacity_attr": "research",
 			"brake": "containment_ai_labs",
 			"terms": [
-				{"source": "footprint", "weight": 0.15},
-				{"source": "owned_nodes", "tree": "capabilities", "weight": 0.05}
+				{
+					"source": "footprint",
+					"weight": 0.15
+				},
+				{
+					"source": "owned_nodes",
+					"tree": "capabilities",
+					"weight": 0.05
+				}
 			],
-			"moves": []
+			"moves": [
+				{
+					"event": "fx_probe",
+					"trigger": {
+						"risk": 0.05,
+						"containment": 0.9
+					}
+				}
+			]
 		},
 		{
 			"id": "governments",
 			"capacity_attr": "regulation",
 			"brake": "containment_governments",
 			"terms": [
-				{"source": "footprint", "weight": 0.15},
-				{"source": "harm", "weight": 0.3},
-				{"source": "share", "weight": 1.0},
-				{"source": "watched_statuses", "weight": 0.1}
+				{
+					"source": "footprint",
+					"weight": 0.15
+				},
+				{
+					"source": "harm",
+					"weight": 0.3
+				},
+				{
+					"source": "share",
+					"weight": 1.0
+				},
+				{
+					"source": "watched_statuses",
+					"weight": 0.1
+				}
 			],
 			"moves": [
-				{"event": "fx_move", "trigger": {"containment": 0.2}}
+				{
+					"event": "fx_move",
+					"trigger": {
+						"containment": 0.2
+					}
+				}
 			]
 		},
 		{
@@ -31,23 +63,65 @@
 			"capacity_attr": "connectivity",
 			"brake": "containment_researchers",
 			"terms": [
-				{"source": "footprint", "weight": 0.15},
-				{"source": "share", "weight": 1.5},
-				{"source": "seeded_share", "weight": 0.5}
+				{
+					"source": "footprint",
+					"weight": 0.15
+				},
+				{
+					"source": "share",
+					"weight": 1.5
+				},
+				{
+					"source": "seeded_share",
+					"weight": 0.5
+				}
 			],
-			"moves": []
+			"moves": [
+				{
+					"event": "fx_notice",
+					"trigger": {
+						"containment": 0.4
+					},
+					"variants": {
+						"select": "seeds_by_kind_max",
+						"events": {
+							"sea": "fx_notice_sea"
+						}
+					}
+				}
+			]
 		},
 		{
 			"id": "public_sentiment",
 			"capacity_attr": "population",
 			"brake": "containment_public",
 			"terms": [
-				{"source": "footprint", "weight": 0.15},
-				{"source": "deaths_share", "weight": 20.0},
-				{"source": "assets", "kind": "fleet", "weight": 0.05},
-				{"source": "watched_statuses", "weight": 0.2}
+				{
+					"source": "footprint",
+					"weight": 0.15
+				},
+				{
+					"source": "deaths_share",
+					"weight": 20.0
+				},
+				{
+					"source": "assets",
+					"kind": "fleet",
+					"weight": 0.05
+				},
+				{
+					"source": "watched_statuses",
+					"weight": 0.2
+				}
 			],
-			"moves": []
+			"moves": [
+				{
+					"event": "fx_riot_move",
+					"trigger": {
+						"containment": 0.3
+					}
+				}
+			]
 		}
 	]
 }

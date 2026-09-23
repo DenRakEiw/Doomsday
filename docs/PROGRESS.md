@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S4.5 — Counter-moves, Societal Function, Autophagy** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/opposition.md`, moves and society) |
-| **Model for it** | **Opus** — no switch, ever: **every step runs on Opus from now on**, design steps included (user decision 2026-09-23, see Decisions) |
-| **After it** | S4.6 … S4.10 → D4.5 → G4 (the gates still need the user) |
-| **Last completed** | S4.4 — Four factions: `factions.json` loaded and validated (`FactionDef`/`FactionTermDef`/`FactionMoveDef`), per-faction Footprint (`watched_by` on every source), pressure terms, capacity per attribute, the four brakes live, `threat_leader` and its event, `funding_reset` live, four tracks in the save (v1 → four); the threat bar (risk face / leader face) and the phone's fourth readout, the containment panel's tracks with capacity, brakes, daily gain and the two largest terms, four faction glyphs; *lost to* in the report. 1084 tests, all green (2026-09-23) |
-| **Before that** | S4.3 — Map events (2026-09-23) |
+| **Next step** | **S4.6 — Trees v3 and the remaining abilities** (IMPLEMENTATION Block 8; *Read first* is `docs/specs/loop-content.md` §3, §6, §15.1, §16) |
+| **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
+| **After it** | S4.7 … S4.10 → D4.5 → G4 (the gates still need the user) |
+| **Last completed** | S4.5 — Counter-moves, Societal Function, Autophagy: `CounterMoveSystem` (prepare, alternate, variants, fire at the level the track calls for, hold at the cap, drop with nowhere to land), `CounterMoveRules` (six target rules, `seeds_by_kind_max`), `SocietalFunctionSystem` (disorder, six stages, the capacity and the yield cut that spares the agent's own hardware), `LOSE_AUTOPHAGY` after 30 days of zero income unless `compute_independent`; the next-move rows on the panel, the Society row, the starving chip, five console lines; `s4_5.json` merged, `data/headlines_staging/` deleted. 1142 tests, all green (2026-09-23) |
+| **Before that** | S4.4 — Four factions (2026-09-23) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 173 scripts compile (68 judged by the suite), 1084 tests, **all green since S4.4**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 177 scripts compile (68 judged by the suite), 1142 tests, **all green since S4.5**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -104,8 +104,8 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S4.2 [O] Statuses and abilities
 - [x] S4.3 [O] Map events
 - [x] S4.4 [O] Four factions
-- [ ] **S4.5 [O] Counter-moves, Societal Function, Autophagy**
-- [ ] S4.6 [O] Trees v3 and the remaining abilities
+- [x] S4.5 [O] Counter-moves, Societal Function, Autophagy
+- [ ] **S4.6 [O] Trees v3 and the remaining abilities**
 - [ ] S4.7 [O] Chains
 - [ ] S4.8 [O] Analysis screen
 - [ ] S4.9 [O] Localisation tooling and overflow screenshots
@@ -787,6 +787,13 @@ say the direction), or say that the faction track should show the rate as a plai
 strip (*Durchdr.* / *Netz*), or let the strip drop to three and put the threat in the sheet.
 Seen in the running game; the number itself is always visible now.
 
+**From S4.5 (for G4): one Harvest on the only region is already fatal.** `harvested` stands 30
+days at `yield ×0`, and `society.autophagy_days` is 30 — a player who harvests every region they
+hold starves on the day the status ends, before any society collapses. Opposition §8.5 names
+"a Harvest everywhere" as a way to die, so it may be meant; but a single-region Boxed/Covert
+agent pressing the tempting button once dies from it. Options: `autophagy_days` above the
+Harvest (e.g. 40), Harvest 25 days, or the grant counting as income that day.
+
 **Parked for a later Fable step (not questions, reminders):**
 - **M6 (VISUALS):** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the 8192-px
   masks anti-alias the coast but not the borders between regions. Acceptable for M2–M5; a vector
@@ -829,6 +836,11 @@ Seen in the running game; the number itself is always visible now.
 
 ## Punch list for Opus
 
+- **(S4.5)** The region panel's *Status* row prints the answering option's **id**
+  (`Regierungen · ride`), not its text: `Status` keeps `option` but not the event def, so the
+  panel cannot build `EVENT_<DEF>_OPT_<OPTION>`. Keep the def id on the status (save field) or
+  drop the option from the line.
+
 - **(S4.3, cosmetic)** The top bar's *n offen* chip also shows while the wire card is up on that
   very event (behind the scrim). Harmless; hide it while `Game.is_held()` for `event` if D4.5
   finds it noisy.
@@ -840,6 +852,31 @@ Seen in the running game; the number itself is always visible now.
   something per row — it belongs with the rest of D4.5's layout findings.
 
 ## Deviations from the plan or a spec
+
+- **2026-09-23** (S4.5) — **The cap counts the moves on their way**: `max_active_moves` is
+  checked against the world's statuses *plus* the counter-move events open or pending
+  (`CounterMoveSystem.moves_standing`). Four factions firing on one tick each saw room under the
+  spec's count and could put up seven. The invariant counts faction-sourced statuses only — a
+  chain may start a world status of its own (the Grid Bill's law) without the schedule.
+- **2026-09-23** (S4.5) — **Dropped invariant: "`fire_day` older than one tick"** (opposition
+  §3.5). A move *held* at the cap waits past its day by design (§6.1 step 1); the invariant
+  fired in the first replay test that had one.
+- **2026-09-23** (S4.5) — **§12.3's "a world status with `blocks` is an error" is not enforced**:
+  the fixture's own `fx_lock` blocks itself (D4.1's shape, kept by §16), and the rule would reject
+  it. No game status breaks the rule.
+- **2026-09-23** (S4.5) — **The Autophagy acceptance is a test, not `sim_run --script`**
+  (`tests/integration/test_autophagy.gd`): a command log cannot say "every cooldown". The script
+  is a policy inside the test; discovery off, factions quiet.
+- **2026-09-23** (S4.5) — **The fixture test helpers** `sim_with_containment`, `prepare`,
+  `push_income_to_zero` (§16) plus `make_immune` and `quiet_factions`, which the older tests
+  needed once Autophagy and the moves were live: a fixture world that holds its only region
+  dormant now starves in three days, and a 2 000-day spread test meets a Lockdown.
+- **2026-09-23** (S4.5) — **`UI_OUTCOME_LOSE_AUTOPHAGY`** (*Autophagy* / *Autophagie*) added —
+  the results screen's title for the new ending had no key in §10.2.
+- **2026-09-23** (S4.5) — **Starving console line on day 1, 11, 21 …** of starving (§9.5's "1,
+  then every 10").
+- **2026-09-23** (S4.5) — **`Game.debug_schedule_event` sends a counter-move as its faction's**,
+  so F8 / godot-mcp show the faction colour.
 
 - **2026-09-23** (S4.4) — **The fixture's factions move only through `fx_move`** (governments);
   the other three have `moves: []` until S4.5 adds `fx_probe`, `fx_notice`, `fx_notice_sea` and
@@ -1515,6 +1552,18 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-23 — S4.5 Counter-moves, Societal Function, Autophagy [O]
+- **Core:** `CounterMoveSystem` in the tick after containment (prepare on a containment or risk
+  trigger, the least recently made move, variants by `seeds_by_kind_max`, fire at level 1 + the
+  thresholds reached, hold at the cap, drop with nowhere to land, cooldown), `CounterMoveRules`,
+  `SocietalFunctionSystem` before containment, the capacity and yield cuts, `last_income`,
+  `starving_days` and `LOSE_AUTOPHAGY`; `society_pressure` and `compute_independent` live; the
+  `society` balance block; `next_move`, `society_stage`, `starving_days_left`.
+- **Interface:** next-move and last-move rows on every track, the Society row, the starving chip
+  (top bar and phone strip), five console lines, the Autophagy result. Seen in the running game:
+  a Lockdown's card with *Dig in* and *Call in a favour* locked, *Ride it out* sealing the USA
+  (orange border, every link crossed, the Status and Society rows). 1142 tests green. Next: **S4.6**.
 
 ### 2026-09-23 — S4.4 Four factions [O]
 - **Core:** `FactionDef`/`FactionTermDef`/`FactionMoveDef` and `factions.json` loaded, indexed and

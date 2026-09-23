@@ -26,15 +26,21 @@ func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 ##
 ## The `hardware` stat is the hardware the agent brings with it, so it counts
 ## here and nowhere else — `infected_share` measures the humans' own machines.
+## Societal collapse cuts the humans' hardware and never the agent's own
+## (opposition.md §8.4): where the fleets stand, the lights stay on. The day's
+## income is kept on the world for `OutcomeSystem`'s starving count.
 func _income(world: World, db: ContentDB) -> void:
 	var income: float = 0.0
 	for i: int in range(1, world.regions.size()):
 		var region: Region = world.regions[i]
 		if region.dark or region.dormant:
 			continue
-		income += hardware_of(world, db, i) * region.penetration \
-			* world.modifiers.value("yield", region.def)
+		var humans: float = db.balance.compute_hardware_by_tier[region.def.attr("compute")] \
+			* SocietalFunctionSystem.yield_mul(region.society, db.balance)
+		income += (humans + world.modifiers.value("hardware", region.def)) \
+			* region.penetration * world.modifiers.value("yield", region.def)
 	income *= db.balance.compute_yield_scale
+	world.last_income = income
 	world.agent.compute += income
 	world.agent.compute_earned += income
 

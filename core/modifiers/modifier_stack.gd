@@ -55,9 +55,9 @@ const CLAMPS: Dictionary[String, Array] = {
 ## Targets that are loaded, validated and evaluated here, and read by no system
 ## yet (`docs/specs/tech-trees.md` §3.3). Each leaves this list in the step that
 ## makes its system live; the content is authored once, now.
-const INERT_TARGETS: Array[String] = ["society_pressure", "emergent_rate"]
+const INERT_TARGETS: Array[String] = ["emergent_rate"]
 ## The same for flags: `has_flag` answers truthfully, nobody asks yet.
-const INERT_FLAGS: Array[String] = ["compute_independent", "legal_standing", "merge_path"]
+const INERT_FLAGS: Array[String] = ["legal_standing", "merge_path"]
 
 ## What a faction sees of a source that nobody in particular watches (§5.1).
 const UNWATCHED_WEIGHT: float = 0.25

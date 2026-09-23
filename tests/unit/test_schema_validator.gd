@@ -43,7 +43,7 @@ func test_a_root_without_technology_is_valid() -> void:
 	# The same for the map events: an option may require a node — and for the
 	# move that names the counter-move among them.
 	content["events"] = []
-	((content["factions"] as Dictionary)["factions"] as Array)[1]["moves"] = []
+	Fixtures.drop_moves(content)
 	var files: Dictionary[String, String] = Fixtures.root_files(content)
 	files.erase("tech/fixture.json")
 	var result: ContentLoadResult = ContentLoader.load_root(Fixtures.write_root("no_tech", files))

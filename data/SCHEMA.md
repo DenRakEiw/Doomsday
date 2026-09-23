@@ -11,7 +11,9 @@ factions that watch a node, one-shot effects, the targets and flags of the three
 eligibility grammar, the effect vocabulary as one list, the tree v3 fields, and — written up here
 at S4.2 — `statuses.json` and `abilities.json`; at S4.3 — `events/*.json`, the `events`
 balance section and the `when` keys of loop-mechanics §10.3; at S4.4 — `factions.json`, the
-`factions` balance section, `capacity_weight_by_tier`, the four brakes and `funding_reset` live).
+`factions` balance section, `capacity_weight_by_tier`, the four brakes and `funding_reset` live;
+at S4.5 — the `society` balance section, `society_pressure` and `compute_independent` live, the
+outcome `lose_autophagy`).
 Later specs add sections.
 
 ## 1. General rules
@@ -309,6 +311,10 @@ as ≥ 0 unless stated. The meaning of each constant is defined by the formula t
 | `factions.level_thresholds` | [float] | ascending, each in (0, 1); containment from which a move is at level 2, 3 … (S4.5) |
 | `factions.reset_days` | int | ≥ 1; `funding_reset` value 1 is this many days of quiet |
 | `factions.protest_deaths_share` | float | in (0, 1]; the Protest's target rule (S4.5) |
+| `society.stage_thresholds` | [float] | ascending, each in (0, 100]; a region's stage is how many it has reached (opposition.md §8.2) |
+| `society.gain_scale` `.recovery_per_day` `.deaths_weight` | float | ≥ 0; a day's disorder change is `gain_scale × (society_pressure + deaths_weight × deaths share) − recovery_per_day`, clamped to 0…100 |
+| `society.stages` | [{`capacity_mul`, `yield_mul`}] | exactly one more than `stage_thresholds`, each in [0, 1]: the humans' containment capacity and the humans' hardware in the yield at that stage |
+| `society.autophagy_days` | int | ≥ 1; this many consecutive days of zero income end the run in `lose_autophagy`, unless the flag `compute_independent` is set |
 | `phase.open_containment` `.open_world_share` | float | in (0, 1] |
 | `headlines.max_per_tick` `.max_per_command` | int | ≥ 1; how many lines one tick or one command may say |
 | `headlines.reaction_gap_days` | int | ≥ 0; days between two state-triggered reactions |

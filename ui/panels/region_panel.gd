@@ -124,6 +124,15 @@ const VARIATION_ROW: StringName = &"Row"
 const VARIATION_STAT_PENETRATION: StringName = &"StatBarPenetration"
 
 const STAT_BAR_SCENE: String = "res://ui/components/stat_bar.tscn"
+## opposition.md §9.3: the Society row.
+const KEY_SOCIETY: String = "UI_REGION_SOCIETY"
+const KEY_SOCIETY_CUTS: String = "UI_REGION_SOCIETY_CUTS"
+const KEY_SOCIETY_TIP: String = "UI_REGION_SOCIETY_TIP"
+const PREFIX_SOCIETY_STAGE: String = "SOCIETY_STAGE_"
+const PLACEHOLDER_CAPACITY: String = "capacity"
+const PLACEHOLDER_YIELD: String = "yield"
+## From this stage on the chip wears the accent; never `ALERT` — it is a state.
+const SOCIETY_ACCENT_STAGE: int = 2
 
 @onready var _name_label: Label = %RegionName
 @onready var _close_button: IconButton = %CloseButton
@@ -168,6 +177,11 @@ var _penetration_bar: StatBar = null
 var _control_bar: StatBar = null
 var _pips: Dictionary[String, AttributePips] = {}
 var _link_rows: Dictionary[String, Label] = {}
+## §9.3's row, built in code after the Status block: heading, stage chip, cuts.
+var _society_block: VBoxContainer = null
+var _society_title: Label = null
+var _society_chip: Chip = null
+var _society_cuts: Label = null
 
 
 func _ready() -> void:
@@ -175,6 +189,7 @@ func _ready() -> void:
 	_build_presence()
 	_build_profile()
 	_build_links()
+	_build_society()
 	_close_button.pressed.connect(_on_close_pressed)
 	_collect_button.pressed.connect(_on_collect_pressed)
 	_dormancy_button.pressed.connect(_on_dormancy_pressed)
@@ -203,6 +218,8 @@ func _refresh_strings() -> void:
 	_assets_title.text = tr(KEY_ASSETS)
 	_status_title.text = tr(KEY_STATUS)
 	_actions_title.text = tr(KEY_ACTIONS)
+	_society_title.text = tr(KEY_SOCIETY)
+	_society_block.tooltip_text = tr(KEY_SOCIETY_TIP)
 
 
 ## The region the panel is showing, 0 for none.
@@ -231,6 +248,7 @@ func refresh() -> void:
 	_refresh_anomaly(world)
 	_refresh_assets(region)
 	_refresh_statuses(world)
+	_refresh_society(region)
 	_event_card.show_region(_index)
 	_refresh_actions()
 
@@ -359,6 +377,51 @@ func _asset_row(kind: String, count: int) -> Control:
 
 ## §16.5 item 10: one row per running status, in application order, each saying
 ## what it is, how long it has left and who put it there.
+## §9.3: hidden at 0; the stage chip and what the stage costs the humans here.
+func _refresh_society(region: Region) -> void:
+	_society_block.visible = region.society > 0.0 and not region.dark
+	if not _society_block.visible:
+		return
+	var balance: BalanceDef = Game.db.balance
+	var stage: int = SocietalFunctionSystem.stage(region.society, balance)
+	_society_chip.set_label(PREFIX_SOCIETY_STAGE + str(stage))
+	_society_chip.kind = Chip.Kind.ACCENT if stage >= SOCIETY_ACCENT_STAGE \
+		else Chip.Kind.DEFAULT
+	_society_cuts.text = tr(KEY_SOCIETY_CUTS).format({
+		PLACEHOLDER_CAPACITY: Format.factor(SocietalFunctionSystem.capacity_mul(region.society,
+			balance)),
+		PLACEHOLDER_YIELD: Format.factor(SocietalFunctionSystem.yield_mul(region.society, balance)),
+	})
+
+
+func _build_society() -> void:
+	_society_block = VBoxContainer.new()
+	_society_block.name = "SocietyBlock"
+	_society_block.theme_type_variation = &"StackTight"
+	_society_block.visible = false
+	_society_block.mouse_filter = Control.MOUSE_FILTER_PASS
+	_society_title = Label.new()
+	_society_title.theme_type_variation = VARIATION_HEADING
+	_society_block.add_child(_society_title)
+	var row: HFlowContainer = HFlowContainer.new()
+	row.theme_type_variation = &"FlowSnug"
+	_society_chip = Chip.new()
+	row.add_child(_society_chip)
+	_society_cuts = Label.new()
+	_society_cuts.theme_type_variation = VARIATION_CAPTION
+	_society_cuts.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(_society_cuts)
+	_society_block.add_child(row)
+	var body: Node = _status_block.get_parent()
+	body.add_child(_society_block)
+	body.move_child(_society_block, _status_block.get_index() + 1)
+
+
+## The row of §9.3, for the tests.
+func society_block() -> Control:
+	return _society_block
+
+
 func _refresh_statuses(world: World) -> void:
 	for child: Node in _statuses.get_children():
 		_statuses.remove_child(child)

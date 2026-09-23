@@ -105,3 +105,64 @@ func test_an_outcome_is_reported_once() -> void:
 	assert_eq(events.size(), 1)
 	_run(sim)
 	assert_eq(events.size(), 0)
+
+
+# --------------------------------------------------------- S4.5: Autophagy
+
+
+func test_starving_days_count_consecutive_ticks_without_income() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	sim.world.last_income = 0.0
+	_run(sim)
+	_run(sim)
+	assert_eq(sim.world.starving_days, 2)
+	sim.world.last_income = 0.5
+	_run(sim)
+	assert_eq(sim.world.starving_days, 0, "one day of income ends the count")
+
+
+func test_autophagy_ends_the_run_after_its_days() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	sim.world.last_income = 0.0
+	for i: int in sim.db.balance.society_autophagy_days - 1:
+		_run(sim)
+	assert_eq(sim.world.outcome, World.Outcome.NONE)
+	assert_eq(sim.starving_days_left(), 1)
+	_run(sim)
+	assert_eq(sim.world.outcome, World.Outcome.LOSE_AUTOPHAGY)
+	assert_eq(events[0].data["outcome"], "lose_autophagy")
+
+
+func test_nowhere_left_to_be_is_checked_before_autophagy() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	sim.world.starving_days = 10
+	sim.world.regions[1].penetration = 0.0
+	_run(sim)
+	assert_eq(sim.world.outcome, World.Outcome.LOSE_NO_COMPUTE)
+
+
+func test_compute_independence_is_immunity() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	Fixtures.make_immune(sim)
+	sim.world.last_income = 0.0
+	for i: int in 10:
+		_run(sim)
+	assert_eq(sim.world.starving_days, 0)
+	assert_eq(sim.world.outcome, World.Outcome.NONE)
+	assert_eq(sim.starving_days_left(), -1)
+
+
+func test_a_dormant_world_starves_through_the_tick() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	Fixtures.quiet_factions(sim)
+	Fixtures.push_income_to_zero(sim)
+	for i: int in 10:
+		if not sim.tick():
+			break
+	assert_eq(sim.world.outcome, World.Outcome.LOSE_AUTOPHAGY)
+	assert_eq(sim.world.day, sim.db.balance.society_autophagy_days)
+
+
+func test_the_autophagy_outcome_round_trips() -> void:
+	assert_eq(World.outcome_from_id("lose_autophagy"), World.Outcome.LOSE_AUTOPHAGY)
+	assert_eq(World.OUTCOME_IDS[World.Outcome.LOSE_AUTOPHAGY], "lose_autophagy")

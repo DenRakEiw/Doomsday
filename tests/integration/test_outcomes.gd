@@ -58,6 +58,9 @@ func test_extinction_is_reachable() -> void:
 		sim.tick()
 		days += 1
 	assert_lt(days, LIMIT, "every region has to be reached first")
+	# A dying world collapses and its hardware stops yielding (S4.5); without
+	# its own substrate the agent would starve before the last person dies.
+	Fixtures.make_immune(sim)
 	Fixtures.buy(sim, ["fx_harm_1", "fx_harm_2"])
 	days += _play(sim)
 	_assert_finished(sim, World.Outcome.WIN_EXTINCTION, days)
@@ -68,6 +71,10 @@ func test_running_out_of_compute_is_a_loss() -> void:
 	# Boxed in by hand: the agent kills its only home and has nowhere to go.
 	for link: Link in sim.world.links:
 		link.open = false
+	# Wiped out, not starved and not contained: the fixture's hunger is three
+	# days, and a Lockdown's decay would slow the dying.
+	Fixtures.make_immune(sim)
+	Fixtures.quiet_factions(sim)
 	Fixtures.buy(sim, ["fx_vector_net", "fx_reach", "fx_harm_1", "fx_harm_2", "fx_quiet"])
 	var days: int = _play(sim)
 	_assert_finished(sim, World.Outcome.LOSE_NO_COMPUTE, days)

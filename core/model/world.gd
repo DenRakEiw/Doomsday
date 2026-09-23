@@ -8,13 +8,14 @@ extends RefCounted
 ## instead of quietly simulating a phantom region.
 
 enum Phase { BOXED, COVERT, EMERGENT, OPEN }
-enum Outcome { NONE, WIN_EXTINCTION, WIN_ASCENDANCE, LOSE_CONTAINED, LOSE_NO_COMPUTE }
+enum Outcome { NONE, WIN_EXTINCTION, WIN_ASCENDANCE, LOSE_CONTAINED, LOSE_NO_COMPUTE,
+	LOSE_AUTOPHAGY }
 
 ## Serialised forms, indexed by the enum value: a phase is never a number in a
 ## file, because the numbers would change the moment a phase is inserted.
 const PHASE_IDS: Array[String] = ["boxed", "covert", "emergent", "open"]
 const OUTCOME_IDS: Array[String] = ["none", "win_extinction", "win_ascendance",
-	"lose_contained", "lose_no_compute"]
+	"lose_contained", "lose_no_compute", "lose_autophagy"]
 
 var day: int = 0
 ## Day the origin was chosen; -1 before that.
@@ -36,9 +37,11 @@ var next_anomaly_id: int = 1
 ## Firing order.
 var milestones_fired: Array[String] = []
 var history: Array[HistorySample] = []
-## How long the world has been starving. Saved from v2 on; nothing reads it
-## before S4.5 (D4.2 §3.2).
+## Consecutive ticks with zero income (opposition.md §8.5); saved, hashed.
 var starving_days: int = 0
+## This tick's income, written by `ComputeSystem` and read by `OutcomeSystem`
+## the same tick. Not saved: every tick recomputes it before it is read.
+var last_income: float = 0.0
 ## Every status running right now, in application order (§3.2).
 var statuses: Array[Status] = []
 ## Every timed Footprint running right now, in creation order.
@@ -162,6 +165,30 @@ func statuses_in_region(region_index: int) -> Array[Status]:
 		if status.region == region_index:
 			out.append(status)
 	return out
+
+
+## How many running statuses have a definition of this `origin` — the world's
+## moves count against `factions.max_active_moves` (opposition.md §6.7), global
+## ones included.
+func status_count_by_origin(db: ContentDB, origin: String) -> int:
+	var count: int = 0
+	for status: Status in statuses:
+		var definition: StatusDef = db.status(status.id)
+		if definition != null and definition.origin == origin:
+			count += 1
+	return count
+
+
+## Whether a status running in the region blocks `status_id` there (§3.2): a
+## captured region is skipped by the governments' and the labs' moves.
+func region_blocked_for(region_index: int, status_id: String, db: ContentDB) -> bool:
+	for status: Status in statuses:
+		if status.region != region_index:
+			continue
+		var definition: StatusDef = db.status(status.id)
+		if definition != null and definition.blocks.has(status_id):
+			return true
+	return false
 
 
 ## Every region a status of this id is running in, in application order.
@@ -511,6 +538,8 @@ static func outcome_from_id(id: String) -> Outcome:
 			return Outcome.LOSE_CONTAINED
 		4:
 			return Outcome.LOSE_NO_COMPUTE
+		5:
+			return Outcome.LOSE_AUTOPHAGY
 	return Outcome.NONE
 
 
@@ -858,6 +887,10 @@ func check_invariants(db: ContentDB = null) -> Array[String]:
 			if region.assets[kind] < 0:
 				problems.append("%s: %d %s assets is negative"
 					% [where, region.assets[kind], kind])
+		if not is_finite(region.society) or region.society < 0.0 or region.society > 100.0:
+			problems.append("%s: society %s is outside [0, 100]" % [where, region.society])
+	if starving_days < 0:
+		problems.append("starving_days %d is negative" % starving_days)
 
 	for faction: Faction in factions:
 		if not is_finite(faction.containment) or faction.containment < 0.0 \
@@ -867,10 +900,6 @@ func check_invariants(db: ContentDB = null) -> Array[String]:
 		if not faction.preparing.is_empty() and faction.fire_day < 0:
 			problems.append("%s: preparing %s without a fire day" % [faction.id,
 				faction.preparing])
-		if not faction.preparing.is_empty() and faction.fire_day >= 0 \
-				and faction.fire_day < day - 1:
-			problems.append("%s: %s should have fired on day %d" % [faction.id,
-				faction.preparing, faction.fire_day])
 		if db != null and not faction.preparing.is_empty():
 			var move: EventDef = db.event(faction.preparing)
 			if move == null or move.kind != EventDef.KIND_COUNTER_MOVE:
@@ -905,6 +934,15 @@ func check_invariants(db: ContentDB = null) -> Array[String]:
 		if anomalies.size() > db.balance.anomaly_max_active:
 			problems.append("%d anomalies, more than the %d allowed"
 				% [anomalies.size(), db.balance.anomaly_max_active])
+		# The factions' own moves only: a chain may start a world status of its
+		# own (the Grid Bill's law) without asking the schedule.
+		var moves: int = 0
+		for status: Status in statuses:
+			if not Status.faction_of(status.source).is_empty():
+				moves += 1
+		if moves > db.balance.factions_max_active_moves:
+			problems.append("%d faction moves standing, more than the %d allowed"
+				% [moves, db.balance.factions_max_active_moves])
 		for node_id: String in agent.owned_nodes:
 			if db.tech(node_id) == null:
 				problems.append("owned node \"%s\" is unknown to the content" % node_id)

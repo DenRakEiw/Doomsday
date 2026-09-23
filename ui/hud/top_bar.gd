@@ -74,6 +74,8 @@ var _speed_buttons: Array[IconButton] = []
 ## `loop-mechanics.md` §16.7: the global events put away with `Escape`, waiting —
 ## a tap brings the oldest back into the wire card.
 var _pending: Chip = null
+## §9.4: shown while the agent is starving, `ALERT` in the last days.
+var _starving: Chip = null
 
 
 func _ready() -> void:
@@ -88,6 +90,9 @@ func _ready() -> void:
 	_pending.gui_input.connect(_on_pending_input)
 	_row_main.add_child(_pending)
 	_row_main.move_child(_pending, _assets.get_index() + 1)
+	_starving = StarvingChip.create()
+	_row_main.add_child(_starving)
+	_row_main.move_child(_starving, _pending.get_index())
 	_build_speed_buttons()
 	_menu_button.pressed.connect(menu_requested.emit)
 	_apply_compact()
@@ -122,6 +127,7 @@ func refresh() -> void:
 	_day_value.set_number_in(KEY_DAY, PLACEHOLDER_DAY, float(world.day), Format.Kind.DAYS)
 	_set_phase(world.phase)
 	_refresh_pending(world)
+	StarvingChip.apply(_starving, Game.sim)
 
 
 ## The global events standing open — only a person answers them, so a bot run
@@ -131,6 +137,11 @@ func _refresh_pending(world: World) -> void:
 	_pending.visible = not waiting.is_empty() and Game.policy == null
 	if _pending.visible:
 		_pending.set_label(KEY_EVENT_PENDING, {PLACEHOLDER_COUNT: waiting.size()})
+
+
+## The starving chip, for the tests.
+func starving_chip() -> Chip:
+	return _starving
 
 
 ## The pending chip, for the tests.

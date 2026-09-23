@@ -42,6 +42,19 @@ const KEY_EVENT_EXPIRED: String = "UI_CONSOLE_EVENT_EXPIRED"
 const KEY_LEAD: String = "UI_CONSOLE_LEAD"
 const KEY_MOVE_CANCELLED: String = "UI_CONSOLE_MOVE_CANCELLED"
 const KEY_FUNDING_RESET: String = "UI_CONSOLE_FUNDING_RESET"
+const KEY_MOVE_PREPARED: String = "UI_CONSOLE_MOVE_PREPARED"
+const KEY_MOVE_DROPPED: String = "UI_CONSOLE_MOVE_DROPPED"
+const KEY_SOCIETY: String = "UI_CONSOLE_SOCIETY"
+const KEY_WIPED: String = "UI_CONSOLE_WIPED"
+const KEY_STARVING: String = "UI_CONSOLE_STARVING"
+const PREFIX_SOCIETY_STAGE: String = "SOCIETY_STAGE_"
+const PREFIX_EVENT: String = "EVENT_"
+const SUFFIX_TITLE: String = "_TITLE"
+const PLACEHOLDER_MOVE: String = "move"
+const PLACEHOLDER_PERCENT: String = "percent"
+const PLACEHOLDER_STAGE: String = "stage"
+## §9.5: how often a starving agent is told again.
+const STARVING_EVERY: int = 10
 const PLACEHOLDER_TITLE: String = "title"
 const PLACEHOLDER_DAYS: String = "days"
 const PLACEHOLDER_OPTION: String = "option"
@@ -76,6 +89,7 @@ func _ready() -> void:
 	EventBus.sim_event.connect(_on_sim_event)
 	EventBus.command_applied.connect(_on_command_applied)
 	EventBus.run_started.connect(_on_run_started)
+	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.console_pushed.connect(push)
 
 
@@ -203,6 +217,58 @@ func _on_sim_event(event: SimEvent) -> void:
 			push(tr(KEY_FUNDING_RESET).format({PLACEHOLDER_DAYS: Format.number(
 				float(int(event.data.get("until_day", event.day)) - event.day),
 				Format.Kind.DAYS)}))
+		SimEvent.COUNTER_MOVE_PREPARED:
+			push(tr(KEY_MOVE_PREPARED).format({
+				PLACEHOLDER_FACTION: _faction(str(event.data.get("faction", ""))),
+				PLACEHOLDER_MOVE: _move(str(event.data.get("event", ""))),
+				PLACEHOLDER_DAYS: Format.number(
+					float(int(event.data.get("fire_day", event.day)) - event.day), Format.Kind.DAYS),
+			}))
+		SimEvent.COUNTER_MOVE_DROPPED:
+			push(tr(KEY_MOVE_DROPPED).format({
+				PLACEHOLDER_FACTION: _faction(str(event.data.get("faction", ""))),
+				PLACEHOLDER_MOVE: _move(str(event.data.get("event", ""))),
+			}))
+		SimEvent.SOCIETY_STAGE_CHANGED:
+			_society_changed(event)
+		SimEvent.REGION_WIPED:
+			var from: float = float(event.data.get("from", 0.0))
+			var share: float = float(event.data.get("to", 0.0)) / from if from > 0.0 else 0.0
+			push(tr(KEY_WIPED).format({
+				PLACEHOLDER_REGION: _region(str(event.data.get("region", ""))),
+				PLACEHOLDER_PERCENT: Format.percent(share),
+			}))
+
+
+## opposition.md §9.5: a region getting worse from stage 2 on, or getting better
+## at all — the small slide from calm to strained is the ticker's, not yours.
+func _society_changed(event: SimEvent) -> void:
+	var from: int = int(event.data.get("from", 0))
+	var to: int = int(event.data.get("to", 0))
+	if to < 2 and to >= from:
+		return
+	push(tr(KEY_SOCIETY).format({
+		PLACEHOLDER_REGION: _region(str(event.data.get("region", ""))),
+		PLACEHOLDER_STAGE: tr(PREFIX_SOCIETY_STAGE + str(to)),
+	}))
+
+
+## §9.5: the first day of starving, then every ten days after it.
+func _on_tick_advanced(_day: int) -> void:
+	if Game.sim == null or _is_bot_run():
+		return
+	var starving: int = Game.sim.world.starving_days
+	if starving <= 0 or (starving - 1) % STARVING_EVERY != 0:
+		return
+	var left: int = Game.sim.starving_days_left()
+	if left < 0:
+		return
+	push(tr(KEY_STARVING).format({PLACEHOLDER_DAYS: Format.number(float(left),
+		Format.Kind.DAYS)}))
+
+
+func _move(event_id: String) -> String:
+	return tr(PREFIX_EVENT + event_id.to_upper() + SUFFIX_TITLE)
 
 
 ## §16.2: a map event came up — where, what, and how long there is to answer.

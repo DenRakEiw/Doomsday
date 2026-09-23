@@ -124,6 +124,7 @@ UI_OUTCOME_WIN_EXTINCTION,Extinction,Auslöschung
 UI_OUTCOME_WIN_ASCENDANCE,Ascendance,Aufstieg
 UI_OUTCOME_LOSE_CONTAINED,Contained,Eingedämmt
 UI_OUTCOME_LOSE_NO_COMPUTE,No compute left,Keine Rechenleistung mehr
+UI_OUTCOME_LOSE_AUTOPHAGY,Autophagy,Autophagie
 UI_FMT_MILLION,M,Mio.
 UI_FMT_BILLION,B,Mrd.
 UI_DEBUG_BOT_RUN,"Bot run: {policy}, seed {seed}","Bot-Durchlauf: {policy}, Seed {seed}"

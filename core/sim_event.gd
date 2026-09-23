@@ -63,6 +63,13 @@ const THREAT_LEADER_CHANGED: String = "threat_leader_changed"
 const FUNDING_RESET: String = "funding_reset"
 ## A faction's preparation was cancelled before it fired.
 const COUNTER_MOVE_CANCELLED: String = "counter_move_cancelled"
+## A faction began preparing a move, which fires on `fire_day` (opposition.md
+## §6.2).
+const COUNTER_MOVE_PREPARED: String = "counter_move_prepared"
+## A prepared move found nowhere to land and was called off (§6.1).
+const COUNTER_MOVE_DROPPED: String = "counter_move_dropped"
+## A region's Societal Function changed stage, either way (§8.2).
+const SOCIETY_STAGE_CHANGED: String = "society_stage_changed"
 ## What the world says about the rest of them (ticker.md §3.7). Emitted by
 ## `HeadlineSystem` after the systems, never a trigger for another headline.
 const HEADLINE: String = "headline"
@@ -76,7 +83,8 @@ const TYPES_ALL: Array[String] = [ORIGIN_CHOSEN, NODE_PURCHASED, ANOMALY_COLLECT
 	ABILITY_UNLOCKED, ABILITY_USED, STATUS_STARTED, STATUS_ENDED, PENETRATION_CHANGED,
 	CONTROL_CHANGED, REGION_WIPED, CONTAINMENT_ADDED, PULSE_STARTED, PULSE_ENDED,
 	FLAG_SET, FLAG_EXPIRED, EVENT_OPENED, EVENT_ANSWERED, EVENT_EXPIRED, EVENT_DROPPED,
-	THREAT_LEADER_CHANGED, FUNDING_RESET, COUNTER_MOVE_CANCELLED]
+	THREAT_LEADER_CHANGED, FUNDING_RESET, COUNTER_MOVE_CANCELLED, COUNTER_MOVE_PREPARED,
+	COUNTER_MOVE_DROPPED, SOCIETY_STAGE_CHANGED]
 
 ## Fields of a `HEADLINE` event that are not arguments of its text.
 const FIELD_HEADLINE: String = "headline"

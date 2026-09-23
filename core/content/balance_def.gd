@@ -65,6 +65,17 @@ var factions_level_thresholds: Array[float] = []
 var factions_reset_days: int
 var factions_protest_deaths_share: float
 
+## Societal Function (opposition.md §8): the stage thresholds on the 0…100
+## disorder, how pressure and deaths feed it, how fast it recovers, the two cuts
+## per stage (`{"capacity_mul", "yield_mul"}`, one more than the thresholds), and
+## how many days of zero income end a run.
+var society_stage_thresholds: Array[float] = []
+var society_gain_scale: float
+var society_recovery_per_day: float
+var society_deaths_weight: float
+var society_stages: Array[Dictionary] = []
+var society_autophagy_days: int
+
 var phase_open_containment: float
 var phase_open_world_share: float
 

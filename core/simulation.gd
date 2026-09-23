@@ -29,9 +29,9 @@ func _init() -> void:
 		SpreadSystem.new(),
 		ComputeSystem.new(),
 		PopulationSystem.new(),
-		# slot: SocietalFunctionSystem (M4)
+		SocietalFunctionSystem.new(),
 		ContainmentSystem.new(),
-		# slot: CounterMoveSystem (S4.5)
+		CounterMoveSystem.new(),
 		StatusSystem.new(),
 		# slot: BehaviourSystem (M5)
 		EventSystem.new(),
@@ -308,6 +308,24 @@ func footprint_for(faction_id: String) -> float:
 ## The faction closest to switching the agent off; "" before discovery (§5.6).
 func threat_leader() -> String:
 	return ContainmentSystem.threat_leader(world)
+
+
+## What a faction is about to do (opposition.md §6.6): `{state, event, days}`.
+func next_move(faction_id: String) -> Dictionary:
+	return CounterMoveSystem.next_move(world, db, faction_id)
+
+
+## The Societal Function stage of a region, 0…5 (§8.2).
+func society_stage(region_index: int) -> int:
+	return SocietalFunctionSystem.stage(world.regions[region_index].society, db.balance)
+
+
+## Days of zero income left before Autophagy; −1 while the agent cannot starve
+## (§8.5).
+func starving_days_left() -> int:
+	if has_flag(OutcomeSystem.FLAG_COMPUTE_INDEPENDENT):
+		return -1
+	return db.balance.society_autophagy_days - world.starving_days
 
 
 func state_hash() -> String:

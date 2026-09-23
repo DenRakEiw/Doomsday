@@ -138,14 +138,17 @@ func _build_tracks(world: World) -> void:
 func _apply_tracks(world: World) -> void:
 	var thresholds: Array[float] = Game.db.balance.containment_thresholds
 	var leader: String = Game.sim.threat_leader()
-	var no_move: Dictionary = {}
 	for faction: Faction in world.factions:
 		var track: FactionTrack = _track_nodes[faction.id]
 		track.bind(PREFIX_FACTION + faction.id.to_upper(), faction.containment,
 			Game.containment_rates.get(faction.id, 0.0), thresholds)
 		var breakdown: Dictionary = Game.sim.containment_breakdown(faction.id) \
 			if world.discovered else {}
-		track.bind_detail(breakdown, no_move, -1, faction.id == leader)
+		# §9.2 item 5: the countdown is never hidden — before discovery too, when
+		# the labs prepare an Audit on the risk alone.
+		var last: Array = CounterMoveSystem.last_move(world, Game.db, faction.id)
+		track.bind_detail(breakdown, Game.sim.next_move(faction.id), int(last[1]),
+			faction.id == leader, str(last[0]))
 
 
 # --------------------------------------------------------------------- rows

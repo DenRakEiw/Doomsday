@@ -26,8 +26,10 @@ const TIER_TABLE_SIZE: int = 5
 const INTEGER_MAX: int = 9007199254740992
 
 const BALANCE_KEYS: Array[String] = ["stats", "population_tiers", "spread", "control", "compute",
-	"anomaly", "milestones", "harm", "discovery", "containment", "factions", "phase", "headlines",
-	"results", "history", "events"]
+	"anomaly", "milestones", "harm", "discovery", "containment", "factions", "society", "phase",
+	"headlines", "results", "history", "events"]
+## The two cuts of one society stage (opposition.md §8.2).
+const SOCIETY_STAGE_KEYS: Array[String] = ["capacity_mul", "yield_mul"]
 const REGION_KEYS: Array[String] = ["index", "id", "continent", "population", "air_gapped",
 	"anchor", "attributes"]
 const LINK_KEYS: Array[String] = ["a", "b", "kind"]
@@ -103,6 +105,8 @@ static func validate_balance(file: String, raw: Variant, errors: Array[Validatio
 		_balance_containment(d["containment"], file, errors)
 	if _require(d, "factions", file, "", errors):
 		_balance_factions(d["factions"], file, errors)
+	if _require(d, "society", file, "", errors):
+		_balance_society(d["society"], file, errors)
 	if _require(d, "phase", file, "", errors):
 		_balance_phase(d["phase"], file, errors)
 	if _require(d, "headlines", file, "", errors):
@@ -323,6 +327,48 @@ static func _balance_factions(raw: Variant, file: String, errors: Array[Validati
 		for i: int in range(1, levels.size()):
 			if not is_nan(levels[i]) and not is_nan(levels[i - 1]) and levels[i] <= levels[i - 1]:
 				_add(errors, file, "%s[%d]" % [level_path, i], "thresholds must ascend strictly")
+
+
+## Societal Function and Autophagy (opposition.md §8, §11): one stage more than
+## there are thresholds, each cut a share in [0, 1].
+static func _balance_society(raw: Variant, file: String, errors: Array[ValidationError]) -> void:
+	var path: String = "society"
+	if not _is_object(raw, file, path, errors):
+		return
+	var d: Dictionary = raw
+	_check_keys(d, ["stage_thresholds", "gain_scale", "recovery_per_day", "deaths_weight",
+		"stages", "autophagy_days"], file, path, errors)
+	_number(d, "gain_scale", file, path, errors)
+	_number(d, "recovery_per_day", file, path, errors)
+	_number(d, "deaths_weight", file, path, errors)
+	_integer(d, "autophagy_days", file, path, errors, 1)
+	var threshold_count: int = -1
+	if _require(d, "stage_thresholds", file, path, errors):
+		var threshold_path: String = "society.stage_thresholds"
+		var thresholds: Array[float] = _float_list(d["stage_thresholds"], file, threshold_path,
+			errors, -1, 0.0, 100.0, true)
+		threshold_count = thresholds.size()
+		for i: int in range(1, thresholds.size()):
+			if not is_nan(thresholds[i]) and not is_nan(thresholds[i - 1]) \
+					and thresholds[i] <= thresholds[i - 1]:
+				_add(errors, file, "%s[%d]" % [threshold_path, i], "thresholds must ascend strictly")
+	if not _require(d, "stages", file, path, errors):
+		return
+	var stages_path: String = "society.stages"
+	if not _is_list(d["stages"], file, stages_path, errors):
+		return
+	var stages: Array = d["stages"]
+	if threshold_count >= 0 and stages.size() != threshold_count + 1:
+		_add(errors, file, stages_path, "expected %d stages (one more than the thresholds), found %d"
+			% [threshold_count + 1, stages.size()])
+	for i: int in stages.size():
+		var stage_path: String = "%s[%d]" % [stages_path, i]
+		if not _is_object(stages[i], file, stage_path, errors):
+			continue
+		var stage: Dictionary = stages[i]
+		_check_keys(stage, SOCIETY_STAGE_KEYS, file, stage_path, errors)
+		for key: String in SOCIETY_STAGE_KEYS:
+			_number(stage, key, file, stage_path, errors, 0.0, 1.0)
 
 
 static func _balance_phase(raw: Variant, file: String, errors: Array[ValidationError]) -> void:
@@ -2571,7 +2617,12 @@ static func _headline_domain(field: String, event: String,
 		"to", "from":
 			if event == SimEvent.THREAT_LEADER_CHANGED:
 				return Faction.FACTION_IDS
-			return World.PHASE_IDS if event == SimEvent.PHASE_CHANGED else []
+			if event == SimEvent.PHASE_CHANGED:
+				return World.PHASE_IDS
+			# A ternary with `[]` is an untyped `Array`, which the typed return
+			# refuses at run time; the society stages are numbers, so free.
+			var free: Array[String] = []
+			return free
 	return []
 
 

@@ -33,7 +33,7 @@
 			"deadline_days": 3,
 			"default": "ride",
 			"options": [
-				{"id": "ride", "cost": 0, "status_level": 1},
+				{"id": "ride", "cost": 0},
 				{
 					"id": "resist",
 					"cost": 1,
@@ -71,6 +71,57 @@
 			"options": [
 				{"id": "remember", "cost": 0, "requires": {"flag": ["fx_seen"]}, "effects": [{"effect": "compute_grant", "value": 1}]},
 				{"id": "wait", "cost": 0}
+			]
+		},
+		{
+			"id": "fx_probe",
+			"kind": "counter_move",
+			"faction": "ai_labs",
+			"status": "fx_watch",
+			"deadline_days": 2,
+			"default": "ignore",
+			"options": [
+				{"id": "ignore", "cost": 0},
+				{"id": "shorten", "cost": 0, "status_days": 1}
+			]
+		},
+		{
+			"id": "fx_notice",
+			"kind": "counter_move",
+			"faction": "security_researchers",
+			"status": "fx_watch",
+			"deadline_days": 2,
+			"default": "ignore",
+			"options": [
+				{"id": "ignore", "cost": 0},
+				{"id": "hush", "cost": 1, "effects": [{"effect": "apply_status", "status": "fx_hush"}]}
+			]
+		},
+		{
+			"id": "fx_notice_sea",
+			"kind": "counter_move",
+			"faction": "security_researchers",
+			"status": "fx_watch",
+			"deadline_days": 2,
+			"default": "ignore",
+			"options": [
+				{"id": "ignore", "cost": 0},
+				{"id": "hush", "cost": 1, "effects": [{"effect": "apply_status", "status": "fx_hush"}]}
+			]
+		},
+		{
+			"id": "fx_riot_move",
+			"kind": "counter_move",
+			"faction": "public_sentiment",
+			"status": "fx_riot",
+			"pick": {"rule": "protest_target"},
+			"deadline_days": 3,
+			"default": "wait",
+			"options": [
+				{"id": "wait", "cost": 0},
+				{"id": "dig", "cost": 1, "effects": [{"effect": "apply_status", "status": "fx_hold"}]},
+				{"id": "grip", "cost": 2, "requires": {"ability": "fx_zap"}, "skip_status": true, "effects": [{"effect": "apply_status", "status": "fx_grip"}]},
+				{"id": "scrub", "cost": 0, "skip_status": true, "effects": [{"effect": "wipe", "value": 0.5}, {"effect": "destroy_assets", "kind": "lab", "count": 0}]}
 			]
 		}
 	]

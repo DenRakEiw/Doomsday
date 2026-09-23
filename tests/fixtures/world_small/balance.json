@@ -100,6 +100,21 @@
 		"reset_days": 10,
 		"protest_deaths_share": 0.01
 	},
+	"society": {
+		"stage_thresholds": [10, 25, 45, 70, 90],
+		"gain_scale": 0.5,
+		"recovery_per_day": 0.1,
+		"deaths_weight": 50,
+		"stages": [
+			{"capacity_mul": 1.0, "yield_mul": 1.0},
+			{"capacity_mul": 0.9, "yield_mul": 1.0},
+			{"capacity_mul": 0.75, "yield_mul": 0.9},
+			{"capacity_mul": 0.5, "yield_mul": 0.75},
+			{"capacity_mul": 0.25, "yield_mul": 0.5},
+			{"capacity_mul": 0.0, "yield_mul": 0.0}
+		],
+		"autophagy_days": 3
+	},
 	"phase": {
 		"open_containment": 0.5,
 		"open_world_share": 0.6

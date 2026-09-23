@@ -22,6 +22,7 @@ const PREFIX_FACTION: String = "FACTION_"
 @onready var _rows: VBoxContainer = %StripRows
 ## `loop-mechanics.md` §16.9: the readout is the strip's second row on a phone.
 var _assets: AssetReadout = null
+var _starving: Chip = null
 
 ## One `[button, caption, value]` per readout, in the order of `KEYS`.
 var _values: Array[ValueLabel] = []
@@ -38,6 +39,10 @@ func _ready() -> void:
 	custom_minimum_size.y = float(UiTokens.STATUS_STRIP_HEIGHT)
 	_assets = AssetReadout.new()
 	_rows.add_child(_assets)
+	# opposition.md §9.4: the starving chip sits in the second row too.
+	_starving = StarvingChip.create()
+	_starving.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_rows.add_child(_starving)
 	_build_readouts()
 	_build_threat()
 	_menu.pressed.connect(menu_requested.emit)
@@ -56,6 +61,7 @@ func refresh() -> void:
 	_values[1].set_number(world.footprint(), KINDS[1])
 	_values[2].set_number(world.max_harm(), KINDS[2])
 	_apply_threat(world)
+	StarvingChip.apply(_starving, Game.sim)
 
 
 ## §9.1, compact: the fine risk under its caption, or the leader's glyph beside

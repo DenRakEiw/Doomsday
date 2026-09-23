@@ -1,5 +1,5 @@
 {
-	"_comment": "Fixture statuses. Four conditions that between them exercise every rule of the status system; not game content. Described in docs/specs/loop-mechanics.md section 22. fx_dim has two levels and closes the sea links, fx_reaped carries an on_start and an on_end effect, fx_lock is the world's and draws a border, fx_hush is the global one an ability puts on the agent.",
+	"_comment": "Fixture statuses. Four conditions that between them exercise every rule of the status system; not game content. Described in docs/specs/loop-mechanics.md section 22. fx_dim has two levels and closes the sea links, fx_reaped carries an on_start and an on_end effect, fx_lock is the world's and draws a border, fx_hush is the global one an ability puts on the agent. S4.5 (opposition.md section 16): fx_watch and fx_riot are the moves' world statuses, fx_hold and fx_grip their answers; fx_lock gained a second level.",
 	"version": 1,
 	"statuses": [
 		{
@@ -59,6 +59,14 @@
 					"modifiers": [
 						{"target": "penetration_decay", "op": "add", "value": 0.1}
 					]
+				},
+				{
+					"days": 10,
+					"closes_links": ["all"],
+					"ends_statuses": ["fx_dim"],
+					"modifiers": [
+						{"target": "penetration_decay", "op": "add", "value": 0.2}
+					]
 				}
 			]
 		},
@@ -72,6 +80,75 @@
 						{"target": "spread_growth", "op": "mul", "value": 0.5},
 						{"target": "footprint", "op": "add", "value": -2.0}
 					]
+				}
+			]
+		},
+		{
+			"id": "fx_watch",
+			"origin": "world",
+			"watched_by": ["ai_labs"],
+			"levels": [
+				{
+					"days": 3,
+					"modifiers": [
+						{"target": "discovery", "op": "mul", "value": 2.0},
+						{"target": "footprint", "op": "add", "value": 1.0}
+					]
+				},
+				{
+					"days": 5,
+					"modifiers": [
+						{"target": "discovery", "op": "mul", "value": 2.0},
+						{"target": "footprint", "op": "add", "value": 2.0}
+					]
+				}
+			]
+		},
+		{
+			"id": "fx_riot",
+			"origin": "world",
+			"levels": [
+				{
+					"days": 3,
+					"modifiers": [
+						{"target": "control_growth", "op": "mul", "value": 0.0}
+					],
+					"on_end": [
+						{"effect": "destroy_assets", "kind": "fleet", "count": 1}
+					]
+				},
+				{
+					"days": 4,
+					"modifiers": [
+						{"target": "control_growth", "op": "mul", "value": 0.0}
+					],
+					"on_end": [
+						{"effect": "destroy_assets", "kind": "fleet", "count": 0}
+					]
+				}
+			]
+		},
+		{
+			"id": "fx_hold",
+			"origin": "player",
+			"levels": [
+				{
+					"days": 4,
+					"modifiers": [
+						{"target": "penetration_decay", "op": "mul", "value": 0.5}
+					]
+				}
+			]
+		},
+		{
+			"id": "fx_grip",
+			"origin": "player",
+			"blocks": ["fx_riot"],
+			"levels": [
+				{
+					"days": 5,
+					"ends_statuses": ["fx_riot"],
+					"modifiers": []
 				}
 			]
 		}

@@ -239,7 +239,9 @@ func test_the_system_sits_between_containment_and_the_phase() -> void:
 	var order: Array[String] = []
 	for system: SimSystem in sim.systems:
 		order.append(system.get_script().resource_path.get_file())
-	assert_eq(order.find("status_system.gd"), order.find("containment_system.gd") + 1)
+	# containment → the counter-move schedule (S4.5) → statuses (IMPLEMENTATION §3).
+	assert_eq(order.find("counter_move_system.gd"), order.find("containment_system.gd") + 1)
+	assert_eq(order.find("status_system.gd"), order.find("counter_move_system.gd") + 1)
 	assert_true(order.find("status_system.gd") < order.find("phase_system.gd"))
 
 

@@ -417,7 +417,9 @@ func debug_schedule_event(def_id: String, region_id: String = "") -> void:
 	if sim == null or db.event(def_id) == null:
 		return
 	var region: int = int(db.region_index_by_id.get(region_id, 0))
-	EventSystem.schedule(sim.world, def_id, region, "", sim.world.day + 1, 1)
+	# A counter-move arrives as its faction's, the way the schedule sends it.
+	EventSystem.schedule(sim.world, def_id, region, db.event(def_id).faction,
+		sim.world.day + 1, 1)
 	print("event %s scheduled for day %d" % [def_id, sim.world.day + 1])
 
 

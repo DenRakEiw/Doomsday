@@ -12,6 +12,9 @@ var _sim: Simulation
 func before_each() -> void:
 	_sim = Fixtures.sim_with_origin(HOME)
 	Fixtures.grant(_sim, 200.0)
+	# Holding the only region there is starves the agent in the fixture's three
+	# days (S4.5); these tests are about holding, not about Autophagy.
+	Fixtures.make_immune(_sim)
 
 
 func _home() -> Region:

@@ -101,7 +101,7 @@ func set_faction(faction_id: String) -> void:
 ## the two largest terms; the next move once S4.5 schedules one; the leader's
 ## chip. `next_move` empty hides the next-move row.
 func bind_detail(breakdown: Dictionary, next_move: Dictionary, last_move_day: int,
-		leading: bool) -> void:
+		leading: bool, last_move_event: String = "") -> void:
 	_leading.visible = leading
 	if leading:
 		_leading.set_label(KEY_LEADING)
@@ -110,7 +110,7 @@ func bind_detail(breakdown: Dictionary, next_move: Dictionary, last_move_day: in
 	if not breakdown.is_empty():
 		_apply_numbers(breakdown)
 		_apply_terms(breakdown[ContainmentSystem.TERMS])
-	_apply_next(next_move, last_move_day)
+	_apply_next(next_move, last_move_day, last_move_event)
 
 
 func _apply_numbers(breakdown: Dictionary) -> void:
@@ -161,12 +161,11 @@ func term_text(term: Dictionary) -> String:
 
 
 ## §9.2 item 5 (S4.5): the countdown is never hidden once there is one.
-func _apply_next(next_move: Dictionary, last_move_day: int) -> void:
+func _apply_next(next_move: Dictionary, last_move_day: int, last_move_event: String) -> void:
 	_next.visible = not next_move.is_empty()
 	if next_move.is_empty():
 		return
-	var move: String = tr(PREFIX_EVENT + str(next_move.get(NEXT_EVENT, "")).to_upper()
-		+ SUFFIX_TITLE)
+	var move: String = _move_title(str(next_move.get(NEXT_EVENT, "")))
 	var days: String = Format.number(float(next_move.get(NEXT_DAYS, 0)), Format.Kind.DAYS)
 	match str(next_move.get(NEXT_STATE, "")):
 		STATE_PREPARING:
@@ -180,8 +179,13 @@ func _apply_next(next_move: Dictionary, last_move_day: int) -> void:
 			_next_chip.set_label(KEY_NEXT_NONE)
 	_last_move.visible = last_move_day >= 0
 	if last_move_day >= 0:
-		_last_move.text = tr(KEY_LAST_MOVE).format({PLACEHOLDER_MOVE: move,
+		_last_move.text = tr(KEY_LAST_MOVE).format({PLACEHOLDER_MOVE:
+			_move_title(last_move_event),
 			PLACEHOLDER_DAY: Format.number(float(last_move_day), Format.Kind.DAYS)})
+
+
+func _move_title(event_id: String) -> String:
+	return tr(PREFIX_EVENT + event_id.to_upper() + SUFFIX_TITLE)
 
 
 ## The one good containment moment: the fill slides back — `StatBar` animates

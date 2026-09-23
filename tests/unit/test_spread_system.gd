@@ -34,6 +34,8 @@ func test_nothing_happens_before_an_origin_is_chosen() -> void:
 func test_penetration_only_rises_and_stays_inside_its_range() -> void:
 	var sim: Simulation = Fixtures.sim_with_origin()
 	Fixtures.allow_breakout(sim)
+	# Nobody fights back: a Lockdown would close links and bleed penetration.
+	Fixtures.quiet_factions(sim)
 	var previous: Array[float] = []
 	previous.resize(sim.world.regions.size())
 	for i: int in 2000:
@@ -76,6 +78,8 @@ func test_breakout_fills_the_world_but_never_the_air_gapped_region() -> void:
 func test_a_region_behind_closed_links_is_never_seeded() -> void:
 	var sim: Simulation = Fixtures.sim_with_origin()
 	Fixtures.allow_breakout(sim)
+	# Nobody fights back: a Lockdown would close links and bleed penetration.
+	Fixtures.quiet_factions(sim)
 	for link: Link in sim.world.links:
 		if link.def.a == 5 or link.def.b == 5:
 			link.open = false
@@ -87,6 +91,8 @@ func test_a_region_behind_closed_links_is_never_seeded() -> void:
 func test_an_unlinked_region_is_never_seeded() -> void:
 	var sim: Simulation = Fixtures.sim_with_origin()
 	Fixtures.allow_breakout(sim)
+	# Nobody fights back: a Lockdown would close links and bleed penetration.
+	Fixtures.quiet_factions(sim)
 	# fx_cedar hangs off a single land link; closing it leaves it unreachable.
 	for link: Link in sim.world.links:
 		if link.def.a == 3 or link.def.b == 3:

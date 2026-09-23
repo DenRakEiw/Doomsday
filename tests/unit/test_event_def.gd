@@ -61,7 +61,7 @@ func test_a_counter_move_carries_its_status_and_faction() -> void:
 	assert_eq(def.faction, Faction.ID_GOVERNMENTS)
 	assert_false(def.is_rolled(), "a counter-move comes from the schedule, never the roll")
 	assert_true(def.option("lobby").skip_status)
-	assert_eq(def.option("ride").status_level, 1)
+	assert_eq(def.option("ride").status_level, 0, "0 applies the event's own level (S4.5)")
 	assert_eq(def.option("resist").requires_ability, Fixtures.ZAP_ABILITY)
 
 
@@ -107,6 +107,8 @@ func test_every_events_file_is_read_in_name_order() -> void:
 	var first: Dictionary = {"version": 1, "events": [list[1]]}
 	var second: Dictionary = {"version": 1, "events": [list[0], list[2], list[3]]}
 	content["events"] = []
+	# Only the governments' counter-move is in these two files (S4.5's are not).
+	Fixtures.drop_moves(content, [Faction.ID_GOVERNMENTS] as Array[String])
 	var files: Dictionary[String, String] = Fixtures.root_files(content)
 	files.erase("events/.keep")
 	files["events/b_rest.json"] = JSON.stringify(second, "\t", true, true)
@@ -121,8 +123,8 @@ func test_every_events_file_is_read_in_name_order() -> void:
 func test_an_empty_events_directory_loads() -> void:
 	var content: Dictionary = Fixtures.raw_content()
 	content["events"] = []
-	# The governments' move names the fixture's counter-move, which is gone too.
-	((content["factions"] as Dictionary)["factions"] as Array)[1]["moves"] = []
+	# The factions' moves name the fixture's counter-moves, which are gone too.
+	Fixtures.drop_moves(content)
 	var result: ContentLoadResult = ContentLoader.load_root(Fixtures.write_root("events_empty",
 		Fixtures.root_files(content)))
 	assert_true(result.ok(), result.error_text())
