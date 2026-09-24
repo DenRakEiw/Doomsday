@@ -166,7 +166,7 @@ func answer_event(sim: Simulation, event: OpenEvent, def: EventDef) -> String:
 ## behind unless the option skips it.
 func option_score(sim: Simulation, event: OpenEvent, def: EventDef,
 		option: EventOptionDef) -> float:
-	var score: float = -option.cost * _weight(W_COMPUTE)
+	var score: float = -sim.option_cost(option) * _weight(W_COMPUTE)
 	for effect: EffectDef in option.effects:
 		score += _effect_score(sim, event.region, effect)
 	for branch: EventChanceDef in option.chance:

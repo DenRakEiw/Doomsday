@@ -18,6 +18,15 @@ var story_flags: Array[String] = []
 ## Link kind → how many regions were seeded over that kind. Counted from S4.1
 ## on; D4.2's Disclosure reads it.
 var seeds_by_kind: Dictionary[String, int] = {}
+## `replayability.md` §2.2, the Swarm's `drift` hook: 0…100, how far the copies
+## have wandered. 0 on every other architecture.
+var drift: float = 0.0
+## Every emergent behaviour suppressed this run — what the next suppression's
+## price climbs with (§3.1).
+var suppressions: int = 0
+## The Weapon's `escalation` hook: the day the standing status next climbs a
+## level, or -1 before it has started.
+var escalation_next: int = -1
 
 
 func owns(node_id: String) -> bool:

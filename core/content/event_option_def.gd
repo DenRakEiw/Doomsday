@@ -27,8 +27,14 @@ const LOCK_ABILITY: String = "ability"
 const LOCK_REASONS: Array[String] = ["node", "node_any", "not_owned", "flag", "asset",
 	"compute", "ability"]
 
+## The one word a `cost` may be instead of a number (emergent options only).
+const COST_SUPPRESSION: String = "suppression"
+
 var id: String
 var cost: float = 0.0
+## `"cost": "suppression"` (§3.1): the price is the run's escalating suppression
+## cost, asked of `Simulation.option_cost`, and `cost` stays 0.
+var cost_suppression: bool = false
 ## `requires.owned`: every one of these nodes.
 var requires_owned: Array[String] = []
 ## `requires.owned_any`: at least one of these.

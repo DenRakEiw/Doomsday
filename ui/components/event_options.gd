@@ -79,7 +79,7 @@ func _row(def: EventDef, option: EventOptionDef, event: OpenEvent, sim: Simulati
 	var row: HBoxContainer = HBoxContainer.new()
 	row.theme_type_variation = VARIATION_ROW
 	var lock: Dictionary = option.lock_reason(sim, event.region)
-	var short: bool = sim.world.agent.compute < option.cost
+	var short: bool = sim.world.agent.compute < sim.option_cost(option)
 	var button: ConsoleButton = ConsoleButton.new()
 	button.label_key = EventOptionDef.text_key(def.id, option.id)
 	button.disabled = not lock.is_empty() or short
@@ -90,7 +90,7 @@ func _row(def: EventDef, option: EventOptionDef, event: OpenEvent, sim: Simulati
 	button.pressed.connect(_on_pressed.bind(option.id))
 	row.add_child(button)
 	var chip: Chip = Chip.new()
-	chip.set_text(EventView.cost_text(option.cost))
+	chip.set_text(EventView.cost_text(sim.option_cost(option), option.cost_suppression))
 	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(chip)
 	box.add_child(row)

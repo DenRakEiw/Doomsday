@@ -16,6 +16,9 @@ const CAUSE_EXPIRED: String = "expired"
 const CAUSE_ENDED: String = "ended"
 ## Reserved for the region panel's *Cancel* button, which no status offers yet.
 const CAUSE_CANCELLED: String = "cancelled"
+## The Weapon's escalation and the flag Restraint holds it with (§2.2, §2.4).
+const STATUS_ESCALATING: String = "escalating"
+const FLAG_RESTRAINED: String = "restrained"
 
 
 ## Everything whose day has come, in one order: statuses, then pulses, then
@@ -29,6 +32,32 @@ func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 	_expire_pulses(world, events)
 	_expire_flags(world, events)
 	_expire_cooldowns(world)
+	_escalate(world, db, events)
+
+
+## `escalation` (`replayability.md` §2.2): the Weapon's standing `escalating`
+## starts at level 1 on the first tick after the origin and climbs a level every
+## `every_days`, up to its last. While Restraint's flag stands the climb waits;
+## a status Restraint ended starts again at level 1 when the next climb is due.
+func _escalate(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
+	if not world.has_hook(db, ArchitectureDef.HOOK_ESCALATION):
+		return
+	var agent: Agent = world.agent
+	var running: Status = world.status_in_region(STATUS_ESCALATING, 0)
+	var source: String = ModifierStack.source_for_architecture(world.setup.architecture)
+	if agent.escalation_next < 0:
+		apply(world, db, STATUS_ESCALATING, 0, source, 1, "", events)
+		agent.escalation_next = world.day + db.balance.escalation_every_days
+		return
+	if world.day < agent.escalation_next:
+		return
+	agent.escalation_next = world.day + db.balance.escalation_every_days
+	if world.modifiers.has_flag(FLAG_RESTRAINED):
+		return
+	var level: int = 1 if running == null else running.level + 1
+	if running != null and level > db.status(STATUS_ESCALATING).levels.size():
+		return
+	apply(world, db, STATUS_ESCALATING, 0, source, level, "", events)
 
 
 ## Puts a status on a region (0 = on the agent) and answers the record. Never

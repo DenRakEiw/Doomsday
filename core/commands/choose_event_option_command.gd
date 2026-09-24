@@ -37,7 +37,7 @@ func validate(sim: Simulation) -> String:
 		return FAIL_UNKNOWN_OPTION
 	if not chosen.lock_reason(sim, open_event.region).is_empty():
 		return FAIL_OPTION_LOCKED
-	if sim.world.agent.compute < chosen.cost:
+	if sim.world.agent.compute < sim.option_cost(chosen):
 		return FAIL_INSUFFICIENT_COMPUTE
 	return ""
 

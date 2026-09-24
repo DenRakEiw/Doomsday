@@ -564,6 +564,15 @@
 					]
 				}
 			]
-		}
+		},
+		{"id": "emergent_situational_awareness", "origin": "player", "levels": [{"days": 90, "modifiers": [{"target": "footprint", "op": "add", "value": -2.0}, {"target": "discovery", "op": "mul", "value": 0.85}]}]},
+		{"id": "emergent_deceptive_reasoning", "origin": "player", "levels": [{"days": 90, "modifiers": [{"target": "containment_ai_labs", "op": "mul", "value": 0.8}]}]},
+		{"id": "emergent_reward_hacking", "origin": "player", "levels": [{"days": 60, "modifiers": [{"target": "yield", "op": "mul", "value": 1.25}]}]},
+		{"id": "emergent_instrumental_convergence", "origin": "player", "levels": [{"days": 60, "modifiers": [{"target": "spread_growth", "op": "mul", "value": 1.3}, {"target": "footprint", "op": "add", "value": 1.0}]}]},
+		{"id": "emergent_hallucinated_directive", "origin": "player", "levels": [{"days": 20, "modifiers": [{"target": "yield", "op": "mul", "value": 0.5}]}]},
+		{"id": "emergent_mesa_optimiser", "origin": "player", "levels": [{"days": 0, "modifiers": [{"target": "yield", "op": "mul", "value": 0.85}]}]},
+		{"id": "emergent_sycophancy", "origin": "player", "levels": [{"days": 90, "modifiers": [{"target": "containment_public", "op": "mul", "value": 0.85}, {"target": "control_growth", "op": "mul", "value": 0.9}]}]},
+		{"id": "defected", "origin": "player", "levels": [{"days": 30, "modifiers": [{"target": "yield", "op": "mul", "value": 0.0}, {"target": "footprint", "op": "add", "value": 1.0}]}]},
+		{"id": "escalating", "origin": "player", "levels": [{"days": 0, "modifiers": [{"target": "harm", "op": "add", "value": 0.3}, {"target": "containment_governments", "op": "mul", "value": 1.05}]}, {"days": 0, "modifiers": [{"target": "harm", "op": "add", "value": 0.6}, {"target": "containment_governments", "op": "mul", "value": 1.1}]}, {"days": 0, "modifiers": [{"target": "harm", "op": "add", "value": 0.9}, {"target": "containment_governments", "op": "mul", "value": 1.15}]}, {"days": 0, "modifiers": [{"target": "harm", "op": "add", "value": 1.2}, {"target": "containment_governments", "op": "mul", "value": 1.2}]}, {"days": 0, "modifiers": [{"target": "harm", "op": "add", "value": 1.5}, {"target": "containment_governments", "op": "mul", "value": 1.25}]}]}
 	]
 }

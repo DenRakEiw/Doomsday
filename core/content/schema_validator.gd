@@ -27,7 +27,8 @@ const INTEGER_MAX: int = 9007199254740992
 
 const BALANCE_KEYS: Array[String] = ["stats", "population_tiers", "spread", "control", "compute",
 	"anomaly", "milestones", "harm", "discovery", "containment", "factions", "society", "phase",
-	"headlines", "results", "history", "events"]
+	"headlines", "results", "history", "events",
+	"emergent", "drift", "escalation", "distributed"]
 ## The two cuts of one society stage (opposition.md §8.2).
 const SOCIETY_STAGE_KEYS: Array[String] = ["capacity_mul", "yield_mul"]
 const REGION_KEYS: Array[String] = ["index", "id", "continent", "population", "air_gapped",
@@ -117,6 +118,42 @@ static func validate_balance(file: String, raw: Variant, errors: Array[Validatio
 		_balance_history(d["history"], file, errors)
 	if _require(d, "events", file, "", errors):
 		_balance_events(d["events"], file, errors)
+	if _require(d, "emergent", file, "", errors):
+		_balance_block(d["emergent"], "emergent", {
+			"base_chance": [0.0, 1.0], "suppress_cost": [0.0, INF], "suppress_step": [0.0, INF],
+		}, [], file, errors)
+	if _require(d, "drift", file, "", errors):
+		_balance_block(d["drift"], "drift", {
+			"per_kept": [0.0, 100.0], "per_day": [0.0, 100.0], "per_suppressed": [0.0, 100.0],
+			"defect_chance": [0.0, 1.0], "defect_min_penetration": [0.0, 1.0],
+		}, ["defect_days"], file, errors)
+	if _require(d, "escalation", file, "", errors):
+		_balance_block(d["escalation"], "escalation", {}, ["every_days", "hold_days"], file,
+			errors)
+	if _require(d, "distributed", file, "", errors):
+		_balance_block(d["distributed"], "distributed", {
+			"floor": [0.0, 1.0], "start_penetration": [0.0, 1.0],
+		}, ["hold_regions"], file, errors)
+
+
+## A block of plain numbers (`replayability.md` §8.4): each named number within
+## its range, each named whole number at least 1, and nothing else.
+static func _balance_block(raw: Variant, path: String, numbers: Dictionary,
+		whole: Array[String], file: String, errors: Array[ValidationError]) -> void:
+	if not _is_object(raw, file, path, errors):
+		return
+	var d: Dictionary = raw
+	var allowed: Array[String] = whole.duplicate()
+	for key: Variant in numbers:
+		allowed.append(str(key))
+	_check_keys(d, allowed, file, path, errors)
+	for key: Variant in numbers:
+		var bounds: Array = numbers[key]
+		if _require(d, str(key), file, path, errors):
+			_number(d, str(key), file, path, errors, float(bounds[0]), float(bounds[1]))
+	for key: String in whole:
+		if _require(d, key, file, path, errors):
+			_integer(d, key, file, path, errors, 1)
 
 
 static func _balance_stats(raw: Variant, file: String, errors: Array[ValidationError]) -> void:
@@ -1047,9 +1084,9 @@ static func validate_abilities(file: String, raw: Variant,
 static func _ability_levels(a: Dictionary, id: String, file: String, path: String,
 		nodes: Dictionary[String, Dictionary], errors: Array[ValidationError]) -> int:
 	var listed: PackedStringArray = _id_list(a, "levels_from", file, path, errors)
+	# An empty list is an ability an architecture grants (`replayability.md`
+	# §2.4): it has one level and no node.
 	if listed.is_empty():
-		_add(errors, file, _join(path, "levels_from"),
-			"an ability needs at least one node to come from")
 		return 0
 	for i: int in listed.size():
 		var entry_path: String = "%s.levels_from[%d]" % [path, i]
@@ -1518,7 +1555,8 @@ static func effect(raw: Variant, file: String, path: String, has_region: bool,
 	_check_keys(e, allowed, file, path, errors)
 	for key: String in EffectDef.REQUIRED_FIELDS[id]:
 		_require(e, key, file, path, errors)
-	if EffectDef.effect_needs_region(id, bool(e.get("per_hardware", false))) and not has_region:
+	if EffectDef.effect_needs_region(id, bool(e.get("per_hardware", false)),
+			bool(e.get("global", false))) and not has_region:
 		_add(errors, file, _join(path, "effect"),
 			"\"%s\" needs a region and this one never has one" % id)
 	_effect_numbers(e, id, file, path, errors)
@@ -1834,6 +1872,8 @@ static func _event(e: Dictionary, id: String, file: String, path: String, contex
 		_add(errors, file, _join(path, "kind"), "unknown kind \"%s\"" % kind)
 	var is_chain: bool = kind == EventDef.KIND_CHAIN
 	var is_counter: bool = kind == EventDef.KIND_COUNTER_MOVE
+	# Only an emergent option may cost "suppression" (§3.1); the options read it.
+	context["is_emergent"] = kind == EventDef.KIND_EMERGENT
 	if is_chain:
 		_id(e, "chain", file, path, errors)
 		if e.has("start"):
@@ -1970,7 +2010,12 @@ static func _event_option(raw: Variant, event_id: String, is_chain: bool, is_cou
 	_check_keys(o, EventOptionDef.KEYS, file, path, errors)
 	var id: String = _id(o, "id", file, path, errors)
 	if o.has("cost"):
-		_number(o, "cost", file, path, errors, 0.0)
+		if str(o["cost"]) == EventOptionDef.COST_SUPPRESSION and typeof(o["cost"]) == TYPE_STRING:
+			if not bool(context.get("is_emergent", false)):
+				_add(errors, file, _join(path, "cost"),
+					"only an emergent option costs \"%s\"" % EventOptionDef.COST_SUPPRESSION)
+		else:
+			_number(o, "cost", file, path, errors, 0.0)
 	if o.has("requires"):
 		_event_requires(o["requires"], has_region, file, _join(path, "requires"), context, errors)
 	var statuses: Dictionary[String, int] = context["statuses"]
@@ -2088,7 +2133,8 @@ static func _event_default(e: Dictionary, file: String, path: String,
 		if typeof(option) != TYPE_DICTIONARY or str((option as Dictionary).get("id")) != default_id:
 			continue
 		var o: Dictionary = option
-		if [TYPE_INT, TYPE_FLOAT].has(typeof(o.get("cost"))) and float(o["cost"]) != 0.0:
+		if typeof(o.get("cost")) == TYPE_STRING \
+				or [TYPE_INT, TYPE_FLOAT].has(typeof(o.get("cost"))) and float(o["cost"]) != 0.0:
 			_add(errors, file, _join(path, "default"),
 				"the default \"%s\" costs %s; it must be free" % [default_id, o["cost"]])
 		if typeof(o.get("requires")) == TYPE_DICTIONARY \
@@ -2709,6 +2755,11 @@ static func _headline_condition(when: Dictionary, key: String, file: String, pat
 	if key == HeadlineConditions.KEY_PHASE:
 		_headline_id_list(when, key, World.PHASE_IDS, file, path, errors)
 		return
+	# Architectures are checked after events and headlines, so here only the
+	# shape; an id no architecture has simply never holds.
+	if key == HeadlineConditions.KEY_ARCHITECTURE:
+		_id_list(when, key, file, path, errors)
+		return
 	if HeadlineConditions.NODE_LISTS.has(key):
 		var nodes: Array[String] = []
 		for id: String in known["node"]:
@@ -2838,7 +2889,9 @@ static func validate_architectures(file: String, raw: Variant,
 		regions: Dictionary[String, String], regions_known: bool,
 		statuses: Dictionary[String, int], statuses_known: bool, tech_raws: Array,
 		abilities: Dictionary[String, bool], strings: Dictionary[String, bool],
-		strings_known: bool, errors: Array[ValidationError]) -> void:
+		strings_known: bool, errors: Array[ValidationError], abilities_file: String = "",
+		abilities_raw: Variant = null) -> void:
+	_nodeless_abilities(raw, abilities_file, abilities_raw, errors)
 	if typeof(raw) != TYPE_DICTIONARY:
 		return
 	var d: Dictionary = raw
@@ -2890,6 +2943,36 @@ static func validate_architectures(file: String, raw: Variant,
 	if not seen.has(ArchitectureDef.DEFAULT_ID):
 		_add(errors, file, ArchitectureDef.ROOT_KEY,
 			"missing the default architecture \"%s\"" % ArchitectureDef.DEFAULT_ID)
+
+
+## An ability with no node to come from exists only because an architecture
+## grants it (§2.4); any other is a mistake (loop-mechanics §9.2). Checked here,
+## after both files, because only here are both known.
+static func _nodeless_abilities(raw: Variant, abilities_file: String, abilities_raw: Variant,
+		errors: Array[ValidationError]) -> void:
+	if typeof(abilities_raw) != TYPE_DICTIONARY:
+		return
+	var granted: Dictionary[String, bool] = {}
+	if typeof(raw) == TYPE_DICTIONARY and typeof((raw as Dictionary).get(
+			ArchitectureDef.ROOT_KEY)) == TYPE_ARRAY:
+		for entry: Variant in (raw as Dictionary)[ArchitectureDef.ROOT_KEY]:
+			if typeof(entry) != TYPE_DICTIONARY:
+				continue
+			for ability: Variant in (entry as Dictionary).get("abilities", []):
+				granted[str(ability)] = true
+	var list: Variant = (abilities_raw as Dictionary).get(AbilityDef.ROOT_KEY)
+	if typeof(list) != TYPE_ARRAY:
+		return
+	for i: int in (list as Array).size():
+		var entry: Variant = (list as Array)[i]
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var a: Dictionary = entry
+		if typeof(a.get("levels_from")) != TYPE_ARRAY or not (a["levels_from"] as Array).is_empty():
+			continue
+		if not granted.has(str(a.get("id", ""))):
+			_add(errors, abilities_file, "%s[%d].levels_from" % [AbilityDef.ROOT_KEY, i],
+				"an ability needs at least one node to come from, or an architecture that grants it")
 
 
 ## `{}` or exactly one rule: a count of runs, of wins, or of wins by an outcome.

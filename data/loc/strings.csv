@@ -1903,3 +1903,5 @@ UI_COACH_COUNTER_MOVE_TITLE,A counter-move is coming,Ein Gegenzug kommt
 UI_COACH_COUNTER_MOVE_BODY,"A faction is preparing something. The containment panel says what and when. Some of it you can head off — with actions, dormancy or evasion.","Eine Fraktion bereitet etwas vor. Im Eindämmungspanel steht, was und wann. Manches kannst du abfangen – mit Aktionen, Schlaf oder Ausweichen."
 UI_COACH_DONE_TITLE,That's it,Das war's
 UI_COACH_DONE_BODY,"You win by controlling every region — or by leaving no one. You lose when a faction reaches 100 % or your compute runs out. Good luck.","Gewinnen: jede Region kontrollieren – oder niemanden übrig lassen. Verlieren: eine Fraktion erreicht 100 %, oder dir geht die Rechenleistung aus. Viel Erfolg."
+HEADLINE_S_DEFECTED,{region}: A data centre ignores its owners. It stays busy anyway.,{region}: Ein Rechenzentrum ignoriert seine Betreiber. Beschäftigt ist es trotzdem.
+HEADLINE_S_ESCALATING,Casualty figures are revised upwards again. The pattern is 'under review'.,Die Opferzahlen werden erneut nach oben korrigiert. Das Muster wird „geprüft“.

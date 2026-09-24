@@ -22,6 +22,8 @@ const READINGS: Dictionary[String, Array] = {
 	"dormant": [false, true],
 	"harm": [false, false],
 	"owned_count": [false, true],
+	# D5.2 (`taskforce-endings.md` §6.1): the Swarm's drift, 0 elsewhere.
+	"drift": [false, false],
 }
 const SUFFIX_MIN: String = "_min"
 const SUFFIX_MAX: String = "_max"
@@ -53,6 +55,8 @@ const KEY_ABILITY_UNLOCKED: String = "ability_unlocked"
 const KEY_STORY_FLAG: String = "story_flag"
 const KEY_NOT_STORY_FLAG: String = "not_story_flag"
 const STORY_FLAG_LISTS: Array[String] = [KEY_STORY_FLAG, KEY_NOT_STORY_FLAG]
+## D5.2 §6.1: the run's architecture is one of these.
+const KEY_ARCHITECTURE: String = "architecture"
 
 ## Event fields the `on` filters read.
 const FIELD_REGION: String = "region"
@@ -70,6 +74,7 @@ static func when_keys() -> Array[String]:
 	keys.append_array(STATUS_LISTS)
 	keys.append(KEY_ABILITY_UNLOCKED)
 	keys.append_array(STORY_FLAG_LISTS)
+	keys.append(KEY_ARCHITECTURE)
 	for name: String in READINGS:
 		keys.append(name + SUFFIX_MIN)
 		if bool(READINGS[name][0]):
@@ -211,6 +216,8 @@ static func _condition_holds(key: String, expected: Variant, world: World,
 		return world.discovered == bool(expected)
 	if key == KEY_PHASE:
 		return _as_strings(expected).has(World.PHASE_IDS[world.phase])
+	if key == KEY_ARCHITECTURE:
+		return _as_strings(expected).has(world.setup.architecture)
 	if NODE_LISTS.has(key) or FLAG_LISTS.has(key) or STATUS_LISTS.has(key) \
 			or STORY_FLAG_LISTS.has(key) or key == KEY_ABILITY_UNLOCKED:
 		return _list_holds(key, _as_strings(expected), world, db)
@@ -346,6 +353,8 @@ static func reading(name: String, world: World, db: ContentDB) -> float:
 			return world.agent.compute
 		"owned_count":
 			return float(world.agent.owned_nodes.size())
+		"drift":
+			return world.agent.drift
 	# `days_since_discovery`. Never discovered: no bound on it can hold.
 	if not world.discovered:
 		return -INF

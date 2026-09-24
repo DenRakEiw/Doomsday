@@ -1660,6 +1660,8 @@
 		{"id": "a_fabricate", "stream": "consequence", "register": "any", "on": {"event": "ability_used", "data": {"ability": "fabricate"}}, "cooldown_days": 10},
 		{"id": "s_throttled", "stream": "consequence", "register": "any", "on": {"event": "status_started", "data": {"status": "throttled"}}, "cooldown_days": 10},
 		{"id": "s_metered", "stream": "reaction", "register": "any", "on": {"event": "status_started", "data": {"status": "metered"}}, "max_fires": 1},
+		{"id": "s_defected", "stream": "consequence", "register": "any", "on": {"event": "status_started", "data": {"status": "defected"}}, "cooldown_days": 20},
+		{"id": "s_escalating", "stream": "consequence", "register": "any", "on": {"event": "status_started", "data": {"status": "escalating"}}, "cooldown_days": 30},
 		{
 			"id": "e_unattended_cluster",
 			"stream": "consequence",

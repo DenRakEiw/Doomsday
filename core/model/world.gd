@@ -456,6 +456,9 @@ func to_dict() -> Dictionary:
 			"timed_flags": agent.timed_flags.duplicate(),
 			"story_flags": agent.story_flags.duplicate(),
 			"seeds_by_kind": agent.seeds_by_kind.duplicate(),
+			"drift": FloatBits.to_hex(agent.drift),
+			"suppressions": agent.suppressions,
+			"escalation_next": agent.escalation_next,
 		},
 		"regions": region_list,
 		"closed_links": closed_links,
@@ -821,6 +824,20 @@ static func _read_agent(world: World, raw: Variant, db: ContentDB) -> bool:
 		return false
 	if not _read_strings(world.agent.story_flags, entry["story_flags"]):
 		return false
+	# S5.2's three fields; a save written between S5.1 and S5.2 has none of them
+	# and reads as a run where none of it has happened yet.
+	if entry.has("drift"):
+		if not _real(entry, "drift"):
+			return false
+		world.agent.drift = FloatBits.from_variant(entry["drift"])
+	if entry.has("suppressions"):
+		if not _num(entry, "suppressions"):
+			return false
+		world.agent.suppressions = int(entry["suppressions"])
+	if entry.has("escalation_next"):
+		if not _num(entry, "escalation_next"):
+			return false
+		world.agent.escalation_next = int(entry["escalation_next"])
 	# Node ids are not checked against the content here: an owned node the
 	# content no longer has is a *content* problem, which the save reader
 	# reports as such (core.md §10), not a corrupt file.

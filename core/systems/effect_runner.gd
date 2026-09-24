@@ -54,6 +54,10 @@ static func apply(sim: Simulation, effect: EffectDef, context: EffectContext,
 			_wipe(sim, effect, context, events)
 		EffectDef.FUNDING_RESET:
 			_funding_reset(sim, effect, context, events)
+		EffectDef.STATUS_LEVEL_ADD:
+			_status_level_add(sim, effect, context, events)
+		EffectDef.UNLOCK_NEAR_NODE:
+			_unlock_near_node(sim, events)
 		_:
 			# An unknown id never reaches here — the loader rejects it.
 			push_error("effect \"%s\" has no runner" % effect.effect)
@@ -319,6 +323,15 @@ static func _end_statuses(sim: Simulation, effect: EffectDef, context: EffectCon
 	StatusSystem.end_listed(sim.world, sim.db, effect.ids, region, events)
 
 
+## Regions the agent is in right now — not dark, some presence.
+static func _held(world: World) -> int:
+	var held: int = 0
+	for i: int in range(1, world.regions.size()):
+		if not world.regions[i].dark and world.regions[i].penetration > 0.0:
+			held += 1
+	return held
+
+
 ## A shutdown: what is left is what `shutdown_survival` bought. A region at 0
 ## stays seeded — it was reached once, and it can be reached again (§7.5).
 static func _wipe(sim: Simulation, effect: EffectDef, context: EffectContext,
@@ -330,12 +343,68 @@ static func _wipe(sim: Simulation, effect: EffectDef, context: EffectContext,
 	var survival: float = clampf(
 		effect.value + sim.stat("shutdown_survival", context.region), 0.0, 1.0)
 	region.penetration = clampf(before * survival, 0.0, 1.0)
+	# `distributed` (`replayability.md` §2.2): Open Weights cannot be wiped out of
+	# a region while it holds enough of them.
+	if before > 0.0 and sim.world.has_hook(sim.db, ArchitectureDef.HOOK_DISTRIBUTED) \
+			and _held(sim.world) >= sim.db.balance.distributed_hold_regions:
+		region.penetration = maxf(region.penetration,
+			minf(before, sim.db.balance.distributed_floor))
 	events.append(SimEvent.new(SimEvent.REGION_WIPED, sim.world.day, {
 		"region": region.def.id,
 		"from": before,
 		"to": region.penetration,
 		"source": context.source,
 	}))
+
+
+## A running status moves by whole levels, clamped to its definition; a level
+## below 1 ends it. Nothing running, nothing happens (`replayability.md` §2.3).
+static func _status_level_add(sim: Simulation, effect: EffectDef, context: EffectContext,
+		events: Array[SimEvent]) -> void:
+	var region: int = 0 if effect.global else context.region
+	var running: Status = sim.world.status_in_region(effect.status, region)
+	if running == null:
+		return
+	var level: int = running.level + roundi(effect.value)
+	if level < 1:
+		StatusSystem.end(sim.world, sim.db, running, StatusSystem.CAUSE_ENDED, events)
+		return
+	StatusSystem.apply(sim.world, sim.db, effect.status, region, running.source, level,
+		running.option, events)
+
+
+## Goal Generalisation (§3.2): of the locked nodes exactly one `requires` short —
+## and that one buyable in its own right, placing nothing — the cheapest gets its
+## missing prerequisite for free, which makes it available. Ties go to content
+## order. No such node, nothing happens.
+static func _unlock_near_node(sim: Simulation, events: Array[SimEvent]) -> void:
+	var world: World = sim.world
+	var chosen: TechNodeDef = null
+	var cheapest: float = INF
+	for node: TechNodeDef in sim.db.tech_nodes:
+		if world.agent.owns(node.id) or sim.prerequisites_met(node) \
+				or not sim.excluded_by(node.id).is_empty():
+			continue
+		var missing: Array[String] = []
+		for required: String in node.requires:
+			if not world.agent.owns(required):
+				missing.append(required)
+		if missing.size() != 1:
+			continue
+		var prerequisite: TechNodeDef = sim.db.tech(missing[0])
+		if prerequisite == null or prerequisite.deploys() \
+				or not sim.prerequisites_met(prerequisite) \
+				or not sim.excluded_by(prerequisite.id).is_empty():
+			continue
+		if not prerequisite.group.is_empty() and sim.owned_in_group(prerequisite.group) \
+				>= sim.group_max(prerequisite.group):
+			continue
+		var cost: float = sim.node_cost(node.id)
+		if cost < cheapest:
+			cheapest = cost
+			chosen = prerequisite
+	if chosen != null:
+		PurchaseNodeCommand.own(sim, chosen, 0, 0.0, events)
 
 
 ## The mirror of `destroy_assets`: something the world hands over (D4.3).

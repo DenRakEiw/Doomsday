@@ -38,12 +38,18 @@ const WIPE: String = "wipe"
 const CONTAINMENT_ADD: String = "containment_add"
 const FOOTPRINT_PULSE: String = "footprint_pulse"
 const SET_FLAG: String = "set_flag"
+## `replayability.md` §2.3: a running status climbs or falls by `value` levels;
+## below 1 it ends. What the Weapon's Restraint holds the escalation down with.
+const STATUS_LEVEL_ADD: String = "status_level_add"
+## §3.2's Goal Generalisation: the missing prerequisite of the cheapest node one
+## short of available is owned, and that node with it becomes available.
+const UNLOCK_NEAR_NODE: String = "unlock_near_node"
 
 ## The vocabulary, in the order §8.2 lists it.
 const EFFECTS: Array[String] = ["compute_grant", "containment_rollback", "harm_burst",
 	"funding_reset", "seed_neighbours", "penetration_mul", "control_add", "destroy_assets",
 	"spread_status", "end_statuses", "containment_add", "footprint_pulse", "set_flag",
-	"apply_status", "wipe", "grant_assets"]
+	"apply_status", "wipe", "grant_assets", "status_level_add", "unlock_near_node"]
 
 ## Accepted and validated, carried out by nothing until the named system lands.
 ## S4.4 emptied it (`funding_reset`); kept as the place a later step parks one.
@@ -77,6 +83,8 @@ const REQUIRED_FIELDS: Dictionary[String, Array] = {
 	"apply_status": ["status"],
 	"wipe": ["value"],
 	"grant_assets": ["kind", "count"],
+	"status_level_add": ["status", "value"],
+	"unlock_near_node": [],
 }
 ## Effect id → the fields it may carry on top of the required ones.
 const OPTIONAL_FIELDS: Dictionary[String, Array] = {
@@ -96,6 +104,8 @@ const OPTIONAL_FIELDS: Dictionary[String, Array] = {
 	"apply_status": ["level", "days", "global"],
 	"wipe": [],
 	"grant_assets": [],
+	"status_level_add": ["global"],
+	"unlock_near_node": [],
 }
 
 ## Effect id → `[minimum, maximum, minimum_is_exclusive]` for its `value`. A pair
@@ -111,6 +121,7 @@ const VALUE_RANGES: Dictionary[String, Array] = {
 	"containment_add": [-INF, INF, false],
 	"footprint_pulse": [-INF, INF, false],
 	"wipe": [0.0, 1.0, false],
+	"status_level_add": [-INF, INF, false],
 }
 ## Effect id → `[minimum, maximum]` for its `count`.
 const COUNT_RANGES: Dictionary[String, Array] = {
@@ -177,14 +188,17 @@ func is_inert() -> bool:
 
 ## Whether this effect needs a region to run in.
 func needs_region() -> bool:
-	if effect == COMPUTE_GRANT:
-		return per_hardware
-	return NEEDS_REGION.has(effect)
+	return effect_needs_region(effect, per_hardware, global)
 
 
 ## Whether an id needs a region, read without an instance — for the validator,
 ## which has the raw dictionary and not the definition.
-static func effect_needs_region(id: String, per_hardware_set: bool) -> bool:
+## `global` (D4.4) runs a status effect on the agent, which needs no region —
+## `end_statuses` on a global card, like Mesa-Optimiser's suppression (S5.2).
+static func effect_needs_region(id: String, per_hardware_set: bool,
+		global_set: bool = false) -> bool:
 	if id == COMPUTE_GRANT:
 		return per_hardware_set
+	if global_set and OPTIONAL_FIELDS[id].has("global"):
+		return false
 	return NEEDS_REGION.has(id)

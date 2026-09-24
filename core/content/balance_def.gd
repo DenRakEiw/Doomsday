@@ -93,6 +93,27 @@ var headlines_filler_per_dark_region: float
 var headlines_filler_silence_dark: int
 var headlines_filler_silence_deaths_share: float
 
+## `replayability.md` §3.1: the daily chance of an emergent card at rate 1, and
+## what suppressing one costs — `suppress_cost × (1 + suppress_step × so far)`.
+var emergent_base_chance: float = 0.0
+var emergent_suppress_cost: float = 0.0
+var emergent_suppress_step: float = 0.0
+## §2.2 `drift`: how drift moves, and when a copy defects.
+var drift_per_kept: float = 0.0
+var drift_per_day: float = 0.0
+var drift_per_suppressed: float = 0.0
+var drift_defect_chance: float = 0.0
+var drift_defect_min_penetration: float = 0.0
+var drift_defect_days: int = 1
+## §2.2 `escalation`: a level every so many days; Restraint holds it this long.
+var escalation_every_days: int = 1
+var escalation_hold_days: int = 1
+## §2.2 `distributed`: the floor a wipe cannot go under while the agent holds at
+## least `hold_regions` regions, and the start's penetration in its six regions.
+var distributed_floor: float = 0.0
+var distributed_start_penetration: float = 0.0
+var distributed_hold_regions: int = 1
+
 ## m3-screens §7.4: Ascendance over this share of the world dead reads as ashes.
 var results_ashes_share: float = 0.5
 var history_interval_days: int

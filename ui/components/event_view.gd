@@ -13,6 +13,7 @@ const KEY_DEADLINE: String = "UI_EVENT_DEADLINE"
 const KEY_DEFAULT_MARK: String = "UI_EVENT_DEFAULT_MARK"
 const KEY_OPTION_COST: String = "UI_EVENT_OPTION_COST"
 const KEY_OPTION_FREE: String = "UI_EVENT_OPTION_FREE"
+const KEY_OPTION_SUPPRESSION: String = "UI_EVENT_OPTION_SUPPRESSION"
 const KEY_WIRE_GLOBAL: String = "UI_WIRE_GLOBAL"
 const PREFIX_LOCK: String = "UI_EVENT_LOCK_"
 const PREFIX_REGION: String = "REGION_"
@@ -82,10 +83,12 @@ static func deadline_is_near(event: OpenEvent, day: int) -> bool:
 
 
 ## The chip an option carries: its price, or *free*.
-static func cost_text(cost: float) -> String:
-	if cost <= 0.0:
+## `suppression`: the price of suppressing an emergent behaviour, which says it
+## will be higher next time (`replayability.md` §3.1).
+static func cost_text(cost: float, suppression: bool = false) -> String:
+	if cost <= 0.0 and not suppression:
 		return TechText.tr_key(KEY_OPTION_FREE)
-	return TechText.tr_key(KEY_OPTION_COST).format(
+	return TechText.tr_key(KEY_OPTION_SUPPRESSION if suppression else KEY_OPTION_COST).format(
 		{PLACEHOLDER_COST: Format.number(cost, Format.Kind.COMPUTE)})
 
 

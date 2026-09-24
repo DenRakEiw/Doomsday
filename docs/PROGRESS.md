@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. The M5 design block is done; meanwhile the build goes on: **S5.2 — Architectures II** (`docs/specs/replayability.md` §10: swarm, weapon, open_weights, the `emergent` kind; the staged `emergent.json` and the rest of `data/staging/architectures.json`). |
+| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. The M5 design block is done; meanwhile the build goes on: **S5.3 — Profile, directives, statistics** (`docs/specs/replayability.md` §4, §6, §10; `data/staging/directives.json`; the profile additions of `screens-full.md` §5). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S5.3 → S5.8 (M5 build), then G5 |
-| **Last completed** | D4.6 + S4.11 — first run (from the user's G4 play-through): the prompt strip at the bottom, one line, foldable; the hovered region says why it is closed; a guided first run (eleven steps, a card and a ring, `Settings.tutorial`, *Einführung* in the settings). `docs/specs/first-run.md`. 1310 tests green (2026-09-24). **The M4 gate is still open.** |
-| **Before that** | S5.1 — Architectures I (2026-09-24) |
+| **After it** | S5.4 → S5.8 (M5 build), then G5 |
+| **Last completed** | S5.2 — Architectures II: swarm (drift, defection), weapon (escalation, Restraint), open_weights (six-region start, the wipe floor); the `emergent` event kind with its twelve cards, its own daily beat and the escalating suppression price; effects `status_level_add` and `unlock_near_node`; `when` keys `architecture` and `drift_min`. All six architectures live. 1324 tests green (2026-09-24). **The M4 gate is still open.** |
+| **Before that** | D4.6 + S4.11 — first run (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…]` on all three tools) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -122,7 +122,7 @@ which file was being edited, and anything learned that the files do not show)*
 **Block 10 — M5 build · Opus**
 - [x] S4.P [O] Punch list from D4.5 and G4 *(skip if empty)*
 - [x] S5.1 [O] Architectures I
-- [ ] S5.2 [O] Architectures II
+- [x] S5.2 [O] Architectures II
 - [ ] S5.3 [O] Profile, directives, statistics
 - [ ] S5.4 [O] Difficulty tiers
 - [ ] S5.5 [O] Response Task Force
@@ -925,6 +925,18 @@ without new information.
   is `HIT_MIN` tall with no gap between rows; (6) a `StyleBoxFlat` with a transparent border has no
   border (the stray corner dots). The pending chip hides while any hold is on; the region panel
   finds a faction status's option text through its counter-move instead of a new save field.
+- **2026-09-24** (S5.2) — **How the emergent kind and the hooks are built:** the emergent beat
+  lives in `EventSystem` (`_emergent`, before the pending check: it does not wait for the world's
+  events), draws from `candidates(sim, "emergent")`; `emergent_rate`'s clamp of 20 caps the daily
+  chance at 0.24. `Simulation.option_cost` is the one place an option's price is read (command,
+  answer, policy, card). A kept card raises the Swarm's drift, a suppression lowers it and counts
+  (`Agent.suppressions`); `DriftSystem` sits after `EventSystem`. The escalation runs at the end
+  of `StatusSystem.tick`, so Restraint's timed flag has expired on the day the hold ends. The
+  wipe floor sits in `EffectRunner._wipe`. An architecture's ability has an empty `levels_from`,
+  which the validator accepts only when an architecture grants it (checked after both files).
+  The fixture world's `emergent.base_chance` is 0 so its pinned streams stay; the shipped content
+  spends one draw a day from Covert on (every run's hash changed, as S5.1's did). Agent fields
+  `drift`, `suppressions`, `escalation_next` are optional on read (a v3 save of S5.1 has none).
 - **2026-09-24** (D4.6, user decision) — **A guided first run** (`docs/specs/first-run.md`):
   eleven steps (five in order, five on their first moment, a closing card), a card bottom-centre
   above the HUD on a layer over everything and a pulsing ring round the control it means (found by
@@ -963,6 +975,16 @@ hold starves on the day the status ends, before any society collapses. Oppositio
 agent pressing the tempting button once dies from it. Options: `autophagy_days` above the
 Harvest (e.g. 40), Harvest 25 days, or the grant counting as income that day. (S4.10's bots
 never Harvest below six regions.)
+
+**From S5.2 (for G5): the Weapon is nearly unwinnable** — 0–20 % across the bots (batch in the
+S5.2 log). Its escalation (governments ×1.05 per level to ×1.25, harm +0.3 per level) plus its
+own ×1.15 on the governments is too much; tune in G5 (every_days, the per-level steps, Restraint's
+cost).
+
+**From S5.2: the Swarm's drift has no readout.** A Swarm player sees defection only as a status
+in a region and a headline, and drift itself nowhere — yet it decides defection and Value Drift.
+Where should it show (the top bar beside Compute, the containment panel, the region panel)?
+Nothing is built. Also: emergent cards carry the opening's ◇ glyph (no glyph of their own).
 
 **From S5.1: what "Pause never pauses" the labs means** (`replayability.md` §2.2,
 `labs_from_day_one`). Built as: the labs' brake under the hook is their own
@@ -1870,6 +1892,24 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — S5.2 Architectures II [O]
+- Built the balance blocks (`emergent`, `drift`, `escalation`, `distributed`), the `emergent` kind
+  (loader, validator, `"suppression"` cost, the daily beat, the price on the card), `DriftSystem`,
+  the escalation in `StatusSystem`, the wipe floor, Open Weights' start, `status_level_add`,
+  `unlock_near_node`, `when.architecture` / `drift_min`, two headlines (defection, escalation);
+  moved swarm, weapon and open_weights, the nine statuses, Restraint and the twelve events out of
+  `data/staging/` (staging keeps D5.2–D5.4's files).
+- Tests: `test_architectures_two.gd` (14); the ability count adjusted, the nodeless-ability rule
+  moved into the architecture check (its test unchanged), the defection headline shortened to
+  the caps (it had become the ticker's longest German line). 1324 green.
+- Acceptance: all six architectures × seven bots × 20 seeds (840 runs), **0 rejected commands**.
+  Wins (greedy / cyber / biology / robotics / weapons / persuasion): language_model 60 / 30 / 25 /
+  35 / 65 / 35 %, swarm 75 / 55 / 45 / 70 / 70 / 85 %, embedded 50 / 15 / 30 / 35 / 75 / 40 %,
+  research_agent 80 / 50 / 25 / 55 / 65 / 85 %, **weapon 0 / 0 / 0 / 0 / 20 / 5 %**, open_weights
+  70 / 25 / 10 / 80 / 35 / 65 %. Emergent cards per run: ~10 (Swarm 17, Weapon 6). For G5: the
+  Weapon's escalation (governments up to ×1.25, harm +1.5) all but ends it; Swarm and Research
+  Agent are the strong ones.
 
 ### 2026-09-24 — D4.6 + S4.11 First run (from the G4 play-through)
 - The user's first play-through: prompts covering Europe, only cancellable; closed regions

@@ -272,6 +272,11 @@ region it deployed into and in no other.
 | `containment_add` | `faction`, `value` | | live | adds to one faction's containment, or to every one with `"all"` |
 | `footprint_pulse` | `value`, `days` ≥ 1, `watched_by`? | | live | a timed Footprint bump with no status behind it |
 | `set_flag` | `flag`, `days` ≥ 1 (0 = permanent) | | live | a timed flag, or a story flag that never expires |
+| `status_level_add` | `status`, `value`, `global`? | | live (S5.2) | a running status moves by `value` whole levels, clamped to its levels; below 1 it ends. Nothing running, nothing happens |
+| `unlock_near_node` | — | | live (S5.2) | of the unowned nodes exactly one `requires` short — that one available itself and placing nothing — the cheapest gets its missing prerequisite owned for free (content order breaks ties) |
+
+`global: true` on `apply_status`, `end_statuses` or `status_level_add` runs it on the agent, so it
+needs no region even where the table says R.
 
 A field an effect does not take is an unknown field and therefore an error. A `flag` that collides
 with a §4.3 modifier flag is an error.
@@ -331,6 +336,11 @@ as ≥ 0 unless stated. The meaning of each constant is defined by the formula t
 | `events.opening_chance` | {phase id: float} | exactly the four phase ids, each in [0, 1]; the daily opening roll (`boxed` 0) |
 | `events.opening_from_regions` | int | ≥ 1; openings roll only once this many regions were seeded |
 | `events.max_open` | int | ≥ 1; how many map events may stand at once |
+| `emergent.base_chance` · `.suppress_cost` · `.suppress_step` | float | the daily chance at `emergent_rate` 1 in [0, 1]; the suppression price and its step ≥ 0 (S5.2) |
+| `drift.per_kept` · `.per_day` · `.per_suppressed` | float | in [0, 100]: how the Swarm's drift moves (S5.2) |
+| `drift.defect_chance` · `.defect_min_penetration` · `.defect_days` | float · float · int | the daily defection chance at drift 100, the penetration a region needs to defect, how long it does (S5.2) |
+| `escalation.every_days` · `.hold_days` | int | ≥ 1: the Weapon's climb, and how long Restraint's flag holds it (S5.2) |
+| `distributed.floor` · `.start_penetration` · `.hold_regions` | float · float · int | Open Weights: the penetration a wipe cannot go under while the agent holds `hold_regions` regions, and the start's penetration in its six regions (S5.2) |
 
 Milestone: `{"id": <id>, "kind": <kind>, "threshold": <number>, "reward": <float>}`, ids unique.
 
@@ -428,7 +438,7 @@ three things.
 | `cooldown_days` | int ≥ 0 | yes | 0 leaves no cooldown behind at all |
 | `eligible` | eligibility | no (`{}`) | §7. A `region` ability only; on a `global` one it is an error |
 | `applies` | object | yes | **exactly one** of `status` (a status id), `deploy` (`{"kind", "count" ≥ 1}`; a `region` ability only) or `effects` (§4.4) |
-| `levels_from` | [node id] | yes | one node per level, in level order. Each names this ability back through its own `ability` field (§4), at its own position; and from the second on, each must `require` the one before it, or its level could never be reached |
+| `levels_from` | [node id] | yes | one node per level, in level order. Each names this ability back through its own `ability` field (§4), at its own position; and from the second on, each must `require` the one before it, or its level could never be reached. **Empty** only for an ability an architecture grants (§6e `abilities`): it has one level and no node |
 | `level_cap` | int ≥ 1 | no | the highest status level this ability applies. Without it the status must have at least `levels_from.size()` levels |
 
 The level a run has reached is how many **leading** entries of `levels_from` are owned — which is
@@ -456,7 +466,7 @@ Map events (D4.1 §10, loop-mechanics.md). Every file under `events/` is read in
 | Field | Type | Required | Rule |
 | --- | --- | --- | --- |
 | `id` | id | yes | unique across every events file |
-| `kind` | `opening` · `counter_move` · `chain` | yes | |
+| `kind` | `opening` · `counter_move` · `chain` · `emergent` | yes | `emergent` (S5.2): the agent's own behaviour, never drawn with the openings — once a day from Covert on, with chance `emergent.base_chance × emergent_rate`, one by weight among those whose `when` holds, never while one is open |
 | `chain` | id | chain steps | the chain every step of it shares; only on `chain` |
 | `start` | bool | no (false) | `chain` only: this step is rolled with the openings. Exactly one per chain |
 | `pick` | eligibility · `"same"` · `{"rule": id}` | no (global) | §7; `"same"` only on a chain step that is not the start (the region of the step that scheduled it); `{"rule"}` only on a counter-move, one of `lockdown_target` `richest_infected` `audit_target` `purge_target` `exposure_target` `protest_target` |
@@ -478,7 +488,7 @@ Option:
 | Field | Type | Required | Rule |
 | --- | --- | --- | --- |
 | `id` | id | yes | |
-| `cost` | number ≥ 0 | no (0) | Compute |
+| `cost` | number ≥ 0, or `"suppression"` | no (0) | Compute. `"suppression"` only on an `emergent` event: `emergent.suppress_cost × (1 + suppress_step × suppressions so far)`, and choosing it counts one more. Never on the default |
 | `requires` | object | no | `owned` `owned_any` `not_owned` [node id] · `flag` [id] (modifier, timed or story flag) · `asset_min` {kind: int} (in the event's region; an error on a global event) · `compute_min` number · `ability` ability id (unlocked) |
 | `effects` | [effect] | no | §4.4; an effect that needs a region is an error on a global event |
 | `chance` | [{`p` (0, 1], `effects`, `next`?}] | no | every entry is rolled, in order; a successful entry's `next` replaces the option's for this answer (chain steps only; `[]` ends the chain) |
@@ -642,6 +652,8 @@ true. A state-only headline is checked only once the run has an origin. `_min` i
 | `status_active` `status_inactive` | [status id] | each running somewhere · none running anywhere |
 | `ability_unlocked` | [ability id] | each at level 1 or more |
 | `story_flag` `not_story_flag` | [id] | all set · none set |
+| `architecture` | [architecture id] | the run's architecture is one of them (S5.2) |
+| `drift_min` | float | the agent's drift, 0…100; 0 on every architecture but Swarm (S5.2) |
 
 Anything else under `on` or `when` is an error. The vocabulary grows by a row here and a row in
 `HeadlineConditions`, never by an `if` per headline.

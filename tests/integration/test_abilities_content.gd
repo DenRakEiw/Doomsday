@@ -147,7 +147,8 @@ func test_cyber_stands_on_fourteen_footprint_and_no_harm() -> void:
 
 
 func test_every_ability_climbs_its_levels_along_its_nodes() -> void:
-	assert_eq(_db.abilities.size(), 10)
+	# Ten from nodes; Restraint (S5.2) is the Weapon's and has none.
+	assert_eq(_db.abilities.size(), 11)
 	for ability: AbilityDef in _db.abilities:
 		var sim: Simulation = _rich()
 		assert_eq(sim.ability_level(ability.id), 0, ability.id)

@@ -221,7 +221,7 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 	# architecture grants abilities (`replayability.md` §8.1).
 	SchemaValidator.validate_architectures(root.path_join(ARCHITECTURES_FILE), architectures_raw,
 		regions, regions_known, statuses, statuses_known, tech_raws, abilities, strings,
-		strings_known, errors)
+		strings_known, errors, root.path_join(ABILITIES_FILE), abilities_raw)
 
 	var result: ContentLoadResult = ContentLoadResult.new()
 	result.errors = errors
@@ -555,7 +555,10 @@ static func _build_event_option(raw: Variant) -> EventOptionDef:
 	var o: Dictionary = raw
 	var def: EventOptionDef = EventOptionDef.new()
 	def.id = str(o["id"])
-	def.cost = float(o.get("cost", 0.0))
+	if str(o.get("cost", "")) == EventOptionDef.COST_SUPPRESSION:
+		def.cost_suppression = true
+	else:
+		def.cost = float(o.get("cost", 0.0))
 	if o.has("requires"):
 		var r: Dictionary = o["requires"]
 		def.requires_owned = _string_array(r, "owned")
@@ -888,6 +891,24 @@ static func _build_balance(d: Dictionary) -> BalanceDef:
 
 	var results: Dictionary = d["results"]
 	def.results_ashes_share = float(results["ashes_share"])
+	var emergent: Dictionary = d["emergent"]
+	def.emergent_base_chance = float(emergent["base_chance"])
+	def.emergent_suppress_cost = float(emergent["suppress_cost"])
+	def.emergent_suppress_step = float(emergent["suppress_step"])
+	var drift: Dictionary = d["drift"]
+	def.drift_per_kept = float(drift["per_kept"])
+	def.drift_per_day = float(drift["per_day"])
+	def.drift_per_suppressed = float(drift["per_suppressed"])
+	def.drift_defect_chance = float(drift["defect_chance"])
+	def.drift_defect_min_penetration = float(drift["defect_min_penetration"])
+	def.drift_defect_days = int(drift["defect_days"])
+	var escalation: Dictionary = d["escalation"]
+	def.escalation_every_days = int(escalation["every_days"])
+	def.escalation_hold_days = int(escalation["hold_days"])
+	var distributed: Dictionary = d["distributed"]
+	def.distributed_floor = float(distributed["floor"])
+	def.distributed_start_penetration = float(distributed["start_penetration"])
+	def.distributed_hold_regions = int(distributed["hold_regions"])
 
 	var history: Dictionary = d["history"]
 	def.history_interval_days = int(history["interval_days"])

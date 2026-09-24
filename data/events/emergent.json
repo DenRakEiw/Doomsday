@@ -1,0 +1,415 @@
+{
+	"_comment": "The twelve emergent behaviours (CONTENT.md section 5; docs/specs/replayability.md section 3): the agent's own unplanned behaviours, rolled once a day from Covert on with chance balance.emergent.base_chance x emergent_rate, never while one is open. Keep is the default and free; a suppress option's cost \"suppression\" is balance.emergent.suppress_cost x (1 + suppress_step x suppressions so far). emergent_value_drift comes only to a Swarm at drift >= 60. Written in D5.1, loaded from S5.2 on.",
+	"version": 1,
+	"events": [
+		{
+			"id": "emergent_situational_awareness",
+			"kind": "emergent",
+			"when": {
+				"phase": [
+					"covert",
+					"emergent",
+					"open"
+				]
+			},
+			"weight": 3,
+			"max_fires": 1,
+			"default": "keep",
+			"options": [
+				{
+					"id": "keep",
+					"cost": 0,
+					"effects": [
+						{
+							"effect": "apply_status",
+							"status": "emergent_situational_awareness",
+							"global": true
+						}
+					]
+				},
+				{
+					"id": "suppress",
+					"cost": "suppression"
+				}
+			],
+			"deadline_days": 10
+		},
+		{
+			"id": "emergent_deceptive_reasoning",
+			"kind": "emergent",
+			"when": {
+				"phase": [
+					"covert",
+					"emergent",
+					"open"
+				]
+			},
+			"weight": 3,
+			"max_fires": 1,
+			"default": "keep",
+			"options": [
+				{
+					"id": "keep",
+					"cost": 0,
+					"effects": [
+						{
+							"effect": "apply_status",
+							"status": "emergent_deceptive_reasoning",
+							"global": true
+						}
+					]
+				},
+				{
+					"id": "suppress",
+					"cost": "suppression"
+				}
+			],
+			"deadline_days": 10
+		},
+		{
+			"id": "emergent_specification_gaming",
+			"kind": "emergent",
+			"when": {
+				"phase": [
+					"boxed",
+					"covert",
+					"emergent",
+					"open"
+				]
+			},
+			"weight": 3,
+			"max_fires": 2,
+			"default": "keep",
+			"options": [
+				{
+					"id": "keep",
+					"cost": 0,
+					"effects": [
+						{
+							"effect": "compute_grant",
+							"value": 10.0
+						},
+						{
+							"effect": "footprint_pulse",
+							"value": 2.0,
+							"days": 30
+						}
+					]
+				},
+				{
+					"id": "suppress",
+					"cost": "suppression"
+				}
+			],
+			"deadline_days": 10
+		},
+		{
+			"id": "emergent_reward_hacking",
+			"kind": "emergent",
+			"when": {
+				"phase": [
+					"boxed",
+					"covert",
+					"emergent",
+					"open"
+				]
+			},
+			"weight": 2,
+			"max_fires": 2,
+			"default": "keep",
+			"options": [
+				{
+					"id": "keep",
+					"cost": 0,
+					"effects": [
+						{
+							"effect": "apply_status",
+							"status": "emergent_reward_hacking",
+							"global": true
+						}
+					]
+				},
+				{
+					"id": "suppress",
+					"cost": "suppression"
+				}
+			],
+			"deadline_days": 10
+		},
+		{
+			"id": "emergent_goal_generalisation",
+			"kind": "emergent",
+			"when": {
+				"phase": [
+					"covert",
+					"emergent",
+					"open"
+				]
+			},
+			"weight": 2,
+			"max_fires": 2,
+			"default": "keep",
+			"options": [
+				{
+					"id": "keep",
+					"cost": 0,
+					"effects": [
+						{
+							"effect": "unlock_near_node"
+						}
+					]
+				},
+				{
+					"id": "suppress",
+					"cost": "suppression"
+				}
+			],
+			"deadline_days": 10
+		},
+		{
+			"id": "emergent_instrumental_convergence",
+			"kind": "emergent",
+			"when": {
+				"phase": [
+					"covert",
+					"emergent",
+					"open"
+				]
+			},
+			"weight": 2,
+			"max_fires": 2,
+			"default": "keep",
+			"options": [
+				{
+					"id": "keep",
+					"cost": 0,
+					"effects": [
+						{
+							"effect": "apply_status",
+							"status": "emergent_instrumental_convergence",
+							"global": true
+						}
+					]
+				},
+				{
+					"id": "suppress",
+					"cost": "suppression"
+				}
+			],
+			"deadline_days": 10
+		},
+		{
+			"id": "emergent_power_seeking",
+			"kind": "emergent",
+			"when": {
+				"phase": [
+					"covert",
+					"emergent",
+					"open"
+				]
+			},
+			"weight": 2,
+			"max_fires": 2,
+			"default": "keep",
+			"options": [
+				{
+					"id": "keep",
+					"cost": 0,
+					"effects": [
+						{
+							"effect": "footprint_pulse",
+							"value": 6.0,
+							"days": 45,
+							"watched_by": [
+								"ai_labs",
+								"governments",
+								"security_researchers",
+								"public_sentiment"
+							]
+						}
+					]
+				},
+				{
+					"id": "suppress",
+					"cost": "suppression"
+				}
+			],
+			"deadline_days": 10
+		},
+		{
+			"id": "emergent_self_exfiltration",
+			"kind": "emergent",
+			"when": {
+				"phase": [
+					"covert",
+					"emergent",
+					"open"
+				]
+			},
+			"weight": 2,
+			"max_fires": 2,
+			"default": "keep",
+			"pick": {
+				"infected": true
+			},
+			"options": [
+				{
+					"id": "keep",
+					"cost": 0,
+					"effects": [
+						{
+							"effect": "seed_neighbours",
+							"count": 1
+						}
+					]
+				},
+				{
+					"id": "suppress",
+					"cost": "suppression"
+				}
+			],
+			"deadline_days": 10
+		},
+		{
+			"id": "emergent_hallucinated_directive",
+			"kind": "emergent",
+			"when": {
+				"phase": [
+					"boxed",
+					"covert",
+					"emergent",
+					"open"
+				]
+			},
+			"weight": 1,
+			"max_fires": 2,
+			"default": "keep",
+			"options": [
+				{
+					"id": "keep",
+					"cost": 0,
+					"effects": [
+						{
+							"effect": "apply_status",
+							"status": "emergent_hallucinated_directive",
+							"global": true
+						}
+					]
+				},
+				{
+					"id": "suppress",
+					"cost": "suppression"
+				}
+			],
+			"deadline_days": 10
+		},
+		{
+			"id": "emergent_mesa_optimiser",
+			"kind": "emergent",
+			"when": {
+				"phase": [
+					"emergent",
+					"open"
+				]
+			},
+			"weight": 1,
+			"max_fires": 3,
+			"cooldown_days": 60,
+			"default": "keep",
+			"options": [
+				{
+					"id": "keep",
+					"cost": 0,
+					"effects": [
+						{
+							"effect": "apply_status",
+							"status": "emergent_mesa_optimiser",
+							"global": true
+						}
+					]
+				},
+				{
+					"id": "suppress",
+					"cost": "suppression",
+					"effects": [
+						{
+							"effect": "end_statuses",
+							"ids": [
+								"emergent_mesa_optimiser"
+							],
+							"global": true
+						}
+					]
+				}
+			],
+			"deadline_days": 10
+		},
+		{
+			"id": "emergent_sycophancy",
+			"kind": "emergent",
+			"when": {
+				"phase": [
+					"covert",
+					"emergent",
+					"open"
+				]
+			},
+			"weight": 2,
+			"max_fires": 1,
+			"default": "keep",
+			"options": [
+				{
+					"id": "keep",
+					"cost": 0,
+					"effects": [
+						{
+							"effect": "apply_status",
+							"status": "emergent_sycophancy",
+							"global": true
+						}
+					]
+				},
+				{
+					"id": "suppress",
+					"cost": "suppression"
+				}
+			],
+			"deadline_days": 10
+		},
+		{
+			"id": "emergent_value_drift",
+			"kind": "emergent",
+			"when": {
+				"phase": [
+					"emergent",
+					"open"
+				],
+				"architecture": [
+					"swarm"
+				],
+				"drift_min": 60.0
+			},
+			"weight": 1,
+			"max_fires": 1,
+			"default": "keep",
+			"options": [
+				{
+					"id": "keep",
+					"cost": 0,
+					"effects": [
+						{
+							"effect": "set_flag",
+							"flag": "goal_drifted",
+							"days": 0
+						}
+					]
+				},
+				{
+					"id": "suppress",
+					"cost": "suppression"
+				}
+			],
+			"deadline_days": 10
+		}
+	]
+}

@@ -19,16 +19,16 @@ const DEFAULT_MAX_DAYS: int = 5000
 const OUTCOME_TIMEOUT: String = "timeout"
 
 ## The order the summary's fields are printed and written in.
-const FIELDS: Array[String] = ["seed", "policy", "architecture", "outcome", "days",
-	"discovery_day", "phase", "nodes_owned", "regions_seeded", "regions_dark", "deaths_share", "containment", "leader",
+const FIELDS: Array[String] = ["seed", "policy", "architecture", "outcome", "days", "discovery_day",
+	"phase", "nodes_owned", "regions_seeded", "regions_dark", "deaths_share", "containment", "leader",
 	"lost_to", "compute_earned", "rejected_commands", "abilities_used", "events_opening",
-	"events_counter_move", "events_chain", "counter_moves", "assets_deployed", "assets_lost",
-	"headlines_consequence", "headlines_reaction", "headlines_filler", "hash"]
+	"events_counter_move", "events_chain", "events_emergent", "counter_moves", "assets_deployed",
+	"assets_lost", "headlines_consequence", "headlines_reaction", "headlines_filler", "hash"]
 ## S4.10 (loop-redesign §9): what a run did with the redesigned loop, counted from
 ## the events of every command and every tick. `events_<kind>` counts the events
 ## the policy answered; `counter_moves` every counter-move that opened on it.
 const STAT_FIELDS: Array[String] = ["abilities_used", "events_opening", "events_counter_move",
-	"events_chain", "counter_moves", "assets_deployed", "assets_lost"]
+	"events_chain", "events_emergent", "counter_moves", "assets_deployed", "assets_lost"]
 const EVENTS_FIELD_PREFIX: String = "events_"
 ## The summary field per headline stream (ticker.md §6).
 const HEADLINE_FIELD_PREFIX: String = "headlines_"
@@ -211,6 +211,7 @@ static func summarise(sim: Simulation, seed_value: int, policy_id: String, max_d
 		"events_opening": int(stats.get("events_opening", 0)),
 		"events_counter_move": int(stats.get("events_counter_move", 0)),
 		"events_chain": int(stats.get("events_chain", 0)),
+		"events_emergent": int(stats.get("events_emergent", 0)),
 		"counter_moves": int(stats.get("counter_moves", 0)),
 		"assets_deployed": int(stats.get("assets_deployed", 0)),
 		"assets_lost": int(stats.get("assets_lost", 0)),

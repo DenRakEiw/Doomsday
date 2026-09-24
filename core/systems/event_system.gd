@@ -17,6 +17,9 @@ func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 		return
 	var sim: Simulation = Simulation.view(db, world)
 	_deadlines(sim, events)
+	# The agent's own beat (`replayability.md` §3.1), before the world's: it does
+	# not wait for a pending event, and it never opens a second card of its kind.
+	_emergent(sim, events)
 	# A tick that had a pending event due is that event's: the world does not
 	# also leave an opening lying around (§10.4 step 3).
 	if _pending(sim, events):
@@ -86,7 +89,10 @@ static func answer(sim: Simulation, event: OpenEvent, option_id: String, expired
 	var world: World = sim.world
 	var def: EventDef = sim.db.event(event.def)
 	var option: EventOptionDef = def.option(option_id)
-	world.agent.compute -= option.cost
+	# The price is read before the count it depends on moves.
+	world.agent.compute -= sim.option_cost(option)
+	if def.kind == EventDef.KIND_EMERGENT:
+		_count_emergent(sim, option)
 	events.append(SimEvent.new(SimEvent.EVENT_EXPIRED if expired else SimEvent.EVENT_ANSWERED,
 		world.day, {
 			"event": event.id,
@@ -121,6 +127,19 @@ static func answer(sim: Simulation, event: OpenEvent, option_id: String, expired
 		var step_def: EventDef = sim.db.event(str(step["step"]))
 		var region: int = event.region if step_def != null and step_def.pick_same else 0
 		schedule(world, str(step["step"]), region, "", world.day + int(step["delay_days"]), 1)
+
+
+## §3.1: a suppression counts towards the next one's price and pulls the Swarm's
+## copies back; keeping lets them wander further (§2.2 `drift`).
+static func _count_emergent(sim: Simulation, option: EventOptionDef) -> void:
+	var agent: Agent = sim.world.agent
+	var drifts: bool = sim.world.has_hook(sim.db, ArchitectureDef.HOOK_DRIFT)
+	if option.cost_suppression:
+		agent.suppressions += 1
+		if drifts:
+			agent.drift = maxf(0.0, agent.drift - sim.db.balance.drift_per_suppressed)
+	elif drifts:
+		agent.drift = minf(DriftSystem.DRIFT_MAX, agent.drift + sim.db.balance.drift_per_kept)
 
 
 ## Takes every open and pending event bound to a region that has gone dark
@@ -226,14 +245,46 @@ static func _openings(sim: Simulation, events: Array[SimEvent]) -> void:
 	open(world, sim.db, def, region, "", 1, events)
 
 
+## §3.1: once a day from Covert on, with chance `base_chance × emergent_rate`, one
+## emergent card by weight among those that may come — never while one is open.
+static func _emergent(sim: Simulation, events: Array[SimEvent]) -> void:
+	var world: World = sim.world
+	if world.phase < World.Phase.COVERT:
+		return
+	if world.open_event_count() >= sim.db.balance.events_max_open:
+		return
+	for open_event: OpenEvent in world.events:
+		var open_def: EventDef = sim.db.event(open_event.def)
+		if open_def != null and open_def.kind == EventDef.KIND_EMERGENT:
+			return
+	var chance: float = sim.db.balance.emergent_base_chance * sim.stat("emergent_rate")
+	if chance <= 0.0 or not world.rng.chance(clampf(chance, 0.0, 1.0)):
+		return
+	var drawable: Array[EventDef] = candidates(sim, EventDef.KIND_EMERGENT)
+	if drawable.is_empty():
+		return
+	var weights: PackedFloat64Array = []
+	for def: EventDef in drawable:
+		weights.append(def.weight)
+	var picked: int = world.rng.weighted_pick(weights)
+	if picked < 0:
+		return
+	var def: EventDef = drawable[picked]
+	var region: int = _pick_region(sim, def) if def.pick != null else 0
+	open(world, sim.db, def, region, "", 1, events)
+
+
 ## Every def the opening roll may draw right now, in content order (§10.4 step 3):
 ## rolled kinds whose `when` holds, under `max_fires`, past `cooldown_days`, and
 ## with somewhere to land.
-static func candidates(sim: Simulation) -> Array[EventDef]:
+## `kind` "" is the opening roll's list; `emergent` is the agent's own beat.
+static func candidates(sim: Simulation, kind: String = "") -> Array[EventDef]:
 	var world: World = sim.world
 	var out: Array[EventDef] = []
 	for def: EventDef in sim.db.events:
-		if not def.is_rolled():
+		if kind.is_empty() and not def.is_rolled():
+			continue
+		if not kind.is_empty() and def.kind != kind:
 			continue
 		var fires: int = int(world.event_fires.get(def.id, 0))
 		if def.max_fires > 0 and fires >= def.max_fires:

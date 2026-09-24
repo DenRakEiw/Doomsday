@@ -17,7 +17,10 @@ extends RefCounted
 const KIND_OPENING: String = "opening"
 const KIND_COUNTER_MOVE: String = "counter_move"
 const KIND_CHAIN: String = "chain"
-const KINDS: Array[String] = ["opening", "counter_move", "chain"]
+## `replayability.md` §3: an unplanned behaviour of the agent's own, rolled on its
+## own beat and answered keep or suppress.
+const KIND_EMERGENT: String = "emergent"
+const KINDS: Array[String] = ["opening", "counter_move", "chain", "emergent"]
 
 ## `pick: "same"` — the region of the step that scheduled this one.
 const PICK_SAME: String = "same"

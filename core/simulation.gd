@@ -33,8 +33,10 @@ func _init() -> void:
 		ContainmentSystem.new(),
 		CounterMoveSystem.new(),
 		StatusSystem.new(),
-		# slot: BehaviourSystem (M5)
+		# The emergent behaviours roll inside `EventSystem` (their own beat);
+		# the Swarm's drift follows what that tick kept or suppressed (S5.2).
 		EventSystem.new(),
+		DriftSystem.new(),
 		PhaseSystem.new(),
 		OutcomeSystem.new(),
 		HistorySystem.new(),
@@ -253,6 +255,15 @@ func node_cost(node_id: String) -> float:
 	# be bought for one tree without cheapening the others.
 	return maxf(1.0, ceilf(escalated * world.modifiers.value("node_cost")
 		* world.modifiers.value(ModifierDef.node_cost_target(node.tree))))
+
+
+## What an event option costs now (`replayability.md` §3.1): its number, or — for
+## an emergent suppression — `suppress_cost × (1 + suppress_step × suppressions)`.
+func option_cost(option: EventOptionDef) -> float:
+	if not option.cost_suppression:
+		return option.cost
+	return db.balance.emergent_suppress_cost \
+		* (1.0 + db.balance.emergent_suppress_step * float(world.agent.suppressions))
 
 
 ## Nodes that are not owned and whose prerequisites are met, in content order.
