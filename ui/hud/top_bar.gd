@@ -81,6 +81,7 @@ var _starving: Chip = null
 
 
 func _ready() -> void:
+	_compute_cell.add_to_group(CoachRing.group(CoachRing.TARGET_COMPUTE))
 	_row_main.add_child(_assets)
 	_row_main.move_child(_assets, _day_cell.get_index() + 1)
 	_pending = Chip.new()

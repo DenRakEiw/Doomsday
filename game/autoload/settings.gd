@@ -28,6 +28,8 @@ const KEY_LOCALE: String = "locale"
 const KEY_REDUCED_MOTION: String = "reduced_motion"
 const KEY_TEXT_SCALE: String = "text_scale"
 const KEY_TREE_PAUSES: String = "tree_pauses"
+## first-run.md §3.1: the guided first run is on until it is finished or skipped.
+const KEY_TUTORIAL: String = "tutorial"
 ## After `--` on the command line: start with the pseudo-locale on (UI.md §4).
 const ARG_PSEUDO: String = "--pseudo"
 
@@ -35,6 +37,7 @@ var locale: String = LOCALE_EN
 var reduced_motion: bool = DEFAULT_REDUCED_MOTION
 var text_scale: float = DEFAULT_TEXT_SCALE
 var tree_pauses: bool = true
+var tutorial: bool = true
 ## The overflow check of UI.md §4. A development switch, never written to the file.
 var pseudo_locale: bool = false
 
@@ -45,6 +48,7 @@ func _ready() -> void:
 	reduced_motion = bool(values[KEY_REDUCED_MOTION])
 	text_scale = float(values[KEY_TEXT_SCALE])
 	tree_pauses = bool(values[KEY_TREE_PAUSES])
+	tutorial = bool(values[KEY_TUTORIAL])
 	TranslationServer.set_locale(locale)
 	write()
 	if OS.get_cmdline_user_args().has(ARG_PSEUDO):
@@ -70,6 +74,7 @@ static func values_from(raw: Variant, fallback_locale: String) -> Dictionary:
 		KEY_REDUCED_MOTION: DEFAULT_REDUCED_MOTION,
 		KEY_TEXT_SCALE: DEFAULT_TEXT_SCALE,
 		KEY_TREE_PAUSES: default_tree_pauses(),
+		KEY_TUTORIAL: true,
 	}
 	if typeof(raw) != TYPE_DICTIONARY:
 		return values
@@ -85,6 +90,8 @@ static func values_from(raw: Variant, fallback_locale: String) -> Dictionary:
 		values[KEY_TEXT_SCALE] = float(stored[KEY_TEXT_SCALE])
 	if typeof(stored.get(KEY_TREE_PAUSES)) == TYPE_BOOL:
 		values[KEY_TREE_PAUSES] = bool(stored[KEY_TREE_PAUSES])
+	if typeof(stored.get(KEY_TUTORIAL)) == TYPE_BOOL:
+		values[KEY_TUTORIAL] = bool(stored[KEY_TUTORIAL])
 	return values
 
 
@@ -156,6 +163,14 @@ func set_tree_pauses(enabled: bool) -> void:
 	EventBus.tree_pauses_changed.emit(tree_pauses)
 
 
+## On: the next run of a player shows the introduction from its first step.
+func set_tutorial(enabled: bool) -> void:
+	if enabled == tutorial:
+		return
+	tutorial = enabled
+	write()
+
+
 func to_dict() -> Dictionary:
 	return {
 		KEY_VERSION: VERSION,
@@ -163,6 +178,7 @@ func to_dict() -> Dictionary:
 		KEY_REDUCED_MOTION: reduced_motion,
 		KEY_TEXT_SCALE: text_scale,
 		KEY_TREE_PAUSES: tree_pauses,
+		KEY_TUTORIAL: tutorial,
 	}
 
 

@@ -33,6 +33,7 @@ var _buttons: Array[ConsoleButton] = []
 
 
 func _ready() -> void:
+	add_to_group(CoachRing.group(CoachRing.TARGET_OVERLAY))
 	_build_buttons()
 	_cycle.pressed.connect(_on_cycle_pressed)
 	_apply_compact()

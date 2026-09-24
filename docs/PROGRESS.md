@@ -17,8 +17,8 @@ rather than struck through.
 | **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. The M5 design block is done; meanwhile the build goes on: **S5.2 — Architectures II** (`docs/specs/replayability.md` §10: swarm, weapon, open_weights, the `emergent` kind; the staged `emergent.json` and the rest of `data/staging/architectures.json`). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
 | **After it** | S5.3 → S5.8 (M5 build), then G5 |
-| **Last completed** | S5.1 — Architectures I: `RunSetup` in the world and save v3 (v2 migrates to the default), `data/architectures.json` (language_model, embedded, research_agent) loaded and validated, the start (owned nodes as if bought, assets, effects), architecture abilities, the `no_network` and `labs_from_day_one` hooks, flag `network_presence`, `--setup=` on the sim tools, F11 picks the next run's architecture. 1299 tests green (2026-09-24). **The M4 gate is still open.** |
-| **Before that** | S4.P — punch list (2026-09-24) |
+| **Last completed** | D4.6 + S4.11 — first run (from the user's G4 play-through): the prompt strip at the bottom, one line, foldable; the hovered region says why it is closed; a guided first run (eleven steps, a card and a ring, `Settings.tutorial`, *Einführung* in the settings). `docs/specs/first-run.md`. 1310 tests green (2026-09-24). **The M4 gate is still open.** |
+| **Before that** | S5.1 — Architectures I (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…]` on all three tools) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -925,6 +925,14 @@ without new information.
   is `HIT_MIN` tall with no gap between rows; (6) a `StyleBoxFlat` with a transparent border has no
   border (the stray corner dots). The pending chip hides while any hold is on; the region panel
   finds a faction status's option text through its counter-move instead of a new save field.
+- **2026-09-24** (D4.6, user decision) — **A guided first run** (`docs/specs/first-run.md`):
+  eleven steps (five in order, five on their first moment, a closing card), a card bottom-centre
+  above the HUD on a layer over everything and a pulsing ring round the control it means (found by
+  group `coach_<target>`). It never holds the clock or blocks input; on until finished or skipped
+  (`Settings.tutorial`, the settings row *Einführung*). The prompt strip moved to the bottom, one
+  line, foldable without cancelling; while a region is hovered it says *possible here* or the
+  reason it is closed — the same words as the region panel (`SiteRequest.reason_text`). Chevron
+  right stands in for the spec's *up* (no such glyph yet).
 - **2026-09-24** (S5.1) — **How the setup is built:** `World.setup` (`RunSetup`) is saved in the
   world block (save **v3**; `_v2_to_v3` gives an old run `language_model` · no directives ·
   standard) and is the replay header (`Simulation.replay(…, setup)`). `architectures.json` is
@@ -1629,7 +1637,8 @@ there to look at too.
 the view, cannot be moved and only *cancelled* — there is no way to just close the message and keep
 choosing; (3) why are some regions locked during site select? It feels more tunnel-like, but also
 clearer; (4) **"you still don't know when to click where, and why"** — the run does not tell the
-player what to do next. Answer and proposal in the conversation; fixes wait for the user's go.
+player what to do next. **User decisions:** a guided first run, built now, before S5.2 —
+done as D4.6 + S4.11 (`docs/specs/first-run.md`).
 
 **D5.1 (2026-09-24), whenever convenient (before D5.3 or S5.3):** `docs/specs/replayability.md`
 §11 — are the architecture unlock rules right (a win for Research Agent, a win *by Extinction* for
@@ -1861,6 +1870,15 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — D4.6 + S4.11 First run (from the G4 play-through)
+- The user's first play-through: prompts covering Europe, only cancellable; closed regions
+  without a reason; "you don't know when to click where". The user chose a guided first run, now.
+- Wrote `docs/specs/first-run.md` and 31 string rows; built the strip's new place and shape and
+  its hover line, `CoachRing`, the coach card with its eleven steps, the target groups on nine
+  controls, `Settings.tutorial` and its settings row. Checked in the game at 1920 (steps 1–4, the
+  ring on *Hier beginnen*, the compute cell and the first vector). `test_coach.gd` (10), a
+  settings test. 1310 green.
 
 ### 2026-09-24 — S5.1 Architectures I [O]
 - Built `ArchitectureDef`, `RunSetup`, `ArchitectureStart`; the loader and validator for the

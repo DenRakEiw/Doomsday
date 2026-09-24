@@ -49,6 +49,8 @@ const HOLD_EVENT: StringName = &"event"
 
 @onready var _safe_area: MarginContainer = %SafeArea
 @onready var _hud: Control = %Hud
+@onready var _coach: PanelContainer = %Coach
+@onready var _coach_ring: CoachRing = %CoachRing
 @onready var _region_panel: SlidePanel = %RegionPanel
 @onready var _modals: ModalHost = %ModalHost
 @onready var _tech_tree: TechTree = %TechTree
@@ -75,6 +77,9 @@ func _ready() -> void:
 	# theme so the editor knows the type variations, but only an assignment here
 	# can be swapped at runtime — which is what D3.3's phase palette needs.
 	_set_theme(ThemeBuilder.build(ThemeBuilder.VARIANT_COLD, Settings.text_scale))
+	# first-run.md §3: the introduction sits above everything and moves the ring.
+	_coach.set(&"ring", _coach_ring)
+	_coach.set(&"hud", _hud)
 	get_window().size_changed.connect(_on_window_size_changed)
 	# The HUD owns the breakpoint (§5.7); the panel beside it only has to be told
 	# which edge it comes in from and how much of the screen it must leave alone.

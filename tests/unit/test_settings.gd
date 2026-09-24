@@ -55,3 +55,11 @@ func test_a_whole_number_text_scale_is_accepted() -> void:
 func test_something_that_is_not_a_dictionary_gives_the_defaults() -> void:
 	assert_eq(str(_values([1, 2, 3])[SettingsScript.KEY_LOCALE]), SettingsScript.LOCALE_EN)
 	assert_eq(str(_values("nonsense")[SettingsScript.KEY_LOCALE]), SettingsScript.LOCALE_EN)
+
+
+func test_the_introduction_is_on_until_the_file_says_otherwise() -> void:
+	# S4.11 (first-run.md §3.1): a new player gets the guided first run.
+	assert_true(bool(_values(null)[SettingsScript.KEY_TUTORIAL]))
+	assert_false(bool(_values({"tutorial": false})[SettingsScript.KEY_TUTORIAL]))
+	assert_true(bool(_values({"tutorial": "no"})[SettingsScript.KEY_TUTORIAL]),
+		"a wrong type falls back to on")

@@ -45,6 +45,7 @@ var _risk_values: Array[Label] = []
 
 func _ready() -> void:
 	super()
+	add_to_group(CoachRing.group(CoachRing.TARGET_CONTAINMENT_PANEL))
 	_build_risk_rows()
 	_close_button.pressed.connect(close)
 	EventBus.tick_advanced.connect(_on_tick_advanced)

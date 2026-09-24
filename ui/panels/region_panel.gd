@@ -53,8 +53,6 @@ const PREFIX_FAIL: String = "CMD_FAIL_"
 ## map is being asked **where**, every region answers one question — may it be
 ## the site? The origin is one of the three kinds.
 const KEY_ORIGIN_CHOOSE: String = "UI_ORIGIN_CHOOSE"
-const KEY_ORIGIN_AIRGAP: String = "UI_ORIGIN_INELIGIBLE_AIRGAP"
-const KEY_ORIGIN_COMPUTE: String = "UI_ORIGIN_INELIGIBLE_COMPUTE"
 const KEY_SITE_PLACE: String = "UI_SITE_PLACE"
 const KEY_SITE_USE: String = "UI_SITE_USE"
 const PREFIX_ELIGIBLE: String = "UI_ELIGIBLE_"
@@ -186,6 +184,8 @@ var _society_cuts: Label = null
 
 func _ready() -> void:
 	super()
+	# first-run.md §3.3: the introduction points at the one button of site select.
+	_origin_button.add_to_group(CoachRing.group(CoachRing.TARGET_ORIGIN_BUTTON))
 	_build_presence()
 	_build_profile()
 	_build_links()
@@ -302,7 +302,7 @@ func _refresh_site(region: Region, world: World) -> void:
 	_origin_button.visible = reason.is_empty()
 	_origin_button.label_key = _site_button_key(request)
 	_origin_note.visible = not reason.is_empty()
-	_origin_note.text = _site_reason_text(request, region, reason)
+	_origin_note.text = request.reason_text(_index)
 
 
 static func _site_button_key(request: SiteRequest) -> String:
@@ -314,33 +314,6 @@ static func _site_button_key(request: SiteRequest) -> String:
 	return KEY_ORIGIN_CHOOSE
 
 
-## The origin's rule is a command's, so it has command reasons; every other
-## request answers with an `Eligibility` code and its arguments (§17.2).
-func _site_reason_text(request: SiteRequest, region: Region, reason: String) -> String:
-	if request.kind == SiteRequest.KIND_ORIGIN:
-		return tr(KEY_ORIGIN_AIRGAP if region.air_gapped else KEY_ORIGIN_COMPUTE)
-	if not Eligibility.REASONS.has(reason):
-		return tr(PREFIX_FAIL + reason.to_upper())
-	return tr(PREFIX_ELIGIBLE + reason.to_upper()).format(_eligible_args(request))
-
-
-## The failing key's own arguments, with every id turned into a name.
-func _eligible_args(request: SiteRequest) -> Dictionary:
-	if request.rule == null:
-		return {}
-	var raw: Dictionary = request.rule.detail(Game.sim.world, _index)
-	var args: Dictionary = raw.duplicate()
-	if raw.has("attr"):
-		args["attr"] = tr(PREFIX_ATTR + str(raw["attr"]).to_upper())
-	if raw.has("kind"):
-		args["kind"] = TechText.asset_name(str(raw["kind"]), int(raw.get("count", 1)))
-	if raw.has("status"):
-		args["status"] = tr(PREFIX_STATUS + str(raw["status"]).to_upper() + SUFFIX_NAME)
-	if raw.has("value"):
-		args["value"] = Format.percent(float(raw["value"]))
-	if raw.has("continent"):
-		args["continent"] = tr(KEY_CONTINENT + str(raw["continent"]).to_upper())
-	return args
 
 
 ## §16.5 item 9: one row per kind held, in `AssetDef.KINDS` order.

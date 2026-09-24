@@ -71,6 +71,23 @@ func refresh(sim: Simulation) -> void:
 		_nodes[node_id].bind(definition, sim.node_cost(node_id), state,
 			_is_external(definition, sim, state))
 	_draw_edges(sim)
+	_mark_coach_vector(sim)
+
+
+## first-run.md §3.3: the introduction's ring goes round the first vector the run
+## can buy now — a node that ends the Boxed phase and is affordable.
+func _mark_coach_vector(sim: Simulation) -> void:
+	var marked: bool = false
+	for node_id: String in _nodes:
+		var node: TechNode = _nodes[node_id]
+		if node.is_in_group(CoachRing.group(CoachRing.TARGET_VECTOR)):
+			node.remove_from_group(CoachRing.group(CoachRing.TARGET_VECTOR))
+		var definition: TechNodeDef = sim.db.tech(node_id)
+		if marked or not definition.flags.has(ModifierDef.FLAG_BREAKOUT):
+			continue
+		if TechNode.state_for(definition, sim) == TechNode.State.AFFORDABLE:
+			node.add_to_group(CoachRing.group(CoachRing.TARGET_VECTOR))
+			marked = true
 
 
 ## Marks `node_id` as the selection; an empty id clears it. The lines follow:

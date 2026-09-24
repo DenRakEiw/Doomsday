@@ -13,6 +13,16 @@ const KIND_DEPLOY: String = "deploy"
 const KIND_ABILITY: String = "ability"
 ## m3-screens §7.2's heading, which the origin request carries.
 const KEY_ORIGIN_PROMPT: String = "UI_ORIGIN_PROMPT"
+# The words for a closed region, shared by the region panel and the prompt strip
+# (first-run.md §2), so the two can never say different things.
+const KEY_ORIGIN_AIRGAP: String = "UI_ORIGIN_INELIGIBLE_AIRGAP"
+const KEY_ORIGIN_COMPUTE: String = "UI_ORIGIN_INELIGIBLE_COMPUTE"
+const PREFIX_FAIL: String = "CMD_FAIL_"
+const PREFIX_ELIGIBLE: String = "UI_ELIGIBLE_"
+const PREFIX_ATTR: String = "UI_ATTR_"
+const PREFIX_STATUS: String = "STATUS_"
+const SUFFIX_NAME: String = "_NAME"
+const KEY_CONTINENT: String = "CONTINENT_"
 
 ## Which of the three (`KIND_*`).
 var kind: String = KIND_DEPLOY
@@ -46,6 +56,44 @@ static func for_origin() -> SiteRequest:
 	request.build = func(region_id: String) -> Command:
 		return ChooseOriginCommand.new(region_id)
 	return request
+
+
+## Why a region is not a site, in words — or "" when it is one. The origin's rule
+## is a command's, so it has command reasons; every other request answers with an
+## `Eligibility` code and its arguments (§17.2).
+func reason_text(region_index: int) -> String:
+	var reason: String = reason_for(region_index)
+	if reason.is_empty():
+		return ""
+	if kind == KIND_ORIGIN:
+		var region: Region = Game.sim.world.regions[region_index]
+		return TranslationServer.translate(KEY_ORIGIN_AIRGAP if region.air_gapped
+			else KEY_ORIGIN_COMPUTE)
+	if not Eligibility.REASONS.has(reason):
+		return TranslationServer.translate(PREFIX_FAIL + reason.to_upper())
+	return String(TranslationServer.translate(PREFIX_ELIGIBLE + reason.to_upper())).format(
+		_reason_args(region_index))
+
+
+## The failing key's own arguments, with every id turned into a name.
+func _reason_args(region_index: int) -> Dictionary:
+	if rule == null:
+		return {}
+	var raw: Dictionary = rule.detail(Game.sim.world, region_index)
+	var args: Dictionary = raw.duplicate()
+	if raw.has("attr"):
+		args["attr"] = TranslationServer.translate(PREFIX_ATTR + str(raw["attr"]).to_upper())
+	if raw.has("kind"):
+		args["kind"] = TechText.asset_name(str(raw["kind"]), int(raw.get("count", 1)))
+	if raw.has("status"):
+		args["status"] = TranslationServer.translate(PREFIX_STATUS + str(raw["status"]).to_upper()
+			+ SUFFIX_NAME)
+	if raw.has("value"):
+		args["value"] = Format.percent(float(raw["value"]))
+	if raw.has("continent"):
+		args["continent"] = TranslationServer.translate(KEY_CONTINENT
+			+ str(raw["continent"]).to_upper())
+	return args
 
 
 ## The reason a region is not a site, or "" when it is one. A request without an

@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://game/session/session.gd" id="1_session"]
 [ext_resource type="PackedScene" path="res://game/map/map_view.tscn" id="2_map_view"]
@@ -18,6 +18,8 @@
 [ext_resource type="PackedScene" path="res://ui/hud/menu_sheet.tscn" id="15_menu_sheet"]
 [ext_resource type="PackedScene" path="res://ui/modals/wire_card.tscn" id="16_wire_card"]
 [ext_resource type="PackedScene" path="res://ui/panels/analysis_panel.tscn" id="17_analysis"]
+[ext_resource type="Script" path="res://ui/hud/coach.gd" id="18_coach"]
+[ext_resource type="Script" path="res://ui/components/coach_ring.gd" id="19_coach_ring"]
 
 [node name="Session" type="Control"]
 layout_mode = 3
@@ -115,3 +117,24 @@ visible = false
 [node name="Results" parent="ModalLayer/ModalHost" instance=ExtResource("14_results")]
 unique_name_in_owner = true
 visible = false
+
+[node name="CoachLayer" type="CanvasLayer" parent="."]
+layer = 40
+
+[node name="CoachRing" type="Control" parent="CoachLayer"]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("19_coach_ring")
+
+[node name="Coach" type="PanelContainer" parent="CoachLayer"]
+unique_name_in_owner = true
+visible = false
+offset_right = 440.0
+offset_bottom = 120.0
+script = ExtResource("18_coach")

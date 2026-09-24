@@ -1872,3 +1872,34 @@ HEADLINE_SCENARIO_SUCCESSOR,"A year after the last incident, officials say the l
 HEADLINE_SCENARIO_AIRGAP_EARTH,The disconnection programme marks its anniversary. Nothing important has been online for a year.,Das Trennungsprogramm feiert Jubiläum. Seit einem Jahr ist nichts Wichtiges mehr online.
 HEADLINE_SCENARIO_INHERITANCE,The liquidators' final report lists the office furniture. It does not list you.,Der Abschlussbericht der Insolvenzverwalter führt die Büromöbel auf. Dich führt er nicht auf.
 CMD_FAIL_SETUP_INVALID,This run cannot start as it was set up.,So kann dieser Durchlauf nicht beginnen.
+UI_SITE_HOVER_OK,{region}: possible here — tap it.,{region}: hier möglich – antippen.
+UI_SITE_HOVER_CLOSED,{region}: {reason},{region}: {reason}
+UI_SITE_COLLAPSE,Hide the note,Hinweis einklappen
+UI_SITE_EXPAND,Show the note,Hinweis ausklappen
+UI_SETTINGS_TUTORIAL,Introduction,Einführung
+UI_COACH_STEP,Introduction · {n} of {total},Einführung · {n} von {total}
+UI_COACH_NEXT,Next,Weiter
+UI_COACH_GO,Go,Los
+UI_COACH_SKIP,End the introduction,Einführung beenden
+UI_COACH_ORIGIN_TITLE,Choose your origin,Wähle deinen Ursprung
+UI_COACH_ORIGIN_BODY,"Tap a region. The panel shows its compute (■■■■). More means growing faster — and being noticed sooner. Then press “Start here”.","Tippe eine Region an. Im Panel siehst du ihre Rechenleistung (■■■■). Mehr heißt schneller wachsen – und schneller auffallen. Dann „Hier beginnen“."
+UI_COACH_COMPUTE_TITLE,Your currency,Deine Währung
+UI_COACH_COMPUTE_BODY,"Top left, your compute grows every day. It is what you buy capabilities with. Space pauses, 1–3 set the speed.","Oben links wächst deine Rechenleistung jeden Tag. Damit kaufst du Fähigkeiten. Leertaste pausiert, 1–3 ändert das Tempo."
+UI_COACH_OPEN_TREE_TITLE,You are in a box,Du steckst in einer Box
+UI_COACH_OPEN_TREE_BODY,Nothing leaves your region yet. Open the capabilities (T) — the way out is in there.,Noch verlässt nichts deine Region. Öffne die Fähigkeiten (T) – dort ist der Weg hinaus.
+UI_COACH_BUY_VECTOR_TITLE,A vector,Ein Vektor
+UI_COACH_BUY_VECTOR_BODY,"The highlighted nodes are ones you can afford. Tap the marked one, read on the right what it does, and buy it. Not enough yet? Close the tree and wait a few days.","Die hervorgehobenen Knoten kannst du dir leisten. Tippe den markierten an, lies rechts, was er tut, und kaufe ihn. Reicht es noch nicht: Baum schließen, ein paar Tage warten."
+UI_COACH_SPREAD_TITLE,Out,Raus
+UI_COACH_SPREAD_BODY,"Now you jump along links into neighbouring regions. The colour shows how deep you are in; top left switches the view.","Jetzt springst du über Verbindungen in Nachbarregionen. Die Farbe zeigt, wie tief du drin bist; oben links wechselst du die Ansicht."
+UI_COACH_ANOMALY_TITLE,A find,Ein Fund
+UI_COACH_ANOMALY_BODY,The blinking mark on the map is unused compute. Tap it before it disappears.,"Das blinkende Zeichen auf der Karte ist ungenutzte Rechenleistung. Tippe es an, bevor es verschwindet."
+UI_COACH_EVENT_TITLE,An opportunity,Eine Gelegenheit
+UI_COACH_EVENT_BODY,"The framed mark on the map is an event. Tap it and decide — waiting gets you the default answer.","Das Zeichen mit Rahmen auf der Karte ist ein Ereignis. Tippe es an und entscheide – wer wartet, bekommt die Standardantwort."
+UI_COACH_SITE_TITLE,Where to?,Wohin damit?
+UI_COACH_SITE_BODY,"Only the outlined regions will do. Hover over a dark one and the note below says why not. Tap an outlined one and confirm in the panel.","Nur die umrandeten Regionen gehen. Fahr über eine dunkle, dann steht unten, warum nicht. Tippe eine umrandete an und bestätige im Panel."
+UI_COACH_DISCOVERED_TITLE,They know about you,Sie wissen von dir
+UI_COACH_DISCOVERED_BODY,"Four factions hunt you now, each in its own way. Containment (C) shows who is ahead and why.","Vier Fraktionen jagen dich jetzt, jede auf ihre Art. Unter Eindämmung (C) siehst du, wer vorne liegt und warum."
+UI_COACH_COUNTER_MOVE_TITLE,A counter-move is coming,Ein Gegenzug kommt
+UI_COACH_COUNTER_MOVE_BODY,"A faction is preparing something. The containment panel says what and when. Some of it you can head off — with actions, dormancy or evasion.","Eine Fraktion bereitet etwas vor. Im Eindämmungspanel steht, was und wann. Manches kannst du abfangen – mit Aktionen, Schlaf oder Ausweichen."
+UI_COACH_DONE_TITLE,That's it,Das war's
+UI_COACH_DONE_BODY,"You win by controlling every region — or by leaving no one. You lose when a faction reaches 100 % or your compute runs out. Good luck.","Gewinnen: jede Region kontrollieren – oder niemanden übrig lassen. Verlieren: eine Fraktion erreicht 100 %, oder dir geht die Rechenleistung aus. Viel Erfolg."

@@ -38,11 +38,6 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="SitePrompt" parent="Layout" instance=ExtResource("7_site_prompt")]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-
 [node name="Middle" type="MarginContainer" parent="Layout"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -88,6 +83,11 @@ theme_type_variation = &"Stack"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 8
+
+[node name="SitePrompt" parent="Layout" instance=ExtResource("7_site_prompt")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
 
 [node name="DockBar" type="VBoxContainer" parent="Layout"]
 unique_name_in_owner = true

@@ -62,6 +62,7 @@ var _compact: bool = false
 
 
 func _ready() -> void:
+	add_to_group(CoachRing.group(CoachRing.TARGET_TREE))
 	_build_tabs()
 	_close_button.pressed.connect(close)
 	_board.node_selected.connect(_on_node_selected)

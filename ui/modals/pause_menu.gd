@@ -29,6 +29,7 @@ const KEY_LOCALE_EN: String = "UI_SETTINGS_LOCALE_EN"
 const KEY_LOCALE_DE: String = "UI_SETTINGS_LOCALE_DE"
 const KEY_REDUCED_MOTION: String = "UI_SETTINGS_REDUCED_MOTION"
 const KEY_TREE_PAUSES: String = "UI_SETTINGS_TREE_PAUSES"
+const KEY_TUTORIAL: String = "UI_SETTINGS_TUTORIAL"
 const KEY_TEXT_SCALE: String = "UI_SETTINGS_TEXT_SCALE"
 const KEY_ON: String = "UI_SETTINGS_ON"
 const KEY_OFF: String = "UI_SETTINGS_OFF"
@@ -178,9 +179,11 @@ func _slot_button(into: Container, action: Callable, with_caption: bool) -> Cons
 
 
 ## §7.3 item 5: the settings, each a label and a button that says the state. The
-## text scale of UI.md §5 came last, in S4.9, and so it is the last row.
+## text scale of UI.md §5 came in S4.9, the introduction (first-run.md §3.1) in
+## S4.11, and so they are the last rows.
 func _build_settings() -> void:
-	for key: String in [KEY_LOCALE, KEY_REDUCED_MOTION, KEY_TREE_PAUSES, KEY_TEXT_SCALE]:
+	for key: String in [KEY_LOCALE, KEY_REDUCED_MOTION, KEY_TREE_PAUSES, KEY_TEXT_SCALE,
+			KEY_TUTORIAL]:
 		var row: HBoxContainer = HBoxContainer.new()
 		row.theme_type_variation = &"Row"
 		var label: Label = Label.new()
@@ -207,6 +210,7 @@ func _refresh_settings() -> void:
 	_setting_buttons[1].text = Format.caps(tr(KEY_ON if Settings.reduced_motion else KEY_OFF))
 	_setting_buttons[2].text = Format.caps(tr(KEY_ON if Settings.tree_pauses else KEY_OFF))
 	_setting_buttons[3].text = Format.number(Settings.text_scale, Format.Kind.PERCENT)
+	_setting_buttons[4].text = Format.caps(tr(KEY_ON if Settings.tutorial else KEY_OFF))
 
 
 # ------------------------------------------------------------------ actions
@@ -245,8 +249,10 @@ func _on_setting_pressed(index: int) -> void:
 			Settings.set_reduced_motion(not Settings.reduced_motion)
 		2:
 			Settings.set_tree_pauses(not Settings.tree_pauses)
-		_:
+		3:
 			Settings.cycle_text_scale()
+		_:
+			Settings.set_tutorial(not Settings.tutorial)
 	_refresh_settings()
 
 

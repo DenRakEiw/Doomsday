@@ -136,6 +136,9 @@ func _build_buttons() -> void:
 		_buttons.append(button)
 		if i == DESTINATION_CONTAINMENT:
 			_build_containment_chip(button)
+			button.add_to_group(CoachRing.group(CoachRing.TARGET_CONTAINMENT))
+		elif i == DESTINATION_CAPABILITIES:
+			button.add_to_group(CoachRing.group(CoachRing.TARGET_CAPABILITIES))
 
 
 ## §4.3: the glance readout — the band and the number, inside the button like

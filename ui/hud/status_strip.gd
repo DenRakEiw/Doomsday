@@ -46,6 +46,9 @@ func _ready() -> void:
 	_build_readouts()
 	_build_threat()
 	_menu.pressed.connect(menu_requested.emit)
+	# On a phone the way to the tree and to containment is the menu.
+	_menu.add_to_group(CoachRing.group(CoachRing.TARGET_CAPABILITIES))
+	_menu.add_to_group(CoachRing.group(CoachRing.TARGET_CONTAINMENT))
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.run_started.connect(_on_run_started)
 	refresh()
