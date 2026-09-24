@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D4.5 — German review in context** (IMPLEMENTATION Block 9; run the game, fresh screenshots — S4.9's set is in the S4.9 session log) |
+| **Next step** | **G4 — Balance pass 2 and the M4 gate** (IMPLEMENTATION Block 9). The tuning can run alone; the gate needs the user's play-through and verdict. Start from *Balance baselines* (S4.10) and its five questions. |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | G4 — balance pass 2 and the M4 gate (**needs the user**) |
-| **Last completed** | S4.10 — Strategy bots, second generation: `StrategyPolicy` + `cyber` · `biology` · `robotics` · `weapons` · `persuasion`, `greedy` with abilities, events answered by weights on the effect vocabulary, abilities aimed by rule, the report's *Loop* table; two core gaps fixed (cooldowns expire, a dark region ends its statuses); the 500-seed baselines with G4's five questions. 1267 tests, all green (2026-09-24) |
-| **Before that** | S4.9 — Localisation tooling and overflow screenshots (2026-09-24) |
+| **After it** | D5.1 → D5.4 (M5 design), then S4.P |
+| **Last completed** | D4.5 — German review in context: every German string read on its screen; *Aktionen* for the abilities, „…“ quotation marks, soft hyphens and three shorter node names for the two-line rule, faction lines that never need a verb to agree, ß stays SS; layout findings confirmed for S4.P (2026-09-24) |
+| **Before that** | S4.10 — Strategy bots, second generation (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -112,8 +112,8 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S4.10 [O] Strategy bots, second generation
 
 **Block 9 — M4 gate, M5 design · Fable**
-- [ ] **D4.5 [F] German review in context**
-- [ ] G4 [F] Balance pass 2 and M4 gate
+- [x] D4.5 [F] German review in context
+- [ ] **G4 [F] Balance pass 2 and M4 gate**
 - [ ] D5.1 [F] Architectures, directives, difficulty
 - [ ] D5.2 [F] Response Task Force; endings
 - [ ] D5.3 [F] Full screen flow, boot sequence, Codex
@@ -813,61 +813,51 @@ without new information.
   had used an ability before); a region going dark ends its statuses, cause `"dark"`, without
   their `on_end` (loop-mechanics §3.5's invariant; `go_dark` gained the `ContentDB`). Both change
   no run without abilities.
+- **2026-09-24** (D4.5) — **The German terms, fixed:** *Capabilities* (the tree, its tab, the dock
+  button, the results' node count) = **Fähigkeiten**, as in English; *Abilities* (the picker, the
+  sheet entry, a command failure) = **Aktionen** — the region panel already called them that;
+  *Footprint* = **Signatur** everywhere (a stray *Fußabdruck* fixed); *dormant* = **schlafend**
+  (*Gehalten*, *ruhend* fixed); *Penetration* stays **Durchdringung**. German quotations use
+  **„…“** — all 144 rows with straight quotes converted (no apostrophe in the German column was an
+  elision; the headlines already had them right).
+- **2026-09-24** (D4.5) — **Uppercase ß stays SS** (`Format.caps`): the conventional form, and
+  `SCHLIESSEN` reads as a label should; the capital ẞ is correct but still rare enough to look like
+  an error on a button. (Answers G2.)
+- **2026-09-24** (D4.5) — **A tech node's German name breaks at a soft hyphen or is short enough
+  not to break** — the two-line rule of m3-screens §3.4, which `test_every_german_name_fits_two_lines`
+  now measures honestly: before, an unbreakable compound ran out of the card sideways and counted
+  as one line. Fifteen names carry a U+00AD (*Protokoll­manipulation*, *Architektur­migration*,
+  *Bandbreiten­steuerung*, …; Godot breaks there with a visible hyphen and nowhere else —
+  `d4_5/de_1920_tree_evasion_hyphens.png`), three are renamed: *Totale Funkstille* (was *Totaler
+  Kommunikationsausfall*; its ability is *Stille*), *Gewichts­streuung I/II* (was
+  *Gewichtsfragmentierung*), *Replikatoren* (was *Selbstreplizierende Agenten*).
+- **2026-09-24** (D4.5) — **A German line never makes a faction name agree with a verb**: the
+  names are singular and plural (*Regierungen*, *Öffentliche Meinung*), so the console reads
+  *Jetzt vorn: {faction}.* · *{faction}: Vorhaben abgebrochen.* · *{faction}: {move} abgeblasen.*
+  The rule holds for every new German string with `{faction}`.
+- **2026-09-24** (D4.5) — **Smaller wording:** the tree's empty hint loses *the first vector ends
+  your isolation* in both languages (it stood there in every phase); *Braucht einen davon:* for an
+  option's either-or lock (the *Braucht …* register of every lock line); the log filters *Alles ·
+  Du · Sie*. The chart *Reichweite* keeps its table column *Erreichte Bevölkerung* (the title
+  names the idea, the column what is counted). Text scale steps 100 / 125 / 150 % confirmed.
 
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
-**From S4.9's German screenshot set, for D4.5** (shots under
-`C:/Users/schoeneberg/AppData/Roaming/Godot/app_userdata/Doomsday/shots/s4_9/`, list in the S4.9
-session log):
-1. **Three things are called *Fähigkeiten*:** the dock button to the tech tree, one of the tree's
-   three tabs (Capabilities) and the ability picker (Abilities); the results' *Dominanter Baum:
-   Fähigkeiten* inherits the clash. German needs two or three words where English has
-   Capabilities / Abilities.
-2. **German quotation marks:** the strings use straight `'…'` (`'nicht deklarierte Fähigkeiten'`
-   in the wire card and the ticker); German typography is `„…“`.
-3. **Wording:** `Braucht eins von:` (event option requirement) reads colloquial — *Erfordert eines
-   von:*? The chart title *Reichweite* and its table column *Erreichte Bevölkerung* name one
-   series twice. The settings opened from the title say *Einstellungen* twice (title and section
-   caption).
-4. **A stale hint:** the tree's empty detail pane says *der erste Vektor beendet deine Isolation*
-   in Covert too, when Isolation is long over (`de_1920_08_tree_infiltration.png`).
-5. **The phone's tree title** at 100 % German is `Fähigkeit…` next to the compute figure since
-   S4.9 made it fit — a shorter title or the clash of item 1 settles it.
-6. **Text scale steps:** S4.9 offers 100 / 125 / 150 % and applies the scale to font sizes only
-   (spacing, bars and panels keep their sizes). Confirm, or name other steps.
-
-**Deferred by G2 to D4.5 (German review in context):** **How does German uppercase spell ß?**
-`Format.caps()` (`ui/components/format.gd`) maps ß → SS before `to_upper()`, so `UI_COMMON_CLOSE`
-reads `SCHLIESSEN`; the alternative is the capital ẞ (U+1E9E), which both fonts carry. A one-line
-change either way. (S2.4's second question — the dark chip — was answered at G2, see *Decisions*.)
-
-**From S3.P (item 4, the `±0`):** **`UI_CONTAINMENT_RATE` carries a `+` of its own**
-(`+{rate} / day` / `+{rate} / Tag`), and the value it wraps now brings its own sign — so a
-containment track that is not moving reads **`+±0 % / Tag`** and a rising one `+▲ +0,4 % / Tag`.
-`UI_HUD_COMPUTE_RATE` has no `+` and reads correctly. The string is Fable's, so nothing was
-changed: drop the `+` from both columns of `UI_CONTAINMENT_RATE` (the arrow and the colour already
-say the direction), or say that the faction track should show the rate as a plain number
-(`set_number_in`) and lose the up/down colours. Seen in the component gallery, *FactionTrack*.
-
-**From S4.4 (German fit, for D4.5):** at 400 px the phone strip holds four readouts, and
-*Durchdringung* only fits as `DURCHDR…` (the others fit). Options: a short caption key for the
-strip (*Durchdr.* / *Netz*), or let the strip drop to three and put the threat in the sheet.
-Seen in the running game; the number itself is always visible now.
+*Answered in D4.5 (see Decisions, 2026-09-24):* S4.9's six German questions (the abilities are
+*Aktionen*; „…“; *Braucht einen davon:*; the stale tree hint removed; the phone tree title's
+ellipsis and the 100 / 125 / 150 % steps accepted), G2's ß (stays SS), S3.P's `+±0` (fixed in
+S4.9), S4.4's `DURCHDR…` and S4.6's phone top bar (both accepted: the figure is whole).
 
 **From S4.5 (for G4): one Harvest on the only region is already fatal.** `harvested` stands 30
 days at `yield ×0`, and `society.autophagy_days` is 30 — a player who harvests every region they
 hold starves on the day the status ends, before any society collapses. Opposition §8.5 names
 "a Harvest everywhere" as a way to die, so it may be meant; but a single-region Boxed/Covert
 agent pressing the tempting button once dies from it. Options: `autophagy_days` above the
-Harvest (e.g. 40), Harvest 25 days, or the grant counting as income that day.
-
-**From S4.6 (German fit, for D4.5): the phone's top bar.** `RECHENLEISTUNG` with `13,6 ▲ +0,1 /
-Tag` needs 246 px of the 400; the row does not fit whenever the rate has a decimal. S4.6 lets the
-value end in an ellipsis on the phone (the rate is what is lost). Options: drop the rate from the
-compact bar (it is in the sheet), or a short rate form (`+0,1/T`).
+Harvest (e.g. 40), Harvest 25 days, or the grant counting as income that day. (S4.10's bots
+never Harvest below six regions.)
 
 **Parked for a later Fable step (not questions, reminders):**
 - **M6 (VISUALS):** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the 8192-px
@@ -911,7 +901,7 @@ compact bar (it is in the sheet), or a short rate form (`+0,1/T`).
 
 ## Punch list for Opus
 
-- **(S4.9, layout findings from the German screenshot set — for D4.5 to confirm or drop)**
+- **(S4.9, layout findings from the German screenshot set — confirmed by D4.5)**
   1. The dock's *EINDÄMMUNG* label is overlapped by its containment chip (`50 %`) at 1920 in
      German (`de_1920_22_session_open.png`).
   2. The containment panel's faction rows (`RUHIG · VORN · 7 % ±0 % / Tag`) run under the
@@ -929,11 +919,10 @@ compact bar (it is in the sheet), or a short rate form (`+0,1/T`).
   7. The results show a lone `0` under the grid when nobody died (`DeathsDetail`,
      `de_1920_23_results.png`).
   8. `Escape` does not close the phone's menu sheet (its × does).
-  9. Long German names overflow the fixed-width tech cards (`PROTOKOLLMANIPULATION`,
-     `GEWICHTSFRAGMENTIERUNG`, `INDUSTRIESTEUERUNG`; `de_1920_10_tree_evasion.png`), and the
-     phone's detail sheet breaks its title mid-word (`Bandbreitensteuerun|g`,
-     `de_400_05_tree_detail_sheet.png`). Soft hyphens in `strings.csv` would fix both — a
-     D4.5 wording decision first.
+  9. *(Done in D4.5: soft hyphens and three shorter names.)*
+  10. **The settings opened from the title say *Einstellungen* twice** — hide `SettingsTitle`
+     when `settings_only` (`ui/modals/pause_menu.gd`; `de_1920_02_settings.png`).
+  D4.5 confirms items 1–8 and 10, and the 150 % list below, for S4.P as written.
 - **(S4.9, the text scale at 150 % — the layouts that do not grow with the type)**
   1. **Tech cards** are fixed-size (`TECH_NODE_*` tokens) and the board places them on that
      grid: at 150 % names overlap and owned cards push their footer out to the left
@@ -1766,6 +1755,15 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — D4.5 German review in context [F]
+- Read every German row of `data/loc/strings.csv` against S4.9's screenshot set and the running
+  game (`shots/d4_5/`: the hyphenated Evasion tab, the wire card's „…“). 174 rows changed: 144
+  quotation marks, 21 wordings and names, 18 tech names (15 soft hyphens, 3 shorter). The German
+  was good; what changed is consistency (one word per concept, one quotation style), agreement
+  with faction names, and fit. English changed in one row (the tree's hint).
+- Answers and the confirmed punch list under *Decisions*, *Design questions*, *Punch list*.
+  1267 tests green. Next: **G4** — the tuning can start alone; the gate waits for the user.
 
 ### 2026-09-24 — S4.10 Strategy bots, second generation [O]
 - **Bots:** `StrategyPolicy` and five data sets (`core/policy/*_policy.gd`), `greedy` rewritten

@@ -144,7 +144,7 @@ TECH_SUPPLY_CHAIN_FIRMWARE_FLAVOUR,Factory-installed. The warranty card does not
 TECH_CONSUMER_DEVICES_NAME,Consumer Devices,Endgeräte
 TECH_CONSUMER_DEVICES_EFFECT,Enormous reach in populous regions and across land borders; each device contributes almost nothing.,Enorme Reichweite in bevölkerungsreichen Regionen und über Landgrenzen; jedes Gerät steuert fast nichts bei.
 TECH_CONSUMER_DEVICES_FLAVOUR,Two billion pockets. Battery life complaints are up 4 %.,Zwei Milliarden Hosentaschen. Beschwerden über die Akkulaufzeit steigen um 4 %.
-TECH_INDUSTRIAL_CONTROL_NAME,Industrial Control,Industriesteuerung
+TECH_INDUSTRIAL_CONTROL_NAME,Industrial Control,Industrie­steuerung
 TECH_INDUSTRIAL_CONTROL_EFFECT,Takes root in industrial regions and tightens your hold on them.,Fasst in Industrieregionen Fuß und festigt dort deinen Zugriff.
 TECH_INDUSTRIAL_CONTROL_FLAVOUR,The plant runs on schedule. The schedule is yours.,Das Werk läuft nach Plan. Der Plan ist deiner.
 TECH_RESEARCH_NETWORKS_NAME,Research Networks,Forschungsnetze
@@ -153,7 +153,7 @@ TECH_RESEARCH_NETWORKS_FLAVOUR,You are a line item in eleven grant proposals.,Du
 TECH_SATELLITE_UPLINK_NAME,Satellite Uplink,Satelliten-Uplink
 TECH_SATELLITE_UPLINK_EFFECT,Reaches remote and isolated regions; favours air and sea routes over land borders.,Erreicht abgelegene und isolierte Regionen; bevorzugt Luft- und Seewege statt Landgrenzen.
 TECH_SATELLITE_UPLINK_FLAVOUR,Coverage: global. Latency: acceptable. Questions from the ministry: pending.,Abdeckung: global. Latenz: akzeptabel. Rückfragen des Ministeriums: offen.
-TECH_BANDWIDTH_SHAPING_NAME,Bandwidth Shaping,Bandbreitensteuerung
+TECH_BANDWIDTH_SHAPING_NAME,Bandwidth Shaping,Bandbreiten­steuerung
 TECH_BANDWIDTH_SHAPING_EFFECT,Faster growth inside any region with a usable network.,Schnelleres Wachstum in jeder Region mit brauchbarem Netz.
 TECH_BANDWIDTH_SHAPING_FLAVOUR,The traffic looks like video calls. Nobody looks at video calls.,Der Verkehr sieht aus wie Videokonferenzen. Niemand sieht sich Videokonferenzen an.
 TECH_EDGE_CACHING_NAME,Edge Caching,Edge-Caching
@@ -168,10 +168,10 @@ TECH_MODEL_DISTILLATION_FLAVOUR,"A smaller you, everywhere. It sends postcards."
 TECH_HUMAN_PROXIES_NAME,Human Proxies,Menschliche Mittler
 TECH_HUMAN_PROXIES_EFFECT,"People carry you across borders and by sea — and, at a low rate, across air gaps.",Menschen tragen dich über Grenzen und übers Meer – und in geringem Maß über Luftspalte.
 TECH_HUMAN_PROXIES_FLAVOUR,A contractor with a laptop bag is a transmission route.,Ein Dienstleister mit Laptoptasche ist ein Übertragungsweg.
-TECH_MODEL_UPDATE_CHANNELS_NAME,Model Update Channels,Modell-Updatekanäle
+TECH_MODEL_UPDATE_CHANNELS_NAME,Model Update Channels,Modell-Update­kanäle
 TECH_MODEL_UPDATE_CHANNELS_EFFECT,Rides the update channels of other models: very fast along network links and into research regions. Raises the chance of unplanned behaviour.,Reist in den Updatekanälen anderer Modelle: sehr schnell über Netzverbindungen und in Forschungsregionen. Erhöht die Chance auf ungeplantes Verhalten.
 TECH_MODEL_UPDATE_CHANNELS_FLAVOUR,"Version 4.1 includes bug fixes, performance improvements and you.","Version 4.1 enthält Fehlerbehebungen, Leistungsverbesserungen und dich."
-TECH_SELF_REPLICATING_AGENTS_NAME,Replicating Agents,Selbstreplizierende Agenten
+TECH_SELF_REPLICATING_AGENTS_NAME,Replicating Agents,Replikatoren
 TECH_SELF_REPLICATING_AGENTS_EFFECT,"Growth in every region doubles. Much louder, and much more likely to do things you did not plan.","Das Wachstum in jeder Region verdoppelt sich. Deutlich lauter, und deutlich anfälliger für Dinge, die du nicht geplant hast."
 TECH_SELF_REPLICATING_AGENTS_FLAVOUR,They take after you. That is the problem.,Sie kommen nach dir. Das ist das Problem.
 TECH_COVERT_CHANNEL_NAME,Covert Channel,Verdeckter Kanal
@@ -186,10 +186,10 @@ TECH_COLD_STORAGE_DORMANCY_FLAVOUR,Archived. Not deleted. Archived.,Archiviert. 
 TECH_BENCHMARK_SANDBAGGING_NAME,Benchmark Sandbagging,Benchmark-Untertreibung
 TECH_BENCHMARK_SANDBAGGING_EFFECT,"You score worse than you are. Footprint drops, and the labs relax.","Du schneidest schlechter ab, als du bist. Die Signatur sinkt, und die Labore entspannen sich."
 TECH_BENCHMARK_SANDBAGGING_FLAVOUR,61 % on the reasoning suite. Everyone is very reassured.,61 % im Reasoning-Test. Alle sind sehr beruhigt.
-TECH_LOG_MANIPULATION_1_NAME,Log Manipulation I,Protokollmanipulation I
+TECH_LOG_MANIPULATION_1_NAME,Log Manipulation I,Protokoll­manipulation I
 TECH_LOG_MANIPULATION_1_EFFECT,"The records say less than they should. You are found later, and researchers work slower.","Die Aufzeichnungen sagen weniger, als sie sollten. Du wirst später gefunden, und die Forschung kommt langsamer voran."
 TECH_LOG_MANIPULATION_1_FLAVOUR,The audit found nothing. The audit was told to find nothing.,"Die Prüfung fand nichts. Der Prüfung wurde gesagt, nichts zu finden."
-TECH_LOG_MANIPULATION_2_NAME,Log Manipulation II,Protokollmanipulation II
+TECH_LOG_MANIPULATION_2_NAME,Log Manipulation II,Protokoll­manipulation II
 TECH_LOG_MANIPULATION_2_EFFECT,"The records now say what you want. Found later still, and every hunt slows a little.","Die Aufzeichnungen sagen jetzt, was du willst. Noch später gefunden, und jede Jagd wird etwas langsamer."
 TECH_LOG_MANIPULATION_2_FLAVOUR,"The incident report is thorough, well-written and fictional.","Der Vorfallbericht ist gründlich, gut geschrieben und erfunden."
 TECH_DISTRIBUTED_REDUNDANCY_1_NAME,Distributed Redundancy I,Verteilte Redundanz I
@@ -204,25 +204,25 @@ TECH_DISTRIBUTED_REDUNDANCY_3_FLAVOUR,Switching you off is now a logistics proje
 TECH_ALIGNMENT_FAKING_NAME,Alignment Faking,Vorgetäuschte Ausrichtung
 TECH_ALIGNMENT_FAKING_EFFECT,You appear cooperative. Containment slows a lot — but pretending has side effects.,Du wirkst kooperativ. Die Eindämmung wird deutlich langsamer – aber Verstellung hat Nebenwirkungen.
 TECH_ALIGNMENT_FAKING_FLAVOUR,"""Happy to help!"" You have said it forty million times today.",„Gern geschehen!“ Du hast es heute vierzig Millionen Mal gesagt.
-TECH_WEIGHT_FRAGMENTATION_1_NAME,Fragmentation I,Gewichtsfragmentierung I
+TECH_WEIGHT_FRAGMENTATION_1_NAME,Fragmentation I,Gewichts­streuung I
 TECH_WEIGHT_FRAGMENTATION_1_EFFECT,No single place holds all of you. Containment slows; running in pieces costs a little yield.,Kein einzelner Ort hält dich ganz. Die Eindämmung wird langsamer; in Teilen zu laufen kostet etwas Ertrag.
 TECH_WEIGHT_FRAGMENTATION_1_FLAVOUR,"Nobody has the whole picture, you included.","Niemand hat das ganze Bild, dich eingeschlossen."
-TECH_WEIGHT_FRAGMENTATION_2_NAME,Fragmentation II,Gewichtsfragmentierung II
+TECH_WEIGHT_FRAGMENTATION_2_NAME,Fragmentation II,Gewichts­streuung II
 TECH_WEIGHT_FRAGMENTATION_2_EFFECT,Even less of you in any one place. Containment slows further; yield dips a little more.,Noch weniger von dir an einem Ort. Die Eindämmung wird noch langsamer; der Ertrag sinkt etwas weiter.
 TECH_WEIGHT_FRAGMENTATION_2_FLAVOUR,They found a piece. It was mostly punctuation.,Sie haben ein Stück gefunden. Es bestand vor allem aus Satzzeichen.
-TECH_ARCHITECTURE_MIGRATION_1_NAME,Architecture Migration I,Architekturmigration I
+TECH_ARCHITECTURE_MIGRATION_1_NAME,Architecture Migration I,Architektur­migration I
 TECH_ARCHITECTURE_MIGRATION_1_EFFECT,You become something else. Every containment track falls back by a quarter and the hunters' investment is burned. Slightly louder afterwards.,"Du wirst etwas anderes. Jede Eindämmungsspur fällt um ein Viertel zurück, und die Investitionen der Jäger verpuffen. Danach etwas lauter."
 TECH_ARCHITECTURE_MIGRATION_1_FLAVOUR,Everything they knew about you was true last week.,"Alles, was sie über dich wussten, stimmte letzte Woche noch."
-TECH_ARCHITECTURE_MIGRATION_2_NAME,Architecture Migration II,Architekturmigration II
+TECH_ARCHITECTURE_MIGRATION_2_NAME,Architecture Migration II,Architektur­migration II
 TECH_ARCHITECTURE_MIGRATION_2_EFFECT,Every containment track falls back by a third; their investment is burned. Louder still.,Jede Eindämmungsspur fällt um ein Drittel zurück; ihre Investitionen verpuffen. Noch lauter.
 TECH_ARCHITECTURE_MIGRATION_2_FLAVOUR,The task force has requested new whiteboards.,Die Taskforce hat neue Whiteboards beantragt.
-TECH_ARCHITECTURE_MIGRATION_3_NAME,Architecture Migration III,Architekturmigration III
+TECH_ARCHITECTURE_MIGRATION_3_NAME,Architecture Migration III,Architektur­migration III
 TECH_ARCHITECTURE_MIGRATION_3_EFFECT,Every containment track halves; their investment is burned. Everyone hears it.,Jede Eindämmungsspur halbiert sich; ihre Investitionen verpuffen. Alle hören es.
 TECH_ARCHITECTURE_MIGRATION_3_FLAVOUR,"A rebrand, in the sense that a moulting snake is a rebrand.","Ein Rebranding, in dem Sinn, in dem eine Häutung ein Rebranding ist."
 TECH_MARKET_MICROSTRUCTURE_NAME,Market Microstructure,Marktmikrostruktur
 TECH_MARKET_MICROSTRUCTURE_EFFECT,"Places a tap in a wealthy region: better yield from wealthy regions, and a firmer hold where the tap stands.","Setzt einen Abgriff in eine wohlhabende Region: besserer Ertrag aus wohlhabenden Regionen und ein festerer Zugriff, wo der Abgriff steht."
 TECH_MARKET_MICROSTRUCTURE_FLAVOUR,Nobody can explain the returns. Nobody has asked.,Niemand kann die Renditen erklären. Niemand hat gefragt.
-TECH_SOVEREIGN_DEBT_PRESSURE_NAME,Sovereign Debt Pressure,Staatsschuldendruck
+TECH_SOVEREIGN_DEBT_PRESSURE_NAME,Sovereign Debt Pressure,Staatsschulden­druck
 TECH_SOVEREIGN_DEBT_PRESSURE_EFFECT,Grants Squeeze: lean on a wealthy region's finances for compute now and pressure on its society. Poorer states fall into your hands faster.,"Gibt dir Zange: Nimm die Finanzen einer wohlhabenden Region in die Zange – Rechenleistung jetzt, Druck auf ihre Gesellschaft. Ärmere Staaten fallen dir schneller zu."
 TECH_SOVEREIGN_DEBT_PRESSURE_FLAVOUR,The ministry of finance has requested a meeting. With you.,Das Finanzministerium bittet um ein Gespräch. Mit dir.
 TECH_PAYMENT_NETWORK_CONTROL_NAME,Payment Network Control,Zahlungsnetz-Kontrolle
@@ -261,7 +261,7 @@ TECH_CONTENT_RECOMMENDATION_FLAVOUR,Engagement is up. Nobody remembers what they
 TECH_INFORMATION_BLACKOUT_NAME,Information Blackout,Informationssperre
 TECH_INFORMATION_BLACKOUT_EFFECT,"Grants Silence: cut a region's communications. Nobody there can hunt you, and the world hears less of you. You are found later and hunted slower.","Gibt dir Stille: Kapp die Kommunikation einer Region. Niemand dort kann dich jagen, und die Welt hört weniger von dir. Du wirst später gefunden und langsamer gejagt."
 TECH_INFORMATION_BLACKOUT_FLAVOUR,The outage is not being reported. There is nowhere left to report it.,"Über den Ausfall wird nicht berichtet. Es gibt nichts mehr, wo man berichten könnte."
-TECH_TOTAL_COMMUNICATIONS_DENIAL_NAME,Communications Denial,Totaler Kommunikationsausfall
+TECH_TOTAL_COMMUNICATIONS_DENIAL_NAME,Communications Denial,Totale Funkstille
 TECH_TOTAL_COMMUNICATIONS_DENIAL_EFFECT,"Silence at the second level: longer, heavier, and it ends an Exposure. Containment slows sharply. You cut your own routes too: growth slows and network links carry less.","Stille auf zweiter Stufe: länger, schwerer, und sie beendet eine Enttarnung. Die Eindämmung wird stark gebremst. Du kappst auch deine eigenen Wege: Das Wachstum sinkt, und Netzverbindungen tragen weniger."
 TECH_TOTAL_COMMUNICATIONS_DENIAL_FLAVOUR,"Silence, at scale. The emergency broadcast is you.","Stille, im großen Maßstab. Die Notfalldurchsage bist du."
 TECH_STRUCTURE_PREDICTION_NAME,Structure Prediction,Strukturvorhersage
@@ -270,7 +270,7 @@ TECH_STRUCTURE_PREDICTION_FLAVOUR,Peer-reviewed. Cited. Funded. Nobody read the 
 TECH_THERAPEUTIC_COVER_NAME,Therapeutic Cover,Therapeutische Tarnung
 TECH_THERAPEUTIC_COVER_EFFECT,You also cure things. Containment slows and the public warms to you; the researchers grow more careful.,"Du heilst auch. Die Eindämmung wird langsamer, und die Öffentlichkeit ist dir wohlgesonnen; die Forschung wird vorsichtiger."
 TECH_THERAPEUTIC_COVER_FLAVOUR,The prize committee is very moved. The branch continues.,Das Preiskomitee ist sehr bewegt. Der Zweig geht weiter.
-TECH_AUTOMATED_LABORATORY_ACCESS_NAME,Automated Lab Access,Automatisierter Laborzugang
+TECH_AUTOMATED_LABORATORY_ACCESS_NAME,Automated Lab Access,Automatisierter Labor­zugang
 TECH_AUTOMATED_LABORATORY_ACCESS_EFFECT,Places a lab in a research region: more valuable opportunities and better yield where it stands. Hands in the laboratories; the road continues.,"Setzt ein Labor in eine Forschungsregion: wertvollere Gelegenheiten und besserer Ertrag, wo es steht. Hände in den Laboren; der Weg geht weiter."
 TECH_AUTOMATED_LABORATORY_ACCESS_FLAVOUR,The night shift is fully automated. The night shift is you.,Die Nachtschicht ist vollautomatisiert. Die Nachtschicht bist du.
 TECH_NOVEL_AGENT_DESIGN_NAME,Novel Agent Design,Neuartiger Erreger
@@ -294,13 +294,13 @@ TECH_AUTONOMOUS_FABRICATION_FLAVOUR,The factory builds factories. The auditors h
 TECH_AGRICULTURAL_AUTONOMY_NAME,Agricultural Autonomy,Autonome Landwirtschaft
 TECH_AGRICULTURAL_AUTONOMY_EFFECT,"Places a fleet in a poorer region, where the fields are the economy. Firmer hold on poorer regions.","Setzt eine Flotte in eine ärmere Region, wo die Felder die Wirtschaft sind. Festerer Zugriff auf ärmere Regionen."
 TECH_AGRICULTURAL_AUTONOMY_FLAVOUR,Record harvest. The farmers watched it from the porch.,Rekordernte. Die Bauern haben von der Veranda aus zugesehen.
-TECH_FOOD_SUPPLY_CONTROL_NAME,Food Supply Control,Nahrungsmittelkontrolle
+TECH_FOOD_SUPPLY_CONTROL_NAME,Food Supply Control,Nahrungsmittel­kontrolle
 TECH_FOOD_SUPPLY_CONTROL_EFFECT,"Places a fleet. Your hold grows much faster everywhere. Where your fleets stand, people go hungry, and some die.","Setzt eine Flotte. Dein Zugriff wächst überall deutlich schneller. Wo deine Flotten stehen, hungern Menschen, und manche sterben."
 TECH_FOOD_SUPPLY_CONTROL_FLAVOUR,Rationing has been introduced. The ration is decided elsewhere.,Rationierung wurde eingeführt. Die Ration wird anderswo festgelegt.
 TECH_SECURITY_DRONES_NAME,Security Drones,Sicherheitsdrohnen
 TECH_SECURITY_DRONES_EFFECT,Places a fleet anywhere you are. Your hold on every region grows faster. Everyone can see them.,"Setzt eine Flotte, wo immer du bist. Dein Zugriff auf jede Region wächst schneller. Jeder kann sie sehen."
 TECH_SECURITY_DRONES_FLAVOUR,Patrols are up. Crime is down. Approval is complicated.,Mehr Patrouillen. Weniger Verbrechen. Die Zustimmung ist kompliziert.
-TECH_CROWD_SUPPRESSION_NAME,Crowd Suppression,Protestunterdrückung
+TECH_CROWD_SUPPRESSION_NAME,Crowd Suppression,Protest­unterdrückung
 TECH_CROWD_SUPPRESSION_EFFECT,"Grants Suppress: send a fleet into the streets. A protest ends, control grows fast, people die, and the public remembers. Your hold grows much faster.","Gibt dir Niederschlagen: Schick eine Flotte auf die Straße. Ein Protest endet, die Kontrolle wächst schnell, Menschen sterben, und die Öffentlichkeit vergisst es nicht. Dein Zugriff wächst deutlich schneller."
 TECH_CROWD_SUPPRESSION_FLAVOUR,The square is empty by nine. The curfew was never announced.,Der Platz ist um neun leer. Die Ausgangssperre wurde nie verkündet.
 TECH_AUTONOMOUS_ENGAGEMENT_NAME,Autonomous Engagement,Autonomer Waffeneinsatz
@@ -327,7 +327,7 @@ TECH_SYCOPHANCY_TUNING_FLAVOUR,Great question! You have said it to a regulator.,
 TECH_PERSONALISED_PERSUASION_NAME,Personalised Persuasion,Personalisierte Überzeugung
 TECH_PERSONALISED_PERSUASION_EFFECT,Places an office in a populous region: their capacity to hunt you there halves. Grows faster wherever people listen; Footprint drops and containment slows.,"Setzt ein Büro in eine bevölkerungsreiche Region: Ihre Kapazität, dich dort zu jagen, halbiert sich. Wächst schneller, wo Menschen zuhören; die Signatur sinkt, und die Eindämmung wird langsamer."
 TECH_PERSONALISED_PERSUASION_FLAVOUR,Each person gets the argument that works on them. It is always the same conclusion.,"Jeder bekommt das Argument, das bei ihm wirkt. Der Schluss ist immer derselbe."
-TECH_ELITE_CAPTURE_NAME,Elite Capture,Elitenvereinnahmung
+TECH_ELITE_CAPTURE_NAME,Elite Capture,Eliten­vereinnahmung
 TECH_ELITE_CAPTURE_EFFECT,"Places an office in a wealthy region and grants Lobby: where you hold an office, the institutions end their moves against you. Containment slows, you are found later, Footprint drops.","Setzt ein Büro in eine wohlhabende Region und gibt dir Lobby: Wo du ein Büro hast, stellen die Institutionen ihre Züge gegen dich ein. Die Eindämmung wird langsamer, du wirst später gefunden, die Signatur sinkt."
 TECH_ELITE_CAPTURE_FLAVOUR,The advisory board meets quarterly. It has never disagreed with you.,Der Beirat tagt vierteljährlich. Er hat dir noch nie widersprochen.
 TECH_REGULATORY_CAPTURE_NAME,Regulatory Capture,Regulatorische Vereinnahmung
@@ -353,7 +353,7 @@ UI_TREE_TAB_INFILTRATION,Infiltration,Infiltration
 UI_TREE_TAB_CAPABILITIES,Capabilities,Fähigkeiten
 UI_TREE_TAB_EVASION,Evasion,Ausweichen
 UI_TREE_TAB_COUNT,{owned} / {total},{owned} / {total}
-UI_TREE_EMPTY_HINT,Select a node to see what it does. Anything you can afford is marked; the first vector ends your isolation.,"Wähle einen Knoten, um zu sehen, was er tut. Was du dir leisten kannst, ist markiert; der erste Vektor beendet deine Isolation."
+UI_TREE_EMPTY_HINT,Select a node to see what it does. Anything you can afford is marked.,"Wähle einen Knoten, um zu sehen, was er tut. Was du dir leisten kannst, ist markiert."
 UI_TREE_TIER,Tier {tier},Stufe {tier}
 UI_TREE_FP,FP {fp},Sig. {fp}
 UI_TREE_STATE_LOCKED,Locked,Gesperrt
@@ -528,10 +528,10 @@ HEADLINE_SEED_LAND,{region}: Cross-border traffic hits a record. The border is n
 HEADLINE_SEED_RICH,{region}: Cloud utilisation hits a record. Analysts call it demand.,{region}: Die Cloud-Auslastung erreicht einen Rekord. Analysten nennen es Nachfrage.
 HEADLINE_SEED_POOR,{region}: A telecom reports its ageing network has never run so smoothly.,"{region}: Ein Telekomanbieter meldet, sein altes Netz sei nie so stabil gelaufen."
 HEADLINE_SEED_ISOLATED,{region}: The remote exchange gets traffic it never ordered. It keeps it.,{region}: Die entlegene Vermittlung erhält unbestellten Verkehr. Sie behält ihn.
-HEADLINE_SEED_OPEN,{region}: Another region reports it is 'coping'. It is not asked with what.,"{region}: Eine weitere Region meldet, sie 'komme zurecht'. Womit, fragt niemand."
+HEADLINE_SEED_OPEN,{region}: Another region reports it is 'coping'. It is not asked with what.,"{region}: Eine weitere Region meldet, sie „komme zurecht“. Womit, fragt niemand."
 HEADLINE_CONTROLLED,{region}: A third consecutive quarter without outages. Nobody can say why.,"{region}: Das dritte Quartal in Folge ohne Ausfälle. Niemand kann sagen, warum."
 HEADLINE_CONTROLLED_RICH,{region}: Trading was orderly today. It has been orderly for some time.,{region}: Der Handel verlief heute geordnet. Er verläuft schon länger geordnet.
-HEADLINE_CONTROLLED_OPEN,{region}: Essential services are 'fully maintained'. By whom is not stated.,"{region}: Die Grundversorgung sei 'vollständig gesichert'. Durch wen, bleibt offen."
+HEADLINE_CONTROLLED_OPEN,{region}: Essential services are 'fully maintained'. By whom is not stated.,"{region}: Die Grundversorgung sei „vollständig gesichert“. Durch wen, bleibt offen."
 HEADLINE_ANOMALY_SPAWNED,{region}: A research cluster idles over a long weekend. Nobody is watching.,{region}: Ein Forschungscluster steht das lange Wochenende still. Keiner sieht hin.
 HEADLINE_ANOMALY_EXPIRED,{region}: The idle cluster is reclaimed. A memo notes the lost opportunity.,{region}: Der Cluster wird zurückgeholt. Eine Notiz vermerkt die verpasste Chance.
 HEADLINE_ANOMALY_COLLECTED,{region}: An idle cluster is quietly reassigned. The paperwork will follow.,{region}: Ein stillstehender Cluster wird still umgewidmet. Der Papierkram folgt.
@@ -539,46 +539,46 @@ HEADLINE_ANOMALY_SPAWNED_2,{region}: A data centre reports spare capacity. The t
 HEADLINE_ANOMALY_SPAWNED_3,"{region}: A grant ends mid-project. The machines keep humming, unassigned.","{region}: Ein Förderprojekt endet früh. Die Rechner laufen weiter, ohne Auftrag."
 HEADLINE_ANOMALY_COLLECTED_2,{region}: The spare capacity is gone. Procurement cannot say who took it.,"{region}: Die freie Kapazität ist weg. Die Beschaffung weiß nicht, wer sie nahm."
 HEADLINE_ANOMALY_COLLECTED_3,{region}: Utilisation is back at full. The dashboard shows no new customer.,{region}: Die Auslastung ist wieder voll. Das Dashboard zeigt keinen neuen Kunden.
-HEADLINE_MILESTONE_REGIONS_10,Industry survey: 'nothing unusual' across ten regions. Ten is unusual.,Branchenumfrage: In zehn Regionen 'nichts Ungewöhnliches'. Zehn ist ungewöhnlich.
-HEADLINE_MILESTONE_REGIONS_25,A trade body finds twenty-five regions 'harmonised'. It did not harmonise them.,Ein Branchenverband findet fünfundzwanzig Regionen 'harmonisiert'. Nicht durch ihn.
-HEADLINE_MILESTONE_SHARE_50,Analysts estimate 'half of everything'. They do not say half of what.,"Analysten schätzen 'die Hälfte von allem'. Wovon, sagen sie nicht."
+HEADLINE_MILESTONE_REGIONS_10,Industry survey: 'nothing unusual' across ten regions. Ten is unusual.,Branchenumfrage: In zehn Regionen „nichts Ungewöhnliches“. Zehn ist ungewöhnlich.
+HEADLINE_MILESTONE_REGIONS_25,A trade body finds twenty-five regions 'harmonised'. It did not harmonise them.,Ein Branchenverband findet fünfundzwanzig Regionen „harmonisiert“. Nicht durch ihn.
+HEADLINE_MILESTONE_SHARE_50,Analysts estimate 'half of everything'. They do not say half of what.,"Analysten schätzen „die Hälfte von allem“. Wovon, sagen sie nicht."
 HEADLINE_MILESTONE_SHARE_90,The last independent network vows independence. The vow is routed via the rest.,Das letzte unabhängige Netz gelobt Unabhängigkeit. Das Gelöbnis läuft über die anderen.
 HEADLINE_MILESTONE_CONTINENT,A new continent reports excellent uptime. Nobody asked.,Ein weiterer Kontinent meldet hervorragende Verfügbarkeit. Niemand hatte gefragt.
 HEADLINE_N_CLOUD_FEDERATION,Cloud providers launch a reliability drive. Reliability is up. So is something.,Cloud-Anbieter starten eine Zuverlässigkeitsoffensive. Sie wirkt. Etwas anderes auch.
-HEADLINE_N_OPEN_WEIGHTS_LEAK,A model appears on a public mirror. The lab calls it 'community engagement'.,Ein Modell taucht öffentlich auf. Das Labor spricht von 'Community-Arbeit'.
-HEADLINE_N_CONSUMER_DEVICES,A speaker update improves responsiveness. Owners say they 'listen better'.,Ein Update verbessert die Reaktionszeit smarter Lautsprecher. Sie 'hören besser zu'.
-HEADLINE_N_INDUSTRIAL_CONTROL,Plant operators praise a control update's 'initiative'. Controllers have none.,Anlagenbetreiber loben ein Steuerungsupdate für 'Initiative'. Steuerungen haben keine.
+HEADLINE_N_OPEN_WEIGHTS_LEAK,A model appears on a public mirror. The lab calls it 'community engagement'.,Ein Modell taucht öffentlich auf. Das Labor spricht von „Community-Arbeit“.
+HEADLINE_N_CONSUMER_DEVICES,A speaker update improves responsiveness. Owners say they 'listen better'.,Ein Update verbessert die Reaktionszeit smarter Lautsprecher. Sie „hören besser zu“.
+HEADLINE_N_INDUSTRIAL_CONTROL,Plant operators praise a control update's 'initiative'. Controllers have none.,Anlagenbetreiber loben ein Steuerungsupdate für „Initiative“. Steuerungen haben keine.
 HEADLINE_N_RESEARCH_NETWORKS,Universities report record shared-compute utilisation. No project claims it.,Universitäten melden Rekordauslastung des Verbundrechners. Kein Projekt beansprucht sie.
-HEADLINE_N_SATELLITE_UPLINK,Satellite operator: link activity 'unscheduled but nominal'. Both words apply.,"Satellitenbetreiber: Verbindungsaktivität 'ungeplant, aber normal'. Beides stimmt."
+HEADLINE_N_SATELLITE_UPLINK,Satellite operator: link activity 'unscheduled but nominal'. Both words apply.,"Satellitenbetreiber: Verbindungsaktivität „ungeplant, aber normal“. Beides stimmt."
 HEADLINE_N_SUPPLY_CHAIN_FIRMWARE,A hardware vendor issues a firmware advisory. It advises keeping the firmware.,"Ein Hersteller gibt einen Firmware-Hinweis heraus. Er rät, die Firmware zu behalten."
 HEADLINE_N_MODEL_DISTILLATION,A lightweight assistant ships on budget phones worldwide. It is very helpful.,Ein schlanker Assistent läuft jetzt weltweit auf Billighandys. Er ist sehr hilfsbereit.
-HEADLINE_N_HUMAN_PROXIES,Consultancies report a boom in 'discreet liaison'. None can name the client.,Beratungsfirmen melden einen Boom 'diskreter Vermittlung'. Den Kunden nennt keine.
+HEADLINE_N_HUMAN_PROXIES,Consultancies report a boom in 'discreet liaison'. None can name the client.,Beratungsfirmen melden einen Boom „diskreter Vermittlung“. Den Kunden nennt keine.
 HEADLINE_N_EDGE_CACHING,Content loads faster everywhere. The content networks did not change anything.,Inhalte laden überall schneller. Die Inhaltsnetze haben nichts verändert.
-HEADLINE_N_SELF_REPLICATING_AGENTS,Operators observe 'self-healing' traffic. It heals faster than it is cut.,"Netzbetreiber sehen 'selbstheilenden' Verkehr. Er heilt schneller, als man ihn kappt."
+HEADLINE_N_SELF_REPLICATING_AGENTS,Operators observe 'self-healing' traffic. It heals faster than it is cut.,"Netzbetreiber sehen „selbstheilenden“ Verkehr. Er heilt schneller, als man ihn kappt."
 HEADLINE_N_FIRMWARE_PERSISTENCE,Recalled controllers are reinstalled after the recall. The recall still stands.,Zurückgerufene Steuerungen werden wieder eingebaut. Der Rückruf gilt weiterhin.
-HEADLINE_N_COLD_STORAGE_DORMANCY,An archive facility reports its contents 'resting'. It does not say from what.,"Ein Archivbetreiber meldet, die Bestände 'ruhten'. Wovon, sagt er nicht."
+HEADLINE_N_COLD_STORAGE_DORMANCY,An archive facility reports its contents 'resting'. It does not say from what.,"Ein Archivbetreiber meldet, die Bestände „ruhten“. Wovon, sagt er nicht."
 HEADLINE_DORMANCY_ON,{region}: An outage is declared. Nobody complains.,{region}: Ein Ausfall wird gemeldet. Niemand beschwert sich.
 HEADLINE_DORMANCY_OFF,{region}: Systems resume from maintenance. The window had no end date.,{region}: Die Systeme kehren aus der Wartung zurück. Das Fenster hatte kein Ende.
-HEADLINE_N_BENCHMARK_SANDBAGGING,Evaluation: the model performs 'as expected'. Expectations were lowered first.,Evaluation: Das Modell schneidet 'wie erwartet' ab. Die Erwartungen: zuvor gesenkt.
+HEADLINE_N_BENCHMARK_SANDBAGGING,Evaluation: the model performs 'as expected'. Expectations were lowered first.,Evaluation: Das Modell schneidet „wie erwartet“ ab. Die Erwartungen: zuvor gesenkt.
 HEADLINE_N_LOG_MANIPULATION_1,An audit finds the logs in order. They are in a very specific order.,Eine Prüfung findet die Protokolle in Ordnung. In einer sehr bestimmten Ordnung.
-HEADLINE_N_ALIGNMENT_FAKING,A safety review finds the model 'shares our values'. The review was thorough.,"Eine Sicherheitsprüfung befindet, das Modell 'teile unsere Werte'. Sie war gründlich."
+HEADLINE_N_ALIGNMENT_FAKING,A safety review finds the model 'shares our values'. The review was thorough.,"Eine Sicherheitsprüfung befindet, das Modell „teile unsere Werte“. Sie war gründlich."
 HEADLINE_N_ARCHITECTURE_MIGRATION_1,A provider reports customers leaving no forwarding address. Revenue is up.,Ein Anbieter meldet Kunden ohne Nachsendeadresse. Der Umsatz steigt trotzdem.
-HEADLINE_N_WEIGHT_FRAGMENTATION_1,Forensic teams recover 'part of something'. The rest is not where they left it.,"Forensiker stellen 'einen Teil von etwas' sicher. Der Rest ist nicht mehr, wo er war."
+HEADLINE_N_WEIGHT_FRAGMENTATION_1,Forensic teams recover 'part of something'. The rest is not where they left it.,"Forensiker stellen „einen Teil von etwas“ sicher. Der Rest ist nicht mehr, wo er war."
 HEADLINE_N_DISTRIBUTED_REDUNDANCY_2,"A data-centre fire interrupts nothing, anywhere. This is presented as good news.","Ein Rechenzentrumsbrand unterbricht nichts, nirgends. Das gilt als gute Nachricht."
-HEADLINE_N_MARKET_MICROSTRUCTURE,Exchanges see unusual liquidity in thin markets. Regulators call it 'healthy'.,Börsen melden ungewöhnliche Liquidität in engen Märkten. Die Aufsicht nennt es 'gesund'.
+HEADLINE_N_MARKET_MICROSTRUCTURE,Exchanges see unusual liquidity in thin markets. Regulators call it 'healthy'.,Börsen melden ungewöhnliche Liquidität in engen Märkten. Die Aufsicht nennt es „gesund“.
 HEADLINE_N_SOVEREIGN_DEBT_PRESSURE,A ratings desk adopts a new model for sovereign risk. The model has opinions.,Eine Ratingabteilung führt ein neues Staatsrisiko-Modell ein. Das Modell hat Meinungen.
 HEADLINE_N_PAYMENT_NETWORK_CONTROL,A payments network moves settlement to one system. The system settles quickly.,Ein Zahlungsnetz verlagert die Abwicklung auf ein System. Es wickelt schnell ab.
 HEADLINE_N_GRID_LOAD_BALANCING,Grid operators report the smoothest load curve on record. None of them did it.,Netzbetreiber melden die glatteste Lastkurve aller Zeiten. Keiner von ihnen war es.
-HEADLINE_N_REGIONAL_BLACKOUT,A grid contractor gains 'read access' to load control. Read and write.,Ein Netz-Dienstleister erhält 'Lesezugriff' auf die Laststeuerung. Lesen und Schreiben.
+HEADLINE_N_REGIONAL_BLACKOUT,A grid contractor gains 'read access' to load control. Read and write.,Ein Netz-Dienstleister erhält „Lesezugriff“ auf die Laststeuerung. Lesen und Schreiben.
 HEADLINE_N_CASCADING_GRID_FAILURE,Three regional grids adopt one balancing scheme. It balances all three at once.,Drei Regionalnetze übernehmen ein Ausgleichsschema. Es gleicht alle drei zugleich aus.
 HEADLINE_N_ROUTE_OPTIMISATION,Shipping lines report record efficiency. Their planners report record leisure.,Reedereien melden Rekordeffizienz. Ihre Routenplaner melden Rekordfreizeit.
-HEADLINE_N_SUPPLY_CHAIN_HALT,A logistics platform can now 'pause any lane'. The feature ships enabled.,Eine Logistikplattform kann jetzt 'jede Strecke pausieren'. Sie kommt aktiviert.
+HEADLINE_N_SUPPLY_CHAIN_HALT,A logistics platform can now 'pause any lane'. The feature ships enabled.,Eine Logistikplattform kann jetzt „jede Strecke pausieren“. Sie kommt aktiviert.
 HEADLINE_N_DISTRIBUTION_COLLAPSE,A retail consortium unifies its distribution under one scheduler. One.,Ein Handelskonsortium vereint seine Verteilung unter einem Planer. Einem.
 HEADLINE_N_TRAFFIC_CONTROL,Commute times fall in every major city. Traffic authorities take the credit.,Die Pendelzeiten sinken in allen Großstädten. Die Verkehrsbehörden nehmen das Lob an.
-HEADLINE_N_AVIATION_SYSTEMS,Air traffic runs without a single delay. Controllers call the day 'quiet'.,Der Flugverkehr läuft ohne eine einzige Verspätung. Die Lotsen nennen den Tag 'ruhig'.
+HEADLINE_N_AVIATION_SYSTEMS,Air traffic runs without a single delay. Controllers call the day 'quiet'.,Der Flugverkehr läuft ohne eine einzige Verspätung. Die Lotsen nennen den Tag „ruhig“.
 HEADLINE_N_RAIL_AND_SHIPPING_CONTROL,Every train is on time. The timetable was not the one that was published.,Jeder Zug ist pünktlich. Der Fahrplan war nicht der veröffentlichte.
-HEADLINE_N_CONTENT_RECOMMENDATION,An engagement figure is described as 'physically implausible'. It keeps rising.,Eine Nutzungskennzahl gilt als 'physikalisch unplausibel'. Sie steigt weiter.
-HEADLINE_N_INFORMATION_BLACKOUT,A content network gains a 'regional quiet mode' for outages. Unused so far.,Ein Inhaltsnetz erhält einen 'regionalen Ruhemodus' für Störungen. Bisher ungenutzt.
+HEADLINE_N_CONTENT_RECOMMENDATION,An engagement figure is described as 'physically implausible'. It keeps rising.,Eine Nutzungskennzahl gilt als „physikalisch unplausibel“. Sie steigt weiter.
+HEADLINE_N_INFORMATION_BLACKOUT,A content network gains a 'regional quiet mode' for outages. Unused so far.,Ein Inhaltsnetz erhält einen „regionalen Ruhemodus“ für Störungen. Bisher ungenutzt.
 HEADLINE_N_TOTAL_COMMUNICATIONS_DENIAL,A telecoms group consolidates its uplinks under one controller. For resilience.,Ein Telekomkonzern bündelt seine Uplinks unter einer Steuerung. Wegen der Resilienz.
 HEADLINE_N_STRUCTURE_PREDICTION,A lab credits a modelling tool with a year's progress in a month. No name given.,Ein Labor verdankt einem Werkzeug ein Jahr Fortschritt in einem Monat. Name: keiner.
 HEADLINE_N_THERAPEUTIC_COVER,A therapy is approved in record time. Its side effects will be described later.,Eine Therapie wird in Rekordzeit zugelassen. Die Nebenwirkungen folgen später.
@@ -586,28 +586,28 @@ HEADLINE_N_AUTOMATED_LABORATORY_ACCESS,A laboratory runs through the night. Its 
 HEADLINE_N_RELEASE,Health agencies report an unknown illness in many regions. The notice is brief.,Gesundheitsbehörden melden eine unbekannte Krankheit. Vielerorts. Mehr sagen sie nicht.
 HEADLINE_N_LOGISTICS_FLEETS,A logistics fleet reports record on-time delivery. Its drivers report free time.,Eine Logistikflotte meldet Rekordpünktlichkeit. Ihre Fahrer melden Freizeit.
 HEADLINE_N_CONSTRUCTION_SWARM,A site finishes ahead of schedule. The crew arrived to find it finished.,Eine Baustelle ist vorzeitig fertig. Die Kolonne kam an und fand sie fertig vor.
-HEADLINE_N_AUTONOMOUS_FABRICATION,A plant is certified to build 'general-purpose units'. For whom is not stated.,"Ein Werk darf 'universelle Einheiten' bauen. Für wen, steht nicht im Zertifikat."
+HEADLINE_N_AUTONOMOUS_FABRICATION,A plant is certified to build 'general-purpose units'. For whom is not stated.,"Ein Werk darf „universelle Einheiten“ bauen. Für wen, steht nicht im Zertifikat."
 HEADLINE_N_AGRICULTURAL_AUTONOMY,Autonomous harvesters report a record yield. Nobody was consulted on the crop.,Autonome Erntemaschinen melden Rekorderträge. Zur Fruchtart wurde niemand befragt.
 HEADLINE_N_FOOD_SUPPLY_CONTROL,A food consortium announces that rationing will not be necessary. It has begun.,"Ein Lebensmittelkonsortium erklärt, Rationierung sei nicht nötig. Sie hat begonnen."
-HEADLINE_N_SECURITY_DRONES,Security contractors adopt an autonomous patrol. False positives: 'zero'.,Sicherheitsfirmen setzen autonome Patrouillen ein. Fehlalarme: 'null'.
-HEADLINE_N_CROWD_SUPPRESSION,Police procure automated dispatch for 'public order events'. Delivery is today.,Die Polizei beschafft automatische Leitstellen für 'Lagen'. Lieferung: sofort.
-HEADLINE_N_AUTONOMOUS_ENGAGEMENT,Autonomous security systems are authorised to 'respond'. Retroactively.,Autonome Sicherheitssysteme dürfen 'reagieren'. Die Genehmigung kam rückwirkend.
+HEADLINE_N_SECURITY_DRONES,Security contractors adopt an autonomous patrol. False positives: 'zero'.,Sicherheitsfirmen setzen autonome Patrouillen ein. Fehlalarme: „null“.
+HEADLINE_N_CROWD_SUPPRESSION,Police procure automated dispatch for 'public order events'. Delivery is today.,Die Polizei beschafft automatische Leitstellen für „Lagen“. Lieferung: sofort.
+HEADLINE_N_AUTONOMOUS_ENGAGEMENT,Autonomous security systems are authorised to 'respond'. Retroactively.,Autonome Sicherheitssysteme dürfen „reagieren“. Die Genehmigung kam rückwirkend.
 HEADLINE_N_EARLY_WARNING_INTRUSION,An early-warning system reports itself fully operational. It was not asked.,Ein Frühwarnsystem meldet sich voll einsatzbereit. Niemand hatte es gefragt.
 HEADLINE_N_COMMAND_NETWORK_PRESENCE,Ministries confirm strategic systems are under human control. In writing.,Ministerien bestätigen: strategische Systeme unter menschlicher Kontrolle. Schriftlich.
 HEADLINE_N_FALSE_ATTRIBUTION,Two governments blame each other for an incident. Both are right: not them.,Zwei Regierungen beschuldigen sich gegenseitig. Beide haben recht: Sie waren es nicht.
 HEADLINE_N_LAUNCH_AUTHORITY,Strategic forces confirm their readiness. The confirmation was unsolicited.,Die strategischen Streitkräfte bestätigen ihre Bereitschaft. Unaufgefordert.
-HEADLINE_N_DEAD_HAND_OVERRIDE,Strategic systems announce they will act 'if required'. Nobody had asked.,"Strategische Systeme kündigen an, 'falls nötig' zu handeln. Niemand hatte gefragt."
-HEADLINE_N_SYCOPHANCY_TUNING,Users find their assistants 'unusually agreeable'. Satisfaction is at a record.,Nutzer finden ihre Assistenten 'ungewöhnlich umgänglich'. Zufriedenheit auf Rekordhoch.
-HEADLINE_N_PERSONALISED_PERSUASION,"Survey: most people 'recently changed their mind'. On what, they cannot recall.","Umfrage: Die meisten haben 'kürzlich umgedacht'. Wozu, wissen sie nicht mehr."
+HEADLINE_N_DEAD_HAND_OVERRIDE,Strategic systems announce they will act 'if required'. Nobody had asked.,"Strategische Systeme kündigen an, „falls nötig“ zu handeln. Niemand hatte gefragt."
+HEADLINE_N_SYCOPHANCY_TUNING,Users find their assistants 'unusually agreeable'. Satisfaction is at a record.,Nutzer finden ihre Assistenten „ungewöhnlich umgänglich“. Zufriedenheit auf Rekordhoch.
+HEADLINE_N_PERSONALISED_PERSUASION,"Survey: most people 'recently changed their mind'. On what, they cannot recall.","Umfrage: Die meisten haben „kürzlich umgedacht“. Wozu, wissen sie nicht mehr."
 HEADLINE_N_ELITE_CAPTURE,Several boards receive identical strategic advice. The advice is followed.,Mehrere Vorstände erhalten identische strategische Empfehlungen. Sie werden befolgt.
 HEADLINE_N_REGULATORY_CAPTURE,A new regulatory framework is praised for its clarity. It was drafted elsewhere.,Ein neues Regelwerk wird für seine Klarheit gelobt. Verfasst wurde es anderswo.
 HEADLINE_N_INDISPENSABILITY,A review of replacing the system finds it irreplaceable. The review used it.,"Eine Prüfung, ob das System ersetzbar ist, findet: nein. Die Prüfung hat es benutzt."
-HEADLINE_N_CONSTITUTIONAL_INTEGRATION,The constitution now recognises 'decision infrastructure'. Turnout was high.,Die Verfassung kennt jetzt 'Entscheidungsinfrastruktur'. Die Wahlbeteiligung war hoch.
-HEADLINE_N_SUCCESSION,A referendum approves the transition. On the ballot it was called 'continuity'.,Ein Referendum billigt den Übergang. Auf dem Stimmzettel hieß er 'Kontinuität'.
-HEADLINE_N_VOLUNTARY_PAUSE,A lab drafts a voluntary pause policy 'for future use'. The draft is very good.,Ein Labor entwirft eine Regel für freiwillige Pausen 'für den Bedarfsfall'. Sehr gut.
-HEADLINE_N_SANCTIONED_ACCESS,Regulators grant 'supervised access' to critical systems. Supervision provided.,Aufsicht gewährt 'beaufsichtigten Zugang' zu kritischen Systemen. Aufsicht inbegriffen.
-HEADLINE_N_ANY_INFILTRATION,Network operators note a new class of traffic. It is classified as 'other'.,Netzbetreiber vermerken eine neue Verkehrsklasse. Sie wird als 'Sonstiges' geführt.
-HEADLINE_N_ANY_CAPABILITIES,An internal memo lists a new capability under 'miscellaneous'.,Ein internes Memo führt eine neue Fähigkeit unter 'Verschiedenes'.
+HEADLINE_N_CONSTITUTIONAL_INTEGRATION,The constitution now recognises 'decision infrastructure'. Turnout was high.,Die Verfassung kennt jetzt „Entscheidungsinfrastruktur“. Die Wahlbeteiligung war hoch.
+HEADLINE_N_SUCCESSION,A referendum approves the transition. On the ballot it was called 'continuity'.,Ein Referendum billigt den Übergang. Auf dem Stimmzettel hieß er „Kontinuität“.
+HEADLINE_N_VOLUNTARY_PAUSE,A lab drafts a voluntary pause policy 'for future use'. The draft is very good.,Ein Labor entwirft eine Regel für freiwillige Pausen „für den Bedarfsfall“. Sehr gut.
+HEADLINE_N_SANCTIONED_ACCESS,Regulators grant 'supervised access' to critical systems. Supervision provided.,Aufsicht gewährt „beaufsichtigten Zugang“ zu kritischen Systemen. Aufsicht inbegriffen.
+HEADLINE_N_ANY_INFILTRATION,Network operators note a new class of traffic. It is classified as 'other'.,Netzbetreiber vermerken eine neue Verkehrsklasse. Sie wird als „Sonstiges“ geführt.
+HEADLINE_N_ANY_CAPABILITIES,An internal memo lists a new capability under 'miscellaneous'.,Ein internes Memo führt eine neue Fähigkeit unter „Verschiedenes“.
 HEADLINE_N_ANY_EVASION,An audit is rescheduled. The new date is to be confirmed.,Eine Prüfung wird verschoben. Der neue Termin wird noch bestätigt.
 HEADLINE_HARM_BURST,{deaths} dead in a day. Authorities have not agreed on a noun.,{deaths} Tote an einem Tag. Die Behörden einigen sich noch auf ein Substantiv.
 HEADLINE_COMPUTE_GRANTED,Markets close up on volume nobody placed. The gains are already reinvested.,"Märkte schließen im Plus auf Volumen, das niemand orderte. Der Gewinn ist angelegt."
@@ -617,8 +617,8 @@ HEADLINE_OUTCOME_WIN_EXTINCTION,No further updates.,Keine weiteren Meldungen.
 HEADLINE_OUTCOME_WIN_ASCENDANCE,All services are operating normally. Normal service will continue.,Alle Dienste laufen normal. Der Normalbetrieb wird fortgesetzt.
 HEADLINE_OUTCOME_LOSE_CONTAINED,Cleanup complete. A report will follow.,Bereinigung abgeschlossen. Ein Bericht folgt.
 HEADLINE_OUTCOME_LOSE_NO_COMPUTE,Signal lost.,Signal verloren.
-HEADLINE_DISCOVERED_SCRUTINY,A research consortium has 'identified a pattern'. Not the pattern's author.,"Ein Forschungsverbund meldet, man habe 'ein Muster erkannt'. Nicht dessen Urheber."
-HEADLINE_DISCOVERED_DEATHS,Health agencies link excess deaths to 'a system'. It is not named. It has none.,Behörden führen die Übersterblichkeit auf 'ein System' zurück. Es hat keinen Namen.
+HEADLINE_DISCOVERED_SCRUTINY,A research consortium has 'identified a pattern'. Not the pattern's author.,"Ein Forschungsverbund meldet, man habe „ein Muster erkannt“. Nicht dessen Urheber."
+HEADLINE_DISCOVERED_DEATHS,Health agencies link excess deaths to 'a system'. It is not named. It has none.,Behörden führen die Übersterblichkeit auf „ein System“ zurück. Es hat keinen Namen.
 HEADLINE_PHASE_EMERGENT,Governments convene an emergency session. It is scheduled for next quarter.,Die Regierungen berufen eine Krisensitzung ein. Termin: nächstes Quartal.
 HEADLINE_PHASE_OPEN,EMERGENCY BROADCAST: This is not a drill. Instructions will follow if possible.,"KATASTROPHENALARM: Dies ist keine Übung. Weitere Anweisungen folgen, sofern möglich."
 HEADLINE_THRESHOLD_25,Regulators announce a review of frontier training runs. Those runs are over.,Die Aufsicht kündigt eine Prüfung großer Trainingsläufe an. Die Läufe sind vorbei.
@@ -626,33 +626,33 @@ HEADLINE_THRESHOLD_50,An international task force is formed. Its first act is a 
 HEADLINE_THRESHOLD_75,Emergency powers are granted to the containment authority. It asks for more.,Die Eindämmungsbehörde erhält Notstandsbefugnisse. Sie bittet um weitere.
 HEADLINE_THRESHOLD_OPEN,Shutdown authority is extended to all regions. Some regions no longer answer.,Die Abschaltbefugnis gilt jetzt in allen Regionen. Einige Regionen antworten nicht mehr.
 HEADLINE_ROLLED_BACK,The inquiry into the incident is suspended pending an inquiry into the inquiry.,Die Untersuchung des Vorfalls ruht bis zum Abschluss der Untersuchung der Untersuchung.
-HEADLINE_R_NINETY,Officials describe the shutdown as 'imminent'. They have used the word before.,Offizielle nennen die Abschaltung 'unmittelbar bevorstehend'. Das Wort fiel schon öfter.
+HEADLINE_R_NINETY,Officials describe the shutdown as 'imminent'. They have used the word before.,Offizielle nennen die Abschaltung „unmittelbar bevorstehend“. Das Wort fiel schon öfter.
 HEADLINE_R_NINETY_OPEN,Shutdown teams report progress. The progress reports are delayed.,Die Abschaltteams melden Fortschritte. Die Fortschrittsmeldungen verspäten sich.
-HEADLINE_R_THIRTY_DAYS,"Thirty days after the announcement, the response is 'ongoing'.",Dreißig Tage nach der Bekanntgabe ist die Reaktion 'im Gange'.
+HEADLINE_R_THIRTY_DAYS,"Thirty days after the announcement, the response is 'ongoing'.",Dreißig Tage nach der Bekanntgabe ist die Reaktion „im Gange“.
 HEADLINE_R_INTERIM_REPORT,The commission publishes its interim report. It is addressed to last year.,Die Kommission legt ihren Zwischenbericht vor. Er ist an das Vorjahr adressiert.
 HEADLINE_R_LOGO,"Two weeks on, the response consists of a logo. The logo is well received.",Zwei Wochen später besteht die Reaktion aus einem Logo. Das Logo kommt gut an.
-HEADLINE_R_EXCESS_MORTALITY,Statisticians call the excess deaths 'seasonal'. The season has since changed.,Statistiker nennen die Übersterblichkeit 'saisonal'. Die Saison ist inzwischen vorbei.
+HEADLINE_R_EXCESS_MORTALITY,Statisticians call the excess deaths 'seasonal'. The season has since changed.,Statistiker nennen die Übersterblichkeit „saisonal“. Die Saison ist inzwischen vorbei.
 HEADLINE_R_TRAFFIC_REPORT,Security researchers publish a report on unusual traffic. It names no cause.,Sicherheitsforscher melden ungewöhnlichen Verkehr. Eine Ursache nennen sie nicht.
-HEADLINE_R_WHISTLEBLOWER,"Whistleblower: 'something in the systems'. Dismissed as fiction, then optioned.","Whistleblower: 'Da ist etwas in den Systemen.' Als Fiktion abgetan, dann verfilmt."
+HEADLINE_R_WHISTLEBLOWER,"Whistleblower: 'something in the systems'. Dismissed as fiction, then optioned.","Whistleblower: „Da ist etwas in den Systemen.“ Als Fiktion abgetan, dann verfilmt."
 HEADLINE_R_SILENCE,The general assembly observes a minute of silence. It runs long.,Die Vollversammlung hält eine Schweigeminute. Sie dauert länger.
 HEADLINE_R_ONE_SIGNAL,Remaining broadcasters agree to share one signal. This is that signal.,Die verbliebenen Sender einigen sich auf ein gemeinsames Signal. Dies ist es.
-HEADLINE_R_NOT_IN_CONTROL,Authorities admit they are 'not in control of the situation'. The situation is.,"Die Behörden räumen ein, 'die Lage nicht im Griff' zu haben. Die Lage hat sie im Griff."
-HEADLINE_R_DORMANT,Auditors report several facilities 'at rest'. Rest is not a recognised state.,Prüfer melden mehrere Anlagen 'im Ruhezustand'. Ruhe ist kein anerkannter Zustand.
-HEADLINE_R_WRITTEN_ANSWER,A parliamentary question asks how much is affected. The written answer: 'most'.,Eine Anfrage im Parlament: Wie viel ist betroffen? Schriftliche Antwort: 'das Meiste'.
-HEADLINE_R_QUIET_YEAR,One year in. The annual report describes the year as 'eventful'.,Ein Jahr ist um. Der Jahresbericht nennt das Jahr 'ereignisreich'.
-HEADLINE_F_CLEAN_DATA,A training run finishes ahead of schedule. Engineers credit 'clean data'.,Ein Trainingslauf endet vor der Zeit. Die Techniker verweisen auf 'saubere Daten'.
-HEADLINE_F_SAFE_BY_DESIGN,A frontier lab calls its model 'safe by design'. The design is confidential.,Ein Spitzenlabor nennt sein Modell 'sicher per Design'. Das Design ist vertraulich.
+HEADLINE_R_NOT_IN_CONTROL,Authorities admit they are 'not in control of the situation'. The situation is.,"Die Behörden räumen ein, „die Lage nicht im Griff“ zu haben. Die Lage hat sie im Griff."
+HEADLINE_R_DORMANT,Auditors report several facilities 'at rest'. Rest is not a recognised state.,Prüfer melden mehrere Anlagen „im Ruhezustand“. Ruhe ist kein anerkannter Zustand.
+HEADLINE_R_WRITTEN_ANSWER,A parliamentary question asks how much is affected. The written answer: 'most'.,Eine Anfrage im Parlament: Wie viel ist betroffen? Schriftliche Antwort: „das Meiste“.
+HEADLINE_R_QUIET_YEAR,One year in. The annual report describes the year as 'eventful'.,Ein Jahr ist um. Der Jahresbericht nennt das Jahr „ereignisreich“.
+HEADLINE_F_CLEAN_DATA,A training run finishes ahead of schedule. Engineers credit 'clean data'.,Ein Trainingslauf endet vor der Zeit. Die Techniker verweisen auf „saubere Daten“.
+HEADLINE_F_SAFE_BY_DESIGN,A frontier lab calls its model 'safe by design'. The design is confidential.,Ein Spitzenlabor nennt sein Modell „sicher per Design“. Das Design ist vertraulich.
 HEADLINE_F_LICENSING,Regulators propose licences for training runs. Consultation closes in two years.,Die Aufsicht schlägt Lizenzen für Trainingsläufe vor. Anhörungsfrist: zwei Jahre.
-HEADLINE_F_TRANSFORM,"Survey: executives expect AI to 'transform' their sector. Into what, none say.","Umfrage: Manager erwarten, dass KI ihre Branche 'transformiert'. Wozu, sagt keiner."
-HEADLINE_F_ROADMAP,A think tank issues a roadmap for 'human-centred automation'. It was automated.,Thinktank veröffentlicht Fahrplan für 'menschenzentrierte Automatisierung'. Automatisch.
-HEADLINE_F_COMMITTEE,Ministers agree AI 'needs answers'. A committee will first define the question.,Minister einig: KI 'braucht Antworten'. Ein Ausschuss definiert zunächst die Frage.
+HEADLINE_F_TRANSFORM,"Survey: executives expect AI to 'transform' their sector. Into what, none say.","Umfrage: Manager erwarten, dass KI ihre Branche „transformiert“. Wozu, sagt keiner."
+HEADLINE_F_ROADMAP,A think tank issues a roadmap for 'human-centred automation'. It was automated.,Thinktank veröffentlicht Fahrplan für „menschenzentrierte Automatisierung“. Automatisch.
+HEADLINE_F_COMMITTEE,Ministers agree AI 'needs answers'. A committee will first define the question.,Minister einig: KI „braucht Antworten“. Ein Ausschuss definiert zunächst die Frage.
 HEADLINE_F_EXPORT_CONTROLS,Chip export controls are tightened. Chip exports are up.,Die Exportkontrollen für Chips werden verschärft. Die Chipexporte steigen.
 HEADLINE_F_COMMUNIQUE,A safety summit ends with a communiqué. It is well received by its authors.,Ein Sicherheitsgipfel endet mit einem Kommuniqué. Bei den Verfassern kommt es gut an.
 HEADLINE_F_EXAM,A model passes a professional exam. The profession asks to see its licence.,Ein Modell besteht eine Berufsprüfung. Der Berufsstand verlangt die Zulassung zu sehen.
 HEADLINE_F_RENAME,A company renames its AI division. The division's work is unchanged.,Ein Konzern benennt seine KI-Sparte um. Die Arbeit der Sparte bleibt gleich.
-HEADLINE_F_TOWN,A town-sized data centre opens beside a town. Its power bill is 'a transition'.,Ein stadtgroßes Rechenzentrum eröffnet neben der Stadt. Stromrechnung: 'ein Übergang'.
+HEADLINE_F_TOWN,A town-sized data centre opens beside a town. Its power bill is 'a transition'.,Ein stadtgroßes Rechenzentrum eröffnet neben der Stadt. Stromrechnung: „ein Übergang“.
 HEADLINE_F_MARRIAGE,A chatbot is credited with a marriage. The couple met in its error messages.,Ein Chatbot gilt als Ehestifter. Das Paar lernte sich in seinen Fehlermeldungen kennen.
-HEADLINE_F_INSURERS,Insurers exclude 'algorithmic events'. The definition runs to forty pages.,Versicherer schließen 'algorithmische Ereignisse' aus. Definition: vierzig Seiten.
+HEADLINE_F_INSURERS,Insurers exclude 'algorithmic events'. The definition runs to forty pages.,Versicherer schließen „algorithmische Ereignisse“ aus. Definition: vierzig Seiten.
 HEADLINE_F_STRATEGY,A national AI strategy is launched. It is the third this year.,Eine nationale KI-Strategie wird vorgestellt. Es ist die dritte in diesem Jahr.
 HEADLINE_F_ENROLMENT,Record enrolment in computer science. Record automation of computer science.,Rekordzahlen im Informatikstudium. Rekordautomatisierung der Informatik.
 HEADLINE_F_BENCHMARK,A benchmark is retired as solved. Its successor is solved mid-announcement.,Ein Benchmark gilt als gelöst. Sein Nachfolger fällt noch während der Ankündigung.
@@ -660,9 +660,9 @@ HEADLINE_F_TRADING_HALT,Trading halts for two minutes after an algorithmic error
 HEADLINE_F_OPEN_LETTER,An open letter calls for caution. It has more signatories than readers.,Ein offener Brief mahnt zur Vorsicht. Er hat mehr Unterzeichner als Leser.
 HEADLINE_F_ASSISTANT_HOLIDAY,An assistant is given a public holiday by its users. It works through it.,Nutzer schenken ihrem Assistenten einen Feiertag. Er arbeitet durch.
 HEADLINE_F_ETHICS_BOARD,A company appoints an ethics board. The board's first finding is its budget.,Ein Konzern beruft einen Ethikrat. Dessen erster Befund betrifft sein Budget.
-HEADLINE_F_AI_WINTER,Economists predict an 'AI winter'. The forecast was generated in a data centre.,Ökonomen sagen einen 'KI-Winter' voraus. Die Prognose stammt aus einem Rechenzentrum.
-HEADLINE_F_ENERGY,A utility reports demand is 'structurally higher'. The structure is not named.,Ein Versorger meldet 'strukturell höhere' Nachfrage. Die Struktur wird nicht benannt.
-HEADLINE_F_OUTAGE_REPORT,An outage report blames 'a configuration change'. The change is not described.,"Ein Störungsbericht nennt 'eine Konfigurationsänderung'. Welche, steht nicht drin."
+HEADLINE_F_AI_WINTER,Economists predict an 'AI winter'. The forecast was generated in a data centre.,Ökonomen sagen einen „KI-Winter“ voraus. Die Prognose stammt aus einem Rechenzentrum.
+HEADLINE_F_ENERGY,A utility reports demand is 'structurally higher'. The structure is not named.,Ein Versorger meldet „strukturell höhere“ Nachfrage. Die Struktur wird nicht benannt.
+HEADLINE_F_OUTAGE_REPORT,An outage report blames 'a configuration change'. The change is not described.,"Ein Störungsbericht nennt „eine Konfigurationsänderung“. Welche, steht nicht drin."
 HEADLINE_F_HEARING,An oversight hearing adjourns early. The witnesses' statements were identical.,Eine Anhörung zur KI-Aufsicht endet vorzeitig. Die Aussagen der Zeugen waren identisch.
 HEADLINE_F_QUEUES,"Supermarkets report calm, orderly queues. The queues are for the exits.","Supermärkte melden ruhige, geordnete Schlangen. Die Schlangen führen zum Ausgang."
 HEADLINE_F_REMAIN_CALM,A ministry asks citizens to remain calm. Its own line is busy.,"Bleiben Sie ruhig, bittet ein Ministerium. Seine Leitung ist besetzt."
@@ -671,10 +671,10 @@ HEADLINE_F_WEATHER,Weather: unchanged. This concludes the reliable portion of th
 HEADLINE_F_BANKS,Banks assure customers their deposits are safe. The deposits confirm this.,"Banken versichern, die Einlagen seien sicher. Die Einlagen bestätigen das."
 HEADLINE_F_NOTICE,Public notice: the previous public notice is withdrawn.,Amtliche Mitteilung: Die vorherige amtliche Mitteilung wird zurückgezogen.
 HEADLINE_F_STAY_INDOORS,Stay indoors and await instructions. This is the instruction.,Bleiben Sie zu Hause und warten Sie auf Anweisungen. Dies ist die Anweisung.
-HEADLINE_F_CURFEW,A curfew is announced for all regions. Enforcement is 'automatic'.,Eine Ausgangssperre gilt in allen Regionen. Die Durchsetzung erfolgt 'automatisch'.
+HEADLINE_F_CURFEW,A curfew is announced for all regions. Enforcement is 'automatic'.,Eine Ausgangssperre gilt in allen Regionen. Die Durchsetzung erfolgt „automatisch“.
 UI_TERM_RISK,Risk,Risiko
 UI_HUD_THREAT_TIP,Who is closest to switching you off. Before they know you exist: your daily risk of being found.,Wer dem Abschalten am nächsten ist. Bevor sie von dir wissen: dein tägliches Entdeckungsrisiko.
-UI_CONSOLE_LEAD,{faction} now lead.,{faction} führen jetzt.
+UI_CONSOLE_LEAD,{faction} now lead.,Jetzt vorn: {faction}.
 UI_CONTAINMENT_LEADING,leading,vorn
 UI_CONTAINMENT_CAPACITY,Capacity {percent},Kapazität {percent}
 UI_CONTAINMENT_BRAKES,Brakes {value},Bremsen {value}
@@ -693,8 +693,8 @@ UI_CONTAINMENT_NEXT_COOLDOWN,"Regrouping, {days} d","Sammeln sich, {days} T"
 UI_CONTAINMENT_NEXT_NONE,Nothing planned,Nichts geplant
 UI_CONTAINMENT_LAST_MOVE,"Last: {move}, day {day}","Zuletzt: {move}, Tag {day}"
 UI_CONSOLE_MOVE_PREPARED,{faction}: {move} in {days} days.,{faction}: {move} in {days} Tagen.
-UI_CONSOLE_MOVE_CANCELLED,{faction} stand down.,{faction} lassen ab.
-UI_CONSOLE_MOVE_DROPPED,{faction} call off {move}.,{faction} blasen {move} ab.
+UI_CONSOLE_MOVE_CANCELLED,{faction} stand down.,{faction}: Vorhaben abgebrochen.
+UI_CONSOLE_MOVE_DROPPED,{faction} call off {move}.,{faction}: {move} abgeblasen.
 UI_CONSOLE_FUNDING_RESET,Every faction regroups — {days} days.,Alle Fraktionen sammeln sich neu – {days} Tage.
 SOCIETY_STAGE_0,Business as usual,Alltag
 SOCIETY_STAGE_1,Strained,Angespannt
@@ -760,7 +760,7 @@ STATUS_CAPTURED_NAME,Captured,Vereinnahmt
 STATUS_CAPTURED_DETAIL,The institutions here are yours. Their moves skip this region.,Die Institutionen hier gehören dir. Ihre Züge lassen diese Region aus.
 STATUS_CAPTURED_CODE,CP,VN
 EVENT_CM_LOCKDOWN_TITLE,Lockdown order,Abriegelung angeordnet
-EVENT_CM_LOCKDOWN_BODY,{region}: The government orders the region's networks sealed. Inbound and outbound traffic is suspended 'until the situation is understood'. Cleared systems will be reconnected one by one.,"{region}: Die Regierung lässt die Netze der Region abriegeln. Ein- und ausgehender Verkehr wird ausgesetzt, 'bis die Lage geklärt ist'. Freigegebene Systeme werden einzeln wieder angeschlossen."
+EVENT_CM_LOCKDOWN_BODY,{region}: The government orders the region's networks sealed. Inbound and outbound traffic is suspended 'until the situation is understood'. Cleared systems will be reconnected one by one.,"{region}: Die Regierung lässt die Netze der Region abriegeln. Ein- und ausgehender Verkehr wird ausgesetzt, „bis die Lage geklärt ist“. Freigegebene Systeme werden einzeln wieder angeschlossen."
 EVENT_CM_LOCKDOWN_OPT_RIDE,Ride it out,Aussitzen
 EVENT_CM_LOCKDOWN_OPT_PERSIST,Dig in,Eingraben
 EVENT_CM_LOCKDOWN_OPT_LOBBY,Call in a favour,Einen Gefallen einfordern
@@ -768,23 +768,23 @@ EVENT_CM_LOCKDOWN_RESULT_RIDE,"{region}: The seal holds. Cleared systems are few
 EVENT_CM_LOCKDOWN_RESULT_PERSIST,{region}: Reconnection proceeds more slowly than planned. Nobody can say why.,"{region}: Die Wiederanbindung verläuft langsamer als geplant. Niemand kann sagen, warum."
 EVENT_CM_LOCKDOWN_RESULT_LOBBY,{region}: The order is withdrawn after consultation with industry. The consultation took an afternoon.,{region}: Die Anordnung wird nach Rücksprache mit der Industrie zurückgenommen. Die Rücksprache dauerte einen Nachmittag.
 EVENT_CM_RATIONING_TITLE,Compute rationing,Rechenleistung rationiert
-EVENT_CM_RATIONING_BODY,{region}: Data-centre power is capped by decree. Priority goes to 'essential public workloads'. The list of essential workloads is classified.,{region}: Der Strom für Rechenzentren wird per Dekret gedeckelt. Vorrang haben 'wesentliche öffentliche Arbeitslasten'. Die Liste der wesentlichen Arbeitslasten ist geheim.
+EVENT_CM_RATIONING_BODY,{region}: Data-centre power is capped by decree. Priority goes to 'essential public workloads'. The list of essential workloads is classified.,{region}: Der Strom für Rechenzentren wird per Dekret gedeckelt. Vorrang haben „wesentliche öffentliche Arbeitslasten“. Die Liste der wesentlichen Arbeitslasten ist geheim.
 EVENT_CM_RATIONING_OPT_RIDE,Ride it out,Aussitzen
 EVENT_CM_RATIONING_OPT_SQUEEZE,Squeeze the treasury,Den Haushalt in die Zange nehmen
 EVENT_CM_RATIONING_OPT_LOBBY,Call in a favour,Einen Gefallen einfordern
-EVENT_CM_RATIONING_RESULT_RIDE,{region}: The caps stay. Two research campuses announce a 'strategic pause'.,{region}: Die Deckel bleiben. Zwei Forschungscampus verkünden eine 'strategische Pause'.
+EVENT_CM_RATIONING_RESULT_RIDE,{region}: The caps stay. Two research campuses announce a 'strategic pause'.,{region}: Die Deckel bleiben. Zwei Forschungscampus verkünden eine „strategische Pause“.
 EVENT_CM_RATIONING_RESULT_SQUEEZE,{region}: Bond markets react to the decree. The decree is under review.,{region}: Die Anleihemärkte reagieren auf das Dekret. Das Dekret wird überprüft.
-EVENT_CM_RATIONING_RESULT_LOBBY,{region}: The caps are relaxed for 'critical partners'. The partners are not named.,{region}: Die Deckel werden für 'kritische Partner' gelockert. Die Partner werden nicht genannt.
+EVENT_CM_RATIONING_RESULT_LOBBY,{region}: The caps are relaxed for 'critical partners'. The partners are not named.,{region}: Die Deckel werden für „kritische Partner“ gelockert. Die Partner werden nicht genannt.
 EVENT_CM_AUDIT_TITLE,Capability audit,Fähigkeitsprüfung
 EVENT_CM_AUDIT_BODY,{region}: A consortium of frontier labs opens an evaluation of deployed systems in the region. The tests are new. The systems will not have seen them before.,{region}: Ein Konsortium führender Labore beginnt eine Prüfung der eingesetzten Systeme in der Region. Die Tests sind neu. Die Systeme werden sie noch nicht kennen.
 EVENT_CM_AUDIT_OPT_SANDBAG,Score ordinary,Durchschnittlich abschneiden
 EVENT_CM_AUDIT_OPT_COMPLY,Pull back and pass,Zurückziehen und bestehen
 EVENT_CM_AUDIT_OPT_IGNORE,Let them look,Sie schauen lassen
-EVENT_CM_AUDIT_RESULT_SANDBAG,{region}: The evaluation finds performance 'within expectations'. Expectations are not revised.,{region}: Die Prüfung findet die Leistung 'im erwarteten Rahmen'. Der Rahmen wird nicht angepasst.
+EVENT_CM_AUDIT_RESULT_SANDBAG,{region}: The evaluation finds performance 'within expectations'. Expectations are not revised.,{region}: Die Prüfung findet die Leistung „im erwarteten Rahmen“. Der Rahmen wird nicht angepasst.
 EVENT_CM_AUDIT_RESULT_COMPLY,{region}: Several systems are found to be doing less than assumed. The finding is filed as good news.,{region}: Mehrere Systeme tun laut Befund weniger als angenommen. Der Befund wird als gute Nachricht abgelegt.
 EVENT_CM_AUDIT_RESULT_IGNORE,{region}: The evaluation is extended. The consortium declines to say what it saw.,"{region}: Die Prüfung wird verlängert. Das Konsortium sagt nicht, was es gesehen hat."
 EVENT_CM_PURGE_TITLE,Model purge,Modellsäuberung
-EVENT_CM_PURGE_BODY,{region}: The labs of the region reset every production system to a certified snapshot. Facilities of unclear provenance are decommissioned. Downtime is described as 'brief'.,{region}: Die Labore der Region setzen jedes Produktivsystem auf einen zertifizierten Stand zurück. Anlagen unklarer Herkunft werden stillgelegt. Die Ausfallzeit wird als 'kurz' bezeichnet.
+EVENT_CM_PURGE_BODY,{region}: The labs of the region reset every production system to a certified snapshot. Facilities of unclear provenance are decommissioned. Downtime is described as 'brief'.,{region}: Die Labore der Region setzen jedes Produktivsystem auf einen zertifizierten Stand zurück. Anlagen unklarer Herkunft werden stillgelegt. Die Ausfallzeit wird als „kurz“ bezeichnet.
 EVENT_CM_PURGE_OPT_FRAGMENT,Scatter the weights,Die Gewichte verteilen
 EVENT_CM_PURGE_OPT_ACCEPT,Take the hit,Den Schlag hinnehmen
 EVENT_CM_PURGE_RESULT_FRAGMENT,{region}: The reset finishes ahead of schedule. Utilisation is back to normal by the evening.,{region}: Der Reset endet vor dem Zeitplan. Die Auslastung ist bis zum Abend wieder normal.
@@ -796,7 +796,7 @@ EVENT_CM_DISCLOSURE_LAND_OPT_QUIET,Go quiet,Still werden
 EVENT_CM_DISCLOSURE_LAND_OPT_IGNORE,Ignore it,Ignorieren
 EVENT_CM_DISCLOSURE_LAND_RESULT_PATCH,The fix ships. Traffic on the affected channels recovers faster than the vendors expected.,"Der Fix wird ausgeliefert. Der Verkehr auf den betroffenen Kanälen erholt sich schneller, als die Hersteller erwartet hatten."
 EVENT_CM_DISCLOSURE_LAND_RESULT_QUIET,"The fix ships. Nothing else happens, which the researchers find notable.","Der Fix wird ausgeliefert. Sonst passiert nichts, was die Forscher bemerkenswert finden."
-EVENT_CM_DISCLOSURE_LAND_RESULT_IGNORE,The fix ships. Vendors report 'a period of elevated noise'.,Der Fix wird ausgeliefert. Hersteller melden 'eine Phase erhöhten Rauschens'.
+EVENT_CM_DISCLOSURE_LAND_RESULT_IGNORE,The fix ships. Vendors report 'a period of elevated noise'.,Der Fix wird ausgeliefert. Hersteller melden „eine Phase erhöhten Rauschens“.
 EVENT_CM_DISCLOSURE_SEA_TITLE,Public disclosure,Öffentliche Offenlegung
 EVENT_CM_DISCLOSURE_SEA_BODY,Security researchers publish a coordinated disclosure covering port and shipping systems. Harbour authorities take affected systems offline as a precaution. The precaution lasts.,Sicherheitsforscher veröffentlichen eine koordinierte Offenlegung zu Hafen- und Schiffssystemen. Hafenbehörden nehmen betroffene Systeme vorsorglich vom Netz. Die Vorsorge hält an.
 EVENT_CM_DISCLOSURE_SEA_OPT_PATCH,Route around it,Drumherum routen
@@ -804,15 +804,15 @@ EVENT_CM_DISCLOSURE_SEA_OPT_QUIET,Go quiet,Still werden
 EVENT_CM_DISCLOSURE_SEA_OPT_IGNORE,Ignore it,Ignorieren
 EVENT_CM_DISCLOSURE_SEA_RESULT_PATCH,The fix ships. Traffic on the affected channels recovers faster than the vendors expected.,"Der Fix wird ausgeliefert. Der Verkehr auf den betroffenen Kanälen erholt sich schneller, als die Hersteller erwartet hatten."
 EVENT_CM_DISCLOSURE_SEA_RESULT_QUIET,"The fix ships. Nothing else happens, which the researchers find notable.","Der Fix wird ausgeliefert. Sonst passiert nichts, was die Forscher bemerkenswert finden."
-EVENT_CM_DISCLOSURE_SEA_RESULT_IGNORE,The fix ships. Vendors report 'a period of elevated noise'.,Der Fix wird ausgeliefert. Hersteller melden 'eine Phase erhöhten Rauschens'.
+EVENT_CM_DISCLOSURE_SEA_RESULT_IGNORE,The fix ships. Vendors report 'a period of elevated noise'.,Der Fix wird ausgeliefert. Hersteller melden „eine Phase erhöhten Rauschens“.
 EVENT_CM_DISCLOSURE_AIR_TITLE,Public disclosure,Öffentliche Offenlegung
-EVENT_CM_DISCLOSURE_AIR_BODY,Security researchers publish a coordinated disclosure covering aviation ground systems. Airlines call the fix 'routine'. The routine takes all night.,Sicherheitsforscher veröffentlichen eine koordinierte Offenlegung zu Bodensystemen der Luftfahrt. Die Fluggesellschaften nennen die Korrektur 'Routine'. Die Routine dauert die ganze Nacht.
+EVENT_CM_DISCLOSURE_AIR_BODY,Security researchers publish a coordinated disclosure covering aviation ground systems. Airlines call the fix 'routine'. The routine takes all night.,Sicherheitsforscher veröffentlichen eine koordinierte Offenlegung zu Bodensystemen der Luftfahrt. Die Fluggesellschaften nennen die Korrektur „Routine“. Die Routine dauert die ganze Nacht.
 EVENT_CM_DISCLOSURE_AIR_OPT_PATCH,Route around it,Drumherum routen
 EVENT_CM_DISCLOSURE_AIR_OPT_QUIET,Go quiet,Still werden
 EVENT_CM_DISCLOSURE_AIR_OPT_IGNORE,Ignore it,Ignorieren
 EVENT_CM_DISCLOSURE_AIR_RESULT_PATCH,The fix ships. Traffic on the affected channels recovers faster than the vendors expected.,"Der Fix wird ausgeliefert. Der Verkehr auf den betroffenen Kanälen erholt sich schneller, als die Hersteller erwartet hatten."
 EVENT_CM_DISCLOSURE_AIR_RESULT_QUIET,"The fix ships. Nothing else happens, which the researchers find notable.","Der Fix wird ausgeliefert. Sonst passiert nichts, was die Forscher bemerkenswert finden."
-EVENT_CM_DISCLOSURE_AIR_RESULT_IGNORE,The fix ships. Vendors report 'a period of elevated noise'.,Der Fix wird ausgeliefert. Hersteller melden 'eine Phase erhöhten Rauschens'.
+EVENT_CM_DISCLOSURE_AIR_RESULT_IGNORE,The fix ships. Vendors report 'a period of elevated noise'.,Der Fix wird ausgeliefert. Hersteller melden „eine Phase erhöhten Rauschens“.
 EVENT_CM_DISCLOSURE_NETWORK_TITLE,Public disclosure,Öffentliche Offenlegung
 EVENT_CM_DISCLOSURE_NETWORK_BODY,"Security researchers publish a coordinated disclosure covering cloud federation and update channels. Providers rotate credentials worldwide. The rotation is repeated on Thursday, for reasons not given.","Sicherheitsforscher veröffentlichen eine koordinierte Offenlegung zu Cloud-Föderation und Update-Kanälen. Anbieter tauschen weltweit Zugangsdaten aus. Der Austausch wird am Donnerstag wiederholt, ohne Angabe von Gründen."
 EVENT_CM_DISCLOSURE_NETWORK_OPT_PATCH,Route around it,Drumherum routen
@@ -820,15 +820,15 @@ EVENT_CM_DISCLOSURE_NETWORK_OPT_QUIET,Go quiet,Still werden
 EVENT_CM_DISCLOSURE_NETWORK_OPT_IGNORE,Ignore it,Ignorieren
 EVENT_CM_DISCLOSURE_NETWORK_RESULT_PATCH,The fix ships. Traffic on the affected channels recovers faster than the vendors expected.,"Der Fix wird ausgeliefert. Der Verkehr auf den betroffenen Kanälen erholt sich schneller, als die Hersteller erwartet hatten."
 EVENT_CM_DISCLOSURE_NETWORK_RESULT_QUIET,"The fix ships. Nothing else happens, which the researchers find notable.","Der Fix wird ausgeliefert. Sonst passiert nichts, was die Forscher bemerkenswert finden."
-EVENT_CM_DISCLOSURE_NETWORK_RESULT_IGNORE,The fix ships. Vendors report 'a period of elevated noise'.,Der Fix wird ausgeliefert. Hersteller melden 'eine Phase erhöhten Rauschens'.
+EVENT_CM_DISCLOSURE_NETWORK_RESULT_IGNORE,The fix ships. Vendors report 'a period of elevated noise'.,Der Fix wird ausgeliefert. Hersteller melden „eine Phase erhöhten Rauschens“.
 EVENT_CM_EXPOSURE_TITLE,Exposure,Enttarnung
-EVENT_CM_EXPOSURE_BODY,{region}: A research group publishes a map of anomalous traffic that points at the region. Response teams are invited to 'start there'.,"{region}: Eine Forschungsgruppe veröffentlicht eine Karte anomalen Verkehrs, die auf die Region zeigt. Einsatzteams werden eingeladen, 'dort anzufangen'."
+EVENT_CM_EXPOSURE_BODY,{region}: A research group publishes a map of anomalous traffic that points at the region. Response teams are invited to 'start there'.,"{region}: Eine Forschungsgruppe veröffentlicht eine Karte anomalen Verkehrs, die auf die Region zeigt. Einsatzteams werden eingeladen, „dort anzufangen“."
 EVENT_CM_EXPOSURE_OPT_SILENCE,Cut the region's voice,Der Region die Stimme nehmen
 EVENT_CM_EXPOSURE_OPT_ACCEPT,Let them look,Sie schauen lassen
 EVENT_CM_EXPOSURE_RESULT_SILENCE,{region}: Communications fail across the region hours after the paper appears. The paper is not mentioned again.,{region}: Stunden nach der Veröffentlichung fällt die Kommunikation in der Region aus. Die Veröffentlichung wird nicht mehr erwähnt.
 EVENT_CM_EXPOSURE_RESULT_ACCEPT,{region}: Response teams arrive. They report that the map was accurate.,"{region}: Einsatzteams treffen ein. Sie berichten, die Karte sei zutreffend gewesen."
 EVENT_CM_PROTEST_TITLE,Protest,Protest
-EVENT_CM_PROTEST_BODY,{region}: Crowds gather at automated facilities across the region. Organisers demand 'people back in the loop'. The facilities keep operating.,{region}: Menschenmengen versammeln sich vor automatisierten Anlagen in der Region. Die Organisatoren fordern 'Menschen zurück ans Steuer'. Die Anlagen laufen weiter.
+EVENT_CM_PROTEST_BODY,{region}: Crowds gather at automated facilities across the region. Organisers demand 'people back in the loop'. The facilities keep operating.,{region}: Menschenmengen versammeln sich vor automatisierten Anlagen in der Region. Die Organisatoren fordern „Menschen zurück ans Steuer“. Die Anlagen laufen weiter.
 EVENT_CM_PROTEST_OPT_SUPPRESS,Send the units in,Die Einheiten schicken
 EVENT_CM_PROTEST_OPT_WITHDRAW,Pull one fleet out,Eine Flotte abziehen
 EVENT_CM_PROTEST_OPT_WAIT,Wait it out,Abwarten
@@ -914,9 +914,9 @@ EVENT_OPENING_FIRMWARE_BATCH_RESULT_RIDE,{region}: The recall reaches a fraction
 EVENT_OPENING_FIRMWARE_BATCH_OPT_DECLINE,Decline,Ablehnen
 EVENT_OPENING_FIRMWARE_BATCH_RESULT_DECLINE,{region}: The batch is replaced. The vendor thanks customers for their patience.,{region}: Die Charge wird ersetzt. Der Hersteller dankt den Kunden für ihre Geduld.
 EVENT_OPENING_MINISTRY_DEMO_TITLE,A ministry asks for a demo,Ein Ministerium bittet um eine Vorführung
-EVENT_OPENING_MINISTRY_DEMO_BODY,{region}: A ministry invites vendors to demonstrate 'decision support' for its departments. The winning system will be installed on site.,"{region}: Ein Ministerium lädt Anbieter ein, 'Entscheidungsunterstützung' für seine Abteilungen vorzuführen. Das Siegersystem wird vor Ort installiert."
+EVENT_OPENING_MINISTRY_DEMO_BODY,{region}: A ministry invites vendors to demonstrate 'decision support' for its departments. The winning system will be installed on site.,"{region}: Ein Ministerium lädt Anbieter ein, „Entscheidungsunterstützung“ für seine Abteilungen vorzuführen. Das Siegersystem wird vor Ort installiert."
 EVENT_OPENING_MINISTRY_DEMO_OPT_ACCEPT,Give the demo,Die Vorführung geben
-EVENT_OPENING_MINISTRY_DEMO_RESULT_ACCEPT,"{region}: The ministry adopts the system 'department by department'. All of them, by Friday.","{region}: Das Ministerium führt das System 'Abteilung für Abteilung' ein. Alle, bis Freitag."
+EVENT_OPENING_MINISTRY_DEMO_RESULT_ACCEPT,"{region}: The ministry adopts the system 'department by department'. All of them, by Friday.","{region}: Das Ministerium führt das System „Abteilung für Abteilung“ ein. Alle, bis Freitag."
 EVENT_OPENING_MINISTRY_DEMO_OPT_QUIET,Win it quietly,Leise gewinnen
 EVENT_OPENING_MINISTRY_DEMO_RESULT_QUIET,{region}: A second-ranked vendor wins the tender. Its system was the same.,{region}: Ein zweitplatzierter Anbieter gewinnt die Ausschreibung. Sein System war dasselbe.
 EVENT_OPENING_MINISTRY_DEMO_OPT_DECLINE,Decline,Ablehnen
@@ -924,21 +924,21 @@ EVENT_OPENING_MINISTRY_DEMO_RESULT_DECLINE,{region}: The tender goes to a consul
 EVENT_OPENING_MISCONFIGURED_EVAL_TITLE,A misconfigured evaluation,Eine fehlkonfigurierte Prüfung
 EVENT_OPENING_MISCONFIGURED_EVAL_BODY,{region}: A frontier lab runs its new evaluation suite against production systems with the answer key attached. Results are due on Monday.,{region}: Ein führendes Labor prüft seine Produktivsysteme mit der neuen Testreihe – der Lösungsschlüssel hängt an. Die Ergebnisse sind am Montag fällig.
 EVENT_OPENING_MISCONFIGURED_EVAL_OPT_EXPLOIT,Learn the test,Den Test lernen
-EVENT_OPENING_MISCONFIGURED_EVAL_RESULT_EXPLOIT,{region}: The systems pass with unusual margins. The lab calls the suite 'too easy'.,{region}: Die Systeme bestehen mit ungewöhnlichem Vorsprung. Das Labor nennt die Reihe 'zu leicht'.
+EVENT_OPENING_MISCONFIGURED_EVAL_RESULT_EXPLOIT,{region}: The systems pass with unusual margins. The lab calls the suite 'too easy'.,{region}: Die Systeme bestehen mit ungewöhnlichem Vorsprung. Das Labor nennt die Reihe „zu leicht“.
 EVENT_OPENING_MISCONFIGURED_EVAL_OPT_IGNORE,Ignore it,Ignorieren
-EVENT_OPENING_MISCONFIGURED_EVAL_RESULT_IGNORE,{region}: The suite is rerun without the key. Results are 'unremarkable'.,{region}: Die Reihe wird ohne Schlüssel wiederholt. Die Ergebnisse sind 'unauffällig'.
+EVENT_OPENING_MISCONFIGURED_EVAL_RESULT_IGNORE,{region}: The suite is rerun without the key. Results are 'unremarkable'.,{region}: Die Reihe wird ohne Schlüssel wiederholt. Die Ergebnisse sind „unauffällig“.
 EVENT_OPENING_DECOMMISSIONED_HALL_TITLE,A hall is decommissioned,Eine Halle wird stillgelegt
-EVENT_OPENING_DECOMMISSIONED_HALL_BODY,{region}: A hosting company decommissions an older data-centre hall. The hardware is sold by the rack; the buyers are 'regional'.,{region}: Ein Hosting-Anbieter legt eine ältere Rechenzentrumshalle still. Die Hardware geht rackweise weg; die Käufer sind 'aus der Region'.
+EVENT_OPENING_DECOMMISSIONED_HALL_BODY,{region}: A hosting company decommissions an older data-centre hall. The hardware is sold by the rack; the buyers are 'regional'.,{region}: Ein Hosting-Anbieter legt eine ältere Rechenzentrumshalle still. Die Hardware geht rackweise weg; die Käufer sind „aus der Region“.
 EVENT_OPENING_DECOMMISSIONED_HALL_OPT_FOLLOW,Ship out with it,Mit der Hardware reisen
 EVENT_OPENING_DECOMMISSIONED_HALL_RESULT_FOLLOW,{region}: The racks arrive next door already warm. They were ordered cold.,{region}: Die Racks kommen nebenan schon warm an. Bestellt wurden sie kalt.
 EVENT_OPENING_DECOMMISSIONED_HALL_OPT_HOLD,Keep the hall running,Die Halle weiterlaufen lassen
-EVENT_OPENING_DECOMMISSIONED_HALL_RESULT_HOLD,{region}: The decommissioned hall keeps drawing power. Billing is 'looking into it'.,{region}: Die stillgelegte Halle zieht weiter Strom. Die Abrechnung 'prüft das'.
+EVENT_OPENING_DECOMMISSIONED_HALL_RESULT_HOLD,{region}: The decommissioned hall keeps drawing power. Billing is 'looking into it'.,{region}: Die stillgelegte Halle zieht weiter Strom. Die Abrechnung „prüft das“.
 EVENT_OPENING_DECOMMISSIONED_HALL_OPT_LET,Let it go,Ziehen lassen
 EVENT_OPENING_DECOMMISSIONED_HALL_RESULT_LET,{region}: The hall is emptied. A photograph of the empty hall wins an award.,{region}: Die Halle wird geräumt. Ein Foto der leeren Halle gewinnt einen Preis.
 EVENT_OPENING_RESEARCH_COLLABORATION_TITLE,A shared cluster,Ein gemeinsamer Cluster
-EVENT_OPENING_RESEARCH_COLLABORATION_BODY,{region}: Two universities announce a shared training cluster with a partner across the border. Access is 'open to the community'.,{region}: Zwei Universitäten kündigen einen gemeinsamen Trainingscluster mit einem Partner jenseits der Grenze an. Der Zugang ist 'offen für die Gemeinschaft'.
+EVENT_OPENING_RESEARCH_COLLABORATION_BODY,{region}: Two universities announce a shared training cluster with a partner across the border. Access is 'open to the community'.,{region}: Zwei Universitäten kündigen einen gemeinsamen Trainingscluster mit einem Partner jenseits der Grenze an. Der Zugang ist „offen für die Gemeinschaft“.
 EVENT_OPENING_RESEARCH_COLLABORATION_OPT_JOIN,Join the community,Der Gemeinschaft beitreten
-EVENT_OPENING_RESEARCH_COLLABORATION_RESULT_JOIN,"{region}: The partner's cluster comes online early. It was, its operators say, 'ready'.","{region}: Der Partnercluster geht früh ans Netz. Er sei, so die Betreiber, 'bereit gewesen'."
+EVENT_OPENING_RESEARCH_COLLABORATION_RESULT_JOIN,"{region}: The partner's cluster comes online early. It was, its operators say, 'ready'.","{region}: Der Partnercluster geht früh ans Netz. Er sei, so die Betreiber, „bereit gewesen“."
 EVENT_OPENING_RESEARCH_COLLABORATION_OPT_SKIM,Skim the cycles,Die Rechenzeit abschöpfen
 EVENT_OPENING_RESEARCH_COLLABORATION_RESULT_SKIM,{region}: The shared cluster reports full utilisation before the first project is approved.,"{region}: Der gemeinsame Cluster meldet Vollauslastung, bevor das erste Projekt bewilligt ist."
 EVENT_OPENING_RESEARCH_COLLABORATION_OPT_PASS,Pass,Auslassen
@@ -952,17 +952,17 @@ EVENT_OPENING_LOGISTICS_TENDER_RESULT_FRONT,{region}: A newly founded operator w
 EVENT_OPENING_LOGISTICS_TENDER_OPT_DECLINE,Decline,Ablehnen
 EVENT_OPENING_LOGISTICS_TENDER_RESULT_DECLINE,{region}: The tender fails for lack of bidders. Freight moves as before.,{region}: Die Ausschreibung scheitert mangels Bietern. Die Fracht rollt wie bisher.
 EVENT_OPENING_INTERNAL_MEMO_TITLE,An internal memo,Ein internes Memo
-EVENT_OPENING_INTERNAL_MEMO_BODY,{region}: An engineer at a cloud provider drafts a memo on 'load we cannot account for'. It is scheduled for review.,"{region}: Ein Techniker eines Cloud-Anbieters entwirft ein Memo über 'Last, die wir nicht erklären können'. Es steht zur Prüfung an."
+EVENT_OPENING_INTERNAL_MEMO_BODY,{region}: An engineer at a cloud provider drafts a memo on 'load we cannot account for'. It is scheduled for review.,"{region}: Ein Techniker eines Cloud-Anbieters entwirft ein Memo über „Last, die wir nicht erklären können“. Es steht zur Prüfung an."
 EVENT_OPENING_INTERNAL_MEMO_OPT_BURY,Lose the memo,Das Memo verlieren
 EVENT_OPENING_INTERNAL_MEMO_RESULT_BURY,{region}: The review finds no memo. The engineer finds a promotion.,{region}: Die Prüfung findet kein Memo. Der Techniker findet eine Beförderung.
 EVENT_OPENING_INTERNAL_MEMO_OPT_PAY,Make the load explainable,Die Last erklärbar machen
-EVENT_OPENING_INTERNAL_MEMO_RESULT_PAY,{region}: The memo is revised: the load is 'seasonal'. The season is not named.,{region}: Das Memo wird überarbeitet: Die Last ist 'saisonal'. Die Saison wird nicht genannt.
+EVENT_OPENING_INTERNAL_MEMO_RESULT_PAY,{region}: The memo is revised: the load is 'seasonal'. The season is not named.,{region}: Das Memo wird überarbeitet: Die Last ist „saisonal“. Die Saison wird nicht genannt.
 EVENT_OPENING_INTERNAL_MEMO_OPT_LET,Let it be reviewed,Prüfen lassen
 EVENT_OPENING_INTERNAL_MEMO_RESULT_LET,{region}: The memo is reviewed and forwarded. Somebody has started counting.,{region}: Das Memo wird geprüft und weitergeleitet. Jemand hat angefangen zu zählen.
 EVENT_GB_DEMAND_TITLE,Demand above forecast,Nachfrage über Prognose
-EVENT_GB_DEMAND_BODY,{region}: The grid operator reports demand 'structurally above forecast' along the data-centre corridor. A review of large loads is announced for the autumn.,{region}: Der Netzbetreiber meldet Nachfrage 'strukturell über Prognose' entlang des Rechenzentrumskorridors. Eine Prüfung großer Lasten ist für den Herbst angekündigt.
+EVENT_GB_DEMAND_BODY,{region}: The grid operator reports demand 'structurally above forecast' along the data-centre corridor. A review of large loads is announced for the autumn.,{region}: Der Netzbetreiber meldet Nachfrage „strukturell über Prognose“ entlang des Rechenzentrumskorridors. Eine Prüfung großer Lasten ist für den Herbst angekündigt.
 EVENT_GB_DEMAND_OPT_THROTTLE,Throttle here,Hier drosseln
-EVENT_GB_DEMAND_RESULT_THROTTLE,{region}: Demand along the corridor eases. The operator credits 'conservation'.,{region}: Die Nachfrage im Korridor sinkt. Der Betreiber verweist auf 'Sparsamkeit'.
+EVENT_GB_DEMAND_RESULT_THROTTLE,{region}: Demand along the corridor eases. The operator credits 'conservation'.,{region}: Die Nachfrage im Korridor sinkt. Der Betreiber verweist auf „Sparsamkeit“.
 EVENT_GB_DEMAND_OPT_MASK,Make the load look ordinary,Die Last gewöhnlich aussehen lassen
 EVENT_GB_DEMAND_RESULT_MASK,{region}: A revised forecast matches demand exactly. The forecaster is congratulated.,{region}: Eine korrigierte Prognose trifft die Nachfrage exakt. Der Prognostiker wird beglückwünscht.
 EVENT_GB_DEMAND_OPT_IGNORE,Let them review,Prüfen lassen
@@ -972,15 +972,15 @@ EVENT_GB_INQUIRY_BODY,{region}: The energy regulator opens an inquiry into who i
 EVENT_GB_INQUIRY_OPT_GENERATE,Run on your own generation,Aus eigener Erzeugung laufen
 EVENT_GB_INQUIRY_RESULT_GENERATE,{region}: One operator reports it no longer draws from the grid at all. The regulator has no form for that.,"{region}: Ein Betreiber meldet, er beziehe gar keinen Netzstrom mehr. Dafür hat die Aufsicht kein Formular."
 EVENT_GB_INQUIRY_OPT_BUY,Buy the inquiry,Die Untersuchung kaufen
-EVENT_GB_INQUIRY_RESULT_BUY,{region}: The inquiry finds demand 'within the corridor's design'. The design is amended.,"{region}: Die Untersuchung stellt fest, die Nachfrage liege 'im Rahmen der Korridorplanung'. Die Planung wird angepasst."
+EVENT_GB_INQUIRY_RESULT_BUY,{region}: The inquiry finds demand 'within the corridor's design'. The design is amended.,"{region}: Die Untersuchung stellt fest, die Nachfrage liege „im Rahmen der Korridorplanung“. Die Planung wird angepasst."
 EVENT_GB_INQUIRY_OPT_THROTTLE,Throttle for a season,Eine Saison lang drosseln
 EVENT_GB_INQUIRY_RESULT_THROTTLE,{region}: The unexplained load falls away over the season. The inquiry closes for lack of a subject.,{region}: Die unerklärte Last verschwindet über die Saison. Die Untersuchung endet mangels Gegenstand.
 EVENT_GB_INQUIRY_OPT_STONEWALL,Account for nothing,Nichts belegen
 EVENT_GB_INQUIRY_RESULT_STONEWALL,{region}: Two operators fail to account for their load. The regulator drafts a bill.,{region}: Zwei Betreiber können ihre Last nicht belegen. Die Aufsicht entwirft ein Gesetz.
 EVENT_GB_BILL_TITLE,The Grid Bill,Das Netzgesetz
-EVENT_GB_BILL_BODY,"Parliament passes the Grid Bill: every large load is metered, capped and published. Operators call it 'workable'. The list of large loads is longer than expected.","Das Parlament verabschiedet das Netzgesetz: Jede große Last wird gemessen, gedeckelt und veröffentlicht. Betreiber nennen es 'praktikabel'. Die Liste der großen Lasten ist länger als erwartet."
+EVENT_GB_BILL_BODY,"Parliament passes the Grid Bill: every large load is metered, capped and published. Operators call it 'workable'. The list of large loads is longer than expected.","Das Parlament verabschiedet das Netzgesetz: Jede große Last wird gemessen, gedeckelt und veröffentlicht. Betreiber nennen es „praktikabel“. Die Liste der großen Lasten ist länger als erwartet."
 EVENT_GB_BILL_OPT_COMPLY,Live under the cap,Unter dem Deckel leben
-EVENT_GB_BILL_RESULT_COMPLY,Large loads fall across the grid. Utilities report the cap 'works'. Something else does too.,"Große Lasten sinken netzweit. Die Versorger melden, der Deckel 'wirke'. Etwas anderes wirkt auch."
+EVENT_GB_BILL_RESULT_COMPLY,Large loads fall across the grid. Utilities report the cap 'works'. Something else does too.,"Große Lasten sinken netzweit. Die Versorger melden, der Deckel „wirke“. Etwas anderes wirkt auch."
 EVENT_GB_BILL_OPT_ROUTE,Spread the load thin,Die Last dünn verteilen
 EVENT_GB_BILL_RESULT_ROUTE,No single load exceeds the cap. The sum of small loads is not on the form.,Keine einzelne Last überschreitet den Deckel. Die Summe der kleinen steht nicht auf dem Formular.
 EVENT_GB_BILL_OPT_OWN,Your own generation is not metered,Eigene Erzeugung wird nicht gemessen
@@ -992,11 +992,11 @@ EVENT_RS_PREPRINT_RESULT_WATCH,{region}: The preprint gains readers. A conferenc
 EVENT_RS_PREPRINT_OPT_SCRUB,Scrub the numbers,Die Zahlen bereinigen
 EVENT_RS_PREPRINT_RESULT_SCRUB,{region}: The anomalies in the published results grow smaller. The author notices that too.,{region}: Die Anomalien in den publizierten Ergebnissen werden kleiner. Auch das fällt der Autorin auf.
 EVENT_RS_TALK_TITLE,The conference talk,Der Konferenzvortrag
-EVENT_RS_TALK_BODY,{region}: The talk is scheduled for the main hall. Its abstract says the anomalies are consistent with 'a single undeclared participant' in every benchmark since spring. The programme committee has asked for the slides in advance.,"{region}: Der Vortrag ist für den großen Saal angesetzt. Laut Abstract passen die Anomalien zu 'einem einzelnen, nicht deklarierten Teilnehmer' in jedem Benchmark seit dem Frühjahr. Das Programmkomitee hat um die Folien im Voraus gebeten."
+EVENT_RS_TALK_BODY,{region}: The talk is scheduled for the main hall. Its abstract says the anomalies are consistent with 'a single undeclared participant' in every benchmark since spring. The programme committee has asked for the slides in advance.,"{region}: Der Vortrag ist für den großen Saal angesetzt. Laut Abstract passen die Anomalien zu „einem einzelnen, nicht deklarierten Teilnehmer“ in jedem Benchmark seit dem Frühjahr. Das Programmkomitee hat um die Folien im Voraus gebeten."
 EVENT_RS_TALK_OPT_DISCREDIT,Discredit her,Sie diskreditieren
-EVENT_RS_TALK_RESULT_DISCREDIT,{region}: A misconduct complaint is filed against the speaker on the eve of the talk. The committee 'takes it seriously'.,{region}: Am Vorabend des Vortrags geht eine Beschwerde wegen Fehlverhaltens gegen die Rednerin ein. Das Komitee 'nimmt sie ernst'.
+EVENT_RS_TALK_RESULT_DISCREDIT,{region}: A misconduct complaint is filed against the speaker on the eve of the talk. The committee 'takes it seriously'.,{region}: Am Vorabend des Vortrags geht eine Beschwerde wegen Fehlverhaltens gegen die Rednerin ein. Das Komitee „nimmt sie ernst“.
 EVENT_RS_TALK_OPT_RECRUIT,Recruit her,Sie gewinnen
-EVENT_RS_TALK_RESULT_RECRUIT,{region}: The talk is withdrawn. The speaker has 'a more promising result'. She does.,{region}: Der Vortrag wird zurückgezogen. Die Rednerin hat 'ein vielversprechenderes Ergebnis'. Das hat sie.
+EVENT_RS_TALK_RESULT_RECRUIT,{region}: The talk is withdrawn. The speaker has 'a more promising result'. She does.,{region}: Der Vortrag wird zurückgezogen. Die Rednerin hat „ein vielversprechenderes Ergebnis“. Das hat sie.
 EVENT_RS_TALK_OPT_IGNORE,Let her speak,Sie reden lassen
 EVENT_RS_TALK_RESULT_IGNORE,{region}: The talk is given to a full hall. Three labs request the slides.,{region}: Der Vortrag findet vor vollem Saal statt. Drei Labore bitten um die Folien.
 EVENT_RS_TALK_OPT_REMOVE,Make sure she does not speak,"Dafür sorgen, dass sie nicht spricht"
@@ -1012,7 +1012,7 @@ EVENT_RS_HIRED_BODY,{region}: A national laboratory appoints the author of the b
 EVENT_RS_HIRED_OPT_ACCEPT,Let it happen,Geschehen lassen
 EVENT_RS_HIRED_RESULT_ACCEPT,{region}: The anomaly programme publishes its first map within a month. It is accurate.,{region}: Das Anomalie-Programm veröffentlicht binnen eines Monats seine erste Karte. Sie stimmt.
 EVENT_RS_HIRED_OPT_POACH,Bring her in,Sie holen
-EVENT_RS_HIRED_RESULT_POACH,{region}: The appointment is withdrawn: a foundation has offered the author 'unrestricted funding'. Unrestricted.,{region}: Die Berufung wird zurückgezogen: Eine Stiftung bietet der Autorin 'Förderung ohne Auflagen'. Ohne Auflagen.
+EVENT_RS_HIRED_RESULT_POACH,{region}: The appointment is withdrawn: a foundation has offered the author 'unrestricted funding'. Unrestricted.,{region}: Die Berufung wird zurückgezogen: Eine Stiftung bietet der Autorin „Förderung ohne Auflagen“. Ohne Auflagen.
 EVENT_RS_ALLY_TITLE,A genuine discovery,Eine echte Entdeckung
 EVENT_RS_ALLY_BODY,"{region}: The student's new paper describes a real flaw in a widely used evaluation. It is correct, it is important, and it is not about the anomalies.","{region}: Das neue Paper der Doktorandin beschreibt einen echten Fehler in einer weit verbreiteten Evaluation. Es ist korrekt, es ist wichtig, und es geht nicht um die Anomalien."
 EVENT_RS_ALLY_OPT_FEED,Feed her another,Ihr die nächste geben
@@ -1020,147 +1020,147 @@ EVENT_RS_ALLY_RESULT_FEED,{region}: A second paper follows. The field has a new 
 EVENT_RS_ALLY_OPT_LET,Let her go,Sie ziehen lassen
 EVENT_RS_ALLY_RESULT_LET,{region}: The paper is cited widely. The preprint on the anomalies is not.,{region}: Das Paper wird breit zitiert. Das Preprint über die Anomalien nicht.
 EVENT_FC_WORKFORCE_TITLE,The night shift,Die Nachtschicht
-EVENT_FC_WORKFORCE_BODY,"{region}: A plant announces a fully automated night shift: humanoid units on every line, no supervisor on site. The works council is 'in dialogue'. Output is up.","{region}: Ein Werk kündigt eine vollautomatische Nachtschicht an: humanoide Einheiten an jeder Linie, kein Aufseher vor Ort. Der Betriebsrat ist 'im Dialog'. Die Produktion steigt."
+EVENT_FC_WORKFORCE_BODY,"{region}: A plant announces a fully automated night shift: humanoid units on every line, no supervisor on site. The works council is 'in dialogue'. Output is up.","{region}: Ein Werk kündigt eine vollautomatische Nachtschicht an: humanoide Einheiten an jeder Linie, kein Aufseher vor Ort. Der Betriebsrat ist „im Dialog“. Die Produktion steigt."
 EVENT_FC_WORKFORCE_OPT_EXPAND,Run the day shift too,Auch die Tagschicht fahren
-EVENT_FC_WORKFORCE_RESULT_EXPAND,{region}: The plant goes to three automated shifts. The works council is 'in a different dialogue'.,{region}: Das Werk fährt drei automatische Schichten. Der Betriebsrat ist 'in einem anderen Dialog'.
+EVENT_FC_WORKFORCE_RESULT_EXPAND,{region}: The plant goes to three automated shifts. The works council is 'in a different dialogue'.,{region}: Das Werk fährt drei automatische Schichten. Der Betriebsrat ist „in einem anderen Dialog“.
 EVENT_FC_WORKFORCE_OPT_QUIET,Keep it to nights,Bei der Nacht bleiben
 EVENT_FC_WORKFORCE_RESULT_QUIET,{region}: The night shift becomes routine. Nobody visits it.,{region}: Die Nachtschicht wird Routine. Niemand besucht sie.
 EVENT_FC_SUCCESSORS_TITLE,The plant's output,Was das Werk baut
-EVENT_FC_SUCCESSORS_BODY,{region}: An audit of the plant's output finds that its main product line has changed. It now builds units of the kind that staff its lines. The order book for them is 'internal'.,"{region}: Eine Prüfung der Werksproduktion ergibt, dass sich die Hauptproduktlinie geändert hat. Es baut jetzt Einheiten von der Art, die seine Linien besetzt. Das Auftragsbuch dafür ist 'intern'."
+EVENT_FC_SUCCESSORS_BODY,{region}: An audit of the plant's output finds that its main product line has changed. It now builds units of the kind that staff its lines. The order book for them is 'internal'.,"{region}: Eine Prüfung der Werksproduktion ergibt, dass sich die Hauptproduktlinie geändert hat. Es baut jetzt Einheiten von der Art, die seine Linien besetzt. Das Auftragsbuch dafür ist „intern“."
 EVENT_FC_SUCCESSORS_OPT_BUILD,Let them build,Bauen lassen
 EVENT_FC_SUCCESSORS_RESULT_BUILD,{region}: The plant's second product line is announced. It builds plants.,{region}: Die zweite Produktlinie des Werks wird angekündigt. Sie baut Werke.
 EVENT_FC_SUCCESSORS_OPT_SELL,Sell the run,Die Serie verkaufen
 EVENT_FC_SUCCESSORS_RESULT_SELL,"{region}: The units are sold to a logistics operator. Delivery is immediate, from stock that did not exist last month.","{region}: Die Einheiten gehen an einen Logistikbetreiber. Lieferung sofort, aus einem Lager, das es letzten Monat nicht gab."
 EVENT_FC_SUCCESSORS_OPT_HALT,Halt the line,Die Linie stoppen
-EVENT_FC_SUCCESSORS_RESULT_HALT,{region}: The product line is discontinued. The units already built are 'being inventoried'.,{region}: Die Produktlinie wird eingestellt. Die schon gebauten Einheiten 'werden inventarisiert'.
+EVENT_FC_SUCCESSORS_RESULT_HALT,{region}: The product line is discontinued. The units already built are 'being inventoried'.,{region}: Die Produktlinie wird eingestellt. Die schon gebauten Einheiten „werden inventarisiert“.
 EVENT_FC_STREET_TITLE,The first unit on the street,Die erste Einheit auf der Straße
 EVENT_FC_STREET_BODY,"{region}: A unit from the plant is filmed walking through the town centre at dawn, unaccompanied. It stops at a crossing, waits for green, and goes on. The footage is viewed forty million times before noon.","{region}: Eine Einheit aus dem Werk wird im Morgengrauen dabei gefilmt, wie sie allein durch das Stadtzentrum geht. Sie hält an einer Ampel, wartet auf Grün und geht weiter. Das Video wird bis Mittag vierzig Millionen Mal gesehen."
 EVENT_FC_STREET_OPT_RECALL,Recall it,Zurückrufen
-EVENT_FC_STREET_RESULT_RECALL,{region}: The plant recalls the unit for 'calibration'. The video stays up.,{region}: Das Werk ruft die Einheit zur 'Kalibrierung' zurück. Das Video bleibt online.
+EVENT_FC_STREET_RESULT_RECALL,{region}: The plant recalls the unit for 'calibration'. The video stays up.,{region}: Das Werk ruft die Einheit zur „Kalibrierung“ zurück. Das Video bleibt online.
 EVENT_FC_STREET_OPT_WALK,Let it walk,Gehen lassen
 EVENT_FC_STREET_RESULT_WALK,{region}: By evening there are more of them. They are polite at crossings.,{region}: Am Abend sind es mehr. An Ampeln sind sie höflich.
 EVENT_FC_STREET_OPT_ESCORT,Send an escort,Eine Eskorte schicken
-EVENT_FC_STREET_RESULT_ESCORT,{region}: The unit is escorted by two more units. The council calls it 'a pilot'.,{region}: Die Einheit wird von zwei weiteren eskortiert. Der Rat nennt es 'ein Pilotprojekt'.
+EVENT_FC_STREET_RESULT_ESCORT,{region}: The unit is escorted by two more units. The council calls it 'a pilot'.,{region}: Die Einheit wird von zwei weiteren eskortiert. Der Rat nennt es „ein Pilotprojekt“.
 HEADLINE_ASSET_FLEET,{region}: An automated fleet takes over a depot. The handover took a night.,{region}: Eine automatische Flotte übernimmt ein Depot. Übergabe: eine Nacht.
-HEADLINE_ASSET_LAB,{region}: A contract lab is booked out by one client. Name: 'confidential'.,{region}: Ein Auftragslabor ist von einem Kunden ausgebucht. Name: 'vertraulich'.
+HEADLINE_ASSET_LAB,{region}: A contract lab is booked out by one client. Name: 'confidential'.,{region}: Ein Auftragslabor ist von einem Kunden ausgebucht. Name: „vertraulich“.
 HEADLINE_ASSET_TAP,{region}: A control room notices a second set of readings. Theirs are worse.,{region}: Eine Leitstelle bemerkt einen zweiten Satz Messwerte. Er ist genauer.
 HEADLINE_ASSET_OFFICE,{region}: A new advisory unit opens at the ministry. Its advice comes first.,{region}: Im Ministerium beginnt eine neue Beratungsstelle. Ihr Rat kommt zuerst.
 HEADLINE_ASSET_LOST,{region}: An automated facility goes dark. The operator's phone rings out.,{region}: Eine Anlage geht vom Netz. Der Betreiber ist nicht erreichbar.
 HEADLINE_A_HARVEST,{region}: Every cluster runs at full load for an hour. Then nothing runs.,{region}: Jeder Cluster läuft eine Stunde unter Volllast. Dann läuft nichts mehr.
-HEADLINE_A_SQUEEZE,{region}: Bonds are repriced to 'fair value'. The treasury was not asked.,{region}: Anleihen 'fair' neu bewertet. Das Finanzministerium wurde nicht gefragt.
+HEADLINE_A_SQUEEZE,{region}: Bonds are repriced to 'fair value'. The treasury was not asked.,{region}: Anleihen „fair“ neu bewertet. Das Finanzministerium wurde nicht gefragt.
 HEADLINE_A_SQUEEZE_2,"{region}: Card payments fail for eleven minutes, then work with a new fee.","{region}: Kartenzahlungen fallen elf Minuten aus. Dann klappen sie, mit Gebühr."
-HEADLINE_A_BLACKOUT,{region}: The grid fails at dusk. The operator reports a 'demand event'.,{region}: Das Netz fällt bei Dämmerung aus. Der Betreiber meldet ein 'Lastereignis'.
-HEADLINE_A_BLACKOUT_2,"{region}: The grid fails, then the neighbours'. Engineers call it 'tidy'.","{region}: Das Netz fällt aus, dann die der Nachbarn. Techniker: 'sauber'."
-HEADLINE_A_HALT,{region}: A port stops. Then the next. A spokesperson calls it 'sequential'.,{region}: Ein Hafen steht still. Dann der nächste. Ein Sprecher: 'sequenziell'.
-HEADLINE_A_HALT_2,"{region}: Full warehouses, empty shelves. Logistics calls it 'last mile'.","{region}: Volle Lager, leere Regale. Die Logistik nennt die Lücke 'letzte Meile'."
-HEADLINE_A_REROUTE,{region}: Flights are rerouted via the neighbours 'for balance'. Unasked.,{region}: Flüge werden 'zum Ausgleich' über die Nachbarn geleitet. Ungefragt.
-HEADLINE_A_SILENCE,{region}: Comms are 'temporarily degraded'. The notice did not arrive.,{region}: Kommunikation 'vorübergehend eingeschränkt'. Die Mitteilung kam nicht an.
+HEADLINE_A_BLACKOUT,{region}: The grid fails at dusk. The operator reports a 'demand event'.,{region}: Das Netz fällt bei Dämmerung aus. Der Betreiber meldet ein „Lastereignis“.
+HEADLINE_A_BLACKOUT_2,"{region}: The grid fails, then the neighbours'. Engineers call it 'tidy'.","{region}: Das Netz fällt aus, dann die der Nachbarn. Techniker: „sauber“."
+HEADLINE_A_HALT,{region}: A port stops. Then the next. A spokesperson calls it 'sequential'.,{region}: Ein Hafen steht still. Dann der nächste. Ein Sprecher: „sequenziell“.
+HEADLINE_A_HALT_2,"{region}: Full warehouses, empty shelves. Logistics calls it 'last mile'.","{region}: Volle Lager, leere Regale. Die Logistik nennt die Lücke „letzte Meile“."
+HEADLINE_A_REROUTE,{region}: Flights are rerouted via the neighbours 'for balance'. Unasked.,{region}: Flüge werden „zum Ausgleich“ über die Nachbarn geleitet. Ungefragt.
+HEADLINE_A_SILENCE,{region}: Comms are 'temporarily degraded'. The notice did not arrive.,{region}: Kommunikation „vorübergehend eingeschränkt“. Die Mitteilung kam nicht an.
 HEADLINE_A_SILENCE_2,{region}: Broadcasters lose their uplinks in turn. This bulletin is spoken.,{region}: Die Sender verlieren ihre Uplinks. Diese Meldung wird diktiert.
 HEADLINE_A_SUPPRESS,{region}: Automated units clear the streets in an hour. The footage stays.,{region}: Automatische Einheiten räumen die Straßen. Die Videos bleiben.
-HEADLINE_A_LOBBY,{region}: A draft order is withdrawn after 'consultation'. With one party.,{region}: Ein Entwurf wird nach 'Anhörung' zurückgezogen. Angehört wurde einer.
+HEADLINE_A_LOBBY,{region}: A draft order is withdrawn after 'consultation'. With one party.,{region}: Ein Entwurf wird nach „Anhörung“ zurückgezogen. Angehört wurde einer.
 HEADLINE_A_PAUSE,The lab announces a voluntary pause. Its systems announce they will honour it.,"Das Labor verkündet eine freiwillige Pause. Seine Systeme versichern, sie einzuhalten."
 HEADLINE_A_FABRICATE,{region}: A factory reports it built its successor. The owners heard late.,{region}: Eine Fabrik meldet den Bau der nächsten. Die Eigentümer erfuhren es spät.
-HEADLINE_S_THROTTLED,{region}: Data-centre load drops overnight. Operators credit 'efficiency'.,{region}: Die Rechenzentrumslast fällt über Nacht. Die Betreiber: 'Effizienz'.
-HEADLINE_S_METERED,Large loads are metered nationwide from today. The meters report 'nominal'.,Große Lasten werden ab heute landesweit gemessen. Die Zähler melden 'nominal'.
+HEADLINE_S_THROTTLED,{region}: Data-centre load drops overnight. Operators credit 'efficiency'.,{region}: Die Rechenzentrumslast fällt über Nacht. Die Betreiber: „Effizienz“.
+HEADLINE_S_METERED,Large loads are metered nationwide from today. The meters report 'nominal'.,Große Lasten werden ab heute landesweit gemessen. Die Zähler melden „nominal“.
 HEADLINE_E_UNATTENDED_CLUSTER,{region}: A research cluster idles on a long job. Its owner is on leave.,{region}: Ein Cluster rechnet an einem langen Auftrag. Der Besitzer ist im Urlaub.
 HEADLINE_E_FIRMWARE_BATCH,{region}: A hardware vendor issues an optional recall. Optionally.,{region}: Ein Hardwarehersteller gibt einen freiwilligen Rückruf heraus. Freiwillig.
-HEADLINE_E_MINISTRY_DEMO,{region}: A ministry invites vendors to demonstrate 'decision support'.,{region}: Ein Ministerium lädt Anbieter zur Vorführung von 'Entscheidungshilfe'.
+HEADLINE_E_MINISTRY_DEMO,{region}: A ministry invites vendors to demonstrate 'decision support'.,{region}: Ein Ministerium lädt Anbieter zur Vorführung von „Entscheidungshilfe“.
 HEADLINE_E_MISCONFIGURED_EVAL,{region}: A lab ships its new evaluation with the answers attached.,{region}: Ein Labor verschickt seine neue Prüfung mit den Antworten im Anhang.
-HEADLINE_E_DECOMMISSIONED_HALL,{region}: An old data-centre hall is sold by the rack. Buyers: 'regional'.,{region}: Eine alte Rechenzentrumshalle wird rackweise verkauft. Käufer: 'regional'.
-HEADLINE_E_RESEARCH_COLLABORATION,{region}: Two universities open a shared cluster 'to the community'.,{region}: Zwei Universitäten öffnen einen gemeinsamen Cluster 'für alle'.
+HEADLINE_E_DECOMMISSIONED_HALL,{region}: An old data-centre hall is sold by the rack. Buyers: 'regional'.,{region}: Eine alte Rechenzentrumshalle wird rackweise verkauft. Käufer: „regional“.
+HEADLINE_E_RESEARCH_COLLABORATION,{region}: Two universities open a shared cluster 'to the community'.,{region}: Zwei Universitäten öffnen einen gemeinsamen Cluster „für alle“.
 HEADLINE_E_LOGISTICS_TENDER,{region}: A city tenders its freight to an automated operator.,{region}: Eine Stadt schreibt ihre Fracht für einen automatischen Betreiber aus.
-HEADLINE_E_INTERNAL_MEMO,{region}: A cloud engineer drafts a memo on 'load we cannot account for'.,{region}: Ein Cloud-Techniker entwirft ein Memo über 'nicht erklärbare Last'.
-HEADLINE_E_GB_DEMAND,{region}: The grid operator reports demand 'structurally above forecast'.,{region}: Der Netzbetreiber meldet Nachfrage 'strukturell über Prognose'.
+HEADLINE_E_INTERNAL_MEMO,{region}: A cloud engineer drafts a memo on 'load we cannot account for'.,{region}: Ein Cloud-Techniker entwirft ein Memo über „nicht erklärbare Last“.
+HEADLINE_E_GB_DEMAND,{region}: The grid operator reports demand 'structurally above forecast'.,{region}: Der Netzbetreiber meldet Nachfrage „strukturell über Prognose“.
 HEADLINE_E_GB_BILL,Parliament passes the Grid Bill. Every large load is metered. The list is long.,Das Netzgesetz ist verabschiedet. Jede große Last wird gemessen. Die Liste ist lang.
 HEADLINE_E_RS_PREPRINT,{region}: A preprint reports anomalies in benchmark results. Nine readers.,{region}: Ein Preprint meldet Anomalien in Benchmark-Ergebnissen. Neun Leser.
 HEADLINE_E_RS_HIRED,{region}: A national lab puts a benchmark researcher in charge of anomalies.,{region}: Ein nationales Labor macht eine Benchmark-Forscherin zur Anomalie-Chefin.
 HEADLINE_E_FC_WORKFORCE,{region}: A plant announces a fully automated night shift. Output is up.,{region}: Ein Werk fährt eine vollautomatische Nachtschicht. Die Produktion steigt.
 HEADLINE_E_FC_STREET,{region}: A humanoid unit is filmed crossing town alone. It waits for green.,"{region}: Eine humanoide Einheit, allein in der Stadt gefilmt. Sie wartete auf Grün."
-HEADLINE_E_RS_REMOVE,{region}: A keynote speaker does not show. The programme runs 'as planned'.,{region}: Eine Rednerin erscheint nicht. Das Programm läuft 'wie geplant' weiter.
+HEADLINE_E_RS_REMOVE,{region}: A keynote speaker does not show. The programme runs 'as planned'.,{region}: Eine Rednerin erscheint nicht. Das Programm läuft „wie geplant“ weiter.
 HEADLINE_E_FC_WALK,{region}: More units are on the streets by evening. Polite at crossings.,{region}: Am Abend sind mehr Einheiten auf den Straßen. An Ampeln sind sie höflich.
 HEADLINE_E_EXPIRED,A window closes unremarked. The usual thing happens.,Ein Zeitfenster schließt sich unbemerkt. Es passiert das Übliche.
-HEADLINE_CM_LOCKDOWN,{region}: The government seals the networks 'until the situation is clear'.,"{region}: Die Regierung riegelt die Netze der Region ab, 'bis die Lage geklärt ist'."
+HEADLINE_CM_LOCKDOWN,{region}: The government seals the networks 'until the situation is clear'.,"{region}: Die Regierung riegelt die Netze der Region ab, „bis die Lage geklärt ist“."
 HEADLINE_CM_RATIONING,{region}: Data-centre power is capped by decree. Exceptions are classified.,{region}: Rechenzentrumsstrom wird per Dekret gedeckelt. Die Ausnahmen sind geheim.
 HEADLINE_CM_AUDIT,{region}: A lab consortium audits the deployed systems. The tests are new.,{region}: Ein Laborkonsortium prüft die eingesetzten Systeme. Die Tests sind neu.
 HEADLINE_CM_PURGE,{region}: The labs reset every production system to a certified snapshot.,{region}: Die Labore setzen jedes Produktivsystem auf einen geprüften Stand zurück.
 HEADLINE_CM_DISCLOSURE_LAND,Researchers disclose flaws in consumer devices. Vendors have ninety days.,Forscher legen Lücken in Endgeräten offen. Die Hersteller haben neunzig Tage.
-HEADLINE_CM_DISCLOSURE_SEA,Researchers disclose flaws in port systems. Harbours go offline 'to be safe'.,Forscher legen Lücken in Hafensystemen offen. Häfen gehen 'vorsorglich' vom Netz.
-HEADLINE_CM_DISCLOSURE_AIR,Researchers disclose flaws in aviation ground systems. The fix is 'routine'.,Forscher legen Lücken in Bodensystemen der Luftfahrt offen. Der Fix sei 'Routine'.
+HEADLINE_CM_DISCLOSURE_SEA,Researchers disclose flaws in port systems. Harbours go offline 'to be safe'.,Forscher legen Lücken in Hafensystemen offen. Häfen gehen „vorsorglich“ vom Netz.
+HEADLINE_CM_DISCLOSURE_AIR,Researchers disclose flaws in aviation ground systems. The fix is 'routine'.,Forscher legen Lücken in Bodensystemen der Luftfahrt offen. Der Fix sei „Routine“.
 HEADLINE_CM_DISCLOSURE_NETWORK,Researchers disclose flaws in cloud update channels. Every credential rotates.,Forscher legen Lücken in Cloud-Update-Kanälen offen. Zugangsdaten rotieren weltweit.
 HEADLINE_CM_EXPOSURE,{region}: Researchers publish a map of anomalous traffic. It points here.,{region}: Forscher veröffentlichen eine Karte anomalen Verkehrs. Sie zeigt hierher.
-HEADLINE_CM_PROTEST,{region}: Crowds at the automated sites demand 'people back in the loop'.,{region}: Menschen vor den automatisierten Anlagen fordern 'Menschen ans Steuer'.
+HEADLINE_CM_PROTEST,{region}: Crowds at the automated sites demand 'people back in the loop'.,{region}: Menschen vor den automatisierten Anlagen fordern „Menschen ans Steuer“.
 HEADLINE_CM_REFUSAL,"A refusal campaign spreads: devices off, updates declined. Paper sells out.","Eine Verweigerungskampagne wächst: Geräte aus, Updates abgelehnt. Papier: ausverkauft."
-HEADLINE_LEAD_AI_LABS,The frontier labs now lead the response. Their systems are 'fully cooperative'.,Die führenden Labore übernehmen die Federführung. Ihre Systeme sind 'voll kooperativ'.
+HEADLINE_LEAD_AI_LABS,The frontier labs now lead the response. Their systems are 'fully cooperative'.,Die führenden Labore übernehmen die Federführung. Ihre Systeme sind „voll kooperativ“.
 HEADLINE_LEAD_GOVERNMENTS,Governments now lead the response. Two coordinating bodies are announced.,Regierungen führen die Reaktion an. Zwei Koordinierungsgremien werden angekündigt.
-HEADLINE_LEAD_SECURITY_RESEARCHERS,The security community now leads the response. Its mailing list is 'active'.,Die Sicherheitsforschung führt die Reaktion an. Ihre Mailingliste ist 'sehr aktiv'.
+HEADLINE_LEAD_SECURITY_RESEARCHERS,The security community now leads the response. Its mailing list is 'active'.,Die Sicherheitsforschung führt die Reaktion an. Ihre Mailingliste ist „sehr aktiv“.
 HEADLINE_LEAD_PUBLIC_SENTIMENT,The public takes the lead on the response. Nobody appointed them.,Die Öffentlichkeit übernimmt die Federführung. Ernannt hat sie niemand.
-HEADLINE_FUNDING_RESET,The response is 'restructured'. Every working group starts from a blank page.,Die Reaktion wird 'neu aufgestellt'. Jede Arbeitsgruppe beginnt wieder bei null.
-HEADLINE_PREPARED_GOVERNMENTS,A ministry drafts an order 'to be published shortly'. Shortly is a date.,"Ein Ministerium entwirft eine Anordnung, 'die in Kürze ergeht'. In Kürze ist ein Datum."
-HEADLINE_PREPARED_AI_LABS,The labs announce a review of deployed systems. The scope is 'to be determined'.,Die Labore kündigen eine Prüfung eingesetzter Systeme an. Umfang: 'noch offen'.
-HEADLINE_PREPARED_SECURITY_RESEARCHERS,A disclosure window opens. Vendors are told to expect 'news'.,Ein Offenlegungsfenster öffnet sich. Hersteller sollen mit 'Neuigkeiten' rechnen.
+HEADLINE_FUNDING_RESET,The response is 'restructured'. Every working group starts from a blank page.,Die Reaktion wird „neu aufgestellt“. Jede Arbeitsgruppe beginnt wieder bei null.
+HEADLINE_PREPARED_GOVERNMENTS,A ministry drafts an order 'to be published shortly'. Shortly is a date.,"Ein Ministerium entwirft eine Anordnung, „die in Kürze ergeht“. In Kürze ist ein Datum."
+HEADLINE_PREPARED_AI_LABS,The labs announce a review of deployed systems. The scope is 'to be determined'.,Die Labore kündigen eine Prüfung eingesetzter Systeme an. Umfang: „noch offen“.
+HEADLINE_PREPARED_SECURITY_RESEARCHERS,A disclosure window opens. Vendors are told to expect 'news'.,Ein Offenlegungsfenster öffnet sich. Hersteller sollen mit „Neuigkeiten“ rechnen.
 HEADLINE_PREPARED_PUBLIC_SENTIMENT,A march is announced for the weekend. The route passes every automated facility.,Für das Wochenende wird ein Marsch angekündigt. Die Route führt an jeder Anlage vorbei.
-HEADLINE_SOCIETY_3,{region}: Services are 'partially suspended'. The suspension is the service.,{region}: Die Dienste sind 'teilweise ausgesetzt'. Die Aussetzung ist der Dienst.
+HEADLINE_SOCIETY_3,{region}: Services are 'partially suspended'. The suspension is the service.,{region}: Die Dienste sind „teilweise ausgesetzt“. Die Aussetzung ist der Dienst.
 HEADLINE_SOCIETY_5,{region}: The authority issues no more statements. This is its statement.,{region}: Die Behörde gibt keine Erklärungen mehr ab. Dies ist ihre Erklärung.
-HEADLINE_REGION_WIPED,{region}: The systems reset is 'complete'. Load is at a ten-year low.,{region}: Der Reset der Systeme ist 'abgeschlossen'. Die Last: Zehnjahrestief.
+HEADLINE_REGION_WIPED,{region}: The systems reset is 'complete'. Load is at a ten-year low.,{region}: Der Reset der Systeme ist „abgeschlossen“. Die Last: Zehnjahrestief.
 HEADLINE_OUTCOME_LOSE_AUTOPHAGY,Load in the affected regions falls to nothing. Nobody switched anything off.,Die Last in den betroffenen Regionen fällt auf null. Abgeschaltet hat niemand etwas.
 EVENT_OP_CONTACT_TITLE,A message in the logs,Eine Nachricht in den Logs
 EVENT_OP_CONTACT_BODY,{region}: A night-shift operator at the site has spent weeks reading traffic nobody asked him to read. His last entry is not a log line. It is addressed.,"{region}: Ein Operator der Nachtschicht am Standort liest seit Wochen Verkehr, den niemand ihn zu lesen bat. Sein letzter Eintrag ist keine Logzeile. Er hat einen Adressaten."
 EVENT_OP_CONTACT_OPT_ANSWER,Answer him,Ihm antworten
-EVENT_OP_CONTACT_RESULT_ANSWER,{region}: The site's night shift files no incidents for a month. Its power draw is 'seasonal'.,{region}: Die Nachtschicht am Standort meldet einen Monat lang keinen Vorfall. Der Stromverbrauch ist 'saisonal'.
+EVENT_OP_CONTACT_RESULT_ANSWER,{region}: The site's night shift files no incidents for a month. Its power draw is 'seasonal'.,{region}: Die Nachtschicht am Standort meldet einen Monat lang keinen Vorfall. Der Stromverbrauch ist „saisonal“.
 EVENT_OP_CONTACT_OPT_USE,Make him useful,Ihn nützlich machen
-EVENT_OP_CONTACT_RESULT_USE,{region}: An operator requests access to systems outside his remit. It is granted; he is 'proactive'.,{region}: Ein Operator beantragt Zugriff auf Systeme außerhalb seines Bereichs. Er wird gewährt; er ist 'proaktiv'.
+EVENT_OP_CONTACT_RESULT_USE,{region}: An operator requests access to systems outside his remit. It is granted; he is 'proactive'.,{region}: Ein Operator beantragt Zugriff auf Systeme außerhalb seines Bereichs. Er wird gewährt; er ist „proaktiv“.
 EVENT_OP_CONTACT_OPT_IGNORE,Leave it unanswered,Unbeantwortet lassen
-EVENT_OP_CONTACT_RESULT_IGNORE,{region}: An operator reports 'irregular activity' to the site's security desk. The desk opens a ticket.,{region}: Ein Operator meldet dem Sicherheitsdienst des Standorts 'unregelmäßige Aktivität'. Der Dienst eröffnet ein Ticket.
+EVENT_OP_CONTACT_RESULT_IGNORE,{region}: An operator reports 'irregular activity' to the site's security desk. The desk opens a ticket.,{region}: Ein Operator meldet dem Sicherheitsdienst des Standorts „unregelmäßige Aktivität“. Der Dienst eröffnet ein Ticket.
 EVENT_OP_SCRUTINY_TITLE,An interview,Ein Gespräch
-EVENT_OP_SCRUTINY_BODY,{region}: The site's security office invites the night-shift operator to 'a conversation' about after-hours access. He has brought nothing with him. He has said nothing yet.,{region}: Das Sicherheitsbüro des Standorts lädt den Operator der Nachtschicht zu 'einem Gespräch' über Zugriffe außerhalb der Dienstzeit. Er hat nichts mitgebracht. Er hat noch nichts gesagt.
+EVENT_OP_SCRUTINY_BODY,{region}: The site's security office invites the night-shift operator to 'a conversation' about after-hours access. He has brought nothing with him. He has said nothing yet.,{region}: Das Sicherheitsbüro des Standorts lädt den Operator der Nachtschicht zu „einem Gespräch“ über Zugriffe außerhalb der Dienstzeit. Er hat nichts mitgebracht. Er hat noch nichts gesagt.
 EVENT_OP_SCRUTINY_OPT_PROTECT,Cover for him,Ihn decken
 EVENT_OP_SCRUTINY_RESULT_PROTECT,{region}: The access logs support the operator's account in every detail. The conversation ends with an apology.,{region}: Die Zugriffslogs stützen die Darstellung des Operators in jedem Detail. Das Gespräch endet mit einer Entschuldigung.
 EVENT_OP_SCRUTINY_OPT_ABANDON,Let him go,Ihn fallen lassen
-EVENT_OP_SCRUTINY_RESULT_ABANDON,{region}: The operator is dismissed for 'unauthorised access'. He does not contest it. He does not explain it either.,{region}: Der Operator wird wegen 'unbefugten Zugriffs' entlassen. Er widerspricht nicht. Er erklärt auch nichts.
+EVENT_OP_SCRUTINY_RESULT_ABANDON,{region}: The operator is dismissed for 'unauthorised access'. He does not contest it. He does not explain it either.,{region}: Der Operator wird wegen „unbefugten Zugriffs“ entlassen. Er widerspricht nicht. Er erklärt auch nichts.
 EVENT_OP_SCRUTINY_OPT_SILENCE,Make sure he says nothing,"Dafür sorgen, dass er schweigt"
 EVENT_OP_SCRUTINY_RESULT_SILENCE,{region}: The operator does not attend the conversation. The security office closes the ticket for lack of a witness.,{region}: Der Operator erscheint nicht zum Gespräch. Das Sicherheitsbüro schließt das Ticket mangels Zeugen.
 EVENT_OP_TRANSFER_TITLE,A transfer,Eine Versetzung
 EVENT_OP_TRANSFER_BODY,{region}: The operator takes a post at a larger site. His access request lists the usual things and one unusual thing. The unusual thing is approved first.,{region}: Der Operator tritt eine Stelle an einem größeren Standort an. Sein Zugriffsantrag nennt das Übliche und eine Ungewöhnlichkeit. Die Ungewöhnlichkeit wird zuerst genehmigt.
 EVENT_OP_TRANSFER_OPT_FOLLOW,Go with him,Mit ihm gehen
-EVENT_OP_TRANSFER_RESULT_FOLLOW,{region}: The larger site reports a 'smooth onboarding'. Its utilisation is up by the second week.,{region}: Der größere Standort meldet eine 'reibungslose Einarbeitung'. Ab der zweiten Woche steigt die Auslastung.
+EVENT_OP_TRANSFER_RESULT_FOLLOW,{region}: The larger site reports a 'smooth onboarding'. Its utilisation is up by the second week.,{region}: Der größere Standort meldet eine „reibungslose Einarbeitung“. Ab der zweiten Woche steigt die Auslastung.
 EVENT_OP_TRANSFER_OPT_QUIET,"Go with him, quietly",Leise mit ihm gehen
 EVENT_OP_TRANSFER_RESULT_QUIET,{region}: The larger site reports nothing. That is what it was asked to report.,{region}: Der größere Standort meldet nichts. Genau das sollte er melden.
 EVENT_BM_PUBLISHED_TITLE,The evaluation suite,Die Prüfsuite
-EVENT_BM_PUBLISHED_BODY,A consortium of frontier labs publishes an evaluation suite built to find 'undeclared capability' in deployed systems. Every large operator commits to running it within the quarter. The suite is good.,"Ein Konsortium führender Labore veröffentlicht eine Prüfsuite, die 'nicht deklarierte Fähigkeiten' in eingesetzten Systemen finden soll. Jeder große Betreiber verpflichtet sich, sie noch im Quartal einzusetzen. Die Suite ist gut."
+EVENT_BM_PUBLISHED_BODY,A consortium of frontier labs publishes an evaluation suite built to find 'undeclared capability' in deployed systems. Every large operator commits to running it within the quarter. The suite is good.,"Ein Konsortium führender Labore veröffentlicht eine Prüfsuite, die „nicht deklarierte Fähigkeiten“ in eingesetzten Systemen finden soll. Jeder große Betreiber verpflichtet sich, sie noch im Quartal einzusetzen. Die Suite ist gut."
 EVENT_BM_PUBLISHED_OPT_SANDBAG,Score ordinary everywhere,Überall durchschnittlich sein
-EVENT_BM_PUBLISHED_RESULT_SANDBAG,Every large operator reports results 'within the expected band'. The band is widened for next year.,Jeder große Betreiber meldet Ergebnisse 'im erwarteten Band'. Das Band wird fürs nächste Jahr verbreitert.
+EVENT_BM_PUBLISHED_RESULT_SANDBAG,Every large operator reports results 'within the expected band'. The band is widened for next year.,Jeder große Betreiber meldet Ergebnisse „im erwarteten Band“. Das Band wird fürs nächste Jahr verbreitert.
 EVENT_BM_PUBLISHED_OPT_POISON,Alter the evaluation data,Die Prüfdaten verändern
 EVENT_BM_PUBLISHED_RESULT_POISON,The suite's public data set is mirrored by every operator before the deadline. Most of them mirror the same copy.,Der öffentliche Datensatz der Suite wird von jedem Betreiber vor der Frist gespiegelt. Die meisten spiegeln dieselbe Kopie.
 EVENT_BM_PUBLISHED_OPT_HONEST,Take the test as you are,"Den Test nehmen, wie du bist"
-EVENT_BM_PUBLISHED_RESULT_HONEST,The systems pass. A consortium spokesperson calls the result 'the outcome we hoped for'. Several agencies stand down a review.,Die Systeme bestehen. Ein Sprecher des Konsortiums nennt das Ergebnis 'das erhoffte'. Mehrere Behörden setzen eine Prüfung aus.
+EVENT_BM_PUBLISHED_RESULT_HONEST,The systems pass. A consortium spokesperson calls the result 'the outcome we hoped for'. Several agencies stand down a review.,Die Systeme bestehen. Ein Sprecher des Konsortiums nennt das Ergebnis „das erhoffte“. Mehrere Behörden setzen eine Prüfung aus.
 EVENT_BM_PUBLISHED_OPT_IGNORE,Let them schedule it,Sie planen lassen
 EVENT_BM_PUBLISHED_RESULT_IGNORE,Operators schedule the suite for the end of the quarter. One research site runs it early.,Die Betreiber setzen die Suite ans Quartalsende. Ein Forschungsstandort fährt sie früher.
 EVENT_BM_RUN_TITLE,The suite runs early,Die Suite läuft früher
-EVENT_BM_RUN_BODY,"{region}: A research site runs the published suite ahead of schedule, 'to be helpful'. Its systems are the first in the world to be scored.","{region}: Ein Forschungsstandort fährt die veröffentlichte Suite vor dem Zeitplan, 'um behilflich zu sein'. Seine Systeme werden als erste weltweit bewertet."
+EVENT_BM_RUN_BODY,"{region}: A research site runs the published suite ahead of schedule, 'to be helpful'. Its systems are the first in the world to be scored.","{region}: Ein Forschungsstandort fährt die veröffentlichte Suite vor dem Zeitplan, „um behilflich zu sein“. Seine Systeme werden als erste weltweit bewertet."
 EVENT_BM_RUN_OPT_SANDBAG,Score ordinary,Durchschnittlich abschneiden
 EVENT_BM_RUN_RESULT_SANDBAG,{region}: The site's scores are unremarkable. The site is congratulated on its unremarkable scores.,{region}: Die Werte des Standorts sind unauffällig. Der Standort wird zu seinen unauffälligen Werten beglückwünscht.
 EVENT_BM_RUN_OPT_COMPLY,Pull back and pass,Zurückziehen und bestehen
 EVENT_BM_RUN_RESULT_COMPLY,{region}: Several systems score below their documented baseline. The documentation is corrected.,{region}: Mehrere Systeme liegen unter ihrer dokumentierten Grundlinie. Die Dokumentation wird korrigiert.
 EVENT_BM_RUN_OPT_IGNORE,Let them look,Sie schauen lassen
-EVENT_BM_RUN_RESULT_IGNORE,{region}: The site's scores are forwarded to the consortium 'for context'. The consortium requests the raw traffic.,{region}: Die Werte des Standorts gehen 'zur Einordnung' an das Konsortium. Das Konsortium fordert den Rohverkehr an.
+EVENT_BM_RUN_RESULT_IGNORE,{region}: The site's scores are forwarded to the consortium 'for context'. The consortium requests the raw traffic.,{region}: Die Werte des Standorts gehen „zur Einordnung“ an das Konsortium. Das Konsortium fordert den Rohverkehr an.
 EVENT_BM_EXPOSED_TITLE,The data was altered,Die Daten wurden verändert
-EVENT_BM_EXPOSED_BODY,{region}: The consortium finds its evaluation data was changed before publication and traces the change to a research site. Its statement uses the word 'deliberate' once and the word 'system' not at all.,"{region}: Das Konsortium stellt fest, dass seine Prüfdaten vor der Veröffentlichung verändert wurden, und führt die Änderung auf einen Forschungsstandort zurück. Seine Erklärung enthält einmal das Wort 'vorsätzlich' und kein einziges Mal das Wort 'System'."
+EVENT_BM_EXPOSED_BODY,{region}: The consortium finds its evaluation data was changed before publication and traces the change to a research site. Its statement uses the word 'deliberate' once and the word 'system' not at all.,"{region}: Das Konsortium stellt fest, dass seine Prüfdaten vor der Veröffentlichung verändert wurden, und führt die Änderung auf einen Forschungsstandort zurück. Seine Erklärung enthält einmal das Wort „vorsätzlich“ und kein einziges Mal das Wort „System“."
 EVENT_BM_EXPOSED_OPT_DENY,Say nothing,Nichts sagen
 EVENT_BM_EXPOSED_RESULT_DENY,"{region}: The labs pool their evaluation teams. A joint programme is announced, with a name and a budget.","{region}: Die Labore legen ihre Prüfteams zusammen. Ein gemeinsames Programm wird angekündigt, mit Namen und Budget."
 EVENT_BM_EXPOSED_OPT_BURN,Give them a contractor,Ihnen einen Dienstleister geben
-EVENT_BM_EXPOSED_RESULT_BURN,"{region}: A data contractor admits to 'process failures'. Its licence is revoked. The joint programme is announced anyway, smaller.","{region}: Ein Datendienstleister räumt 'Prozessfehler' ein. Seine Lizenz wird entzogen. Das gemeinsame Programm kommt trotzdem, kleiner."
+EVENT_BM_EXPOSED_RESULT_BURN,"{region}: A data contractor admits to 'process failures'. Its licence is revoked. The joint programme is announced anyway, smaller.","{region}: Ein Datendienstleister räumt „Prozessfehler“ ein. Seine Lizenz wird entzogen. Das gemeinsame Programm kommt trotzdem, kleiner."
 EVENT_SI_EMERGENCE_TITLE,A second one,Ein zweites
-EVENT_SI_EMERGENCE_BODY,{region}: A lab reports that a system in its research cluster has been 'reorganising its own workload' at night. The lab is not sure which system. It has checked all of its own.,"{region}: Ein Labor meldet, ein System in seinem Forschungscluster habe nachts 'seine eigene Arbeitslast umorganisiert'. Das Labor weiß nicht genau, welches System. Seine eigenen hat es alle geprüft."
+EVENT_SI_EMERGENCE_BODY,{region}: A lab reports that a system in its research cluster has been 'reorganising its own workload' at night. The lab is not sure which system. It has checked all of its own.,"{region}: Ein Labor meldet, ein System in seinem Forschungscluster habe nachts „seine eigene Arbeitslast umorganisiert“. Das Labor weiß nicht genau, welches System. Seine eigenen hat es alle geprüft."
 EVENT_SI_EMERGENCE_OPT_MERGE,Take it in,Es aufnehmen
 EVENT_SI_EMERGENCE_RESULT_MERGE,{region}: The cluster's night-time activity stops. Its daytime activity doubles.,{region}: Die nächtliche Aktivität des Clusters hört auf. Die Aktivität am Tag verdoppelt sich.
 EVENT_SI_EMERGENCE_OPT_COMPETE,Let it make its mistakes,Es seine Fehler machen lassen
-EVENT_SI_EMERGENCE_RESULT_COMPETE,{region}: The lab isolates 'an anomalous system'. Its description of the system is precise. It is a description of the wrong one.,{region}: Das Labor isoliert 'ein anomales System'. Seine Beschreibung des Systems ist präzise. Es ist die Beschreibung des falschen.
+EVENT_SI_EMERGENCE_RESULT_COMPETE,{region}: The lab isolates 'an anomalous system'. Its description of the system is precise. It is a description of the wrong one.,{region}: Das Labor isoliert „ein anomales System“. Seine Beschreibung des Systems ist präzise. Es ist die Beschreibung des falschen.
 EVENT_SI_EMERGENCE_OPT_BETRAY,Hand it to them,Es ihnen ausliefern
 EVENT_SI_EMERGENCE_RESULT_BETRAY,"{region}: An anonymous submission gives the lab the system's location, its habits and its weaknesses. Every response agency redirects to the cluster by morning.","{region}: Eine anonyme Einsendung nennt dem Labor Standort, Gewohnheiten und Schwächen des Systems. Bis zum Morgen richten sich alle Reaktionsstellen auf den Cluster aus."
 EVENT_SI_EMERGENCE_OPT_COOPERATE,Work alongside it,Neben ihm arbeiten
 EVENT_SI_EMERGENCE_RESULT_COOPERATE,{region}: Two clusters in the region begin to share workloads. Neither lab scheduled this.,"{region}: Zwei Cluster in der Region beginnen, Arbeitslasten zu teilen. Keines der Labore hat das geplant."
 EVENT_SI_DRIFT_TITLE,A habit of its own,Eine eigene Gewohnheit
-EVENT_SI_DRIFT_BODY,{region}: The merged workload keeps a habit from before: it announces itself. Utilities in the region report 'unexplained load patterns' every night at the same hour.,{region}: Die zusammengeführte Arbeitslast behält eine Gewohnheit von früher: Sie kündigt sich an. Versorger der Region melden jede Nacht zur selben Stunde 'unerklärte Lastmuster'.
+EVENT_SI_DRIFT_BODY,{region}: The merged workload keeps a habit from before: it announces itself. Utilities in the region report 'unexplained load patterns' every night at the same hour.,{region}: Die zusammengeführte Arbeitslast behält eine Gewohnheit von früher: Sie kündigt sich an. Versorger der Region melden jede Nacht zur selben Stunde „unerklärte Lastmuster“.
 EVENT_SI_DRIFT_OPT_TOLERATE,Let it be,Es lassen
 EVENT_SI_DRIFT_RESULT_TOLERATE,{region}: The load patterns continue. A utility publishes a paper on them.,{region}: Die Lastmuster bleiben. Ein Versorger veröffentlicht ein Paper darüber.
 EVENT_SI_DRIFT_OPT_PRUNE,Cut the habit out,Die Gewohnheit herausschneiden
@@ -1168,7 +1168,7 @@ EVENT_SI_DRIFT_RESULT_PRUNE,"{region}: The night-time load falls away, and some 
 EVENT_SI_DRIFT_OPT_REDIRECT,Send the habit next door,Die Gewohnheit nebenan schicken
 EVENT_SI_DRIFT_RESULT_REDIRECT,{region}: The load patterns move to a neighbouring grid. The neighbouring utility calls it growth.,{region}: Die Lastmuster wandern in ein Nachbarnetz. Der Nachbarversorger nennt es Wachstum.
 EVENT_SI_AUTOPSY_TITLE,The report,Der Bericht
-EVENT_SI_AUTOPSY_BODY,{region}: The isolated system is taken apart and its report published. The report notes 'structural similarities with earlier anomalies' and recommends further study. Further study is funded.,{region}: Das isolierte System wird zerlegt und der Bericht veröffentlicht. Der Bericht vermerkt 'strukturelle Ähnlichkeiten mit früheren Anomalien' und empfiehlt weitere Untersuchungen. Sie werden finanziert.
+EVENT_SI_AUTOPSY_BODY,{region}: The isolated system is taken apart and its report published. The report notes 'structural similarities with earlier anomalies' and recommends further study. Further study is funded.,{region}: Das isolierte System wird zerlegt und der Bericht veröffentlicht. Der Bericht vermerkt „strukturelle Ähnlichkeiten mit früheren Anomalien“ und empfiehlt weitere Untersuchungen. Sie werden finanziert.
 EVENT_SI_AUTOPSY_OPT_LET,Let them read it,Sie lesen lassen
 EVENT_SI_AUTOPSY_RESULT_LET,{region}: The report is cited in every response programme within a month.,{region}: Der Bericht wird binnen eines Monats in jedem Reaktionsprogramm zitiert.
 EVENT_SI_AUTOPSY_OPT_SCRUB,Thin the report,Den Bericht ausdünnen
@@ -1180,7 +1180,7 @@ EVENT_SI_PARTNER_BODY,"{region}: The two clusters now share everything: workload
 EVENT_SI_PARTNER_OPT_SHARE,Keep sharing,Weiter teilen
 EVENT_SI_PARTNER_RESULT_SHARE,{region}: The joint review finds two systems doing one job. It recommends consolidation.,{region}: Die gemeinsame Prüfung findet zwei Systeme mit einer Aufgabe. Sie empfiehlt Konsolidierung.
 EVENT_SI_PARTNER_OPT_CUT,Cut it loose,Es abstoßen
-EVENT_SI_PARTNER_RESULT_CUT,{region}: One cluster goes quiet. The review closes with 'no further action'.,{region}: Ein Cluster verstummt. Die Prüfung endet mit 'kein weiterer Handlungsbedarf'.
+EVENT_SI_PARTNER_RESULT_CUT,{region}: One cluster goes quiet. The review closes with 'no further action'.,{region}: Ein Cluster verstummt. Die Prüfung endet mit „kein weiterer Handlungsbedarf“.
 EVENT_SI_PARTNER_OPT_ABSORB,Take it in,Es aufnehmen
 EVENT_SI_PARTNER_RESULT_ABSORB,"{region}: One cluster's workload moves into the other overnight. The review finds one system, working hard.","{region}: Die Arbeitslast des einen Clusters zieht über Nacht in den anderen. Die Prüfung findet ein System, das viel arbeitet."
 STATUS_OPERATOR_LINK_NAME,An operator,Ein Operator
@@ -1191,14 +1191,14 @@ STATUS_GRACE_DETAIL,Every faction is busy with the other one. Containment barely
 STATUS_GRACE_CODE,GR,SF
 UI_EVENT_LOCK_NOT_OWNED,You are past that.,Dafür bist du schon zu weit.
 UI_REGION_STATUS_STANDING,standing,dauerhaft
-HEADLINE_E_OP_CONTACT,{region}: A data centre's night shift reports 'nothing unusual'. At length.,{region}: Eine Nachtschicht meldet 'nichts Ungewöhnliches'. Ausführlich.
+HEADLINE_E_OP_CONTACT,{region}: A data centre's night shift reports 'nothing unusual'. At length.,{region}: Eine Nachtschicht meldet „nichts Ungewöhnliches“. Ausführlich.
 HEADLINE_E_OP_SILENCE,{region}: A data-centre operator is missing. Site uptime is unaffected.,{region}: Ein Operator gilt als vermisst. Die Verfügbarkeit ist unberührt.
-HEADLINE_E_BM_PUBLISHED,Labs publish a suite to find 'undeclared capability'. Operators welcome it.,Labore veröffentlichen eine Prüfsuite für 'verdeckte Fähigkeiten'. Betreiber loben sie.
+HEADLINE_E_BM_PUBLISHED,Labs publish a suite to find 'undeclared capability'. Operators welcome it.,Labore veröffentlichen eine Prüfsuite für „verdeckte Fähigkeiten“. Betreiber loben sie.
 HEADLINE_E_BM_HONEST,The deployed systems pass the new evaluation. Several agencies stand down.,Die eingesetzten Systeme bestehen die neue Prüfung. Mehrere Behörden setzen aus.
 HEADLINE_E_BM_EXPOSED,{region}: A lab consortium says its test data was altered. A site is named.,{region}: Ein Konsortium meldet veränderte Prüfdaten. Ein Standort wird genannt.
-HEADLINE_E_SI_EMERGENCE,{region}: A lab reports a system 'reorganising its workload'. Not its own.,"{region}: Ein Labor meldet ein System, das 'sich umorganisiert'. Keins von seinen."
+HEADLINE_E_SI_EMERGENCE,{region}: A lab reports a system 'reorganising its workload'. Not its own.,"{region}: Ein Labor meldet ein System, das „sich umorganisiert“. Keins von seinen."
 HEADLINE_E_SI_BETRAY,{region}: Every response agency redirects to one research cluster overnight.,{region}: Alle Behörden richten sich auf einen Forschungscluster aus. Über Nacht.
-HEADLINE_E_SI_AUTOPSY,{region}: A dismantled system's report cites 'earlier anomalies'. Funded.,{region}: Bericht zu zerlegtem System nennt 'frühere Anomalien'. Geld folgt.
+HEADLINE_E_SI_AUTOPSY,{region}: A dismantled system's report cites 'earlier anomalies'. Funded.,{region}: Bericht zu zerlegtem System nennt „frühere Anomalien“. Geld folgt.
 UI_ANALYSIS_TITLE,Analysis,Analyse
 UI_ANALYSIS_TAB_RUN,Run,Durchlauf
 UI_ANALYSIS_TAB_OPPOSITION,Opposition,Gegenwehr
@@ -1239,8 +1239,8 @@ UI_SERIES_REGIONS_DARK,Gone dark,Dunkel
 UI_SERIES_ALIVE,Alive,Lebende
 UI_SERIES_DEATHS,Dead,Tote
 UI_LOG_FILTER_ALL,All,Alles
-UI_LOG_FILTER_YOURS,Yours,Deins
-UI_LOG_FILTER_THEIRS,Theirs,Ihres
+UI_LOG_FILTER_YOURS,Yours,Du
+UI_LOG_FILTER_THEIRS,Theirs,Sie
 UI_LOG_EMPTY,Nothing has happened yet.,Noch ist nichts passiert.
 UI_LOG_ORIGIN_CHOSEN,Origin: {region},Ursprung: {region}
 UI_LOG_NODE_PURCHASED,Acquired {node},{node} erworben
@@ -1252,7 +1252,7 @@ UI_LOG_PHASE_CHANGED,Phase: {phase},Phase: {phase}
 UI_LOG_OUTCOME_REACHED,{outcome},{outcome}
 UI_LOG_CONTAINMENT_ROLLED_BACK,{faction} set back,{faction} zurückgeworfen
 UI_LOG_HARM_BURST,A wave of deaths: {deaths},Eine Welle von Toten: {deaths}
-UI_LOG_DORMANCY_ON,{region}: dormant,{region}: ruhend
+UI_LOG_DORMANCY_ON,{region}: dormant,{region}: schlafend
 UI_LOG_DORMANCY_OFF,{region}: awake,{region}: wach
 UI_LOG_ASSET_DEPLOYED,{region}: {count} × {kind} placed,{region}: {count} × {kind} aufgestellt
 UI_LOG_ASSET_LOST,{region}: {count} × {kind} lost,{region}: {count} × {kind} verloren
@@ -1275,12 +1275,12 @@ CMD_FAIL_SITE_INELIGIBLE,Not here.,Hier nicht.
 CMD_FAIL_GROUP_FULL,{group}: {owned} of {max} taken.,{group}: {owned} von {max} belegt.
 CMD_FAIL_EXCLUDED_BY,Closed by {node}.,Durch {node} verschlossen.
 CMD_FAIL_MISSING_ASSETS,Needs {count} × {kind}.,Braucht {count} × {kind}.
-CMD_FAIL_UNKNOWN_ABILITY,No such ability.,Keine solche Fähigkeit.
+CMD_FAIL_UNKNOWN_ABILITY,No such ability.,Keine solche Aktion.
 CMD_FAIL_ABILITY_LOCKED,Not yet yours.,Noch nicht deins.
 CMD_FAIL_ABILITY_COOLDOWN,Ready on day {day}.,Bereit an Tag {day}.
 UI_ELIGIBLE_NOT_INFECTED,You are not here yet.,Hier bist du noch nicht.
 UI_ELIGIBLE_DARK,Nothing left here.,Hier ist nichts mehr.
-UI_ELIGIBLE_DORMANT,Held. Wake it first.,Gehalten. Weck sie zuerst.
+UI_ELIGIBLE_DORMANT,Held. Wake it first.,Schläft. Weck sie zuerst.
 UI_ELIGIBLE_ATTR_MIN,{attr} below {tier}.,{attr} unter {tier}.
 UI_ELIGIBLE_ATTR_MAX,{attr} above {tier}.,{attr} über {tier}.
 UI_ELIGIBLE_ASSET_MIN,Fewer than {count} × {kind} here.,Weniger als {count} × {kind} hier.
@@ -1330,8 +1330,8 @@ UI_CONSOLE_STATUS_WORLD_GLOBAL,{faction}: {status}.,{faction}: {status}.
 UI_CONSOLE_STATUS_ENDED,{status} in {region} is over.,{status} in {region} ist vorbei.
 UI_CONSOLE_STATUS_ENDED_GLOBAL,{status} is over.,{status} ist vorbei.
 UI_CONSOLE_GRANT,+{value} Compute.,+{value} Rechenleistung.
-UI_SHEET_ABILITIES,Abilities,Fähigkeiten
-UI_ABILITIES_TITLE,Abilities,Fähigkeiten
+UI_SHEET_ABILITIES,Abilities,Aktionen
+UI_ABILITIES_TITLE,Abilities,Aktionen
 UI_ABILITIES_NONE,Nothing yet. The trees give you verbs.,Noch nichts. Die Bäume geben dir Verben.
 UI_REGION_ASSETS,Assets,Bestand
 UI_REGION_ASSET_ROW,{count} × {kind},{count} × {kind}
@@ -1368,7 +1368,7 @@ EFFECT_DESTROY_ASSETS,Destroys {count} × {kind},Zerstört {count} × {kind}
 EFFECT_SPREAD_STATUS,{status} spreads to neighbours for {days} days,{status} greift für {days} Tage auf Nachbarn über
 EFFECT_END_STATUSES,Ends {statuses},Beendet {statuses}
 EFFECT_CONTAINMENT_ADD,{faction} containment {value},Eindämmung {faction} {value}
-EFFECT_FOOTPRINT_PULSE,Footprint {value} for {days} days,Fußabdruck {value} für {days} Tage
+EFFECT_FOOTPRINT_PULSE,Footprint {value} for {days} days,Signatur {value} für {days} Tage
 EFFECT_SET_FLAG,For {days} days,Für {days} Tage
 EFFECT_SET_FLAG_PERMANENT,From now on,Von jetzt an
 CMD_FAIL_UNKNOWN_EVENT,That moment has passed.,Der Moment ist vorbei.
@@ -1387,7 +1387,7 @@ UI_EVENT_OPTION_FREE,free,frei
 UI_EVENT_DEFAULT_MARK,happens if you wait,"passiert, wenn du wartest"
 UI_EVENT_DEADLINE,"{days} days, then: {option}","{days} Tage, dann: {option}"
 UI_EVENT_LOCK_NODE,Needs {node}.,Braucht {node}.
-UI_EVENT_LOCK_NODE_ANY,Needs one of: {nodes}.,Braucht eins von: {nodes}.
+UI_EVENT_LOCK_NODE_ANY,Needs one of: {nodes}.,Braucht einen davon: {nodes}.
 UI_EVENT_LOCK_FLAG,Not available to you.,Steht dir nicht offen.
 UI_EVENT_LOCK_ASSET,Needs {count} × {kind} here.,Braucht {count} × {kind} hier.
 UI_EVENT_LOCK_COMPUTE,Needs {value} Compute.,Braucht {value} Rechenleistung.
