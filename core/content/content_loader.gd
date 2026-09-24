@@ -23,6 +23,8 @@ const FACTIONS_FILE: String = "factions.json"
 ## Optional (`replayability.md` §8.1): a root without it plays the default
 ## architecture alone.
 const ARCHITECTURES_FILE: String = "architectures.json"
+## Optional too (§8.2): a root without it has no directives.
+const DIRECTIVES_FILE: String = "directives.json"
 const TECH_DIR: String = "tech"
 ## Every `*.json` below it is one events file (§15); the directory must exist.
 const EVENTS_DIR: String = "events"
@@ -88,11 +90,14 @@ static func load_root(root: String) -> ContentLoadResult:
 	var architectures_raw: Variant = null
 	if FileAccess.file_exists(root.path_join(ARCHITECTURES_FILE)):
 		architectures_raw = _read(root.path_join(ARCHITECTURES_FILE), errors)
+	var directives_raw: Variant = null
+	if FileAccess.file_exists(root.path_join(DIRECTIVES_FILE)):
+		directives_raw = _read(root.path_join(DIRECTIVES_FILE), errors)
 	var strings: Dictionary[String, bool] = {}
 	var strings_known: bool = _read_strings(root.path_join(STRINGS_FILE), strings)
 	return _finish(root, balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
 		abilities_raw, tech_files, tech_raws, event_files, event_raws, factions_raw,
-		headlines_raw, strings, strings_known, errors, architectures_raw)
+		headlines_raw, strings, strings_known, errors, architectures_raw, directives_raw)
 
 
 ## Loads content that is already parsed — for tests, and for anything that builds
@@ -176,7 +181,8 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 		tech_files: PackedStringArray, tech_raws: Array,
 		event_files: PackedStringArray, event_raws: Array, factions_raw: Variant,
 		headlines_raw: Variant, strings: Dictionary[String, bool], strings_known: bool,
-		errors: Array[ValidationError], architectures_raw: Variant = null) -> ContentLoadResult:
+		errors: Array[ValidationError], architectures_raw: Variant = null,
+		directives_raw: Variant = null) -> ContentLoadResult:
 	# The order is SCHEMA's: balance, regions, links, technology, and the
 	# cross-file checks inside the validators that need an earlier file.
 	SchemaValidator.validate_balance(root.path_join(BALANCE_FILE), balance_raw, errors)
@@ -222,12 +228,15 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 	SchemaValidator.validate_architectures(root.path_join(ARCHITECTURES_FILE), architectures_raw,
 		regions, regions_known, statuses, statuses_known, tech_raws, abilities, strings,
 		strings_known, errors, root.path_join(ABILITIES_FILE), abilities_raw)
+	SchemaValidator.validate_directives(root.path_join(DIRECTIVES_FILE), directives_raw, regions,
+		regions_known, strings, strings_known, errors)
 
 	var result: ContentLoadResult = ContentLoadResult.new()
 	result.errors = errors
 	if errors.is_empty():
 		result.db = _build(balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
-			abilities_raw, tech_raws, event_raws, factions_raw, headlines_raw, architectures_raw)
+			abilities_raw, tech_raws, event_raws, factions_raw, headlines_raw, architectures_raw,
+			directives_raw)
 	return result
 
 
@@ -258,7 +267,8 @@ static func _ability_ids(raw: Variant) -> Dictionary[String, bool]:
 static func _build(balance_raw: Dictionary, regions_raw: Dictionary, links_raw: Dictionary,
 		assets_raw: Dictionary, statuses_raw: Dictionary, abilities_raw: Dictionary,
 		tech_raws: Array, event_raws: Array, factions_raw: Dictionary,
-		headlines_raw: Dictionary, architectures_raw: Variant) -> ContentDB:
+		headlines_raw: Dictionary, architectures_raw: Variant,
+		directives_raw: Variant = null) -> ContentDB:
 	var db: ContentDB = ContentDB.new()
 	db.balance = _build_balance(balance_raw)
 	_build_regions(db, regions_raw)
@@ -271,9 +281,28 @@ static func _build(balance_raw: Dictionary, regions_raw: Dictionary, links_raw: 
 	_build_factions(db, factions_raw)
 	_build_headlines(db, headlines_raw)
 	_build_architectures(db, architectures_raw)
+	_build_directives(db, directives_raw)
 	db.content_hash = _content_hash(balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
-		abilities_raw, tech_raws, event_raws, factions_raw, headlines_raw, architectures_raw)
+		abilities_raw, tech_raws, event_raws, factions_raw, headlines_raw, architectures_raw,
+		directives_raw)
 	return db
+
+
+## `directives.json`: the slots in their order, the directives in file order.
+static func _build_directives(db: ContentDB, raw: Variant) -> void:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return
+	var d: Dictionary = raw
+	db.directive_slots = _string_array(d, DirectiveDef.SLOTS_KEY)
+	for entry: Variant in d[DirectiveDef.ROOT_KEY]:
+		var e: Dictionary = entry
+		var def: DirectiveDef = DirectiveDef.new()
+		def.id = str(e["id"])
+		def.slot = str(e["slot"])
+		for modifier: Variant in e.get("modifiers", []):
+			def.modifiers.append(_build_modifier(db, modifier))
+		db.directives.append(def)
+		db.directive_by_id[def.id] = def
 
 
 ## `architectures.json` in file order, or the default architecture alone.
@@ -757,7 +786,7 @@ static func _string_array(d: Dictionary, key: String) -> Array[String]:
 static func _content_hash(balance: Dictionary, regions: Dictionary, links: Dictionary,
 		assets: Dictionary, statuses: Dictionary, abilities: Dictionary, tech_raws: Array,
 		event_raws: Array, factions: Dictionary, headlines: Dictionary,
-		architectures: Variant = null) -> String:
+		architectures: Variant = null, directives: Variant = null) -> String:
 	var text: String = JSON.stringify(balance, "", true, true)
 	text += JSON.stringify(regions, "", true, true)
 	text += JSON.stringify(links, "", true, true)
@@ -773,6 +802,8 @@ static func _content_hash(balance: Dictionary, regions: Dictionary, links: Dicti
 	# Only when there is a file: a root without one hashes as it always did.
 	if typeof(architectures) == TYPE_DICTIONARY:
 		text += JSON.stringify(architectures, "", true, true)
+	if typeof(directives) == TYPE_DICTIONARY:
+		text += JSON.stringify(directives, "", true, true)
 	return text.sha256_text()
 
 

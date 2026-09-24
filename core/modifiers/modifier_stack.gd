@@ -72,6 +72,8 @@ const SOURCE_ASSET: String = "asset"
 const SOURCE_FLAG: String = "flag"
 ## The prefix of the run's architecture (`replayability.md` §1).
 const SOURCE_ARCHITECTURE: String = "arch"
+## The prefix of one directive of the run's loadout (§4).
+const SOURCE_DIRECTIVE: String = "directive"
 
 var _bases: Dictionary[String, float] = {}
 ## Source id → its modifiers, in activation order.
@@ -112,6 +114,11 @@ static func source_for_asset(kind: String) -> String:
 ## The source id a timed flag is active under (§8.2).
 static func source_for_flag(flag: String) -> String:
 	return "%s:%s" % [SOURCE_FLAG, flag]
+
+
+## The source id a directive of the loadout is active under.
+static func source_for_directive(directive_id: String) -> String:
+	return "%s:%s" % [SOURCE_DIRECTIVE, directive_id]
 
 
 ## The source id the run's architecture is active under.

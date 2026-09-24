@@ -153,6 +153,12 @@ func add_setup_sources(db: ContentDB) -> void:
 	var nobody: Array[String] = []
 	modifiers.add_source(ModifierStack.source_for_architecture(def.id), def.modifiers, no_flags,
 		nobody)
+	# The loadout after the architecture, in the order the setup lists it.
+	for directive_id: String in setup.directives:
+		var directive: DirectiveDef = db.directive(directive_id)
+		if directive != null:
+			modifiers.add_source(ModifierStack.source_for_directive(directive_id),
+				directive.modifiers, no_flags, nobody)
 
 
 func add_asset_sources(db: ContentDB) -> void:

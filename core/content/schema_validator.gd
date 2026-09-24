@@ -2945,6 +2945,71 @@ static func validate_architectures(file: String, raw: Variant,
 			"missing the default architecture \"%s\"" % ArchitectureDef.DEFAULT_ID)
 
 
+## `directives.json` (`replayability.md` §8.2). Optional. With it: the slots are
+## ids without repeats, every directive names one of them, ids are unique, and
+## every slot has at least one directive.
+static func validate_directives(file: String, raw: Variant,
+		regions: Dictionary[String, String], regions_known: bool,
+		strings: Dictionary[String, bool], strings_known: bool,
+		errors: Array[ValidationError]) -> void:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return
+	var d: Dictionary = raw
+	_check_keys(d, ["version", DirectiveDef.SLOTS_KEY, DirectiveDef.ROOT_KEY], file, "", errors)
+	_content_version(d, file, errors)
+	var slots: Dictionary[String, int] = {}
+	for slot: String in _id_list(d, DirectiveDef.SLOTS_KEY, file, "", errors):
+		if slot.is_empty():
+			continue
+		if slots.has(slot):
+			_add(errors, file, DirectiveDef.SLOTS_KEY, "duplicate slot \"%s\"" % slot)
+		slots[slot] = 0
+		if strings_known and not strings.has(DirectiveDef.slot_key(slot)):
+			_add(errors, file, DirectiveDef.SLOTS_KEY,
+				"no string \"%s\" with both an en and a de cell" % DirectiveDef.slot_key(slot))
+	if not _require(d, DirectiveDef.ROOT_KEY, file, "", errors) \
+			or not _is_list(d[DirectiveDef.ROOT_KEY], file, DirectiveDef.ROOT_KEY, errors):
+		return
+	var continents: Dictionary[String, bool] = {}
+	for continent: String in regions.values():
+		continents[continent] = true
+	var seen: Dictionary[String, bool] = {}
+	var list: Array = d[DirectiveDef.ROOT_KEY]
+	for i: int in list.size():
+		var path: String = "%s[%d]" % [DirectiveDef.ROOT_KEY, i]
+		if not _is_object(list[i], file, path, errors):
+			continue
+		var e: Dictionary = list[i]
+		_check_keys(e, DirectiveDef.KEYS, file, path, errors)
+		var id: String = _id(e, "id", file, path, errors)
+		if id.is_empty():
+			continue
+		if seen.has(id):
+			_add(errors, file, _join(path, "id"), "duplicate directive \"%s\"" % id)
+			continue
+		seen[id] = true
+		var slot: String = _id(e, "slot", file, path, errors)
+		if not slot.is_empty() and not slots.has(slot):
+			_add(errors, file, _join(path, "slot"), "unknown slot \"%s\"" % slot)
+		elif not slot.is_empty():
+			slots[slot] += 1
+		if _require(e, "modifiers", file, path, errors) \
+				and _is_list(e["modifiers"], file, _join(path, "modifiers"), errors):
+			var modifiers: Array = e["modifiers"]
+			for j: int in modifiers.size():
+				_modifier(modifiers[j], file, "%s[%d]" % [_join(path, "modifiers"), j], regions,
+					regions_known, continents, errors)
+		if strings_known:
+			for suffix: String in ["_NAME", "_DETAIL"]:
+				var key: String = "DIRECTIVE_%s%s" % [id.to_upper(), suffix]
+				if not strings.has(key):
+					_add(errors, file, _join(path, "id"),
+						"no string \"%s\" with both an en and a de cell" % key)
+	for slot: String in slots:
+		if slots[slot] == 0:
+			_add(errors, file, DirectiveDef.SLOTS_KEY, "slot \"%s\" has no directive" % slot)
+
+
 ## An ability with no node to come from exists only because an architecture
 ## grants it (§2.4); any other is a mistake (loop-mechanics §9.2). Checked here,
 ## after both files, because only here are both known.

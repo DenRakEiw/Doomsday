@@ -38,6 +38,11 @@ var groups: Dictionary[String, int] = {}
 ## file has the default architecture alone.
 var architectures: Array[ArchitectureDef] = []
 var architecture_by_id: Dictionary[String, ArchitectureDef] = {}
+## `directives.json` (`replayability.md` §8.2): the slots in their order, and the
+## directives in file order. A root without the file has none of either.
+var directive_slots: Array[String] = []
+var directives: Array[DirectiveDef] = []
+var directive_by_id: Dictionary[String, DirectiveDef] = {}
 var balance: BalanceDef = null
 ## Σ `RegionDef.population`, as a float because every formula using it is one.
 var population_total: float = 0.0
@@ -100,6 +105,13 @@ func event(id: String) -> EventDef:
 	if not event_by_id.has(id):
 		return null
 	return event_by_id[id]
+
+
+## The directive with this id, or null.
+func directive(id: String) -> DirectiveDef:
+	if not directive_by_id.has(id):
+		return null
+	return directive_by_id[id]
 
 
 ## The architecture with this id, or null.

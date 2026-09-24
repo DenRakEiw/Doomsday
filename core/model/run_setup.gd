@@ -23,11 +23,19 @@ static func create(p_architecture: String = ArchitectureDef.DEFAULT_ID,
 	return setup
 
 
-## "" when the content knows the architecture, else `Command.FAIL_SETUP_INVALID`. The
-## directive and difficulty checks join when their files do (S5.3, S5.4).
+## "" when the content knows the architecture and every directive, and no two
+## directives share a slot; else `Command.FAIL_SETUP_INVALID`. Whether a slot is
+## unlocked is the profile's business, not the simulation's (§1). The difficulty
+## check joins with its file (S5.4).
 func validate(db: ContentDB) -> String:
 	if db.architecture(architecture) == null:
 		return Command.FAIL_SETUP_INVALID
+	var slots: Dictionary[String, bool] = {}
+	for directive_id: String in directives:
+		var directive: DirectiveDef = db.directive(directive_id)
+		if directive == null or slots.has(directive.slot):
+			return Command.FAIL_SETUP_INVALID
+		slots[directive.slot] = true
 	return ""
 
 

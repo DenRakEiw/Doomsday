@@ -1,5 +1,5 @@
 {
-	"_comment": "D5.1 (docs/specs/replayability.md section 4, grammar section 8.2): five slots, three directives each, one slot unlocked per completed run. Staged: S5.3 loads it.",
+	"_comment": "The directives (docs/specs/replayability.md section 4, grammar section 8.2): five slots, three directives each, one slot unlocked per completed run (the profile decides; the simulation only refuses two in one slot). Written in D5.1, loaded from S5.3 on. Text: DIRECTIVE_SLOT_<SLOT>, DIRECTIVE_<ID>_NAME / _DETAIL.",
 	"version": 1,
 	"slots": ["yield", "drift", "propagation", "environment", "escalation"],
 	"directives": [

@@ -26,6 +26,7 @@ Settings="*res://game/autoload/settings.gd"
 Game="*res://game/autoload/game.gd"
 SaveManager="*res://game/autoload/save_manager.gd"
 ScreenRouter="*res://game/autoload/screen_router.gd"
+ProfileManager="*res://game/autoload/profile_manager.gd"
 
 [debug]
 

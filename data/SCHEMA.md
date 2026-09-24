@@ -572,6 +572,16 @@ the default architecture `language_model` alone, with no modifiers and no start.
 The run's architecture is `World.setup.architecture` (save v3); an unknown one refuses the origin
 with `setup_invalid`. Strings per architecture: `ARCH_<ID>_NAME` · `_TAGLINE` · `_DETAIL`.
 
+## 6f. `directives.json`
+
+The loadout (`docs/specs/replayability.md` §4, §8.2). **Optional**: a root without it has no
+directives. `{"version": 1, "slots": [slot id…], "directives": [{"id", "slot", "modifiers"}]}` —
+slots unique, every directive in one of them, every slot with at least one directive, ids unique;
+modifiers as §4.1, active under `directive:<id>` after the architecture's. A run names its loadout
+in `setup.directives`; two in one slot, or an unknown one, refuses the origin with
+`setup_invalid`. Which slots are open is the profile's (`user://profile.json`), never the
+simulation's. Strings: `DIRECTIVE_SLOT_<SLOT>`, `DIRECTIVE_<ID>_NAME` · `_DETAIL`.
+
 ## 7. Eligibility
 
 Where something may be placed, used or picked: a `deploy` site, an ability's target, an event's

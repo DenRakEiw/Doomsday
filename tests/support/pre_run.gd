@@ -8,5 +8,12 @@ extends GutHookScript
 ## file keeps what the player chose.
 
 
+## The profile (S5.3) is written by every run that ends in front of the game, so
+## the suite gets a file of its own, emptied at the start.
+const TEST_PROFILE: String = "user://test_profile.json"
+
+
 func run() -> void:
 	Settings.text_scale = Settings.DEFAULT_TEXT_SCALE
+	ProfileManager.use_path(TEST_PROFILE)
+	ProfileManager.reset()

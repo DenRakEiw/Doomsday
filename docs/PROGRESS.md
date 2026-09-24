@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. The M5 design block is done; meanwhile the build goes on: **S5.3 — Profile, directives, statistics** (`docs/specs/replayability.md` §4, §6, §10; `data/staging/directives.json`; the profile additions of `screens-full.md` §5). |
+| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. The M5 design block is done; meanwhile the build goes on: **S5.4 — Difficulty tiers** (`docs/specs/replayability.md` §5, §10; `data/staging/difficulty.json`, the `cost_by_control` hook, the report's `--setup` difficulty). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S5.4 → S5.8 (M5 build), then G5 |
-| **Last completed** | S5.2 — Architectures II: swarm (drift, defection), weapon (escalation, Restraint), open_weights (six-region start, the wipe floor); the `emergent` event kind with its twelve cards, its own daily beat and the escalating suppression price; effects `status_level_add` and `unlock_near_node`; `when` keys `architecture` and `drift_min`. All six architectures live. 1324 tests green (2026-09-24). **The M4 gate is still open.** |
-| **Before that** | D4.6 + S4.11 — first run (2026-09-24) |
+| **After it** | S5.5 → S5.8 (M5 build), then G5 |
+| **Last completed** | S5.3 — Profile, directives, statistics: `data/directives.json` loaded and validated (five slots of three), a loadout's modifiers under `directive:<id>`, one per slot; the `ProfileManager` autoload (`user://profile.json`: counters, per-architecture rows, derived unlocks, directive slots, last setup, history of 20, endings, Codex sets, boot and unlock flags; a player's finished run is counted, a bot's never; the test suite writes its own file). 1336 tests green (2026-09-24). **The M4 gate is still open.** |
+| **Before that** | S5.2 — Architectures II (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…]` on all three tools) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -123,7 +123,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S4.P [O] Punch list from D4.5 and G4 *(skip if empty)*
 - [x] S5.1 [O] Architectures I
 - [x] S5.2 [O] Architectures II
-- [ ] S5.3 [O] Profile, directives, statistics
+- [x] S5.3 [O] Profile, directives, statistics
 - [ ] S5.4 [O] Difficulty tiers
 - [ ] S5.5 [O] Response Task Force
 - [ ] S5.6 [O] Endings
@@ -925,6 +925,16 @@ without new information.
   is `HIT_MIN` tall with no gap between rows; (6) a `StyleBoxFlat` with a transparent border has no
   border (the stray corner dots). The pending chip hides while any hold is on; the region panel
   finds a faction status's option text through its counter-move instead of a new save field.
+- **2026-09-24** (S5.3) — **The profile is presentation:** the `ProfileManager` autoload owns
+  `user://profile.json` (version 1, not shipped, so the D5.3 keys went in without a bump). A run
+  is recorded on `run_ended` when `Game.policy` is null — a loaded run that had already ended
+  never fires it again, so nothing counts twice. `last_setup` is written on a player's
+  `run_started`. Unlocks are `ProfileManager.rule_met` over the counters; slots are
+  `min(slots, runs_completed)`. The endings' variant is the outcome id until S5.6 has variants.
+  The suite points the profile at `user://test_profile.json` in `pre_run.gd` (the S4.11 lesson:
+  tests must not write the player's files). The Codex collector (`CodexTracker`) and every screen
+  that reads the profile are S5.7's; S5.3 gives them `merge_codex`, `mark_boot_seen`,
+  `mark_unlock_seen`, `reset`.
 - **2026-09-24** (S5.2) — **How the emergent kind and the hooks are built:** the emergent beat
   lives in `EventSystem` (`_emergent`, before the pending check: it does not wait for the world's
   events), draws from `candidates(sim, "emergent")`; `emergent_rate`'s clamp of 20 caps the daily
@@ -1892,6 +1902,14 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — S5.3 Profile, directives, statistics [O]
+- Built `DirectiveDef`, its loader and validator (optional file, SCHEMA §6f), the loadout's
+  sources, the one-per-slot rule in `RunSetup.validate`; moved `directives.json` out of staging.
+  Built the `ProfileManager` autoload and its test-suite path. `--setup=<arch>,<difficulty>,<dir>…`
+  already carried directives (S5.1); checked with a Swarm run on two directives and refused on two
+  in one slot.
+- Tests: `test_profile_manager.gd` (7), `test_directives.gd` (5). 1336 green.
 
 ### 2026-09-24 — S5.2 Architectures II [O]
 - Built the balance blocks (`emergent`, `drift`, `escalation`, `distributed`), the `emergent` kind
