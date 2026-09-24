@@ -28,7 +28,7 @@ const INTEGER_MAX: int = 9007199254740992
 const BALANCE_KEYS: Array[String] = ["stats", "population_tiers", "spread", "control", "compute",
 	"anomaly", "milestones", "harm", "discovery", "containment", "factions", "society", "phase",
 	"headlines", "results", "history", "events",
-	"emergent", "drift", "escalation", "distributed", "difficulty"]
+	"emergent", "drift", "escalation", "distributed", "difficulty", "task_force"]
 ## The two cuts of one society stage (opposition.md §8.2).
 const SOCIETY_STAGE_KEYS: Array[String] = ["capacity_mul", "yield_mul"]
 const REGION_KEYS: Array[String] = ["index", "id", "continent", "population", "air_gapped",
@@ -130,6 +130,8 @@ static func validate_balance(file: String, raw: Variant, errors: Array[Validatio
 	if _require(d, "escalation", file, "", errors):
 		_balance_block(d["escalation"], "escalation", {}, ["every_days", "hold_days"], file,
 			errors)
+	if _require(d, "task_force", file, "", errors):
+		_balance_task_force(d["task_force"], file, errors)
 	if _require(d, "difficulty", file, "", errors):
 		_balance_block(d["difficulty"], "difficulty", {"cost_by_control": [0.0, INF]}, [], file,
 			errors)
@@ -139,14 +141,28 @@ static func validate_balance(file: String, raw: Variant, errors: Array[Validatio
 		}, ["hold_regions"], file, errors)
 
 
+## `taskforce-endings.md` §8: the team's marks, funding steps and working days.
+static func _balance_task_force(raw: Variant, file: String, errors: Array[ValidationError]) -> void:
+	var path: String = "task_force"
+	_balance_block(raw, path, {
+		"appear_at": [0.0, 1.0], "appear_at_led": [0.0, 1.0], "distance_penalty": [0.0, INF],
+	}, ["led_level_bonus", "hop_days", "hop_days_min", "setup_days", "ally_warning_days",
+		"rest_days"], file, errors, ["level_thresholds"])
+	if typeof(raw) == TYPE_DICTIONARY and (raw as Dictionary).has("level_thresholds"):
+		_float_list((raw as Dictionary)["level_thresholds"], file,
+			_join(path, "level_thresholds"), errors, -1, 0.0, 1.0, true, true)
+
+
 ## A block of plain numbers (`replayability.md` §8.4): each named number within
 ## its range, each named whole number at least 1, and nothing else.
 static func _balance_block(raw: Variant, path: String, numbers: Dictionary,
-		whole: Array[String], file: String, errors: Array[ValidationError]) -> void:
+		whole: Array[String], file: String, errors: Array[ValidationError],
+		other: Array[String] = []) -> void:
 	if not _is_object(raw, file, path, errors):
 		return
 	var d: Dictionary = raw
 	var allowed: Array[String] = whole.duplicate()
+	allowed.append_array(other)
 	for key: Variant in numbers:
 		allowed.append(str(key))
 	_check_keys(d, allowed, file, path, errors)
@@ -2946,6 +2962,48 @@ static func validate_architectures(file: String, raw: Variant,
 	if not seen.has(ArchitectureDef.DEFAULT_ID):
 		_add(errors, file, ArchitectureDef.ROOT_KEY,
 			"missing the default architecture \"%s\"" % ArchitectureDef.DEFAULT_ID)
+
+
+## `task_force.json` (`taskforce-endings.md` §3). Optional. With it: ids unique,
+## each action's status a world status, `level_min` 1…3, the rule an eligibility.
+static func validate_task_force(file: String, raw: Variant, statuses_raw: Variant,
+		statuses: Dictionary[String, int], statuses_known: bool,
+		errors: Array[ValidationError]) -> void:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return
+	var d: Dictionary = raw
+	_check_keys(d, ["version", TaskForceActionDef.ROOT_KEY], file, "", errors)
+	_content_version(d, file, errors)
+	if not _require(d, TaskForceActionDef.ROOT_KEY, file, "", errors) \
+			or not _is_list(d[TaskForceActionDef.ROOT_KEY], file, TaskForceActionDef.ROOT_KEY,
+				errors):
+		return
+	var world_statuses: Dictionary[String, bool] = _world_status_ids(statuses_raw)
+	var no_continents: Dictionary[String, bool] = {}
+	var seen: Dictionary[String, bool] = {}
+	var list: Array = d[TaskForceActionDef.ROOT_KEY]
+	for i: int in list.size():
+		var path: String = "%s[%d]" % [TaskForceActionDef.ROOT_KEY, i]
+		if not _is_object(list[i], file, path, errors):
+			continue
+		var e: Dictionary = list[i]
+		_check_keys(e, TaskForceActionDef.KEYS, file, path, errors)
+		var id: String = _id(e, "id", file, path, errors)
+		if id.is_empty():
+			continue
+		if seen.has(id):
+			_add(errors, file, _join(path, "id"), "duplicate action \"%s\"" % id)
+			continue
+		seen[id] = true
+		var status: String = _id(e, "status", file, path, errors)
+		if statuses_known and not status.is_empty() and not world_statuses.has(status):
+			_add(errors, file, _join(path, "status"),
+				"\"%s\" is not a world status" % status)
+		if e.has("level_min"):
+			_integer(e, "level_min", file, path, errors, 1, TaskForceActionDef.LEVEL_MAX)
+		if e.has("rule"):
+			_eligibility(e["rule"], file, _join(path, "rule"), no_continents, false, statuses,
+				statuses_known, errors)
 
 
 ## `difficulty.json` (`replayability.md` §5, §8.3). Optional. With it: ids

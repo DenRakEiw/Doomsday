@@ -84,6 +84,7 @@
 			"applies": {"deploy": {"kind": "fleet", "count": 1}},
 			"levels_from": ["autonomous_fabrication"]
 		},
-		{"id": "restrain", "target": "global", "cost": 6, "cooldown_days": 40, "applies": {"effects": [{"effect": "status_level_add", "status": "escalating", "value": -1}, {"effect": "set_flag", "flag": "restrained", "days": 60}]}, "levels_from": []}
+		{"id": "restrain", "target": "global", "cost": 6, "cooldown_days": 40, "applies": {"effects": [{"effect": "status_level_add", "status": "escalating", "value": -1}, {"effect": "set_flag", "flag": "restrained", "days": 60}]}, "levels_from": []},
+		{"id": "misdirect", "target": "region", "cost": 5, "cooldown_days": 45, "eligible": {}, "applies": {"effects": [{"effect": "task_force_redirect"}]}, "levels_from": ["log_manipulation_2"]}
 	]
 }

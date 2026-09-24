@@ -145,27 +145,10 @@ func test_a_negative_add_is_clamped_at_zero() -> void:
 	assert_eq(stack.value("footprint"), 1.0, "0 + 3 - 2")
 
 
-func test_an_inert_target_is_evaluated_and_read_by_nothing() -> void:
-	# A multiplier says nothing about a target whose base is 0, so the one used
-	# has a base of 1: the emergent rate D5.1 will read.
-	var target: String = "emergent_rate"
-	assert_true(ModifierStack.INERT_TARGETS.has(target))
-	var stack: ModifierStack = _stack()
-	_add(stack, "a", [_modifier(target, ModifierDef.Op.MUL, 0.5)])
-	assert_eq(stack.value(target), 0.5, "%s is evaluated like any other" % target)
-
-	# And no system asks: a tick with it and a tick without it are the same run.
-	var plain: Simulation = Fixtures.sim_with_origin()
-	var marked: Simulation = Fixtures.sim_with_origin()
-	var modifiers: Array[ModifierDef] = []
-	for inert: String in ModifierStack.INERT_TARGETS:
-		modifiers.append(_modifier(inert, ModifierDef.Op.MUL, 0.5))
-	var no_flags: Array[String] = []
-	marked.world.modifiers.add_source("inert", modifiers, no_flags)
-	for day: int in 50:
-		plain.tick()
-		marked.tick()
-	assert_eq(marked.state_hash(), plain.state_hash())
+func test_no_target_is_inert_any_more() -> void:
+	# The last one, the emergent rate, went live with the emergent kind in S5.2;
+	# the list stays as the place a later target waits for its system.
+	assert_true(ModifierStack.INERT_TARGETS.is_empty())
 
 
 func test_an_inert_flag_is_answered_truthfully() -> void:

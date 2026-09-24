@@ -32,6 +32,7 @@ func _init() -> void:
 		SocietalFunctionSystem.new(),
 		ContainmentSystem.new(),
 		CounterMoveSystem.new(),
+		TaskForceSystem.new(),
 		StatusSystem.new(),
 		# The emergent behaviours roll inside `EventSystem` (their own beat);
 		# the Swarm's drift follows what that tick kept or suppressed (S5.2).

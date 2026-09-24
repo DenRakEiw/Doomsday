@@ -57,6 +57,7 @@
 			"cost": 11,
 			"grid": [1, 1],
 			"requires": ["log_manipulation_1"],
+			"ability": {"id": "misdirect", "level": 1},
 			"watched_by": [],
 			"modifiers": [
 				{"target": "discovery", "op": "mul", "value": 0.75},

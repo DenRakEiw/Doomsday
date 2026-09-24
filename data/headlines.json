@@ -1662,6 +1662,13 @@
 		{"id": "s_metered", "stream": "reaction", "register": "any", "on": {"event": "status_started", "data": {"status": "metered"}}, "max_fires": 1},
 		{"id": "s_defected", "stream": "consequence", "register": "any", "on": {"event": "status_started", "data": {"status": "defected"}}, "cooldown_days": 20},
 		{"id": "s_escalating", "stream": "consequence", "register": "any", "on": {"event": "status_started", "data": {"status": "escalating"}}, "cooldown_days": 30},
+		{"id": "tf_appeared", "stream": "reaction", "register": "any", "on": {"event": "task_force_appeared"}, "when": {"not_story_flag": ["researcher_leads_task_force"]}},
+		{"id": "tf_appeared_led", "stream": "reaction", "register": "any", "on": {"event": "task_force_appeared"}, "when": {"story_flag": ["researcher_leads_task_force"]}},
+		{"id": "tf_switch_off", "stream": "consequence", "register": "any", "on": {"event": "task_force_acted", "data": {"action": "switch_off"}}},
+		{"id": "tf_raid", "stream": "consequence", "register": "any", "on": {"event": "task_force_acted", "data": {"action": "raid"}}, "cooldown_days": 30},
+		{"id": "tf_cut_off", "stream": "consequence", "register": "any", "on": {"event": "task_force_acted", "data": {"action": "cut_off"}}, "cooldown_days": 30},
+		{"id": "tf_grid_down", "stream": "consequence", "register": "any", "on": {"event": "task_force_acted", "data": {"action": "grid_down"}}, "cooldown_days": 30},
+		{"id": "tf_fizzled", "stream": "reaction", "register": "any", "on": {"event": "task_force_fizzled"}, "chance": 0.6, "cooldown_days": 30},
 		{
 			"id": "e_unattended_cluster",
 			"stream": "consequence",

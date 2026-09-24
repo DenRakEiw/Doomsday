@@ -39,6 +39,10 @@ func validate(sim: Simulation) -> String:
 		return FAIL_ABILITY_COOLDOWN
 	if sim.world.agent.compute < definition.cost:
 		return FAIL_INSUFFICIENT_COMPUTE
+	for effect: EffectDef in definition.applies_effects:
+		var blocked: String = EffectRunner.blocker(sim, effect)
+		if not blocked.is_empty():
+			return blocked
 	if not definition.targets_region():
 		return ""
 	if region.is_empty():

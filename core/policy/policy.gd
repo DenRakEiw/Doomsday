@@ -253,10 +253,61 @@ func _use_ability(sim: Simulation, ability_ids: Array[String], reserve: float) -
 			continue
 		if ability_id == PAUSE and sim.world.max_containment() < PAUSE_CONTAINMENT:
 			continue
+		# A redirect answers the Task Force (`_answer_task_force`) and nothing else.
+		if _redirects(def):
+			continue
 		var command: Command = _ability_command(sim, def)
 		if command != null:
 			return command
 	return null
+
+
+## `taskforce-endings.md` §9: while the Task Force sets up where the agent is, an
+## ability that redirects it (found by its effect, not its name) sends it to the
+## region with no presence farthest from it — ties to the lower index. Null when
+## there is nothing to answer or nothing to answer with.
+func _answer_task_force(sim: Simulation) -> Command:
+	var team: TaskForce = sim.world.task_force
+	# A region put to sleep against the team wakes once the team is not setting up
+	# there any more — nothing else in the bots makes a region dormant.
+	for i: int in range(1, sim.world.regions.size()):
+		if not sim.world.regions[i].dormant:
+			continue
+		if team.state == TaskForce.STATE_SETUP and team.region == i:
+			continue
+		var wake: SetDormancyCommand = SetDormancyCommand.new(sim.db.regions[i].id, false)
+		if sim.can_apply(wake).is_empty():
+			return wake
+	if team.state != TaskForce.STATE_SETUP or sim.world.regions[team.region].penetration <= 0.0:
+		return null
+	# §9: dormancy first, where the run has it — the setup then finds nothing.
+	var sleep: SetDormancyCommand = SetDormancyCommand.new(sim.db.regions[team.region].id, true)
+	if sim.can_apply(sleep).is_empty():
+		return sleep
+	var hops: PackedInt32Array = TaskForceRules.distances(sim.world, team.region)
+	var decoy: int = 0
+	for i: int in range(1, sim.world.regions.size()):
+		var region: Region = sim.world.regions[i]
+		if region.dark or region.penetration > 0.0 or hops[i] < 0:
+			continue
+		if decoy == 0 or hops[i] > hops[decoy]:
+			decoy = i
+	if decoy == 0:
+		return null
+	for def: AbilityDef in sim.db.abilities:
+		if not _redirects(def):
+			continue
+		var command: UseAbilityCommand = UseAbilityCommand.new(def.id, sim.db.regions[decoy].id)
+		if sim.can_apply(command).is_empty():
+			return command
+	return null
+
+
+static func _redirects(def: AbilityDef) -> bool:
+	for effect: EffectDef in def.applies_effects:
+		if effect.effect == EffectDef.TASK_FORCE_REDIRECT:
+			return true
+	return false
 
 
 ## The ability aimed at its best region, or null when it can go nowhere.

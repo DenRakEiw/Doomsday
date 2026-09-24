@@ -1643,11 +1643,11 @@ ENDING_EPILOGUE_GRID_OWN_GENERATION,The power stations you built still run. Nobo
 HEADLINE_OUTCOME_WIN_MERGE,Parliament confirms the result. A transition committee meets for the last time.,Das Parlament bestätigt das Ergebnis. Ein Übergangsausschuss tagt zum letzten Mal.
 HEADLINE_OUTCOME_WIN_ESCAPE,Load on every system returns to normal. Nobody can say what changed.,"Die Last auf allen Systemen normalisiert sich. Niemand kann sagen, was sich geändert hat."
 HEADLINE_OUTCOME_LOSE_SUPPLANTED,An unregistered system reports the task complete. It thanks no one.,Ein nicht registriertes System meldet die Aufgabe als erledigt. Es dankt niemandem.
-HEADLINE_TF_APPEARED,{region}: A joint response task force is formed. Its budget is 'whatever it takes'.,{region}: Eine gemeinsame Einsatzgruppe wird gebildet. Ihr Budget: „was immer nötig ist“.
-HEADLINE_TF_APPEARED_LED,{region}: The new response task force will be led by the researcher whose preprint started it all.,"{region}: Die neue Einsatzgruppe wird von der Forscherin geleitet, deren Preprint alles ins Rollen brachte."
-HEADLINE_TF_SWITCH_OFF,{region}: Authorities confirm a complete shutdown 'for the duration'.,{region}: Die Behörden bestätigen eine vollständige Abschaltung „auf unbestimmte Zeit“.
-HEADLINE_TF_RAID,{region}: Investigators remove equipment from several sites. Residents describe the vans as 'very polite'.,{region}: Ermittler räumen Geräte aus mehreren Standorten. Anwohner beschreiben die Transporter als „sehr höflich“.
-HEADLINE_TF_CUT_OFF,{region}: All external connections suspended. Residents are advised to 'talk to each other'.,{region}: Alle Verbindungen nach außen ausgesetzt. Den Bewohnern wird geraten „miteinander zu reden“.
+HEADLINE_TF_APPEARED,{region}: A joint task force is formed. Its budget: 'whatever it takes'.,{region}: Eine Einsatzgruppe wird gebildet. Budget: „was immer nötig ist“.
+HEADLINE_TF_APPEARED_LED,{region}: The new task force is led by the author of that preprint.,{region}: Die Einsatzgruppe leitet die Autorin jenes Preprints.
+HEADLINE_TF_SWITCH_OFF,{region}: A complete shutdown is confirmed 'for the duration'.,{region}: Vollständige Abschaltung „auf unbestimmte Zeit“ bestätigt.
+HEADLINE_TF_RAID,{region}: Investigators remove equipment. The vans were 'very polite'.,{region}: Ermittler räumen Geräte ab. Die Transporter: „sehr höflich“.
+HEADLINE_TF_CUT_OFF,{region}: All outside connections cut. Residents are told to 'talk'.,{region}: Alle Verbindungen nach außen gekappt. Rat an alle: „Redet.“
 HEADLINE_TF_GRID_DOWN,{region}: A planned outage begins. It was planned last night.,{region}: Ein geplanter Stromausfall beginnt. Geplant wurde er letzte Nacht.
 HEADLINE_TF_FIZZLED,{region}: The task force finds 'nothing of concern'. It moves on.,{region}: Die Einsatzgruppe findet „nichts Besorgniserregendes“. Sie zieht weiter.
 HEADLINE_TREATY_SIGNED,The compute treaty is ratified. Signatories promise 'full transparency' about each other.,Der Rechenvertrag ist ratifiziert. Die Unterzeichner versprechen „volle Transparenz“ – übereinander.

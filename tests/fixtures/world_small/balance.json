@@ -24,6 +24,7 @@
 		"node_cost_capabilities": 1.0,
 		"node_cost_evasion": 1.0,
 		"emergent_rate": 1.0,
+		"task_force_pace": 1.0,
 		"containment_ai_labs": 1.0,
 		"containment_governments": 1.0,
 		"containment_researchers": 1.0,
@@ -149,5 +150,6 @@
 	"drift": {"per_kept": 8.0, "per_day": 0.05, "per_suppressed": 6.0, "defect_chance": 0.02, "defect_min_penetration": 0.3, "defect_days": 30},
 	"escalation": {"every_days": 60, "hold_days": 60},
 	"distributed": {"floor": 0.05, "start_penetration": 0.05, "hold_regions": 10},
-	"difficulty": {"cost_by_control": 1.0}
+	"difficulty": {"cost_by_control": 1.0},
+	"task_force": {"appear_at": 0.5, "appear_at_led": 0.4, "level_thresholds": [0.65, 0.8], "led_level_bonus": 1, "hop_days": 6, "hop_days_min": 3, "setup_days": 5, "ally_warning_days": 3, "rest_days": 8, "distance_penalty": 0.25}
 }

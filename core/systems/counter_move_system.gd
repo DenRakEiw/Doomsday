@@ -60,7 +60,7 @@ static func _fire(sim: Simulation, faction: Faction, events: Array[SimEvent]) ->
 ## whose status is not applied yet. Without the second half, four factions
 ## firing on one tick would each see room and put up seven.
 static func moves_standing(world: World, db: ContentDB) -> int:
-	var count: int = world.status_count_by_origin(db, StatusDef.ORIGIN_WORLD)
+	var count: int = world.status_count_by_faction()
 	for event: OpenEvent in world.events:
 		var def: EventDef = db.event(event.def)
 		if def != null and def.kind == EventDef.KIND_COUNTER_MOVE:

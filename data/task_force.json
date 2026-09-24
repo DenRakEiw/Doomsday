@@ -1,0 +1,40 @@
+{
+	"_comment": "The Response Task Force's four actions (docs/specs/taskforce-endings.md section 3), in the order they are tried: the first whose level_min and rule (SCHEMA section 7, on the target) hold is set up. Their statuses (tf_*) are world statuses in statuses.json; the team's numbers are balance.task_force. Written in D5.2, loaded from S5.5 on.",
+	"version": 1,
+	"actions": [
+		{
+			"id": "switch_off",
+			"status": "tf_switch_off",
+			"level_min": 3,
+			"rule": {
+				"control_min": 0.5
+			}
+		},
+		{
+			"id": "raid",
+			"status": "tf_raid",
+			"level_min": 2,
+			"rule": {
+				"attr_min": {
+					"compute": 3
+				}
+			}
+		},
+		{
+			"id": "cut_off",
+			"status": "tf_cut_off",
+			"level_min": 1,
+			"rule": {
+				"attr_min": {
+					"connectivity": 3
+				}
+			}
+		},
+		{
+			"id": "grid_down",
+			"status": "tf_grid_down",
+			"level_min": 1,
+			"rule": {}
+		}
+	]
+}

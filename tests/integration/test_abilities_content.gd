@@ -147,8 +147,9 @@ func test_cyber_stands_on_fourteen_footprint_and_no_harm() -> void:
 
 
 func test_every_ability_climbs_its_levels_along_its_nodes() -> void:
-	# Ten from nodes; Restraint (S5.2) is the Weapon's and has none.
-	assert_eq(_db.abilities.size(), 11)
+	# Eleven from nodes (Misdirect joined in S5.5); Restraint (S5.2) is the
+	# Weapon's and has none.
+	assert_eq(_db.abilities.size(), 12)
 	for ability: AbilityDef in _db.abilities:
 		var sim: Simulation = _rich()
 		assert_eq(sim.ability_level(ability.id), 0, ability.id)
@@ -167,6 +168,10 @@ func _use_at(ability: AbilityDef, level: int) -> void:
 	var sim: Simulation = _rich()
 	for i: int in level:
 		_own(sim, [ability.levels_from[i]] as Array[String])
+	# Misdirect (S5.5) needs a team to mislead; one stands in the origin.
+	sim.world.task_force.state = TaskForce.STATE_REST
+	sim.world.task_force.region = sim.world.agent.origin
+	sim.world.task_force.level = 1
 	# Whatever the eligibility asks for on the ground, every region has it.
 	for i: int in range(1, sim.world.regions.size()):
 		for kind: String in AssetDef.KINDS:

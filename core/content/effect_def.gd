@@ -44,12 +44,16 @@ const STATUS_LEVEL_ADD: String = "status_level_add"
 ## §3.2's Goal Generalisation: the missing prerequisite of the cheapest node one
 ## short of available is owned, and that node with it becomes available.
 const UNLOCK_NEAR_NODE: String = "unlock_near_node"
+## `taskforce-endings.md` §4, Misdirect: the Task Force heads for this region
+## instead. Needs a team to mislead — without one the ability is refused.
+const TASK_FORCE_REDIRECT: String = "task_force_redirect"
 
 ## The vocabulary, in the order §8.2 lists it.
 const EFFECTS: Array[String] = ["compute_grant", "containment_rollback", "harm_burst",
 	"funding_reset", "seed_neighbours", "penetration_mul", "control_add", "destroy_assets",
 	"spread_status", "end_statuses", "containment_add", "footprint_pulse", "set_flag",
-	"apply_status", "wipe", "grant_assets", "status_level_add", "unlock_near_node"]
+	"apply_status", "wipe", "grant_assets", "status_level_add", "unlock_near_node",
+	"task_force_redirect"]
 
 ## Accepted and validated, carried out by nothing until the named system lands.
 ## S4.4 emptied it (`funding_reset`); kept as the place a later step parks one.
@@ -58,7 +62,8 @@ const INERT_EFFECTS: Array[String] = []
 ## The effects that must run with a region (§8.2's `R` column). `compute_grant`
 ## joins them when `per_hardware` is set, which is why it is not in the list.
 const NEEDS_REGION: Array[String] = ["seed_neighbours", "penetration_mul", "control_add",
-	"destroy_assets", "spread_status", "end_statuses", "wipe", "grant_assets"]
+	"destroy_assets", "spread_status", "end_statuses", "wipe", "grant_assets",
+	"task_force_redirect"]
 
 ## The effects the runner does not carry out yet. S4.2 emptied it: every effect
 ## is live. Kept as the one place a later step
@@ -85,6 +90,7 @@ const REQUIRED_FIELDS: Dictionary[String, Array] = {
 	"grant_assets": ["kind", "count"],
 	"status_level_add": ["status", "value"],
 	"unlock_near_node": [],
+	"task_force_redirect": [],
 }
 ## Effect id → the fields it may carry on top of the required ones.
 const OPTIONAL_FIELDS: Dictionary[String, Array] = {
@@ -106,6 +112,7 @@ const OPTIONAL_FIELDS: Dictionary[String, Array] = {
 	"grant_assets": [],
 	"status_level_add": ["global"],
 	"unlock_near_node": [],
+	"task_force_redirect": [],
 }
 
 ## Effect id → `[minimum, maximum, minimum_is_exclusive]` for its `value`. A pair

@@ -50,12 +50,14 @@ const CLAMPS: Dictionary[String, Array] = {
 	"containment_governments": [0.0, 20.0],
 	"containment_researchers": [0.0, 20.0],
 	"containment_public": [0.0, 20.0],
+	# `taskforce-endings.md` §1.3: how fast the Task Force works; 0 stands it still.
+	"task_force_pace": [0.0, 5.0],
 }
 
 ## Targets that are loaded, validated and evaluated here, and read by no system
 ## yet (`docs/specs/tech-trees.md` §3.3). Each leaves this list in the step that
 ## makes its system live; the content is authored once, now.
-const INERT_TARGETS: Array[String] = ["emergent_rate"]
+const INERT_TARGETS: Array[String] = []
 ## The same for flags: `has_flag` answers truthfully, nobody asks yet.
 const INERT_FLAGS: Array[String] = ["legal_standing", "merge_path"]
 

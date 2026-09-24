@@ -40,6 +40,8 @@ const FAIL_UNKNOWN_OPTION: String = "unknown_option"
 const FAIL_OPTION_LOCKED: String = "option_locked"
 ## `replayability.md` §1: the run's setup names something the content lacks.
 const FAIL_SETUP_INVALID: String = "setup_invalid"
+## `taskforce-endings.md` §4: Misdirect with no team to mislead.
+const FAIL_NO_TASK_FORCE: String = "no_task_force"
 
 ## Set by `Simulation.apply` when the command is accepted; -1 until then.
 var day: int = -1

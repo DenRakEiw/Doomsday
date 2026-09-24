@@ -64,6 +64,9 @@ var event_last_day: Dictionary[String, int] = {}
 ## Derived from the owned nodes, rebuilt after loading, never serialised.
 ## What the run is (`replayability.md` §1): fixed for the run, saved from v3 on.
 var setup: RunSetup = RunSetup.new()
+## The Response Task Force (`taskforce-endings.md` §1); absent until a track
+## reaches half.
+var task_force: TaskForce = TaskForce.new()
 var modifiers: ModifierStack
 
 
@@ -223,6 +226,17 @@ func statuses_in_region(region_index: int) -> Array[Status]:
 ## How many running statuses have a definition of this `origin` — the world's
 ## moves count against `factions.max_active_moves` (opposition.md §6.7), global
 ## ones included.
+## Statuses a faction put up, anywhere — what the counter-move cap counts since
+## S5.5 (`taskforce-endings.md` §3): the Task Force's and a chain's world statuses
+## are not the factions' moves.
+func status_count_by_faction() -> int:
+	var count: int = 0
+	for status: Status in statuses:
+		if not status.faction().is_empty():
+			count += 1
+	return count
+
+
 func status_count_by_origin(db: ContentDB, origin: String) -> int:
 	var count: int = 0
 	for status: Status in statuses:
@@ -498,6 +512,7 @@ func to_dict() -> Dictionary:
 		"next_event_id": next_event_id,
 		"event_fires": event_fires.duplicate(),
 		"event_last_day": event_last_day.duplicate(),
+		"task_force": task_force.to_dict(_region_id),
 	}
 
 
@@ -566,6 +581,14 @@ static func from_dict(d: Dictionary, db: ContentDB) -> World:
 	if not _read_counts(world.event_fires, d["event_fires"]) \
 			or not _read_counts(world.event_last_day, d["event_last_day"]):
 		return null
+	# S5.5's block; a v3 save written before it has none, and no team yet.
+	if d.has("task_force"):
+		if typeof(d["task_force"]) != TYPE_DICTIONARY:
+			return null
+		var team: TaskForce = TaskForce.from_dict(d["task_force"], db)
+		if team == null:
+			return null
+		world.task_force = team
 
 	if not _read_regions(world, d["regions"], db):
 		return null

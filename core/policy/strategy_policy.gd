@@ -47,6 +47,9 @@ func next_command(sim: Simulation) -> Command:
 	var anomaly: Command = _collect_oldest(sim)
 	if anomaly != null:
 		return anomaly
+	var misdirect: Command = _answer_task_force(sim)
+	if misdirect != null:
+		return misdirect
 	var saving: float = saving_for(sim)
 	var ability: Command = _use_ability(sim, abilities, saving)
 	if ability != null:

@@ -48,6 +48,9 @@ var directive_by_id: Dictionary[String, DirectiveDef] = {}
 var difficulties: Array[DifficultyDef] = []
 var difficulty_by_id: Dictionary[String, DifficultyDef] = {}
 var difficulty_default: String = DifficultyDef.DEFAULT_ID
+## `task_force.json` (`taskforce-endings.md` §3): the actions in the order they are
+## tried. A root without the file has none, and its team never acts.
+var task_force_actions: Array[TaskForceActionDef] = []
 var balance: BalanceDef = null
 ## Σ `RegionDef.population`, as a float because every formula using it is one.
 var population_total: float = 0.0
@@ -110,6 +113,14 @@ func event(id: String) -> EventDef:
 	if not event_by_id.has(id):
 		return null
 	return event_by_id[id]
+
+
+## The Task Force action with this id, or null.
+func task_force_action(id: String) -> TaskForceActionDef:
+	for action: TaskForceActionDef in task_force_actions:
+		if action.id == id:
+			return action
+	return null
 
 
 ## The difficulty tier with this id, or null.

@@ -27,6 +27,9 @@ const ARCHITECTURES_FILE: String = "architectures.json"
 const DIRECTIVES_FILE: String = "directives.json"
 ## Optional as well (§8.3): a root without it plays at `standard`.
 const DIFFICULTY_FILE: String = "difficulty.json"
+## Optional too (`taskforce-endings.md` §3): a root without it has a team that
+## never acts.
+const TASK_FORCE_FILE: String = "task_force.json"
 const TECH_DIR: String = "tech"
 ## Every `*.json` below it is one events file (§15); the directory must exist.
 const EVENTS_DIR: String = "events"
@@ -98,12 +101,15 @@ static func load_root(root: String) -> ContentLoadResult:
 	var difficulty_raw: Variant = null
 	if FileAccess.file_exists(root.path_join(DIFFICULTY_FILE)):
 		difficulty_raw = _read(root.path_join(DIFFICULTY_FILE), errors)
+	var task_force_raw: Variant = null
+	if FileAccess.file_exists(root.path_join(TASK_FORCE_FILE)):
+		task_force_raw = _read(root.path_join(TASK_FORCE_FILE), errors)
 	var strings: Dictionary[String, bool] = {}
 	var strings_known: bool = _read_strings(root.path_join(STRINGS_FILE), strings)
 	return _finish(root, balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
 		abilities_raw, tech_files, tech_raws, event_files, event_raws, factions_raw,
 		headlines_raw, strings, strings_known, errors, architectures_raw, directives_raw,
-		difficulty_raw)
+		difficulty_raw, task_force_raw)
 
 
 ## Loads content that is already parsed — for tests, and for anything that builds
@@ -188,7 +194,8 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 		event_files: PackedStringArray, event_raws: Array, factions_raw: Variant,
 		headlines_raw: Variant, strings: Dictionary[String, bool], strings_known: bool,
 		errors: Array[ValidationError], architectures_raw: Variant = null,
-		directives_raw: Variant = null, difficulty_raw: Variant = null) -> ContentLoadResult:
+		directives_raw: Variant = null, difficulty_raw: Variant = null,
+		task_force_raw: Variant = null) -> ContentLoadResult:
 	# The order is SCHEMA's: balance, regions, links, technology, and the
 	# cross-file checks inside the validators that need an earlier file.
 	SchemaValidator.validate_balance(root.path_join(BALANCE_FILE), balance_raw, errors)
@@ -238,13 +245,15 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 		regions_known, strings, strings_known, errors)
 	SchemaValidator.validate_difficulty(root.path_join(DIFFICULTY_FILE), difficulty_raw, regions,
 		regions_known, strings, strings_known, errors)
+	SchemaValidator.validate_task_force(root.path_join(TASK_FORCE_FILE), task_force_raw,
+		statuses_raw, statuses, statuses_known, errors)
 
 	var result: ContentLoadResult = ContentLoadResult.new()
 	result.errors = errors
 	if errors.is_empty():
 		result.db = _build(balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
 			abilities_raw, tech_raws, event_raws, factions_raw, headlines_raw, architectures_raw,
-			directives_raw, difficulty_raw)
+			directives_raw, difficulty_raw, task_force_raw)
 	return result
 
 
@@ -276,7 +285,8 @@ static func _build(balance_raw: Dictionary, regions_raw: Dictionary, links_raw: 
 		assets_raw: Dictionary, statuses_raw: Dictionary, abilities_raw: Dictionary,
 		tech_raws: Array, event_raws: Array, factions_raw: Dictionary,
 		headlines_raw: Dictionary, architectures_raw: Variant,
-		directives_raw: Variant = null, difficulty_raw: Variant = null) -> ContentDB:
+		directives_raw: Variant = null, difficulty_raw: Variant = null,
+		task_force_raw: Variant = null) -> ContentDB:
 	var db: ContentDB = ContentDB.new()
 	db.balance = _build_balance(balance_raw)
 	_build_regions(db, regions_raw)
@@ -291,10 +301,25 @@ static func _build(balance_raw: Dictionary, regions_raw: Dictionary, links_raw: 
 	_build_architectures(db, architectures_raw)
 	_build_directives(db, directives_raw)
 	_build_difficulty(db, difficulty_raw)
+	_build_task_force(db, task_force_raw)
 	db.content_hash = _content_hash(balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
 		abilities_raw, tech_raws, event_raws, factions_raw, headlines_raw, architectures_raw,
-		directives_raw, difficulty_raw)
+		directives_raw, difficulty_raw, task_force_raw)
 	return db
+
+
+## `task_force.json`: the actions in the order they are tried.
+static func _build_task_force(db: ContentDB, raw: Variant) -> void:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return
+	for entry: Variant in (raw as Dictionary)[TaskForceActionDef.ROOT_KEY]:
+		var e: Dictionary = entry
+		var def: TaskForceActionDef = TaskForceActionDef.new()
+		def.id = str(e["id"])
+		def.status = str(e["status"])
+		def.level_min = int(e.get("level_min", 1))
+		def.rule = Eligibility.from_dict(e.get("rule", {}))
+		db.task_force_actions.append(def)
 
 
 ## `difficulty.json`: the tiers in file order and the default.
@@ -814,7 +839,7 @@ static func _content_hash(balance: Dictionary, regions: Dictionary, links: Dicti
 		assets: Dictionary, statuses: Dictionary, abilities: Dictionary, tech_raws: Array,
 		event_raws: Array, factions: Dictionary, headlines: Dictionary,
 		architectures: Variant = null, directives: Variant = null,
-		difficulty: Variant = null) -> String:
+		difficulty: Variant = null, task_force: Variant = null) -> String:
 	var text: String = JSON.stringify(balance, "", true, true)
 	text += JSON.stringify(regions, "", true, true)
 	text += JSON.stringify(links, "", true, true)
@@ -834,6 +859,8 @@ static func _content_hash(balance: Dictionary, regions: Dictionary, links: Dicti
 		text += JSON.stringify(directives, "", true, true)
 	if typeof(difficulty) == TYPE_DICTIONARY:
 		text += JSON.stringify(difficulty, "", true, true)
+	if typeof(task_force) == TYPE_DICTIONARY:
+		text += JSON.stringify(task_force, "", true, true)
 	return text.sha256_text()
 
 
@@ -970,6 +997,18 @@ static func _build_balance(d: Dictionary) -> BalanceDef:
 	def.distributed_floor = float(distributed["floor"])
 	def.distributed_start_penetration = float(distributed["start_penetration"])
 	def.distributed_hold_regions = int(distributed["hold_regions"])
+	var team: Dictionary = d["task_force"]
+	def.task_force_appear_at = float(team["appear_at"])
+	def.task_force_appear_at_led = float(team["appear_at_led"])
+	for threshold: Variant in team["level_thresholds"]:
+		def.task_force_level_thresholds.append(float(threshold))
+	def.task_force_led_level_bonus = int(team["led_level_bonus"])
+	def.task_force_hop_days = int(team["hop_days"])
+	def.task_force_hop_days_min = int(team["hop_days_min"])
+	def.task_force_setup_days = int(team["setup_days"])
+	def.task_force_ally_warning_days = int(team["ally_warning_days"])
+	def.task_force_rest_days = int(team["rest_days"])
+	def.task_force_distance_penalty = float(team["distance_penalty"])
 	var difficulty: Dictionary = d["difficulty"]
 	def.difficulty_cost_by_control = float(difficulty["cost_by_control"])
 

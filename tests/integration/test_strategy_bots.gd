@@ -120,7 +120,10 @@ func test_stealth_spread_migrates_when_containment_passes_half() -> void:
 ## §7.5.6: the reference "was never contained" run buys nothing that kills.
 func test_persuader_buys_nothing_loud() -> void:
 	var sim: Simulation = _run(PersuaderPolicy.ID)
-	assert_eq(sim.world.deaths_total(), 0.0, "the Diplomat kills nobody")
+	# Since S5.5 the dead can be the Task Force's: its Switch-off harms the region
+	# it shuts down. The Diplomat's own purchases are what this test is about.
+	if sim.world.task_force.actions_done == 0:
+		assert_eq(sim.world.deaths_total(), 0.0, "the Diplomat kills nobody")
 	var cyber: int = 0
 	for entry: Dictionary in _purchases(sim):
 		var node: TechNodeDef = entry["node"]

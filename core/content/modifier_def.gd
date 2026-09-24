@@ -22,7 +22,7 @@ const TARGETS_REGIONAL: Array[String] = ["spread_growth", "spread_seed", "seed_l
 const TARGETS_GLOBAL: Array[String] = ["footprint", "discovery", "containment_growth", "node_cost",
 	"node_cost_infiltration", "node_cost_capabilities", "node_cost_evasion", "emergent_rate",
 	"containment_ai_labs", "containment_governments", "containment_researchers",
-	"containment_public"]
+	"containment_public", "task_force_pace"]
 ## Both lists together, written out because GDScript constants cannot be built
 ## from other constants. The key set of `balance.stats` is exactly this list.
 const TARGETS_ALL: Array[String] = ["spread_growth", "spread_seed", "seed_land", "seed_sea",
@@ -31,7 +31,8 @@ const TARGETS_ALL: Array[String] = ["spread_growth", "spread_seed", "seed_land",
 	"containment_capacity", "penetration_decay", "control_decay", "footprint",
 	"discovery", "containment_growth", "node_cost", "node_cost_infiltration",
 	"node_cost_capabilities", "node_cost_evasion", "emergent_rate", "containment_ai_labs",
-	"containment_governments", "containment_researchers", "containment_public"]
+	"containment_governments", "containment_researchers", "containment_public",
+	"task_force_pace"]
 
 ## The prefix of the per-tree cost multipliers, so `node_cost_infiltration` and
 ## friends stay derived from `TechNodeDef.TREES` instead of being retyped.

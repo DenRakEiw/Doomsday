@@ -113,6 +113,18 @@ var escalation_hold_days: int = 1
 var distributed_floor: float = 0.0
 var distributed_start_penetration: float = 0.0
 var distributed_hold_regions: int = 1
+## `taskforce-endings.md` §8: when the team forms, how its funding steps, and how
+## long its work takes.
+var task_force_appear_at: float = 0.5
+var task_force_appear_at_led: float = 0.4
+var task_force_level_thresholds: Array[float] = []
+var task_force_led_level_bonus: int = 1
+var task_force_hop_days: int = 6
+var task_force_hop_days_min: int = 3
+var task_force_setup_days: int = 5
+var task_force_ally_warning_days: int = 3
+var task_force_rest_days: int = 8
+var task_force_distance_penalty: float = 0.25
 ## §5 Existential: every node costs `× (1 + this × controlled share)`.
 var difficulty_cost_by_control: float = 0.0
 

@@ -58,6 +58,9 @@ static func apply(sim: Simulation, effect: EffectDef, context: EffectContext,
 			_status_level_add(sim, effect, context, events)
 		EffectDef.UNLOCK_NEAR_NODE:
 			_unlock_near_node(sim, events)
+		EffectDef.TASK_FORCE_REDIRECT:
+			if context.region > 0:
+				TaskForceSystem.redirect(sim.world, context.region, events)
 		_:
 			# An unknown id never reaches here — the loader rejects it.
 			push_error("effect \"%s\" has no runner" % effect.effect)
@@ -355,6 +358,14 @@ static func _wipe(sim: Simulation, effect: EffectDef, context: EffectContext,
 		"to": region.penetration,
 		"source": context.source,
 	}))
+
+
+## Why an effect cannot run now, as a command failure — "" when it can. The one
+## place a verb asks whether what it would do has anything to do it to.
+static func blocker(sim: Simulation, effect: EffectDef) -> String:
+	if effect.effect == EffectDef.TASK_FORCE_REDIRECT and not sim.world.task_force.is_present():
+		return Command.FAIL_NO_TASK_FORCE
+	return ""
 
 
 ## A running status moves by whole levels, clamped to its definition; a level

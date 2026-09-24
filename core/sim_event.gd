@@ -70,6 +70,17 @@ const COUNTER_MOVE_PREPARED: String = "counter_move_prepared"
 const COUNTER_MOVE_DROPPED: String = "counter_move_dropped"
 ## A region's Societal Function changed stage, either way (§8.2).
 const SOCIETY_STAGE_CHANGED: String = "society_stage_changed"
+## The Response Task Force (`taskforce-endings.md` §1): it formed; its funding
+## rose; it chose a target; it moved a hop; it set up an action; it acted; it found
+## nothing; it was sent somewhere else.
+const TASK_FORCE_APPEARED: String = "task_force_appeared"
+const TASK_FORCE_LEVEL: String = "task_force_level"
+const TASK_FORCE_TARGETED: String = "task_force_targeted"
+const TASK_FORCE_MOVED: String = "task_force_moved"
+const TASK_FORCE_SETUP: String = "task_force_setup"
+const TASK_FORCE_ACTED: String = "task_force_acted"
+const TASK_FORCE_FIZZLED: String = "task_force_fizzled"
+const TASK_FORCE_MISDIRECTED: String = "task_force_misdirected"
 ## What the world says about the rest of them (ticker.md §3.7). Emitted by
 ## `HeadlineSystem` after the systems, never a trigger for another headline.
 const HEADLINE: String = "headline"
@@ -84,7 +95,9 @@ const TYPES_ALL: Array[String] = [ORIGIN_CHOSEN, NODE_PURCHASED, ANOMALY_COLLECT
 	CONTROL_CHANGED, REGION_WIPED, CONTAINMENT_ADDED, PULSE_STARTED, PULSE_ENDED,
 	FLAG_SET, FLAG_EXPIRED, EVENT_OPENED, EVENT_ANSWERED, EVENT_EXPIRED, EVENT_DROPPED,
 	THREAT_LEADER_CHANGED, FUNDING_RESET, COUNTER_MOVE_CANCELLED, COUNTER_MOVE_PREPARED,
-	COUNTER_MOVE_DROPPED, SOCIETY_STAGE_CHANGED]
+	COUNTER_MOVE_DROPPED, SOCIETY_STAGE_CHANGED, TASK_FORCE_APPEARED, TASK_FORCE_LEVEL,
+	TASK_FORCE_TARGETED, TASK_FORCE_MOVED, TASK_FORCE_SETUP, TASK_FORCE_ACTED,
+	TASK_FORCE_FIZZLED, TASK_FORCE_MISDIRECTED]
 
 ## Fields of a `HEADLINE` event that are not arguments of its text.
 const FIELD_HEADLINE: String = "headline"
