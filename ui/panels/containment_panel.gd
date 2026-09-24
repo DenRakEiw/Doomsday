@@ -35,6 +35,9 @@ const RISK_FIELDS: Array[String] = [ContainmentSystem.RISK_TIME, ContainmentSyst
 @onready var _cause: Label = %Cause
 @onready var _tracks_title: Label = %TracksTitle
 @onready var _tracks: VBoxContainer = %Tracks
+@onready var _task_force_block: Control = %TaskForceBlock
+@onready var _task_force_title: Label = %TaskForceTitle
+@onready var _task_force_state: Label = %TaskForceState
 @onready var _not_yet: Label = %NotYet
 @onready var _thresholds: Label = %ThresholdsHint
 
@@ -68,6 +71,7 @@ func refresh() -> void:
 	_build_tracks(world)
 	_apply_status(world)
 	_apply_tracks(world)
+	_apply_task_force(world)
 
 
 func open() -> void:
@@ -78,6 +82,7 @@ func open() -> void:
 func _refresh_strings() -> void:
 	_title.text = tr(KEY_TITLE)
 	_tracks_title.text = tr(KEY_TRACKS)
+	_task_force_title.text = tr(TaskForceText.KEY_TITLE)
 	_not_yet.text = tr(KEY_NOT_YET)
 	_thresholds.text = tr(KEY_THRESHOLDS)
 	for i: int in RISK_KEYS.size():
@@ -150,6 +155,15 @@ func _apply_tracks(world: World) -> void:
 		var last: Array = CounterMoveSystem.last_move(world, Game.db, faction.id)
 		track.bind_detail(breakdown, Game.sim.next_move(faction.id), int(last[1]),
 			faction.id == leader, str(last[0]))
+
+
+## `taskforce-endings.md` §9: the team's row under the four tracks — its level,
+## what it is doing, where and for how long. It waits for the discovery with
+## the tracks' details: before it, nobody is hunting anything.
+func _apply_task_force(world: World) -> void:
+	_task_force_block.visible = world.discovered
+	if world.discovered:
+		_task_force_state.text = TaskForceText.state_line(world, Game.db)
 
 
 # --------------------------------------------------------------------- rows

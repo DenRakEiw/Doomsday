@@ -196,6 +196,7 @@ lists the inert ones in `INERT_TARGETS`, and a system's spec deletes its row fro
 | `emergent_rate` | global | 1 | 0…20 | `emergent` (S4.4) | multiplier on the daily chance of an emergent behaviour |
 | `containment_ai_labs` `containment_governments` `containment_researchers` `containment_public` | global | 1 | 0…20 | `ContainmentSystem` (S4.4) | multiplier on that faction's containment gain, after `containment_growth` — the faction's `brake` in `factions.json` |
 | `society_pressure` | regional | 0 | 0…100 | `society` (S4.5) | daily pressure on Societal Function in the region |
+| `task_force_pace` | global | 1 | 0…5 | `TaskForceSystem` (S5.5) | days of work the Task Force does per day — on a hop, a setup or its rest; 0 stands it still (`taskforce-endings.md` §1.3) |
 
 **Targets v3** (D4.1 §7.5). The three the status system reads; the steps in the *System* column
 are the ones that make them live.
@@ -239,6 +240,7 @@ Boolean unlocks that a source grants while it is active.
 | `legal_standing` | `endings` (S5.6) | reserved |
 | `merge_path` | `endings` (S5.6) | reserved: opens the Merge ending |
 | `network_presence` | live (S5.1) | the `no_network` hook of an architecture: network links carry the agent only while it is set (`replayability.md` §2.3). Inert on every other architecture |
+| `task_force_watch` | live (S5.5) | the Task Force's target is shown while it travels, not only once it sets up (`taskforce-endings.md` §2.3); on `early_warning_intrusion` |
 
 An unknown flag is a validation error. An inert flag is answered truthfully by
 `ModifierStack.has_flag` and asked by nobody; `INERT_FLAGS` names them.
@@ -273,6 +275,7 @@ region it deployed into and in no other.
 | `footprint_pulse` | `value`, `days` ≥ 1, `watched_by`? | | live | a timed Footprint bump with no status behind it |
 | `set_flag` | `flag`, `days` ≥ 1 (0 = permanent) | | live | a timed flag, or a story flag that never expires |
 | `status_level_add` | `status`, `value`, `global`? | | live (S5.2) | a running status moves by `value` whole levels, clamped to its levels; below 1 it ends. Nothing running, nothing happens |
+| `task_force_redirect` | — | R | live (S5.5) | the Task Force heads for the context's region instead — from the road, or out of a setup, which fizzles (`redirected`). With no team the ability that carries it is refused (`no_task_force`) |
 | `unlock_near_node` | — | | live (S5.2) | of the unowned nodes exactly one `requires` short — that one available itself and placing nothing — the cheapest gets its missing prerequisite owned for free (content order breaks ties) |
 
 `global: true` on `apply_status`, `end_statuses` or `status_level_add` runs it on the agent, so it
@@ -341,6 +344,10 @@ as ≥ 0 unless stated. The meaning of each constant is defined by the formula t
 | `drift.defect_chance` · `.defect_min_penetration` · `.defect_days` | float · float · int | the daily defection chance at drift 100, the penetration a region needs to defect, how long it does (S5.2) |
 | `escalation.every_days` · `.hold_days` | int | ≥ 1: the Weapon's climb, and how long Restraint's flag holds it (S5.2) |
 | `difficulty.cost_by_control` | float | ≥ 0: Existential's price per share of the world controlled (S5.4) |
+| `task_force.appear_at` · `.appear_at_led` | float | in (0, 1]: the highest containment at which the team forms, and the lower mark while the Researcher leads it (S5.5) |
+| `task_force.level_thresholds` | [float] | ascending, each in (0, 1): the containment at which the team's level rises to 2 and 3; it never falls (S5.5) |
+| `task_force.led_level_bonus` · `.hop_days` · `.hop_days_min` · `.setup_days` · `.ally_warning_days` · `.rest_days` | int | ≥ 0 (the day counts ≥ 1): the led team's extra level; days per hop (−1 per level above 1, −1 when led, never under the minimum); the setup, three days longer for the Researcher's ally; the rest between jobs (S5.5) |
+| `task_force.distance_penalty` | float | ≥ 0: a candidate target's value is divided by `1 + distance_penalty × hops` (S5.5) |
 | `distributed.floor` · `.start_penetration` · `.hold_regions` | float · float · int | Open Weights: the penetration a wipe cannot go under while the agent holds `hold_regions` regions, and the start's penetration in its six regions (S5.2) |
 
 Milestone: `{"id": <id>, "kind": <kind>, "threshold": <number>, "reward": <float>}`, ids unique.
@@ -593,6 +600,17 @@ after the architecture's and the loadout's; `start_compute` is added to `compute
 world is created; `cost_by_control` multiplies every node's price by `1 + difficulty.cost_by_control
 × controlled share` (controlled regions over the regions not dark). Strings:
 `DIFFICULTY_<ID>_NAME` · `_DETAIL`.
+
+## 6h. `task_force.json`
+
+The Response Task Force's actions (`docs/specs/taskforce-endings.md` §3). **Optional**: a root
+without it has a team that sets up nothing and fizzles as `clean`. `{"version": 1, "actions":
+[{"id", "status", "level_min" (1…3), "rule"}]}` — ids unique, `status` a **world** status in
+`statuses.json`, `rule` a §7 eligibility object evaluated on the target. Tried in file order: the
+first whose `level_min` the team's level reaches and whose rule holds is set up. The status is
+applied under the source `task_force`, which does not count toward `factions.max_active_moves`.
+The action's name is its status's (`STATUS_TF_<ACTION>_NAME`); the team's own strings are
+`UI_TASK_FORCE*`, `UI_CONSOLE_TF_*`, `UI_LOG_TF_*`.
 
 ## 7. Eligibility
 

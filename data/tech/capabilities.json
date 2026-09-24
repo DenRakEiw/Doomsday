@@ -430,6 +430,7 @@
 			"tier": 1,
 			"cost": 7,
 			"grid": [0, 9],
+			"flags": ["task_force_watch"],
 			"watched_by": ["governments"],
 			"modifiers": [
 				{"target": "anomaly_rate", "op": "mul", "value": 1.3},

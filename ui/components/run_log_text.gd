@@ -14,11 +14,13 @@ const KEYS: Array[String] = ["UI_LOG_ORIGIN_CHOSEN", "UI_LOG_NODE_PURCHASED",
 	"UI_LOG_EVENT_OPENED", "UI_LOG_EVENT_OPENED_GLOBAL", "UI_LOG_EVENT_ANSWERED",
 	"UI_LOG_EVENT_EXPIRED", "UI_LOG_COUNTER_MOVE_PREPARED", "UI_LOG_COUNTER_MOVE_CANCELLED",
 	"UI_LOG_FUNDING_RESET", "UI_LOG_THREAT_LEADER_CHANGED", "UI_LOG_SOCIETY_STAGE_CHANGED",
-	"UI_LOG_REGION_WIPED"]
+	"UI_LOG_REGION_WIPED", "UI_LOG_TF_APPEARED", "UI_LOG_TF_ACTED", "UI_LOG_TF_FIZZLED",
+	"UI_LOG_TF_MISDIRECTED"]
 ## §4.2's *Class* column: the entries that are the player's own doing.
 const YOURS: Array[String] = ["origin_chosen", "node_purchased", "region_controlled",
 	"containment_rolled_back", "harm_burst", "dormancy_changed", "asset_deployed",
-	"ability_used", "event_answered", "event_expired", "funding_reset"]
+	"ability_used", "event_answered", "event_expired", "funding_reset",
+	"task_force_misdirected"]
 ## §7: how much a strip mark outranks another in a crowded slot.
 const PRIORITY_OUTCOME: int = 5
 const PRIORITY_DISCOVERED: int = 4
@@ -26,6 +28,9 @@ const PRIORITY_COUNTER_MOVE: int = 3
 const PRIORITY_CHAIN: int = 2
 const PRIORITY_OPENING: int = 1
 const KEY_PREFIX: String = "UI_LOG_"
+## The Task Force's lines are `UI_LOG_TF_*`, not `UI_LOG_TASK_FORCE_*`.
+const TASK_FORCE_PREFIX: String = "task_force_"
+const KEY_TASK_FORCE_PREFIX: String = "UI_LOG_TF_"
 const GLOBAL_SUFFIX: String = "_GLOBAL"
 
 
@@ -50,6 +55,9 @@ static func text(entry: RunLogEntry, db: ContentDB) -> String:
 		SimEvent.EVENT_OPENED:
 			if str(d.get("region", "")).is_empty():
 				key += GLOBAL_SUFFIX
+		SimEvent.TASK_FORCE_APPEARED, SimEvent.TASK_FORCE_ACTED, SimEvent.TASK_FORCE_FIZZLED, 				SimEvent.TASK_FORCE_MISDIRECTED:
+			key = KEY_TASK_FORCE_PREFIX + entry.type.trim_prefix(TASK_FORCE_PREFIX).to_upper()
+			args["action"] = TaskForceText.action_name(db, str(d.get("action", "")))
 	var def: String = str(d.get("def", ""))
 	args["region"] = _named("REGION_%s", str(d.get("region", "")))
 	args["node"] = _named("TECH_%s_NAME", str(d.get("node", "")))

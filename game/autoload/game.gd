@@ -489,6 +489,25 @@ func debug_discovery_modal() -> void:
 		{"cause": SimEvent.CAUSE_SCRUTINY}))
 
 
+## Puts the Task Force on the map as `state` in `region_id`, heading for (or
+## setting up `action` in) `target_id`, so its marker, road and rows can be
+## looked at without playing to half containment (S5.5). Debug only; from the
+## godot-mcp tools. Answers what it did, or "" when there is no run.
+func debug_task_force(state: String, region_id: String, target_id: String = "",
+		action: String = "") -> String:
+	if sim == null or not TaskForce.STATES.has(state):
+		return ""
+	var team: TaskForce = sim.world.task_force
+	team.state = state
+	team.region = int(db.region_index_by_id.get(region_id, 0))
+	team.target = int(db.region_index_by_id.get(target_id, 0))
+	team.action = action
+	team.level = maxi(1, team.level)
+	team.progress = 0.0
+	EventBus.sim_event.emit(SimEvent.new(SimEvent.TASK_FORCE_MOVED, sim.world.day, {}))
+	return "%s %s → %s" % [state, region_id, target_id]
+
+
 func _start_debug_run(policy_id: String) -> void:
 	debug_log = true
 	start_run(DEBUG_SEED, policy_id)

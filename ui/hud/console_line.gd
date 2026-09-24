@@ -231,6 +231,8 @@ func _on_sim_event(event: SimEvent) -> void:
 			}))
 		SimEvent.SOCIETY_STAGE_CHANGED:
 			_society_changed(event)
+		SimEvent.TASK_FORCE_APPEARED, SimEvent.TASK_FORCE_SETUP, SimEvent.TASK_FORCE_ACTED, 				SimEvent.TASK_FORCE_FIZZLED, SimEvent.TASK_FORCE_MISDIRECTED:
+			push(TaskForceText.console_line(event, Game.sim.world, Game.db))
 		SimEvent.REGION_WIPED:
 			var from: float = float(event.data.get("from", 0.0))
 			var share: float = float(event.data.get("to", 0.0)) / from if from > 0.0 else 0.0
@@ -323,7 +325,8 @@ func _ability_used(event: SimEvent) -> void:
 ## said it, and two lines about one press is one too many.
 func _status_started(event: SimEvent) -> void:
 	var source: String = str(event.data.get("source", ""))
-	if source.begins_with("%s:" % Status.SOURCE_ABILITY):
+	# An ability's status is its own line; the Task Force's is its `acted` line.
+	if source.begins_with("%s:" % Status.SOURCE_ABILITY) or source == TaskForceSystem.SOURCE:
 		return
 	var name: String = tr(StatusDef.name_key(str(event.data.get("status", ""))))
 	var region: String = str(event.data.get("region", ""))

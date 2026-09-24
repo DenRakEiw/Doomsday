@@ -34,6 +34,10 @@ const KEPT: Dictionary[String, Array] = {
 	"threat_leader_changed": ["to"],
 	"society_stage_changed": ["region", "to"],
 	"region_wiped": ["region", "from", "to"],
+	"task_force_appeared": ["region"],
+	"task_force_acted": ["region", "action"],
+	"task_force_fizzled": ["region", "cause"],
+	"task_force_misdirected": ["region"],
 }
 ## The kept keys whose values are floats, written as bits and read back as such.
 const FLOAT_KEYS: Array[String] = ["threshold", "deaths"]
@@ -66,6 +70,9 @@ static func _wanted(event: SimEvent, db: ContentDB) -> bool:
 	match event.type:
 		SimEvent.STATUS_STARTED:
 			if bool(event.data.get("refreshed", false)):
+				return false
+			# The Task Force's own statuses are its `task_force_acted` line.
+			if str(event.data.get("source", "")) == TaskForceSystem.SOURCE:
 				return false
 			var status: StatusDef = db.status(str(event.data.get("status", "")))
 			return status != null and status.origin == StatusDef.ORIGIN_WORLD

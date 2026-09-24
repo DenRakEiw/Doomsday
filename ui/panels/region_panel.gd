@@ -160,6 +160,9 @@ const SOCIETY_ACCENT_STAGE: int = 2
 @onready var _assets_block: Control = %AssetsBlock
 @onready var _assets_title: Label = %AssetsTitle
 @onready var _assets: VBoxContainer = %Assets
+@onready var _task_force_row: Control = %TaskForceRow
+@onready var _task_force_chip: Chip = %TaskForceChip
+@onready var _task_force_line: Label = %TaskForceLine
 @onready var _status_block: Control = %StatusBlock
 @onready var _status_title: Label = %StatusTitle
 @onready var _statuses: VBoxContainer = %Statuses
@@ -247,6 +250,7 @@ func refresh() -> void:
 	_refresh_links(world)
 	_refresh_anomaly(world)
 	_refresh_assets(region)
+	_refresh_task_force(world)
 	_refresh_statuses(world)
 	_refresh_society(region)
 	_event_card.show_region(_index)
@@ -395,6 +399,19 @@ func society_block() -> Control:
 	return _society_block
 
 
+## `taskforce-endings.md` §9: the team stands here, sets up here, or — when the
+## player may see it — is on its way here.
+func _refresh_task_force(world: World) -> void:
+	var line: String = TaskForceText.region_line(world, Game.db, _index)
+	_task_force_row.visible = not line.is_empty()
+	if line.is_empty():
+		return
+	_task_force_chip.kind = Chip.Kind.ACCENT
+	_task_force_chip.set_label(TaskForceText.KEY_CODE)
+	_task_force_chip.tooltip_text = tr(TaskForceText.KEY_TITLE)
+	_task_force_line.text = line
+
+
 func _refresh_statuses(world: World) -> void:
 	for child: Node in _statuses.get_children():
 		_statuses.remove_child(child)
@@ -508,6 +525,10 @@ func _refresh_actions() -> void:
 	var shown: int = 0
 	for ability: AbilityDef in Game.db.abilities:
 		if not ability.targets_region() or Game.sim.ability_level(ability.id) == 0:
+			continue
+		# §4: Misdirect is offered only while there is a team to mislead — a verb
+		# with nothing to act on anywhere is not a choice, it is noise.
+		if not Game.sim.ability_blocker(ability.id).is_empty():
 			continue
 		_actions.add_child(_action_row(ability))
 		shown += 1

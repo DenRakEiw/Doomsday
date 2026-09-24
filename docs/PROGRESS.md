@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. The M5 design block is done; meanwhile the build goes on: **S5.5 — Response Task Force** (`docs/specs/taskforce-endings.md` §1–§5, §8, §9; `data/staging/task_force.json`, `headlines_d5_2.json`). |
+| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Meanwhile the build goes on: **S5.6 — Endings** (`docs/specs/taskforce-endings.md` §6, §7, §11; `data/staging/endings.json`, the six chains in `data/staging/events/`, `headlines_d5_2.json`). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S5.6 → S5.8 (M5 build), then G5 |
-| **Last completed** | S5.4 — Difficulty tiers: `data/difficulty.json` loaded and validated (gentle, standard, hard, existential), the tier's modifiers under `difficulty:<id>`, Gentle's head start, Existential's `cost_by_control`; the ladder batch holds (mean wins 68 / 44 / 30 / 25 %). 1342 tests green (2026-09-24). **The M4 gate is still open.** |
-| **Before that** | S5.3 — Profile, directives, statistics (2026-09-24) |
+| **After it** | S5.7 → S5.8 (M5 build), then G5 |
+| **Last completed** | S5.5 — Response Task Force: the team in the core (forms at half, rests, travels link by link, sets up in plain view, acts or fizzles; no RNG), Misdirect, the bots' answer; its marker, road and countdown on the map, its rows in the region and containment panels, its console and log lines. 1368 tests green (2026-09-24). **The M4 gate is still open.** |
+| **Before that** | S5.4 — Difficulty tiers (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…]` on all three tools) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -125,7 +125,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S5.2 [O] Architectures II
 - [x] S5.3 [O] Profile, directives, statistics
 - [x] S5.4 [O] Difficulty tiers
-- [ ] S5.5 [O] Response Task Force
+- [x] S5.5 [O] Response Task Force
 - [ ] S5.6 [O] Endings
 - [ ] S5.7 [O] Screen flow complete
 - [ ] S5.8 [O] Scenarios *(stretch)* — ⇄ **then `/model fable`**
@@ -925,6 +925,20 @@ without new information.
   is `HIT_MIN` tall with no gap between rows; (6) a `StyleBoxFlat` with a transparent border has no
   border (the stray corner dots). The pending chip hides while any hold is on; the region panel
   finds a faction status's option text through its counter-move instead of a new save field.
+- **2026-09-24** (S5.5) — **How the Task Force is built:** `World.task_force` (`TaskForce`, saved
+  under `"task_force"`, optional on read) is moved by `TaskForceSystem` between `CounterMoveSystem`
+  and `StatusSystem`, with no random draw; `TaskForceRules` holds its pure questions (eligible,
+  fizzle cause, target, BFS next hop, action). The counter-move cap counts only `faction:` sources
+  (`World.status_count_by_faction`). Misdirect is the effect `task_force_redirect`;
+  `EffectRunner.blocker` refuses it without a team (`no_task_force`), `Simulation.ability_blocker`
+  asks the same for the interface — the region panel leaves it out, the picker greys it with the
+  reason. §2.3's "owns `early_warning_intrusion`" is the node's **modifier flag
+  `task_force_watch`**, not an id check. The team's statuses get no status line in the console or
+  the log — its `acted` line is the one; a setup a Misdirect abandoned gets none either. The
+  containment row waits for the discovery. The marker sits at `MARKER_TF_OFFSET` (+18, −18), the
+  event's mirror; `Game.debug_task_force(state, region, target, action)` puts it up from godot-mcp.
+  Bots: `Policy._answer_task_force` — wake a sleeper it put down, sleep under a setup in a held
+  region, else Misdirect to the farthest region without presence.
 - **2026-09-24** (S5.4) — **Difficulty is a setup source, last in the stack** (`difficulty:<id>`
   after the architecture and the loadout); Gentle's +4 Compute is added in `World.create`, so the
   top bar shows it before the origin; `World.has_hook` answers `cost_by_control` from the tier;
@@ -996,6 +1010,18 @@ never Harvest below six regions.)
 S5.2 log). Its escalation (governments ×1.05 per level to ×1.25, harm +0.3 per level) plus its
 own ×1.15 on the governments is too much; tune in G5 (every_days, the per-level steps, Restraint's
 cost).
+
+**From S5.5: the Task Force wears the player's colour.** §9 asks for "the world-status colour";
+the only colour a world status with no faction behind it gets is `ACCENT` (loop-mechanics
+§16.3.1), which is the player's own — so the team's marker, its road and its `tf_*` statuses on the
+status overlay are all cyan like the agent (`# DESIGN?` in `game/map/task_force_marker.gd`). Should
+the team get its own token (`ALERT`?), and should its statuses map to it?
+
+**From S5.5 (for G5): the team comes late and rarely meets a Misdirect.** 20 seeds, Language
+Model, standard: greedy — appeared in 18/20, median day 308, 3.7 actions and 8.6 fizzles a run;
+weapons — 7/20, day 288, 0.8 / 6.2; persuasion — 16/20, day 311, 0.0 / 13.1 (dormancy answers
+everything). §8 wanted day 150–200 and four to eight actions. No bot owns Log Manipulation II, so
+Misdirect is only exercised by the tests.
 
 **From S5.2: the Swarm's drift has no readout.** A Swarm player sees defection only as a status
 in a region and a headline, and drift itself nowhere — yet it decides defection and Value Drift.
@@ -1908,6 +1934,16 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — S5.5 Response Task Force [O]
+- (1/2, 7247366) The core: `TaskForce`, `TaskForceActionDef`, `TaskForceRules`, `TaskForceSystem`,
+  the eight `task_force_*` events, the balance block and `task_force_pace`, Misdirect, the bots'
+  answer; `task_force.json`, the `tf_*` statuses and headlines out of staging.
+- (2/2) The interface: `TaskForceMarker` and the dotted road in the marker layer, the region
+  panel's and the containment panel's rows, the console and log lines (`TaskForceText`), Misdirect
+  hidden or greyed without a team; the `task_force_watch` flag. Looked at in the running game.
+- Tests: `test_task_force_system.gd` (12), `test_task_force_ui.gd` (14). 1368 green. Batch in
+  *Design questions* (0 rejected commands).
 
 ### 2026-09-24 — S5.4 Difficulty tiers [O]
 - Built `DifficultyDef`, its loader and validator (SCHEMA §6g), the balance block

@@ -276,6 +276,20 @@ func _controlled_share() -> float:
 	return 0.0 if standing == 0 else float(controlled) / float(standing)
 
 
+## Why an ability cannot be used anywhere at all right now, as a command failure —
+## "" when it can be somewhere. The one reason that is the world's, not the
+## region's or the purse's (`taskforce-endings.md` §4).
+func ability_blocker(ability_id: String) -> String:
+	var ability: AbilityDef = db.ability(ability_id)
+	if ability == null:
+		return Command.FAIL_UNKNOWN_ABILITY
+	for effect: EffectDef in ability.applies_effects:
+		var blocked: String = EffectRunner.blocker(self, effect)
+		if not blocked.is_empty():
+			return blocked
+	return ""
+
+
 ## What an event option costs now (`replayability.md` §3.1): its number, or — for
 ## an emergent suppression — `suppress_cost × (1 + suppress_step × suppressions)`.
 func option_cost(option: EventOptionDef) -> float:

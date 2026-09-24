@@ -47,6 +47,10 @@ func _entries() -> Array[RunLogEntry]:
 		"threat_leader_changed": {"to": "public_sentiment"},
 		"society_stage_changed": {"region": "usa", "to": 3},
 		"region_wiped": {"region": "usa", "from": 0.8, "to": 0.2},
+		"task_force_appeared": {"region": "usa"},
+		"task_force_acted": {"region": "usa", "action": "grid_down"},
+		"task_force_fizzled": {"region": "usa", "cause": "dormant"},
+		"task_force_misdirected": {"region": "usa"},
 	}
 	var out: Array[RunLogEntry] = []
 	for type: String in RunLog.KEPT:

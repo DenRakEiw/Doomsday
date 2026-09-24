@@ -93,11 +93,14 @@ func _row(ability: AbilityDef) -> Control:
 	button.label_key = AbilityDef.name_key(ability.id)
 	button.tooltip_key = AbilityDef.detail_key(ability.id)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	# A region ability is never disabled here: which region it can be used in is
-	# what site select is for, and a picker that greys out a verb because the
-	# region under the pointer refuses it would be lying about the verb.
-	button.disabled = not ability.targets_region() \
-		and not Game.sim.can_apply(UseAbilityCommand.new(ability.id)).is_empty()
+	# A region ability is disabled here only when no region could take it (a
+	# Misdirect with no team, `taskforce-endings.md` §4): which region it can be
+	# used in is what site select is for, and a picker that greys out a verb
+	# because the region under the pointer refuses it would be lying about it.
+	if ability.targets_region():
+		button.disabled = not Game.sim.ability_blocker(ability.id).is_empty()
+	else:
+		button.disabled = not Game.sim.can_apply(UseAbilityCommand.new(ability.id)).is_empty()
 	button.pressed.connect(_on_ability_pressed.bind(ability.id))
 	row.add_child(button)
 
@@ -119,8 +122,12 @@ func _row(ability: AbilityDef) -> Control:
 	return box
 
 
-## The cooldown while it runs, else the level when the ability has more than one.
+## Why it cannot be used anywhere, else the cooldown while it runs, else the level
+## when the ability has more than one.
 func _caption(ability: AbilityDef) -> String:
+	var blocked: String = Game.sim.ability_blocker(ability.id)
+	if not blocked.is_empty():
+		return tr(PREFIX_FAIL + blocked.to_upper())
 	var ready_day: int = Game.sim.ability_ready_day(ability.id)
 	if ready_day > Game.sim.world.day:
 		return tr(KEY_COOLDOWN).format({PLACEHOLDER_DAYS: ready_day - Game.sim.world.day})

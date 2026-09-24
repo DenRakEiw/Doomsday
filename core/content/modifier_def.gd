@@ -44,8 +44,10 @@ const FLAG_BREAKOUT: String = "breakout"
 const FLAG_DORMANCY: String = "dormancy"
 ## `replayability.md` §2.3: what lets network links carry an Embedded agent.
 const FLAG_NETWORK_PRESENCE: String = "network_presence"
+## `taskforce-endings.md` §2.3: the Task Force's target is shown while it travels
+## (`TaskForceSystem.FLAG_WATCH`).
 const FLAGS: Array[String] = ["breakout", "dormancy", "compute_independent", "legal_standing",
-	"merge_path", "network_presence"]
+	"merge_path", "network_presence", "task_force_watch"]
 
 var target: String
 var op: Op

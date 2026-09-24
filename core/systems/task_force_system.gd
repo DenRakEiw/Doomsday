@@ -20,6 +20,9 @@ const FLAG_LED: String = "researcher_leads_task_force"
 const FLAG_ALLY: String = "researcher_ally"
 ## §1.3: the global target that sets how fast its work goes.
 const TARGET_PACE: String = "task_force_pace"
+## §2.3: the modifier flag of the node that watches the watchers — its owner sees
+## where the team is going from the moment it is chosen.
+const FLAG_WATCH: String = "task_force_watch"
 
 
 func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
@@ -64,6 +67,30 @@ static func redirect(world: World, index: int, events: Array[SimEvent]) -> bool:
 		"from": _id(world, team.region),
 	}))
 	return true
+
+
+## §2.3: whether the player is shown where the team is going. A setup always
+## shows itself; a road only to the Researcher's ally or the watcher's owner.
+static func target_shown(world: World) -> bool:
+	var team: TaskForce = world.task_force
+	if team.target == 0:
+		return false
+	if team.state == TaskForce.STATE_SETUP:
+		return true
+	return world.agent.has_story_flag(FLAG_ALLY) or world.modifiers.has_flag(FLAG_WATCH)
+
+
+## Whole days until the setup acts at today's pace; 0 outside a setup. A team
+## that stands still (pace 0) counts the work left, not a day it will never reach.
+static func setup_days_left(world: World, db: ContentDB) -> int:
+	var team: TaskForce = world.task_force
+	if team.state != TaskForce.STATE_SETUP:
+		return 0
+	var left: float = maxf(0.0, float(setup_days(world, db)) - team.progress)
+	var pace: float = world.modifiers.value(TARGET_PACE)
+	if pace <= 0.0:
+		return ceili(left)
+	return maxi(1, ceili(left / pace))
 
 
 ## §1.1: on the first tick a track reaches the mark — the lower mark while the

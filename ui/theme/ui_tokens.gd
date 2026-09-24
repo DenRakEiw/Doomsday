@@ -314,6 +314,8 @@ const CONSOLE_QUEUE_MAX: int = 3
 const MOTION_SCOPE_FLASH: int = 1500
 const MARKER_ROW_OFFSET: int = 18
 const MARKER_EVENT_OFFSET: Vector2 = Vector2(-18.0, -18.0)
+## `taskforce-endings.md` §9: the Task Force's badge, mirrored from the event's.
+const MARKER_TF_OFFSET: Vector2 = Vector2(18.0, -18.0)
 const STATUS_RING_RADIUS: float = 14.0
 const STATUS_RING_STEP: float = 5.0
 ## §16.3.2: a fleet is drawn larger than the rest of the row.

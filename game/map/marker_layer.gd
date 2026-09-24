@@ -39,6 +39,12 @@ const KEY_STANDING: String = "UI_REGION_STATUS_STANDING"
 ## §16.3.2: what an event marker says when the pointer rests on it.
 const KEY_EVENT_TIP: String = "UI_MAP_EVENT_TIP"
 const PLACEHOLDER_TITLE: String = "title"
+## `taskforce-endings.md` §9: the Task Force's letters and the dotted line to
+## its target, in screen pixels.
+const KEY_TASK_FORCE_CODE: String = "UI_TASK_FORCE_CODE"
+const TEAM_LINE_PX: float = 2.0
+const TEAM_DASH_PX: float = 6.0
+const TEAM_LINE_ALPHA: float = 0.7
 
 ## Anomaly id → its marker. Only markers that are still collectable are in here;
 ## a fading one has been taken out already.
@@ -49,6 +55,10 @@ var _assets: Dictionary[int, AssetMarker] = {}
 var _statuses: Dictionary[int, StatusMarker] = {}
 ## Region index → its event marker. A global event has none (§16.3.2).
 var _events: Dictionary[int, EventMarker] = {}
+## The Response Task Force, while it is on the map (§9).
+var _team: TaskForceMarker = null
+## The region its dotted line runs to, or 0 while its target is not shown (§2.3).
+var _team_line_to: int = 0
 ## Anchors of the regions that have gone dark, in map pixels.
 var _dark_anchors: PackedVector2Array = PackedVector2Array()
 var _camera: MapCamera = null
@@ -248,6 +258,7 @@ func rebuild() -> void:
 			_refresh_assets(i, false)
 			_refresh_statuses(i)
 			_refresh_events(i)
+	_refresh_team()
 	queue_redraw()
 
 
@@ -411,6 +422,47 @@ func dark_count() -> int:
 	return _dark_anchors.size()
 
 
+## The Task Force's marker, or null while there is no team, for the tests.
+func team_marker() -> TaskForceMarker:
+	return _team
+
+
+## The region the team's dotted line runs to, 0 for none, for the tests.
+func team_line_target() -> int:
+	return _team_line_to
+
+
+## The team's marker and line, rebuilt from the world: where it stands, how much
+## of a setup is left, and whether the player may see where it is going.
+func _refresh_team() -> void:
+	var team: TaskForce = Game.sim.world.task_force if Game.sim != null else null
+	if team == null or not team.is_present() or team.region <= 0:
+		if _team != null:
+			_team.queue_free()
+			_team = null
+		if _team_line_to != 0:
+			_team_line_to = 0
+			queue_redraw()
+		return
+	if _team == null:
+		_team = TaskForceMarker.new()
+		_team.scale = Vector2.ONE / _zoom
+		add_child(_team)
+	var world: World = Game.sim.world
+	_team.position = Vector2(world.regions[team.region].def.anchor)
+	_team.code = tr(KEY_TASK_FORCE_CODE)
+	_team.share = -1.0
+	if team.state == TaskForce.STATE_SETUP:
+		_team.share = Rings.share_of(float(TaskForceSystem.setup_days_left(world, Game.db)),
+			float(TaskForceSystem.setup_days(world, Game.db)))
+	var line_to: int = 0
+	if TaskForceSystem.target_shown(world) and team.target != team.region:
+		line_to = team.target
+	if line_to != _team_line_to:
+		_team_line_to = line_to
+		queue_redraw()
+
+
 ## §7.7: "never colour alone" — a dark region is the only region the map paints
 ## in the void's own colour, so it is also marked.
 func _draw() -> void:
@@ -421,6 +473,14 @@ func _draw() -> void:
 			UiTokens.color(&"MAP_DARK_MARK"), stroke)
 		draw_line(anchor + Vector2(-arm, arm), anchor + Vector2(arm, -arm),
 			UiTokens.color(&"MAP_DARK_MARK"), stroke)
+	# §9: the team's road, from its badge to the target's anchor, dotted because
+	# it is where the team is going, not a link it runs along.
+	if _team != null and _team_line_to > 0 and Game.sim != null:
+		var colour: Color = UiTokens.color(&"ACCENT")
+		colour.a = TEAM_LINE_ALPHA
+		draw_dashed_line(_team.position + TaskForceMarker.centre() / _zoom,
+			Vector2(Game.sim.world.regions[_team_line_to].def.anchor), colour,
+			TEAM_LINE_PX / _zoom, TEAM_DASH_PX / _zoom)
 
 
 func _on_run_started(_seed_value: int) -> void:
@@ -439,6 +499,7 @@ func _on_tick_advanced(day: int) -> void:
 		_refresh_statuses(index)
 	for index: int in _events.keys():
 		_refresh_events(index)
+	_refresh_team()
 
 
 func _on_sim_event(event: SimEvent) -> void:
@@ -460,6 +521,8 @@ func _on_sim_event(event: SimEvent) -> void:
 		SimEvent.EVENT_OPENED, SimEvent.EVENT_ANSWERED, SimEvent.EVENT_EXPIRED, \
 				SimEvent.EVENT_DROPPED:
 			_refresh_events(_region_index(str(event.data.get("region", ""))))
+		SimEvent.TASK_FORCE_APPEARED, SimEvent.TASK_FORCE_TARGETED, 				SimEvent.TASK_FORCE_MOVED, SimEvent.TASK_FORCE_SETUP, 				SimEvent.TASK_FORCE_ACTED, SimEvent.TASK_FORCE_FIZZLED, 				SimEvent.TASK_FORCE_MISDIRECTED:
+			_refresh_team()
 
 
 func _spawn(event: SimEvent) -> void:
@@ -643,6 +706,8 @@ func _on_camera_view_changed(_center: Vector2, zoom_level: float) -> void:
 			_statuses[index].scale = marker_scale
 		for index: int in _events:
 			_events[index].scale = marker_scale
+		if _team != null:
+			_team.scale = marker_scale
 		queue_redraw()
 	if _hovered_event != 0 and _events.has(_hovered_event):
 		_place_tooltip_at(_events[_hovered_event].position)
