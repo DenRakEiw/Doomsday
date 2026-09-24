@@ -81,11 +81,26 @@ func _seed(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 		}))
 
 
+## Whether a link of this kind can carry the agent at all. The `no_network` hook
+## (`replayability.md` §2.2): an Embedded agent has no presence on the network
+## until a node gives it one — network links carry it neither out nor in. Every
+## other architecture answers yes.
+static func carries(world: World, db: ContentDB, link_kind: String) -> bool:
+	if link_kind != LinkDef.KIND_NETWORK:
+		return true
+	if not world.has_hook(db, ArchitectureDef.HOOK_NO_NETWORK):
+		return true
+	return world.modifiers.has_flag(ModifierDef.FLAG_NETWORK_PRESENCE)
+
+
 func _try_pair(world: World, db: ContentDB, link: Link, source_index: int, target_index: int,
 		seeded: Dictionary[int, Dictionary]) -> void:
 	var source: Region = world.regions[source_index]
 	var target: Region = world.regions[target_index]
 	if source.dark or target.dark:
+		return
+	# No roll either: a link that cannot carry costs the stream nothing.
+	if not carries(world, db, link.def.kind):
 		return
 	# A held region relays nothing. As a target the question never arises: it
 	# only becomes dormant once the agent is already in it.

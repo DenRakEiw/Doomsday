@@ -291,7 +291,7 @@ func test_an_older_version_passes_through_its_migration() -> void:
 	# rather than on the production ones: `migrate` walks every version up to
 	# `CURRENT_VERSION` and stops at the first one it has no step for.
 	var save: Dictionary = {"version": 0, "marker": "before"}
-	var migrations: Dictionary[int, Callable] = {0: _fake_v0_to_v1, 1: _fake_step}
+	var migrations: Dictionary[int, Callable] = {0: _fake_v0_to_v1, 1: _fake_step, 2: _fake_step}
 	assert_eq(WorldSerializer.migrate(save, migrations), "")
 	assert_eq(save["version"], WorldSerializer.CURRENT_VERSION)
 	assert_eq(save["marker"], "after", "the migration actually ran")
@@ -305,7 +305,7 @@ func _fake_v0_to_v1(save: Dictionary) -> Dictionary:
 	return migrated
 
 
-## One more fabricated step, so that the walk reaches `CURRENT_VERSION`.
+## A fabricated later step, so that the walk reaches `CURRENT_VERSION`.
 func _fake_step(save: Dictionary) -> Dictionary:
 	var migrated: Dictionary = save.duplicate(true)
 	migrated["stepped"] = true
@@ -393,8 +393,9 @@ func _shipped_db() -> ContentDB:
 	return result.db
 
 
-func test_the_current_version_is_two() -> void:
-	assert_eq(WorldSerializer.CURRENT_VERSION, 2)
+func test_the_current_version_is_three() -> void:
+	# v3 (S5.1): the world carries its setup (`replayability.md` §1).
+	assert_eq(WorldSerializer.CURRENT_VERSION, 3)
 
 
 func test_a_v1_save_loads_through_its_migration_and_continues() -> void:

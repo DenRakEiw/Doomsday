@@ -326,9 +326,11 @@ static func load_raw(content: Dictionary) -> ContentLoadResult:
 	var events: Array[Dictionary] = []
 	for entry: Variant in content.get("events", []):
 		events.append(entry)
+	# `architectures` is optional, as the file is (`replayability.md` §8.1).
 	return ContentLoader.load_from_dicts(content["balance"], content["regions"], content["links"],
 		content["assets"], content["statuses"], content["abilities"], tech, events,
-		content["headlines"], content["factions"])
+		content["headlines"], content["factions"], ContentLoader.MEMORY_LABEL,
+		content.get("architectures"))
 
 
 ## The four files of a content root as text, so that a test can write a root that

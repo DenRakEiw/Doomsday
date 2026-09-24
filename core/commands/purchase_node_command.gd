@@ -65,12 +65,22 @@ func execute(sim: Simulation, events: Array[SimEvent]) -> void:
 	var cost: float = sim.node_cost(node)
 	var definition: TechNodeDef = sim.db.tech(node)
 	sim.world.agent.compute -= cost
+	var site: int = sim.db.region_index_by_id[region] if definition.deploys() else 0
+	own(sim, definition, site, cost, events)
+
+
+## Owning a node, whoever paid for it: the purchase above, or an architecture's
+## start (`replayability.md` §8.1 — "as if bought"). `site` is the region a
+## deploying node places its assets in, 0 for one that places nothing.
+static func own(sim: Simulation, definition: TechNodeDef, site: int, cost: float,
+		events: Array[SimEvent]) -> void:
+	var node: String = definition.id
 	sim.world.agent.owned_nodes.append(node)
 	sim.world.modifiers.add_source(ModifierStack.source_for_tech(node), definition.modifiers,
 		definition.flags, definition.watched_by)
 	events.append(SimEvent.new(SimEvent.NODE_PURCHASED, sim.world.day,
 		{"node": node, "cost": cost}))
-	var site: int = _deploy(sim, definition, events)
+	_deploy(sim, definition, site, events)
 	if definition.grants_ability():
 		# After the deployment and before the one-shots (§9.2): the node placed
 		# what it places, and what it *gave* is the next thing the player hears.
@@ -82,22 +92,20 @@ func execute(sim: Simulation, events: Array[SimEvent]) -> void:
 		events)
 
 
-## Puts the node's assets on the map and answers the region the one-shots then
-## run in — 0 for a node that deploys nothing.
-func _deploy(sim: Simulation, definition: TechNodeDef, events: Array[SimEvent]) -> int:
-	if not definition.deploys():
-		return 0
-	var index: int = sim.db.region_index_by_id[region]
-	var held: int = sim.world.regions[index].asset_count(definition.deploy_kind)
-	sim.world.set_assets(index, definition.deploy_kind, held + definition.deploy_count)
+## Puts the node's assets on the map in `site`.
+static func _deploy(sim: Simulation, definition: TechNodeDef, site: int,
+		events: Array[SimEvent]) -> void:
+	if not definition.deploys() or site <= 0:
+		return
+	var held: int = sim.world.regions[site].asset_count(definition.deploy_kind)
+	sim.world.set_assets(site, definition.deploy_kind, held + definition.deploy_count)
 	events.append(SimEvent.new(SimEvent.ASSET_DEPLOYED, sim.world.day, {
-		"node": node,
+		"node": definition.id,
 		"ability": "",
 		"kind": definition.deploy_kind,
-		"region": region,
+		"region": sim.world.regions[site].def.id,
 		"count": definition.deploy_count,
 	}))
-	return index
 
 
 func to_dict() -> Dictionary:

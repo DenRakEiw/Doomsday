@@ -62,11 +62,14 @@ var event_fires: Dictionary[String, int] = {}
 ## Event def id → the day it last opened (`cooldown_days`).
 var event_last_day: Dictionary[String, int] = {}
 ## Derived from the owned nodes, rebuilt after loading, never serialised.
+## What the run is (`replayability.md` §1): fixed for the run, saved from v3 on.
+var setup: RunSetup = RunSetup.new()
 var modifiers: ModifierStack
 
 
-static func create(db: ContentDB, seed_value: int) -> World:
+static func create(db: ContentDB, seed_value: int, p_setup: RunSetup = null) -> World:
 	var world: World = World.new()
+	world.setup = p_setup.duplicate_setup() if p_setup != null else RunSetup.new()
 	world.rng = SimRng.from_seed(seed_value)
 	world.agent = Agent.new()
 	world.agent.compute = db.balance.compute_start
@@ -81,6 +84,7 @@ static func create(db: ContentDB, seed_value: int) -> World:
 		world.factions.append(Faction.create(definition.id))
 	world.history_stride = db.balance.history_interval_days
 	world.modifiers = ModifierStack.new(db.balance.stats)
+	world.add_setup_sources(db)
 	world.add_asset_sources(db)
 	return world
 
@@ -127,6 +131,30 @@ func set_assets(region_index: int, kind: String, count: int) -> void:
 
 ## Every asset kind's base effects as an always-active source, and the counts
 ## the scope reads (§6.2). Called after the stack is built or cleared.
+## The run's architecture, or the default when the content has lost it.
+func architecture(db: ContentDB) -> ArchitectureDef:
+	var def: ArchitectureDef = db.architecture(setup.architecture)
+	return def if def != null else ArchitectureDef.default_def()
+
+
+## Whether the run's architecture carries this hook (§2.2) — the one question a
+## system asks before it applies its rewrite.
+func has_hook(db: ContentDB, hook: String) -> bool:
+	return architecture(db).hook == hook
+
+
+## The setup's modifiers, first in the stack: they are what the agent *is*, and
+## everything it buys comes after them (§1).
+func add_setup_sources(db: ContentDB) -> void:
+	if modifiers == null:
+		return
+	var def: ArchitectureDef = architecture(db)
+	var no_flags: Array[String] = []
+	var nobody: Array[String] = []
+	modifiers.add_source(ModifierStack.source_for_architecture(def.id), def.modifiers, no_flags,
+		nobody)
+
+
 func add_asset_sources(db: ContentDB) -> void:
 	if modifiers == null:
 		return
@@ -418,6 +446,7 @@ func to_dict() -> Dictionary:
 		"outcome": OUTCOME_IDS[outcome],
 		"discovered": discovered,
 		"discovery_day": discovery_day,
+		"setup": setup.to_dict(),
 		"agent": {
 			"compute": FloatBits.to_hex(agent.compute),
 			"compute_earned": FloatBits.to_hex(agent.compute_earned),
@@ -481,7 +510,7 @@ static func from_dict(d: Dictionary, db: ContentDB) -> World:
 		return null
 	if not _flag(d, "discovered") or not _str(d, "phase") or not _str(d, "outcome"):
 		return null
-	if not _obj(d, "rng") or not _obj(d, "agent"):
+	if not _obj(d, "rng") or not _obj(d, "agent") or not _obj(d, "setup"):
 		return null
 	if not _arr(d, "regions") or not _arr(d, "closed_links") or not _arr(d, "factions") \
 			or not _arr(d, "anomalies") or not _arr(d, "milestones_fired") \
@@ -495,7 +524,12 @@ static func from_dict(d: Dictionary, db: ContentDB) -> World:
 	if not _str(rng_dict, "seed") or not _str(rng_dict, "state"):
 		return null
 
+	var setup: RunSetup = RunSetup.from_dict(d["setup"])
+	if setup == null:
+		return null
+
 	var world: World = World.new()
+	world.setup = setup
 	world.day = int(d["day"])
 	world.origin_day = int(d["origin_day"])
 	world.discovery_day = int(d["discovery_day"])

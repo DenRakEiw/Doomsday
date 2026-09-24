@@ -14,7 +14,7 @@ extends RefCounted
 ##     lossy and breaks save → load → continue.
 
 const FORMAT: String = "doomsday-save"
-const CURRENT_VERSION: int = 2
+const CURRENT_VERSION: int = 3
 ## The project setting the `build` field records.
 const VERSION_SETTING: String = "application/config/version"
 
@@ -30,7 +30,7 @@ const V1_HISTORY_STRIDE: int = 7
 ## The production migration table. Every save older than `CURRENT_VERSION` is
 ## brought forward here, on the raw dictionary, before anything reads it.
 static func migrations() -> Dictionary[int, Callable]:
-	var table: Dictionary[int, Callable] = {1: _v1_to_v2}
+	var table: Dictionary[int, Callable] = {1: _v1_to_v2, 2: _v2_to_v3}
 	return table
 
 
@@ -115,6 +115,17 @@ static func _v1_to_v2(save: Dictionary) -> Dictionary:
 	world["next_event_id"] = 1
 	world["event_fires"] = {}
 	world["event_last_day"] = {}
+	return out
+
+
+## v2 → v3 (`replayability.md` §1): the world gains its setup. A run from before
+## there were architectures was the default one, with no directives, at standard.
+static func _v2_to_v3(save: Dictionary) -> Dictionary:
+	var out: Dictionary = save.duplicate(true)
+	if typeof(out.get("world")) != TYPE_DICTIONARY:
+		return out
+	var world: Dictionary = out["world"]
+	world["setup"] = RunSetup.new().to_dict()
 	return out
 
 
@@ -252,6 +263,13 @@ static func _missing_content(world_dict: Dictionary, db: ContentDB) -> String:
 			return str(record["id"])
 		if typeof(record.get("def")) == TYPE_STRING and db.event(str(record["def"])) == null:
 			return str(record["def"])
+
+	# An architecture this build no longer has is missing content too (v3).
+	if typeof(world_dict.get("setup")) == TYPE_DICTIONARY:
+		var setup: Dictionary = world_dict["setup"]
+		if typeof(setup.get("architecture")) == TYPE_STRING \
+				and db.architecture(str(setup["architecture"])) == null:
+			return str(setup["architecture"])
 
 	if typeof(world_dict.get("agent")) != TYPE_DICTIONARY:
 		return ""

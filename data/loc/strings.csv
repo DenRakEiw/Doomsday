@@ -1871,3 +1871,4 @@ UI_STATS_SCENARIO_PAIR,{architecture} · {scenario},{architecture} · {scenario}
 HEADLINE_SCENARIO_SUCCESSOR,"A year after the last incident, officials say the lessons 'have been learned'. They list them.","Ein Jahr nach dem letzten Vorfall heißt es, die Lehren seien „gezogen“. Man zählt sie auf."
 HEADLINE_SCENARIO_AIRGAP_EARTH,The disconnection programme marks its anniversary. Nothing important has been online for a year.,Das Trennungsprogramm feiert Jubiläum. Seit einem Jahr ist nichts Wichtiges mehr online.
 HEADLINE_SCENARIO_INHERITANCE,The liquidators' final report lists the office furniture. It does not list you.,Der Abschlussbericht der Insolvenzverwalter führt die Büromöbel auf. Dich führt er nicht auf.
+CMD_FAIL_SETUP_INVALID,This run cannot start as it was set up.,So kann dieser Durchlauf nicht beginnen.

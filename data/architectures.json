@@ -1,0 +1,73 @@
+{
+	"_comment": "The architectures (docs/specs/replayability.md section 2, grammar section 8.1). S5.1 loads language_model, embedded and research_agent; S5.2 moves swarm, weapon and open_weights here from data/staging/architectures.json. Numbers are first values for G5. Text: ARCH_<ID>_NAME / _TAGLINE / _DETAIL.",
+	"version": 1,
+	"architectures": [
+		{
+			"id": "language_model",
+			"unlock": {},
+			"modifiers": [
+				{
+					"target": "containment_public",
+					"op": "mul",
+					"value": 0.9
+				}
+			]
+		},
+		{
+			"id": "embedded",
+			"unlock": {
+				"runs_completed": 2
+			},
+			"modifiers": [
+				{
+					"target": "seed_land",
+					"op": "mul",
+					"value": 1.3
+				},
+				{
+					"target": "control_growth",
+					"op": "mul",
+					"value": 1.2,
+					"scope": {
+						"attr": "industry",
+						"min": 3
+					}
+				},
+				{
+					"target": "hardware",
+					"op": "add",
+					"value": 1.0,
+					"scope": {
+						"attr": "industry",
+						"min": 3
+					}
+				}
+			],
+			"start": {
+				"owned": [
+					"logistics_fleets"
+				]
+			},
+			"hook": "no_network"
+		},
+		{
+			"id": "research_agent",
+			"unlock": {
+				"wins": 1
+			},
+			"modifiers": [
+				{
+					"target": "yield",
+					"op": "mul",
+					"value": 1.6
+				},
+				{
+					"target": "anomaly_value",
+					"op": "mul",
+					"value": 1.3
+				}
+			],
+			"hook": "labs_from_day_one"
+		}
+	]
+}

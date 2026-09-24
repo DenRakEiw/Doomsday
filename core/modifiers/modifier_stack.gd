@@ -70,6 +70,8 @@ const SOURCE_ASSET: String = "asset"
 ## The prefix of a timed flag's source: a source with no modifiers whose only
 ## job is to make `has_flag` answer yes while it stands (§8.2, `set_flag`).
 const SOURCE_FLAG: String = "flag"
+## The prefix of the run's architecture (`replayability.md` §1).
+const SOURCE_ARCHITECTURE: String = "arch"
 
 var _bases: Dictionary[String, float] = {}
 ## Source id → its modifiers, in activation order.
@@ -110,6 +112,11 @@ static func source_for_asset(kind: String) -> String:
 ## The source id a timed flag is active under (§8.2).
 static func source_for_flag(flag: String) -> String:
 	return "%s:%s" % [SOURCE_FLAG, flag]
+
+
+## The source id the run's architecture is active under.
+static func source_for_architecture(architecture_id: String) -> String:
+	return "%s:%s" % [SOURCE_ARCHITECTURE, architecture_id]
 
 
 ## How many assets of a kind stand in a region, as the stack sees it.

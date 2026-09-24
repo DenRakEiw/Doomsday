@@ -34,6 +34,10 @@ var factions: Array[FactionDef] = []
 var faction_by_id: Dictionary[String, FactionDef] = {}
 ## Exclusive group id -> how many of its nodes may be owned (§11.1).
 var groups: Dictionary[String, int] = {}
+## `architectures.json` in file order (`replayability.md` §8.1); a root without the
+## file has the default architecture alone.
+var architectures: Array[ArchitectureDef] = []
+var architecture_by_id: Dictionary[String, ArchitectureDef] = {}
 var balance: BalanceDef = null
 ## Σ `RegionDef.population`, as a float because every formula using it is one.
 var population_total: float = 0.0
@@ -96,3 +100,10 @@ func event(id: String) -> EventDef:
 	if not event_by_id.has(id):
 		return null
 	return event_by_id[id]
+
+
+## The architecture with this id, or null.
+func architecture(id: String) -> ArchitectureDef:
+	if not architecture_by_id.has(id):
+		return null
+	return architecture_by_id[id]

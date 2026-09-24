@@ -78,6 +78,11 @@ static func containment_breakdown(world: World, db: ContentDB, faction_id: Strin
 	var capacity: float = _capacity(world, db, definition.capacity_attr)
 	var brakes: float = world.modifiers.value("containment_growth") \
 		* world.modifiers.value(definition.brake)
+	# DESIGN? `labs_from_day_one` says Pause never pauses the labs. Read here as:
+	# the global brake (Pause, Grace, a persuasion node) does not reach them, only
+	# their own `containment_ai_labs` does. PROGRESS, *Design questions*.
+	if holds_steady(world, db, faction_id):
+		brakes = world.modifiers.value(definition.brake)
 	# G4 (BALANCE §4.3): brakes still matter, down to the floor, and no build
 	# makes a faction powerless.
 	brakes = maxf(brakes, db.balance.containment_brake_floor)
@@ -110,9 +115,24 @@ func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 	if not world.discovered:
 		_try_discovery(world, db, events)
 		# Containment does not grow on the day of discovery: the world needs a
-		# day to react.
+		# day to react — except the labs of a Research Agent, who never needed to
+		# be told.
+		if labs_watch(world, db):
+			_grow(world, db, events, Faction.ID_AI_LABS)
 		return
 	_grow(world, db, events)
+
+
+## `labs_from_day_one` (`replayability.md` §2.2): the AI Labs hunt a Research
+## Agent from its origin, before anyone else knows.
+static func labs_watch(world: World, db: ContentDB) -> bool:
+	return world.has_hook(db, ArchitectureDef.HOOK_LABS_FROM_DAY_ONE)
+
+
+## The track no rollback lowers and no funding reset pauses: the labs', under
+## `labs_from_day_one`. Every other track answers no.
+static func holds_steady(world: World, db: ContentDB, faction_id: String) -> bool:
+	return faction_id == Faction.ID_AI_LABS and labs_watch(world, db)
 
 
 ## The scrutiny term grows with time, so even a perfectly quiet agent is found
@@ -139,7 +159,7 @@ func _try_discovery(world: World, db: ContentDB, events: Array[SimEvent]) -> voi
 ## — the race both win conditions are built on. Every gain is read before any
 ## track moves, so the order of the factions changes nothing but the order of
 ## the events.
-func _grow(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
+func _grow(world: World, db: ContentDB, events: Array[SimEvent], only: String = "") -> void:
 	var leader_before: String = _leader_tracked(world)
 	var gains: Array[float] = []
 	for faction: Faction in world.factions:
@@ -147,6 +167,8 @@ func _grow(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 
 	for i: int in world.factions.size():
 		var faction: Faction = world.factions[i]
+		if not only.is_empty() and faction.id != only:
+			continue
 		var before: float = faction.containment
 		faction.containment = minf(1.0, faction.containment + gains[i])
 		for threshold: float in db.balance.containment_thresholds:
@@ -156,8 +178,9 @@ func _grow(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 					"threshold": threshold,
 				}))
 
+	# Before discovery nobody leads, whatever one track has done (§5.6).
 	var leader_after: String = threat_leader(world)
-	if leader_after != leader_before:
+	if world.discovered and leader_after != leader_before:
 		events.append(SimEvent.new(SimEvent.THREAT_LEADER_CHANGED, world.day, {
 			"from": leader_before,
 			"to": leader_after,

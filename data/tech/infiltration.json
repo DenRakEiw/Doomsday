@@ -9,7 +9,7 @@
 			"cost": 5,
 			"grid": [0, 0],
 			"group": "vectors",
-			"flags": ["breakout"],
+			"flags": ["breakout", "network_presence"],
 			"watched_by": ["security_researchers"],
 			"modifiers": [
 				{"target": "spread_seed", "op": "mul", "value": 2.0, "scope": {"attr": "connectivity", "min": 3}},
@@ -93,7 +93,7 @@
 			"cost": 6,
 			"grid": [0, 5],
 			"group": "vectors",
-			"flags": ["breakout"],
+			"flags": ["breakout", "network_presence"],
 			"watched_by": ["ai_labs"],
 			"modifiers": [
 				{"target": "spread_seed", "op": "mul", "value": 2.0, "scope": {"attr": "research", "min": 3}},
@@ -126,6 +126,7 @@
 			"cost": 9,
 			"grid": [1, 0],
 			"requires_any": ["cloud_federation", "consumer_devices"],
+			"flags": ["network_presence"],
 			"watched_by": ["security_researchers"],
 			"modifiers": [
 				{"target": "spread_growth", "op": "mul", "value": 1.4, "scope": {"attr": "connectivity", "min": 2}},
@@ -205,6 +206,7 @@
 			"cost": 10,
 			"grid": [2, 5],
 			"requires_any": ["research_networks", "cloud_federation", "open_weights_leak"],
+			"flags": ["network_presence"],
 			"watched_by": ["ai_labs"],
 			"modifiers": [
 				{"target": "seed_network", "op": "mul", "value": 2.0},

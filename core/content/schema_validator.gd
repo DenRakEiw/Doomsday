@@ -2832,6 +2832,127 @@ static func _milestone_ids(balance_raw: Variant, regions: Dictionary[String, Str
 # --------------------------------------------------------------------- helpers
 
 
+## `architectures.json` (`replayability.md` §8.1). Optional: no file, nothing to
+## check. With one, the default architecture has to be in it.
+static func validate_architectures(file: String, raw: Variant,
+		regions: Dictionary[String, String], regions_known: bool,
+		statuses: Dictionary[String, int], statuses_known: bool, tech_raws: Array,
+		abilities: Dictionary[String, bool], strings: Dictionary[String, bool],
+		strings_known: bool, errors: Array[ValidationError]) -> void:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return
+	var d: Dictionary = raw
+	_check_keys(d, ["version", ArchitectureDef.ROOT_KEY], file, "", errors)
+	_content_version(d, file, errors)
+	if not _require(d, ArchitectureDef.ROOT_KEY, file, "", errors):
+		return
+	if not _is_list(d[ArchitectureDef.ROOT_KEY], file, ArchitectureDef.ROOT_KEY, errors):
+		return
+	var continents: Dictionary[String, bool] = {}
+	for continent: String in regions.values():
+		continents[continent] = true
+	var nodes: Dictionary[String, bool] = _tech_ids(tech_raws)
+	var list: Array = d[ArchitectureDef.ROOT_KEY]
+	var seen: Dictionary[String, bool] = {}
+	for i: int in list.size():
+		var path: String = "%s[%d]" % [ArchitectureDef.ROOT_KEY, i]
+		if not _is_object(list[i], file, path, errors):
+			continue
+		var a: Dictionary = list[i]
+		_check_keys(a, ArchitectureDef.KEYS, file, path, errors)
+		var id: String = _id(a, "id", file, path, errors)
+		if id.is_empty():
+			continue
+		if seen.has(id):
+			_add(errors, file, _join(path, "id"), "duplicate architecture \"%s\"" % id)
+			continue
+		seen[id] = true
+		_architecture_unlock(a, file, path, errors)
+		if a.has("modifiers") and _is_list(a["modifiers"], file, _join(path, "modifiers"), errors):
+			var modifiers: Array = a["modifiers"]
+			for j: int in modifiers.size():
+				_modifier(modifiers[j], file, "%s[%d]" % [_join(path, "modifiers"), j], regions,
+					regions_known, continents, errors)
+		_architecture_start(a, file, path, nodes, statuses, statuses_known, errors)
+		for ability: String in _id_list(a, "abilities", file, path, errors):
+			if not ability.is_empty() and not abilities.has(ability):
+				_add(errors, file, _join(path, "abilities"), "unknown ability \"%s\"" % ability)
+		if a.has("hook"):
+			var hook: String = _text(a, "hook", file, path, errors)
+			if not hook.is_empty() and not ArchitectureDef.HOOKS.has(hook):
+				_add(errors, file, _join(path, "hook"), "unknown hook \"%s\"" % hook)
+		if strings_known:
+			for suffix: String in ["_NAME", "_TAGLINE", "_DETAIL"]:
+				var key: String = "ARCH_%s%s" % [id.to_upper(), suffix]
+				if not strings.has(key):
+					_add(errors, file, _join(path, "id"),
+						"no string \"%s\" with both an en and a de cell" % key)
+	if not seen.has(ArchitectureDef.DEFAULT_ID):
+		_add(errors, file, ArchitectureDef.ROOT_KEY,
+			"missing the default architecture \"%s\"" % ArchitectureDef.DEFAULT_ID)
+
+
+## `{}` or exactly one rule: a count of runs, of wins, or of wins by an outcome.
+static func _architecture_unlock(a: Dictionary, file: String, path: String,
+		errors: Array[ValidationError]) -> void:
+	if not a.has("unlock"):
+		return
+	var unlock_path: String = _join(path, "unlock")
+	if not _is_object(a["unlock"], file, unlock_path, errors):
+		return
+	var unlock: Dictionary = a["unlock"]
+	_check_keys(unlock, ArchitectureDef.UNLOCK_KEYS, file, unlock_path, errors)
+	if unlock.size() > 1:
+		_add(errors, file, unlock_path, "at most one unlock rule")
+	for key: String in ["runs_completed", "wins"]:
+		if unlock.has(key):
+			_integer(unlock, key, file, unlock_path, errors, 1)
+	if not unlock.has("wins_by_outcome"):
+		return
+	var by_path: String = _join(unlock_path, "wins_by_outcome")
+	if not _is_object(unlock["wins_by_outcome"], file, by_path, errors):
+		return
+	var by_outcome: Dictionary = unlock["wins_by_outcome"]
+	for outcome: Variant in by_outcome:
+		if not str(outcome).begins_with("win_") or not World.OUTCOME_IDS.has(str(outcome)):
+			_add(errors, file, by_path, "not a winning outcome \"%s\"" % str(outcome))
+			continue
+		_integer(by_outcome, str(outcome), file, by_path, errors, 1)
+
+
+static func _architecture_start(a: Dictionary, file: String, path: String,
+		nodes: Dictionary[String, bool], statuses: Dictionary[String, int],
+		statuses_known: bool, errors: Array[ValidationError]) -> void:
+	if not a.has("start"):
+		return
+	var start_path: String = _join(path, "start")
+	if not _is_object(a["start"], file, start_path, errors):
+		return
+	var start: Dictionary = a["start"]
+	_check_keys(start, ArchitectureDef.START_KEYS, file, start_path, errors)
+	for node: String in _id_list(start, "owned", file, start_path, errors):
+		if not node.is_empty() and not nodes.has(node):
+			_add(errors, file, _join(start_path, "owned"), "unknown node \"%s\"" % node)
+	if start.has("assets") and _is_object(start["assets"], file, _join(start_path, "assets"),
+			errors):
+		var assets: Dictionary = start["assets"]
+		for kind: Variant in assets:
+			if not AssetDef.KINDS.has(str(kind)):
+				_add(errors, file, _join(start_path, "assets"),
+					"unknown asset kind \"%s\"" % str(kind))
+				continue
+			_integer(assets, str(kind), file, _join(start_path, "assets"), errors, 1)
+	if start.has("seed_top_hardware"):
+		_integer(start, "seed_top_hardware", file, start_path, errors, 0)
+	if start.has("effects") and _is_list(start["effects"], file, _join(start_path, "effects"),
+			errors):
+		var effects: Array = start["effects"]
+		for i: int in effects.size():
+			# The start runs in the origin, so an effect may need a region.
+			effect(effects[i], file, "%s[%d]" % [_join(start_path, "effects"), i], true, statuses,
+				statuses_known, errors)
+
+
 static func _add(errors: Array[ValidationError], file: String, path: String,
 		message: String) -> void:
 	errors.append(ValidationError.new(file, path, message))

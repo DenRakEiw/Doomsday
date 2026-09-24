@@ -34,6 +34,12 @@ func _init() -> void:
 
 	var max_days: int = int(args.get("max-days", str(Harness.DEFAULT_MAX_DAYS)))
 	var db: ContentDB = Harness.load_content(args.get("data", Harness.DEFAULT_DATA))
+	# §7: every report states its setup; an unknown one stops before a single run.
+	var setup: RunSetup = Harness.setup_from_args(args)
+	if setup != null and db != null and not setup.validate(db).is_empty():
+		print("unknown setup \"%s\"" % args["setup"])
+		quit(Harness.EXIT_BAD_INPUT)
+		return
 	if db == null:
 		quit(Harness.EXIT_BAD_INPUT)
 		return
@@ -51,7 +57,7 @@ func _init() -> void:
 	var rejected_total: int = 0
 	for seed_value: int in range(first, last + 1):
 		var problems: Array[String] = []
-		var played: Dictionary = Harness.play(db, seed_value, policy_id, max_days, false, problems)
+		var played: Dictionary = Harness.play(db, seed_value, policy_id, max_days, false, problems, setup)
 		var summary: Dictionary = Harness.summarise(played["sim"], seed_value, policy_id, max_days,
 			int(played["rejected"]), played["headlines"], played["stats"])
 		var row: PackedStringArray = []

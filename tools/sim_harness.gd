@@ -19,8 +19,8 @@ const DEFAULT_MAX_DAYS: int = 5000
 const OUTCOME_TIMEOUT: String = "timeout"
 
 ## The order the summary's fields are printed and written in.
-const FIELDS: Array[String] = ["seed", "policy", "outcome", "days", "discovery_day", "phase",
-	"nodes_owned", "regions_seeded", "regions_dark", "deaths_share", "containment", "leader",
+const FIELDS: Array[String] = ["seed", "policy", "architecture", "outcome", "days",
+	"discovery_day", "phase", "nodes_owned", "regions_seeded", "regions_dark", "deaths_share", "containment", "leader",
 	"lost_to", "compute_earned", "rejected_commands", "abilities_used", "events_opening",
 	"events_counter_move", "events_chain", "counter_moves", "assets_deployed", "assets_lost",
 	"headlines_consequence", "headlines_reaction", "headlines_filler", "hash"]
@@ -49,6 +49,22 @@ static func parse_args(args: PackedStringArray) -> Dictionary[String, String]:
 	return out
 
 
+## `--setup=<architecture>[,<difficulty>][,<directive>…]` (`replayability.md` §7),
+## or null without the argument — the default run.
+static func setup_from_args(args: Dictionary[String, String]) -> RunSetup:
+	if not args.has("setup"):
+		return null
+	var items: PackedStringArray = args["setup"].split(",", false)
+	var setup: RunSetup = RunSetup.new()
+	if items.size() > 0:
+		setup.architecture = items[0]
+	if items.size() > 1:
+		setup.difficulty = items[1]
+	for i: int in range(2, items.size()):
+		setup.directives.append(items[i])
+	return setup
+
+
 static func make_policy(id: String) -> Policy:
 	return Policy.create(id)
 
@@ -64,8 +80,8 @@ static func policy_seed(seed_value: int) -> int:
 ## Plays one run to its end. `problems` is filled with the first invariant
 ## violation when `check` is on, and the run stops there.
 static func play(db: ContentDB, seed_value: int, policy_id: String, max_days: int, check: bool,
-		problems: Array[String]) -> Dictionary:
-	var sim: Simulation = Simulation.create(db, seed_value)
+		problems: Array[String], setup: RunSetup = null) -> Dictionary:
+	var sim: Simulation = Simulation.create(db, seed_value, setup)
 	var policy: Policy = make_policy(policy_id)
 	policy.setup(db, policy_seed(seed_value))
 	var headlines: Array[Dictionary] = []
@@ -177,6 +193,7 @@ static func summarise(sim: Simulation, seed_value: int, policy_id: String, max_d
 	return {
 		"seed": seed_value,
 		"policy": policy_id,
+		"architecture": world.setup.architecture,
 		"outcome": outcome,
 		"days": world.day,
 		"discovery_day": world.discovery_day,

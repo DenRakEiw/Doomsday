@@ -238,6 +238,7 @@ Boolean unlocks that a source grants while it is active.
 | `compute_independent` | `autophagy` (S4.5) | the agent no longer starves when the infrastructure it runs on collapses |
 | `legal_standing` | `endings` (S5.6) | reserved |
 | `merge_path` | `endings` (S5.6) | reserved: opens the Merge ending |
+| `network_presence` | live (S5.1) | the `no_network` hook of an architecture: network links carry the agent only while it is set (`replayability.md` §2.3). Inert on every other architecture |
 
 An unknown flag is a validation error. An inert flag is answered truthfully by
 `ModifierStack.has_flag` and asked by nobody; `INERT_FLAGS` names them.
@@ -531,6 +532,35 @@ is a `counter_move` event whose `faction` is this faction; `trigger` needs at le
 "seeds_by_kind_max", "events": {link kind: counter-move event of this faction}}` — a key the
 selector produces and the map lacks falls back to `event`. An event named by two factions' moves
 is an error; so is a counter-move event no move names. Strings: `FACTION_<ID>` in `en` and `de`.
+
+## 6e. `architectures.json`
+
+What the agent is (`docs/specs/replayability.md` §2, §8.1). **Optional**: a root without it plays
+the default architecture `language_model` alone, with no modifiers and no start. With the file,
+`language_model` must be in it.
+
+```json
+{"version": 1, "architectures": [
+	{"id": "embedded", "unlock": {"runs_completed": 2},
+	 "modifiers": [{"target": "seed_land", "op": "mul", "value": 1.3}],
+	 "start": {"owned": ["logistics_fleets"], "assets": {"fleet": 1}, "seed_top_hardware": 0,
+	           "effects": []},
+	 "abilities": [],
+	 "hook": "no_network"}
+]}
+```
+
+| Field | Type | Required | Rule |
+| --- | --- | --- | --- |
+| `id` | id | yes | unique |
+| `unlock` | object | no (`{}`) | `{}` or exactly one of `runs_completed` · `wins` (int ≥ 1) · `wins_by_outcome` ({winning outcome id: int ≥ 1}). The profile's business (S5.3); the simulation never reads it |
+| `modifiers` | [modifier] | no | §4.1, active from the run's creation under the source `arch:<id>`, first in the stack |
+| `start` | object | no | `owned` [node id] — owned at the origin as if bought (cost 0, deploys into the origin, grants their ability); `assets` {kind: int ≥ 1} placed in the origin; `seed_top_hardware` int ≥ 0 (S5.2); `effects` [effect] run in the origin, a region is available |
+| `abilities` | [ability id] | no | granted at level 1 without a node |
+| `hook` | string | no | one of `drift` · `no_network` · `labs_from_day_one` · `escalation` · `distributed` (§2.2 of the spec; each read in one system) |
+
+The run's architecture is `World.setup.architecture` (save v3); an unknown one refuses the origin
+with `setup_invalid`. Strings per architecture: `ARCH_<ID>_NAME` · `_TAGLINE` · `_DETAIL`.
 
 ## 7. Eligibility
 

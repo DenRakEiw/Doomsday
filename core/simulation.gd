@@ -52,10 +52,11 @@ static func view(db: ContentDB, world: World) -> Simulation:
 	return sim
 
 
-static func create(db: ContentDB, seed_value: int) -> Simulation:
+## `setup` null is the default run (`replayability.md` §1).
+static func create(db: ContentDB, seed_value: int, setup: RunSetup = null) -> Simulation:
 	var sim: Simulation = Simulation.new()
 	sim.db = db
-	sim.world = World.create(db, seed_value)
+	sim.world = World.create(db, seed_value, setup)
 	sim.headlines = HeadlineSystem.create(seed_value)
 	return sim
 
@@ -83,8 +84,8 @@ static func from_world(db: ContentDB, world: World, log: Array[Command],
 ## rejected during replay means the run is not reproducible, which is a defect
 ## and not a situation to recover from: it returns null after `push_error`.
 static func replay(db: ContentDB, seed_value: int, log: Array[Command],
-		until_day: int) -> Simulation:
-	var sim: Simulation = Simulation.create(db, seed_value)
+		until_day: int, setup: RunSetup = null) -> Simulation:
+	var sim: Simulation = Simulation.create(db, seed_value, setup)
 	while true:
 		for command: Command in log:
 			if command.day != sim.world.day:
@@ -182,6 +183,10 @@ func ability_level(ability_id: String) -> int:
 		if not world.agent.owns(node_id):
 			break
 		level += 1
+	# An ability the architecture grants is there at level 1 without a node
+	# (`replayability.md` §2.4).
+	if level == 0 and world.architecture(db).abilities.has(ability_id):
+		level = 1
 	return level
 
 
@@ -279,8 +284,10 @@ func prerequisites_met(node: TechNodeDef) -> bool:
 ## is derived state: it is never saved, only rebuilt.
 func rebuild_modifiers() -> void:
 	world.modifiers.clear()
-	# The asset kinds first, so that a node's own modifiers still come last in
-	# the summation order the determinism contract fixes (§6.2).
+	# The setup first — what the agent is — then the asset kinds, so that a node's
+	# own modifiers still come last in the summation order the determinism
+	# contract fixes (§6.2).
+	world.add_setup_sources(db)
 	world.add_asset_sources(db)
 	for node_id: String in world.agent.owned_nodes:
 		var node: TechNodeDef = db.tech(node_id)

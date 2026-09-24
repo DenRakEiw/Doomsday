@@ -48,6 +48,9 @@ var compute_rate: float = 0.0
 var containment_rates: Dictionary[String, float] = {}
 ## Null unless a bot drives the run.
 var policy: Policy = null
+## What the next run is (`replayability.md` §1). The setup screens of D5.3 write
+## it in S5.7; until then it is the default, or what F11 picks.
+var next_setup: RunSetup = RunSetup.new()
 ## Set by the debug keys: prints every tick and every event to the console.
 var debug_log: bool = false
 ## The question the map is being asked, or null (`loop-mechanics.md` §16.1).
@@ -106,14 +109,14 @@ func _process(delta: float) -> void:
 
 ## Starts a run on fresh content. `policy_id` empty means the player drives it;
 ## no origin is chosen here — the bot does that, or S3.4's origin screen.
-func start_run(seed_value: int, policy_id: String = "") -> void:
+func start_run(seed_value: int, policy_id: String = "", setup: RunSetup = null) -> void:
 	if not _ensure_content():
 		return
 	policy = Policy.create(policy_id) if not policy_id.is_empty() else null
 	if policy != null:
 		policy.setup(db, Policy.seed_for(seed_value))
 	clear_holds()
-	_adopt(Simulation.create(db, seed_value), seed_value)
+	_adopt(Simulation.create(db, seed_value, setup if setup != null else next_setup), seed_value)
 	# A bot run drives itself, so it starts running; a player's run waits for the
 	# origin choice S3.4 builds.
 	_force_speed(1 if policy != null else 0)
@@ -365,8 +368,8 @@ func _day_line() -> String:
 ## §10.2: F5/F6/F7 start a bot run — greedy / biology / persuasion, with Shift
 ## cyber / robotics / weapons (the second generation of S4.10) — L and M toggle the two settings
 ## (Shift+L the pseudo-locale of S4.9), K steps the text scale, F9 and F10 save
-## and load. All of this goes away in M6, when the real screens
-## exist.
+## and load, F11 picks the next run's architecture (S5.1). All of this goes away
+## in M6, when the real screens exist.
 func _unhandled_key_input(event: InputEvent) -> void:
 	var key: InputEventKey = event as InputEventKey
 	if key == null or not key.pressed or key.echo:
@@ -398,9 +401,33 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			_load_debug_save()
 		KEY_F8:
 			_debug_event(strategy)
+		KEY_F11:
+			print("next run: %s" % debug_cycle_architecture())
 		_:
 			return
 	get_viewport().set_input_as_handled()
+
+
+## F11 (S5.1's debug setup picker): the next run is the next architecture of the
+## content. Answers the id, for the console and the godot-mcp tools.
+func debug_cycle_architecture() -> String:
+	if not _ensure_content():
+		return ""
+	var ids: Array[String] = []
+	for def: ArchitectureDef in db.architectures:
+		ids.append(def.id)
+	var at: int = ids.find(next_setup.architecture)
+	next_setup.architecture = ids[(at + 1) % ids.size()]
+	return next_setup.architecture
+
+
+## The next run is `architecture_id` — from the godot-mcp tools. "" when the
+## content has no such architecture, which leaves the setup as it was.
+func debug_set_architecture(architecture_id: String) -> String:
+	if not _ensure_content() or db.architecture(architecture_id) == null:
+		return ""
+	next_setup.architecture = architecture_id
+	return architecture_id
 
 
 ## F8 puts a map event on the map at the next tick — the first opening in the

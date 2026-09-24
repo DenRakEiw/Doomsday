@@ -41,8 +41,10 @@ const TARGET_NODE_COST_PREFIX: String = "node_cost_"
 const FLAG_BREAKOUT: String = "breakout"
 ## Unlocks `SetDormancyCommand`.
 const FLAG_DORMANCY: String = "dormancy"
+## `replayability.md` §2.3: what lets network links carry an Embedded agent.
+const FLAG_NETWORK_PRESENCE: String = "network_presence"
 const FLAGS: Array[String] = ["breakout", "dormancy", "compute_independent", "legal_standing",
-	"merge_path"]
+	"merge_path", "network_presence"]
 
 var target: String
 var op: Op

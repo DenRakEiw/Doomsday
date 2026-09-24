@@ -81,6 +81,8 @@ static func _funding_reset(sim: Simulation, effect: EffectDef, context: EffectCo
 	var world: World = sim.world
 	var until_day: int = world.day + roundi(effect.value * float(sim.db.balance.factions_reset_days))
 	for faction: Faction in world.factions:
+		if ContainmentSystem.holds_steady(world, sim.db, faction.id):
+			continue
 		if not faction.preparing.is_empty():
 			events.append(SimEvent.new(SimEvent.COUNTER_MOVE_CANCELLED, world.day, {
 				"faction": faction.id,
@@ -101,6 +103,8 @@ static func _funding_reset(sim: Simulation, effect: EffectDef, context: EffectCo
 static func _containment_rollback(sim: Simulation, effect: EffectDef, context: EffectContext,
 		events: Array[SimEvent]) -> void:
 	for faction: Faction in sim.world.factions:
+		if ContainmentSystem.holds_steady(sim.world, sim.db, faction.id):
+			continue
 		var before: float = faction.containment
 		faction.containment = before * (1.0 - effect.value)
 		events.append(SimEvent.new(SimEvent.CONTAINMENT_ROLLED_BACK, sim.world.day, {
@@ -169,7 +173,7 @@ static func _seed_neighbours(sim: Simulation, effect: EffectDef, context: Effect
 	var kinds: Dictionary[int, String] = {}
 	var candidates: Array[int] = []
 	for link: Link in world.links:
-		if not link.open:
+		if not link.open or not SpreadSystem.carries(world, sim.db, link.def.kind):
 			continue
 		var other: int = _other_end(link, context.region)
 		if other <= 0 or kinds.has(other):

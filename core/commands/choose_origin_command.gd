@@ -20,6 +20,10 @@ func type_id() -> String:
 func validate(sim: Simulation) -> String:
 	if sim.world.agent.origin != 0:
 		return FAIL_ORIGIN_ALREADY_CHOSEN
+	# The setup is checked where the run begins (`replayability.md` §1).
+	var setup_reason: String = sim.world.setup.validate(sim.db)
+	if not setup_reason.is_empty():
+		return setup_reason
 	var definition: RegionDef = sim.db.region_by_id(region)
 	if definition == null:
 		return FAIL_INVALID_REGION
@@ -38,6 +42,7 @@ func execute(sim: Simulation, events: Array[SimEvent]) -> void:
 	home.penetration = sim.db.balance.spread_origin_penetration
 	home.seeded_day = sim.world.day
 	events.append(SimEvent.new(SimEvent.ORIGIN_CHOSEN, sim.world.day, {"region": region}))
+	ArchitectureStart.apply(sim, index, events)
 
 
 func to_dict() -> Dictionary:

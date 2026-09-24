@@ -31,6 +31,12 @@ func _init() -> void:
 		return
 
 	var db: ContentDB = Harness.load_content(args.get("data", Harness.DEFAULT_DATA))
+	# §7: every report states its setup; an unknown one stops before a single run.
+	var setup: RunSetup = Harness.setup_from_args(args)
+	if setup != null and db != null and not setup.validate(db).is_empty():
+		print("unknown setup \"%s\"" % args["setup"])
+		quit(Harness.EXIT_BAD_INPUT)
+		return
 	if db == null:
 		quit(Harness.EXIT_BAD_INPUT)
 		return
@@ -38,20 +44,20 @@ func _init() -> void:
 
 	var rows: Array[Dictionary] = []
 	for policy_id: String in policies:
-		rows.append(_run_policy(db, policy_id, bounds, max_days, args.get("out", "")))
-	_print_report(rows, bounds)
+		rows.append(_run_policy(db, policy_id, bounds, max_days, args.get("out", ""), setup))
+	_print_report(rows, bounds, setup if setup != null else RunSetup.new())
 	quit(Harness.EXIT_OK)
 
 
 ## Every run of one policy, as the numbers the report prints.
 func _run_policy(db: ContentDB, policy_id: String, bounds: PackedInt32Array, max_days: int,
-		out_dir: String) -> Dictionary:
+		out_dir: String, setup: RunSetup = null) -> Dictionary:
 	var started: int = Time.get_ticks_msec()
 	var runs: Array[Dictionary] = []
 	var file: FileAccess = _open_csv(out_dir, policy_id)
 	for seed_value: int in range(bounds[0], bounds[1] + 1):
 		var problems: Array[String] = []
-		var played: Dictionary = Harness.play(db, seed_value, policy_id, max_days, false, problems)
+		var played: Dictionary = Harness.play(db, seed_value, policy_id, max_days, false, problems, setup)
 		var summary: Dictionary = Harness.summarise(played["sim"], seed_value, policy_id, max_days,
 			int(played["rejected"]), played["headlines"], played["stats"])
 		summary.merge(_nodes_bought(played["sim"]))
@@ -85,9 +91,11 @@ static func _nodes_bought(sim: Simulation) -> Dictionary:
 # ---------------------------------------------------------------- the report
 
 
-func _print_report(rows: Array[Dictionary], bounds: PackedInt32Array) -> void:
-	print("\n### %d seeds per policy (%d..%d), content %s\n"
-		% [bounds[1] - bounds[0] + 1, bounds[0], bounds[1], Time.get_date_string_from_system()])
+## `replayability.md` §7: every report states its setup in its heading.
+func _print_report(rows: Array[Dictionary], bounds: PackedInt32Array, setup: RunSetup) -> void:
+	print("\n### %d seeds per policy (%d..%d), %s · %s, content %s\n"
+		% [bounds[1] - bounds[0] + 1, bounds[0], bounds[1], setup.architecture, setup.difficulty,
+		Time.get_date_string_from_system()])
 	_print_table(rows, "Outcome mix", _outcome_columns(rows), func(run: Dictionary,
 		column: String) -> String:
 			return "%.0f %%" % (100.0 * _share(run, "outcome", column)))

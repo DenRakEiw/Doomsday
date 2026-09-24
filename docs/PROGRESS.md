@@ -14,14 +14,14 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. The M5 design block is done; meanwhile the build goes on: **S5.1 — Architectures I** (`docs/specs/replayability.md` §10). |
+| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. The M5 design block is done; meanwhile the build goes on: **S5.2 — Architectures II** (`docs/specs/replayability.md` §10: swarm, weapon, open_weights, the `emergent` kind; the staged `emergent.json` and the rest of `data/staging/architectures.json`). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S5.2 → S5.8 (M5 build), then G5 |
-| **Last completed** | S4.P — punch list: every S4.9 layout finding and the 150 % list fixed (scroll-bar gap in the theme, `ButtonContent`, measured chart margins and round ticks, scaled tech cards, dock chip, status strip, log rows, table alignment, results, settings title, Escape on the sheet, faction status line). 1278 tests green (2026-09-24). **The M4 gate is still open.** |
-| **Before that** | D5.4 — scenarios (2026-09-24) |
+| **After it** | S5.3 → S5.8 (M5 build), then G5 |
+| **Last completed** | S5.1 — Architectures I: `RunSetup` in the world and save v3 (v2 migrates to the default), `data/architectures.json` (language_model, embedded, research_agent) loaded and validated, the start (owned nodes as if bought, assets, effects), architecture abilities, the `no_network` and `labs_from_day_one` hooks, flag `network_presence`, `--setup=` on the sim tools, F11 picks the next run's architecture. 1299 tests green (2026-09-24). **The M4 gate is still open.** |
+| **Before that** | S4.P — punch list (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
-| **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
+| **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…]` on all three tools) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
 | **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 202 scripts compile (75 judged by the suite), then `tools/check_strings.gd`, 1253 tests, **all green since S4.9**. The same command is all of CI. |
@@ -121,7 +121,7 @@ which file was being edited, and anything learned that the files do not show)*
 
 **Block 10 — M5 build · Opus**
 - [x] S4.P [O] Punch list from D4.5 and G4 *(skip if empty)*
-- [ ] S5.1 [O] Architectures I
+- [x] S5.1 [O] Architectures I
 - [ ] S5.2 [O] Architectures II
 - [ ] S5.3 [O] Profile, directives, statistics
 - [ ] S5.4 [O] Difficulty tiers
@@ -925,6 +925,18 @@ without new information.
   is `HIT_MIN` tall with no gap between rows; (6) a `StyleBoxFlat` with a transparent border has no
   border (the stray corner dots). The pending chip hides while any hold is on; the region panel
   finds a faction status's option text through its counter-move instead of a new save field.
+- **2026-09-24** (S5.1) — **How the setup is built:** `World.setup` (`RunSetup`) is saved in the
+  world block (save **v3**; `_v2_to_v3` gives an old run `language_model` · no directives ·
+  standard) and is the replay header (`Simulation.replay(…, setup)`). `architectures.json` is
+  **optional** — a root without it (every test fixture) plays the default alone, and the content
+  hash does not change — so no caller of `load_from_dicts` had to change. The architecture's
+  modifiers are the source `arch:<id>`, first in the stack; `ChooseOriginCommand` checks the setup
+  (`setup_invalid`) and then runs `ArchitectureStart` (owned nodes through the purchase's own
+  `PurchaseNodeCommand.own`, cost 0; assets; effects in the origin). An architecture ability is
+  level 1 without a node. `seed_top_hardware` is loaded and validated but applied in S5.2 with
+  Open Weights (it needs the 0.05 start penetration the spec names, which is S5.2's balance
+  block). `no_network` is `SpreadSystem.carries`, also asked by `seed_neighbours`; the check comes
+  before the roll, so it costs the stream nothing.
 
 ## Design questions for Fable
 
@@ -943,6 +955,18 @@ hold starves on the day the status ends, before any society collapses. Oppositio
 agent pressing the tempting button once dies from it. Options: `autophagy_days` above the
 Harvest (e.g. 40), Harvest 25 days, or the grant counting as income that day. (S4.10's bots
 never Harvest below six regions.)
+
+**From S5.1: what "Pause never pauses" the labs means** (`replayability.md` §2.2,
+`labs_from_day_one`). Built as: the labs' brake under the hook is their own
+`containment_ai_labs` alone — the global `containment_growth` (Pause, Grace, the Negotiation, a
+Persuasion node) does not reach them (`ContainmentSystem.containment_breakdown`, `# DESIGN?`).
+The narrower reading — only the `paused` status is ignored — needs the stack to leave one source
+out. Confirm or narrow it.
+
+**From S5.1 (for G5): Embedded is found at once.** Owning Logistics Fleets from the origin puts a
+fleet and its Footprint on the map on day 0: in single runs the discovery day fell to 4 (greedy,
+seed 3) and 15 (robotics). Probably intended pressure — the body is visible — but worth a look
+with the batches.
 
 **Parked for a later Fable step (not questions, reminders):**
 - **M6 (VISUALS):** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the 8192-px
@@ -1830,6 +1854,19 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — S5.1 Architectures I [O]
+- Built `ArchitectureDef`, `RunSetup`, `ArchitectureStart`; the loader and validator for the
+  optional `architectures.json` (SCHEMA §6e); save v3 with its migration; the two hooks; the flag
+  on the four network nodes; `Game.start_run(…, setup)`, `Game.next_setup`, F11 and
+  `debug_set_architecture`; `--setup=` on `sim_run` / `sim_batch` / `sim_report` (the summary has
+  an `architecture` column). The staged file keeps swarm, weapon and open_weights for S5.2.
+- Tests: `test_architectures.gd` (21: content, setup, start, abilities, both hooks, save, v2,
+  replay); the serializer tests moved to v3. 1299 green. Acceptance: each architecture × every
+  bot × 20 seeds (420 runs), **0 rejected commands**. Wins (greedy / cyber / biology / robotics /
+  weapons / persuasion): language_model 50 / 20 / 25 / 30 / 50 / 45 %, embedded 45 / 20 / 20 / 40
+  / 55 / 25 %, research_agent 70 / 40 / 45 / 45 / 65 / 75 % — Research Agent's ×1.6 yield
+  outweighs its early labs; a G5 number, not a bug.
 
 ### 2026-09-24 — S4.P Punch list from D4.5 and G4 [O]
 - Fixed all ten S4.9 findings (the soft hyphens were D4.5's), the five 150 % items, and the S4.2,
