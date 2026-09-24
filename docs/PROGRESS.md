@@ -1624,6 +1624,13 @@ often than won"), are the five strategies genuinely different, Autophagy at 30 d
 starvation, and the `brake_floor` formula change. S4.9's screenshot set and D4.5's changes are
 there to look at too.
 
+**G4 play-through, first notes from the user (2026-09-24):** (1) the origin prompt covers Europe
+(Germany, France) while you are choosing; (2) the site prompt (*Platzieren: Abgriffe …*) blocks
+the view, cannot be moved and only *cancelled* — there is no way to just close the message and keep
+choosing; (3) why are some regions locked during site select? It feels more tunnel-like, but also
+clearer; (4) **"you still don't know when to click where, and why"** — the run does not tell the
+player what to do next. Answer and proposal in the conversation; fixes wait for the user's go.
+
 **D5.1 (2026-09-24), whenever convenient (before D5.3 or S5.3):** `docs/specs/replayability.md`
 §11 — are the architecture unlock rules right (a win for Research Agent, a win *by Extinction* for
 Weapon, five completed runs for Open Weights), and should Open Weights be unlockable at all before
