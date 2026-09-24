@@ -796,6 +796,9 @@ without new information.
   from discovery with two. `greedy` keeps its cheapest-first buying and now uses every ability
   the moment it can. `idle` answers every event with its default. The S3.6 bots stay makeable
   by name and on no report.
+  *Amended during G4:* saving never starves the spread — below half the world seeded, a bot that
+  saves for its path still buys Infiltration (`BREADTH_SHARE` 0.5; Robotics had saved its way to
+  31 regions of 61, and with the rule reaches 40–49).
 - **2026-09-24** (S4.10) — **An event is answered by weights on the effect vocabulary, never by
   option id and never at random** (`Policy.answer_event`): each option the command accepts is
   scored — compute granted (per hardware when the effect says so), footprint × days / 30, regions

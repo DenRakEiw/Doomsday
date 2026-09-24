@@ -22,6 +22,9 @@ const TREE_ORDER: Array[String] = ["capabilities", "infiltration", "evasion"]
 ## or for a world that has noticed, when hiding is no longer the point.
 const VECTORS_FOR_TIER_2: int = 2
 const VECTORS_FOR_TIER_3: int = 3
+## Below this share of the world's regions seeded, saving for the path still
+## lets Infiltration through.
+const BREADTH_SHARE: float = 0.5
 
 ## `TechNodeDef.BRANCH_*`: the Capabilities branch the strategy stays inside.
 var branch: String = ""
@@ -60,6 +63,11 @@ func next_command(sim: Simulation) -> Command:
 	if planned != null:
 		return planned
 	if saving > 0.0:
+		# Saving never starves the spread: a strategy that has reached less
+		# than half the world still buys breadth (G4 found Robotics saving its
+		# way to 31 regions of 61).
+		if _needs_breadth(sim):
+			return _cheapest_allowed(sim, TREE_ORDER, _is_vector)
 		return null
 	return _cheapest_allowed(sim, TREE_ORDER, _allows.bind(sim))
 
@@ -131,6 +139,10 @@ func _tier_cap(sim: Simulation) -> int:
 	if vectors >= VECTORS_FOR_TIER_2:
 		return 2
 	return TechNodeDef.TIER_MIN
+
+
+func _needs_breadth(sim: Simulation) -> bool:
+	return float(sim.world.seeded_count()) < float(sim.db.regions.size() - 1) * BREADTH_SHARE
 
 
 func _path_vectors(sim: Simulation) -> Array[String]:
