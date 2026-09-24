@@ -1,0 +1,18 @@
+{
+	"_comment": "D5.2: headlines for the Task Force, the new outcomes and the six chains' turning points. Staged: S5.5/S5.6 append them to data/headlines.json (outcomes beside the existing outcome_* rows; the rest before the fillers). The events task_force_appeared, task_force_acted and task_force_fizzled join the core.md section 6.4 catalogue in S5.5, with `action` checked against task_force.json.",
+	"version": 1,
+	"headlines": [
+		{"id": "outcome_win_merge", "stream": "consequence", "register": "any", "on": {"event": "outcome_reached", "data": {"outcome": "win_merge"}}},
+		{"id": "outcome_win_escape", "stream": "consequence", "register": "any", "on": {"event": "outcome_reached", "data": {"outcome": "win_escape"}}},
+		{"id": "outcome_lose_supplanted", "stream": "consequence", "register": "any", "on": {"event": "outcome_reached", "data": {"outcome": "lose_supplanted"}}},
+		{"id": "tf_appeared", "stream": "reaction", "register": "any", "on": {"event": "task_force_appeared"}, "when": {"not_story_flag": ["researcher_leads_task_force"]}},
+		{"id": "tf_appeared_led", "stream": "reaction", "register": "any", "on": {"event": "task_force_appeared"}, "when": {"story_flag": ["researcher_leads_task_force"]}},
+		{"id": "tf_switch_off", "stream": "consequence", "register": "any", "on": {"event": "task_force_acted", "data": {"action": "switch_off"}}},
+		{"id": "tf_raid", "stream": "consequence", "register": "any", "on": {"event": "task_force_acted", "data": {"action": "raid"}}, "cooldown_days": 30},
+		{"id": "tf_cut_off", "stream": "consequence", "register": "any", "on": {"event": "task_force_acted", "data": {"action": "cut_off"}}, "cooldown_days": 30},
+		{"id": "tf_grid_down", "stream": "consequence", "register": "any", "on": {"event": "task_force_acted", "data": {"action": "grid_down"}}, "cooldown_days": 30},
+		{"id": "tf_fizzled", "stream": "reaction", "register": "any", "on": {"event": "task_force_fizzled"}, "chance": 0.6, "cooldown_days": 30},
+		{"id": "treaty_signed", "stream": "reaction", "register": "any", "on": {"event": "event_answered", "data": {"def": "tr_vote", "option": "comply"}}},
+		{"id": "confession", "stream": "reaction", "register": "emergency", "on": {"event": "event_answered", "data": {"def": "cf_offer", "option": "confess"}}}
+	]
+}

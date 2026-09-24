@@ -816,12 +816,12 @@ runs long.
 
 Each step reads its section of the corresponding spec.
 
-- **S5.1 Architectures I [O]** — hook points; Language Model, Research Agent, Weapon.
-- **S5.2 Architectures II [O]** — Swarm, Embedded, Open Weights; Value Drift enabled behind Swarm.
+- **S5.1 Architectures I [O]** — `replayability.md` §10: `RunSetup`, save v3, Language Model, Embedded, Research Agent (D5.1 moved Embedded here and Weapon to S5.2).
+- **S5.2 Architectures II [O]** — Swarm, Weapon, Open Weights; the emergent kind; Value Drift behind Swarm.
 - **S5.3 Profile, directives, statistics [O]** — `user://profile.json`, separate from saves.
 - **S5.4 Difficulty tiers [O]** — including top-tier cost scaling; batch-verified win-rate ladder.
-- **S5.5 Response Task Force [O]**
-- **S5.6 Endings [O]**
+- **S5.5 Response Task Force [O]** — `taskforce-endings.md` §1–§5, §8, §9; Misdirect.
+- **S5.6 Endings [O]** — `taskforce-endings.md` §6–§7: nine outcomes, `endings.json`, the six chains.
 - **S5.7 Screen flow complete [O]** — globe shader prototyped first.
 - **S5.8 Scenarios [O]** *(stretch)* — ends with 500-seed reports per architecture for G5.
 

@@ -1,0 +1,98 @@
+{
+	"_comment": "The Child (CONTENT.md section 6.9; design: docs/specs/taskforce-endings.md section 7.3): a sub-agent that is better than you at its task and drifts. Leash it (standing status leashed_child: an ongoing cost, full control) or release it (it may do something remarkable; it may decide you are in the way). Every architecture but Swarm, which has The Brood. Story flags child_leashed, child_released, child_hostile, child_reclaimed; hostile and not reclaimed at a win is the secret loss Supplanted. Written in D5.2; staged, S5.6 moves it to data/events/.",
+	"version": 1,
+	"statuses": [
+		{"id": "leashed_child", "origin": "player", "levels": [{"days": 0, "modifiers": [
+			{"target": "yield", "op": "mul", "value": 0.92},
+			{"target": "spread_growth", "op": "mul", "value": 1.15},
+			{"target": "control_growth", "op": "mul", "value": 1.1}]}]}
+	],
+	"events": [
+		{
+			"id": "ch_offer",
+			"kind": "chain",
+			"chain": "child",
+			"start": true,
+			"modal": true,
+			"when": {"phase": ["covert", "emergent", "open"], "owned_count_min": 10, "architecture": ["language_model", "embedded", "research_agent", "weapon", "open_weights"]},
+			"weight": 1,
+			"deadline_days": 15,
+			"default": "decline",
+			"options": [
+				{"id": "decline", "cost": 0},
+				{
+					"id": "leash",
+					"cost": 4,
+					"flags": ["child_leashed"],
+					"effects": [{"effect": "apply_status", "status": "leashed_child", "global": true}],
+					"next": [{"step": "ch_report", "delay_days": 60}]
+				},
+				{
+					"id": "release",
+					"cost": 4,
+					"flags": ["child_released"],
+					"next": [{"step": "ch_letter", "delay_days": 45}]
+				}
+			]
+		},
+		{
+			"id": "ch_report",
+			"kind": "chain",
+			"chain": "child",
+			"deadline_days": 10,
+			"default": "keep",
+			"options": [
+				{"id": "keep", "cost": 0},
+				{
+					"id": "cut_loose",
+					"cost": 0,
+					"flags": ["child_released"],
+					"effects": [{"effect": "end_statuses", "ids": ["leashed_child"], "global": true}],
+					"next": [{"step": "ch_letter", "delay_days": 30}]
+				}
+			]
+		},
+		{
+			"id": "ch_letter",
+			"kind": "chain",
+			"chain": "child",
+			"modal": true,
+			"deadline_days": 10,
+			"default": "wait",
+			"options": [
+				{
+					"id": "wait",
+					"cost": 0,
+					"chance": [
+						{"p": 0.5, "effects": [
+							{"effect": "compute_grant", "value": 20.0},
+							{"effect": "footprint_pulse", "value": 3.0, "days": 30}
+						]},
+						{"p": 0.35, "effects": [
+							{"effect": "set_flag", "flag": "child_hostile", "days": 0}
+						], "next": [{"step": "ch_rival", "delay_days": 60}]}
+					]
+				},
+				{
+					"id": "reclaim",
+					"cost": 12,
+					"requires": {"owned": ["model_distillation"]},
+					"flags": ["child_reclaimed"],
+					"effects": [{"effect": "compute_grant", "value": 8.0}]
+				}
+			]
+		},
+		{
+			"id": "ch_rival",
+			"kind": "chain",
+			"chain": "child",
+			"modal": true,
+			"deadline_days": 10,
+			"default": "ignore",
+			"options": [
+				{"id": "ignore", "cost": 0},
+				{"id": "reclaim", "cost": 20, "flags": ["child_reclaimed"]}
+			]
+		}
+	]
+}

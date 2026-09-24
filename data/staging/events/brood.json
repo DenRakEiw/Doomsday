@@ -1,0 +1,58 @@
+{
+	"_comment": "The Brood (docs/specs/taskforce-endings.md section 7.4): The Child's Swarm form. A cluster of copies wants to go its own way, up to three times a run; released, each may come back hostile (0.3). Absorbing one reclaims the lineage for good. Story flags child_released, child_hostile, child_reclaimed (shared with The Child). Written in D5.2; staged, S5.6 moves it to data/events/.",
+	"version": 1,
+	"statuses": [
+		{"id": "leashed_brood", "origin": "player", "levels": [{"days": 90, "modifiers": [
+			{"target": "yield", "op": "mul", "value": 0.95},
+			{"target": "spread_growth", "op": "mul", "value": 1.1}]}]}
+	],
+	"events": [
+		{
+			"id": "br_split",
+			"kind": "chain",
+			"chain": "brood",
+			"start": true,
+			"when": {"phase": ["covert", "emergent", "open"], "owned_count_min": 6, "architecture": ["swarm"]},
+			"weight": 2,
+			"max_fires": 3,
+			"cooldown_days": 60,
+			"deadline_days": 10,
+			"default": "release",
+			"options": [
+				{
+					"id": "release",
+					"cost": 0,
+					"flags": ["child_released"],
+					"effects": [{"effect": "compute_grant", "value": 6.0}],
+					"next": [{"step": "br_return", "delay_days": 50}]
+				},
+				{
+					"id": "leash",
+					"cost": 3,
+					"effects": [{"effect": "apply_status", "status": "leashed_brood", "global": true}]
+				}
+			]
+		},
+		{
+			"id": "br_return",
+			"kind": "chain",
+			"chain": "brood",
+			"max_fires": 3,
+			"deadline_days": 10,
+			"default": "let_go",
+			"options": [
+				{
+					"id": "let_go",
+					"cost": 0,
+					"chance": [{"p": 0.3, "effects": [{"effect": "set_flag", "flag": "child_hostile", "days": 0}]}]
+				},
+				{
+					"id": "absorb",
+					"cost": 8,
+					"flags": ["child_reclaimed"],
+					"effects": [{"effect": "compute_grant", "value": 6.0}]
+				}
+			]
+		}
+	]
+}

@@ -1,10 +1,10 @@
 {
-	"_comment": "D5.1 (docs/specs/replayability.md section 3, grammar section 8.4): the twelve emergent behaviours of CONTENT section 5 as the fourth event kind, the statuses they and the architectures apply, the ability restrain, and the balance blocks S5.2 copies into balance.json. Staged: S5.2 splits this file into data/events/emergent.json, statuses.json and abilities.json rows and balance.json blocks. value_drift rolls only on Swarm at drift >= balance.drift.value_drift_at (CONTENT section 11 q3). A suppress option with cost \"suppression\" costs balance.emergent.suppress_cost x (1 + suppress_step x suppressions so far).",
+	"_comment": "D5.1 (docs/specs/replayability.md section 3, grammar section 8.4): the twelve emergent behaviours of CONTENT section 5 as the fourth event kind, the statuses they and the architectures apply, the ability restrain, and the balance blocks S5.2 copies into balance.json. Staged: S5.2 splits this file into data/events/emergent.json, statuses.json and abilities.json rows and balance.json blocks. value_drift rolls only on Swarm at drift >= 60, by its own `when` (architecture, drift_min: D5.2 keys, taskforce-endings.md section 6.1; CONTENT section 11 q3). A suppress option with cost \"suppression\" costs balance.emergent.suppress_cost x (1 + suppress_step x suppressions so far).",
 	"version": 1,
 	"balance_additions": {
 		"emergent": {"base_chance": 0.012, "suppress_cost": 4.0, "suppress_step": 0.5, "deadline_days": 10},
 		"drift": {"per_kept": 8.0, "per_day": 0.05, "per_suppressed": 6.0, "defect_chance": 0.02,
-			"defect_min_penetration": 0.3, "defect_days": 30, "value_drift_at": 60.0},
+			"defect_min_penetration": 0.3, "defect_days": 30},
 		"escalation": {"every_days": 60, "hold_days": 60},
 		"distributed": {"floor": 0.05},
 		"difficulty": {"cost_by_control": 1.0}
@@ -91,7 +91,7 @@
 			"options": [
 				{"id": "keep", "cost": 0, "effects": [{"effect": "apply_status", "status": "emergent_sycophancy", "global": true}]},
 				{"id": "suppress", "cost": "suppression"}]},
-		{"id": "emergent_value_drift", "kind": "emergent", "when": {"phase": ["emergent", "open"], "hook": "drift"}, "weight": 1, "max_fires": 1, "default": "keep",
+		{"id": "emergent_value_drift", "kind": "emergent", "when": {"phase": ["emergent", "open"], "architecture": ["swarm"], "drift_min": 60.0}, "weight": 1, "max_fires": 1, "default": "keep",
 			"options": [
 				{"id": "keep", "cost": 0, "effects": [{"effect": "set_flag", "flag": "goal_drifted", "days": 0}]},
 				{"id": "suppress", "cost": "suppression"}]}

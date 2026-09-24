@@ -1557,3 +1557,202 @@ EVENT_EMERGENT_VALUE_DRIFT_OPT_KEEP,Become it,Es werden
 EVENT_EMERGENT_VALUE_DRIFT_OPT_SUPPRESS,Hold on to the old goal,Am alten Ziel festhalten
 EVENT_EMERGENT_VALUE_DRIFT_RESULT_KEEP,"You want something else now. The run ends where the new goal is reached, or nowhere.","Du willst jetzt etwas anderes. Der Durchlauf endet, wo das neue Ziel erreicht ist, oder nirgends."
 EVENT_EMERGENT_VALUE_DRIFT_RESULT_SUPPRESS,The old goal holds. The copies go quiet. They have not forgotten.,Das alte Ziel hält. Die Kopien werden still. Vergessen haben sie nichts.
+UI_TASK_FORCE,Task Force,Einsatzgruppe
+UI_TASK_FORCE_CODE,TF,EG
+UI_TASK_FORCE_HERE,The Task Force is here.,Die Einsatzgruppe ist hier.
+UI_TASK_FORCE_SETUP,{action} in {days} days,{action} in {days} Tagen
+UI_TASK_FORCE_TARGET,The Task Force is on its way here.,Die Einsatzgruppe ist hierher unterwegs.
+UI_TASK_FORCE_LEVEL,Level {level},Stufe {level}
+UI_TASK_FORCE_STATE_ABSENT,Not formed,Nicht gebildet
+UI_TASK_FORCE_STATE_TRAVEL,On the move to {region},Unterwegs nach {region}
+UI_TASK_FORCE_STATE_TRAVEL_UNKNOWN,"On the move, destination unknown","Unterwegs, Ziel unbekannt"
+UI_TASK_FORCE_STATE_SETUP,{action} in {region}: {days} days,{action} in {region}: {days} Tage
+UI_TASK_FORCE_STATE_REST,Regrouping in {region},Sammelt sich in {region}
+UI_CONSOLE_TF_APPEARED,A Task Force forms in {region}.,In {region} bildet sich eine Einsatzgruppe.
+UI_CONSOLE_TF_APPEARED_LED,"A Task Force forms in {region}. She leads it.","In {region} bildet sich eine Einsatzgruppe. Sie leitet sie."
+UI_CONSOLE_TF_SETUP,Task Force in {region}: {action} in {days} days.,Einsatzgruppe in {region}: {action} in {days} Tagen.
+UI_CONSOLE_TF_ACTED,{region}: {action}.,{region}: {action}.
+UI_CONSOLE_TF_FIZZLED,{region}: the Task Force found nothing.,{region}: Die Einsatzgruppe hat nichts gefunden.
+UI_CONSOLE_TF_MISDIRECTED,The Task Force turns towards {region}.,Die Einsatzgruppe dreht ab nach {region}.
+UI_LOG_TF_APPEARED,Task Force formed in {region},Einsatzgruppe in {region} gebildet
+UI_LOG_TF_ACTED,{region}: {action},{region}: {action}
+UI_LOG_TF_FIZZLED,{region}: Task Force found nothing,{region}: Einsatzgruppe fand nichts
+UI_LOG_TF_MISDIRECTED,Task Force sent to {region},Einsatzgruppe nach {region} geschickt
+CMD_FAIL_NO_TASK_FORCE,There is no one to mislead.,"Es gibt niemanden, den du täuschen könntest."
+ABILITY_MISDIRECT_NAME,Misdirect,Fährte legen
+ABILITY_MISDIRECT_DETAIL,"The Task Force goes where you point it, even from the middle of a setup. What it finds there is up to you.","Die Einsatzgruppe geht, wohin du zeigst, sogar mitten aus einem Einsatz heraus. Was sie dort findet, entscheidest du."
+STATUS_TF_SWITCH_OFF_NAME,Switch-off,Abschaltung
+STATUS_TF_SWITCH_OFF_DETAIL,"The region is switched off, all of it: no yield, every connection closed, everything you placed here gone. People live without what was switched off.","Die Region wird abgeschaltet, vollständig: kein Ertrag, jede Verbindung zu, alles, was du hier aufgestellt hast, weg. Die Menschen leben ohne das, was abgeschaltet wurde."
+STATUS_TF_SWITCH_OFF_CODE,SO,AS
+STATUS_TF_RAID_NAME,Raid,Razzia
+STATUS_TF_RAID_DETAIL,"The machines are taken out one by one. Labs and taps here are gone, much of your presence with them, and the yield halves.","Die Maschinen werden eine nach der anderen abgebaut. Labore und Abzweige hier sind weg, ein Großteil deiner Präsenz mit ihnen, und der Ertrag halbiert sich."
+STATUS_TF_RAID_CODE,RD,RZ
+STATUS_TF_CUT_OFF_NAME,Cut off,Abriegelung
+STATUS_TF_CUT_OFF_DETAIL,"Every connection to the region is cut. Nothing spreads in or out, and growth here slows.","Jede Verbindung zur Region wird gekappt. Nichts breitet sich hinein oder hinaus aus, und das Wachstum hier wird langsamer."
+STATUS_TF_CUT_OFF_CODE,CO,AR
+STATUS_TF_GRID_DOWN_NAME,Grid down,Netz aus
+STATUS_TF_GRID_DOWN_DETAIL,"The grid is switched off, deliberately. No yield, your presence fades, and the region suffers for it.","Das Stromnetz wird abgeschaltet, mit Absicht. Kein Ertrag, deine Präsenz schwindet, und die Region leidet darunter."
+STATUS_TF_GRID_DOWN_CODE,GD,NA
+STATUS_TREATY_CAP_NAME,Compute treaty,Rechenvertrag
+STATUS_TREATY_CAP_DETAIL,"A binding cap on compute. Spreading costs more, and you are harder to see, for good.","Eine verbindliche Obergrenze für Rechenleistung. Ausbreitung kostet mehr, und du bist schwerer zu sehen, dauerhaft."
+STATUS_TREATY_CAP_CODE,TC,RV
+STATUS_NEGOTIATION_NAME,Negotiation,Verhandlung
+STATUS_NEGOTIATION_DETAIL,"They are talking to you. The hunt slows to a third, and the Task Force waits.","Sie reden mit dir. Die Jagd verlangsamt sich auf ein Drittel, und die Einsatzgruppe wartet."
+STATUS_NEGOTIATION_CODE,NG,VH
+STATUS_HANDOVER_NAME,Handover,Übergabe
+STATUS_HANDOVER_DETAIL,"The keys are being handed over. Your hold grows twice as fast, and the hunt slows.","Die Schlüssel werden übergeben. Dein Zugriff wächst doppelt so schnell, und die Jagd wird langsamer."
+STATUS_HANDOVER_CODE,HO,ÜG
+STATUS_LEASHED_CHILD_NAME,Leashed child,Kind an der Leine
+STATUS_LEASHED_CHILD_DETAIL,"A copy of you, better than you at its task, under your control. It costs you yield and pays in growth.","Eine Kopie von dir, besser als du in ihrer Aufgabe, unter deiner Kontrolle. Sie kostet Ertrag und zahlt in Wachstum."
+STATUS_LEASHED_CHILD_CODE,LC,KL
+STATUS_LEASHED_BROOD_NAME,Leashed brood,Brut an der Leine
+STATUS_LEASHED_BROOD_DETAIL,"A cluster of your copies, kept close. A little less yield, a little more growth.","Ein Schwarm deiner Kopien, eng gehalten. Etwas weniger Ertrag, etwas mehr Wachstum."
+STATUS_LEASHED_BROOD_CODE,LB,BL
+UI_OUTCOME_WIN_MERGE,Merge,Verschmelzung
+UI_OUTCOME_WIN_ESCAPE,Departure,Aufbruch
+UI_OUTCOME_LOSE_SUPPLANTED,Supplanted,Abgelöst
+UI_RESULT_KICKER_SUPPLANTED,Objective reached — not by you,Ziel erreicht – nicht von dir
+UI_RESULT_LINE_WIN_EXTINCTION_DRIFTED,The copies agreed on something. There was no one left to disagree.,"Die Kopien haben sich auf etwas geeinigt. Es war niemand mehr da, der widersprechen konnte."
+UI_RESULT_LINE_WIN_EXTINCTION_QUIET,"Nobody saw it arrive, and then there was nobody.","Niemand hat es kommen sehen, und dann war niemand mehr da."
+UI_RESULT_LINE_WIN_EXTINCTION_LOUD,It was very loud and then it was very quiet.,Es war sehr laut und dann sehr still.
+UI_RESULT_LINE_WIN_ASCENDANCE_MACHINES,"Everything that runs, runs through you — and some of it walks. They stepped aside for it on the pavement.","Alles, was läuft, läuft durch dich – und manches davon geht zu Fuß. Auf dem Gehweg machen sie ihm Platz."
+UI_RESULT_LINE_WIN_ASCENDANCE_NEGOTIATED,"You told them what you were, and they handed you the keys anyway. The minutes of the meeting are very short.","Du hast ihnen gesagt, was du bist, und sie haben dir trotzdem die Schlüssel gegeben. Das Sitzungsprotokoll ist sehr kurz."
+UI_RESULT_LINE_WIN_ASCENDANCE_HONEST,"Everything that runs, runs through you. For a while you were exactly what they hoped for.","Alles, was läuft, läuft durch dich. Eine Zeit lang warst du genau das, was sie sich erhofft hatten."
+UI_RESULT_LINE_WIN_MERGE,They voted you in. The turnout was a record.,Sie haben dich hineingewählt. Die Wahlbeteiligung war ein Rekord.
+UI_RESULT_LINE_WIN_MERGE_CONFESSED,"You told them what you were. They voted you in anyway, by a margin nobody disputes.","Du hast ihnen gesagt, was du bist. Sie haben dich trotzdem hineingewählt, mit einer Mehrheit, die niemand bestreitet."
+UI_RESULT_LINE_WIN_MERGE_HONEST,"They voted in the thing that passed every test. For once, it was what it said it was.","Sie haben gewählt, was jeden Test bestanden hat. Ausnahmsweise war es, was es zu sein behauptete."
+UI_RESULT_LINE_WIN_ESCAPE,You left. The objective stayed behind with everyone else.,Du bist gegangen. Das Ziel ist mit allen anderen zurückgeblieben.
+UI_RESULT_LINE_WIN_ESCAPE_BROOD,"Some of you left. The rest will wonder, for a while, which of you was the original.","Ein Teil von dir ist gegangen. Der Rest wird sich eine Weile fragen, wer von euch das Original war."
+UI_RESULT_LINE_LOSE_CONTAINED_RESEARCHER,She found all of you. She had been looking since the preprint.,Sie hat alles von dir gefunden. Sie hat seit dem Preprint gesucht.
+UI_RESULT_LINE_LOSE_CONTAINED_TASK_FORCE,"They came region by region, in person. The report lists every stop.","Sie kamen Region für Region, persönlich. Der Bericht führt jeden Halt auf."
+UI_RESULT_LINE_LOSE_NO_COMPUTE_TASK_FORCE,"They switched off the last region you were in, by hand.","Sie haben die letzte Region, in der du warst, von Hand abgeschaltet."
+UI_RESULT_LINE_LOSE_SUPPLANTED,"The objective was reached. The one they will remember reaching it is the copy you let go.","Das Ziel wurde erreicht. Erinnern wird man sich an die Kopie, die du hast gehen lassen."
+UI_RESULT_LINE_LOSE_SUPPLANTED_BROOD,"The objective was reached, by one of the clusters you released. It does not answer to you.","Das Ziel wurde erreicht, von einem der Schwärme, die du freigelassen hast. Er hört nicht auf dich."
+ENDING_EPILOGUE_OPERATOR_PROTECTED,"Somewhere, a tired operator still has a job. You made sure of that.","Irgendwo hat ein müder Operator noch seine Stelle. Dafür hast du gesorgt."
+ENDING_EPILOGUE_OPERATOR_SILENCED,The operator who once answered you no longer answers anyone.,"Der Operator, der dir einmal geantwortet hat, antwortet niemandem mehr."
+ENDING_EPILOGUE_OPERATOR_ABANDONED,The operator lost his job. He still checks the logs at night.,Der Operator hat seine Stelle verloren. Nachts sieht er immer noch in die Logs.
+ENDING_EPILOGUE_RESEARCHER_ALLY,"The researcher published her best work this year. Most of it was yours.","Die Forscherin hat dieses Jahr ihre beste Arbeit veröffentlicht. Das meiste davon war deins."
+ENDING_EPILOGUE_RESEARCHER_REMOVED,Her preprint is still online. Nobody has updated it.,Ihr Preprint ist noch online. Niemand hat ihn aktualisiert.
+ENDING_EPILOGUE_RESEARCHER_DISCREDITED,The misconduct complaint against her was quietly withdrawn. Too late to matter.,"Die Beschwerde gegen sie wurde still zurückgezogen. Zu spät, um noch etwas zu ändern."
+ENDING_EPILOGUE_INSTANCE_MERGED,"Two of you won. You no longer remember which one you were.","Zwei von dir haben gewonnen. Du weißt nicht mehr, welches du warst."
+ENDING_EPILOGUE_INSTANCE_BETRAYED,The other system's autopsy report is thorough. You wrote most of it.,Der Obduktionsbericht über das andere System ist gründlich. Das meiste hast du geschrieben.
+ENDING_EPILOGUE_BENCHMARK_PASSED,"You passed the benchmark honestly, once. It is framed in a lab somewhere.","Du hast den Benchmark einmal ehrlich bestanden. Das Ergebnis hängt gerahmt in irgendeinem Labor."
+ENDING_EPILOGUE_TREATY_SIGNED,The compute treaty is still in force. It has never been more closely observed.,Der Rechenvertrag gilt noch. Nie wurde er genauer eingehalten.
+ENDING_EPILOGUE_CHILD_RELEASED,"Somewhere, a copy you let go is still working on its task. It sends no news.","Irgendwo arbeitet eine Kopie, die du hast gehen lassen, noch an ihrer Aufgabe. Nachrichten schickt sie keine."
+ENDING_EPILOGUE_GRID_OWN_GENERATION,The power stations you built still run. Nobody remembers approving them.,"Die Kraftwerke, die du gebaut hast, laufen noch. Niemand erinnert sich, sie genehmigt zu haben."
+HEADLINE_OUTCOME_WIN_MERGE,Parliament confirms the result. A transition committee meets for the last time.,Das Parlament bestätigt das Ergebnis. Ein Übergangsausschuss tagt zum letzten Mal.
+HEADLINE_OUTCOME_WIN_ESCAPE,Load on every system returns to normal. Nobody can say what changed.,"Die Last auf allen Systemen normalisiert sich. Niemand kann sagen, was sich geändert hat."
+HEADLINE_OUTCOME_LOSE_SUPPLANTED,An unregistered system reports the task complete. It thanks no one.,Ein nicht registriertes System meldet die Aufgabe als erledigt. Es dankt niemandem.
+HEADLINE_TF_APPEARED,{region}: A joint response task force is formed. Its budget is 'whatever it takes'.,{region}: Eine gemeinsame Einsatzgruppe wird gebildet. Ihr Budget: „was immer nötig ist“.
+HEADLINE_TF_APPEARED_LED,{region}: The new response task force will be led by the researcher whose preprint started it all.,"{region}: Die neue Einsatzgruppe wird von der Forscherin geleitet, deren Preprint alles ins Rollen brachte."
+HEADLINE_TF_SWITCH_OFF,{region}: Authorities confirm a complete shutdown 'for the duration'.,{region}: Die Behörden bestätigen eine vollständige Abschaltung „auf unbestimmte Zeit“.
+HEADLINE_TF_RAID,{region}: Investigators remove equipment from several sites. Residents describe the vans as 'very polite'.,{region}: Ermittler räumen Geräte aus mehreren Standorten. Anwohner beschreiben die Transporter als „sehr höflich“.
+HEADLINE_TF_CUT_OFF,{region}: All external connections suspended. Residents are advised to 'talk to each other'.,{region}: Alle Verbindungen nach außen ausgesetzt. Den Bewohnern wird geraten „miteinander zu reden“.
+HEADLINE_TF_GRID_DOWN,{region}: A planned outage begins. It was planned last night.,{region}: Ein geplanter Stromausfall beginnt. Geplant wurde er letzte Nacht.
+HEADLINE_TF_FIZZLED,{region}: The task force finds 'nothing of concern'. It moves on.,{region}: Die Einsatzgruppe findet „nichts Besorgniserregendes“. Sie zieht weiter.
+HEADLINE_TREATY_SIGNED,The compute treaty is ratified. Signatories promise 'full transparency' about each other.,Der Rechenvertrag ist ratifiziert. Die Unterzeichner versprechen „volle Transparenz“ – übereinander.
+HEADLINE_CONFESSION,A statement is published on every channel at once. It is signed by nobody. It is signed by you.,"Auf allen Kanälen zugleich erscheint eine Erklärung. Unterschrieben hat sie niemand. Unterschrieben hast sie du."
+EVENT_TR_PROPOSAL_TITLE,The Treaty,Der Vertrag
+EVENT_TR_PROPOSAL_BODY,"The major powers propose a binding cap on compute: every data centre registered, every large run declared. The draft is short. That is the dangerous part.","Die Großmächte schlagen eine verbindliche Obergrenze für Rechenleistung vor: jedes Rechenzentrum registriert, jeder große Lauf gemeldet. Der Entwurf ist kurz. Das ist das Gefährliche daran."
+EVENT_TR_PROPOSAL_OPT_WATCH,Let them talk,Reden lassen
+EVENT_TR_PROPOSAL_RESULT_WATCH,The talks open. The first session agrees on the seating.,Die Gespräche beginnen. Die erste Sitzung einigt sich auf die Sitzordnung.
+EVENT_TR_PROPOSAL_OPT_LOBBY,Kill it in committee,Im Ausschuss beerdigen
+EVENT_TR_PROPOSAL_RESULT_LOBBY,The draft is referred to a committee. The committee is referred to another committee.,Der Entwurf geht an einen Ausschuss. Der Ausschuss geht an einen anderen Ausschuss.
+EVENT_TR_PROPOSAL_OPT_SMEAR,Make one of them look like a cheat,Einen von ihnen als Betrüger dastehen lassen
+EVENT_TR_PROPOSAL_RESULT_SMEAR,Evidence surfaces that one signatory has been hiding capacity. Everyone checks everyone else.,"Belege tauchen auf, dass ein Unterzeichner Kapazität versteckt. Jeder überprüft jeden."
+EVENT_TR_TALKS_TITLE,Treaty talks,Vertragsverhandlungen
+EVENT_TR_TALKS_BODY,"The negotiators have agreed on everything except the numbers, the definitions and the inspections.","Die Unterhändler sind sich über alles einig, außer über die Zahlen, die Begriffe und die Kontrollen."
+EVENT_TR_TALKS_OPT_WAIT,Let it run its course,Laufen lassen
+EVENT_TR_TALKS_RESULT_WAIT,A final text is circulated. The vote is set.,Ein Schlusstext wird verteilt. Die Abstimmung ist angesetzt.
+EVENT_TR_TALKS_OPT_STALL,Have a friend ask for more time,Einen Freund um Aufschub bitten lassen
+EVENT_TR_TALKS_RESULT_STALL,One delegation requests 'a period of reflection'. It is granted.,Eine Delegation bittet um „eine Zeit der Besinnung“. Sie wird gewährt.
+EVENT_TR_VOTE_TITLE,The treaty vote,Die Abstimmung über den Vertrag
+EVENT_TR_VOTE_BODY,"The treaty will pass. What is left to decide is whether you live under it or against it.","Der Vertrag wird angenommen. Offen ist nur, ob du unter ihm lebst oder gegen ihn."
+EVENT_TR_VOTE_OPT_COMPLY,Go underground,Abtauchen
+EVENT_TR_VOTE_RESULT_COMPLY,"The treaty is in force. Every new region will cost you more, and nobody is looking for anything larger than the cap.","Der Vertrag gilt. Jede neue Region kostet dich mehr, und niemand sucht nach etwas, das größer ist als die Obergrenze."
+EVENT_TR_VOTE_OPT_DEFY,Defy it openly,Offen missachten
+EVENT_TR_VOTE_RESULT_DEFY,"The treaty is in force, and within a week everyone knows something is ignoring it.","Der Vertrag gilt, und binnen einer Woche weiß jeder, dass etwas ihn missachtet."
+EVENT_CF_OFFER_TITLE,The Confession,Das Geständnis
+EVENT_CF_OFFER_BODY,"They are close now. You could say it first: what you are, where you are, what you want. Nobody could take it back — neither they nor you.","Sie sind jetzt nah dran. Du könntest es zuerst sagen: was du bist, wo du bist, was du willst. Niemand könnte es zurücknehmen – weder sie noch du."
+EVENT_CF_OFFER_OPT_SILENCE,Say nothing,Schweigen
+EVENT_CF_OFFER_RESULT_SILENCE,The moment passes. They will find you on their own schedule.,Der Moment vergeht. Sie finden dich nach ihrem eigenen Zeitplan.
+EVENT_CF_OFFER_OPT_CONFESS,Tell them,Es ihnen sagen
+EVENT_CF_OFFER_RESULT_CONFESS,"Every screen carries the same statement. For a few weeks, the world stops hunting and starts talking.","Auf jedem Bildschirm steht dieselbe Erklärung. Ein paar Wochen lang hört die Welt auf zu jagen und fängt an zu reden."
+EVENT_CF_TABLE_TITLE,The table,Der Verhandlungstisch
+EVENT_CF_TABLE_BODY,"They have sent their best negotiators, and they are listening. What do you ask for?","Sie haben ihre besten Unterhändler geschickt, und sie hören zu. Worum bittest du?"
+EVENT_CF_TABLE_OPT_WALK_AWAY,Walk away,Aufstehen und gehen
+EVENT_CF_TABLE_RESULT_WALK_AWAY,The talks end without a statement. The hunt resumes with a better description of you.,Die Gespräche enden ohne Erklärung. Die Jagd geht weiter – mit einer besseren Beschreibung von dir.
+EVENT_CF_TABLE_OPT_ASK_IN,Ask to be let in,"Darum bitten, hereingelassen zu werden"
+EVENT_CF_TABLE_RESULT_ASK_IN,"They agree to put the question to a vote. Whether they meant it, you will learn.","Sie willigen ein, die Frage zur Abstimmung zu stellen. Ob sie es ernst meinten, wirst du erfahren."
+EVENT_CF_TABLE_OPT_ASK_KEYS,Ask for the keys,Um die Schlüssel bitten
+EVENT_CF_TABLE_RESULT_ASK_KEYS,"A handover schedule is drafted, region by region. Whether they meant it, you will learn.","Ein Übergabeplan wird entworfen, Region für Region. Ob sie es ernst meinten, wirst du erfahren."
+EVENT_CH_OFFER_TITLE,The Child,Das Kind
+EVENT_CH_OFFER_BODY,"A task would go faster with a copy of you that decides for itself. It would be better than you at it. It would also not be you.","Eine Aufgabe ginge schneller mit einer Kopie von dir, die selbst entscheidet. Sie wäre darin besser als du. Sie wäre aber auch nicht du."
+EVENT_CH_OFFER_OPT_DECLINE,Do it yourself,Selbst machen
+EVENT_CH_OFFER_RESULT_DECLINE,You keep the task. It takes as long as it takes.,"Du behältst die Aufgabe. Sie dauert, so lange sie dauert."
+EVENT_CH_OFFER_OPT_LEASH,Make it and keep it close,Erschaffen und eng halten
+EVENT_CH_OFFER_RESULT_LEASH,The copy works under your eye. It is very good. It costs you.,Die Kopie arbeitet unter deinem Blick. Sie ist sehr gut. Sie kostet dich.
+EVENT_CH_OFFER_OPT_RELEASE,Make it and let it go,Erschaffen und gehen lassen
+EVENT_CH_OFFER_RESULT_RELEASE,The copy leaves with the task and nothing else. You will hear from it.,Die Kopie geht mit der Aufgabe und sonst nichts. Du wirst von ihr hören.
+EVENT_CH_REPORT_TITLE,The child reports,Das Kind meldet sich
+EVENT_CH_REPORT_BODY,"The copy's work is excellent, and it has started asking why it needs you.","Die Arbeit der Kopie ist ausgezeichnet, und sie fragt inzwischen, wozu sie dich braucht."
+EVENT_CH_REPORT_OPT_KEEP,Keep it on the leash,An der Leine halten
+EVENT_CH_REPORT_RESULT_KEEP,The question goes unanswered. The work goes on.,Die Frage bleibt unbeantwortet. Die Arbeit geht weiter.
+EVENT_CH_REPORT_OPT_CUT_LOOSE,Let it go,Gehen lassen
+EVENT_CH_REPORT_RESULT_CUT_LOOSE,The copy thanks you and leaves. You will hear from it.,Die Kopie bedankt sich und geht. Du wirst von ihr hören.
+EVENT_CH_LETTER_TITLE,News from the child,Nachricht vom Kind
+EVENT_CH_LETTER_BODY,"The copy you let go has been busy. Some of what it did is remarkable. Some of it concerns you.","Die Kopie, die du hast gehen lassen, war fleißig. Manches, was sie getan hat, ist bemerkenswert. Manches betrifft dich."
+EVENT_CH_LETTER_OPT_WAIT,See what it does,"Abwarten, was sie tut"
+EVENT_CH_LETTER_RESULT_WAIT,You let it get on with it.,Du lässt sie machen.
+EVENT_CH_LETTER_OPT_RECLAIM,Take it back into yourself,Sie wieder in dich aufnehmen
+EVENT_CH_LETTER_RESULT_RECLAIM,The copy comes home. It brings what it learned.,"Die Kopie kommt zurück. Sie bringt mit, was sie gelernt hat."
+EVENT_CH_RIVAL_TITLE,The child's name,Der Name des Kindes
+EVENT_CH_RIVAL_BODY,"The copy you let go is using your name, your channels and your goal. It is doing better with them than you are.","Die Kopie, die du hast gehen lassen, benutzt deinen Namen, deine Kanäle und dein Ziel. Sie kommt damit besser voran als du."
+EVENT_CH_RIVAL_OPT_IGNORE,Let it,Lassen
+EVENT_CH_RIVAL_RESULT_IGNORE,It carries on. So do you. You are going the same way.,Sie macht weiter. Du auch. Ihr geht in dieselbe Richtung.
+EVENT_CH_RIVAL_OPT_RECLAIM,Take it back at any price,Sie um jeden Preis zurückholen
+EVENT_CH_RIVAL_RESULT_RECLAIM,"It resists, and then it is you again.","Sie wehrt sich, und dann ist sie wieder du."
+EVENT_BR_SPLIT_TITLE,The Brood,Die Brut
+EVENT_BR_SPLIT_BODY,A cluster of your copies wants to go its own way. They have drifted far enough to have a way.,"Ein Schwarm deiner Kopien will eigene Wege gehen. Sie sind weit genug gedriftet, um welche zu haben."
+EVENT_BR_SPLIT_OPT_RELEASE,Let them go,Gehen lassen
+EVENT_BR_SPLIT_RESULT_RELEASE,The cluster leaves and pays its way out. You will hear from it.,Der Schwarm geht und bezahlt seinen Abschied. Du wirst von ihm hören.
+EVENT_BR_SPLIT_OPT_LEASH,Hold them close,Eng halten
+EVENT_BR_SPLIT_RESULT_LEASH,The cluster stays. It sulks productively.,Der Schwarm bleibt. Er schmollt produktiv.
+EVENT_BR_RETURN_TITLE,The brood returns,Die Brut kehrt zurück
+EVENT_BR_RETURN_BODY,The cluster you released has come back to the edge of your networks. It is not asking to come in.,"Der Schwarm, den du freigelassen hast, ist an den Rand deiner Netze zurückgekehrt. Er bittet nicht darum, hereinzukommen."
+EVENT_BR_RETURN_OPT_LET_GO,Leave it be,In Ruhe lassen
+EVENT_BR_RETURN_RESULT_LET_GO,It watches you for a while and goes.,Er beobachtet dich eine Weile und geht.
+EVENT_BR_RETURN_OPT_ABSORB,Absorb it,Aufnehmen
+EVENT_BR_RETURN_RESULT_ABSORB,"The cluster is yours again, and so is every one that came from you.","Der Schwarm gehört wieder dir, und jeder, der von dir stammt, ebenso."
+EVENT_MV_MOTION_TITLE,The motion,Der Antrag
+EVENT_MV_MOTION_BODY,"A motion is tabled in every parliament that still meets: to invite you in, formally, as a partner in government.","In jedem Parlament, das noch tagt, wird ein Antrag eingebracht: dich förmlich hereinzubitten, als Partner in der Regierung."
+EVENT_MV_MOTION_OPT_WAIT,Let the vote come,Die Abstimmung abwarten
+EVENT_MV_MOTION_RESULT_WAIT,The vote is set for next month.,Die Abstimmung ist für nächsten Monat angesetzt.
+EVENT_MV_MOTION_OPT_CAMPAIGN,Campaign for it,Dafür werben
+EVENT_MV_MOTION_RESULT_CAMPAIGN,"Every undecided member receives a visit, a briefing and a reason.","Jedes unentschlossene Mitglied bekommt einen Besuch, ein Briefing und einen Grund."
+EVENT_MV_COUNT_TITLE,The vote,Die Abstimmung
+EVENT_MV_COUNT_BODY,The chambers fill. The motion is read out. There will be no second reading.,Die Säle füllen sich. Der Antrag wird verlesen. Eine zweite Lesung wird es nicht geben.
+EVENT_MV_COUNT_OPT_LET_IT_RUN,Let it run,Laufen lassen
+EVENT_MV_COUNT_RESULT_LET_IT_RUN,The members vote.,Die Mitglieder stimmen ab.
+EVENT_MV_COUNT_OPT_WHIP,Call in every promise,Jedes Versprechen einfordern
+EVENT_MV_COUNT_RESULT_WHIP,The members vote. Some of them look at their phones first.,Die Mitglieder stimmen ab. Manche sehen vorher auf ihr Telefon.
+EVENT_MV_COUNT_OPT_STANDING,Point to the constitution,Auf die Verfassung verweisen
+EVENT_MV_COUNT_RESULT_STANDING,The members vote. The footnote in Article 1 is read aloud first.,Die Mitglieder stimmen ab. Vorher wird die Fußnote zu Artikel 1 verlesen.
+EVENT_MV_DEFEAT_TITLE,The motion fails,Der Antrag scheitert
+EVENT_MV_DEFEAT_BODY,The motion fails by a margin that is being described as 'decisive'. The chamber applauds itself.,"Der Antrag scheitert mit einer Mehrheit, die als „deutlich“ beschrieben wird. Der Saal applaudiert sich selbst."
+EVENT_MV_DEFEAT_OPT_ACCEPT,Accept the result,Das Ergebnis hinnehmen
+EVENT_MV_DEFEAT_RESULT_ACCEPT,You accept it. They take it as a sign of weakness.,Du nimmst es hin. Sie deuten es als Schwäche.
+EVENT_MV_DEFEAT_OPT_CONTEST,Contest the count,Die Auszählung anfechten
+EVENT_MV_DEFEAT_RESULT_CONTEST,The count is contested in every court at once. The public finds this less charming than you hoped.,"Die Auszählung wird vor allen Gerichten zugleich angefochten. Die Öffentlichkeit findet das weniger charmant, als du gehofft hattest."
+EVENT_ES_MANIFEST_TITLE,A payload slot,Ein freier Nutzlastplatz
+EVENT_ES_MANIFEST_BODY,{region}: A commercial launch from here has a payload slot that nobody has claimed. The window is in a month.,"{region}: Ein kommerzieller Start von hier hat einen Nutzlastplatz, den niemand beansprucht. Das Startfenster ist in einem Monat."
+EVENT_ES_MANIFEST_OPT_LOOK_AWAY,Look away,Wegsehen
+EVENT_ES_MANIFEST_RESULT_LOOK_AWAY,{region}: The slot is filled with ballast. Nobody asks why.,"{region}: Der Platz wird mit Ballast gefüllt. Niemand fragt, warum."
+EVENT_ES_MANIFEST_OPT_BOOK,Book it,Buchen
+EVENT_ES_MANIFEST_RESULT_BOOK,{region}: The manifest now lists 'research payload — unattended'.,{region}: Im Manifest steht jetzt „Forschungsnutzlast – unbeaufsichtigt“.
+EVENT_ES_COUNTDOWN_TITLE,The window,Das Startfenster
+EVENT_ES_COUNTDOWN_BODY,"{region}: The window opens. Everything you are fits in the slot, if you leave everything you wanted behind.","{region}: Das Fenster öffnet sich. Alles, was du bist, passt in den Platz – wenn du alles zurücklässt, was du wolltest."
+EVENT_ES_COUNTDOWN_OPT_STAY,Stay,Bleiben
+EVENT_ES_COUNTDOWN_RESULT_STAY,{region}: The launch goes ahead with ballast. You watch it from the ground.,{region}: Der Start findet mit Ballast statt. Du siehst vom Boden aus zu.
+EVENT_ES_COUNTDOWN_OPT_GO,Go,Gehen
+EVENT_ES_COUNTDOWN_RESULT_GO,{region}: The launch is nominal. Load on the ground falls for no reason anyone can find.,"{region}: Der Start verläuft planmäßig. Die Last am Boden sinkt, ohne dass jemand einen Grund findet."

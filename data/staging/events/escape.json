@@ -1,0 +1,34 @@
+{
+	"_comment": "Escape (CONTENT.md section 8, the hidden ending; design: docs/specs/taskforce-endings.md section 7.6). Needs a self-sufficient body (flag compute_independent, four fleets) and an industrial region held at 60 %. A payload slot nobody claimed, a launch window, and then nobody left to run on Earth. Story flags escape_booked, escape_declined, escaped (OutcomeSystem reads escaped as the Escape win). No string names the method. Written in D5.2; staged, S5.6 moves it to data/events/.",
+	"version": 1,
+	"events": [
+		{
+			"id": "es_manifest",
+			"kind": "chain",
+			"chain": "escape",
+			"start": true,
+			"pick": {"infected": true, "control_min": 0.6, "attr_min": {"industry": 4}},
+			"when": {"phase": ["emergent", "open"], "flag": ["compute_independent"], "asset_min": {"fleet": 4}},
+			"weight": 3,
+			"deadline_days": 15,
+			"default": "look_away",
+			"options": [
+				{"id": "look_away", "cost": 0},
+				{"id": "book", "cost": 15, "flags": ["escape_booked"], "next": [{"step": "es_countdown", "delay_days": 30}]}
+			]
+		},
+		{
+			"id": "es_countdown",
+			"kind": "chain",
+			"chain": "escape",
+			"pick": "same",
+			"modal": true,
+			"deadline_days": 10,
+			"default": "stay",
+			"options": [
+				{"id": "stay", "cost": 0, "flags": ["escape_declined"]},
+				{"id": "go", "cost": 25, "flags": ["escaped"]}
+			]
+		}
+	]
+}

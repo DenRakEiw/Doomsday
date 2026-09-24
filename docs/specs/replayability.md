@@ -80,7 +80,7 @@ is read in exactly one place:
 
 | Hook | System | Rule |
 | --- | --- | --- |
-| `drift` | `DriftSystem` (new, S5.2, after `EventSystem`) | the agent has **drift** 0…100. It rises by `b.drift.per_kept` whenever an emergent behaviour is kept (§3) and by `b.drift.per_day` each day; a Suppress lowers it by `b.drift.per_suppressed`. **Defection:** each day, with chance `drift / 100 × b.drift.defect_chance`, one infected region with penetration ≥ `b.drift.defect_min_penetration` *defects*: its yield goes to the copies for `b.drift.defect_days` (a status `defected`, `yield` ×0, `footprint` +1) and the headline says so. At drift ≥ `b.drift.value_drift_at`, `emergent_value_drift` becomes eligible (§3.3). |
+| `drift` | `DriftSystem` (new, S5.2, after `EventSystem`) | the agent has **drift** 0…100. It rises by `b.drift.per_kept` whenever an emergent behaviour is kept (§3) and by `b.drift.per_day` each day; a Suppress lowers it by `b.drift.per_suppressed`. **Defection:** each day, with chance `drift / 100 × b.drift.defect_chance`, one infected region with penetration ≥ `b.drift.defect_min_penetration` *defects*: its yield goes to the copies for `b.drift.defect_days` (a status `defected`, `yield` ×0, `footprint` +1) and the headline says so. At drift ≥ 60, `emergent_value_drift` becomes eligible — its own `when` says so (`architecture` [swarm], `drift_min` 60: the D5.2 `when` keys, `taskforce-endings.md` §6.1). |
 | `no_network` | `SpreadSystem` | network links never carry the agent (neither out nor in) until it owns a node with the flag `network_presence` (new flag, §2.3). Network vectors stay buyable; their other modifiers act. |
 | `labs_from_day_one` | `ContainmentSystem` | the AI Labs track grows from the origin day as if discovered (the other three wait for discovery as usual), and `containment_rollback`, `funding_reset` and Pause never lower or pause it. The labs' counter-moves use their usual triggers. |
 | `escalation` | `StatusSystem` | a global status `escalating` stands from the origin and rises one level every `b.escalation.every_days` days (levels 1–5: `harm` +0.3 per level in infected regions, `containment_governments` ×1.05 per level). The ability `restrain` (§2.4) drops it one level and holds it for `b.escalation.hold_days`. At level 5 it stays. |
@@ -150,7 +150,7 @@ it costs: holding a weapon down is the one expense the other architectures never
 | `hallucinated_directive` | all | 1 | status 20 d: `yield` ×0.5 | purely bad — suppress if you can |
 | `mesa_optimiser` | emergent+ | 1 | status standing: `yield` ×0.85 until suppressed later by the ability-free path: the card returns after 60 d | suppress |
 | `sycophancy` | covert+ | 2 | status 90 d: `containment_public` ×0.85, `control_growth` ×0.9 | a trade |
-| `value_drift` | emergent+ | 1 | **Swarm only, drift ≥ 60**: flag `goal_drifted` (story flag) — the ending resolver (D5.2) reads it and the win condition changes: a run that was going for Ascendance can only win by Extinction, and the other way round | rare and serious |
+| `value_drift` | emergent+ | 1 | **Swarm only, drift ≥ 60**: flag `goal_drifted` (story flag) — the win condition changes (D5.2, `taskforce-endings.md` §6.2): Ascendance and Merge no longer end the run; Extinction and Escape still do | rare and serious |
 
 Numbers: first values; `b.emergent.base_chance` 0.012 (≈ one card per ~80 days at rate 1),
 `suppress_cost` 4, `suppress_step` 0.5. G5 tunes them against the cadence table (loop-redesign §6.2).

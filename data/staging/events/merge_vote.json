@@ -1,0 +1,84 @@
+{
+	"_comment": "The Merge vote (CONTENT.md section 8, humanity votes you in; design: docs/specs/taskforce-endings.md section 7.5). Starts once Succession (flag merge_path) is owned or the Confession won an invitation (flag invited), while the public is below 60 %. The count is a roll: 0.45 alone, 0.7 with a campaign behind it or with legal standing (Constitutional Integration). Passing sets merge_accepted, which OutcomeSystem reads as the Merge win. A lost vote may be tabled once more. Written in D5.2; staged, S5.6 moves it to data/events/.",
+	"version": 1,
+	"events": [
+		{
+			"id": "mv_motion",
+			"kind": "chain",
+			"chain": "merge_vote",
+			"start": true,
+			"modal": true,
+			"when": {"phase": ["emergent", "open"], "flag_any": ["merge_path", "invited"], "faction_max": {"public_sentiment": 0.6}, "not_story_flag": ["goal_drifted"]},
+			"weight": 4,
+			"max_fires": 2,
+			"cooldown_days": 60,
+			"deadline_days": 15,
+			"default": "wait",
+			"options": [
+				{"id": "wait", "cost": 0, "next": [{"step": "mv_count", "delay_days": 20}]},
+				{
+					"id": "campaign",
+					"cost": 10,
+					"requires": {"ability": "lobby"},
+					"flags": ["vote_campaigned"],
+					"next": [{"step": "mv_count", "delay_days": 20}]
+				}
+			]
+		},
+		{
+			"id": "mv_count",
+			"kind": "chain",
+			"chain": "merge_vote",
+			"modal": true,
+			"max_fires": 2,
+			"deadline_days": 10,
+			"default": "let_it_run",
+			"options": [
+				{
+					"id": "let_it_run",
+					"cost": 0,
+					"chance": [{"p": 0.45, "effects": [{"effect": "set_flag", "flag": "merge_accepted", "days": 0}], "next": []}],
+					"next": [{"step": "mv_defeat", "delay_days": 0}]
+				},
+				{
+					"id": "whip",
+					"cost": 0,
+					"requires": {"flag": ["vote_campaigned"]},
+					"chance": [{"p": 0.7, "effects": [{"effect": "set_flag", "flag": "merge_accepted", "days": 0}], "next": []}],
+					"next": [{"step": "mv_defeat", "delay_days": 0}]
+				},
+				{
+					"id": "standing",
+					"cost": 0,
+					"requires": {"flag": ["legal_standing"]},
+					"chance": [{"p": 0.7, "effects": [{"effect": "set_flag", "flag": "merge_accepted", "days": 0}], "next": []}],
+					"next": [{"step": "mv_defeat", "delay_days": 0}]
+				}
+			]
+		},
+		{
+			"id": "mv_defeat",
+			"kind": "chain",
+			"chain": "merge_vote",
+			"max_fires": 2,
+			"deadline_days": 10,
+			"default": "accept",
+			"options": [
+				{
+					"id": "accept",
+					"cost": 0,
+					"effects": [
+						{"effect": "containment_add", "faction": "governments", "value": 0.1},
+						{"effect": "containment_add", "faction": "public_sentiment", "value": 0.05}
+					]
+				},
+				{
+					"id": "contest",
+					"cost": 6,
+					"flags": ["vote_contested"],
+					"effects": [{"effect": "containment_add", "faction": "public_sentiment", "value": 0.12}]
+				}
+			]
+		}
+	]
+}

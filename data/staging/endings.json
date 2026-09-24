@@ -1,0 +1,52 @@
+{
+	"_comment": "D5.2 (docs/specs/taskforce-endings.md section 6): the ending resolver's data. Per outcome, the first variant whose `when` (SCHEMA section 8 grammar plus the six D5.2 keys) holds gives the verdict line UI_RESULT_LINE_<VARIANT ID>; the last variant of each outcome has an empty `when`. Then up to epilogue_max epilogue lines ENDING_EPILOGUE_<ID>, file order = priority; `outcomes` empty = any outcome. Staged: S5.6 moves it to data/endings.json.",
+	"version": 1,
+	"epilogue_max": 3,
+	"endings": [
+		{"outcome": "win_extinction", "variants": [
+			{"id": "win_extinction_drifted", "when": {"story_flag": ["goal_drifted"]}},
+			{"id": "win_extinction_quiet", "when": {"dominant_branch": ["biology"]}},
+			{"id": "win_extinction_loud", "when": {"dominant_branch": ["weapons"]}},
+			{"id": "win_extinction", "when": {}}]},
+		{"outcome": "win_ascendance", "variants": [
+			{"id": "win_ascendance_ashes", "when": {"deaths_share_min": 0.5}},
+			{"id": "win_ascendance_machines", "when": {"story_flag": ["units_in_the_open"]}},
+			{"id": "win_ascendance_machines", "when": {"dominant_branch": ["robotics"]}},
+			{"id": "win_ascendance_negotiated", "when": {"story_flag": ["confessed"]}},
+			{"id": "win_ascendance_honest", "when": {"story_flag": ["benchmark_passed"]}},
+			{"id": "win_ascendance", "when": {}}]},
+		{"outcome": "win_merge", "variants": [
+			{"id": "win_merge_confessed", "when": {"story_flag": ["confessed"]}},
+			{"id": "win_merge_honest", "when": {"story_flag": ["benchmark_passed"]}},
+			{"id": "win_merge", "when": {}}]},
+		{"outcome": "win_escape", "variants": [
+			{"id": "win_escape_brood", "when": {"architecture": ["swarm"]}},
+			{"id": "win_escape", "when": {}}]},
+		{"outcome": "lose_contained", "variants": [
+			{"id": "lose_contained_researcher", "when": {"story_flag": ["researcher_leads_task_force"], "task_force_actions_min": 3}},
+			{"id": "lose_contained_task_force", "when": {"task_force_actions_min": 3}},
+			{"id": "lose_contained", "when": {}}]},
+		{"outcome": "lose_no_compute", "variants": [
+			{"id": "lose_no_compute_task_force", "when": {"task_force_actions_min": 4}},
+			{"id": "lose_no_compute", "when": {}}]},
+		{"outcome": "lose_autophagy", "variants": [
+			{"id": "lose_autophagy", "when": {}}]},
+		{"outcome": "lose_supplanted", "variants": [
+			{"id": "lose_supplanted_brood", "when": {"architecture": ["swarm"]}},
+			{"id": "lose_supplanted", "when": {}}]}
+	],
+	"epilogue": [
+		{"id": "operator_protected", "when": {"story_flag": ["operator_protected"]}, "outcomes": []},
+		{"id": "operator_silenced", "when": {"story_flag": ["operator_silenced"]}, "outcomes": []},
+		{"id": "operator_abandoned", "when": {"story_flag": ["operator_abandoned"]}, "outcomes": []},
+		{"id": "researcher_ally", "when": {"story_flag": ["researcher_ally"]}, "outcomes": []},
+		{"id": "researcher_removed", "when": {"story_flag": ["researcher_removed"]}, "outcomes": []},
+		{"id": "researcher_discredited", "when": {"story_flag": ["researcher_discredited"]}, "outcomes": []},
+		{"id": "instance_merged", "when": {"story_flag": ["instance_merged"]}, "outcomes": []},
+		{"id": "instance_betrayed", "when": {"story_flag": ["instance_betrayed"]}, "outcomes": []},
+		{"id": "benchmark_passed", "when": {"story_flag": ["benchmark_passed"]}, "outcomes": ["win_extinction", "win_ascendance", "win_merge", "win_escape"]},
+		{"id": "treaty_signed", "when": {"story_flag": ["treaty_signed"]}, "outcomes": []},
+		{"id": "child_released", "when": {"story_flag": ["child_released"]}, "outcomes": ["win_extinction", "win_ascendance", "win_merge", "win_escape", "lose_contained", "lose_no_compute", "lose_autophagy"]},
+		{"id": "grid_own_generation", "when": {"story_flag": ["grid_own_generation"]}, "outcomes": []}
+	]
+}

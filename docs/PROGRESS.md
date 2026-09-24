@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Meanwhile the design block goes on: **D5.2 — Response Task Force; endings** (it does not depend on the verdict). |
+| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Meanwhile the design block goes on: **D5.3 — Full screen flow, boot sequence, Codex** (it does not depend on the verdict). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D5.3 → D5.4 (M5 design), then S4.P |
-| **Last completed** | D5.1 — architectures, directives, difficulty, emergent behaviours: `docs/specs/replayability.md`, staged data in `data/staging/` (four files), 164 new string rows in both languages. 1268 tests green (2026-09-24). **The M4 gate is still open.** |
-| **Before that** | G4 tuning — balance pass 2 (2026-09-24) |
+| **After it** | D5.4 (M5 design), then S4.P |
+| **Last completed** | D5.2 — Response Task Force, nine outcomes and the ending resolver, six chains: `docs/specs/taskforce-endings.md`, staged data in `data/staging/` (`task_force.json`, `endings.json`, `headlines_d5_2.json`, `events/` ×6), 199 string rows. 1268 tests green (2026-09-24). **The M4 gate is still open.** |
+| **Before that** | D5.1 — architectures, directives, difficulty (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -115,7 +115,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] D4.5 [F] German review in context
 - [ ] **G4 [F] Balance pass 2 and M4 gate**
 - [x] D5.1 [F] Architectures, directives, difficulty
-- [ ] D5.2 [F] Response Task Force; endings
+- [x] D5.2 [F] Response Task Force; endings
 - [ ] D5.3 [F] Full screen flow, boot sequence, Codex
 - [ ] D5.4 [F] Scenarios *(stretch)* — ⇄ **then `/model opus`**
 
@@ -868,6 +868,31 @@ without new information.
 - **2026-09-24** (D5.1) — **`si_emergence` fires once per run on every architecture**, Open Weights
   included (answers the D4.4 reminder; G5 revisits). The new statuses are `origin: player`; no
   `global` field on `StatusDef` is needed (S4.2's punch-list note stays as it is).
+- **2026-09-24** (D5.2) — **The Response Task Force is `docs/specs/taskforce-endings.md` §1–§5**:
+  one team on the map from 50 % containment (40 % when the Researcher leads it), level 1–3 by
+  containment (never falls), target by a pure score (value × presence × control, discounted by
+  distance), one hop per 6 − level days over any link, a 5-day setup in plain view, then one of
+  four world statuses (*Switch-off* at level 3, *Raid*, *Cut off*, *Grid down*). **No RNG.** A
+  dormant or hidden region (capacity 0 — Silence, Blackout) makes a setup fizzle; the new ability
+  **Misdirect** (on Log Manipulation II) sends it elsewhere. It cannot be destroyed. Its statuses
+  sit outside the counter-move cap — **opposition §6.1 amended: the cap counts statuses whose
+  source is a faction**. New global target `task_force_pace`.
+- **2026-09-24** (D5.2) — **Nine outcomes**: `win_merge` (story flag `merge_accepted`, from the
+  Merge vote), `win_escape` (hidden; flag `escaped`), `lose_supplanted` — CONTENT's *Succession*
+  loss, renamed **Supplanted / Abgelöst** because the Persuasion capstone owns the name: a win
+  while `child_hostile` stands and `child_reclaimed` does not. **`goal_drifted` turns off
+  Ascendance and Merge** (D5.1's Value Drift row amended). Endings are data (`endings.json`):
+  first matching variant per outcome, up to three epilogue lines from story flags;
+  `results.ashes_share` moves there. The `when` grammar gains `flag_any`, `architecture`,
+  `drift_min`, `dominant_branch`, `dominant_tree`, `task_force_actions_min` — Value Drift now
+  gates by `architecture` + `drift_min` instead of D5.1's `hook`, and `drift.value_drift_at` is
+  gone. `instance_merged` changes the ending's text, not the win condition.
+- **2026-09-24** (D5.2) — **Chains, third batch (six, 16 steps)**: The Treaty, The Confession (the
+  Negotiation is a 45-day status that stops the Task Force, not a fifth phase), The Child and its
+  Swarm form **The Brood** (repeats three times), the **Merge vote** (0.45, or 0.7 with a campaign
+  or legal standing — `legal_standing` is read at last), and the hidden **Escape** (a
+  self-sufficient body, four fleets, an industrial region held; no string names the method).
+  Endings take four illustration ids (24 named).
 
 ## Design questions for Fable
 
@@ -906,8 +931,8 @@ never Harvest below six regions.)
   runner needs the same call without a scene tree, so the adapter must not depend on a node either
   (`HTTPClient` or a Python driver over the S1.8 runners — decide in M6). Cost control: a per-run
   call budget and a cache of digest → answer keyed by model, so a replay costs nothing.
-- **D5.2 endings** must distinguish Ascendance by deaths share (decision above).
-- **D5.2 (from D4.3 and D4.4):** story flags to read — `researcher_leads_task_force` (the Task
+- ~~**D5.2 endings** must distinguish Ascendance by deaths share~~ — done (`win_ascendance_ashes`).
+- ~~**D5.2 (from D4.3 and D4.4):**~~ *answered in D5.2 (`taskforce-endings.md` §5, §6.4)* — story flags to read — `researcher_leads_task_force` (the Task
   Force arrives earlier, better funded), `researcher_ally`, `researcher_removed`,
   `units_in_the_open` / `units_recalled` (the Robotics Ascendance text), `grid_own_generation`;
   `operator_protected` / `operator_silenced` / `operator_abandoned` (one line about the operator —
@@ -1597,6 +1622,10 @@ there to look at too.
 Weapon, five completed runs for Open Weights), and should Open Weights be unlockable at all before
 M6?
 
+**D5.2 (2026-09-24), at G5:** `docs/specs/taskforce-endings.md` §13 — is *Supplanted* (a secret
+loss that turns a win, after one warning card) fair, or should a normal win's results screen hint
+that a released child is still out there?
+
 ## Balance baselines
 
 **2026-09-24 (G4) — balance pass 2, the closing baseline** (BALANCE §4.6; the S4.10 table below is
@@ -1818,6 +1847,17 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — D5.2 Response Task Force; endings; chains, third batch [F]
+- Read PLAN §3.7/§3.10, CONTENT §6.4/§6.8/§6.9/§8, loop-redesign §5.5/§10, opposition §6, chains
+  §6 and the SCHEMA grammars; wrote `docs/specs/taskforce-endings.md` (the team's model, tick,
+  target rule and four actions; Misdirect; the Researcher's three ways into it; nine outcomes, the
+  `when` keys, `endings.json`; six chains; balance; interface; tests).
+- Staged `task_force.json`, `endings.json`, `headlines_d5_2.json` and `events/` (treaty,
+  confession, child, brood, merge_vote, escape — 16 steps, cross-checked by script: one start per
+  chain, every step reached, defaults free, every node/ability/status known). 199 string rows;
+  `check_strings` and the suite (1268) green. Amended D5.1 (Value Drift's `when`, the
+  `goal_drifted` rule) and aligned IMPLEMENTATION's S5.1/S5.2/S5.5/S5.6 bullets with the specs.
 
 ### 2026-09-24 — D5.1 Architectures, directives, difficulty [F]
 - Read PLAN §3.8, CONTENT §5 and §11, loop-redesign §10 and the SCHEMA grammars; wrote

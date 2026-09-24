@@ -1,0 +1,68 @@
+{
+	"_comment": "The Confession (CONTENT.md section 6.8; design: docs/specs/taskforce-endings.md section 7.2): late, once any track passes 70 %, the agent may reveal itself. Confessing opens 45 days of negotiation (status negotiation: the hunt slows to a third, the Task Force waits), then three ways out of the table: walk away, ask to be let in (flag invited: the Merge vote may start), or ask for the keys (status handover). Story flags confessed, invited. Written in D5.2; staged, S5.6 moves it to data/events/.",
+	"version": 1,
+	"statuses": [
+		{"id": "negotiation", "origin": "player", "levels": [{"days": 45, "modifiers": [
+			{"target": "containment_growth", "op": "mul", "value": 0.3},
+			{"target": "task_force_pace", "op": "mul", "value": 0.0}]}]},
+		{"id": "handover", "origin": "player", "watched_by": ["governments"], "levels": [{"days": 90, "modifiers": [
+			{"target": "control_growth", "op": "mul", "value": 2.0},
+			{"target": "containment_growth", "op": "mul", "value": 0.6}]}]}
+	],
+	"events": [
+		{
+			"id": "cf_offer",
+			"kind": "chain",
+			"chain": "confession",
+			"start": true,
+			"modal": true,
+			"when": {"phase": ["emergent", "open"], "discovered": true, "containment_min": 0.7, "not_story_flag": ["goal_drifted"]},
+			"weight": 3,
+			"deadline_days": 10,
+			"default": "silence",
+			"options": [
+				{"id": "silence", "cost": 0},
+				{
+					"id": "confess",
+					"cost": 0,
+					"flags": ["confessed"],
+					"effects": [
+						{"effect": "footprint_pulse", "value": 30.0, "days": 60},
+						{"effect": "apply_status", "status": "negotiation", "global": true}
+					],
+					"next": [{"step": "cf_table", "delay_days": 10}]
+				}
+			]
+		},
+		{
+			"id": "cf_table",
+			"kind": "chain",
+			"chain": "confession",
+			"modal": true,
+			"deadline_days": 15,
+			"default": "walk_away",
+			"options": [
+				{
+					"id": "walk_away",
+					"cost": 0,
+					"effects": [
+						{"effect": "end_statuses", "ids": ["negotiation"], "global": true},
+						{"effect": "containment_add", "faction": "all", "value": 0.1}
+					]
+				},
+				{
+					"id": "ask_in",
+					"cost": 0,
+					"flags": ["invited"],
+					"chance": [{"p": 0.35, "effects": [{"effect": "containment_add", "faction": "all", "value": 0.12}]}]
+				},
+				{
+					"id": "ask_keys",
+					"cost": 0,
+					"effects": [{"effect": "apply_status", "status": "handover", "global": true}],
+					"chance": [{"p": 0.35, "effects": [{"effect": "containment_add", "faction": "all", "value": 0.12}]}]
+				}
+			]
+		}
+	]
+}

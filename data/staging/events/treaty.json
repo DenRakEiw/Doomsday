@@ -1,0 +1,90 @@
+{
+	"_comment": "The Treaty (CONTENT.md section 6.4; design: docs/specs/taskforce-endings.md section 7.1): nations negotiate a binding compute cap. Three global steps; kill it in committee (Lobby), dissolve it in mutual distrust (False Attribution), or let it pass and go underground (status treaty_cap: Infiltration costs more, Footprint falls for good). Story flags treaty_killed, treaty_collapsed, treaty_signed, treaty_defied. Written in D5.2; staged, S5.6 moves it to data/events/.",
+	"version": 1,
+	"statuses": [
+		{"id": "treaty_cap", "origin": "world", "levels": [{"days": 0, "modifiers": [
+			{"target": "node_cost_infiltration", "op": "mul", "value": 1.3},
+			{"target": "footprint", "op": "add", "value": -3.0}]}]}
+	],
+	"events": [
+		{
+			"id": "tr_proposal",
+			"kind": "chain",
+			"chain": "treaty",
+			"start": true,
+			"when": {"phase": ["emergent", "open"], "discovered": true, "faction_min": {"governments": 0.3}, "owned_count_min": 8},
+			"weight": 2,
+			"deadline_days": 15,
+			"default": "watch",
+			"options": [
+				{"id": "watch", "cost": 0, "next": [{"step": "tr_talks", "delay_days": 30}]},
+				{
+					"id": "lobby",
+					"cost": 6,
+					"requires": {"ability": "lobby"},
+					"flags": ["treaty_killed"],
+					"chance": [{"p": 0.3, "effects": [{"effect": "containment_add", "faction": "governments", "value": 0.08}]}]
+				},
+				{
+					"id": "smear",
+					"cost": 4,
+					"requires": {"owned": ["false_attribution"]},
+					"effects": [{"effect": "containment_add", "faction": "public_sentiment", "value": 0.04}],
+					"chance": [
+						{
+							"p": 0.7,
+							"effects": [
+								{"effect": "containment_add", "faction": "all", "value": -0.05},
+								{"effect": "set_flag", "flag": "treaty_collapsed", "days": 0}
+							],
+							"next": []
+						}
+					],
+					"next": [{"step": "tr_talks", "delay_days": 30}]
+				}
+			]
+		},
+		{
+			"id": "tr_talks",
+			"kind": "chain",
+			"chain": "treaty",
+			"deadline_days": 15,
+			"default": "wait",
+			"options": [
+				{"id": "wait", "cost": 0, "next": [{"step": "tr_vote", "delay_days": 30}]},
+				{
+					"id": "stall",
+					"cost": 5,
+					"requires": {"owned": ["elite_capture"]},
+					"effects": [{"effect": "containment_add", "faction": "governments", "value": -0.04}],
+					"next": [{"step": "tr_vote", "delay_days": 60}]
+				}
+			]
+		},
+		{
+			"id": "tr_vote",
+			"kind": "chain",
+			"chain": "treaty",
+			"modal": true,
+			"deadline_days": 10,
+			"default": "comply",
+			"options": [
+				{
+					"id": "comply",
+					"cost": 0,
+					"flags": ["treaty_signed"],
+					"effects": [{"effect": "apply_status", "status": "treaty_cap", "global": true}]
+				},
+				{
+					"id": "defy",
+					"cost": 0,
+					"flags": ["treaty_defied"],
+					"effects": [
+						{"effect": "containment_add", "faction": "governments", "value": 0.15},
+						{"effect": "containment_add", "faction": "public_sentiment", "value": 0.05}
+					]
+				}
+			]
+		}
+	]
+}
