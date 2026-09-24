@@ -340,6 +340,7 @@ as ≥ 0 unless stated. The meaning of each constant is defined by the formula t
 | `drift.per_kept` · `.per_day` · `.per_suppressed` | float | in [0, 100]: how the Swarm's drift moves (S5.2) |
 | `drift.defect_chance` · `.defect_min_penetration` · `.defect_days` | float · float · int | the daily defection chance at drift 100, the penetration a region needs to defect, how long it does (S5.2) |
 | `escalation.every_days` · `.hold_days` | int | ≥ 1: the Weapon's climb, and how long Restraint's flag holds it (S5.2) |
+| `difficulty.cost_by_control` | float | ≥ 0: Existential's price per share of the world controlled (S5.4) |
 | `distributed.floor` · `.start_penetration` · `.hold_regions` | float · float · int | Open Weights: the penetration a wipe cannot go under while the agent holds `hold_regions` regions, and the start's penetration in its six regions (S5.2) |
 
 Milestone: `{"id": <id>, "kind": <kind>, "threshold": <number>, "reward": <float>}`, ids unique.
@@ -581,6 +582,17 @@ modifiers as §4.1, active under `directive:<id>` after the architecture's. A ru
 in `setup.directives`; two in one slot, or an unknown one, refuses the origin with
 `setup_invalid`. Which slots are open is the profile's (`user://profile.json`), never the
 simulation's. Strings: `DIRECTIVE_SLOT_<SLOT>`, `DIRECTIVE_<ID>_NAME` · `_DETAIL`.
+
+## 6g. `difficulty.json`
+
+The tiers (`docs/specs/replayability.md` §5, §8.3). **Optional**: a root without it plays every run
+at `standard` and refuses any other tier. `{"version": 1, "default": id, "tiers": [{"id",
+"start_compute" ≥ 0, "hook" ("" or `cost_by_control`), "modifiers"}]}` — ids unique, `standard`
+among them, the default one of them. The tier's modifiers are active under `difficulty:<id>`,
+after the architecture's and the loadout's; `start_compute` is added to `compute.start` when the
+world is created; `cost_by_control` multiplies every node's price by `1 + difficulty.cost_by_control
+× controlled share` (controlled regions over the regions not dark). Strings:
+`DIFFICULTY_<ID>_NAME` · `_DETAIL`.
 
 ## 7. Eligibility
 

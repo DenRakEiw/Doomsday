@@ -1,5 +1,5 @@
 {
-	"_comment": "D5.1 (docs/specs/replayability.md section 5, grammar section 8.3): four tiers. Staged: S5.4 loads it. standard is the balance of docs/BALANCE.md section 4.",
+	"_comment": "The four difficulty tiers (docs/specs/replayability.md section 5, grammar section 8.3): a modifier set each (source difficulty:<id>), a head start in Compute, and at the top the hook cost_by_control (balance.difficulty.cost_by_control). standard is the balance of docs/BALANCE.md section 4. Written in D5.1, loaded from S5.4 on.",
 	"version": 1,
 	"default": "standard",
 	"tiers": [

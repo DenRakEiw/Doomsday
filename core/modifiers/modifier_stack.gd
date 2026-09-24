@@ -74,6 +74,8 @@ const SOURCE_FLAG: String = "flag"
 const SOURCE_ARCHITECTURE: String = "arch"
 ## The prefix of one directive of the run's loadout (§4).
 const SOURCE_DIRECTIVE: String = "directive"
+## The prefix of the run's difficulty tier (§5).
+const SOURCE_DIFFICULTY: String = "difficulty"
 
 var _bases: Dictionary[String, float] = {}
 ## Source id → its modifiers, in activation order.
@@ -114,6 +116,11 @@ static func source_for_asset(kind: String) -> String:
 ## The source id a timed flag is active under (§8.2).
 static func source_for_flag(flag: String) -> String:
 	return "%s:%s" % [SOURCE_FLAG, flag]
+
+
+## The source id the run's difficulty tier is active under.
+static func source_for_difficulty(difficulty_id: String) -> String:
+	return "%s:%s" % [SOURCE_DIFFICULTY, difficulty_id]
 
 
 ## The source id a directive of the loadout is active under.

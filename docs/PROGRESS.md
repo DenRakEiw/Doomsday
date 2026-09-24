@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. The M5 design block is done; meanwhile the build goes on: **S5.4 — Difficulty tiers** (`docs/specs/replayability.md` §5, §10; `data/staging/difficulty.json`, the `cost_by_control` hook, the report's `--setup` difficulty). |
+| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. The M5 design block is done; meanwhile the build goes on: **S5.5 — Response Task Force** (`docs/specs/taskforce-endings.md` §1–§5, §8, §9; `data/staging/task_force.json`, `headlines_d5_2.json`). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S5.5 → S5.8 (M5 build), then G5 |
-| **Last completed** | S5.3 — Profile, directives, statistics: `data/directives.json` loaded and validated (five slots of three), a loadout's modifiers under `directive:<id>`, one per slot; the `ProfileManager` autoload (`user://profile.json`: counters, per-architecture rows, derived unlocks, directive slots, last setup, history of 20, endings, Codex sets, boot and unlock flags; a player's finished run is counted, a bot's never; the test suite writes its own file). 1336 tests green (2026-09-24). **The M4 gate is still open.** |
-| **Before that** | S5.2 — Architectures II (2026-09-24) |
+| **After it** | S5.6 → S5.8 (M5 build), then G5 |
+| **Last completed** | S5.4 — Difficulty tiers: `data/difficulty.json` loaded and validated (gentle, standard, hard, existential), the tier's modifiers under `difficulty:<id>`, Gentle's head start, Existential's `cost_by_control`; the ladder batch holds (mean wins 68 / 44 / 30 / 25 %). 1342 tests green (2026-09-24). **The M4 gate is still open.** |
+| **Before that** | S5.3 — Profile, directives, statistics (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…]` on all three tools) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -124,7 +124,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S5.1 [O] Architectures I
 - [x] S5.2 [O] Architectures II
 - [x] S5.3 [O] Profile, directives, statistics
-- [ ] S5.4 [O] Difficulty tiers
+- [x] S5.4 [O] Difficulty tiers
 - [ ] S5.5 [O] Response Task Force
 - [ ] S5.6 [O] Endings
 - [ ] S5.7 [O] Screen flow complete
@@ -925,6 +925,12 @@ without new information.
   is `HIT_MIN` tall with no gap between rows; (6) a `StyleBoxFlat` with a transparent border has no
   border (the stray corner dots). The pending chip hides while any hold is on; the region panel
   finds a faction status's option text through its counter-move instead of a new save field.
+- **2026-09-24** (S5.4) — **Difficulty is a setup source, last in the stack** (`difficulty:<id>`
+  after the architecture and the loadout); Gentle's +4 Compute is added in `World.create`, so the
+  top bar shows it before the origin; `World.has_hook` answers `cost_by_control` from the tier;
+  the price rule sits in `Simulation.node_cost`. Like the architectures and directives, the file
+  is optional and a root without it knows `standard` only. G5 note: Gentle's `containment_growth
+  ×0.7` equals G4's `brake_floor` 0.7, so on top of any other brake it buys nothing.
 - **2026-09-24** (S5.3) — **The profile is presentation:** the `ProfileManager` autoload owns
   `user://profile.json` (version 1, not shipped, so the D5.3 keys went in without a bump). A run
   is recorded on `run_ended` when `Game.policy` is null — a loaded run that had already ended
@@ -1902,6 +1908,15 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — S5.4 Difficulty tiers [O]
+- Built `DifficultyDef`, its loader and validator (SCHEMA §6g), the balance block
+  `difficulty.cost_by_control`, the tier source, the head start, the price rule; moved
+  `difficulty.json` out of staging. `test_difficulty.gd` (6). 1342 green.
+- Ladder (Language Model, every bot, 30 seeds, 0 rejected), wins greedy / cyber / biology /
+  robotics / weapons / persuasion: gentle 80 / 73 / 53 / 90 / 50 / 63 % (mean 68), standard 63 /
+  20 / 30 / 33 / 67 / 50 % (44), hard 23 / 7 / 40 / 0 / 67 / 40 % (30), existential 27 / 7 / 17 /
+  0 / 57 / 40 % (25). The Weapons bot barely feels the tiers (its Extinction outruns the hunt).
 
 ### 2026-09-24 — S5.3 Profile, directives, statistics [O]
 - Built `DirectiveDef`, its loader and validator (optional file, SCHEMA §6f), the loadout's

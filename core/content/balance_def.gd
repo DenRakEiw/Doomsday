@@ -113,6 +113,8 @@ var escalation_hold_days: int = 1
 var distributed_floor: float = 0.0
 var distributed_start_penetration: float = 0.0
 var distributed_hold_regions: int = 1
+## §5 Existential: every node costs `× (1 + this × controlled share)`.
+var difficulty_cost_by_control: float = 0.0
 
 ## m3-screens §7.4: Ascendance over this share of the world dead reads as ashes.
 var results_ashes_share: float = 0.5

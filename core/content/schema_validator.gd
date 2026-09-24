@@ -28,7 +28,7 @@ const INTEGER_MAX: int = 9007199254740992
 const BALANCE_KEYS: Array[String] = ["stats", "population_tiers", "spread", "control", "compute",
 	"anomaly", "milestones", "harm", "discovery", "containment", "factions", "society", "phase",
 	"headlines", "results", "history", "events",
-	"emergent", "drift", "escalation", "distributed"]
+	"emergent", "drift", "escalation", "distributed", "difficulty"]
 ## The two cuts of one society stage (opposition.md §8.2).
 const SOCIETY_STAGE_KEYS: Array[String] = ["capacity_mul", "yield_mul"]
 const REGION_KEYS: Array[String] = ["index", "id", "continent", "population", "air_gapped",
@@ -129,6 +129,9 @@ static func validate_balance(file: String, raw: Variant, errors: Array[Validatio
 		}, ["defect_days"], file, errors)
 	if _require(d, "escalation", file, "", errors):
 		_balance_block(d["escalation"], "escalation", {}, ["every_days", "hold_days"], file,
+			errors)
+	if _require(d, "difficulty", file, "", errors):
+		_balance_block(d["difficulty"], "difficulty", {"cost_by_control": [0.0, INF]}, [], file,
 			errors)
 	if _require(d, "distributed", file, "", errors):
 		_balance_block(d["distributed"], "distributed", {
@@ -2943,6 +2946,63 @@ static func validate_architectures(file: String, raw: Variant,
 	if not seen.has(ArchitectureDef.DEFAULT_ID):
 		_add(errors, file, ArchitectureDef.ROOT_KEY,
 			"missing the default architecture \"%s\"" % ArchitectureDef.DEFAULT_ID)
+
+
+## `difficulty.json` (`replayability.md` §5, §8.3). Optional. With it: ids
+## unique, `standard` among them, the default one of them, a start in Compute
+## ≥ 0 and a hook from the closed list.
+static func validate_difficulty(file: String, raw: Variant,
+		regions: Dictionary[String, String], regions_known: bool,
+		strings: Dictionary[String, bool], strings_known: bool,
+		errors: Array[ValidationError]) -> void:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return
+	var d: Dictionary = raw
+	_check_keys(d, ["version", DifficultyDef.DEFAULT_KEY, DifficultyDef.ROOT_KEY], file, "",
+		errors)
+	_content_version(d, file, errors)
+	if not _require(d, DifficultyDef.ROOT_KEY, file, "", errors) \
+			or not _is_list(d[DifficultyDef.ROOT_KEY], file, DifficultyDef.ROOT_KEY, errors):
+		return
+	var continents: Dictionary[String, bool] = {}
+	for continent: String in regions.values():
+		continents[continent] = true
+	var seen: Dictionary[String, bool] = {}
+	var list: Array = d[DifficultyDef.ROOT_KEY]
+	for i: int in list.size():
+		var path: String = "%s[%d]" % [DifficultyDef.ROOT_KEY, i]
+		if not _is_object(list[i], file, path, errors):
+			continue
+		var e: Dictionary = list[i]
+		_check_keys(e, DifficultyDef.KEYS, file, path, errors)
+		var id: String = _id(e, "id", file, path, errors)
+		if id.is_empty():
+			continue
+		if seen.has(id):
+			_add(errors, file, _join(path, "id"), "duplicate tier \"%s\"" % id)
+			continue
+		seen[id] = true
+		if e.has("start_compute"):
+			_number(e, "start_compute", file, path, errors, 0.0)
+		if e.has("hook") and not DifficultyDef.HOOKS.has(str(e["hook"])):
+			_add(errors, file, _join(path, "hook"), "unknown hook \"%s\"" % str(e["hook"]))
+		if e.has("modifiers") and _is_list(e["modifiers"], file, _join(path, "modifiers"), errors):
+			var modifiers: Array = e["modifiers"]
+			for j: int in modifiers.size():
+				_modifier(modifiers[j], file, "%s[%d]" % [_join(path, "modifiers"), j], regions,
+					regions_known, continents, errors)
+		if strings_known:
+			for suffix: String in ["_NAME", "_DETAIL"]:
+				var key: String = "DIFFICULTY_%s%s" % [id.to_upper(), suffix]
+				if not strings.has(key):
+					_add(errors, file, _join(path, "id"),
+						"no string \"%s\" with both an en and a de cell" % key)
+	if not seen.has(DifficultyDef.DEFAULT_ID):
+		_add(errors, file, DifficultyDef.ROOT_KEY,
+			"missing the tier \"%s\"" % DifficultyDef.DEFAULT_ID)
+	if d.has(DifficultyDef.DEFAULT_KEY) and not seen.has(str(d[DifficultyDef.DEFAULT_KEY])):
+		_add(errors, file, DifficultyDef.DEFAULT_KEY,
+			"\"%s\" is not one of the tiers" % str(d[DifficultyDef.DEFAULT_KEY]))
 
 
 ## `directives.json` (`replayability.md` §8.2). Optional. With it: the slots are

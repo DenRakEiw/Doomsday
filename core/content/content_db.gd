@@ -43,6 +43,11 @@ var architecture_by_id: Dictionary[String, ArchitectureDef] = {}
 var directive_slots: Array[String] = []
 var directives: Array[DirectiveDef] = []
 var directive_by_id: Dictionary[String, DirectiveDef] = {}
+## `difficulty.json` (§8.3): the tiers in file order and the default's id. A root
+## without the file has none, and plays every run at `standard`.
+var difficulties: Array[DifficultyDef] = []
+var difficulty_by_id: Dictionary[String, DifficultyDef] = {}
+var difficulty_default: String = DifficultyDef.DEFAULT_ID
 var balance: BalanceDef = null
 ## Σ `RegionDef.population`, as a float because every formula using it is one.
 var population_total: float = 0.0
@@ -105,6 +110,13 @@ func event(id: String) -> EventDef:
 	if not event_by_id.has(id):
 		return null
 	return event_by_id[id]
+
+
+## The difficulty tier with this id, or null.
+func difficulty(id: String) -> DifficultyDef:
+	if not difficulty_by_id.has(id):
+		return null
+	return difficulty_by_id[id]
 
 
 ## The directive with this id, or null.

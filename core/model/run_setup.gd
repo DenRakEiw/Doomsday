@@ -6,7 +6,7 @@ extends RefCounted
 ##
 ## Directives and difficulty are carried from S5.1 on and read from S5.3 and S5.4.
 
-const DEFAULT_DIFFICULTY: String = "standard"
+const DEFAULT_DIFFICULTY: String = DifficultyDef.DEFAULT_ID
 
 var architecture: String = ArchitectureDef.DEFAULT_ID
 ## At most one per slot, only unlocked slots (the profile's check, S5.3).
@@ -23,12 +23,15 @@ static func create(p_architecture: String = ArchitectureDef.DEFAULT_ID,
 	return setup
 
 
-## "" when the content knows the architecture and every directive, and no two
-## directives share a slot; else `Command.FAIL_SETUP_INVALID`. Whether a slot is
-## unlocked is the profile's business, not the simulation's (§1). The difficulty
-## check joins with its file (S5.4).
+## "" when the content knows the architecture, the difficulty and every directive,
+## and no two directives share a slot; else `Command.FAIL_SETUP_INVALID`. Whether
+## a slot is unlocked is the profile's business, not the simulation's (§1). A root
+## without difficulties knows `standard` only.
 func validate(db: ContentDB) -> String:
 	if db.architecture(architecture) == null:
+		return Command.FAIL_SETUP_INVALID
+	if db.difficulty(difficulty) == null \
+			and not (db.difficulties.is_empty() and difficulty == DifficultyDef.DEFAULT_ID):
 		return Command.FAIL_SETUP_INVALID
 	var slots: Dictionary[String, bool] = {}
 	for directive_id: String in directives:

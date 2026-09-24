@@ -253,8 +253,26 @@ func node_cost(node_id: String) -> float:
 		+ db.balance.compute_cost_step * float(world.agent.owned_nodes.size())
 	# The tree's own multiplier sits on top of the global one, so a discount can
 	# be bought for one tree without cheapening the others.
+	# §5, Existential: the more of the world the agent holds, the dearer it gets.
+	var by_control: float = 1.0
+	if world.has_hook(db, DifficultyDef.HOOK_COST_BY_CONTROL):
+		by_control += db.balance.difficulty_cost_by_control * _controlled_share()
 	return maxf(1.0, ceilf(escalated * world.modifiers.value("node_cost")
-		* world.modifiers.value(ModifierDef.node_cost_target(node.tree))))
+		* world.modifiers.value(ModifierDef.node_cost_target(node.tree)) * by_control))
+
+
+## Controlled regions over the regions not dark — `cost_by_control`'s share.
+func _controlled_share() -> float:
+	var standing: int = 0
+	var controlled: int = 0
+	for i: int in range(1, world.regions.size()):
+		var region: Region = world.regions[i]
+		if region.dark:
+			continue
+		standing += 1
+		if region.control >= db.balance.control_complete:
+			controlled += 1
+	return 0.0 if standing == 0 else float(controlled) / float(standing)
 
 
 ## What an event option costs now (`replayability.md` §3.1): its number, or — for

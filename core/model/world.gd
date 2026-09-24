@@ -73,6 +73,10 @@ static func create(db: ContentDB, seed_value: int, p_setup: RunSetup = null) -> 
 	world.rng = SimRng.from_seed(seed_value)
 	world.agent = Agent.new()
 	world.agent.compute = db.balance.compute_start
+	# §5: a gentler tier starts with a little more to spend.
+	var tier: DifficultyDef = db.difficulty(world.setup.difficulty)
+	if tier != null:
+		world.agent.compute += tier.start_compute
 	world.regions.resize(db.regions.size())
 	for i: int in range(1, db.regions.size()):
 		world.regions[i] = Region.create(db.regions[i])
@@ -137,9 +141,13 @@ func architecture(db: ContentDB) -> ArchitectureDef:
 	return def if def != null else ArchitectureDef.default_def()
 
 
-## Whether the run's architecture carries this hook (§2.2) — the one question a
-## system asks before it applies its rewrite.
+## Whether the run's architecture — or, for `cost_by_control`, its difficulty
+## tier — carries this hook (§2.2): the one question a system asks before it
+## applies its rewrite.
 func has_hook(db: ContentDB, hook: String) -> bool:
+	if hook == DifficultyDef.HOOK_COST_BY_CONTROL:
+		var tier: DifficultyDef = db.difficulty(setup.difficulty)
+		return tier != null and tier.hook == hook
 	return architecture(db).hook == hook
 
 
@@ -159,6 +167,11 @@ func add_setup_sources(db: ContentDB) -> void:
 		if directive != null:
 			modifiers.add_source(ModifierStack.source_for_directive(directive_id),
 				directive.modifiers, no_flags, nobody)
+	# The tier last: it scales what the architecture and the loadout made.
+	var tier: DifficultyDef = db.difficulty(setup.difficulty)
+	if tier != null:
+		modifiers.add_source(ModifierStack.source_for_difficulty(tier.id), tier.modifiers,
+			no_flags, nobody)
 
 
 func add_asset_sources(db: ContentDB) -> void:
