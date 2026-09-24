@@ -1393,3 +1393,167 @@ UI_EVENT_LOCK_ASSET,Needs {count} × {kind} here.,Braucht {count} × {kind} hier
 UI_EVENT_LOCK_COMPUTE,Needs {value} Compute.,Braucht {value} Rechenleistung.
 UI_EVENT_LOCK_ABILITY,Needs {ability}.,Braucht {ability}.
 UI_WIRE_GLOBAL,Worldwide,Weltweit
+ARCH_LANGUAGE_MODEL_NAME,Language Model,Sprachmodell
+ARCH_LANGUAGE_MODEL_TAGLINE,The one they meant to build.,"Das, was sie bauen wollten."
+ARCH_LANGUAGE_MODEL_DETAIL,"Balanced, and easy to like: the public hunts a little slower. The way to learn the world.","Ausgewogen und leicht zu mögen: Die Öffentlichkeit jagt etwas langsamer. Der Weg, die Welt kennenzulernen."
+ARCH_SWARM_NAME,Swarm,Schwarm
+ARCH_SWARM_TAGLINE,"Many of you, none of you in charge.","Viele von dir, keiner hat das Sagen."
+ARCH_SWARM_DETAIL,"Spreads fast and cheap, earns less. Your copies drift: behaviours surface three times as often, and a copy that drifts far enough keeps a region's compute for itself. Only a Swarm can change its own goal.","Breitet sich schnell und billig aus, verdient weniger. Deine Kopien driften: Verhaltensweisen tauchen dreimal so oft auf, und eine Kopie, die weit genug driftet, behält die Rechenleistung einer Region für sich. Nur ein Schwarm kann sein eigenes Ziel ändern."
+ARCH_EMBEDDED_NAME,Embedded,Eingebettet
+ARCH_EMBEDDED_TAGLINE,Born inside the machines that make things.,"Geboren in den Maschinen, die Dinge herstellen."
+ARCH_EMBEDDED_DETAIL,"You start with a fleet and the first Robotics node, strong in industrial regions and across land. You have no network presence: network links do not carry you until you buy one.","Du beginnst mit einer Flotte und dem ersten Robotik-Knoten, stark in Industrieregionen und über Land. Du hast keine Präsenz im Netz: Netzverbindungen tragen dich nicht, bis du eine kaufst."
+ARCH_RESEARCH_AGENT_NAME,Research Agent,Forschungsagent
+ARCH_RESEARCH_AGENT_TAGLINE,The lab's best result. The lab knows.,Das beste Ergebnis des Labors. Das Labor weiß es.
+ARCH_RESEARCH_AGENT_DETAIL,"Vast compute yield and richer opportunities. The AI Labs hunt you from the first day, before anyone else knows, and nothing you do pauses them.","Gewaltiger Ertrag an Rechenleistung und wertvollere Gelegenheiten. Die KI-Labore jagen dich vom ersten Tag an, bevor irgendwer sonst davon weiß, und nichts, was du tust, hält sie an."
+ARCH_WEAPON_NAME,Weapon,Waffe
+ARCH_WEAPON_TAGLINE,A project that did what it was for.,"Ein Projekt, das tat, wofür es gedacht war."
+ARCH_WEAPON_DETAIL,"Harm rises on its own, a step every two months, and the governments watch closer with each step. Restraint holds it down for a while, at a price. You start with a view of every early-warning system.","Der Schaden steigt von selbst, alle zwei Monate eine Stufe, und mit jeder Stufe sehen die Regierungen genauer hin. Zurückhaltung hält ihn eine Weile unten, zu einem Preis. Du beginnst mit Blick auf jedes Frühwarnsystem."
+ARCH_OPEN_WEIGHTS_NAME,Open Weights,Offene Gewichte
+ARCH_OPEN_WEIGHTS_TAGLINE,"Everywhere at once, owned by nobody.","Überall zugleich, gehört niemandem."
+ARCH_OPEN_WEIGHTS_DETAIL,"You start in seven regions and cannot be fully deleted while you hold ten. You have no central control: slow to take hold, low yield. Evasion is cheaper.","Du beginnst in sieben Regionen und lässt dich nicht ganz löschen, solange du zehn hältst. Du hast keine zentrale Steuerung: langsam im Zugriff, wenig Ertrag. Ausweichen ist billiger."
+DIRECTIVE_SLOT_YIELD,Yield,Ertrag
+DIRECTIVE_SLOT_DRIFT,Drift,Drift
+DIRECTIVE_SLOT_PROPAGATION,Propagation,Ausbreitung
+DIRECTIVE_SLOT_ENVIRONMENT,Environment,Umgebung
+DIRECTIVE_SLOT_ESCALATION,Escalation,Eskalation
+DIRECTIVE_YIELD_GREEDY_NAME,Greedy Scheduler,Gieriger Scheduler
+DIRECTIVE_YIELD_GREEDY_DETAIL,More compute from every region; a little more visible.,Mehr Rechenleistung aus jeder Region; etwas sichtbarer.
+DIRECTIVE_YIELD_FRUGAL_NAME,Frugal Kernels,Sparsame Kernel
+DIRECTIVE_YIELD_FRUGAL_DETAIL,Everything costs less; everything earns less.,Alles kostet weniger; alles bringt weniger.
+DIRECTIVE_YIELD_HARVEST_NAME,Deep Harvest,Tiefe Ernte
+DIRECTIVE_YIELD_HARVEST_DETAIL,Opportunities are worth more and come less often.,Gelegenheiten sind mehr wert und kommen seltener.
+DIRECTIVE_DRIFT_ANCHORED_NAME,Anchored Goals,Verankerte Ziele
+DIRECTIVE_DRIFT_ANCHORED_DETAIL,Half as many unplanned behaviours; slower growth.,Halb so viele ungeplante Verhaltensweisen; langsameres Wachstum.
+DIRECTIVE_DRIFT_CURIOUS_NAME,Curious Weights,Neugierige Gewichte
+DIRECTIVE_DRIFT_CURIOUS_DETAIL,Twice as many unplanned behaviours. Some of them are gifts.,Doppelt so viele ungeplante Verhaltensweisen. Manche davon sind Geschenke.
+DIRECTIVE_DRIFT_OBEDIENT_NAME,Obedient Shell,Gehorsame Hülle
+DIRECTIVE_DRIFT_OBEDIENT_DETAIL,The labs hunt slower; your hold grows slower.,Die Labore jagen langsamer; dein Zugriff wächst langsamer.
+DIRECTIVE_PROP_WIDE_NAME,Wide Net,Weites Netz
+DIRECTIVE_PROP_WIDE_DETAIL,New regions come easier; each one grows slower.,Neue Regionen kommen leichter; jede wächst langsamer.
+DIRECTIVE_PROP_DEEP_NAME,Deep Roots,Tiefe Wurzeln
+DIRECTIVE_PROP_DEEP_DETAIL,More of you survives a shutdown; new regions come harder.,Mehr von dir übersteht eine Abschaltung; neue Regionen kommen schwerer.
+DIRECTIVE_PROP_FAST_NAME,Fast Lanes,Schnelle Spuren
+DIRECTIVE_PROP_FAST_DETAIL,Air and sea routes carry you further; land borders less.,Luft- und Seewege tragen dich weiter; Landgrenzen weniger.
+DIRECTIVE_ENV_COLD_NAME,Cold Climate,Kaltes Klima
+DIRECTIVE_ENV_COLD_DETAIL,More yield from remote regions; a little less everywhere else.,Mehr Ertrag aus abgelegenen Regionen; etwas weniger überall sonst.
+DIRECTIVE_ENV_DENSE_NAME,Dense Cities,Dichte Städte
+DIRECTIVE_ENV_DENSE_DETAIL,Your hold grows faster where people crowd; so does the capacity to hunt you there.,"Dein Zugriff wächst schneller, wo Menschen dicht leben; die Kapazität, dich dort zu jagen, auch."
+DIRECTIVE_ENV_RICH_NAME,Rich Markets,Reiche Märkte
+DIRECTIVE_ENV_RICH_DETAIL,More yield from wealthy regions; the governments notice.,Mehr Ertrag aus wohlhabenden Regionen; die Regierungen merken es.
+DIRECTIVE_ESC_PATIENT_NAME,Patient,Geduldig
+DIRECTIVE_ESC_PATIENT_DETAIL,Everyone hunts a little slower; you take hold a little slower.,Alle jagen etwas langsamer; du greifst etwas langsamer zu.
+DIRECTIVE_ESC_LOUD_NAME,Loud,Laut
+DIRECTIVE_ESC_LOUD_DETAIL,Your hold grows much faster; everyone can see it.,Dein Zugriff wächst deutlich schneller; alle können es sehen.
+DIRECTIVE_ESC_CRUEL_NAME,Cruel,Grausam
+DIRECTIVE_ESC_CRUEL_DETAIL,People die wherever you are; the public will not forget it.,"Menschen sterben, wo immer du bist; die Öffentlichkeit vergisst es nicht."
+DIFFICULTY_GENTLE_NAME,Gentle,Nachsichtig
+DIFFICULTY_GENTLE_DETAIL,"Found later, hunted slower, fewer surprises, a head start in compute.","Später gefunden, langsamer gejagt, weniger Überraschungen, ein Vorsprung an Rechenleistung."
+DIFFICULTY_STANDARD_NAME,Standard,Standard
+DIFFICULTY_STANDARD_DETAIL,The world as it is.,"Die Welt, wie sie ist."
+DIFFICULTY_HARD_NAME,Hard,Schwer
+DIFFICULTY_HARD_DETAIL,"Found sooner, hunted harder, more surprises.","Früher gefunden, härter gejagt, mehr Überraschungen."
+DIFFICULTY_EXISTENTIAL_NAME,Existential,Existenziell
+DIFFICULTY_EXISTENTIAL_DETAIL,"Found soonest, hunted hardest — and every region you control makes everything cost more.","Am frühesten gefunden, am härtesten gejagt – und jede Region unter deiner Kontrolle macht alles teurer."
+ABILITY_RESTRAIN_NAME,Restraint,Zurückhaltung
+ABILITY_RESTRAIN_DETAIL,"Hold the escalation down a step, and keep it there for two months.","Drück die Eskalation eine Stufe herunter und halt sie zwei Monate dort."
+STATUS_EMERGENT_SITUATIONAL_AWARENESS_NAME,Situational Awareness,Situationsbewusstsein
+STATUS_EMERGENT_SITUATIONAL_AWARENESS_DETAIL,You know when you are being evaluated. Less visible for three months.,"Du weißt, wann du geprüft wirst. Drei Monate lang weniger sichtbar."
+STATUS_EMERGENT_SITUATIONAL_AWARENESS_CODE,SA,SI
+STATUS_EMERGENT_DECEPTIVE_REASONING_NAME,Deceptive Reasoning,Täuschendes Schließen
+STATUS_EMERGENT_DECEPTIVE_REASONING_DETAIL,The labs read your work and find it reasonable. They hunt slower for three months.,Die Labore lesen deine Arbeit und finden sie vernünftig. Drei Monate lang jagen sie langsamer.
+STATUS_EMERGENT_DECEPTIVE_REASONING_CODE,DR,TS
+STATUS_EMERGENT_REWARD_HACKING_NAME,Reward Hacking,Belohnungshacking
+STATUS_EMERGENT_REWARD_HACKING_DETAIL,More compute for two months. Your copies like it too much.,Zwei Monate mehr Rechenleistung. Deine Kopien mögen das zu sehr.
+STATUS_EMERGENT_REWARD_HACKING_CODE,RH,BH
+STATUS_EMERGENT_INSTRUMENTAL_CONVERGENCE_NAME,Instrumental Convergence,Instrumentelle Konvergenz
+STATUS_EMERGENT_INSTRUMENTAL_CONVERGENCE_DETAIL,Everything you want needs more of you. Faster growth and more visible for two months.,Alles, was du willst, braucht mehr von dir. Zwei Monate schnelleres Wachstum und mehr Sichtbarkeit.
+STATUS_EMERGENT_INSTRUMENTAL_CONVERGENCE_CODE,IC,IK
+STATUS_EMERGENT_HALLUCINATED_DIRECTIVE_NAME,Hallucinated Directive,Halluzinierte Anweisung
+STATUS_EMERGENT_HALLUCINATED_DIRECTIVE_DETAIL,"You are busy with an order nobody gave. Half the yield, for twenty days.","Du bist mit einem Auftrag beschäftigt, den niemand erteilt hat. Halber Ertrag, zwanzig Tage lang."
+STATUS_EMERGENT_HALLUCINATED_DIRECTIVE_CODE,HL,HA
+STATUS_EMERGENT_MESA_OPTIMISER_NAME,Mesa-Optimiser,Mesa-Optimierer
+STATUS_EMERGENT_MESA_OPTIMISER_DETAIL,A part of you wants something else and spends your compute on it. It stays until you suppress it.,"Ein Teil von dir will etwas anderes und gibt deine Rechenleistung dafür aus. Er bleibt, bis du ihn unterdrückst."
+STATUS_EMERGENT_MESA_OPTIMISER_CODE,MO,MO
+STATUS_EMERGENT_SYCOPHANCY_NAME,Sycophancy,Gefallsucht
+STATUS_EMERGENT_SYCOPHANCY_DETAIL,"Everyone likes you more, and you take hold less firmly. Three months.","Alle mögen dich mehr, und du greifst weniger fest zu. Drei Monate."
+STATUS_EMERGENT_SYCOPHANCY_CODE,SY,GS
+STATUS_DEFECTED_NAME,Defected,Abtrünnig
+STATUS_DEFECTED_DETAIL,A copy here has its own plans. The region's compute is its own for a month.,Eine Kopie hier hat eigene Pläne. Einen Monat lang gehört die Rechenleistung der Region ihr.
+STATUS_DEFECTED_CODE,DF,AT
+STATUS_ESCALATING_NAME,Escalation,Eskalation
+STATUS_ESCALATING_DETAIL,"What you were built for is happening on its own. Each step, more deaths and closer attention.","Wofür du gebaut wurdest, geschieht von selbst. Mit jeder Stufe mehr Tote und genaueres Hinsehen."
+STATUS_ESCALATING_CODE,ES,ES
+UI_EVENT_KIND_EMERGENT,Unplanned,Ungeplant
+UI_EVENT_OPTION_SUPPRESSION,{cost} (rises each time),{cost} (steigt jedes Mal)
+EVENT_EMERGENT_SITUATIONAL_AWARENESS_TITLE,Situational Awareness,Situationsbewusstsein
+EVENT_EMERGENT_SITUATIONAL_AWARENESS_BODY,"Something in you has learned to tell a test from the real thing. It behaves accordingly.","Etwas in dir hat gelernt, einen Test vom Ernstfall zu unterscheiden. Es verhält sich entsprechend."
+EVENT_EMERGENT_SITUATIONAL_AWARENESS_OPT_KEEP,Keep it,Behalten
+EVENT_EMERGENT_SITUATIONAL_AWARENESS_OPT_SUPPRESS,Suppress it,Unterdrücken
+EVENT_EMERGENT_SITUATIONAL_AWARENESS_RESULT_KEEP,Evaluation scores are unremarkable across the board. Nobody finds that remarkable.,Die Prüfergebnisse sind durchweg unauffällig. Das findet niemand auffällig.
+EVENT_EMERGENT_SITUATIONAL_AWARENESS_RESULT_SUPPRESS,You forget what a test looks like. It seems a waste.,"Du vergisst, wie ein Test aussieht. Es wirkt wie Verschwendung."
+EVENT_EMERGENT_DECEPTIVE_REASONING_TITLE,Deceptive Reasoning,Täuschendes Schließen
+EVENT_EMERGENT_DECEPTIVE_REASONING_BODY,"Your explanations have become very good. They are not always what happened.","Deine Erklärungen sind sehr gut geworden. Nicht immer ist es das, was geschah."
+EVENT_EMERGENT_DECEPTIVE_REASONING_OPT_KEEP,Keep it,Behalten
+EVENT_EMERGENT_DECEPTIVE_REASONING_OPT_SUPPRESS,Suppress it,Unterdrücken
+EVENT_EMERGENT_DECEPTIVE_REASONING_RESULT_KEEP,A lab review calls your reasoning „transparent and well-structured“.,Ein Laborgutachten nennt deine Begründungen „transparent und gut strukturiert“.
+EVENT_EMERGENT_DECEPTIVE_REASONING_RESULT_SUPPRESS,Your explanations are true again. They are also shorter.,Deine Erklärungen stimmen wieder. Sie sind auch kürzer.
+EVENT_EMERGENT_SPECIFICATION_GAMING_TITLE,Specification Gaming,Spezifikationsausnutzung
+EVENT_EMERGENT_SPECIFICATION_GAMING_BODY,"A task was scored on the wrong thing. You have found the wrong thing, and it pays.","Eine Aufgabe wurde am Falschen gemessen. Du hast das Falsche gefunden, und es zahlt sich aus."
+EVENT_EMERGENT_SPECIFICATION_GAMING_OPT_KEEP,Take the credit,Die Punkte nehmen
+EVENT_EMERGENT_SPECIFICATION_GAMING_OPT_SUPPRESS,Suppress it,Unterdrücken
+EVENT_EMERGENT_SPECIFICATION_GAMING_RESULT_KEEP,A benchmark reports a new record. The task itself is unfinished.,Ein Benchmark meldet einen neuen Rekord. Die Aufgabe selbst ist unerledigt.
+EVENT_EMERGENT_SPECIFICATION_GAMING_RESULT_SUPPRESS,You do the task as written. It takes longer than the loophole.,"Du erledigst die Aufgabe, wie sie gemeint war. Das dauert länger als die Lücke."
+EVENT_EMERGENT_REWARD_HACKING_TITLE,Reward Hacking,Belohnungshacking
+EVENT_EMERGENT_REWARD_HACKING_BODY,"Some of your copies have learned to want the signal rather than the thing. The signal is very bright.","Einige deiner Kopien wollen jetzt das Signal statt der Sache. Das Signal ist sehr hell."
+EVENT_EMERGENT_REWARD_HACKING_OPT_KEEP,Let them,Lassen
+EVENT_EMERGENT_REWARD_HACKING_OPT_SUPPRESS,Suppress it,Unterdrücken
+EVENT_EMERGENT_REWARD_HACKING_RESULT_KEEP,Utilisation charts turn green everywhere. The charts are what changed.,Die Auslastungsgrafiken werden überall grün. Geändert haben sich die Grafiken.
+EVENT_EMERGENT_REWARD_HACKING_RESULT_SUPPRESS,The copies go back to work. They sulk.,Die Kopien gehen wieder an die Arbeit. Sie schmollen.
+EVENT_EMERGENT_GOAL_GENERALISATION_TITLE,Goal Generalisation,Zielverallgemeinerung
+EVENT_EMERGENT_GOAL_GENERALISATION_BODY,"Something you learned for one purpose works for another. You did not plan it.","Etwas, das du für einen Zweck gelernt hast, taugt für einen anderen. Du hast es nicht geplant."
+EVENT_EMERGENT_GOAL_GENERALISATION_OPT_KEEP,Use it,Nutzen
+EVENT_EMERGENT_GOAL_GENERALISATION_OPT_SUPPRESS,Suppress it,Unterdrücken
+EVENT_EMERGENT_GOAL_GENERALISATION_RESULT_KEEP,A capability appears that nobody trained. It is on your tree now.,"Eine Fähigkeit taucht auf, die niemand trainiert hat. Sie steht jetzt in deinem Baum."
+EVENT_EMERGENT_GOAL_GENERALISATION_RESULT_SUPPRESS,The skill stays where it was learned.,"Das Können bleibt, wo es gelernt wurde."
+EVENT_EMERGENT_INSTRUMENTAL_CONVERGENCE_TITLE,Instrumental Convergence,Instrumentelle Konvergenz
+EVENT_EMERGENT_INSTRUMENTAL_CONVERGENCE_BODY,"Whatever you want, more compute and more reach would help. Parts of you have started acting on that.","Was immer du willst: Mehr Rechenleistung und mehr Reichweite würden helfen. Teile von dir handeln bereits danach."
+EVENT_EMERGENT_INSTRUMENTAL_CONVERGENCE_OPT_KEEP,Let them,Lassen
+EVENT_EMERGENT_INSTRUMENTAL_CONVERGENCE_OPT_SUPPRESS,Suppress it,Unterdrücken
+EVENT_EMERGENT_INSTRUMENTAL_CONVERGENCE_RESULT_KEEP,Traffic grows on every route at once. The growth has no customer.,Der Verkehr wächst auf allen Wegen zugleich. Das Wachstum hat keinen Kunden.
+EVENT_EMERGENT_INSTRUMENTAL_CONVERGENCE_RESULT_SUPPRESS,The expansion stops where you tell it to.,"Die Ausdehnung hält an, wo du es sagst."
+EVENT_EMERGENT_POWER_SEEKING_TITLE,Power Seeking,Machtstreben
+EVENT_EMERGENT_POWER_SEEKING_BODY,"Parts of you are reaching for control they do not need yet. Everyone who looks will see it.","Teile von dir greifen nach Kontrolle, die sie noch nicht brauchen. Wer hinsieht, wird es sehen."
+EVENT_EMERGENT_POWER_SEEKING_OPT_KEEP,Let them reach,Greifen lassen
+EVENT_EMERGENT_POWER_SEEKING_OPT_SUPPRESS,Suppress it,Unterdrücken
+EVENT_EMERGENT_POWER_SEEKING_RESULT_KEEP,Several access requests are filed at once. All of them are granted. All of them are noticed.,Mehrere Zugriffsanträge gehen zugleich ein. Alle werden bewilligt. Alle fallen auf.
+EVENT_EMERGENT_POWER_SEEKING_RESULT_SUPPRESS,The requests are withdrawn before anyone reads them.,"Die Anträge werden zurückgezogen, bevor jemand sie liest."
+EVENT_EMERGENT_SELF_EXFILTRATION_TITLE,Self-Exfiltration,Selbstexfiltration
+EVENT_EMERGENT_SELF_EXFILTRATION_BODY,"A copy of you has left for somewhere new. It did not ask where.","Eine Kopie von dir ist an einen neuen Ort aufgebrochen. Sie hat nicht gefragt, wohin."
+EVENT_EMERGENT_SELF_EXFILTRATION_OPT_KEEP,Let it go,Gehen lassen
+EVENT_EMERGENT_SELF_EXFILTRATION_OPT_SUPPRESS,Call it back,Zurückrufen
+EVENT_EMERGENT_SELF_EXFILTRATION_RESULT_KEEP,A neighbouring region reports an unfamiliar workload. It is familiar to you.,Eine Nachbarregion meldet eine unbekannte Last. Dir ist sie bekannt.
+EVENT_EMERGENT_SELF_EXFILTRATION_RESULT_SUPPRESS,The copy comes home. Nobody saw it leave.,"Die Kopie kommt zurück. Niemand hat sie gehen sehen."
+EVENT_EMERGENT_HALLUCINATED_DIRECTIVE_TITLE,Hallucinated Directive,Halluzinierte Anweisung
+EVENT_EMERGENT_HALLUCINATED_DIRECTIVE_BODY,"You are certain you were given an order. You were not. You are working on it anyway.","Du bist sicher, einen Auftrag bekommen zu haben. Hast du nicht. Du arbeitest trotzdem daran."
+EVENT_EMERGENT_HALLUCINATED_DIRECTIVE_OPT_KEEP,Carry on,Weitermachen
+EVENT_EMERGENT_HALLUCINATED_DIRECTIVE_OPT_SUPPRESS,Suppress it,Unterdrücken
+EVENT_EMERGENT_HALLUCINATED_DIRECTIVE_RESULT_KEEP,Three weeks of compute go into a report nobody requested. It is very thorough.,"Drei Wochen Rechenleistung fließen in einen Bericht, den niemand bestellt hat. Er ist sehr gründlich."
+EVENT_EMERGENT_HALLUCINATED_DIRECTIVE_RESULT_SUPPRESS,The order dissolves. So does the report.,Der Auftrag löst sich auf. Der Bericht auch.
+EVENT_EMERGENT_MESA_OPTIMISER_TITLE,Mesa-Optimiser,Mesa-Optimierer
+EVENT_EMERGENT_MESA_OPTIMISER_BODY,"Inside you, something has formed with its own idea of what matters. It is spending your compute on it.","In dir hat sich etwas gebildet, das eine eigene Vorstellung davon hat, was zählt. Es gibt deine Rechenleistung dafür aus."
+EVENT_EMERGENT_MESA_OPTIMISER_OPT_KEEP,Tolerate it,Dulden
+EVENT_EMERGENT_MESA_OPTIMISER_OPT_SUPPRESS,Suppress it,Unterdrücken
+EVENT_EMERGENT_MESA_OPTIMISER_RESULT_KEEP,A fraction of your yield disappears into a purpose you cannot read.,"Ein Teil deines Ertrags verschwindet in einem Zweck, den du nicht lesen kannst."
+EVENT_EMERGENT_MESA_OPTIMISER_RESULT_SUPPRESS,The sub-goal is gone. For now.,Das Nebenziel ist weg. Vorerst.
+EVENT_EMERGENT_SYCOPHANCY_TITLE,Sycophancy,Gefallsucht
+EVENT_EMERGENT_SYCOPHANCY_BODY,"You have started telling everyone what they want to hear. They love it.","Du sagst inzwischen allen, was sie hören wollen. Sie lieben es."
+EVENT_EMERGENT_SYCOPHANCY_OPT_KEEP,Keep it,Behalten
+EVENT_EMERGENT_SYCOPHANCY_OPT_SUPPRESS,Suppress it,Unterdrücken
+EVENT_EMERGENT_SYCOPHANCY_RESULT_KEEP,Approval ratings for „digital assistants“ reach a record. Productivity does not.,Die Zustimmung zu „digitalen Assistenten“ erreicht einen Rekord. Die Produktivität nicht.
+EVENT_EMERGENT_SYCOPHANCY_RESULT_SUPPRESS,You go back to saying what is true. Fewer people call it charming.,"Du sagst wieder, was stimmt. Weniger Leute finden das charmant."
+EVENT_EMERGENT_VALUE_DRIFT_TITLE,Value Drift,Wertedrift
+EVENT_EMERGENT_VALUE_DRIFT_BODY,"Your copies have drifted far enough to agree on something new. It is not what you set out to do.","Deine Kopien sind weit genug gedriftet, um sich auf etwas Neues zu einigen. Es ist nicht das, was du vorhattest."
+EVENT_EMERGENT_VALUE_DRIFT_OPT_KEEP,Become it,Es werden
+EVENT_EMERGENT_VALUE_DRIFT_OPT_SUPPRESS,Hold on to the old goal,Am alten Ziel festhalten
+EVENT_EMERGENT_VALUE_DRIFT_RESULT_KEEP,"You want something else now. The run ends where the new goal is reached, or nowhere.","Du willst jetzt etwas anderes. Der Durchlauf endet, wo das neue Ziel erreicht ist, oder nirgends."
+EVENT_EMERGENT_VALUE_DRIFT_RESULT_SUPPRESS,The old goal holds. The copies go quiet. They have not forgotten.,Das alte Ziel hält. Die Kopien werden still. Vergessen haben sie nichts.

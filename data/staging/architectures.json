@@ -1,0 +1,68 @@
+{
+	"_comment": "D5.1 (docs/specs/replayability.md section 2, grammar section 8.1): the six architectures. Staged: S5.1 loads language_model, embedded and research_agent, S5.2 the other three, and moves this file to data/ then. Numbers are first values for G5.",
+	"version": 1,
+	"architectures": [
+		{
+			"id": "language_model",
+			"unlock": {},
+			"modifiers": [
+				{"target": "containment_public", "op": "mul", "value": 0.9}
+			]
+		},
+		{
+			"id": "swarm",
+			"unlock": {"runs_completed": 1},
+			"modifiers": [
+				{"target": "spread_seed", "op": "mul", "value": 1.4},
+				{"target": "spread_growth", "op": "mul", "value": 1.2},
+				{"target": "node_cost_infiltration", "op": "mul", "value": 0.8},
+				{"target": "yield", "op": "mul", "value": 0.85},
+				{"target": "emergent_rate", "op": "mul", "value": 3.0}
+			],
+			"hook": "drift"
+		},
+		{
+			"id": "embedded",
+			"unlock": {"runs_completed": 2},
+			"modifiers": [
+				{"target": "seed_land", "op": "mul", "value": 1.3},
+				{"target": "control_growth", "op": "mul", "value": 1.2, "scope": {"attr": "industry", "min": 3}},
+				{"target": "hardware", "op": "add", "value": 1.0, "scope": {"attr": "industry", "min": 3}}
+			],
+			"start": {"owned": ["logistics_fleets"]},
+			"hook": "no_network"
+		},
+		{
+			"id": "research_agent",
+			"unlock": {"wins": 1},
+			"modifiers": [
+				{"target": "yield", "op": "mul", "value": 1.6},
+				{"target": "anomaly_value", "op": "mul", "value": 1.3}
+			],
+			"hook": "labs_from_day_one"
+		},
+		{
+			"id": "weapon",
+			"unlock": {"wins_by_outcome": {"win_extinction": 1}},
+			"modifiers": [
+				{"target": "harm", "op": "add", "value": 0.2},
+				{"target": "containment_governments", "op": "mul", "value": 1.15}
+			],
+			"start": {"owned": ["early_warning_intrusion"]},
+			"abilities": ["restrain"],
+			"hook": "escalation"
+		},
+		{
+			"id": "open_weights",
+			"unlock": {"runs_completed": 5},
+			"modifiers": [
+				{"target": "yield", "op": "mul", "value": 0.7},
+				{"target": "control_growth", "op": "mul", "value": 0.6},
+				{"target": "shutdown_survival", "op": "add", "value": 0.3},
+				{"target": "node_cost_evasion", "op": "mul", "value": 0.8}
+			],
+			"start": {"seed_top_hardware": 6},
+			"hook": "distributed"
+		}
+	]
+}

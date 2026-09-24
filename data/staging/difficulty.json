@@ -1,0 +1,20 @@
+{
+	"_comment": "D5.1 (docs/specs/replayability.md section 5, grammar section 8.3): four tiers. Staged: S5.4 loads it. standard is the balance of docs/BALANCE.md section 4.",
+	"version": 1,
+	"default": "standard",
+	"tiers": [
+		{"id": "gentle", "start_compute": 4, "hook": "", "modifiers": [
+			{"target": "discovery", "op": "mul", "value": 0.7},
+			{"target": "containment_growth", "op": "mul", "value": 0.7},
+			{"target": "emergent_rate", "op": "mul", "value": 0.5}]},
+		{"id": "standard", "start_compute": 0, "hook": "", "modifiers": []},
+		{"id": "hard", "start_compute": 0, "hook": "", "modifiers": [
+			{"target": "discovery", "op": "mul", "value": 1.3},
+			{"target": "containment_growth", "op": "mul", "value": 1.25},
+			{"target": "emergent_rate", "op": "mul", "value": 1.5}]},
+		{"id": "existential", "start_compute": 0, "hook": "cost_by_control", "modifiers": [
+			{"target": "discovery", "op": "mul", "value": 1.5},
+			{"target": "containment_growth", "op": "mul", "value": 1.4},
+			{"target": "emergent_rate", "op": "mul", "value": 2.0}]}
+	]
+}

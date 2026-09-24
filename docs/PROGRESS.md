@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Meanwhile the design block goes on: **D5.1 — Architectures, directives, difficulty** (it does not depend on the verdict). |
+| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Meanwhile the design block goes on: **D5.2 — Response Task Force; endings** (it does not depend on the verdict). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D5.2 → D5.4 (M5 design), then S4.P |
-| **Last completed** | G4 tuning — balance pass 2: `containment.brake_floor` 0.7 (new), base rate 0.0018, the faction weights; every strategy bot wins 19–58 %, `greedy` 56 %, persuasion 49 %, Extinction reached by Weapons 51 % and Biology 24 %. 1268 tests green (2026-09-24). **The M4 gate itself is open.** |
-| **Before that** | D4.5 — German review in context (2026-09-24) |
+| **After it** | D5.3 → D5.4 (M5 design), then S4.P |
+| **Last completed** | D5.1 — architectures, directives, difficulty, emergent behaviours: `docs/specs/replayability.md`, staged data in `data/staging/` (four files), 164 new string rows in both languages. 1268 tests green (2026-09-24). **The M4 gate is still open.** |
+| **Before that** | G4 tuning — balance pass 2 (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -114,7 +114,7 @@ which file was being edited, and anything learned that the files do not show)*
 **Block 9 — M4 gate, M5 design · Fable**
 - [x] D4.5 [F] German review in context
 - [ ] **G4 [F] Balance pass 2 and M4 gate**
-- [ ] D5.1 [F] Architectures, directives, difficulty
+- [x] D5.1 [F] Architectures, directives, difficulty
 - [ ] D5.2 [F] Response Task Force; endings
 - [ ] D5.3 [F] Full screen flow, boot sequence, Codex
 - [ ] D5.4 [F] Scenarios *(stretch)* — ⇄ **then `/model opus`**
@@ -850,6 +850,24 @@ without new information.
   option's either-or lock (the *Braucht …* register of every lock line); the log filters *Alles ·
   Du · Sie*. The chart *Reichweite* keeps its table column *Erreichte Bevölkerung* (the title
   names the idea, the column what is counted). Text scale steps 100 / 125 / 150 % confirmed.
+- **2026-09-24** (D5.1) — **Replayability is `docs/specs/replayability.md`**: a run is set up
+  before the origin as a `RunSetup` (architecture, directives, difficulty; in save v3 and the
+  replay header). **An architecture is modifiers + a start + at most one hook** from a closed list
+  of six (`drift`, `no_network`, `labs_from_day_one`, `escalation`, `distributed`,
+  `cost_by_control`), each read in one system; content never adds a hook. Six architectures:
+  Language Model (default), Swarm, Embedded, Research Agent, Weapon, Open Weights.
+- **2026-09-24** (D5.1) — **Emergent behaviours are the fourth event kind, `emergent`**: global
+  wire cards, keep is the default and free, suppress costs `4 × (1 + 0.5 × suppressions so far)`.
+  Twelve cards; **Value Drift rolls only on Swarm**, at drift ≥ 60 (answers CONTENT §11 q3).
+  `emergent_rate` is live through the nodes that already modify it — no per-node term (answers the
+  D4.0 reminder). The card kind reads *Unplanned / Ungeplant* (*Emergent* is the phase).
+- **2026-09-24** (D5.1) — **Directives: five slots × three trades; one slot unlocks per completed
+  run. Four tiers** (Gentle, Standard, Hard, Existential; the top one's hook `cost_by_control`).
+  **The profile** (`user://profile.json`) keeps counters only; unlocks derive from them. **Nothing
+  about a run's world persists — chains reset** (answers CONTENT §11 q1 for now).
+- **2026-09-24** (D5.1) — **`si_emergence` fires once per run on every architecture**, Open Weights
+  included (answers the D4.4 reminder; G5 revisits). The new statuses are `origin: player`; no
+  `global` field on `StatusDef` is needed (S4.2's punch-list note stays as it is).
 
 ## Design questions for Fable
 
@@ -897,17 +915,15 @@ never Harvest below six regions.)
   `instance_merged` (`chains.md` §6). A standing status (`days: 0`, chains.md §11.2) is the tool for
   an ending's or an architecture's permanent condition. Illustration ids so far: 8 + 7 + 5 = 20;
   the discovery modal and the endings share the last ~5 of the budget.
-- **D5.1 (from D4.4):** `instance_merged` is the merge flag; Open Weights should let
-  `si_emergence` fire again (a per-architecture `max_fires` override or a `when` key — D5.1's
-  call; `max_fires` is per run today).
+- ~~**D5.1 (from D4.4):** Open Weights and `si_emergence`~~ — answered in D5.1: once per run on
+  every architecture (Decisions).
 - **D5.3:** replaces the placeholder title (m3-screens §7.1) and keeps `ScreenRouter`; **D5.2**
   replaces the five verdict lines (`UI_RESULT_LINE_*`), keys unchanged. The results screen's
   *Review the run* (analysis.md §5.9) stays whatever the endings become.
 - **Answered at D4.0:** `watched_by` weighting (loop-redesign §5.3); `funding_reset` burns every
   faction's *preparation* — the counter-move countdown restarts (§7.8); the four
-  `containment_<faction>` targets go live in S4.4, `shutdown_survival` in S4.2. **D5.1** defines the
-  per-Infiltration-node term of the emergent rate and makes `emergent_rate` live (moved with the
-  behaviours).
+  `containment_<faction>` targets go live in S4.4, `shutdown_survival` in S4.2. **D5.1** answered
+  the emergent rate: the nodes' own `emergent_rate` modifiers are the term; S5.2 makes it roll.
 
 ## Punch list for Opus
 
@@ -1576,6 +1592,11 @@ often than won"), are the five strategies genuinely different, Autophagy at 30 d
 starvation, and the `brake_floor` formula change. S4.9's screenshot set and D4.5's changes are
 there to look at too.
 
+**D5.1 (2026-09-24), whenever convenient (before D5.3 or S5.3):** `docs/specs/replayability.md`
+§11 — are the architecture unlock rules right (a win for Research Agent, a win *by Extinction* for
+Weapon, five completed runs for Open Weights), and should Open Weights be unlockable at all before
+M6?
+
 ## Balance baselines
 
 **2026-09-24 (G4) — balance pass 2, the closing baseline** (BALANCE §4.6; the S4.10 table below is
@@ -1797,6 +1818,16 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — D5.1 Architectures, directives, difficulty [F]
+- Read PLAN §3.8, CONTENT §5 and §11, loop-redesign §10 and the SCHEMA grammars; wrote
+  `docs/specs/replayability.md` (RunSetup and save v3, six architectures and the closed hook list,
+  the `emergent` event kind and its twelve cards, fifteen directives in five slots, four tiers, the
+  profile, the data grammars, the build order S5.1–S5.4).
+- Staged `data/staging/architectures.json`, `directives.json`, `difficulty.json`, `emergent.json`
+  (balance blocks, nine statuses, the ability `restrain`, twelve events) — valid JSON, loaded by
+  nothing yet. 164 string rows in `strings.csv` (EN/DE, outcome language, D4.5's German rules);
+  `check_strings` and the suite (1268) green. Unlock rules parked for the user (*Waiting on the user*).
 
 ### 2026-09-24 — G4 Balance pass 2 (tuning; the gate waits) [F]
 - Read what decides a run off `containment_breakdown` in the running game (loud strategies die of
