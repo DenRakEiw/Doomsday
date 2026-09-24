@@ -1879,6 +1879,10 @@ takes an OS path, which is worth knowing).
   controls, `Settings.tutorial` and its settings row. Checked in the game at 1920 (steps 1–4, the
   ring on *Hier beginnen*, the compute cell and the first vector). `test_coach.gd` (10), a
   settings test. 1310 green.
+- Found in the user's second run: the introduction never showed — `test_coach.gd`'s skip test
+  had written `"tutorial": false` into the real `user://settings.json` and restored only the
+  memory. The test now restores through `Settings.set_tutorial`; the user's file is back on.
+  User's note on the run: harder since G4, started in Africa, lost — "ok".
 
 ### 2026-09-24 — S5.1 Architectures I [O]
 - Built `ArchitectureDef`, `RunSetup`, `ArchitectureStart`; the loader and validator for the

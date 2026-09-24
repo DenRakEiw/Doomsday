@@ -26,7 +26,9 @@ func before_each() -> void:
 
 
 func after_each() -> void:
-	Settings.tutorial = _tutorial
+	# `set_tutorial` writes the file: a skip in a test must not leave the player's
+	# own settings with the introduction switched off (it did, once).
+	Settings.set_tutorial(_tutorial)
 	Settings.reduced_motion = _reduced_motion
 	Game.stop_run()
 
