@@ -390,7 +390,9 @@ cheap to control now and expensive to fix later.
    than others. With sixty regions and authored adjacency, projection is purely aesthetic.
    (Practical note: the tooling spells it `eqearth`; `equalearth` is not an alias and simply errors.)
 2. Does the menu globe survive as a shader, or does it want real geometry? Prototype in M2 — the
-   research says it should, and CC0 starting points exist.
+   research says it should, and CC0 starting points exist. *Decided at D5.3 (2026-09-24): a shader
+   over a new equirectangular region-ID texture (`screens-full.md` §3.1), built in S5.7; geometry
+   only if G5 judges the prototype insufficient.*
 3. How far does the phase palette shift go before it stops being atmosphere and starts being
    unreadable? Cap it and test at the reduced-motion setting.
 4. Do region vignettes justify their cost, or is the map plus the ticker enough? Decide at M4.

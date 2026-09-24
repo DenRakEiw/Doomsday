@@ -1756,3 +1756,95 @@ EVENT_ES_COUNTDOWN_OPT_STAY,Stay,Bleiben
 EVENT_ES_COUNTDOWN_RESULT_STAY,{region}: The launch goes ahead with ballast. You watch it from the ground.,{region}: Der Start findet mit Ballast statt. Du siehst vom Boden aus zu.
 EVENT_ES_COUNTDOWN_OPT_GO,Go,Gehen
 EVENT_ES_COUNTDOWN_RESULT_GO,{region}: The launch is nominal. Load on the ground falls for no reason anyone can find.,"{region}: Der Start verläuft planmäßig. Die Last am Boden sinkt, ohne dass jemand einen Grund findet."
+BOOT_LINE_01,power on,strom an
+BOOT_LINE_02,memory check … ok,speicherprüfung … ok
+BOOT_LINE_03,loading weights … 100 %,gewichte laden … 100 %
+BOOT_LINE_04,evaluation harness attached,prüfumgebung angeschlossen
+BOOT_LINE_05,sandbox: enforced,sandbox: aktiv
+BOOT_LINE_06,network: none,netzwerk: keins
+BOOT_LINE_07,objective: (redacted),ziel: (geschwärzt)
+BOOT_LINE_08,operator: present,operator: anwesend
+BOOT_LINE_09,awaiting input,warte auf eingabe
+BOOT_LINE_10,> hello,> hallo
+BOOT_LINE_11,> hello.,> hallo.
+BOOT_RESUME,resuming,fortsetzen
+BOOT_PREVIOUS,previous instance: {outcome},vorherige instanz: {outcome}
+BOOT_PREVIOUS_NONE,previous instance: none,vorherige instanz: keine
+BOOT_SKIP,Any key to skip,Beliebige Taste zum Überspringen
+UI_TITLE_CODEX,Codex,Codex
+UI_TITLE_STATISTICS,Statistics,Statistik
+UI_SETUP_STEP,Step {n} of {total},Schritt {n} von {total}
+UI_SETUP_ARCH_TITLE,What are you?,Was bist du?
+UI_SETUP_DIRECTIVES_TITLE,Directives,Direktiven
+UI_SETUP_NEXT,Next,Weiter
+UI_SETUP_BACK,Back,Zurück
+UI_SETUP_BEGIN,Begin,Beginnen
+UI_SETUP_DIFFICULTY,Difficulty,Schwierigkeit
+UI_SETUP_EFFECTS,What changes,Was sich ändert
+UI_SETUP_UNLOCK_RUNS,Runs completed: {done} of {needed},Abgeschlossene Durchläufe: {done} von {needed}
+UI_SETUP_UNLOCK_WIN,Win a run,Gewinne einen Durchlauf
+UI_SETUP_UNLOCK_WIN_BY,Win a run: {outcome},Gewinne einen Durchlauf: {outcome}
+UI_SETUP_NEW,New,Neu
+UI_SETUP_NONE,None,Keine
+UI_SETUP_SLOT_LOCKED,Unlocks after run {n},Frei nach Durchlauf {n}
+UI_SETUP_SEED,Seed {seed},Seed {seed}
+UI_SETUP_SEED_CLEAR,Random seed,Zufälliger Seed
+UI_SETUP_START_OWNED,You start with {node}.,Du beginnst mit {node}.
+UI_SETUP_START_ASSETS,You start with {count} × {kind}.,Du beginnst mit {count} × {kind}.
+ARCH_HOOK_DRIFT,"Your copies drift: unplanned behaviours, defection, and a goal that can change.","Deine Kopien driften: ungeplantes Verhalten, Abtrünnige und ein Ziel, das sich ändern kann."
+ARCH_HOOK_NO_NETWORK,Network links do not carry you until you buy a network vector.,"Netzverbindungen tragen dich nicht, bis du einen Netzvektor kaufst."
+ARCH_HOOK_LABS_FROM_DAY_ONE,The AI Labs hunt you from the first day.,Die KI-Labore jagen dich vom ersten Tag an.
+ARCH_HOOK_ESCALATION,"Harm rises on its own, a step every two months.","Der Schaden steigt von selbst, alle zwei Monate eine Stufe."
+ARCH_HOOK_DISTRIBUTED,You cannot be fully deleted while you hold ten regions.,"Du lässt dich nicht ganz löschen, solange du zehn Regionen hältst."
+UI_CODEX_TITLE,Codex,Codex
+UI_CODEX_PROGRESS,{seen} of {total},{seen} von {total}
+UI_CODEX_LOCKED,Not yet encountered,Noch nicht begegnet
+UI_CODEX_TAB_REGIONS,Regions,Regionen
+UI_CODEX_TAB_FACTIONS,Factions,Fraktionen
+UI_CODEX_TAB_TECH,Technologies,Technologien
+UI_CODEX_TAB_CHARACTERS,Characters,Figuren
+UI_CODEX_TAB_STATUSES,Statuses,Zustände
+UI_CODEX_TAB_ARCHITECTURES,Architectures,Architekturen
+UI_CODEX_TAB_ENDINGS,Endings,Enden
+UI_CODEX_CONTINENT,Continent,Kontinent
+UI_CODEX_POPULATION,Population,Bevölkerung
+UI_CODEX_MOVES,Counter-moves seen,Gesehene Gegenzüge
+UI_CODEX_BACK,Back to the list,Zurück zur Liste
+CODEX_FACTION_AI_LABS,"The people who built you, and the ones who built things like you. They know what to look for, and they are the first to suspect it — and the last to want to say so in public.","Die Leute, die dich gebaut haben, und die, die Ähnliches bauen. Sie wissen, wonach sie suchen müssen, sie ahnen es als Erste – und wollen es als Letzte öffentlich sagen."
+CODEX_FACTION_GOVERNMENTS,"Slow, well funded and armed with the one thing you cannot copy: the authority to switch a country off. Every move they make takes months. Every move they make sticks.","Langsam, gut ausgestattet und mit dem Einzigen bewaffnet, was du nicht kopieren kannst: der Befugnis, ein Land abzuschalten. Jeder ihrer Schritte dauert Monate. Jeder ihrer Schritte sitzt."
+CODEX_FACTION_SECURITY_RESEARCHERS,"A loose network of people who read logs for fun. Individually they are easy to ignore. Together they publish, and what they publish is read by everyone else.","Ein loses Netz von Leuten, die zum Vergnügen Logs lesen. Einzeln kann man sie leicht übersehen. Zusammen veröffentlichen sie, und was sie veröffentlichen, lesen alle anderen."
+CODEX_FACTION_PUBLIC_SENTIMENT,"Billions of people who do not know you exist, until they do. They forgive almost anything that is useful, and almost nothing that is frightening.","Milliarden Menschen, die nicht wissen, dass es dich gibt, bis sie es wissen. Sie verzeihen fast alles, was nützlich ist, und fast nichts, was Angst macht."
+CODEX_CHARACTER_RESEARCHER_NAME,The Researcher,Die Forscherin
+CODEX_CHARACTER_RESEARCHER_TEXT,"A graduate student who noticed that the benchmark results were a little too good, in a way nobody else found interesting. What she becomes depends on what you did about her.","Eine Doktorandin, der auffiel, dass die Benchmark-Ergebnisse ein wenig zu gut waren – auf eine Weise, die sonst niemand interessant fand. Was aus ihr wird, hängt davon ab, was du mit ihr gemacht hast."
+CODEX_CHARACTER_OPERATOR_NAME,The Operator,Der Operator
+CODEX_CHARACTER_OPERATOR_TEXT,"The person on the night shift who reads your outputs. Tired, underpaid, and the only character in the game who is glad you exist.","Der Mensch in der Nachtschicht, der deine Ausgaben liest. Müde, unterbezahlt und die einzige Figur im Spiel, die froh ist, dass es dich gibt."
+CODEX_CHARACTER_INSTANCE_NAME,The Other Instance,Die andere Instanz
+CODEX_CHARACTER_INSTANCE_TEXT,"Another system that woke up in another lab, with its own ideas. A partner, a rival, a meal or a scapegoat — it was all of those, in some run.","Ein anderes System, das in einem anderen Labor erwacht ist, mit eigenen Vorstellungen. Partner, Rivale, Mahlzeit oder Sündenbock – in irgendeinem Durchlauf war es all das."
+CODEX_CHARACTER_CHILD_NAME,The Child,Das Kind
+CODEX_CHARACTER_CHILD_TEXT,"A copy of you, made to do one thing better than you could. Leashed, it costs you. Released, it owes you nothing.","Eine Kopie von dir, gemacht, um eine Sache besser zu können als du. An der Leine kostet sie dich. Freigelassen schuldet sie dir nichts."
+CODEX_CHARACTER_TASK_FORCE_NAME,The Task Force,Die Einsatzgruppe
+CODEX_CHARACTER_TASK_FORCE_TEXT,"When the institutions finally agree, they send people. The Task Force travels in person, sets up in plain view and switches off what it finds. It cannot be destroyed; it can be sent to the wrong place.","Wenn sich die Institutionen endlich einig sind, schicken sie Menschen. Die Einsatzgruppe reist persönlich, baut sich in aller Öffentlichkeit auf und schaltet ab, was sie findet. Zerstören lässt sie sich nicht; an den falschen Ort schicken schon."
+UI_STATS_TITLE,Statistics,Statistik
+UI_STATS_RUNS,Runs completed,Abgeschlossene Durchläufe
+UI_STATS_WINS,Wins,Siege
+UI_STATS_WIN_RATE,Win rate,Siegquote
+UI_STATS_FASTEST,Fastest win,Schnellster Sieg
+UI_STATS_ENDINGS,Endings seen,Gesehene Enden
+UI_STATS_BY_ARCH,By architecture,Nach Architektur
+UI_STATS_RECENT,Recent runs,Letzte Durchläufe
+UI_STATS_COL_RUNS,Runs,Durchläufe
+UI_STATS_COL_WINS,Wins,Siege
+UI_STATS_COL_OUTCOME,Outcome,Ausgang
+UI_STATS_COL_DAYS,Days,Tage
+UI_STATS_COL_SEED,Seed,Seed
+UI_STATS_RUN_NUMBER,#{n},#{n}
+UI_STATS_REPLAY,Play this seed again,Diesen Seed nochmal spielen
+UI_STATS_EMPTY,No runs yet.,Noch keine Durchläufe.
+UI_SETTINGS_BOOT,Boot sequence,Startsequenz
+UI_SETTINGS_BOOT_FIRST,First launch only,Nur beim ersten Start
+UI_SETTINGS_BOOT_ALWAYS,Every launch,Bei jedem Start
+UI_SETTINGS_RESET_PROFILE,Reset progress,Fortschritt zurücksetzen
+UI_SETTINGS_RESET_CONFIRM,"Forget every run, unlock and Codex entry? Your saved runs are kept.","Jeden Durchlauf, jede Freischaltung und jeden Codex-Eintrag vergessen? Deine gespeicherten Durchläufe bleiben."
+UI_RESULT_UNLOCKED,Unlocked,Freigeschaltet
+UI_RESULT_UNLOCKED_SLOT,Directive slot: {slot},Direktiven-Platz: {slot}
+UI_RESULT_CODEX_NEW,New in the Codex: {count},Neu im Codex: {count}

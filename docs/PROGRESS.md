@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Meanwhile the design block goes on: **D5.3 — Full screen flow, boot sequence, Codex** (it does not depend on the verdict). |
+| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Meanwhile the design block goes on: **D5.4 — Scenarios** *(stretch; it does not depend on the verdict)*. |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D5.4 (M5 design), then S4.P |
-| **Last completed** | D5.2 — Response Task Force, nine outcomes and the ending resolver, six chains: `docs/specs/taskforce-endings.md`, staged data in `data/staging/` (`task_force.json`, `endings.json`, `headlines_d5_2.json`, `events/` ×6), 199 string rows. 1268 tests green (2026-09-24). **The M4 gate is still open.** |
-| **Before that** | D5.1 — architectures, directives, difficulty (2026-09-24) |
+| **After it** | S4.P (punch list), then the M5 build S5.1 → S5.8 |
+| **Last completed** | D5.3 — full screen flow, boot sequence, Codex: `docs/specs/screens-full.md`, 92 string rows (boot lines, setup, Codex prose, statistics). 1268 tests green (2026-09-24). **The M4 gate is still open.** |
+| **Before that** | D5.2 — Response Task Force, endings, chains third batch (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -116,7 +116,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [ ] **G4 [F] Balance pass 2 and M4 gate**
 - [x] D5.1 [F] Architectures, directives, difficulty
 - [x] D5.2 [F] Response Task Force; endings
-- [ ] D5.3 [F] Full screen flow, boot sequence, Codex
+- [x] D5.3 [F] Full screen flow, boot sequence, Codex
 - [ ] D5.4 [F] Scenarios *(stretch)* — ⇄ **then `/model opus`**
 
 **Block 10 — M5 build · Opus**
@@ -893,6 +893,18 @@ without new information.
   or legal standing — `legal_standing` is read at last), and the hidden **Escape** (a
   self-sufficient body, four fleets, an industrial region held; no string names the method).
   Endings take four illustration ids (24 named).
+- **2026-09-24** (D5.3) — **The full screen flow is `docs/specs/screens-full.md`**: router screens
+  `BOOT`, `TITLE`, `SETUP` (architecture page with the difficulty row, directive page skipped while
+  no slot is unlocked), `SESSION`; Codex, Statistics and Settings are modals on the title. The
+  boot sequence is eleven console lines in full on the first launch only (*Boot sequence: every
+  launch* brings it back), two lines naming the last outcome after that. **The title globe is a 2D
+  shader** over a new `assets/map/globe_ids.png` (plate carrée, from the map pipeline) that lights
+  the last run's regions (answers VISUALS q2). The setup opens on the last setup; difficulty is
+  never locked; *Again* keeps the setup, *Play this seed again* carries a seed. The profile gains
+  `boot_seen`, `seen_unlocks`, `endings_seen`, `codex`, `history` (20 runs). **The Codex** (seven
+  tabs) is collected by a presentation-side `CodexTracker` and never lists a locked ending (the
+  hidden Escape stays hidden). The ending sequence pulls the camera out over 2.4 s; the results
+  show the ending, its epilogue and an *Unlocked* row. *Reset progress* keeps the saves.
 
 ## Design questions for Fable
 
@@ -942,7 +954,7 @@ never Harvest below six regions.)
   the discovery modal and the endings share the last ~5 of the budget.
 - ~~**D5.1 (from D4.4):** Open Weights and `si_emergence`~~ — answered in D5.1: once per run on
   every architecture (Decisions).
-- **D5.3:** replaces the placeholder title (m3-screens §7.1) and keeps `ScreenRouter`; **D5.2**
+- ~~**D5.3:**~~ *answered in D5.3 (`screens-full.md` §3, §7)* — replaces the placeholder title (m3-screens §7.1) and keeps `ScreenRouter`; **D5.2**
   replaces the five verdict lines (`UI_RESULT_LINE_*`), keys unchanged. The results screen's
   *Review the run* (analysis.md §5.9) stays whatever the endings become.
 - **Answered at D4.0:** `watched_by` weighting (loop-redesign §5.3); `funding_reset` burns every
@@ -1847,6 +1859,15 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — D5.3 Full screen flow, boot sequence, Codex [F]
+- Read UI §1–§2/§5, VISUALS §1 (*Where 3D earns its place*) and §5, CONTENT §9, m3-screens §7 and
+  D5.1's profile; wrote `docs/specs/screens-full.md` (router, boot script, title and the shader
+  globe, the two setup pages, profile additions and `CodexTracker`, Codex / Statistics / Settings
+  modals, the ending sequence and the results' changes, tests, acceptance).
+- 92 string rows (EN/DE): the boot lines, setup, hook lines, four faction and five character Codex
+  texts, statistics, settings, unlocks. VISUALS q2 marked decided. `check_strings` and the suite
+  (1268) green.
 
 ### 2026-09-24 — D5.2 Response Task Force; endings; chains, third batch [F]
 - Read PLAN §3.7/§3.10, CONTENT §6.4/§6.8/§6.9/§8, loop-redesign §5.5/§10, opposition §6, chains
