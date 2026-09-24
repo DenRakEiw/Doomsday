@@ -109,6 +109,34 @@ func test_settings_only_hides_the_run_s_half() -> void:
 	assert_false((_menu.get_node("%SettingsTitle") as Control).visible)
 
 
+## S5.7 (screens-full.md §6.3): the boot row and *Reset progress* are the
+## title's, never the pause menu's.
+func test_the_title_rows_show_on_the_title_only() -> void:
+	_start()
+	_menu.open_menu()
+	var reset: ConsoleButton = _reset_button()
+	assert_false(reset.visible, "no reset in the middle of a run")
+	_menu.open_settings_only()
+	assert_true(reset.visible)
+	assert_eq(reset.theme_type_variation, ConsoleButton.VARIATION_ALERT)
+
+
+func test_the_boot_row_toggles_the_setting() -> void:
+	var before: bool = Settings.boot_always
+	_menu.open_settings_only()
+	var rows: VBoxContainer = _menu.get_node("%SettingsRows") as VBoxContainer
+	var boot: ConsoleButton = (rows.get_child(PauseMenu.INDEX_BOOT) as Container).get_child(1) 		as ConsoleButton
+	boot.emit_signal("pressed")
+	assert_ne(Settings.boot_always, before)
+	assert_eq(boot.text, Format.caps(tr("UI_SETTINGS_BOOT_ALWAYS" if Settings.boot_always 		else "UI_SETTINGS_BOOT_FIRST")))
+	Settings.set_boot_always(before)
+
+
+func _reset_button() -> ConsoleButton:
+	var rows: VBoxContainer = _menu.get_node("%SettingsRows") as VBoxContainer
+	return rows.get_child(rows.get_child_count() - 1) as ConsoleButton
+
+
 ## S4.9: a `ScrollContainer` has no height of its own, and the settings opened
 ## from the title were an empty strip until the scroll was fitted to the body.
 func test_the_menu_is_as_tall_as_what_it_shows() -> void:

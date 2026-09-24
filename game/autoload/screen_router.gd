@@ -1,25 +1,39 @@
 extends Node
-## Which screen is on (spec m3-screens.md §7.0).
+## Which screen is on (spec m3-screens.md §7.0, `screens-full.md` §1).
 ##
-## The title and the session are two scenes in one slot. The router owns the
-## switch and nothing else: it starts and stops runs through `Game`, and it never
-## reaches into either screen.
+## Boot, title, setup and session are four scenes in one slot. The router owns
+## the switch and nothing else: it starts and stops runs through `Game`, and it
+## never reaches into a screen.
 ##
 ## The session scene stays exactly what it is, so running it directly still
 ## works — the router is only the way the shipped flow reaches it.
 ##
 ## An autoload, so no `class_name`.
 
-enum Screen { TITLE, SESSION }
+enum Screen { BOOT, TITLE, SETUP, SESSION }
 
 signal screen_changed(screen: Screen)
 ## A load the title asked for failed; the title shows the reason.
 signal load_failed(reason: String)
 
+const BOOT_SCENE: String = "res://ui/screens/boot.tscn"
 const TITLE_SCENE: String = "res://ui/screens/title.tscn"
+const SETUP_SCENE: String = "res://ui/screens/setup.tscn"
 const SESSION_SCENE: String = "res://game/session/session.tscn"
+const SCENES: Dictionary[Screen, String] = {
+	Screen.BOOT: BOOT_SCENE,
+	Screen.TITLE: TITLE_SCENE,
+	Screen.SETUP: SETUP_SCENE,
+	Screen.SESSION: SESSION_SCENE,
+}
 
 var current: Screen = Screen.TITLE
+
+## What the setup screen opens on (§4): a seed carried in from Statistics (0 =
+## a new random one at Begin) and the setup to preselect (null = the profile's
+## last one). The setup screen reads both when it is built.
+var setup_seed: int = 0
+var setup_preset: RunSetup = null
 
 ## Set by `main.gd` when it is ready; without it the router only remembers where
 ## it would have gone, which is what a test that has no `Main` wants.
@@ -38,11 +52,28 @@ func go_to_title() -> void:
 	_show(Screen.TITLE)
 
 
+## The first screen of a launch (§2). The boot screen goes on to the title.
+func boot() -> void:
+	_show(Screen.BOOT)
+
+
+## §4: the two setup pages. `seed_value` 0 means a new random seed at Begin;
+## `preset` null means the profile's last setup.
+func show_setup(seed_value: int = 0, preset: RunSetup = null) -> void:
+	setup_seed = maxi(0, seed_value)
+	setup_preset = preset
+	_show(Screen.SETUP)
+
+
 ## The session first, then the run: the screen has to be in the tree to hear
 ## `run_started`, which is what takes the origin hold and lays the HUD out.
-func start_new_run() -> void:
+## Without a setup it is the profile's last one — the results' *Again* is the
+## same build on a new seed (§1). `seed_value` 0 draws a new seed.
+func start_new_run(setup: RunSetup = null, seed_value: int = 0) -> void:
+	var chosen: RunSetup = setup if setup != null else ProfileManager.last_setup
+	Game.next_setup = chosen.duplicate_setup()
 	_show(Screen.SESSION)
-	Game.start_run(Game.new_run_seed())
+	Game.start_run(seed_value if seed_value > 0 else Game.new_run_seed(), "", Game.next_setup)
 
 
 ## Picks the autosave up. The screen only changes when the load worked.
@@ -68,7 +99,7 @@ func screen_node() -> Node:
 func _show(screen: Screen) -> void:
 	current = screen
 	if slot != null:
-		_swap(TITLE_SCENE if screen == Screen.TITLE else SESSION_SCENE)
+		_swap(SCENES[screen])
 	screen_changed.emit(screen)
 
 

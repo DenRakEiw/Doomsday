@@ -326,6 +326,8 @@ const ALERT_FLASH_ALPHA: float = 0.25
 ## m3-screens §7.4: how long the last frame is left alone before the results
 ## cover it, and §7.5's autosave cadence in days.
 const RESULTS_DELAY: int = 800
+## screens-full.md §7: the camera's pull out to the whole world when a run ends.
+const ENDING_PULL: int = 2400
 const AUTOSAVE_INTERVAL_DAYS: int = 7
 
 ## opposition.md §9.6: the discovery risk that fills the threat bar before

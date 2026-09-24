@@ -14,21 +14,21 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Meanwhile the build goes on: **S5.7 — Screen flow complete** (`docs/specs/screens-full.md`; globe shader prototyped first, VISUALS q2). |
+| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Meanwhile the build goes on: **S5.8 — Scenarios** *(stretch; `docs/specs/scenarios.md`, `data/staging/scenarios.json`)*. |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S5.8 (M5 build, stretch), then G5 |
-| **Last completed** | S5.6 — Endings: nine outcomes (Merge, Escape, the secret loss Supplanted; Value Drift turns off Ascendance and Merge), `endings.json` and `EndingResolver` (a verdict variant and up to three epilogue lines on the results screen), the six D5.2 chains, four new `when` keys. 1413 tests green (2026-09-24). **The M4 gate is still open.** |
-| **Before that** | S5.5 — Response Task Force (2026-09-24) |
+| **After it** | G5 (balance pass 3, M5 gate, the M6–M7 plan) |
+| **Last completed** | S5.7 — Screen flow complete: boot sequence, title with the shader globe (VISUALS q2: shader, lit by the last run), the two setup pages, Codex and Statistics modals, `CodexTracker`, the title-only settings rows, the ending sequence (camera pull-out) and the results' *Unlocked* chips. 1458 tests green (2026-09-24). **The M4 gate is still open.** |
+| **Before that** | S5.6 — Endings (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…]` on all three tools) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
-| **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 231 scripts compile (82 judged by the suite), then `tools/check_strings.gd`, 1413 tests, **all green since S4.9**. The same command is all of CI. |
+| **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 235 scripts compile (93 judged by the suite), then `tools/check_strings.gd`, 1458 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
-| **Run it** | `run_project` starts at the **title** (`game/main.tscn`); New run → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **A** ability picker · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 biology · F7 persuasion (**with Shift**: cyber · robotics · weapons; S4.10) · **F8** puts the first opening on the origin at the next tick, **Shift+F8** the first global event (the wire card); from godot-mcp: `game_call_method /root/Game debug_schedule_event ["<def id>", "<region id or empty>"]`, then `advance [1]` · L locale (Shift+L pseudo-locale) · K text scale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
+| **Run it** | `run_project` starts at the **boot** (`game/main.tscn`; the full eleven lines on a fresh profile, two lines after; any key skips) → the **title** (globe, Codex, Statistics, Settings); New run → **setup** (architecture + difficulty, then directives once a slot is open) → Begin → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **A** ability picker · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 biology · F7 persuasion (**with Shift**: cyber · robotics · weapons; S4.10) · **F8** puts the first opening on the origin at the next tick, **Shift+F8** the first global event (the wire card); from godot-mcp: `game_call_method /root/Game debug_schedule_event ["<def id>", "<region id or empty>"]`, then `advance [1]` · L locale (Shift+L pseudo-locale) · K text scale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
 | **Compact layout** | Below 1100 px the interface switches (§5.7). A desktop window narrower than that lays out one logical pixel per window pixel, **`game_window set_size 400 860` resized correctly in S2.P** — try it first; `game_set_property /root size {"x":400,"y":860}` is the fallback and in S2.P it rendered a blank frame. After any resize at runtime the camera keeps a zoom from the old viewport: write `zoom` and give it one `game_scroll` notch down to settle it at `zoom_min`. |
 | **Look at the map** | `game_click` (**`button: 1`, never `"left"`** — see *Known issues*), `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Main/ScreenSlot/Session/MapLayer/MapView` (the router’s slot is in the path now), `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead — but a property write emits no `view_changed`, so links and markers keep the old zoom until the next real camera movement (**one `game_scroll` notch fixes it**). |
 
@@ -127,7 +127,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S5.4 [O] Difficulty tiers
 - [x] S5.5 [O] Response Task Force
 - [x] S5.6 [O] Endings
-- [ ] S5.7 [O] Screen flow complete
+- [x] S5.7 [O] Screen flow complete
 - [ ] S5.8 [O] Scenarios *(stretch)* — ⇄ **then `/model fable`**
 
 **Block 11 — M5 gate · Fable**
@@ -981,6 +981,25 @@ without new information.
   The chain statuses (`treaty_cap`, `negotiation`, `handover`, `leashed_child`, `leashed_brood`)
   went into `statuses.json` — an events file has no `statuses` root key. `results.ashes_share` is
   gone from `balance.json` and the fixture (§6.3).
+- **2026-09-24** (S5.7) — **How the screen flow is built:** `ScreenRouter` has four screens
+  (`BOOT`, `TITLE`, `SETUP`, `SESSION`); `start_new_run(setup = null, seed = 0)` takes the
+  profile's `last_setup` when none is given (the results' *Again*) and writes `Game.next_setup`;
+  `show_setup(seed, preset)` leaves both in `setup_seed` / `setup_preset` for the setup screen.
+  `Game.content()` is the public door to the content for the screens before a run. **VISUALS q2
+  answered for M5: the shader globe** (`ui/components/globe.gd` + `.gdshader`, a `ColorRect`,
+  inverse orthographic, `texelFetch` on `assets/map/globe_ids.png` — 2048 × 1024 plate carrée
+  from the same Natural Earth layer, `verify_map.py` checks every region lights); the turn is
+  driven from the script, not `TIME`, so it starts on the last origin (an Equal Earth inverse of
+  the anchor). `CodexTracker` (`ui/`) takes events from `command_applied` as well as `sim_event`,
+  because `Game.apply` announces a command before its events and the autosave answers the
+  announcement; it merges on every autosave and at the run's end, and counts "new" against the
+  profile at the run's start. The profile's Codex has a sixth, hidden list `moves` (counter-moves
+  seen, which a faction's entry lists — §6.1). `CodexEntries` is the one list of what each tab
+  shows and in which order (Codex and Statistics both use it). The logical pixel of §6.1 moved
+  from the session into `LogicalScale`, applied by `main.gd` too, so the title and the setup have
+  a compact layout in a narrow window; the title resets the palette to cold (an Open-phase run
+  left it orange). Two theme variations: `ArchitectureCard`, `ConsoleButtonAlert`
+  (`ConsoleButton.alert`).
 - **2026-09-24** (D4.6, user decision) — **A guided first run** (`docs/specs/first-run.md`):
   eleven steps (five in order, five on their first moment, a closing card), a card bottom-centre
   above the HUD on a layer over everything and a pulsing ring round the control it means (found by
@@ -1036,6 +1055,13 @@ Model, standard: greedy — appeared in 18/20, median day 308, 3.7 actions and 8
 weapons — 7/20, day 288, 0.8 / 6.2; persuasion — 16/20, day 311, 0.0 / 13.1 (dormancy answers
 everything). §8 wanted day 150–200 and four to eight actions. No bot owns Log Manipulation II, so
 Misdirect is only exercised by the tests.
+
+**From S5.7: what the ending sequence's camera pull shows.** Built as §7 says: zoom out to
+`zoom_min`, centred on the map's start view, the overlay on penetration. A run whose camera is
+already there (most — the player zooms out to play) sees no movement and waits the old 800 ms.
+Should the pull start *from* the region the run ended in (focus it, then pull out), so it always
+reads as a moment? Also: the version caption overlaps the last title button in a narrow desktop
+window (the button is hidden on a real phone).
 
 **From S5.6: five D5.2 lines were shortened to fit their caps** (Deviations) — worth a read in
 German: *Eine Erklärung, auf allen Kanälen zugleich. Gezeichnet: niemand. Gezeichnet: du.* ·
@@ -1106,6 +1132,24 @@ and S4.5 notes; what was done is under Decisions and the session log)*
 
 ## Deviations from the plan or a spec
 
+- **2026-09-24** (S5.7) — **The boot console is a `Label`, not a `RichTextLabel`** (§2): the
+  theme styles `Label` in `FONT_MONO` at `TYPE_DATA` already, a `RichTextLabel` would need a
+  variation of its own for nothing. **No scanline pass** over it: post-processing is M6.
+- **2026-09-24** (S5.7) — **The Codex's tabs wrap** (an `HFlowContainer`) instead of scrolling in
+  compact (§6.1): seven tabs do not fit the 560 px modal either, and a wrapped row hides none.
+- **2026-09-24** (S5.7) — **"Two columns below 900 px"** (§4.1) is read as the *grid* narrower
+  than 900 px (60 % of the window beside the detail), because every window below 1100 px is
+  already compact with one column.
+- **2026-09-24** (S5.7) — **A locked architecture opens in the Codex** (on its unlock rule, §6.1's
+  table) and is listed by name, not as *Not yet encountered* — the setup screen shows every
+  locked card by name anyway. The Codex's region entry and tech card are rebuilt in the modal
+  (name, tree, effect, flavour, effect lines) rather than reusing `TechDetail`, which needs a run.
+- **2026-09-24** (S5.7) — **The compact title's globe takes what the column leaves** (below 45 %
+  of the height): at 150 % German the menu alone is taller than 55 % of a 860 px phone.
+- **2026-09-24** (S5.7) — **Screenshots were a representative set, not §8's full matrix:** boot,
+  title, Codex, Statistics, setup and a run's end at 1920 (en); title, setup pages 1–2 and the
+  Codex list and entry at 400 px (en, and de at 150 %). The results' *Unlocked* chips were seen
+  behind a stacked modal (a debug fast-forward past the discovery hold), not on a clean frame.
 - **2026-09-24** (S5.6) — **`EndingResolver.resolve(world, db)` takes no `setup`** (§6.3 names
   one): the setup is `world.setup`, and a second copy could disagree with the world it describes.
 - **2026-09-24** (S5.6) — **Five D5.2 strings shortened to fit the existing caps** (headlines 80 en /
@@ -1964,6 +2008,17 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — S5.7 Screen flow complete [O]
+- Built the router's four screens, `boot.tscn` (eleven lines / two, skip), the title rebuilt with
+  `Globe` (shader + `globe_ids.png` from the map pipeline), `setup.tscn` with `ArchitectureCard`,
+  `codex.tscn` / `statistics.tscn`, `CodexTracker` and `CodexEntries`, `Settings.boot_always` and
+  *Reset progress* on the title, the ending pull-out (`MapCamera.pull_out`, input locked) and the
+  results' *Unlocked* chips; `LogicalScale` shared by main and session.
+- Tests: `test_screen_router.gd` (12), `test_setup_screen.gd` (10), `test_codex_tracker.gd` (8),
+  `test_title_modals.gd` (7), `test_globe.gd` (7), settings (+1), pause menu (+2). 1458 green.
+- Looked at in the running game (Deviations lists the set). The test run I played counted into
+  the player's real profile; `ProfileManager.reset()` put it back to the empty file it was.
 
 ### 2026-09-24 — S5.6 Endings [O]
 - Built the nine outcomes and §6.2's order, `EndingDef`/`EndingLineDef`, the loader and validator

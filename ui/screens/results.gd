@@ -25,6 +25,10 @@ const PREFIX_TREE: String = "UI_TREE_TAB_"
 const PLACEHOLDER_SEED: String = "seed"
 const PLACEHOLDER_COUNT: String = "count"
 const PLACEHOLDER_TOTAL: String = "total"
+## screens-full.md §7 item 4a: what the run unlocked.
+const KEY_UNLOCKED: String = "UI_RESULT_UNLOCKED"
+const KEY_UNLOCKED_SLOT: String = "UI_RESULT_UNLOCKED_SLOT"
+const KEY_CODEX_NEW: String = "UI_RESULT_CODEX_NEW"
 
 ## The summary grid, in the order §7.4 item 4 lists it.
 const ROW_KEYS: Array[String] = ["UI_RESULT_DAYS", "UI_RESULT_DISCOVERED", "UI_RESULT_REGIONS",
@@ -40,6 +44,9 @@ const ROW_KEYS: Array[String] = ["UI_RESULT_DAYS", "UI_RESULT_DISCOVERED", "UI_R
 @onready var _epilogue: VBoxContainer = %ResultEpilogue
 @onready var _grid: GridContainer = %ResultGrid
 @onready var _deaths_detail: Label = %DeathsDetail
+@onready var _unlocked: VBoxContainer = %ResultUnlocked
+@onready var _unlocked_title: Label = %UnlockedTitle
+@onready var _unlocked_chips: HFlowContainer = %UnlockedChips
 @onready var _seed_label: Label = %ResultSeed
 @onready var _title_button: ConsoleButton = %ResultTitleButton
 @onready var _again: ConsoleButton = %ResultAgainButton
@@ -75,6 +82,7 @@ func show_result(sim: Simulation) -> void:
 	_verdict.text = tr(EndingLineDef.verdict_key(str(ending[EndingResolver.KEY_VARIANT])))
 	_fill_epilogue(ending[EndingResolver.KEY_EPILOGUE])
 	_seed_label.text = tr(KEY_SEED).format({PLACEHOLDER_SEED: Game.run_seed()})
+	_unlocked.visible = false
 	_fill_rows(sim)
 	visible = true
 	_fit_scroll()
@@ -82,6 +90,31 @@ func show_result(sim: Simulation) -> void:
 	# the fit is taken again after the layout pass this filling caused.
 	_fit_scroll.call_deferred()
 	_again.grab_focus.call_deferred()
+
+
+## §7 item 4a: one chip per unlock — an architecture, a directive slot, the
+## count of new Codex entries. Nothing unlocked hides the block. Called after
+## `show_result`.
+func show_unlocks(architectures: Array[String], slots: Array[String], codex_new: int) -> void:
+	for child: Node in _unlocked_chips.get_children():
+		_unlocked_chips.remove_child(child)
+		child.queue_free()
+	_unlocked_title.text = Format.caps(tr(KEY_UNLOCKED))
+	for id: String in architectures:
+		_add_chip(ArchitectureDef.name_key(id), {})
+	for slot: String in slots:
+		_add_chip(KEY_UNLOCKED_SLOT, {"slot": tr(DirectiveDef.slot_key(slot))})
+	if codex_new > 0:
+		_add_chip(KEY_CODEX_NEW, {PLACEHOLDER_COUNT: codex_new})
+	_unlocked.visible = _unlocked_chips.get_child_count() > 0
+	_fit_scroll.call_deferred()
+
+
+func _add_chip(key: String, args: Dictionary) -> void:
+	var chip: Chip = Chip.new()
+	chip.kind = Chip.Kind.ACCENT
+	_unlocked_chips.add_child(chip)
+	chip.set_label(key, args)
 
 
 ## A `ScrollContainer` has no minimum height of its own, so the panel around it

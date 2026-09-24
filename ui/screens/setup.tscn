@@ -1,0 +1,159 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://ui/screens/setup.gd" id="1_setup"]
+[ext_resource type="Script" path="res://ui/components/console_button.gd" id="2_console_button"]
+
+[node name="Setup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_setup")
+
+[node name="Frame" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"Gutter"
+
+[node name="Column" type="VBoxContainer" parent="Frame"]
+layout_mode = 2
+theme_type_variation = &"Stack"
+
+[node name="Header" type="VBoxContainer" parent="Frame/Column"]
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="StepLabel" type="Label" parent="Frame/Column/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelCaps"
+
+[node name="PageTitle" type="Label" parent="Frame/Column/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelDisplay"
+
+[node name="Scroll" type="ScrollContainer" parent="Frame/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Pages" type="VBoxContainer" parent="Frame/Column/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"Stack"
+
+[node name="ArchitecturePage" type="BoxContainer" parent="Frame/Column/Scroll/Pages"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"Stack"
+
+[node name="Cards" type="GridContainer" parent="Frame/Column/Scroll/Pages/ArchitecturePage"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.5
+theme_type_variation = &"Grid"
+columns = 3
+
+[node name="Detail" type="VBoxContainer" parent="Frame/Column/Scroll/Pages/ArchitecturePage"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"Stack"
+
+[node name="DetailName" type="Label" parent="Frame/Column/Scroll/Pages/ArchitecturePage/Detail"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelHeading"
+
+[node name="DetailText" type="Label" parent="Frame/Column/Scroll/Pages/ArchitecturePage/Detail"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="EffectsTitle" type="Label" parent="Frame/Column/Scroll/Pages/ArchitecturePage/Detail"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelCaps"
+
+[node name="Effects" type="VBoxContainer" parent="Frame/Column/Scroll/Pages/ArchitecturePage/Detail"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="DifficultyTitle" type="Label" parent="Frame/Column/Scroll/Pages/ArchitecturePage/Detail"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelCaps"
+
+[node name="DifficultyRow" type="BoxContainer" parent="Frame/Column/Scroll/Pages/ArchitecturePage/Detail"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"Row"
+
+[node name="DifficultyDetail" type="Label" parent="Frame/Column/Scroll/Pages/ArchitecturePage/Detail"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelCaption"
+
+[node name="SeedRow" type="HBoxContainer" parent="Frame/Column/Scroll/Pages/ArchitecturePage/Detail"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"Row"
+
+[node name="SeedLabel" type="Label" parent="Frame/Column/Scroll/Pages/ArchitecturePage/Detail/SeedRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"LabelCaption"
+
+[node name="SeedClearButton" type="Button" parent="Frame/Column/Scroll/Pages/ArchitecturePage/Detail/SeedRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsoleButton"
+script = ExtResource("2_console_button")
+label_key = "UI_SETUP_SEED_CLEAR"
+compact = true
+
+[node name="DirectivePage" type="VBoxContainer" parent="Frame/Column/Scroll/Pages"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"Stack"
+
+[node name="Footer" type="HBoxContainer" parent="Frame/Column"]
+layout_mode = 2
+theme_type_variation = &"Row"
+
+[node name="BackButton" type="Button" parent="Frame/Column/Footer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsoleButton"
+script = ExtResource("2_console_button")
+label_key = "UI_SETUP_BACK"
+
+[node name="FooterGap" type="Control" parent="Frame/Column/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="NextButton" type="Button" parent="Frame/Column/Footer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsoleButtonPrimary"
+script = ExtResource("2_console_button")
+label_key = "UI_SETUP_NEXT"
+primary = true

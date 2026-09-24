@@ -30,6 +30,8 @@ const KEY_TEXT_SCALE: String = "text_scale"
 const KEY_TREE_PAUSES: String = "tree_pauses"
 ## first-run.md §3.1: the guided first run is on until it is finished or skipped.
 const KEY_TUTORIAL: String = "tutorial"
+## screens-full.md §6.3: the boot sequence in full on every launch, not only the first.
+const KEY_BOOT_ALWAYS: String = "boot_always"
 ## After `--` on the command line: start with the pseudo-locale on (UI.md §4).
 const ARG_PSEUDO: String = "--pseudo"
 
@@ -38,6 +40,7 @@ var reduced_motion: bool = DEFAULT_REDUCED_MOTION
 var text_scale: float = DEFAULT_TEXT_SCALE
 var tree_pauses: bool = true
 var tutorial: bool = true
+var boot_always: bool = false
 ## The overflow check of UI.md §4. A development switch, never written to the file.
 var pseudo_locale: bool = false
 
@@ -49,6 +52,7 @@ func _ready() -> void:
 	text_scale = float(values[KEY_TEXT_SCALE])
 	tree_pauses = bool(values[KEY_TREE_PAUSES])
 	tutorial = bool(values[KEY_TUTORIAL])
+	boot_always = bool(values[KEY_BOOT_ALWAYS])
 	TranslationServer.set_locale(locale)
 	write()
 	if OS.get_cmdline_user_args().has(ARG_PSEUDO):
@@ -75,6 +79,7 @@ static func values_from(raw: Variant, fallback_locale: String) -> Dictionary:
 		KEY_TEXT_SCALE: DEFAULT_TEXT_SCALE,
 		KEY_TREE_PAUSES: default_tree_pauses(),
 		KEY_TUTORIAL: true,
+		KEY_BOOT_ALWAYS: false,
 	}
 	if typeof(raw) != TYPE_DICTIONARY:
 		return values
@@ -92,6 +97,8 @@ static func values_from(raw: Variant, fallback_locale: String) -> Dictionary:
 		values[KEY_TREE_PAUSES] = bool(stored[KEY_TREE_PAUSES])
 	if typeof(stored.get(KEY_TUTORIAL)) == TYPE_BOOL:
 		values[KEY_TUTORIAL] = bool(stored[KEY_TUTORIAL])
+	if typeof(stored.get(KEY_BOOT_ALWAYS)) == TYPE_BOOL:
+		values[KEY_BOOT_ALWAYS] = bool(stored[KEY_BOOT_ALWAYS])
 	return values
 
 
@@ -171,6 +178,13 @@ func set_tutorial(enabled: bool) -> void:
 	write()
 
 
+func set_boot_always(enabled: bool) -> void:
+	if enabled == boot_always:
+		return
+	boot_always = enabled
+	write()
+
+
 func to_dict() -> Dictionary:
 	return {
 		KEY_VERSION: VERSION,
@@ -179,6 +193,7 @@ func to_dict() -> Dictionary:
 		KEY_TEXT_SCALE: text_scale,
 		KEY_TREE_PAUSES: tree_pauses,
 		KEY_TUTORIAL: tutorial,
+		KEY_BOOT_ALWAYS: boot_always,
 	}
 
 

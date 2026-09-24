@@ -175,6 +175,8 @@ const VARIATIONS: Dictionary[String, String] = {
 	"TechNodeCostAffordable": VALUE_LABEL,
 	"TechNodeTag": "LabelCaption",
 	"TechNodeFootprint": "LabelCaption",
+	"ArchitectureCard": BUTTON,
+	"ConsoleButtonAlert": BUTTON,
 }
 
 
@@ -521,6 +523,20 @@ static func _buttons() -> Theme:
 		# there so that nothing falls back to the default font colour.
 		_button_colours(theme, TECH_NODE + state, UiTokens.color(&"TEXT_0"), UiTokens.color(&"TEXT_0"),
 			UiTokens.color(&"TEXT_0"))
+
+	# screens-full.md §6.3: *Reset progress* is the one button that destroys
+	# something, so its word is red; everything else about it is a button.
+	_button_styles(theme, "ConsoleButtonAlert", pad, UiTokens.color(&"BG_3"), UiTokens.color(&"BG_4"),
+		UiTokens.accent_wash(), UiTokens.color(&"LINE_1"), UiTokens.color(&"LINE_2"), UiTokens.color(&"ALERT"))
+	_button_colours(theme, "ConsoleButtonAlert", UiTokens.color(&"ALERT"), UiTokens.color(&"ALERT"),
+		UiTokens.color(&"ALERT"))
+
+	# screens-full.md §4.1: an architecture is a card the size of its text, a
+	# toggle in a group — pressed is the chosen one, lit like an owned node.
+	_button_styles(theme, "ArchitectureCard", cell, UiTokens.color(&"BG_3"), UiTokens.color(&"BG_4"),
+		UiTokens.accent_wash(), UiTokens.color(&"LINE_1"), UiTokens.color(&"LINE_2"), UiTokens.color(&"ACCENT"))
+	_button_colours(theme, "ArchitectureCard", UiTokens.color(&"TEXT_0"), UiTokens.color(&"TEXT_0"),
+		UiTokens.color(&"TEXT_0"))
 
 	# An icon button has no text, so its padding is zero: the glyph is drawn in a
 	# centred box of its own (§4.3).

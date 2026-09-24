@@ -1,0 +1,64 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://ui/modals/statistics.gd" id="1_statistics"]
+[ext_resource type="Script" path="res://ui/components/icon_button.gd" id="2_icon_button"]
+[ext_resource type="Script" path="res://ui/components/modal_panel.gd" id="9_modal_panel"]
+
+[node name="Statistics" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_statistics")
+
+[node name="Centre" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="StatsPanel" type="PanelContainer" parent="Centre"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsolePanelRaised"
+script = ExtResource("9_modal_panel")
+
+[node name="Body" type="VBoxContainer" parent="Centre/StatsPanel"]
+layout_mode = 2
+theme_type_variation = &"PanelContent"
+
+[node name="Header" type="HBoxContainer" parent="Centre/StatsPanel/Body"]
+layout_mode = 2
+theme_type_variation = &"Row"
+
+[node name="StatsTitle" type="Label" parent="Centre/StatsPanel/Body/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"LabelDisplay"
+
+[node name="CloseButton" type="Button" parent="Centre/StatsPanel/Body/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"IconButton"
+script = ExtResource("2_icon_button")
+glyph = 4
+tooltip_key = "UI_COMMON_CLOSE"
+
+[node name="Scroll" type="ScrollContainer" parent="Centre/StatsPanel/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Content" type="VBoxContainer" parent="Centre/StatsPanel/Body/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"Stack"

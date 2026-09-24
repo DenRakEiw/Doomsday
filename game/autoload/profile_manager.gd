@@ -33,7 +33,10 @@ const ARCH_RUNS: String = "runs"
 const ARCH_WINS: String = "wins"
 const ARCH_BEST_DAYS: String = "best_days"
 ## The Codex tabs a run collects into (§5.1); architectures and endings derive.
-const CODEX_TABS: Array[String] = ["regions", "factions", "tech", "characters", "statuses"]
+## `moves` is no tab of its own: it is the counter-moves a faction's entry lists
+## once each has been seen (§6.1).
+const CODEX_TABS: Array[String] = ["regions", "factions", "tech", "characters", "statuses",
+	"moves"]
 ## `architectures.json`'s unlock rules (§8.1).
 const UNLOCK_RUNS: String = "runs_completed"
 const UNLOCK_WINS: String = "wins"

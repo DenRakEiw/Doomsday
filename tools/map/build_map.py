@@ -7,6 +7,7 @@ Reads the authored tables next to this file and writes, from scratch every time:
     assets/map/id_map.png       4096x2048 RGB, R = index low byte, G = high byte
     assets/map/land_mask.png    8192x4096 greyscale, anti-aliased
     assets/map/border_mask.png  8192x4096 greyscale, anti-aliased
+    assets/map/globe_ids.png    2048x1024 RGB, plate carrée, same index encoding
     tools/map/build/geometry.json   per region: anchor in pixels, pixel area;
                                     plus the land links taken from the geometry
 
@@ -81,6 +82,13 @@ BORDER_PIXELS = 3
 # Simplification is to the raster grid, not to a percentage: a quarter of a
 # pixel is invisible in the output and takes most of the vertices away.
 SIMPLIFY_TOLERANCE = SCALE / 4.0
+# The title's globe (screens-full.md §3.1) samples an equirectangular copy of
+# the ID map: longitude -180..180 left to right, latitude 90..-90 top to bottom.
+# It is never picked from, so it only has to agree with the game's indices.
+GLOBE_WIDTH = 2048
+GLOBE_HEIGHT = 1024
+GLOBE_SCALE = 360.0 / GLOBE_WIDTH
+
 # Nothing is drawn that cannot be clicked.
 MIN_PART_PIXELS = 4
 MIN_PART_AREA = MIN_PART_PIXELS * SCALE * SCALE
@@ -289,6 +297,45 @@ def write_id_map(ids: np.ndarray, path: Path) -> None:
     Image.fromarray(rgb).save(path, optimize=True)
 
 
+def write_globe_ids(regions: gpd.GeoDataFrame, path: Path) -> None:
+    """The ID map again in plate carrée, for the title's shader globe.
+
+    Burnt from the unprojected dissolved layer, by pixel centre like the ID map.
+    A region too small to own a pixel centre at this size (an island group) is
+    burnt again with `all_touched` into pixels nobody else has, so that every
+    region of `regions.json` lights on the globe — `verify_map.py` checks it.
+    """
+    transform = rasterio.transform.from_origin(-180.0, 90.0, GLOBE_SCALE, GLOBE_SCALE)
+    geometry = regions.geometry.simplify(GLOBE_SCALE / 4.0, preserve_topology=True)
+    shapes = list(zip(geometry, regions["index"], strict=True))
+    ids = rasterio.features.rasterize(
+        shapes,
+        out_shape=(GLOBE_HEIGHT, GLOBE_WIDTH),
+        transform=transform,
+        fill=0,
+        all_touched=False,
+        dtype="uint16",
+    )
+    present = set(np.unique(ids).tolist())
+    for geom, index in shapes:
+        if int(index) in present:
+            continue
+        touched = rasterio.features.rasterize(
+            [(geom, int(index))],
+            out_shape=(GLOBE_HEIGHT, GLOBE_WIDTH),
+            transform=transform,
+            fill=0,
+            all_touched=True,
+            dtype="uint16",
+        )
+        free = (ids == 0) & (touched > 0)
+        ids[free] = touched[free]
+    rgb = np.zeros((GLOBE_HEIGHT, GLOBE_WIDTH, 3), dtype=np.uint8)
+    rgb[:, :, 0] = (ids & 0xFF).astype(np.uint8)
+    rgb[:, :, 1] = (ids >> 8).astype(np.uint8)
+    Image.fromarray(rgb).save(path, optimize=True)
+
+
 def write_land_mask(regions: gpd.GeoDataFrame, path: Path) -> None:
     scale = SCALE / MASK_FACTOR / SUPERSAMPLE
     transform = rasterio.transform.from_origin(-HALF_WIDTH, TOP, scale, scale)
@@ -376,8 +423,12 @@ def main() -> int:
     write_id_map(ids, ASSETS / "id_map.png")
     write_land_mask(projected, ASSETS / "land_mask.png")
     write_border_mask(projected, ASSETS / "border_mask.png")
+    write_globe_ids(regions, ASSETS / "globe_ids.png")
     write_geometry(attributes, anchors, ids, links, BUILD / "geometry.json")
-    print("written: id_map.png, land_mask.png, border_mask.png, build/geometry.json")
+    print(
+        "written: id_map.png, land_mask.png, border_mask.png, globe_ids.png, "
+        "build/geometry.json"
+    )
     return 0
 
 

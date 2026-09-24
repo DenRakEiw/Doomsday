@@ -31,6 +31,13 @@ const KEY_REDUCED_MOTION: String = "UI_SETTINGS_REDUCED_MOTION"
 const KEY_TREE_PAUSES: String = "UI_SETTINGS_TREE_PAUSES"
 const KEY_TUTORIAL: String = "UI_SETTINGS_TUTORIAL"
 const KEY_TEXT_SCALE: String = "UI_SETTINGS_TEXT_SCALE"
+const KEY_BOOT: String = "UI_SETTINGS_BOOT"
+const KEY_BOOT_FIRST: String = "UI_SETTINGS_BOOT_FIRST"
+const KEY_BOOT_ALWAYS: String = "UI_SETTINGS_BOOT_ALWAYS"
+const KEY_RESET_PROFILE: String = "UI_SETTINGS_RESET_PROFILE"
+const KEY_RESET_CONFIRM: String = "UI_SETTINGS_RESET_CONFIRM"
+## screens-full.md §6.3: the settings only the title shows.
+const INDEX_BOOT: int = 5
 const KEY_ON: String = "UI_SETTINGS_ON"
 const KEY_OFF: String = "UI_SETTINGS_OFF"
 
@@ -68,6 +75,9 @@ var _save_buttons: Array[ConsoleButton] = []
 var _load_buttons: Array[ConsoleButton] = []
 var _slot_captions: Array[Label] = []
 var _setting_buttons: Array[ConsoleButton] = []
+## screens-full.md §6.3: the boot row and *Reset progress*, on the title only.
+var _title_rows: Array[Control] = []
+var _reset: ConsoleButton = null
 
 
 func _ready() -> void:
@@ -135,6 +145,8 @@ func _apply_mode() -> void:
 	_save_block.visible = not settings_only
 	_load_block.visible = not settings_only
 	_quit.visible = not settings_only
+	for row: Control in _title_rows:
+		row.visible = settings_only
 	# From the title the modal is titled Settings already; the section caption
 	# under it said the same word again (S4.9).
 	_settings_title.visible = not settings_only
@@ -183,7 +195,7 @@ func _slot_button(into: Container, action: Callable, with_caption: bool) -> Cons
 ## S4.11, and so they are the last rows.
 func _build_settings() -> void:
 	for key: String in [KEY_LOCALE, KEY_REDUCED_MOTION, KEY_TREE_PAUSES, KEY_TEXT_SCALE,
-			KEY_TUTORIAL]:
+			KEY_TUTORIAL, KEY_BOOT]:
 		var row: HBoxContainer = HBoxContainer.new()
 		row.theme_type_variation = &"Row"
 		var label: Label = Label.new()
@@ -199,10 +211,22 @@ func _build_settings() -> void:
 		row.add_child(button)
 		_setting_buttons.append(button)
 		_settings_rows.add_child(row)
+		if key == KEY_BOOT:
+			_title_rows.append(row)
+	# §6.3: progress is not a run — the autosave and the slots stay.
+	_reset = ConsoleButton.new()
+	_reset.label_key = KEY_RESET_PROFILE
+	_reset.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_reset.pressed.connect(_on_reset_pressed)
+	_reset.alert = true
+	_settings_rows.add_child(_reset)
+	_title_rows.append(_reset)
 
 
 func _refresh_settings() -> void:
 	for row: Node in _settings_rows.get_children():
+		if not row is HBoxContainer:
+			continue
 		var label: Label = (row as Container).get_child(0) as Label
 		label.text = tr(str(label.get_meta(&"key")))
 	_setting_buttons[0].text = Format.caps(tr(KEY_LOCALE_DE if Settings.locale == "de" \
@@ -211,6 +235,7 @@ func _refresh_settings() -> void:
 	_setting_buttons[2].text = Format.caps(tr(KEY_ON if Settings.tree_pauses else KEY_OFF))
 	_setting_buttons[3].text = Format.number(Settings.text_scale, Format.Kind.PERCENT)
 	_setting_buttons[4].text = Format.caps(tr(KEY_ON if Settings.tutorial else KEY_OFF))
+	_setting_buttons[INDEX_BOOT].text = Format.caps(tr(KEY_BOOT_ALWAYS if Settings.boot_always 		else KEY_BOOT_FIRST))
 
 
 # ------------------------------------------------------------------ actions
@@ -251,9 +276,16 @@ func _on_setting_pressed(index: int) -> void:
 			Settings.set_tree_pauses(not Settings.tree_pauses)
 		3:
 			Settings.cycle_text_scale()
-		_:
+		4:
 			Settings.set_tutorial(not Settings.tutorial)
+		_:
+			Settings.set_boot_always(not Settings.boot_always)
 	_refresh_settings()
+
+
+func _on_reset_pressed() -> void:
+	if await _confirm.ask(KEY_RESET_CONFIRM):
+		ProfileManager.reset()
 
 
 func _on_quit_pressed() -> void:

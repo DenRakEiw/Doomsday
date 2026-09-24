@@ -48,8 +48,8 @@ var compute_rate: float = 0.0
 var containment_rates: Dictionary[String, float] = {}
 ## Null unless a bot drives the run.
 var policy: Policy = null
-## What the next run is (`replayability.md` §1). The setup screens of D5.3 write
-## it in S5.7; until then it is the default, or what F11 picks.
+## What the next run is (`replayability.md` §1). `ScreenRouter.start_new_run`
+## writes it from the setup screen (S5.7); F11 picks it for a debug run.
 var next_setup: RunSetup = RunSetup.new()
 ## Set by the debug keys: prints every tick and every event to the console.
 var debug_log: bool = false
@@ -120,6 +120,12 @@ func start_run(seed_value: int, policy_id: String = "", setup: RunSetup = null) 
 	# A bot run drives itself, so it starts running; a player's run waits for the
 	# origin choice S3.4 builds.
 	_force_speed(1 if policy != null else 0)
+
+
+## The content, loaded on first use; null when it is unusable. The screens
+## before a run — setup, Codex, statistics, the title's globe — read it here.
+func content() -> ContentDB:
+	return db if _ensure_content() else null
 
 
 ## Drops the run without touching the content. Nothing is saved.

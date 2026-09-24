@@ -12,9 +12,10 @@ const SPEC_VARIATIONS: Array[String] = ["ConsolePanel", "ConsolePanelRaised", "C
 	"ConsoleButtonPrimary", "IconButton", "StatBar", "StatBarPenetration", "StatBarFootprint",
 	"StatBarHarm", "ValueLabel", "LabelCaps", "LabelCaption", "LabelDisplay", "LabelHeading",
 	"Ticker", "Chip"]
-## Named in §4.5, §4.7 and §4.1 rather than in the list of §3.8.
+## Named in §4.5, §4.7 and §4.1 rather than in the list of §3.8, and the
+## architecture card and the alert button of screens-full.md §4.1 and §6.3.
 const COMPONENT_VARIATIONS: Array[String] = ["ValueLabelLarge", "ChipAccent", "ChipAlert",
-	"ConsolePanelAlert"]
+	"ConsolePanelAlert", "ArchitectureCard", "ConsoleButtonAlert"]
 
 var _theme: Theme = null
 

@@ -63,3 +63,11 @@ func test_the_introduction_is_on_until_the_file_says_otherwise() -> void:
 	assert_false(bool(_values({"tutorial": false})[SettingsScript.KEY_TUTORIAL]))
 	assert_true(bool(_values({"tutorial": "no"})[SettingsScript.KEY_TUTORIAL]),
 		"a wrong type falls back to on")
+
+
+func test_the_boot_sequence_is_full_on_the_first_launch_only_by_default() -> void:
+	# S5.7 (screens-full.md §6.3): the setting brings the full boot back.
+	assert_false(bool(_values(null)[SettingsScript.KEY_BOOT_ALWAYS]))
+	assert_true(bool(_values({"boot_always": true})[SettingsScript.KEY_BOOT_ALWAYS]))
+	assert_false(bool(_values({"boot_always": 1})[SettingsScript.KEY_BOOT_ALWAYS]),
+		"a wrong type falls back to off")

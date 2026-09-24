@@ -12,6 +12,8 @@ const VARIATION_PRIMARY: StringName = &"ConsoleButtonPrimary"
 ## m3-screens §3.6: a row in a list — no border, and a sentence rather than a
 ## shouted label.
 const VARIATION_FLAT: StringName = &"ConsoleButtonFlat"
+## screens-full.md §6.3: the button that destroys something says so in red.
+const VARIATION_ALERT: StringName = &"ConsoleButtonAlert"
 ## §5.7: the same button with tighter padding, for a row that has to hold three
 ## German labels in 400 px.
 const SUFFIX_COMPACT: String = "Compact"
@@ -41,6 +43,12 @@ const SUFFIX_COMPACT: String = "Compact"
 		compact = value
 		_apply_variation()
 
+## The alert form of §6.3 (screens-full.md): red words, for *Reset progress*.
+@export var alert: bool = false:
+	set(value):
+		alert = value
+		_apply_variation()
+
 ## A row in a list (m3-screens §3.6): borderless, left-aligned, and its label is
 ## a name rather than a command, so it is not uppercased. Not `flat`, which is
 ## `Button`'s own property and turns the styleboxes off altogether.
@@ -66,6 +74,9 @@ func _apply_variation() -> void:
 	if list_row:
 		theme_type_variation = VARIATION_FLAT
 		alignment = HORIZONTAL_ALIGNMENT_LEFT
+		return
+	if alert:
+		theme_type_variation = VARIATION_ALERT
 		return
 	var base: StringName = VARIATION_PRIMARY if primary else VARIATION
 	theme_type_variation = StringName(base + SUFFIX_COMPACT) if compact else base

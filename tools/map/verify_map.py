@@ -227,9 +227,31 @@ def check_masks(report: Report) -> None:
         )
 
 
+def check_globe(report: Report, count: int) -> None:
+    pixels = np.asarray(Image.open(build.ASSETS / "globe_ids.png"))
+    report.check(
+        "globe_ids.png is the plate carrée frame of screens-full.md §3.1",
+        pixels.shape == (build.GLOBE_HEIGHT, build.GLOBE_WIDTH, 3),
+        str(pixels.shape),
+    )
+    ids = pixels[:, :, 0].astype(np.uint16) | (pixels[:, :, 1].astype(np.uint16) << 8)
+    present = np.unique(ids)
+    report.check(
+        "every globe pixel decodes to a known region or to 0",
+        int(present.max()) <= count,
+        f"highest index {int(present.max())}, {count} regions",
+    )
+    report.check(
+        "every region lights on the globe",
+        len(present) == count + 1,
+        f"{len(present) - 1} of {count} regions have pixels",
+    )
+
+
 def outputs() -> list[Path]:
     return [
         build.ASSETS / "id_map.png",
+        build.ASSETS / "globe_ids.png",
         build.ASSETS / "land_mask.png",
         build.ASSETS / "border_mask.png",
         build.BUILD / "geometry.json",
@@ -274,6 +296,7 @@ def main() -> int:
     check_anchors(report, geometry, ids)
     check_seam(report, ids)
     check_masks(report)
+    check_globe(report, len(attributes))
 
     print("reproducibility")
     check_reproducible(report)

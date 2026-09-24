@@ -7,19 +7,11 @@ extends Control
 ##
 ## Scene-specific, so no `class_name`.
 
-## One logical pixel is one dp: a dp is a 160th of an inch (§6.1).
-const DP_PER_INCH: float = 160.0
 ## The margins are runtime values — the display's, not the design's — and a
 ## `MarginContainer` takes them as theme constants only. This is the one place
 ## in the project that overrides one (CLAUDE.md "no per-node overrides").
 const MARGIN_CONSTANTS: Array[String] = ["margin_left", "margin_top", "margin_right",
 	"margin_bottom"]
-## The base the project lays out at, which is also what a desktop window returns
-## to when it is wide enough again.
-const SETTING_BASE_WIDTH: String = "display/window/size/viewport_width"
-const SETTING_BASE_HEIGHT: String = "display/window/size/viewport_height"
-## What `DisplayServer.get_name()` answers when there is no window at all.
-const HEADLESS_DRIVER: String = "headless"
 ## Where `F12` puts a picture of the session: locale, logical width and day, the
 ## way `ui/dev/gallery.gd` names its own. A review (G2) needs the same view in
 ## both languages and both layouts, and `game_screenshot` cannot write a file.
@@ -70,6 +62,12 @@ var _last_speed: int = SPEED_DEFAULT
 var _autosave_warned: bool = false
 ## Events waiting for the wire card while it shows another, oldest first.
 var _wire_queue: Array[int] = []
+## screens-full.md §5.1: what this run adds to the Codex.
+var _codex_tracker: CodexTracker = null
+## §7 item 4a: what was unlocked when the run started, to tell at its end what
+## it unlocked.
+var _architectures_before: Array[String] = []
+var _slots_before: int = 0
 
 
 func _ready() -> void:
@@ -80,6 +78,9 @@ func _ready() -> void:
 	# first-run.md §3: the introduction sits above everything and moves the ring.
 	_coach.set(&"ring", _coach_ring)
 	_coach.set(&"hud", _hud)
+	_codex_tracker = CodexTracker.new()
+	_codex_tracker.name = "CodexTracker"
+	add_child(_codex_tracker)
 	get_window().size_changed.connect(_on_window_size_changed)
 	# The HUD owns the breakpoint (§5.7); the panel beside it only has to be told
 	# which edge it comes in from and how much of the screen it must leave alone.
@@ -307,16 +308,59 @@ func _on_quit_requested() -> void:
 	ScreenRouter.go_to_title()
 
 
-## §7.4: the results wait a beat, so the last frame and the outcome line are
-## seen before the modal covers them.
+## screens-full.md §7: the ending sequence. The camera pulls out to the whole
+## world on the penetration view while the last headline runs, the map taking
+## no input; then the results. A camera already there waits the old beat, so
+## the last frame and the outcome line are seen before the modal covers them.
+## The profile has counted the run already (`ProfileManager` hears the signal
+## first), so what it unlocked is the difference to the run's start.
 func _on_run_ended(_outcome: String) -> void:
 	Game.hold(HOLD_RESULTS)
 	SaveManager.delete(SaveManager.AUTOSAVE)
-	await get_tree().create_timer(UiTokens.seconds(UiTokens.RESULTS_DELAY)).timeout
+	var codex_new: int = 0 if Game.policy != null else _codex_tracker.new_count()
+	_codex_tracker.merge()
+	var architectures: Array[String] = _new_architectures()
+	var slots: Array[String] = _new_slots()
+	EventBus.overlay_changed.emit(int(MapView.Overlay.PENETRATION))
+	var pull: float = _camera.pull_out(UiTokens.duration(UiTokens.ENDING_PULL))
+	var wait: float = pull if pull > 0.0 else UiTokens.seconds(UiTokens.RESULTS_DELAY)
+	await get_tree().create_timer(wait).timeout
 	if not is_inside_tree() or Game.sim == null:
 		return
+	_camera.input_locked = false
 	_results.show_result(Game.sim)
+	_results.show_unlocks(architectures, slots, codex_new)
 	_modals.open(_results)
+
+
+## The architectures a player's run has unlocked since it started.
+func _new_architectures() -> Array[String]:
+	var out: Array[String] = []
+	if Game.policy != null or Game.db == null:
+		return out
+	for id: String in _unlocked_architectures():
+		if not _architectures_before.has(id):
+			out.append(id)
+	return out
+
+
+## The directive slots a player's run has opened since it started.
+func _new_slots() -> Array[String]:
+	var out: Array[String] = []
+	if Game.policy != null or Game.db == null:
+		return out
+	var slots: Array[String] = Game.db.directive_slots
+	for i: int in range(_slots_before, ProfileManager.slots_unlocked(slots.size())):
+		out.append(slots[i])
+	return out
+
+
+func _unlocked_architectures() -> Array[String]:
+	var out: Array[String] = []
+	for def: ArchitectureDef in Game.db.architectures:
+		if ProfileManager.is_unlocked(def):
+			out.append(def.id)
+	return out
 
 
 func _on_again_requested() -> void:
@@ -404,6 +448,9 @@ func _on_run_started(_seed_value: int) -> void:
 		phase = Game.sim.world.phase
 	_on_phase_reached(phase)
 	_autosave_warned = false
+	if Game.db != null:
+		_architectures_before = _unlocked_architectures()
+		_slots_before = ProfileManager.slots_unlocked(Game.db.directive_slots.size())
 	# A bot chooses its own origin on the first tick, so the lock is the
 	# player's alone (§7.2).
 	if Game.sim != null and Game.policy == null and Game.sim.world.agent.origin == 0:
@@ -432,7 +479,12 @@ func _autosave() -> void:
 	if world.agent.origin == 0 or world.outcome != World.Outcome.NONE:
 		return
 	var reason: String = SaveManager.save(SaveManager.AUTOSAVE)
-	if reason.is_empty() or _autosave_warned:
+	if reason.is_empty():
+		# §5.1: the Codex is written with every autosave, so a crash loses at
+		# most what the save does.
+		_codex_tracker.merge()
+		return
+	if _autosave_warned:
 		return
 	# Once per run: the autosave is a convenience, the manual slots are the
 	# promise, and a warning per write would be a warning per second.
@@ -502,48 +554,9 @@ func _on_hud_layout_changed(compact: bool) -> void:
 		panel.bottom_inset = float(_hud.call(&"bottom_inset"))
 
 
-## Mobile lays out in dp, so that `HIT_MIN` is 48 dp and the compact breakpoint
-## is one rule everywhere (§6.1). Desktop keeps the 1920×1080 base of
-## `project.godot` — except in a window narrower than the breakpoint, where it
-## would otherwise show the wide layout shrunk and §5.7's compact layout could
-## never be seen at all. `ui/dev/gallery.gd` does the same for the same reason.
+## §6.1: the logical pixel, shared with the other screens since S5.7.
 func _apply_logical_scale() -> void:
-	if not OS.has_feature("mobile"):
-		_apply_desktop_scale()
-		return
-	var window: Window = get_window()
-	var dpi: float = float(DisplayServer.screen_get_dpi(window.current_screen))
-	if dpi <= 0.0:
-		return
-	var wanted: Vector2i = Vector2i(
-		roundi(float(window.size.x) * DP_PER_INCH / dpi),
-		roundi(float(window.size.y) * DP_PER_INCH / dpi))
-	# Assigning the same size again would re-enter through `size_changed`.
-	if wanted != window.content_scale_size:
-		window.content_scale_size = wanted
-
-
-## One logical pixel per window pixel below the breakpoint, the project's base
-## above it.
-##
-## A headless run is left alone: it has no window to lay out for, and the size
-## the dummy driver reports would silently re-scale the viewport every test that
-## puts this scene in the tree.
-func _apply_desktop_scale() -> void:
-	if DisplayServer.get_name() == HEADLESS_DRIVER:
-		return
-	var window: Window = get_window()
-	var wanted: Vector2i = _project_base()
-	if window.size.x < UiTokens.COMPACT_WIDTH:
-		wanted = window.size
-	if wanted != window.content_scale_size:
-		window.content_scale_size = wanted
-
-
-func _project_base() -> Vector2i:
-	return Vector2i(
-		int(ProjectSettings.get_setting(SETTING_BASE_WIDTH)),
-		int(ProjectSettings.get_setting(SETTING_BASE_HEIGHT)))
+	LogicalScale.apply(get_window())
 
 
 ## `GUTTER` is added by each block inside, never here.

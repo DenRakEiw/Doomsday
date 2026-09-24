@@ -78,6 +78,9 @@ var _target_zoom: float = 0.0
 ## Kept for the debug key of §7.5; 0 means nothing is selected.
 var _selected_index: int = 0
 var _started: bool = false
+## screens-full.md §7: while the run's end pulls the camera out, the map takes
+## no input — no pan, no zoom, no tap.
+var input_locked: bool = false
 
 
 # ------------------------------------------------------------- pure geometry
@@ -208,6 +211,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if input_locked:
+		return
 	var pan: Vector2 = _key_pan()
 	if pan != Vector2.ZERO:
 		_stop_inertia()
@@ -224,7 +229,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	var key: InputEventKey = event as InputEventKey
-	if key == null or not key.pressed or key.echo:
+	if key == null or not key.pressed or key.echo or input_locked:
 		return
 	match key.keycode:
 		KEY_EQUAL, KEY_PLUS, KEY_KP_ADD:
@@ -331,6 +336,24 @@ func focus_region(index: int) -> void:
 	_tween_to(clamp_center(Vector2(anchor), zoom.x, view_size()), zoom.x, seconds)
 
 
+## screens-full.md §7: the whole world, centred, for the end of a run. Locks the
+## map's input (the caller unlocks it) and answers how long the pull takes — 0
+## when the camera is already there or `seconds` is 0 (reduced motion cuts).
+func pull_out(seconds: float) -> float:
+	input_locked = true
+	_stop_inertia()
+	_panning = false
+	var center: Vector2 = clamp_center(START_CENTER, zoom_min, view_size())
+	if is_equal_approx(target_zoom(), zoom_min) and target_center().is_equal_approx(center):
+		return 0.0
+	if seconds <= 0.0:
+		_stop_tween()
+		set_view(center, zoom_min)
+		return 0.0
+	_tween_to(center, zoom_min, seconds, Tween.EASE_IN_OUT)
+	return seconds
+
+
 ## True while a drag is moving the map — `MapView` does not hover then.
 func is_panning() -> bool:
 	return _panning
@@ -339,6 +362,8 @@ func is_panning() -> bool:
 ## Handles one pointer event and says whether it was the map's. Public so that a
 ## test can drive the gestures without going through the input dispatch.
 func handle_pointer(event: InputEvent) -> bool:
+	if input_locked:
+		return false
 	var button: InputEventMouseButton = event as InputEventMouseButton
 	if button != null:
 		return _handle_button(button)
@@ -464,7 +489,8 @@ func _key_pan() -> Vector2:
 	return pan
 
 
-func _tween_to(center: Vector2, zoom_level: float, seconds: float) -> void:
+func _tween_to(center: Vector2, zoom_level: float, seconds: float,
+		easing: Tween.EaseType = Tween.EASE_OUT) -> void:
 	_stop_tween()
 	var from_center: Vector2 = position
 	var from_zoom: float = zoom.x
@@ -472,7 +498,7 @@ func _tween_to(center: Vector2, zoom_level: float, seconds: float) -> void:
 		view_size())
 	_target_zoom = clampf(zoom_level, zoom_min, ZOOM_MAX)
 	_tween = create_tween()
-	_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_tween.set_trans(Tween.TRANS_SINE).set_ease(easing)
 	_tween.tween_method(
 		func(t: float) -> void:
 			set_view(from_center.lerp(center, t), lerpf(from_zoom, zoom_level, t)),

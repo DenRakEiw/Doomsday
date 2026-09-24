@@ -1,9 +1,12 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://ui/screens/title.gd" id="1_title"]
 [ext_resource type="Script" path="res://ui/components/console_button.gd" id="2_console_button"]
 [ext_resource type="Script" path="res://ui/modals/modal_host.gd" id="3_modal_host"]
 [ext_resource type="PackedScene" path="res://ui/modals/pause_menu.tscn" id="4_pause_menu"]
+[ext_resource type="Script" path="res://ui/components/globe.gd" id="5_globe"]
+[ext_resource type="PackedScene" path="res://ui/modals/codex.tscn" id="6_codex"]
+[ext_resource type="PackedScene" path="res://ui/modals/statistics.tscn" id="7_statistics"]
 
 [node name="Title" type="Control"]
 layout_mode = 3
@@ -14,7 +17,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_title")
 
-[node name="Centre" type="CenterContainer" parent="."]
+[node name="Frame" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -22,67 +25,121 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+theme_type_variation = &"Gutter"
 
-[node name="Column" type="VBoxContainer" parent="Centre"]
-custom_minimum_size = Vector2(360, 0)
+[node name="Layout" type="BoxContainer" parent="Frame"]
+unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
 theme_type_variation = &"Stack"
 
-[node name="TitleName" type="Label" parent="Centre/Column"]
+[node name="Side" type="HBoxContainer" parent="Frame/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Indent" type="Control" parent="Frame/Layout/Side"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Column" type="VBoxContainer" parent="Frame/Layout/Side"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_type_variation = &"Stack"
+
+[node name="TitleName" type="Label" parent="Frame/Layout/Side/Column"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"LabelDisplayXL"
 
-[node name="Tagline" type="Label" parent="Centre/Column"]
+[node name="Tagline" type="Label" parent="Frame/Layout/Side/Column"]
 unique_name_in_owner = true
 layout_mode = 2
 autowrap_mode = 3
 theme_type_variation = &"LabelCaption"
 
-[node name="Buttons" type="VBoxContainer" parent="Centre/Column"]
+[node name="Spacer" type="Control" parent="Frame/Layout/Side/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Buttons" type="VBoxContainer" parent="Frame/Layout/Side/Column"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"StackTight"
 
-[node name="NewRunButton" type="Button" parent="Centre/Column/Buttons"]
+[node name="ContinueButton" type="Button" parent="Frame/Layout/Side/Column/Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"ConsoleButtonPrimary"
 script = ExtResource("2_console_button")
-label_key = "UI_TITLE_NEW_RUN"
+label_key = "UI_TITLE_CONTINUE"
 primary = true
 
-[node name="ContinueButton" type="Button" parent="Centre/Column/Buttons"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"ConsoleButton"
-script = ExtResource("2_console_button")
-label_key = "UI_TITLE_CONTINUE"
-
-[node name="ContinueDay" type="Label" parent="Centre/Column/Buttons"]
+[node name="ContinueDay" type="Label" parent="Frame/Layout/Side/Column/Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
 
-[node name="SettingsButton" type="Button" parent="Centre/Column/Buttons"]
+[node name="NewRunButton" type="Button" parent="Frame/Layout/Side/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsoleButton"
+script = ExtResource("2_console_button")
+label_key = "UI_TITLE_NEW_RUN"
+
+[node name="CodexButton" type="Button" parent="Frame/Layout/Side/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsoleButton"
+script = ExtResource("2_console_button")
+label_key = "UI_TITLE_CODEX"
+
+[node name="StatisticsButton" type="Button" parent="Frame/Layout/Side/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsoleButton"
+script = ExtResource("2_console_button")
+label_key = "UI_TITLE_STATISTICS"
+
+[node name="SettingsButton" type="Button" parent="Frame/Layout/Side/Column/Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"ConsoleButton"
 script = ExtResource("2_console_button")
 label_key = "UI_TITLE_SETTINGS"
 
-[node name="QuitButton" type="Button" parent="Centre/Column/Buttons"]
+[node name="QuitButton" type="Button" parent="Frame/Layout/Side/Column/Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"ConsoleButton"
 script = ExtResource("2_console_button")
 label_key = "UI_TITLE_QUIT"
 
-[node name="TitleFailure" type="Label" parent="Centre/Column"]
+[node name="TitleFailure" type="Label" parent="Frame/Layout/Side/Column"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 autowrap_mode = 3
 theme_type_variation = &"LabelCaptionAlert"
+
+[node name="GlobeBox" type="CenterContainer" parent="Frame/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.5
+mouse_filter = 2
+
+[node name="Globe" type="ColorRect" parent="Frame/Layout/GlobeBox"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("5_globe")
 
 [node name="Corner" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -111,5 +168,13 @@ grow_vertical = 2
 script = ExtResource("3_modal_host")
 
 [node name="TitleSettings" parent="TitleHost" instance=ExtResource("4_pause_menu")]
+unique_name_in_owner = true
+visible = false
+
+[node name="Codex" parent="TitleHost" instance=ExtResource("6_codex")]
+unique_name_in_owner = true
+visible = false
+
+[node name="Statistics" parent="TitleHost" instance=ExtResource("7_statistics")]
 unique_name_in_owner = true
 visible = false
