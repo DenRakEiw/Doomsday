@@ -102,6 +102,7 @@ func _ready() -> void:
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.command_applied.connect(_on_command_applied)
 	EventBus.speed_changed.connect(_on_speed_changed)
+	EventBus.hold_changed.connect(_on_hold_changed)
 	_on_speed_changed(Game.speed)
 	refresh()
 
@@ -136,9 +137,16 @@ func refresh() -> void:
 ## shows none (§16.7).
 func _refresh_pending(world: World) -> void:
 	var waiting: Array[OpenEvent] = world.events_in_region(0)
-	_pending.visible = not waiting.is_empty() and Game.policy == null
+	# While a modal holds the run the chip only pointed at the card already up
+	# behind the scrim (S4.3's note, S4.P).
+	_pending.visible = not waiting.is_empty() and Game.policy == null and not Game.is_held()
 	if _pending.visible:
 		_pending.set_label(KEY_EVENT_PENDING, {PLACEHOLDER_COUNT: waiting.size()})
+
+
+func _on_hold_changed(_held: bool) -> void:
+	if Game.sim != null:
+		_refresh_pending(Game.sim.world)
 
 
 ## The starving chip, for the tests.

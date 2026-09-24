@@ -110,6 +110,18 @@ func test_escape_closes_the_region_panel_for_everyone() -> void:
 	assert_false(panel.is_open)
 
 
+func test_escape_closes_the_menu_sheet() -> void:
+	# S4.P: only the sheet's own close button closed it.
+	_start()
+	var sheet: SlidePanel = _session.get_node("%MenuSheet") as SlidePanel
+	sheet.open()
+	assert_true(sheet.is_open, "the sheet is open to begin with")
+
+	_press(KEY_ESCAPE)
+
+	assert_false(sheet.is_open)
+
+
 func test_escape_with_nothing_open_is_left_to_whatever_else_wants_it() -> void:
 	_start()
 	watch_signals(EventBus)

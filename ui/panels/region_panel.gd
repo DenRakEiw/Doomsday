@@ -477,9 +477,24 @@ func _status_source_text(status: Status) -> String:
 		line = tr(KEY_STATUS_WORLD)
 	else:
 		line = tr(KEY_STATUS_YOURS)
-	if status.option.is_empty():
+	# The status keeps the answered option's id but not the event it answered;
+	# a faction's move is the one counter-move with this status, so the option's
+	# text can be found without a save field (S4.P — the line printed the id).
+	var def: EventDef = _counter_move_of(status, faction)
+	if status.option.is_empty() or def == null or def.option(status.option) == null:
 		return line
-	return line + tr(KEY_STATUS_OPTION).format({PLACEHOLDER_OPTION: status.option})
+	var option_key: String = "EVENT_%s_OPT_%s" % [def.id.to_upper(), status.option.to_upper()]
+	return line + tr(KEY_STATUS_OPTION).format({PLACEHOLDER_OPTION: tr(option_key)})
+
+
+func _counter_move_of(status: Status, faction: String) -> EventDef:
+	if faction.is_empty():
+		return null
+	for def: EventDef in Game.db.events:
+		if def.kind == EventDef.KIND_COUNTER_MOVE and def.status == status.id \
+				and def.faction == faction:
+			return def
+	return null
 
 
 func _is_world_status(status: Status) -> bool:

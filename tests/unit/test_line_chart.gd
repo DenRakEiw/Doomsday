@@ -147,3 +147,49 @@ func test_values_format_by_the_charts_kind() -> void:
 	chart.decimals = 2
 	assert_eq(chart.format_value(1.234), Format.decimal(1.234, 2))
 	assert_eq(chart.format_value(NAN), "—")
+
+
+func test_the_y_ticks_of_a_count_are_round_whole_numbers() -> void:
+	# S4.P: the quarters of 61 regions were `15,3 · 30,5 · 45,8`.
+	var chart: LineChart = _chart([_line([10.0, 40.0])] as Array[ChartSeries], 100, 61.0)
+	assert_eq(chart.y_ticks(), [20.0, 40.0, 60.0] as Array[float])
+	chart.set_domain(100, 5.0)
+	assert_eq(chart.y_ticks(), [1.0, 2.0, 3.0, 4.0, 5.0] as Array[float])
+
+
+func test_a_share_gets_five_round_ticks() -> void:
+	var chart: LineChart = _chart([_line([0.1, 0.4])] as Array[ChartSeries], 100, 1.0)
+	chart.kind = Format.Kind.PERCENT
+	var ticks: Array[float] = chart.y_ticks()
+	assert_eq(ticks.size(), 5)
+	assert_almost_eq(ticks[0], 0.2, 1e-6)
+	assert_almost_eq(ticks[4], 1.0, 1e-6)
+
+
+func test_a_tick_label_keeps_the_decimals_of_its_step() -> void:
+	# S4.P: `0,25` was shown as `0,3`.
+	assert_eq(LineChart._decimals_of(0.05), 2)
+	assert_eq(LineChart._decimals_of(0.2), 1)
+	assert_eq(LineChart._decimals_of(5.0), 0)
+
+
+func test_a_legend_that_does_not_fit_wraps_to_a_second_line() -> void:
+	var names: Array[String] = ["FACTION_AI_LABS", "FACTION_GOVERNMENTS",
+		"FACTION_SECURITY_RESEARCHERS", "FACTION_PUBLIC_SENTIMENT"]
+	var series: Array[ChartSeries] = []
+	for key: String in names:
+		series.append(_line([0.1, 0.2], [], key))
+	var wide: LineChart = _chart(series)
+	var narrow: LineChart = _chart(series)
+	narrow.size = Vector2(320.0, HEIGHT)
+	assert_gt(narrow.plot_rect().position.y, wide.plot_rect().position.y,
+		"a second legend line pushes the plot down")
+
+
+func test_the_margins_grow_with_the_text_scale() -> void:
+	var chart: LineChart = _chart([_line([1.0, 2.0])] as Array[ChartSeries], 100, 1.0)
+	var at_one: Rect2 = chart.plot_rect()
+	_root.theme = ThemeBuilder.build(ThemeBuilder.VARIANT_COLD, 1.5)
+	var at_one_and_a_half: Rect2 = chart.plot_rect()
+	assert_gt(at_one_and_a_half.position.y, at_one.position.y, "a taller title")
+	assert_lt(at_one_and_a_half.end.y, at_one.end.y, "a taller axis caption")

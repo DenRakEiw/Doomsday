@@ -105,6 +105,8 @@ func test_settings_only_hides_the_run_s_half() -> void:
 	assert_false((_menu.get_node("%QuitButton") as Control).visible)
 	assert_true((_menu.get_node("%SettingsRows") as Control).visible)
 	assert_eq((_menu.get_node("%PauseTitle") as Label).text, tr("UI_SETTINGS_TITLE"))
+	# S4.P: the section caption under that title said *Einstellungen* again.
+	assert_false((_menu.get_node("%SettingsTitle") as Control).visible)
 
 
 ## S4.9: a `ScrollContainer` has no height of its own, and the settings opened

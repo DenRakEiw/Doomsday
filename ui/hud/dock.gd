@@ -52,6 +52,13 @@ var _pulse_tween: Tween = null
 func _ready() -> void:
 	_build_buttons()
 	_apply_compact()
+	# The label's width changes with the locale and the text scale.
+	EventBus.text_scale_changed.connect(_on_text_scale_changed)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
+		_fit_containment_button.call_deferred()
 
 
 ## §6.1: a destination appears with its phase. §4.3: the containment button
@@ -68,6 +75,7 @@ func apply_reveal(phase: World.Phase, containment: float, discovered: bool,
 	if discovered:
 		_containment_chip.set_text(Format.percent(containment))
 		_containment_chip.kind = FactionTrack.band_kind(containment, thresholds)
+	_fit_containment_button()
 	set_pulsing(phase == World.Phase.BOXED)
 
 
@@ -151,8 +159,38 @@ func _build_containment_chip(button: ConsoleButton) -> void:
 	button.add_child(content)
 
 
+## The chip sits over the button's own label, and a `Button` does not measure
+## what it carries: in German `EINDÄMMUNG` ran under `50 %` (S4.9). In the column
+## the labels are left-aligned and the containment button is at least as wide as
+## its label, a gap and the chip. The bar of three shares its width and trims.
+func _fit_containment_button() -> void:
+	if _buttons.is_empty():
+		return
+	for each: ConsoleButton in _buttons:
+		each.alignment = HORIZONTAL_ALIGNMENT_CENTER if compact else HORIZONTAL_ALIGNMENT_LEFT
+	if compact:
+		return
+	var button: ConsoleButton = _buttons[DESTINATION_CONTAINMENT]
+	var width: float = float(UiTokens.DOCK_BUTTON_WIDTH)
+	if _containment_chip.visible:
+		var font: Font = button.get_theme_font(&"font")
+		var font_size: int = button.get_theme_font_size(&"font_size")
+		var label: float = font.get_string_size(button.text, HORIZONTAL_ALIGNMENT_LEFT, -1,
+			font_size).x
+		var style: StyleBox = button.get_theme_stylebox(&"normal")
+		var content: MarginContainer = button.get_node("Content") as MarginContainer
+		width = maxf(width, style.get_margin(SIDE_LEFT) + label + float(UiTokens.SPACE_2)
+			+ _containment_chip.get_combined_minimum_size().x
+			+ float(content.get_theme_constant(&"margin_right")))
+	button.custom_minimum_size.x = width
+
+
 func _on_button_pressed(index: int) -> void:
 	destination_requested.emit(index)
+
+
+func _on_text_scale_changed(_scale: float) -> void:
+	_fit_containment_button.call_deferred()
 
 
 func _apply_compact() -> void:
@@ -174,6 +212,7 @@ func _apply_compact() -> void:
 		button.clip_text = compact
 		button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS if compact \
 			else TextServer.OVERRUN_NO_TRIMMING
+	_fit_containment_button()
 
 
 func _move(node: Control, parent: Container) -> void:

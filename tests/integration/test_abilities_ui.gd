@@ -261,3 +261,19 @@ func test_a_global_status_shows_as_a_chip_in_the_readout() -> void:
 	readout.call("refresh")
 	assert_eq(int(readout.call("status_chip_count")), 1)
 	assert_true(readout.visible, "a global status alone is worth the row")
+
+
+func test_a_faction_status_names_the_answer_in_words() -> void:
+	# S4.P: the line printed the option's id (`Regierungen · ride`).
+	Game.start_run(SEED)
+	Game.set_speed(0)
+	Game.apply(ChooseOriginCommand.new(REGION_USA))
+	var index: int = _index_of(REGION_USA)
+	var move: EventDef = Game.db.event("cm_lockdown")
+	StatusSystem.apply(Game.sim.world, Game.db, move.status, index,
+		Status.source_for(Status.SOURCE_FACTION, move.faction), 1, "ride", [] as Array[SimEvent])
+	var panel: SlidePanel = _panel()
+	EventBus.region_selected.emit(index)
+	var line: String = ((_rows(panel, "Statuses")[0] as Control).get_child(1) as Label).text
+	assert_string_contains(line, tr("EVENT_CM_LOCKDOWN_OPT_RIDE"))
+	assert_false(line.ends_with("ride"), "the id is not what the player reads")

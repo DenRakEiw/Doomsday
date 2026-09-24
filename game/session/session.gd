@@ -157,6 +157,12 @@ func _input(event: InputEvent) -> void:
 				_analysis.close()
 				get_viewport().set_input_as_handled()
 				return
+			# The phone's menu sheet is a panel like the others (m3-screens §9.2);
+			# only its × closed it until S4.P.
+			if _menu_sheet.is_open:
+				_menu_sheet.close()
+				get_viewport().set_input_as_handled()
+				return
 			if _region_panel.is_open:
 				# One door (§5.6): the map clears its outline on the same signal.
 				EventBus.region_selected.emit(0)

@@ -432,7 +432,39 @@ static func _panels() -> Theme:
 	for axis: String in ["h_separation", "v_separation"]:
 		theme.set_constant(axis, "TechGrid", UiTokens.SPACE_3)
 		theme.set_constant(axis, "TechGridCompact", UiTokens.SPACE_2)
+	_scroll_bars(theme)
 	return theme
+
+
+## Both scroll bars: a thin track and grabber behind a transparent edge on the
+## content's side (`UiTokens.SCROLL_GAP`). The edge is part of the bar's minimum
+## size, so the container gives it room and the content ends before it.
+static func _scroll_bars(theme: Theme) -> void:
+	var states: Dictionary[String, Color] = {
+		"scroll": UiTokens.color(&"BG_3"),
+		"scroll_focus": UiTokens.color(&"BG_3"),
+		"grabber": UiTokens.color(&"LINE_1"),
+		"grabber_highlight": UiTokens.color(&"LINE_2"),
+		"grabber_pressed": UiTokens.color(&"ACCENT"),
+	}
+	for style: String in states:
+		theme.set_stylebox(style, "VScrollBar", _bar_style(states[style], true))
+		theme.set_stylebox(style, "HScrollBar", _bar_style(states[style], false))
+
+
+static func _bar_style(colour: Color, vertical: bool) -> StyleBoxFlat:
+	var box: StyleBoxFlat = StyleBoxFlat.new()
+	box.bg_color = colour
+	box.border_color = Color.TRANSPARENT
+	if vertical:
+		box.border_width_left = UiTokens.SCROLL_GAP
+		box.content_margin_left = float(UiTokens.SCROLL_GAP)
+		box.content_margin_right = float(UiTokens.SCROLL_BAR)
+	else:
+		box.border_width_top = UiTokens.SCROLL_GAP
+		box.content_margin_top = float(UiTokens.SCROLL_GAP)
+		box.content_margin_bottom = float(UiTokens.SCROLL_BAR)
+	return box
 
 
 # ------------------------------------------------------------------ partial 4
@@ -575,7 +607,9 @@ static func _flat(bg: Color, border: Color, width: int, radius: int,
 	var box: StyleBoxFlat = StyleBoxFlat.new()
 	box.bg_color = bg
 	box.border_color = border
-	box.set_border_width_all(width)
+	# A transparent border of width 1 still anti-aliases its rounded corners into
+	# four stray dots (the analysis log's rows, S4.9): no colour, no border.
+	box.set_border_width_all(width if border.a > 0.0 else 0)
 	box.set_corner_radius_all(radius)
 	box.content_margin_left = float(pad.x)
 	box.content_margin_right = float(pad.x)

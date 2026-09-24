@@ -134,6 +134,9 @@ func _apply_mode() -> void:
 	_save_block.visible = not settings_only
 	_load_block.visible = not settings_only
 	_quit.visible = not settings_only
+	# From the title the modal is titled Settings already; the section caption
+	# under it said the same word again (S4.9).
+	_settings_title.visible = not settings_only
 	_title.text = tr(KEY_SETTINGS_TITLE if settings_only else KEY_TITLE)
 
 

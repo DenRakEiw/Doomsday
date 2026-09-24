@@ -238,6 +238,12 @@ const BORDER_FOCUS: int = 2
 ## The minimum size of anything tappable, on every platform. One logical pixel is
 ## one dp (§6.1), so this is 48 dp everywhere.
 const HIT_MIN: int = 48
+## A scroll bar keeps this gap from the content it scrolls, and is this wide. Godot
+## puts the bar flush against the content, so text touching the bar read as text
+## running under it (S4.2, S4.9); the gap is a transparent edge of the bar itself,
+## which makes it one rule for every scroll container.
+const SCROLL_GAP: int = 8
+const SCROLL_BAR: int = 6
 
 ## §4.4's geometry for `StatBar`: the bar itself, the full row, and the one-line
 ## compact row of §5.7. Sizes rather than spacing, so they stand apart from the
@@ -358,7 +364,9 @@ const MIN_SPAN_DAYS: int = 30
 const TABLE_ROWS: int = 16
 const STRIP_H: int = 28
 const STRIP_SLOT: float = 12.0
-const LOG_ROW_MIN_H: int = 28
+## Every row of the log is a hit target, the plain ones too: rows of two heights
+## read as two lists (S4.9).
+const LOG_ROW_MIN_H: int = HIT_MIN
 const LOG_DAY_W: int = 56
 ## §9: the colour of each entity, fixed and never by position — `single` for any
 ## one-series chart.

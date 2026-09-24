@@ -116,6 +116,9 @@ func _build_readouts() -> void:
 		column.add_child(caption)
 		column.add_child(value)
 		button.add_child(column)
+		# At 150 % the caption and the value are taller than the hit target; the
+		# button grows with them instead of spilling into the second row (S4.P).
+		ButtonContent.fit(button, column, false, true)
 		_row.add_child(button)
 		_buttons.append(button)
 		_values.append(value)
@@ -148,6 +151,7 @@ func _build_threat() -> void:
 	column.add_child(_threat_caption)
 	column.add_child(line)
 	_threat_button.add_child(column)
+	ButtonContent.fit(_threat_button, column, false, true)
 	_row.add_child(_threat_button)
 
 

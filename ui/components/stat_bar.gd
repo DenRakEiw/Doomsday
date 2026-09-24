@@ -171,6 +171,11 @@ func _apply_compact() -> void:
 		_move(_fill, _rows)
 	_name_label.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN if compact \
 		else Control.SIZE_EXPAND_FILL
+	# In the wide row the value is what a glance needs; a name longer than its
+	# quarter ends in an ellipsis instead of pushing the value off the screen —
+	# at 150 % *SICHERHEITSFORSCHUNG* ran over *SCHADEN*'s number (S4.9).
+	_name_label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING if compact \
+		else TextServer.OVERRUN_TRIM_ELLIPSIS
 	_fill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_fill.size_flags_vertical = Control.SIZE_EXPAND_FILL if compact else Control.SIZE_FILL
 	_apply_variation()

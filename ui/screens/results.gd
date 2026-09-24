@@ -144,6 +144,8 @@ func _fill_rows(sim: Simulation) -> void:
 	_values[3].set_number(float(_dark_count(world)), Format.Kind.DAYS)
 	_values[4].set_number(deaths / sim.db.population_total, Format.Kind.PERCENT)
 	_deaths_detail.text = Format.number(deaths, Format.Kind.COMPACT)
+	# The count under the share says how many; with nobody dead it said a lone 0.
+	_deaths_detail.visible = deaths > 0.0
 	_values[5].set_number(_containment_peak(world), Format.Kind.PERCENT)
 	_values[6].set_number(world.agent.compute_earned, Format.Kind.COMPUTE)
 	_values[7].set_number(float(world.agent.owned_nodes.size()), Format.Kind.DAYS)

@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. The M5 design block is done; meanwhile the build goes on: **S4.P — Punch list from D4.5 and G4** *(skip if empty)*, then **S5.1**. |
+| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. The M5 design block is done; meanwhile the build goes on: **S5.1 — Architectures I** (`docs/specs/replayability.md` §10). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S5.1 → S5.8 (M5 build), then G5 |
-| **Last completed** | D5.4 — scenarios: `docs/specs/scenarios.md`, `data/staging/scenarios.json`, 23 string rows; CONTENT §11's four questions all answered. 1268 tests green (2026-09-24). **The M4 gate is still open.** |
-| **Before that** | D5.3 — full screen flow, boot sequence, Codex (2026-09-24) |
+| **After it** | S5.2 → S5.8 (M5 build), then G5 |
+| **Last completed** | S4.P — punch list: every S4.9 layout finding and the 150 % list fixed (scroll-bar gap in the theme, `ButtonContent`, measured chart margins and round ticks, scaled tech cards, dock chip, status strip, log rows, table alignment, results, settings title, Escape on the sheet, faction status line). 1278 tests green (2026-09-24). **The M4 gate is still open.** |
+| **Before that** | D5.4 — scenarios (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -120,7 +120,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] D5.4 [F] Scenarios *(stretch)* — ⇄ **then `/model opus`**
 
 **Block 10 — M5 build · Opus**
-- [ ] S4.P [O] Punch list from D4.5 and G4 *(skip if empty)*
+- [x] S4.P [O] Punch list from D4.5 and G4 *(skip if empty)*
 - [ ] S5.1 [O] Architectures I
 - [ ] S5.2 [O] Architectures II
 - [ ] S5.3 [O] Profile, directives, statistics
@@ -914,6 +914,17 @@ without new information.
   Compute, weak yield, found late). The other seven of CONTENT §7 are parked with what each needs.
   **Containment mode is a mode, post-launch** (CONTENT q4); **no cap on chains per run**, G5 tunes
   start weights toward three to five (CONTENT q2).
+- **2026-09-24** (S4.P) — **Layout rules that came out of the punch list:** (1) every scroll bar
+  keeps `UiTokens.SCROLL_GAP` (8 px) from its content — a transparent edge of the bar's own
+  stylebox in the theme, so every `ScrollContainer` gets it without a node change; (2) a `Button`
+  that carries a laid-out child sizes itself with **`ButtonContent.fit`** (the status strip, the
+  analysis log; the tech tabs keep their own `_size_tabs`); (3) a chart measures its margins from
+  its fonts and labels (the `CHART_*` tokens are floors), wraps its legend, and puts its y ticks on
+  round multiples — whole numbers on a counting axis, as many as the height has room for, five at
+  most, with the step's decimals; (4) tech cards are `TECH_CELL × text_scale`; (5) every log row
+  is `HIT_MIN` tall with no gap between rows; (6) a `StyleBoxFlat` with a transparent border has no
+  border (the stray corner dots). The pending chip hides while any hold is on; the region panel
+  finds a faction status's option text through its counter-move instead of a new save field.
 
 ## Design questions for Fable
 
@@ -973,57 +984,8 @@ never Harvest below six regions.)
 
 ## Punch list for Opus
 
-- **(S4.9, layout findings from the German screenshot set — confirmed by D4.5)**
-  1. The dock's *EINDÄMMUNG* label is overlapped by its containment chip (`50 %`) at 1920 in
-     German (`de_1920_22_session_open.png`).
-  2. The containment panel's faction rows (`RUHIG · VORN · 7 % ±0 % / Tag`) run under the
-     scrollbar at 1920 (`de_1920_20_containment_exposed_OLD.png`) — the S4.2 scrollbar item below,
-     one more instance.
-  3. Chart axes pick non-round ticks for counts (`61 · 45,8 · 30,5 · 15,3`, `5 · 3,8 · 2,5 ·
-     1,3`) and round `0,25` to `0,3` (`de_1920_14_analysis_world.png`,
-     `de_400_07_analysis_opposition.png`).
-  4. A chart legend does not wrap: on a phone *Eindämmung je Fraktion* lists two of the four
-     factions (`de_400_07_analysis_opposition.png`).
-  5. The analysis table left-aligns its numbers, and on a phone the *Tag* column is too narrow
-     for three digits (`107` shows as `10`; `de_400_10_analysis_table.png`).
-  6. The log's plain rows and region rows have different heights, and small dots sit at the
-     left edge of the region rows at 1920 (`de_1920_15_analysis_log.png`).
-  7. The results show a lone `0` under the grid when nobody died (`DeathsDetail`,
-     `de_1920_23_results.png`).
-  8. `Escape` does not close the phone's menu sheet (its × does).
-  9. *(Done in D4.5: soft hyphens and three shorter names.)*
-  10. **The settings opened from the title say *Einstellungen* twice** — hide `SettingsTitle`
-     when `settings_only` (`ui/modals/pause_menu.gd`; `de_1920_02_settings.png`).
-  D4.5 confirms items 1–8 and 10, and the 150 % list below, for S4.P as written.
-- **(S4.9, the text scale at 150 % — the layouts that do not grow with the type)**
-  1. **Tech cards** are fixed-size (`TECH_NODE_*` tokens) and the board places them on that
-     grid: at 150 % names overlap and owned cards push their footer out to the left
-     (`de_1920_150_04_tree.png`; the pseudo-locale does the same at 100 %,
-     `xx_1920_03_tree_detail.png`). The card size and the board's pitch should follow the scale.
-  2. **Charts** reserve fixed `CHART_AXIS_W` / `CHART_TITLE_H`: at 150 % the axis labels run into
-     the titles and the x-axis caption into the last tick (`de_1920_150_05_analysis_run.png`).
-  3. **The desktop stat row** at 150 %: *SCHADEN*'s value collides with the threat bar's caption,
-     and the threat bar's rate runs off the right edge (`de_1920_150_01_session_region.png`).
-  4. **The phone's status strip** has fixed row heights: at 150 % the *BESTAND* row overlaps the
-     values and the ticker slides under the strip (`de_400_150_01_session.png`).
-  5. The dock's containment chip covers more of *EINDÄMMUNG* (item 1 above, worse).
-  Not affected at 150 %, by test (`tests/integration/test_localisation.gd`): the phone's top bar
-  and dock, the five modals on a phone, the tech tree's phone header.
-
-- **(S4.5)** The region panel's *Status* row prints the answering option's **id**
-  (`Regierungen · ride`), not its text: `Status` keeps `option` but not the event def, so the
-  panel cannot build `EVENT_<DEF>_OPT_<OPTION>`. Keep the def id on the status (save field) or
-  drop the option from the line.
-
-- **(S4.3, cosmetic)** The top bar's *n offen* chip also shows while the wire card is up on that
-  very event (behind the scrim). Harmless; hide it while `Game.is_held()` for `event` if D4.5
-  finds it noisy.
-
-- **(S4.2, cosmetic)** In the region panel the trailing chip of an *Actions* row (`FREI` / the
-  cost) and the `{days}` caption of a *Status* row sit under the scroll container's vertical
-  scrollbar and are clipped by a few pixels at 1920 × 1080. Every other row of the panel happens
-  to end short of it. The fix is one rule about the scrollbar's width in the panel's body, not
-  something per row — it belongs with the rest of D4.5's layout findings.
+*(empty — S4.P, 2026-09-24, cleared the S4.9 layout findings, the 150 % list and the S4.2, S4.3
+and S4.5 notes; what was done is under Decisions and the session log)*
 
 ## Deviations from the plan or a spec
 
@@ -1868,6 +1830,15 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — S4.P Punch list from D4.5 and G4 [O]
+- Fixed all ten S4.9 findings (the soft hyphens were D4.5's), the five 150 % items, and the S4.2,
+  S4.3 and S4.5 notes; the rules are under *Decisions*. Found the scroll-bar cause with a probe:
+  Godot puts the bar flush against the content, so the fix is a gap inside the bar's style.
+- Checked in the running game at 1920 and 400 px, 100 % and 150 %, in German (shots in
+  `user://shots/s4_p/`): region and containment panels, dock, analysis charts, table and log, the
+  tree at 150 %, the stat row and the phone strip. New tests: `test_button_content.gd`, five chart
+  tests, the faction status line, Escape on the sheet, the settings caption. 1278 tests green.
 
 ### 2026-09-24 — D5.4 Scenarios (stretch) [F]
 - Read CONTENT §7 and the phase/containment code (containment is 0 and does not grow before

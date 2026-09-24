@@ -258,7 +258,9 @@ func _build_log() -> Control:
 	_log_empty.text = tr(KEY_EMPTY_LOG)
 	_log_box.add_child(_log_empty)
 	_log_list = VBoxContainer.new()
-	_log_list.theme_type_variation = &"StackTight"
+	# Every row is a hit target tall (`LOG_ROW_MIN_H`), which is its own spacing;
+	# a gap on top of it spread the log thin (S4.P).
+	_log_list.theme_type_variation = &"Flush"
 	_log_box.add_child(_log_list)
 	return _log_box
 
@@ -352,6 +354,7 @@ func _fill_table(one: AnalysisTab) -> void:
 	var root: TreeItem = _table.create_item()
 	if widest == null:
 		return
+	_fit_day_column(widest)
 	for day: int in widest.table_days(_last_day(widest)):
 		var row: TreeItem = _table.create_item(root)
 		row.set_text(0, Format.number(float(day), Format.Kind.DAYS))
@@ -359,6 +362,22 @@ func _fill_table(one: AnalysisTab) -> void:
 			var chart: LineChart = columns[c][0]
 			var series: ChartSeries = chart.series()[int(columns[c][1])]
 			row.set_text(c + 1, chart.format_value(series.value_at(day)))
+		# S4.P: numbers are read down a column, so they line up on the right.
+		for c: int in _table.columns:
+			row.set_text_alignment(c, HORIZONTAL_ALIGNMENT_RIGHT)
+
+
+## The day column is as wide as its title and its widest day, and gives the rest
+## to the series: on a phone the shared width left `107` showing as `10` (S4.9).
+func _fit_day_column(widest: LineChart) -> void:
+	var font: Font = _table.get_theme_font(&"font")
+	var font_size: int = _table.get_theme_font_size(&"font_size")
+	var longest: String = Format.number(float(_last_day(widest)), Format.Kind.DAYS)
+	var text_w: float = maxf(
+		font.get_string_size(longest, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x,
+		font.get_string_size(tr(KEY_TABLE_DAY), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x)
+	_table.set_column_expand(0, false)
+	_table.set_column_custom_minimum_width(0, ceili(text_w) + UiTokens.SPACE_4 * 2)
 
 
 static func _last_day(chart: LineChart) -> int:
@@ -437,16 +456,12 @@ func _log_row(entry: RunLogEntry, world: World) -> Control:
 	# §5.6: a line about a region is a way to it.
 	var button: ConsoleButton = ConsoleButton.new()
 	button.list_row = true
-	button.custom_minimum_size.y = float(UiTokens.HIT_MIN)
 	button.pressed.connect(_on_log_region_pressed.bind(region))
 	row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	button.add_child(row)
-	# A button does not measure what it carries, and on a phone a wrapped line is
-	# taller than the hit target: the rows ran into each other (S4.9 screenshots).
-	# The button grows with its row.
-	row.minimum_size_changed.connect(func() -> void:
-		button.custom_minimum_size.y = maxf(float(UiTokens.HIT_MIN),
-			row.get_combined_minimum_size().y))
+	# On a phone a wrapped line is taller than the hit target: the rows ran into
+	# each other (S4.9 screenshots). The button grows with its row.
+	ButtonContent.fit(button, row, false, true)
 	return button
 
 

@@ -39,6 +39,10 @@ var _span: Vector2i = Vector2i.ONE
 var _sim: Simulation = null
 
 
+func _ready() -> void:
+	EventBus.text_scale_changed.connect(_on_text_scale_changed)
+
+
 ## Builds the cells of `tree`. Every tab rebuilds — 43 nodes at most, and pooling
 ## a grid this size would cost more than it saves.
 func show_tree(tree: String, db: ContentDB, sim: Simulation) -> void:
@@ -105,10 +109,20 @@ func set_compact(compact: bool) -> void:
 	if compact == _compact:
 		return
 	_compact = compact
-	for node_id: String in _nodes:
-		_nodes[node_id].custom_minimum_size = cell_size()
+	_resize_cells()
+
+
+## Every cell of the grid — cards and the empty fillers between them — takes the
+## current cell size, and the board and its lines follow.
+func _resize_cells() -> void:
+	for child: Node in _grid.get_children():
+		(child as Control).custom_minimum_size = cell_size()
 	if not _tree.is_empty():
 		_apply_geometry()
+
+
+func _on_text_scale_changed(_scale: float) -> void:
+	_resize_cells()
 
 
 ## Whether the only thing in this node's way lives in another tree — then the
@@ -190,8 +204,11 @@ func _empty_cell() -> Control:
 	return filler
 
 
+## A card grows with the type it carries: at 150 % the names ran into each other
+## and an owned card pushed its footer out (S4.9). The gap stays.
 func cell_size() -> Vector2:
-	return UiTokens.TECH_CELL_COMPACT if _compact else UiTokens.TECH_CELL
+	var base: Vector2 = UiTokens.TECH_CELL_COMPACT if _compact else UiTokens.TECH_CELL
+	return (base * Settings.text_scale).round()
 
 
 func gap() -> Vector2:

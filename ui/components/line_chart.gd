@@ -25,8 +25,9 @@ const KEY_EMPTY: String = "UI_ANALYSIS_EMPTY"
 const KEY_X_DAYS: String = "UI_ANALYSIS_X_DAYS"
 const KEY_CURSOR_DAY: String = "UI_ANALYSIS_CURSOR_DAY"
 const PLACEHOLDER_DAY: String = "day"
-## §6.2: the y gridlines as shares of the top.
-const Y_TICKS: Array[float] = [0.25, 0.5, 0.75, 1.0]
+## §6.2, S4.P: at most this many y gridlines, at round values. They were the
+## quarters of the top, which put `45,8` on a count of regions.
+const Y_TICK_MAX: int = 5
 ## §6.2: `nice` picks the smallest of these × 10^k at or above a value.
 const NICE_STEPS: Array[float] = [1.0, 2.0, 5.0]
 ## Auto `y_max` leaves this much headroom over the highest value.
@@ -193,6 +194,19 @@ static func nice(value: float) -> float:
 	return BASE_TEN * power
 
 
+## The y gridlines: the multiples of the smallest `nice` step that leaves at most
+## `Y_TICK_MAX` of them under the top — whole numbers on an axis that counts.
+func y_ticks() -> Array[float]:
+	var top: float = y_max()
+	var step: float = _y_step()
+	var ticks: Array[float] = []
+	var k: int = 1
+	while float(k) * step <= top * (1.0 + 1e-6):
+		ticks.append(float(k) * step)
+		k += 1
+	return ticks
+
+
 ## The top of the y domain: fixed, or `nice(max × 1.1)` floored at `min_span`.
 func y_max() -> float:
 	if _y_fixed > 0.0:
@@ -213,10 +227,11 @@ func y_max() -> float:
 
 ## The plot inside the frame, after the title, legend, axes and label gutter.
 func plot_rect() -> Rect2:
-	var top: float = UiTokens.CHART_TITLE_H + (UiTokens.CHART_LEGEND_H if _has_legend() else 0.0)
-	return Rect2(UiTokens.CHART_AXIS_W, top,
-		maxf(1.0, size.x - UiTokens.CHART_AXIS_W - UiTokens.CHART_LABEL_W),
-		maxf(1.0, size.y - top - UiTokens.CHART_AXIS_H))
+	var top: float = _title_h() + _legend_h()
+	var axis_w: float = _axis_w()
+	return Rect2(axis_w, top,
+		maxf(1.0, size.x - axis_w - _label_w()),
+		maxf(1.0, size.y - top - _axis_h()))
 
 
 func day_to_x(day: float) -> float:
@@ -348,9 +363,9 @@ func _draw() -> void:
 func _draw_title() -> void:
 	var font: Font = get_theme_font(FONT, TYPE_TITLE)
 	var font_size: int = get_theme_font_size(FONT_SIZE, TYPE_TITLE)
-	var baseline: float = UiTokens.CHART_TITLE_H * 0.5 + font.get_ascent(font_size) * 0.5
-	draw_string(font, Vector2(UiTokens.CHART_AXIS_W, baseline), Format.caps(tr(title_key)),
-		HORIZONTAL_ALIGNMENT_LEFT, size.x - UiTokens.CHART_AXIS_W, font_size,
+	var baseline: float = _title_h() * 0.5 + font.get_ascent(font_size) * 0.5
+	draw_string(font, Vector2(_axis_w(), baseline), Format.caps(tr(title_key)),
+		HORIZONTAL_ALIGNMENT_LEFT, size.x - _axis_w(), font_size,
 		UiTokens.color(&"TEXT_1"))
 
 
@@ -387,17 +402,17 @@ func _draw_bands() -> void:
 
 func _draw_grid() -> void:
 	var plot: Rect2 = plot_rect()
-	var top: float = y_max()
-	for share: float in Y_TICKS:
-		var y: float = value_to_y(top * share)
+	var step: float = _y_step()
+	for value: float in y_ticks():
+		var y: float = value_to_y(value)
 		draw_line(Vector2(plot.position.x, y), Vector2(plot.end.x, y), UiTokens.color(&"LINE_0"),
 			HAIRLINE)
-		_caption(format_value(top * share), Vector2(0.0, y), UiTokens.CHART_AXIS_W - TEXT_GAP,
+		_caption(_tick_label(value, step), Vector2(0.0, y), plot.position.x - TEXT_GAP,
 			HORIZONTAL_ALIGNMENT_RIGHT, UiTokens.color(&"TEXT_2"))
 	draw_line(Vector2(plot.position.x, plot.end.y), Vector2(plot.end.x, plot.end.y),
 		UiTokens.color(&"LINE_1"), HAIRLINE)
-	var step: int = x_tick_step(plot.size.x)
-	var label_y: float = plot.end.y + UiTokens.CHART_AXIS_H * 0.5
+	var x_step: int = x_tick_step(plot.size.x)
+	var label_y: float = plot.end.y + _axis_h() * 0.5
 	# The axis caption ends at the frame's right edge and the tick labels give
 	# way to it: *Tage seit dem Ursprung* is wider than the label gutter.
 	var caption: String = tr(KEY_X_DAYS)
@@ -407,9 +422,9 @@ func _draw_grid() -> void:
 		var x: float = day_to_x(float(day))
 		var label: String = Format.number(float(day), Format.Kind.DAYS)
 		if x + _caption_width(label) * 0.5 < caption_left - TEXT_GAP:
-			_caption(label, Vector2(x - UiTokens.CHART_AXIS_W, label_y),
-				UiTokens.CHART_AXIS_W * 2.0, HORIZONTAL_ALIGNMENT_CENTER, UiTokens.color(&"TEXT_2"))
-		day += step
+			_caption(label, Vector2(x - plot.position.x, label_y),
+				plot.position.x * 2.0, HORIZONTAL_ALIGNMENT_CENTER, UiTokens.color(&"TEXT_2"))
+		day += x_step
 	_caption(caption, Vector2(caption_left, label_y), size.x - caption_left,
 		HORIZONTAL_ALIGNMENT_LEFT, UiTokens.color(&"TEXT_2"))
 
@@ -471,20 +486,18 @@ func _draw_series() -> void:
 		draw_polyline(points, one.color, UiTokens.CHART_LINE_W, true)
 
 
+## S4.P: the legend wraps. On a phone *Eindämmung je Fraktion* named two of its
+## four factions and dropped the rest.
 func _draw_legend() -> void:
-	if not _has_legend():
-		return
-	var x: float = UiTokens.CHART_AXIS_W
-	var y: float = UiTokens.CHART_TITLE_H + UiTokens.CHART_LEGEND_H * 0.5
-	for one: ChartSeries in _series:
+	var line_h: float = _legend_line_h()
+	for entry: Dictionary in _legend_layout():
+		var one: ChartSeries = entry["series"]
+		var x: float = float(entry["x"])
+		var y: float = _title_h() + line_h * (float(entry["line"]) + 0.5)
 		var name: String = tr(one.key)
-		var width: float = _caption_width(name)
-		if x + LEGEND_KEY.x + TEXT_GAP + width > size.x - TEXT_GAP:
-			break
 		draw_rect(Rect2(x, y - LEGEND_KEY.y * 0.5, LEGEND_KEY.x, LEGEND_KEY.y), one.color)
-		x += LEGEND_KEY.x + TEXT_GAP
-		_caption(name, Vector2(x, y), width, HORIZONTAL_ALIGNMENT_LEFT, UiTokens.color(&"TEXT_1"))
-		x += width + TEXT_GAP * 3.0
+		_caption(name, Vector2(x + LEGEND_KEY.x + TEXT_GAP, y), _caption_width(name),
+			HORIZONTAL_ALIGNMENT_LEFT, UiTokens.color(&"TEXT_1"))
 
 
 func _draw_end_labels() -> void:
@@ -495,7 +508,7 @@ func _draw_end_labels() -> void:
 		var x: float = plot.end.x + TEXT_GAP
 		draw_line(Vector2(x, y), Vector2(x + LINE_KEY_W, y), one.color, UiTokens.CHART_LINE_W)
 		_caption(format_value(float(label["value"])), Vector2(x + LINE_KEY_W + TEXT_GAP, y),
-			UiTokens.CHART_LABEL_W - LINE_KEY_W - TEXT_GAP * 2.0, HORIZONTAL_ALIGNMENT_LEFT,
+			_label_w() - LINE_KEY_W - TEXT_GAP * 2.0, HORIZONTAL_ALIGNMENT_LEFT,
 			UiTokens.color(&"TEXT_1"))
 
 
@@ -575,7 +588,7 @@ func _caption(text: String, centre: Vector2, width: float, align: HorizontalAlig
 	var font_size: int = get_theme_font_size(FONT_SIZE, TYPE_CAPTION)
 	var x: float = centre.x
 	if right_of:
-		x = centre.x + UiTokens.CHART_LABEL_W - width - TEXT_GAP
+		x = centre.x + _label_w() - width - TEXT_GAP
 	draw_string(font, Vector2(x, centre.y + font.get_ascent(font_size) * 0.4), text, align,
 		width, font_size, colour)
 
@@ -592,6 +605,100 @@ func _font_height(type: StringName) -> float:
 
 func _has_legend() -> bool:
 	return _series.size() >= 2 and not small
+
+
+# ------------------------------------------------------------------ margins
+# S4.P: the margins are measured from the chart's own fonts and labels, never
+# taken as fixed pixels — at 150 % text the axis labels ran into the titles and
+# the x-axis caption into the last tick. The tokens are the floors.
+
+
+func _title_h() -> float:
+	return maxf(UiTokens.CHART_TITLE_H, _font_height(TYPE_TITLE) + TEXT_GAP * 2.0)
+
+
+func _axis_h() -> float:
+	return maxf(UiTokens.CHART_AXIS_H, _font_height(TYPE_CAPTION) + TEXT_GAP)
+
+
+func _legend_line_h() -> float:
+	return maxf(UiTokens.CHART_LEGEND_H, _font_height(TYPE_CAPTION) + TEXT_GAP)
+
+
+## Wide enough for the widest y label.
+func _axis_w() -> float:
+	var widest: float = 0.0
+	var step: float = _y_step()
+	for value: float in y_ticks():
+		widest = maxf(widest, _caption_width(_tick_label(value, step)))
+	return maxf(UiTokens.CHART_AXIS_W, widest + TEXT_GAP * 2.0)
+
+
+## Wide enough for an end label of the top value — the widest a label can be
+## short of the rare value above it. Not measured from the labels themselves,
+## which are placed in the plot this width shapes.
+func _label_w() -> float:
+	return maxf(UiTokens.CHART_LABEL_W, LINE_KEY_W + TEXT_GAP * 3.0
+		+ _caption_width(format_value(y_max())))
+
+
+func _legend_h() -> float:
+	if not _has_legend():
+		return 0.0
+	var lines: int = 1
+	for entry: Dictionary in _legend_layout():
+		lines = maxi(lines, int(entry["line"]) + 1)
+	return _legend_line_h() * float(lines)
+
+
+## One `{series, x, line}` per legend entry, wrapped into as many lines as the
+## width needs. The left edge is the axis floor, not `_axis_w()`, which is
+## measured from ticks that depend on the plot this layout shapes.
+func _legend_layout() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	if not _has_legend():
+		return out
+	var left: float = UiTokens.CHART_AXIS_W
+	var x: float = left
+	var line: int = 0
+	for one: ChartSeries in _series:
+		var width: float = LEGEND_KEY.x + TEXT_GAP + _caption_width(tr(one.key))
+		if x > left and x + width > size.x - TEXT_GAP:
+			x = left
+			line += 1
+		out.append({"series": one, "x": x, "line": line})
+		x += width + TEXT_GAP * 3.0
+	return out
+
+
+## As many ticks as the plot has room for, `Y_TICK_MAX` at most: a small chart's
+## labels need a line and a half each. The height is taken without `plot_rect`,
+## whose left edge is measured from these ticks.
+func _y_step() -> float:
+	var room: float = size.y - _title_h() - _legend_h() - _axis_h()
+	var fit: int = clampi(floori(room / (_font_height(TYPE_CAPTION) * 1.5)), 1, Y_TICK_MAX)
+	var step: float = nice(y_max() / float(fit))
+	if _counts():
+		step = maxf(step, 1.0)
+	return step
+
+
+## An axis of whole things — days, regions, nodes — never shows a fraction.
+func _counts() -> bool:
+	return kind == Format.Kind.DAYS or (kind == Format.Kind.PLAIN and decimals == 0)
+
+
+## A tick label shows as many decimals as its step has, so `0,25` is not `0,3`.
+func _tick_label(value: float, step: float) -> String:
+	if kind == Format.Kind.PLAIN and step < 1.0:
+		return Format.decimal(value, maxi(decimals, _decimals_of(step)))
+	if kind == Format.Kind.PERCENT and step < 0.01:
+		return Format.percent_fine(value)
+	return format_value(value)
+
+
+static func _decimals_of(step: float) -> int:
+	return maxi(0, -int(floorf(log(step) / log(BASE_TEN) + 1e-9)))
 
 
 ## §6.4: fewer than two points in every series.
