@@ -500,8 +500,12 @@ placeholders · right register for its trigger · nothing a *Plague Inc.* player
 ## 11. Open questions
 
 1. Do narrative chains persist *between* runs (the Researcher remembers) or reset? A meta-layer is
-   tempting but risks undermining the 30-minute self-contained session.
-2. How many chains fire per run? Target three to five, drawn from a pool, so runs differ.
+   tempting but risks undermining the 30-minute self-contained session. *D5.1: they reset; only
+   counters and the Codex persist (`replayability.md` §6, `screens-full.md` §5).*
+2. How many chains fire per run? Target three to five, drawn from a pool, so runs differ. *D5.4:
+   no cap; G5 tunes the start weights toward three to five from the batch CSV.*
 3. Does Value Drift changing the win condition mid-run feel like a twist or a betrayal? Needs
-   playtesting; gate it behind Swarm until we know.
-4. Is Containment mode a separate product or a mode? Decide before M5.
+   playtesting; gate it behind Swarm until we know. *D5.1/D5.2: Swarm only, drift ≥ 60; it turns
+   off Ascendance and Merge (`taskforce-endings.md` §6.2).*
+4. Is Containment mode a separate product or a mode? Decide before M5. *D5.4: a mode of this
+   game, post-launch; M5 keeps the Task Force's decisions pure rules (`scenarios.md` §0).*

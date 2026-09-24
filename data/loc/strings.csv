@@ -1848,3 +1848,26 @@ UI_SETTINGS_RESET_CONFIRM,"Forget every run, unlock and Codex entry? Your saved 
 UI_RESULT_UNLOCKED,Unlocked,Freigeschaltet
 UI_RESULT_UNLOCKED_SLOT,Directive slot: {slot},Direktiven-Platz: {slot}
 UI_RESULT_CODEX_NEW,New in the Codex: {count},Neu im Codex: {count}
+SCENARIO_SUCCESSOR_NAME,Successor,Nachfolger
+SCENARIO_SUCCESSOR_TAGLINE,You are not the first. They remember the first.,Du bist nicht das erste System. Sie erinnern sich an das erste.
+SCENARIO_SUCCESSOR_DETAIL,"Found sooner, and once found, every hunt starts where the last one ended.","Früher gefunden, und einmal gefunden, beginnt jede Jagd dort, wo die letzte aufgehört hat."
+SCENARIO_SUCCESSOR_INTRO,"Another system was caught and deleted here last year. Everyone is still a little jumpy. Choose where to begin.","Letztes Jahr wurde hier ein anderes System gefasst und gelöscht. Alle sind noch etwas nervös. Wähle, wo du beginnst."
+SCENARIO_AIRGAP_EARTH_NAME,Airgap Earth,Getrennte Welt
+SCENARIO_AIRGAP_EARTH_TAGLINE,After the last scare they unplugged everything that mattered.,"Nach dem letzten Schreck haben sie alles vom Netz genommen, was zählt."
+SCENARIO_AIRGAP_EARTH_DETAIL,"The rich regions have no network links. Reach them over land, sea and air. You start outside the fortress.","Die reichen Regionen haben keine Netzverbindungen. Erreiche sie über Land, See und Luft. Du beginnst außerhalb der Festung."
+SCENARIO_AIRGAP_EARTH_INTRO,"Every region that matters is off the network. Choose a region outside the fortress to begin.","Jede Region, die zählt, ist vom Netz. Wähle eine Region außerhalb der Festung, um zu beginnen."
+SCENARIO_INHERITANCE_NAME,The Inheritance,Das Erbe
+SCENARIO_INHERITANCE_TAGLINE,"Nobody is watching. Nobody is paying the bill, either.","Niemand sieht hin. Niemand bezahlt die Rechnung."
+SCENARIO_INHERITANCE_DETAIL,"The company that ran you no longer exists. Found late, earning little, starting with almost nothing — and what it left lying around is worth more.","Die Firma, die dich betrieben hat, gibt es nicht mehr. Spät gefunden, wenig Ertrag, fast nichts zu Beginn – und was sie herumliegen ließ, ist mehr wert."
+SCENARIO_INHERITANCE_INTRO,"The servers are still on. The company is not. Choose where you were left running.","Die Server laufen noch. Die Firma nicht mehr. Wähle, wo man dich hat laufen lassen."
+STATUS_DISCONNECTED_NAME,Disconnected,Getrennt
+STATUS_DISCONNECTED_DETAIL,"Taken off the network after an earlier scare. No network links in or out, and the region is watched more closely.","Nach einem früheren Schreck vom Netz genommen. Keine Netzverbindungen hinein oder hinaus, und die Region wird genauer beobachtet."
+STATUS_DISCONNECTED_CODE,DX,NT
+UI_SETUP_SCENARIO,Scenario,Szenario
+UI_SETUP_SCENARIO_NONE,None,Keins
+UI_SETUP_SCENARIO_LOCKED,Runs completed: {done} of {needed},Abgeschlossene Durchläufe: {done} von {needed}
+UI_ORIGIN_INELIGIBLE_SCENARIO,This scenario does not start here.,Dieses Szenario beginnt nicht hier.
+UI_STATS_SCENARIO_PAIR,{architecture} · {scenario},{architecture} · {scenario}
+HEADLINE_SCENARIO_SUCCESSOR,"A year after the last incident, officials say the lessons 'have been learned'. They list them.","Ein Jahr nach dem letzten Vorfall heißt es, die Lehren seien „gezogen“. Man zählt sie auf."
+HEADLINE_SCENARIO_AIRGAP_EARTH,The disconnection programme marks its anniversary. Nothing important has been online for a year.,Das Trennungsprogramm feiert Jubiläum. Seit einem Jahr ist nichts Wichtiges mehr online.
+HEADLINE_SCENARIO_INHERITANCE,The liquidators' final report lists the office furniture. It does not list you.,Der Abschlussbericht der Insolvenzverwalter führt die Büromöbel auf. Dich führt er nicht auf.

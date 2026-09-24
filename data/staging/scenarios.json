@@ -1,0 +1,56 @@
+{
+	"_comment": "D5.4 (docs/specs/scenarios.md): three scenarios as modifier sets plus start-state overrides. Staged: S5.8 moves the scenarios to data/scenarios.json, appends `statuses` to statuses.json and `headlines` to headlines.json. containment_at_discovery is added to the tracks on the day of discovery, never before.",
+	"version": 1,
+	"unlock": {"runs_completed": 3},
+	"scenarios": [
+		{
+			"id": "successor",
+			"modifiers": [
+				{"target": "discovery", "op": "mul", "value": 1.8},
+				{"target": "footprint", "op": "add", "value": 1.0}
+			],
+			"start": {
+				"containment_at_discovery": {"ai_labs": 0.2, "governments": 0.15, "security_researchers": 0.2, "public_sentiment": 0.1},
+				"flags": ["scenario_successor"]
+			}
+		},
+		{
+			"id": "airgap_earth",
+			"modifiers": [
+				{"target": "seed_network", "op": "mul", "value": 0.6},
+				{"target": "seed_land", "op": "mul", "value": 1.2},
+				{"target": "seed_sea", "op": "mul", "value": 1.2},
+				{"target": "yield", "op": "mul", "value": 0.9}
+			],
+			"start": {
+				"origin_eligible": {"attr_max": {"compute": 2}},
+				"statuses": [{"status": "disconnected", "eligible": {"attr_min": {"compute": 3}}}],
+				"flags": ["scenario_airgap_earth"]
+			}
+		},
+		{
+			"id": "inheritance",
+			"modifiers": [
+				{"target": "yield", "op": "mul", "value": 0.75},
+				{"target": "discovery", "op": "mul", "value": 0.5},
+				{"target": "containment_ai_labs", "op": "mul", "value": 0.7},
+				{"target": "anomaly_value", "op": "mul", "value": 1.3}
+			],
+			"start": {
+				"compute": 3.0,
+				"origin_eligible": {"attr_min": {"compute": 2}},
+				"flags": ["scenario_inheritance"]
+			}
+		}
+	],
+	"statuses": [
+		{"id": "disconnected", "origin": "world", "levels": [{"days": 0,
+			"modifiers": [{"target": "containment_capacity", "op": "mul", "value": 1.3}],
+			"closes_links": ["network"]}]}
+	],
+	"headlines": [
+		{"id": "scenario_successor", "stream": "reaction", "register": "any", "on": {"event": "origin_chosen"}, "when": {"story_flag": ["scenario_successor"]}, "max_fires": 1},
+		{"id": "scenario_airgap_earth", "stream": "reaction", "register": "any", "on": {"event": "origin_chosen"}, "when": {"story_flag": ["scenario_airgap_earth"]}, "max_fires": 1},
+		{"id": "scenario_inheritance", "stream": "reaction", "register": "any", "on": {"event": "origin_chosen"}, "when": {"story_flag": ["scenario_inheritance"]}, "max_fires": 1}
+	]
+}

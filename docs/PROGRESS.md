@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Meanwhile the design block goes on: **D5.4 — Scenarios** *(stretch; it does not depend on the verdict)*. |
+| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. The M5 design block is done; meanwhile the build goes on: **S4.P — Punch list from D4.5 and G4** *(skip if empty)*, then **S5.1**. |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S4.P (punch list), then the M5 build S5.1 → S5.8 |
-| **Last completed** | D5.3 — full screen flow, boot sequence, Codex: `docs/specs/screens-full.md`, 92 string rows (boot lines, setup, Codex prose, statistics). 1268 tests green (2026-09-24). **The M4 gate is still open.** |
-| **Before that** | D5.2 — Response Task Force, endings, chains third batch (2026-09-24) |
+| **After it** | S5.1 → S5.8 (M5 build), then G5 |
+| **Last completed** | D5.4 — scenarios: `docs/specs/scenarios.md`, `data/staging/scenarios.json`, 23 string rows; CONTENT §11's four questions all answered. 1268 tests green (2026-09-24). **The M4 gate is still open.** |
+| **Before that** | D5.3 — full screen flow, boot sequence, Codex (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -117,7 +117,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] D5.1 [F] Architectures, directives, difficulty
 - [x] D5.2 [F] Response Task Force; endings
 - [x] D5.3 [F] Full screen flow, boot sequence, Codex
-- [ ] D5.4 [F] Scenarios *(stretch)* — ⇄ **then `/model opus`**
+- [x] D5.4 [F] Scenarios *(stretch)* — ⇄ **then `/model opus`**
 
 **Block 10 — M5 build · Opus**
 - [ ] S4.P [O] Punch list from D4.5 and G4 *(skip if empty)*
@@ -905,6 +905,15 @@ without new information.
   tabs) is collected by a presentation-side `CodexTracker` and never lists a locked ending (the
   hidden Escape stays hidden). The ending sequence pulls the camera out over 2.4 s; the results
   show the ending, its epilogue and an *Unlocked* row. *Reset progress* keeps the saves.
+- **2026-09-24** (D5.4) — **Scenarios are `docs/specs/scenarios.md`**: a modifier set plus
+  start-state overrides (`compute`, `origin_eligible`, `statuses` at the origin,
+  `containment_at_discovery`, story `flags`), no hooks; a fourth `RunSetup` field chosen on the
+  setup's first page, all three unlocked after three completed runs. The three: **Successor**
+  (tracks start where the last hunt ended — added *at discovery*, never before), **Airgap Earth**
+  (rich regions `disconnected` from the network; start outside), **The Inheritance** (little
+  Compute, weak yield, found late). The other seven of CONTENT §7 are parked with what each needs.
+  **Containment mode is a mode, post-launch** (CONTENT q4); **no cap on chains per run**, G5 tunes
+  start weights toward three to five (CONTENT q2).
 
 ## Design questions for Fable
 
@@ -1859,6 +1868,12 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — D5.4 Scenarios (stretch) [F]
+- Read CONTENT §7 and the phase/containment code (containment is 0 and does not grow before
+  discovery — so a scenario's head start lands at discovery); wrote `docs/specs/scenarios.md`
+  and `data/staging/scenarios.json` (three scenarios, the `disconnected` status, three headlines),
+  23 string rows. Marked CONTENT §11 q1–q4 answered. `check_strings` green.
 
 ### 2026-09-24 — D5.3 Full screen flow, boot sequence, Codex [F]
 - Read UI §1–§2/§5, VISUALS §1 (*Where 3D earns its place*) and §5, CONTENT §9, m3-screens §7 and
