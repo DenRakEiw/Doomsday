@@ -25,6 +25,8 @@ const KEY_RUN_NUMBER: String = "UI_STATS_RUN_NUMBER"
 const KEY_REPLAY: String = "UI_STATS_REPLAY"
 const KEY_EMPTY: String = "UI_STATS_EMPTY"
 const KEY_PROGRESS: String = "UI_CODEX_PROGRESS"
+## scenarios.md §1: *architecture · scenario* for a run played in one.
+const KEY_SCENARIO_PAIR: String = "UI_STATS_SCENARIO_PAIR"
 const PREFIX_OUTCOME: String = "UI_OUTCOME_"
 ## A figure there is none of yet.
 const DASH: String = "—"
@@ -144,8 +146,7 @@ func _run_block(entry: Dictionary) -> Control:
 	head.theme_type_variation = &"Row"
 	block.add_child(head)
 	_label(head, tr(KEY_RUN_NUMBER).format({"n": int(entry.get("n", 0))}), &"ValueLabel")
-	var architecture: Label = _label(head, tr(ArchitectureDef.name_key(
-		str(entry.get("architecture", "")))), &"")
+	var architecture: Label = _label(head, _setup_text(entry), &"")
 	architecture.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var outcome: String = str(entry.get("outcome", ""))
 	var outcome_label: Label = _label(head, tr(PREFIX_OUTCOME + outcome.to_upper()), &"")
@@ -183,12 +184,23 @@ func _run_block(entry: Dictionary) -> Control:
 	return block
 
 
+## The architecture's name, paired with the scenario's when the run had one.
+func _setup_text(entry: Dictionary) -> String:
+	var architecture: String = tr(ArchitectureDef.name_key(str(entry.get("architecture", ""))))
+	var scenario: String = str(entry.get("scenario", ""))
+	if scenario.is_empty():
+		return architecture
+	return tr(KEY_SCENARIO_PAIR).format({"architecture": architecture,
+		"scenario": tr(ScenarioDef.name_key(scenario))})
+
+
 func _on_replay_pressed(entry: Dictionary) -> void:
 	var directives: Array[String] = []
 	for id: Variant in entry.get("directives", []):
 		directives.append(str(id))
 	var setup: RunSetup = RunSetup.create(str(entry.get("architecture", ArchitectureDef.DEFAULT_ID)),
-		directives, str(entry.get("difficulty", DifficultyDef.DEFAULT_ID)))
+		directives, str(entry.get("difficulty", DifficultyDef.DEFAULT_ID)),
+		str(entry.get("scenario", "")))
 	replay_requested.emit(int(entry.get("seed", 0)), setup)
 
 

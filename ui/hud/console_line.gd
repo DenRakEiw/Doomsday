@@ -328,6 +328,10 @@ func _status_started(event: SimEvent) -> void:
 	# An ability's status is its own line; the Task Force's is its `acted` line.
 	if source.begins_with("%s:" % Status.SOURCE_ABILITY) or source == TaskForceSystem.SOURCE:
 		return
+	# A scenario's statuses are the world's resting state, not news
+	# (scenarios.md §3); its first headline says it once.
+	if source.begins_with("%s:" % ScenarioDef.SOURCE_PREFIX):
+		return
 	var name: String = tr(StatusDef.name_key(str(event.data.get("status", ""))))
 	var region: String = str(event.data.get("region", ""))
 	var faction: String = Status.faction_of(source)

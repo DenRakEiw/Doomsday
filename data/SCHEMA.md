@@ -626,6 +626,25 @@ shows every outcome's default line and no epilogue. `{"version": 1, "epilogue_ma
   `ENDING_EPILOGUE_<ID>`.
 - A `when` may name a story flag in `flag` / `not_flag` as events' may.
 
+## 6j. `scenarios.json`
+
+The scenarios (`docs/specs/scenarios.md` §2). **Optional**: a root without it has none.
+`{"version": 1, "unlock": {"runs_completed": int ≥ 0}, "scenarios": [{"id", "modifiers",
+"start"}]}` — ids unique; modifiers as §4.1, active under `scenario:<id>` after the loadout's and
+before the tier's. `start` takes, each optional:
+
+| Field | Rule |
+| --- | --- |
+| `compute` | ≥ 0; **replaces** `compute.start` (a tier's `start_compute` still comes on top) |
+| `origin_eligible` | a §7 object **added** to the origin rule; a region it refuses answers `origin_scenario` |
+| `statuses` | `[{"status", "eligible"}]`: a **world** status, applied at level 1 when the origin is chosen to every region `eligible` (§7) passes, under the source `scenario:<id>` — outside `factions.max_active_moves` |
+| `containment_at_discovery` | faction id → value in (0, 1), added to that track **on the day of discovery**, never before |
+| `flags` | story flags set at the origin (`scenario_<id>` by convention) |
+
+A run names its scenario in `setup.scenario` (`""` = none); an unknown one refuses the origin with
+`setup_invalid`. That they unlock after `unlock.runs_completed` completed runs is the profile's
+check, never the simulation's. Strings: `SCENARIO_<ID>_NAME` · `_TAGLINE` · `_DETAIL` · `_INTRO`.
+
 ## 7. Eligibility
 
 Where something may be placed, used or picked: a `deploy` site, an ability's target, an event's

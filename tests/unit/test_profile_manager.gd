@@ -116,3 +116,17 @@ func test_reset_forgets_everything() -> void:
 	_profile.call(&"reset")
 	assert_eq(int(_profile.get(&"runs_completed")), 0)
 	assert_eq((_profile.get(&"codex") as Dictionary).get("regions", []).size(), 0)
+
+
+func test_the_history_names_the_scenario_and_three_runs_unlock_them() -> void:
+	var db: ContentDB = _db()
+	assert_false(bool(_profile.call(&"scenarios_unlocked", db)))
+	var sim: Simulation = Simulation.create(db, 5, RunSetup.create(ArchitectureDef.DEFAULT_ID,
+		[], DifficultyDef.DEFAULT_ID, "successor"))
+	sim.apply(ChooseOriginCommand.new("usa"))
+	sim.world.outcome = World.Outcome.LOSE_CONTAINED
+	for i: int in db.scenario_unlock_runs:
+		_profile.call(&"record_run", sim, "lose_contained")
+	assert_true(bool(_profile.call(&"scenarios_unlocked", db)))
+	var entry: Dictionary = (_profile.get(&"history") as Array)[0]
+	assert_eq(str(entry["scenario"]), "successor")

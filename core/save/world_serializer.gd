@@ -270,6 +270,10 @@ static func _missing_content(world_dict: Dictionary, db: ContentDB) -> String:
 		if typeof(setup.get("architecture")) == TYPE_STRING \
 				and db.architecture(str(setup["architecture"])) == null:
 			return str(setup["architecture"])
+		# And a scenario it no longer has (S5.8).
+		if typeof(setup.get("scenario")) == TYPE_STRING and not str(setup["scenario"]).is_empty() \
+				and db.scenario(str(setup["scenario"])) == null:
+			return str(setup["scenario"])
 
 	if typeof(world_dict.get("agent")) != TYPE_DICTIONARY:
 		return ""

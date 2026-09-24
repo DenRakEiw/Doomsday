@@ -99,9 +99,14 @@ func test_a_mouse_move_does_not_skip_the_boot() -> void:
 
 
 func test_the_timestamps_have_three_decimals() -> void:
+	# The stamp follows the locale's decimal mark; the player's saved locale
+	# must not decide what this test sees.
+	var locale: String = TranslationServer.get_locale()
+	TranslationServer.set_locale("en")
 	assert_eq(Boot.stamp(0.0), "0.000")
 	assert_eq(Boot.stamp(0.117), "0.117")
 	assert_eq(Boot.stamp(0.936), "0.936")
+	TranslationServer.set_locale(locale)
 
 
 func test_new_run_on_the_title_opens_the_setup() -> void:

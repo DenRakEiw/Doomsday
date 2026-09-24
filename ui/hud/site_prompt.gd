@@ -102,7 +102,11 @@ func _detail_text(request: SiteRequest) -> String:
 			return tr(KEY_HOVER_OK).format({PLACEHOLDER_REGION: region})
 		return tr(KEY_HOVER_CLOSED).format({PLACEHOLDER_REGION: region,
 			PLACEHOLDER_REASON: reason})
-	return tr(KEY_ORIGIN_DETAIL if request.kind == SiteRequest.KIND_ORIGIN else KEY_DETAIL)
+	if request.kind != SiteRequest.KIND_ORIGIN:
+		return tr(KEY_DETAIL)
+	# scenarios.md §5: a scenario sets the scene in the origin prompt's place.
+	var scenario: String = Game.sim.world.setup.scenario if Game.sim != null else ""
+	return tr(KEY_ORIGIN_DETAIL if scenario.is_empty() else ScenarioDef.intro_key(scenario))
 
 
 func _apply_shape() -> void:

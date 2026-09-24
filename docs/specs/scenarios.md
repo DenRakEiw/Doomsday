@@ -3,7 +3,8 @@
 **Status:** design, 2026-09-24. Build step: **S5.8** *(stretch — cut first if M5 runs long)*.
 **Read with:** CONTENT §7 · `replayability.md` §1, §4, §8 (`RunSetup`, directives, the grammars) ·
 `screens-full.md` §4 (the setup page this adds a row to) · SCHEMA §4, §6a, §7, §8.
-**Data:** `data/staging/scenarios.json` (loaded by nothing yet; S5.8 moves it to `data/`).
+**Data:** `data/scenarios.json` (moved out of staging and loaded in S5.8, with the `disconnected`
+status in `statuses.json` and the three headlines in `headlines.json`; grammar in SCHEMA §6j).
 **Strings:** in `data/loc/strings.csv`.
 
 ---

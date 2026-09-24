@@ -1,6 +1,6 @@
 extends Control
-## The run's setup (spec `screens-full.md` §4): page 1 the architecture and the
-## difficulty, page 2 the directives — skipped while no slot is unlocked.
+## The run's setup (spec `screens-full.md` §4): page 1 the architecture, the
+## difficulty and (S5.8, scenarios.md §5) the scenario, page 2 the directives — skipped while no slot is unlocked.
 ## **Begin** builds the `RunSetup` and hands it to the router.
 ##
 ## What the screen opens on is `ScreenRouter.setup_preset` (Statistics' *Play
@@ -28,6 +28,9 @@ const KEY_ARCH_DETAIL: String = "ARCH_%s_DETAIL"
 const KEY_HOOK: String = "ARCH_HOOK_%s"
 const KEY_DIFFICULTY_DETAIL: String = "DIFFICULTY_%s_DETAIL"
 const KEY_DIRECTIVE_DETAIL: String = "DIRECTIVE_%s_DETAIL"
+const KEY_SCENARIO: String = "UI_SETUP_SCENARIO"
+const KEY_SCENARIO_NONE: String = "UI_SETUP_SCENARIO_NONE"
+const KEY_SCENARIO_LOCKED: String = "UI_SETUP_SCENARIO_LOCKED"
 const PREFIX_OUTCOME: String = "UI_OUTCOME_"
 
 const PAGE_ARCHITECTURE: int = 1
@@ -54,6 +57,11 @@ const DIFFICULTY_STACK_WIDTH: float = 520.0
 @onready var _difficulty_title: Label = %DifficultyTitle
 @onready var _difficulty_row: BoxContainer = %DifficultyRow
 @onready var _difficulty_detail: Label = %DifficultyDetail
+@onready var _scenario_title: Label = %ScenarioTitle
+@onready var _scenario_row: HFlowContainer = %ScenarioRow
+@onready var _scenario_locked: Label = %ScenarioLocked
+@onready var _scenario_tagline: Label = %ScenarioTagline
+@onready var _scenario_detail: Label = %ScenarioDetail
 @onready var _seed_row: Control = %SeedRow
 @onready var _seed_label: Label = %SeedLabel
 @onready var _seed_clear: ConsoleButton = %SeedClearButton
@@ -64,6 +72,8 @@ const DIFFICULTY_STACK_WIDTH: float = 520.0
 var page: int = PAGE_ARCHITECTURE
 var architecture: String = ArchitectureDef.DEFAULT_ID
 var difficulty: String = DifficultyDef.DEFAULT_ID
+## "" = no scenario.
+var scenario: String = ""
 ## Slot id → the chosen directive, or "" for none.
 var directives: Dictionary[String, String] = {}
 ## 0 = a new random seed at Begin.
@@ -74,6 +84,9 @@ var _card_group: ButtonGroup = ButtonGroup.new()
 var _difficulty_group: ButtonGroup = ButtonGroup.new()
 var _card_by_id: Dictionary[String, ArchitectureCard] = {}
 var _difficulty_buttons: Dictionary[String, ConsoleButton] = {}
+var _scenario_group: ButtonGroup = ButtonGroup.new()
+## Scenario id ("" = none) → its button.
+var _scenario_buttons: Dictionary[String, ConsoleButton] = {}
 ## Slot id → directive id ("" = none) → its button.
 var _directive_buttons: Dictionary[String, Dictionary] = {}
 var _directive_details: Dictionary[String, Label] = {}
@@ -91,6 +104,7 @@ func _ready() -> void:
 		else ProfileManager.last_setup, ScreenRouter.setup_seed)
 	_build_cards()
 	_build_difficulties()
+	_build_scenarios()
 	_build_directives()
 	_refresh_strings()
 	_show_page(PAGE_ARCHITECTURE)
@@ -138,6 +152,23 @@ func select_difficulty(id: String) -> void:
 	_refresh_difficulty_detail()
 
 
+## A scenario, or "" for none. Nothing while the scenarios are locked.
+func select_scenario(id: String) -> void:
+	if not scenarios_unlocked() or (not id.is_empty() and _db.scenario(id) == null):
+		return
+	scenario = id
+	# `set_pressed_no_signal` leaves the group alone, so the others are let go
+	# by hand — a selection that came from the code, not a click, is otherwise
+	# drawn next to the one before it.
+	for button_id: String in _scenario_buttons:
+		_scenario_buttons[button_id].set_pressed_no_signal(button_id == id)
+	_refresh_scenario_detail()
+
+
+func scenarios_unlocked() -> bool:
+	return _db != null and ProfileManager.scenarios_unlocked(_db)
+
+
 ## A directive for its slot, or "" for none. A locked slot takes nothing.
 func select_directive(slot: String, id: String) -> void:
 	var index: int = _db.directive_slots.find(slot)
@@ -157,15 +188,15 @@ func clear_seed() -> void:
 	_refresh_seed()
 
 
-## The setup this screen would start: the architecture, the difficulty, and the
-## directives of the unlocked slots in slot order.
+## The setup this screen would start: the architecture, the difficulty, the
+## directives of the unlocked slots in slot order, and the scenario.
 func build_setup() -> RunSetup:
 	var chosen: Array[String] = []
 	for slot: String in _db.directive_slots:
 		var id: String = str(directives.get(slot, ""))
 		if not id.is_empty():
 			chosen.append(id)
-	return RunSetup.create(architecture, chosen, difficulty)
+	return RunSetup.create(architecture, chosen, difficulty, scenario)
 
 
 ## §4: Back goes to the title from page 1 and to page 1 from page 2. `Escape`
@@ -199,7 +230,8 @@ func _on_next_pressed() -> void:
 
 ## §4: the setup opens on `preset`, cleaned: an architecture that is no longer
 ## unlocked falls back to the default, a directive in a locked slot is dropped,
-## an unknown difficulty is the content's default.
+## an unknown difficulty is the content's default, and a scenario is kept only
+## while it exists and the scenarios are unlocked.
 func _open_on(preset: RunSetup, carried_seed: int) -> void:
 	var def: ArchitectureDef = _db.architecture(preset.architecture)
 	architecture = preset.architecture if def != null and ProfileManager.is_unlocked(def) \
@@ -215,6 +247,8 @@ func _open_on(preset: RunSetup, carried_seed: int) -> void:
 		var index: int = _db.directive_slots.find(directive.slot)
 		if index >= 0 and index < open_slots:
 			directives[directive.slot] = id
+	scenario = preset.scenario \
+		if scenarios_unlocked() and _db.scenario(preset.scenario) != null else ""
 	seed_value = maxi(0, carried_seed)
 
 
@@ -253,6 +287,32 @@ func _build_difficulties() -> void:
 		_difficulty_row.add_child(button)
 		_difficulty_buttons[id] = button
 	select_difficulty(difficulty)
+
+
+## scenarios.md §5: *None* and one button per scenario in content order — or,
+## while locked, how far the player is from them and no buttons. A content root
+## without scenarios shows no row at all.
+func _build_scenarios() -> void:
+	var has_any: bool = not _db.scenarios.is_empty()
+	_scenario_title.visible = has_any
+	var unlocked: bool = scenarios_unlocked()
+	_scenario_locked.visible = has_any and not unlocked
+	_scenario_row.visible = unlocked
+	if not unlocked:
+		_refresh_scenario_detail()
+		return
+	var ids: Array[String] = [""]
+	for def: ScenarioDef in _db.scenarios:
+		ids.append(def.id)
+	for id: String in ids:
+		var button: ConsoleButton = ConsoleButton.new()
+		button.toggle_mode = true
+		button.button_group = _scenario_group
+		button.label_key = KEY_SCENARIO_NONE if id.is_empty() else ScenarioDef.name_key(id)
+		button.pressed.connect(select_scenario.bind(id))
+		_scenario_row.add_child(button)
+		_scenario_buttons[id] = button
+	select_scenario(scenario)
 
 
 ## §4.2: one row per slot in content order; a locked slot says when it opens.
@@ -337,6 +397,9 @@ func effect_lines(def: ArchitectureDef) -> Array[String]:
 func _refresh_strings() -> void:
 	_effects_title.text = Format.caps(tr(KEY_EFFECTS))
 	_difficulty_title.text = Format.caps(tr(KEY_DIFFICULTY))
+	_scenario_title.text = Format.caps(tr(KEY_SCENARIO))
+	_scenario_locked.text = tr(KEY_SCENARIO_LOCKED).format({
+		"done": ProfileManager.runs_completed, "needed": _db.scenario_unlock_runs})
 	for def: ArchitectureDef in _db.architectures:
 		var card: ArchitectureCard = _card_by_id[def.id]
 		card.setup(def.id, card.locked, unlock_text(def.unlock), card.is_new())
@@ -349,6 +412,7 @@ func _refresh_strings() -> void:
 		_refresh_directive_detail(slot)
 	_refresh_detail()
 	_refresh_difficulty_detail()
+	_refresh_scenario_detail()
 	_refresh_seed()
 	_refresh_header()
 
@@ -377,6 +441,17 @@ func _refresh_detail() -> void:
 
 func _refresh_difficulty_detail() -> void:
 	_difficulty_detail.text = tr(KEY_DIFFICULTY_DETAIL % difficulty.to_upper())
+
+
+## The chosen scenario's tagline and, below it, its detail; nothing for *None*.
+func _refresh_scenario_detail() -> void:
+	var chosen: bool = not scenario.is_empty()
+	_scenario_tagline.visible = chosen
+	_scenario_detail.visible = chosen
+	if not chosen:
+		return
+	_scenario_tagline.text = tr(ScenarioDef.tagline_key(scenario))
+	_scenario_detail.text = tr(ScenarioDef.detail_key(scenario))
 
 
 func _refresh_directive_detail(slot: String) -> void:
@@ -418,6 +493,8 @@ func _fit() -> void:
 	_difficulty_row.vertical = width < DIFFICULTY_STACK_WIDTH
 	for button: Node in _difficulty_row.get_children():
 		(button as ConsoleButton).compact = compact
+	for button: ConsoleButton in _scenario_buttons.values():
+		button.compact = compact
 	for buttons: Dictionary in _directive_buttons.values():
 		for button: Variant in buttons.values():
 			(button as ConsoleButton).compact = compact

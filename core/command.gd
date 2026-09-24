@@ -40,6 +40,9 @@ const FAIL_UNKNOWN_OPTION: String = "unknown_option"
 const FAIL_OPTION_LOCKED: String = "option_locked"
 ## `replayability.md` §1: the run's setup names something the content lacks.
 const FAIL_SETUP_INVALID: String = "setup_invalid"
+## `docs/specs/scenarios.md` §2: a region the scenario's origin rule refuses. The
+## origin prompt words it itself (`UI_ORIGIN_INELIGIBLE_SCENARIO`).
+const FAIL_ORIGIN_SCENARIO: String = "origin_scenario"
 ## `taskforce-endings.md` §4: Misdirect with no team to mislead.
 const FAIL_NO_TASK_FORCE: String = "no_task_force"
 

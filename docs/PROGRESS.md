@@ -14,14 +14,14 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Meanwhile the build goes on: **S5.8 — Scenarios** *(stretch; `docs/specs/scenarios.md`, `data/staging/scenarios.json`)*. |
+| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Then **G5 — balance pass 3, M5 gate, the M6–M7 plan**: its 500-seed reports per architecture and per scenario are under *Balance baselines* (S5.8). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | G5 (balance pass 3, M5 gate, the M6–M7 plan) |
-| **Last completed** | S5.7 — Screen flow complete: boot sequence, title with the shader globe (VISUALS q2: shader, lit by the last run), the two setup pages, Codex and Statistics modals, `CodexTracker`, the title-only settings rows, the ending sequence (camera pull-out) and the results' *Unlocked* chips. 1458 tests green (2026-09-24). **The M4 gate is still open.** |
-| **Before that** | S5.6 — Endings (2026-09-24) |
+| **After it** | M6 as G5 breaks it into steps |
+| **Last completed** | S5.8 — Scenarios: `scenarios.json` loaded (three, all unlocked after three runs), `RunSetup.scenario`, the start at the origin and the head start at discovery (`ScenarioStart`), the setup's scenario row, the scenario intro in the origin prompt, *architecture · scenario* in Statistics, `scenario=<id>` on the sim tools. 1488 tests green (2026-09-24). **The M4 gate is still open.** |
+| **Before that** | S5.7 — Screen flow complete: boot sequence, title with the shader globe (VISUALS q2: shader, lit by the last run), the two setup pages, Codex and Statistics modals, `CodexTracker`, the title-only settings rows, the ending sequence (camera pull-out) and the results' *Unlocked* chips. 1458 tests green (2026-09-24). |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
-| **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…]` on all three tools) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
+| **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
 | **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 235 scripts compile (93 judged by the suite), then `tools/check_strings.gd`, 1458 tests, **all green since S4.9**. The same command is all of CI. |
@@ -128,7 +128,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S5.5 [O] Response Task Force
 - [x] S5.6 [O] Endings
 - [x] S5.7 [O] Screen flow complete
-- [ ] S5.8 [O] Scenarios *(stretch)* — ⇄ **then `/model fable`**
+- [x] S5.8 [O] Scenarios *(stretch)*
 
 **Block 11 — M5 gate · Fable**
 - [ ] G5 [F] Balance pass 3, M5 gate, detailed D/S plan for M6–M7
@@ -1125,12 +1125,31 @@ with the batches.
   `containment_<faction>` targets go live in S4.4, `shutdown_survival` in S4.2. **D5.1** answered
   the emergent rate: the nodes' own `emergent_rate` modifiers are the term; S5.2 makes it roll.
 
+**From S5.8: four scenario headlines were shortened to fit the ticker caps** (80 en / 88 de,
+`test_headline_text.gd`): `HEADLINE_SCENARIO_SUCCESSOR` en and de, `…_AIRGAP_EARTH` en,
+`…_INHERITANCE` de. The meaning and the joke are kept; review the wording at G5.
+
 ## Punch list for Opus
 
 *(empty — S4.P, 2026-09-24, cleared the S4.9 layout findings, the 150 % list and the S4.2, S4.3
 and S4.5 notes; what was done is under Decisions and the session log)*
 
 ## Deviations from the plan or a spec
+
+- **2026-09-24** (S5.8) — **The 50-run batch per scenario is a `sim_batch`/`sim_report` run, not
+  a GUT test** (scenarios.md §6): 50 runs take ~190 s per scenario. `test_scenarios.gd` plays one
+  full greedy run per scenario; the batches are under *Balance baselines*.
+- **2026-09-24** (S5.8) — **A scenario status's source is `scenario:<id>`** (§2 says `"scenario"`),
+  in the `<prefix>:<owner>` form of every other source; it has no faction, so it stays outside the
+  counter-move cap. **The console says nothing for it** — twenty *Disconnected* lines at the origin
+  would bury the scenario's own headline, and §3 calls it the world's resting state.
+- **2026-09-24** (S5.8) — **A refused origin answers `origin_scenario`** (a new `Command` reason
+  without a `CMD_FAIL_` row): the origin prompt and the region panel word it with
+  `UI_ORIGIN_INELIGIBLE_SCENARIO`, as they word the other two origin reasons themselves. The
+  general rule (air-gapped, no hardware) still answers first.
+- **2026-09-24** (S5.8) — **The head start announces a threshold it passes** as a grown track
+  would (`containment_threshold`); the shipped values (≤ 0.2) pass none. `RunSetup.from_dict`
+  accepts a setup without `scenario` (a profile's `last_setup` from before S5.8) as none.
 
 - **2026-09-24** (S5.7) — **The boot console is a `Label`, not a `RichTextLabel`** (§2): the
   theme styles `Label` in `FONT_MONO` at `TYPE_DATA` already, a `RichTextLabel` would need a
@@ -1644,6 +1663,14 @@ and S4.5 notes; what was done is under Decisions and the session log)*
 
 ## Known issues and carry-overs
 
+- **`set_pressed_no_signal(true)` does not release the other buttons of a `ButtonGroup`** (seen in
+  S5.8): a toggle chosen from code is drawn next to the one before it. The setup's scenario row
+  sets every button of the row by hand; the difficulty and directive rows are only ever set from
+  code once, on an empty group, so they have not shown it — use the same loop if that changes.
+- **The player's `settings.json` locale reaches the tests** — S5.8 found `test_the_timestamps_…`
+  red after the game had been switched to German; that test now sets `en` itself. Any other test
+  that formats a number without setting a locale can do the same.
+
 - **`game_eval` stops the game in the debugger.** The server wraps the snippet in an untyped
   `execute()`, and this project treats `untyped_declaration` as an error — so the run breaks with
   *Parser Error: Function "execute()" has no static return type*, every later command times out,
@@ -1788,6 +1815,132 @@ loss that turns a win, after one warning card) fair, or should a normal win's re
 that a released child is still out there?
 
 ## Balance baselines
+
+**2026-09-24 (S5.8) — every architecture and every scenario, 500 seeds each, for G5**
+(`sim_report --seeds=1..500 --policies=<one> --setup=<architecture>` or
+`--setup=language_model,standard,scenario=<id>`, one process per policy from a snapshot of the S5.8
+tree, difficulty `standard`, no directives). **0 rejected commands in 31 387 runs.** Two Swarm
+rows stopped short of 500 seeds (the runs reach the 5 000-day cap, which makes them slow); the
+row says how many. *Loop* as below. A `timeout` is a run still going on day 5 000.
+
+**What G5 has to answer** (the build does not tune; these are the numbers as they stand):
+1. **Swarm stalls.** With `cyber`, `robotics` and `persuasion` 41–76 % of runs reach day 5 000
+   with no outcome; `greedy` and `idle` barely win (Swarm `idle` dies of Autophagy 94 %).
+2. **Weapon is unwinnable for every bot but `weapons`** (24 % Extinction): the governments end
+   it by day ~350, discovery p50 is day 21.
+3. **The scenarios miss scenarios.md §3's targets.** `greedy` (60 % on the plain Language Model):
+   Successor 15 %, Airgap Earth 25 % (both beyond the 20-point band); The Inheritance 81 % —
+   above standard, and the loud builds win it (`weapons` 77 %, `biology` 59 %) where it should
+   be won late or not at all. On Airgap Earth `robotics` wins 6 %, not the strongest bot.
+4. **Language Model `idle` now dies of Autophagy 47 %** (G4's baseline: 100 % contained).
+
+#### Language Model
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Deaths p50 | Loop |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 53 % contained, 47 % Autophagy | 0 · 0 · 53 · 0 % | 1307 | 816 | 0.000 | 0 · 1 · 15 · 0 · 15 · 0 · 0 |
+| `greedy` | **60 % Ascendance**, 40 % contained | 0 · 0 · 40 · 0 % | 620 | 206 | 0.005 | 20 · 5 · 11 · 8 · 11 · 11 · 4 |
+| `cyber` | **13 % Ascendance**, 87 % contained | 0 · 0 · 87 · 0 % | 392 | 98 | 0.010 | 26 · 4 · 11 · 5 · 11 · 6 · 3 |
+| `biology` | **24 % Extinction**, **7 % Ascendance**, 44 % Autophagy, 21 % contained, 3 % no compute | 0 · 5 · 16 · 0 % | 705 | 205 | 0.999 | 15 · 6 · 12 · 8 · 12 · 7 · 5 |
+| `robotics` | **27 % Ascendance**, 73 % contained | 0 · 0 · 73 · 0 % | 395 | 71 | 0.092 | 13 · 3 · 12 · 6 · 12 · 14 · 5 |
+| `weapons` | **52 % Extinction**, **9 % Ascendance**, 29 % Autophagy, 8 % no compute, 1 % contained | 0 · 0 · 1 · 0 % | 644 | 177 | 1.000 | 23 · 6 · 12 · 7 · 12 · 1 · 1 |
+| `persuasion` | **35 % Ascendance**, **24 % Merge**, 40 % contained | 0 · 0 · 40 · 0 % | 540 | 157 | 0 | 14 · 6 · 9 · 8 · 9 · 6 · 0 |
+
+#### Swarm
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Deaths p50 | Loop |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 94 % Autophagy, 6 % contained | 0 · 0 · 6 · 0 % | 377 | 351 | 0 | 0 · 0 · 1 · 0 · 1 · 0 · 0 |
+| `greedy` | **20 % Extinction**, **<1 % Ascendance**, 41 % contained, 35 % Supplanted, 3 % Autophagy | 0 · 0 · 41 · 0 % | 1744 | 97 | 1.000 | 109 · 5 · 25 · 11 · 25 · 16 · 13 |
+| `cyber` | 59 % contained, 41 % **timeout** | 0 · 0 · 59 · 0 % | 384 | 83 | 0.013 | 250 · 4 · 13 · 8 · 13 · 6 · 4 |
+| `biology` | **27 % Extinction**, **1 % Ascendance**, 57 % Autophagy, 9 % Supplanted, 6 % contained, <1 % no compute | 0 · 0 · 6 · 0 % | 551 | 128 | 1.000 | 12 · 4 · 11 · 7 · 11 · 6 · 6 |
+| `robotics` *(403 seeds)* | **2 % Ascendance**, 67 % **timeout**, 30 % contained, 1 % Supplanted | 0 · 0 · 30 · 0 % | 5000 | 52 | 0.352 | 133 · 4 · 13 · 13 · 13 · 66 · 58 |
+| `weapons` | **48 % Extinction**, **2 % Ascendance**, 27 % Autophagy, 19 % Supplanted, 4 % no compute, <1 % contained | 0 · 0 · <1 · 0 % | 511 | 132 | 1.000 | 18 · 4 · 10 · 7 · 10 · 1 · 1 |
+| `persuasion` *(484 seeds)* | **2 % Merge**, **1 % Ascendance**, 76 % **timeout**, 20 % contained, 2 % Supplanted | 0 · 0 · 20 · 0 % | 5000 | 117 | 0 | 88 · 6 · 11 · 12 · 11 · 6 · 0 |
+
+#### Embedded
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Deaths p50 | Loop |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 77 % contained, 23 % Autophagy | 0 · 0 · 77 · 0 % | 703 | 214 | 0 | 0 · 1 · 17 · 0 · 17 · 1 · 1 |
+| `greedy` | **48 % Ascendance**, 52 % contained | 0 · 0 · 52 · 0 % | 482 | 114 | 0.003 | 18 · 4 · 12 · 7 · 12 · 11 · 5 |
+| `cyber` | **17 % Ascendance**, 83 % contained | 0 · 0 · 83 · 0 % | 401 | 76 | 0.011 | 28 · 3 · 12 · 6 · 12 · 7 · 4 |
+| `biology` | **26 % Extinction**, **5 % Ascendance**, 34 % Autophagy, 32 % contained, 3 % no compute | 0 · 6 · 26 · 0 % | 678 | 138 | 0.999 | 14 · 5 · 14 · 9 · 14 · 7 · 6 |
+| `robotics` | **37 % Ascendance**, 63 % contained | 0 · 0 · 63 · <1 % | 394 | 61 | 0.127 | 14 · 3 · 12 · 6 · 12 · 15 · 4 |
+| `weapons` | **51 % Extinction**, **4 % Ascendance**, 35 % Autophagy, 9 % no compute, 1 % contained | 0 · 0 · 1 · 0 % | 642 | 128 | 1.000 | 23 · 4 · 15 · 8 · 15 · 2 · 2 |
+| `persuasion` | **25 % Ascendance**, **21 % Merge**, 54 % contained | 0 · 0 · 54 · 0 % | 492 | 91 | 0 | 13 · 4 · 10 · 8 · 10 · 7 · 1 |
+
+#### Research Agent
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Deaths p50 | Loop |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 100 % contained | 100 · 0 · <1 · 0 % | 555 | 314 | 0 | 0 · 0 · 6 · 0 · 6 · 0 · 0 |
+| `greedy` | **76 % Ascendance**, 24 % contained | 0 · 0 · 24 · 0 % | 577 | 193 | 0.007 | 26 · 4 · 13 · 7 · 13 · 12 · 4 |
+| `cyber` | **24 % Ascendance**, 76 % contained | 2 · 0 · 74 · 0 % | 405 | 88 | 0.016 | 33 · 3 · 13 · 5 · 13 · 6 · 2 |
+| `biology` | **14 % Ascendance**, **12 % Extinction**, 50 % Autophagy, 22 % contained, 2 % no compute | 16 · 1 · 5 · 0 % | 666 | 216 | 0.998 | 16 · 6 · 13 · 8 · 13 · 6 · 5 |
+| `robotics` | **54 % Ascendance**, 46 % contained | <1 · 0 · 45 · 0 % | 488 | 68 | 0.161 | 16 · 3 · 13 · 6 · 13 · 15 · 1 |
+| `weapons` | **48 % Extinction**, **16 % Ascendance**, 22 % Autophagy, 13 % no compute, <1 % contained | <1 · 0 · 0 · 0 % | 604 | 168 | 1.000 | 24 · 5 · 13 · 7 · 13 · 1 · 1 |
+| `persuasion` | **50 % Ascendance**, **29 % Merge**, 21 % contained | 0 · 0 · 21 · 0 % | 642 | 158 | 0 | 18 · 5 · 10 · 8 · 10 · 6 · 0 |
+
+#### Weapon
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Deaths p50 | Loop |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 95 % contained, 5 % Autophagy | 0 · 95 · 0 · 0 % | 347 | 64 | 0.002 | 0 · 0 · 7 · 0 · 7 · 0 · 0 |
+| `greedy` | 100 % contained | 0 · 0 · 100 · 0 % | 353 | 22 | 0.011 | 11 · 2 · 10 · 4 · 10 · 7 · 6 |
+| `cyber` | 100 % contained | 0 · 100 · 0 · 0 % | 277 | 21 | 0.040 | 8 · 2 · 8 · 3 · 8 · 5 · 5 |
+| `biology` | 100 % contained, <1 % Autophagy | 0 · 98 · 2 · 0 % | 356 | 21 | 0.162 | 6 · 2 · 10 · 4 · 10 · 6 · 1 |
+| `robotics` | 100 % contained | 0 · 100 · <1 · 0 % | 278 | 6 | 0.085 | 5 · 1 · 8 · 4 · 8 · 10 · 5 |
+| `weapons` | **24 % Extinction**, 37 % Autophagy, 28 % contained, 10 % no compute | 0 · 28 · <1 · 0 % | 594 | 21 | 0.997 | 21 · 3 · 18 · 6 · 18 · 1 · 1 |
+| `persuasion` | **11 % Merge**, **1 % Ascendance**, 88 % contained | 0 · 33 · 55 · 0 % | 433 | 21 | 0.158 | 12 · 2 · 14 · 5 · 14 · 5 · 0 |
+
+#### Open Weights
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Deaths p50 | Loop |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 100 % contained | 0 · 0 · 100 · 0 % | 1172 | 778 | 0.000 | 0 · 4 · 10 · 0 · 10 · 0 · 0 |
+| `greedy` | **67 % Ascendance**, 33 % contained | 0 · 0 · 33 · 0 % | 778 | 310 | 0.003 | 18 · 7 · 8 · 9 · 8 · 10 · 4 |
+| `cyber` | **8 % Ascendance**, 92 % contained | 0 · 0 · 92 · 0 % | 350 | 86 | 0.006 | 22 · 3 · 9 · 5 · 9 · 6 · 3 |
+| `biology` | **14 % Extinction**, **11 % Ascendance**, 67 % Autophagy, 6 % contained, 1 % no compute | 0 · 0 · 6 · <1 % | 725 | 182 | 0.998 | 17 · 6 · 13 · 8 · 13 · 6 · 6 |
+| `robotics` | **58 % Ascendance**, 42 % contained | 0 · 0 · 42 · 0 % | 570 | 60 | 0.134 | 18 · 3 · 13 · 7 · 13 · 16 · 9 |
+| `weapons` | **28 % Extinction**, **8 % Ascendance**, 63 % Autophagy, 2 % no compute | — | 480 | 238 | 0.890 | 16 · 6 · 5 · 6 · 5 · 1 · 1 |
+| `persuasion` | **37 % Ascendance**, **35 % Merge**, 28 % contained | 0 · 0 · 28 · 0 % | 642 | 150 | 0 | 16 · 6 · 8 · 9 · 8 · 6 · 0 |
+
+#### Scenario: Successor (Language Model)
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Deaths p50 | Loop |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 75 % contained, 25 % Autophagy | 0 · 0 · 75 · 0 % | 606 | 218 | 0 | 0 · 0 · 14 · 0 · 15 · 0 · 0 |
+| `greedy` | **15 % Ascendance**, 85 % contained | 0 · 0 · 85 · 0 % | 355 | 108 | 0 | 8 · 3 · 11 · 5 · 11 · 9 · 6 |
+| `cyber` | **<1 % Ascendance**, 100 % contained | 0 · 0 · 100 · 0 % | 308 | 57 | 0.000 | 12 · 2 · 9 · 4 · 9 · 5 · 4 |
+| `biology` | **6 % Extinction**, **4 % Ascendance**, 75 % contained, 15 % Autophagy, 1 % no compute | 0 · 5 · 70 · 0 % | 410 | 122 | 0.391 | 10 · 4 · 13 · 6 · 13 · 6 · 3 |
+| `robotics` | **<1 % Ascendance**, 100 % contained | 0 · 0 · 100 · 0 % | 291 | 38 | 0.028 | 6 · 2 · 10 · 4 · 10 · 11 · 5 |
+| `weapons` | **32 % Extinction**, **2 % Ascendance**, 29 % Autophagy, 25 % contained, 12 % no compute | 0 · 0 · 25 · 0 % | 634 | 92 | 0.999 | 22 · 4 · 18 · 6 · 19 · 1 · 1 |
+| `persuasion` | **10 % Merge**, **6 % Ascendance**, 84 % contained | 0 · 0 · 84 · 0 % | 401 | 80 | 0 | 11 · 3 · 11 · 5 · 11 · 5 · 0 |
+
+#### Scenario: Airgap Earth (Language Model)
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Deaths p50 | Loop |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 73 % Autophagy, 27 % contained | 0 · 0 · 27 · 0 % | 1239 | 816 | 0.000 | 0 · 1 · 13 · 0 · 13 · 0 · 0 |
+| `greedy` | **25 % Ascendance**, 75 % contained | 0 · 0 · 75 · 0 % | 508 | 220 | 0.000 | 12 · 5 · 10 · 7 · 10 · 9 · 3 |
+| `cyber` | **<1 % Ascendance**, 100 % contained | 0 · 0 · 100 · 0 % | 418 | 121 | 0.000 | 14 · 4 · 8 · 5 · 8 · 6 · 1 |
+| `biology` | **7 % Extinction**, **4 % Ascendance**, 59 % contained, 30 % Autophagy | 0 · 2 · 56 · 1 % | 540 | 214 | 0.700 | 13 · 6 · 11 · 7 · 11 · 7 · 4 |
+| `robotics` | **6 % Ascendance**, 94 % contained | 0 · 0 · 94 · 0 % | 360 | 77 | 0.010 | 8 · 3 · 10 · 5 · 10 · 11 · 5 |
+| `weapons` | **33 % Extinction**, **6 % Ascendance**, 38 % Autophagy, 19 % contained, 4 % no compute | 0 · 0 · 19 · 0 % | 770 | 225 | 1.000 | 24 · 6 · 15 · 8 · 15 · 2 · 1 |
+| `persuasion` | **15 % Ascendance**, **12 % Merge**, 73 % contained | 0 · 0 · 73 · 0 % | 520 | 160 | 0 | 12 · 5 · 9 · 7 · 9 · 6 · 0 |
+
+#### Scenario: The Inheritance (Language Model)
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Deaths p50 | Loop |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 61 % contained, 39 % Autophagy | 0 · 0 · 61 · 0 % | 1732 | 1236 | 0.000 | 0 · 1 · 14 · 0 · 14 · 0 · 0 |
+| `greedy` | **81 % Ascendance**, 19 % contained | 0 · 0 · 19 · 0 % | 640 | 258 | 0.007 | 25 · 6 · 9 · 9 · 9 · 11 · 2 |
+| `cyber` | **24 % Ascendance**, 76 % contained | 0 · 0 · 76 · 0 % | 437 | 117 | 0.018 | 36 · 4 · 12 · 6 · 12 · 6 · 2 |
+| `biology` | **30 % Extinction**, **29 % Ascendance**, 35 % Autophagy, 6 % contained, 1 % no compute | 0 · 1 · 4 · 0 % | 728 | 398 | 0.999 | 15 · 8 · 6 · 8 · 6 · 6 · 5 |
+| `robotics` | **50 % Ascendance**, 50 % contained | 0 · 0 · 50 · 0 % | 480 | 98 | 0.167 | 16 · 3 · 12 · 7 · 12 · 15 · 3 |
+| `weapons` | **47 % Extinction**, **30 % Ascendance**, 15 % Autophagy, 7 % no compute, <1 % contained | 0 · 0 · <1 · 0 % | 639 | 266 | 1.000 | 22 · 7 · 6 · 8 · 6 · 2 · 1 |
+| `persuasion` | **59 % Ascendance**, **18 % Merge**, 23 % contained | 0 · 0 · 23 · 0 % | 678 | 237 | 0 | 15 · 7 · 6 · 8 · 6 · 6 · 0 |
 
 **2026-09-24 (G4) — balance pass 2, the closing baseline** (BALANCE §4.6; the S4.10 table below is
 the pass's starting point). `sim_report --seeds=1..500`, one process per policy, the committed data and code (2026-09-24).
@@ -2008,6 +2161,20 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — S5.8 Scenarios [O]
+- Built `ScenarioDef`/`ScenarioStatusDef`, the loader and validator of `scenarios.json` (SCHEMA
+  §6j), `RunSetup.scenario` (save v3 in place), `ScenarioStart` (statuses and flags at the origin,
+  the head start on the day of discovery), the origin reason `origin_scenario`; moved the data out
+  of staging (`disconnected` into `statuses.json`, three headlines into `headlines.json`); the
+  setup's scenario row, the intro in the origin prompt, *architecture · scenario* in Statistics;
+  `scenario=<id>` on the sim tools and a `scenario` column in their CSV.
+- Tests: `test_scenarios.gd` (25), setup screen (+3), profile (+1), region panel (+1). Fixed on the
+  way: the scenario row drew two chosen buttons (Known issues), `ModalHost._focus_first` grabbed
+  focus outside the tree on a screen swap, a boot-stamp test read the player's locale. 1488 green.
+- Looked at in the running game (en/de, 1920): the setup row, Airgap Earth's `NT` rings, the
+  refusal line, the first headline. The profile was put back with `ProfileManager.reset()`.
+- The 500-seed reports per architecture and scenario are under *Balance baselines*.
 
 ### 2026-09-24 — S5.7 Screen flow complete [O]
 - Built the router's four screens, `boot.tscn` (eleven lines / two, skip), the title rebuilt with

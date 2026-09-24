@@ -93,6 +93,12 @@ func slots_unlocked(slot_count: int) -> int:
 	return mini(slot_count, runs_completed)
 
 
+## scenarios.md §0 item 3: all of them at once, after the file's number of
+## completed runs. A content root without scenarios has nothing to unlock.
+func scenarios_unlocked(db: ContentDB) -> bool:
+	return not db.scenarios.is_empty() and runs_completed >= db.scenario_unlock_runs
+
+
 # ------------------------------------------------------------------- the run
 
 
@@ -315,6 +321,7 @@ func _history_entry(sim: Simulation, outcome: String, ending: String,
 		"n": runs_completed,
 		"architecture": world.setup.architecture,
 		"difficulty": world.setup.difficulty,
+		"scenario": world.setup.scenario,
 		"directives": world.setup.directives.duplicate(),
 		"outcome": outcome,
 		"variant": ending,

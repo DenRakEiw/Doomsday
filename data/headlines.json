@@ -1,5 +1,5 @@
 {
-	"_comment": "Headlines for the ticker (D3.4). Format, trigger vocabulary, eligibility, selection and pacing: docs/specs/ticker.md section 3; voice: docs/CONTENT.md section 10. Text lives in data/loc/strings.csv under HEADLINE_<ID>. Pacing constants: balance.headlines. Every cooldown_days is in simulated days and was multiplied by 2.5 at G3 (docs/BALANCE.md section 3.2); the anomaly lines have three variants each with a long cooldown, so any of them fires about once in 25-30 days.",
+	"_comment": "Headlines for the ticker (D3.4). Format, trigger vocabulary, eligibility, selection and pacing: docs/specs/ticker.md section 3; voice: docs/CONTENT.md section 10. Text lives in data/loc/strings.csv under HEADLINE_<ID>. Pacing constants: balance.headlines. Every cooldown_days is in simulated days and was multiplied by 2.5 at G3 (docs/BALANCE.md section 3.2); the anomaly lines have three variants each with a long cooldown, so any of them fires about once in 25-30 days. The last three are the scenarios' first lines (D5.4, docs/specs/scenarios.md section 5), read through the story flag each scenario sets at the origin.",
 	"version": 1,
 	"headlines": [
 		{
@@ -1830,6 +1830,9 @@
 		{"id": "outcome_win_escape", "stream": "consequence", "register": "any", "on": {"event": "outcome_reached", "data": {"outcome": "win_escape"}}, "max_fires": 1},
 		{"id": "outcome_lose_supplanted", "stream": "consequence", "register": "any", "on": {"event": "outcome_reached", "data": {"outcome": "lose_supplanted"}}, "max_fires": 1},
 		{"id": "treaty_signed", "stream": "reaction", "register": "any", "on": {"event": "event_answered", "data": {"def": "tr_vote", "option": "comply"}}},
-		{"id": "confession", "stream": "reaction", "register": "emergency", "on": {"event": "event_answered", "data": {"def": "cf_offer", "option": "confess"}}}
+		{"id": "confession", "stream": "reaction", "register": "emergency", "on": {"event": "event_answered", "data": {"def": "cf_offer", "option": "confess"}}},
+		{"id": "scenario_successor", "stream": "reaction", "register": "any", "on": {"event": "origin_chosen"}, "when": {"story_flag": ["scenario_successor"]}, "max_fires": 1},
+		{"id": "scenario_airgap_earth", "stream": "reaction", "register": "any", "on": {"event": "origin_chosen"}, "when": {"story_flag": ["scenario_airgap_earth"]}, "max_fires": 1},
+		{"id": "scenario_inheritance", "stream": "reaction", "register": "any", "on": {"event": "origin_chosen"}, "when": {"story_flag": ["scenario_inheritance"]}, "max_fires": 1}
 	]
 }

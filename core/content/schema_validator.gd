@@ -3227,6 +3227,102 @@ static func validate_directives(file: String, raw: Variant,
 			_add(errors, file, DirectiveDef.SLOTS_KEY, "slot \"%s\" has no directive" % slot)
 
 
+## `scenarios.json` (`docs/specs/scenarios.md` §2). Optional. With it: ids
+## unique; an unlock of `runs_completed` alone; a start `compute` ≥ 0; every
+## start status a world status; every faction id known, each value in (0, 1);
+## flags valid ids; the four strings of each scenario in both languages.
+static func validate_scenarios(file: String, raw: Variant,
+		regions: Dictionary[String, String], regions_known: bool, statuses_raw: Variant,
+		statuses: Dictionary[String, int], statuses_known: bool,
+		strings: Dictionary[String, bool], strings_known: bool,
+		errors: Array[ValidationError]) -> void:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return
+	var d: Dictionary = raw
+	_check_keys(d, ["version", ScenarioDef.UNLOCK_KEY, ScenarioDef.ROOT_KEY], file, "", errors)
+	_content_version(d, file, errors)
+	if d.has(ScenarioDef.UNLOCK_KEY) \
+			and _is_object(d[ScenarioDef.UNLOCK_KEY], file, ScenarioDef.UNLOCK_KEY, errors):
+		var unlock: Dictionary = d[ScenarioDef.UNLOCK_KEY]
+		_check_keys(unlock, [ScenarioDef.UNLOCK_RUNS], file, ScenarioDef.UNLOCK_KEY, errors)
+		if unlock.has(ScenarioDef.UNLOCK_RUNS):
+			_integer(unlock, ScenarioDef.UNLOCK_RUNS, file, ScenarioDef.UNLOCK_KEY, errors, 0)
+	if not _require(d, ScenarioDef.ROOT_KEY, file, "", errors) \
+			or not _is_list(d[ScenarioDef.ROOT_KEY], file, ScenarioDef.ROOT_KEY, errors):
+		return
+	var continents: Dictionary[String, bool] = {}
+	for continent: String in regions.values():
+		continents[continent] = true
+	var world_statuses: Dictionary[String, bool] = _world_status_ids(statuses_raw)
+	var seen: Dictionary[String, bool] = {}
+	var list: Array = d[ScenarioDef.ROOT_KEY]
+	for i: int in list.size():
+		var path: String = "%s[%d]" % [ScenarioDef.ROOT_KEY, i]
+		if not _is_object(list[i], file, path, errors):
+			continue
+		var e: Dictionary = list[i]
+		_check_keys(e, ScenarioDef.KEYS, file, path, errors)
+		var id: String = _id(e, "id", file, path, errors)
+		if id.is_empty():
+			continue
+		if seen.has(id):
+			_add(errors, file, _join(path, "id"), "duplicate scenario \"%s\"" % id)
+			continue
+		seen[id] = true
+		if e.has("modifiers") and _is_list(e["modifiers"], file, _join(path, "modifiers"), errors):
+			var modifiers: Array = e["modifiers"]
+			for j: int in modifiers.size():
+				_modifier(modifiers[j], file, "%s[%d]" % [_join(path, "modifiers"), j], regions,
+					regions_known, continents, errors)
+		if e.has("start") and _is_object(e["start"], file, _join(path, "start"), errors):
+			_scenario_start(e["start"], file, _join(path, "start"), continents, regions_known,
+				world_statuses, statuses, statuses_known, errors)
+		if strings_known:
+			for key: String in ScenarioDef.string_keys(id):
+				if not strings.has(key):
+					_add(errors, file, _join(path, "id"),
+						"no string \"%s\" with both an en and a de cell" % key)
+
+
+static func _scenario_start(raw: Dictionary, file: String, path: String,
+		continents: Dictionary[String, bool], continents_known: bool,
+		world_statuses: Dictionary[String, bool], statuses: Dictionary[String, int],
+		statuses_known: bool, errors: Array[ValidationError]) -> void:
+	_check_keys(raw, ScenarioDef.START_KEYS, file, path, errors)
+	if raw.has("compute"):
+		_number(raw, "compute", file, path, errors, 0.0)
+	if raw.has("origin_eligible"):
+		_eligibility(raw["origin_eligible"], file, _join(path, "origin_eligible"), continents,
+			continents_known, statuses, statuses_known, errors)
+	if raw.has("statuses") and _is_list(raw["statuses"], file, _join(path, "statuses"), errors):
+		var list: Array = raw["statuses"]
+		for i: int in list.size():
+			var entry_path: String = "%s[%d]" % [_join(path, "statuses"), i]
+			if not _is_object(list[i], file, entry_path, errors):
+				continue
+			var entry: Dictionary = list[i]
+			_check_keys(entry, ScenarioDef.START_STATUS_KEYS, file, entry_path, errors)
+			var status: String = _id(entry, "status", file, entry_path, errors)
+			if statuses_known and not status.is_empty() and not world_statuses.has(status):
+				_add(errors, file, _join(entry_path, "status"),
+					"\"%s\" is not a world status" % status)
+			if entry.has("eligible"):
+				_eligibility(entry["eligible"], file, _join(entry_path, "eligible"), continents,
+					continents_known, statuses, statuses_known, errors)
+	var containment_key: String = "containment_at_discovery"
+	if raw.has(containment_key) \
+			and _is_object(raw[containment_key], file, _join(path, containment_key), errors):
+		var table: Dictionary = raw[containment_key]
+		var table_path: String = _join(path, containment_key)
+		for faction_id: Variant in table:
+			if not Faction.FACTION_IDS.has(str(faction_id)):
+				_add(errors, file, _join(table_path, str(faction_id)),
+					"unknown faction \"%s\"" % str(faction_id))
+				continue
+			_number(table, str(faction_id), file, table_path, errors, 0.0, 1.0, true, true)
+	_id_list(raw, "flags", file, path, errors)
+
+
 ## An ability with no node to come from exists only because an architecture
 ## grants it (§2.4); any other is a mistake (loop-mechanics §9.2). Checked here,
 ## after both files, because only here are both known.

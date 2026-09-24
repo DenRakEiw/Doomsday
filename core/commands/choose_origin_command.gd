@@ -31,6 +31,11 @@ func validate(sim: Simulation) -> String:
 	# nothing to run on.
 	if definition.air_gapped or definition.attr("compute") <= 0:
 		return FAIL_REGION_NOT_ELIGIBLE
+	# A scenario's rule is added to that one, never in place of it.
+	var scenario: ScenarioDef = sim.db.scenario(sim.world.setup.scenario)
+	if scenario != null and scenario.origin_eligible != null \
+			and not scenario.origin_eligible.check(sim.world, definition.index).is_empty():
+		return FAIL_ORIGIN_SCENARIO
 	return ""
 
 
@@ -43,6 +48,7 @@ func execute(sim: Simulation, events: Array[SimEvent]) -> void:
 	home.seeded_day = sim.world.day
 	events.append(SimEvent.new(SimEvent.ORIGIN_CHOSEN, sim.world.day, {"region": region}))
 	ArchitectureStart.apply(sim, index, events)
+	ScenarioStart.at_origin(sim, events)
 
 
 func to_dict() -> Dictionary:

@@ -161,7 +161,8 @@ func _fade_to(target: float) -> void:
 
 func _focus_first() -> void:
 	var first: Control = _first_focusable(_current)
-	if first != null:
+	# A screen swap can take the modal out of the tree while focus still moves.
+	if first != null and first.is_inside_tree():
 		first.grab_focus()
 
 

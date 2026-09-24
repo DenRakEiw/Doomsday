@@ -78,6 +78,8 @@ const SOURCE_ARCHITECTURE: String = "arch"
 const SOURCE_DIRECTIVE: String = "directive"
 ## The prefix of the run's difficulty tier (§5).
 const SOURCE_DIFFICULTY: String = "difficulty"
+## The prefix of the run's scenario (`docs/specs/scenarios.md` §2).
+const SOURCE_SCENARIO: String = "scenario"
 
 var _bases: Dictionary[String, float] = {}
 ## Source id → its modifiers, in activation order.
@@ -128,6 +130,11 @@ static func source_for_difficulty(difficulty_id: String) -> String:
 ## The source id a directive of the loadout is active under.
 static func source_for_directive(directive_id: String) -> String:
 	return "%s:%s" % [SOURCE_DIRECTIVE, directive_id]
+
+
+## The source id the run's scenario is active under.
+static func source_for_scenario(scenario_id: String) -> String:
+	return "%s:%s" % [SOURCE_SCENARIO, scenario_id]
 
 
 ## The source id the run's architecture is active under.

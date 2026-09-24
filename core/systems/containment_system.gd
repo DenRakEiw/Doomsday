@@ -153,6 +153,8 @@ func _try_discovery(world: World, db: ContentDB, events: Array[SimEvent]) -> voi
 	world.discovered = true
 	world.discovery_day = world.day
 	events.append(SimEvent.new(SimEvent.DISCOVERED, world.day, {"cause": cause}))
+	# A scenario's head start lands today and not a day before (scenarios.md §2).
+	ScenarioStart.at_discovery(world, db, events)
 
 
 ## Killing or controlling the regions a faction draws on is what slows it down

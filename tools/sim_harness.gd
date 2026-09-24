@@ -17,9 +17,11 @@ const MAX_COMMANDS_PER_DAY: int = Policy.MAX_COMMANDS_PER_DAY
 const DEFAULT_DATA: String = "res://data"
 const DEFAULT_MAX_DAYS: int = 5000
 const OUTCOME_TIMEOUT: String = "timeout"
+## scenarios.md §1: the `--setup=` item that names the scenario.
+const SETUP_SCENARIO_PREFIX: String = "scenario="
 
 ## The order the summary's fields are printed and written in.
-const FIELDS: Array[String] = ["seed", "policy", "architecture", "outcome", "ending", "days",
+const FIELDS: Array[String] = ["seed", "policy", "architecture", "scenario", "outcome", "ending", "days",
 	"discovery_day", "phase", "nodes_owned", "regions_seeded", "regions_dark", "deaths_share",
 	"containment", "leader", "lost_to", "compute_earned", "rejected_commands", "abilities_used", "events_opening",
 	"events_counter_move", "events_chain", "events_emergent", "counter_moves", "assets_deployed",
@@ -51,8 +53,9 @@ static func parse_args(args: PackedStringArray) -> Dictionary[String, String]:
 	return out
 
 
-## `--setup=<architecture>[,<difficulty>][,<directive>…]` (`replayability.md` §7),
-## or null without the argument — the default run.
+## `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]`
+## (`replayability.md` §7, scenarios.md §1), or null without the argument — the
+## default run.
 static func setup_from_args(args: Dictionary[String, String]) -> RunSetup:
 	if not args.has("setup"):
 		return null
@@ -63,7 +66,12 @@ static func setup_from_args(args: Dictionary[String, String]) -> RunSetup:
 	if items.size() > 1:
 		setup.difficulty = items[1]
 	for i: int in range(2, items.size()):
-		setup.directives.append(items[i])
+		# scenarios.md §1: `scenario=<id>` is one more item, anywhere after the
+		# difficulty; every other item is a directive.
+		if items[i].begins_with(SETUP_SCENARIO_PREFIX):
+			setup.scenario = items[i].substr(SETUP_SCENARIO_PREFIX.length())
+		else:
+			setup.directives.append(items[i])
 	return setup
 
 
@@ -200,6 +208,7 @@ static func summarise(sim: Simulation, seed_value: int, policy_id: String, max_d
 		"seed": seed_value,
 		"policy": policy_id,
 		"architecture": world.setup.architecture,
+		"scenario": world.setup.scenario,
 		"outcome": outcome,
 		# S5.6: the verdict variant the results screen shows; "" for a timeout.
 		"ending": "" if world.outcome == World.Outcome.NONE \

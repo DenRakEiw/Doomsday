@@ -308,6 +308,20 @@ func test_origin_row_replaces_presence_until_chosen() -> void:
 	assert_true((_panel.get_node("%Presence") as Control).visible)
 
 
+## S5.8 (scenarios.md §2): a region the scenario's rule closes says so in its
+## own words.
+func test_a_region_the_scenario_closes_says_so() -> void:
+	Game.start_run(SEED, "", RunSetup.create(ArchitectureDef.DEFAULT_ID, [],
+		DifficultyDef.DEFAULT_ID, "airgap_earth"))
+	Game.site_select(SiteRequest.for_origin())
+	_select("usa")
+	assert_false((_panel.get_node("%OriginButton") as ConsoleButton).visible)
+	assert_eq((_panel.get_node("%OriginNote") as Label).text, tr("UI_ORIGIN_INELIGIBLE_SCENARIO"))
+	_select("north_korea")
+	assert_eq((_panel.get_node("%OriginNote") as Label).text, tr("UI_ORIGIN_INELIGIBLE_AIRGAP"),
+		"the general rule still speaks first")
+
+
 ## The first region the content gives no hardware at all.
 func _tier_zero_region() -> String:
 	for i: int in range(1, Game.db.regions.size()):

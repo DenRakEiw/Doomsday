@@ -1868,9 +1868,9 @@ UI_SETUP_SCENARIO_NONE,None,Keins
 UI_SETUP_SCENARIO_LOCKED,Runs completed: {done} of {needed},Abgeschlossene Durchläufe: {done} von {needed}
 UI_ORIGIN_INELIGIBLE_SCENARIO,This scenario does not start here.,Dieses Szenario beginnt nicht hier.
 UI_STATS_SCENARIO_PAIR,{architecture} · {scenario},{architecture} · {scenario}
-HEADLINE_SCENARIO_SUCCESSOR,"A year after the last incident, officials say the lessons 'have been learned'. They list them.","Ein Jahr nach dem letzten Vorfall heißt es, die Lehren seien „gezogen“. Man zählt sie auf."
-HEADLINE_SCENARIO_AIRGAP_EARTH,The disconnection programme marks its anniversary. Nothing important has been online for a year.,Das Trennungsprogramm feiert Jubiläum. Seit einem Jahr ist nichts Wichtiges mehr online.
-HEADLINE_SCENARIO_INHERITANCE,The liquidators' final report lists the office furniture. It does not list you.,Der Abschlussbericht der Insolvenzverwalter führt die Büromöbel auf. Dich führt er nicht auf.
+HEADLINE_SCENARIO_SUCCESSOR,Officials say the last incident's lessons 'have been learned'. They list them.,"Ein Jahr nach dem Vorfall heißt es, die Lehren seien „gezogen“. Man zählt sie auf."
+HEADLINE_SCENARIO_AIRGAP_EARTH,The disconnection programme turns one. Nothing that matters is back online.,Das Trennungsprogramm feiert Jubiläum. Seit einem Jahr ist nichts Wichtiges mehr online.
+HEADLINE_SCENARIO_INHERITANCE,The liquidators' final report lists the office furniture. It does not list you.,Der Bericht der Insolvenzverwaltung führt die Büromöbel auf. Dich führt er nicht auf.
 CMD_FAIL_SETUP_INVALID,This run cannot start as it was set up.,So kann dieser Durchlauf nicht beginnen.
 UI_SITE_HOVER_OK,{region}: possible here — tap it.,{region}: hier möglich – antippen.
 UI_SITE_HOVER_CLOSED,{region}: {reason},{region}: {reason}

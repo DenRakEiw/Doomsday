@@ -80,6 +80,11 @@ static func create(db: ContentDB, seed_value: int, p_setup: RunSetup = null) -> 
 	world.rng = SimRng.from_seed(seed_value)
 	world.agent = Agent.new()
 	world.agent.compute = db.balance.compute_start
+	# scenarios.md §2: a scenario's start replaces the balance's, and a tier's
+	# head start still comes on top of it.
+	var scenario: ScenarioDef = db.scenario(world.setup.scenario)
+	if scenario != null and scenario.has_start_compute:
+		world.agent.compute = scenario.start_compute
 	# §5: a gentler tier starts with a little more to spend.
 	var tier: DifficultyDef = db.difficulty(world.setup.difficulty)
 	if tier != null:
@@ -174,6 +179,12 @@ func add_setup_sources(db: ContentDB) -> void:
 		if directive != null:
 			modifiers.add_source(ModifierStack.source_for_directive(directive_id),
 				directive.modifiers, no_flags, nobody)
+	# The scenario is the world the run is set in, active for the whole of it as
+	# a directive is (scenarios.md §2).
+	var scenario: ScenarioDef = db.scenario(setup.scenario)
+	if scenario != null:
+		modifiers.add_source(ModifierStack.source_for_scenario(scenario.id), scenario.modifiers,
+			no_flags, nobody)
 	# The tier last: it scales what the architecture and the loadout made.
 	var tier: DifficultyDef = db.difficulty(setup.difficulty)
 	if tier != null:

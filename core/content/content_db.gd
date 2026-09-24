@@ -48,6 +48,11 @@ var directive_by_id: Dictionary[String, DirectiveDef] = {}
 var difficulties: Array[DifficultyDef] = []
 var difficulty_by_id: Dictionary[String, DifficultyDef] = {}
 var difficulty_default: String = DifficultyDef.DEFAULT_ID
+## `scenarios.json` (`docs/specs/scenarios.md` §2) in file order, and how many
+## completed runs unlock them all. A root without the file has none.
+var scenarios: Array[ScenarioDef] = []
+var scenario_by_id: Dictionary[String, ScenarioDef] = {}
+var scenario_unlock_runs: int = 0
 ## `task_force.json` (`taskforce-endings.md` §3): the actions in the order they are
 ## tried. A root without the file has none, and its team never acts.
 var task_force_actions: Array[TaskForceActionDef] = []
@@ -141,6 +146,13 @@ func directive(id: String) -> DirectiveDef:
 	if not directive_by_id.has(id):
 		return null
 	return directive_by_id[id]
+
+
+## The scenario with this id, or null ("" is no scenario, and null too).
+func scenario(id: String) -> ScenarioDef:
+	if not scenario_by_id.has(id):
+		return null
+	return scenario_by_id[id]
 
 
 ## The architecture with this id, or null.

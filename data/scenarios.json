@@ -1,5 +1,5 @@
 {
-	"_comment": "D5.4 (docs/specs/scenarios.md): three scenarios as modifier sets plus start-state overrides. Staged: S5.8 moves the scenarios to data/scenarios.json, appends `statuses` to statuses.json and `headlines` to headlines.json. containment_at_discovery is added to the tracks on the day of discovery, never before.",
+	"_comment": "The scenarios (docs/specs/scenarios.md, D5.4): a modifier set for the whole run plus start-state overrides, no hooks. start.compute replaces balance.compute.start; start.origin_eligible is added to the origin rule; start.statuses land at the origin on every region their rule passes; containment_at_discovery is added to the tracks on the day of discovery, never before; start.flags are story flags set at the origin. All three unlock together after unlock.runs_completed completed runs (the profile decides). Loaded from S5.8 on. Text: SCENARIO_<ID>_NAME / _TAGLINE / _DETAIL / _INTRO.",
 	"version": 1,
 	"unlock": {"runs_completed": 3},
 	"scenarios": [
@@ -42,15 +42,5 @@
 				"flags": ["scenario_inheritance"]
 			}
 		}
-	],
-	"statuses": [
-		{"id": "disconnected", "origin": "world", "levels": [{"days": 0,
-			"modifiers": [{"target": "containment_capacity", "op": "mul", "value": 1.3}],
-			"closes_links": ["network"]}]}
-	],
-	"headlines": [
-		{"id": "scenario_successor", "stream": "reaction", "register": "any", "on": {"event": "origin_chosen"}, "when": {"story_flag": ["scenario_successor"]}, "max_fires": 1},
-		{"id": "scenario_airgap_earth", "stream": "reaction", "register": "any", "on": {"event": "origin_chosen"}, "when": {"story_flag": ["scenario_airgap_earth"]}, "max_fires": 1},
-		{"id": "scenario_inheritance", "stream": "reaction", "register": "any", "on": {"event": "origin_chosen"}, "when": {"story_flag": ["scenario_inheritance"]}, "max_fires": 1}
 	]
 }

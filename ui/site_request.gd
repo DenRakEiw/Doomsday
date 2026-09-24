@@ -17,6 +17,8 @@ const KEY_ORIGIN_PROMPT: String = "UI_ORIGIN_PROMPT"
 # (first-run.md §2), so the two can never say different things.
 const KEY_ORIGIN_AIRGAP: String = "UI_ORIGIN_INELIGIBLE_AIRGAP"
 const KEY_ORIGIN_COMPUTE: String = "UI_ORIGIN_INELIGIBLE_COMPUTE"
+## scenarios.md §2: open in general, closed by the run's scenario.
+const KEY_ORIGIN_SCENARIO: String = "UI_ORIGIN_INELIGIBLE_SCENARIO"
 const PREFIX_FAIL: String = "CMD_FAIL_"
 const PREFIX_ELIGIBLE: String = "UI_ELIGIBLE_"
 const PREFIX_ATTR: String = "UI_ATTR_"
@@ -66,6 +68,8 @@ func reason_text(region_index: int) -> String:
 	if reason.is_empty():
 		return ""
 	if kind == KIND_ORIGIN:
+		if reason == Command.FAIL_ORIGIN_SCENARIO:
+			return TranslationServer.translate(KEY_ORIGIN_SCENARIO)
 		var region: Region = Game.sim.world.regions[region_index]
 		return TranslationServer.translate(KEY_ORIGIN_AIRGAP if region.air_gapped
 			else KEY_ORIGIN_COMPUTE)

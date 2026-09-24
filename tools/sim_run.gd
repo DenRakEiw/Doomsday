@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ##     "$GODOT" --headless --path . -s tools/sim_run.gd -- \
 ##         --seed=1 --policy=greedy [--data=res://data] [--max-days=5000] [--check] [--replay]
-##         [--setup=<architecture>[,<difficulty>][,<directive>…]]
+##         [--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]]
 ##         [--headlines]
 ##
 ## `--headlines` adds one line per headline the run said, after the summary:

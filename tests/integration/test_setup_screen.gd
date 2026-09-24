@@ -128,3 +128,50 @@ func test_the_effects_list_reads_the_architecture() -> void:
 		+ embedded.start_assets.size() + (0 if embedded.hook.is_empty() else 1))
 	var weapon: ArchitectureDef = Game.db.architecture("weapon")
 	assert_eq(setup.effect_lines(weapon).back(), tr("ARCH_HOOK_ESCALATION"))
+
+
+# ------------------------------------------------------ S5.8: scenarios
+
+
+func test_the_scenario_row_says_how_far_off_it_is_while_locked() -> void:
+	var setup: Setup = _open()
+	assert_true((setup.get_node("%ScenarioLocked") as Label).visible)
+	assert_eq((setup.get_node("%ScenarioLocked") as Label).text,
+		tr("UI_SETUP_SCENARIO_LOCKED").format({"done": 0,
+			"needed": Game.db.scenario_unlock_runs}))
+	assert_false((setup.get_node("%ScenarioRow") as Control).visible)
+	assert_eq(setup.get_node("%ScenarioRow").get_child_count(), 0, "no buttons")
+	setup.select_scenario("successor")
+	assert_eq(setup.scenario, "", "a locked scenario cannot be chosen")
+
+
+func test_three_runs_open_every_scenario_and_begin_carries_it() -> void:
+	_runs(Game.db.scenario_unlock_runs)
+	var setup: Setup = _open()
+	assert_false((setup.get_node("%ScenarioLocked") as Label).visible)
+	assert_eq(setup.get_node("%ScenarioRow").get_child_count(), Game.db.scenarios.size() + 1,
+		"None and one per scenario")
+	assert_false((setup.get_node("%ScenarioTagline") as Label).visible, "None says nothing")
+	setup.select_scenario("airgap_earth")
+	assert_eq(setup.build_setup().scenario, "airgap_earth")
+	var tagline: Label = setup.get_node("%ScenarioTagline") as Label
+	assert_true(tagline.visible)
+	assert_eq(tagline.text, tr("SCENARIO_AIRGAP_EARTH_TAGLINE"))
+	assert_eq((setup.get_node("%ScenarioDetail") as Label).text,
+		tr("SCENARIO_AIRGAP_EARTH_DETAIL"))
+	setup.select_scenario("successor")
+	var pressed: int = 0
+	for button: Node in setup.get_node("%ScenarioRow").get_children():
+		if (button as ConsoleButton).button_pressed:
+			pressed += 1
+	assert_eq(pressed, 1, "one button drawn as chosen")
+	setup.select_scenario("")
+	assert_eq(setup.build_setup().scenario, "")
+
+
+func test_a_last_scenario_is_kept_only_while_unlocked() -> void:
+	ProfileManager.last_setup = RunSetup.create(ArchitectureDef.DEFAULT_ID, [],
+		DifficultyDef.DEFAULT_ID, "inheritance")
+	assert_eq(_open().scenario, "", "dropped on a fresh profile")
+	_runs(Game.db.scenario_unlock_runs)
+	assert_eq(_open().scenario, "inheritance")
