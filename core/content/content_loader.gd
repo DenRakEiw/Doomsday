@@ -790,6 +790,7 @@ static func _build_balance(d: Dictionary) -> BalanceDef:
 
 	var containment: Dictionary = d["containment"]
 	def.containment_base_rate = float(containment["base_rate"])
+	def.containment_brake_floor = float(containment["brake_floor"])
 	var weights: Array = containment["capacity_weight_by_tier"]
 	for weight: Variant in weights:
 		def.containment_capacity_weight_by_tier.append(float(weight))

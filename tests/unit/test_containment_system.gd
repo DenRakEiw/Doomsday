@@ -460,3 +460,20 @@ func test_invariants_catch_a_preparation_that_is_no_counter_move() -> void:
 	sim.world.faction(GOVERNMENTS).preparing = "fx_opening"
 	sim.world.faction(GOVERNMENTS).fire_day = sim.world.day + 2
 	assert_string_contains(str(sim.world.check_invariants(sim.db)), "no counter-move")
+
+
+## G4 (BALANCE §4.3): brakes multiply down to the floor and no further, so no
+## build makes a faction powerless. The fixture's floor is 0; this one is set.
+func test_brakes_stop_at_the_floor() -> void:
+	var sim: Simulation = _discovered()
+	sim.db.balance.containment_brake_floor = 0.7
+	_force(sim, "containment_growth", ModifierDef.Op.MUL, 0.5)
+	assert_almost_eq(float(sim.containment_breakdown(GOVERNMENTS)[ContainmentSystem.BRAKES]),
+		0.7, 1e-12, "×0.5 is floored")
+	var mild: Simulation = _discovered()
+	mild.db.balance.containment_brake_floor = 0.7
+	_force(mild, "containment_growth", ModifierDef.Op.MUL, 0.8)
+	assert_almost_eq(float(mild.containment_breakdown(GOVERNMENTS)[ContainmentSystem.BRAKES]),
+		0.8, 1e-12, "×0.8 is above it")
+	sim.db.balance.containment_brake_floor = 0.0
+	mild.db.balance.containment_brake_floor = 0.0

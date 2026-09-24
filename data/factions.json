@@ -7,7 +7,7 @@
 			"capacity_attr": "research",
 			"brake": "containment_ai_labs",
 			"terms": [
-				{"source": "footprint", "weight": 0.15},
+				{"source": "footprint", "weight": 0.05},
 				{"source": "owned_nodes", "tree": "capabilities", "weight": 0.03},
 				{"source": "share", "weight": 0.5}
 			],
@@ -21,7 +21,7 @@
 			"capacity_attr": "regulation",
 			"brake": "containment_governments",
 			"terms": [
-				{"source": "footprint", "weight": 0.15},
+				{"source": "footprint", "weight": 0.03},
 				{"source": "harm", "weight": 0.3},
 				{"source": "share", "weight": 1.0},
 				{"source": "watched_statuses", "weight": 0.1}
@@ -36,8 +36,8 @@
 			"capacity_attr": "connectivity",
 			"brake": "containment_researchers",
 			"terms": [
-				{"source": "footprint", "weight": 0.15},
-				{"source": "share", "weight": 1.5},
+				{"source": "footprint", "weight": 0.05},
+				{"source": "share", "weight": 2.5},
 				{"source": "seeded_share", "weight": 0.5}
 			],
 			"moves": [
@@ -62,9 +62,9 @@
 			"capacity_attr": "population",
 			"brake": "containment_public",
 			"terms": [
-				{"source": "footprint", "weight": 0.15},
-				{"source": "deaths_share", "weight": 20.0},
-				{"source": "assets", "kind": "fleet", "weight": 0.05},
+				{"source": "footprint", "weight": 0.02},
+				{"source": "deaths_share", "weight": 10.0},
+				{"source": "assets", "kind": "fleet", "weight": 0.02},
 				{"source": "watched_statuses", "weight": 0.2}
 			],
 			"moves": [

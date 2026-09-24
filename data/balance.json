@@ -1,5 +1,5 @@
 {
-	"_comment": "Every tunable constant of the simulation. Format and meaning: data/SCHEMA.md section 5. Formulas: docs/specs/core.md section 7. Retuned at G1 (containment.base_rate) and at G3 (every per-day rate divided by 2.5 for a two-second day, containment.base_rate re-swept; docs/BALANCE.md section 3).",
+	"_comment": "Every tunable constant of the simulation. Format and meaning: data/SCHEMA.md section 5. Formulas: docs/specs/core.md section 7. Retuned at G1 (containment.base_rate) and at G3 (every per-day rate divided by 2.5 for a two-second day, containment.base_rate re-swept; docs/BALANCE.md section 3) and at G4 (base_rate, the new brake_floor and the faction weights in factions.json; docs/BALANCE.md section 4).",
 	"stats": {
 		"spread_growth": 1.0,
 		"spread_seed": 1.0,
@@ -87,7 +87,8 @@
 		"deaths_certain_share": 0.0001
 	},
 	"containment": {
-		"base_rate": 0.0014,
+		"base_rate": 0.0018,
+		"brake_floor": 0.7,
 		"capacity_weight_by_tier": [0.2, 0.5, 1.0, 2.0, 4.0],
 		"thresholds": [0.25, 0.5, 0.75]
 	},

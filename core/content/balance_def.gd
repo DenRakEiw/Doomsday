@@ -49,6 +49,9 @@ var discovery_breadth_free: float
 var discovery_deaths_certain_share: float
 
 var containment_base_rate: float
+## G4: whatever an agent builds, a faction's brakes stay at least this (BALANCE §4) —
+## without a floor a quiet build braked every hunt to ×0.09 and could not lose.
+var containment_brake_floor: float
 ## Weight per tier of a faction's capacity attribute; the index is the tier
 ## (opposition.md §5.2 — one table for all four attributes).
 var containment_capacity_weight_by_tier: Array[float] = []

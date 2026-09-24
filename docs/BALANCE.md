@@ -36,6 +36,9 @@ they do not stand in for one.
   variants run in parallel); the baseline that closes a pass uses 500. With deterministic bots a
   win rate moves in steps of a few percent per seed, so differences under ~8 points between two
   100-seed variants are noise.
+- **Policies from G4 on** are S4.10's second generation: `idle`, `greedy` and one per strategy
+  (`cyber`, `biology`, `robotics`, `weapons`, `persuasion`) — PROGRESS *Decisions*, S4.10. The
+  list below is G3's.
 - **Policies** (`core/policy/`): `idle` (the floor), `greedy` (buys the cheapest node the moment it
   can — the loud reference), `stealth` (M1's price-blind quiet bot, kept for continuity),
   `cyber_rush`, `stealth_spread`, `persuader` (S3.6, `tech-trees.md` §7.3 and §7.5.6).
@@ -254,6 +257,122 @@ still wins two in three, and nobody wins for free but the unopposed Diplomat. Co
   inside an agreed band.
 - The headline count per run after the stretch: expected ≈ 190 for `greedy` (the anomaly lines
   were the excess; §3.4).
+
+---
+
+## 4. Pass 2 — G4, 2026-09-24 *(the tuning; the gate waits for the user)*
+
+### 4.1 Starting point
+
+The S4.10 baseline (500 seeds, the second-generation bots, *Balance baselines* in PROGRESS):
+`greedy` 83 % won, `cyber` 0 %, `biology` 45 % (34 Extinction), `robotics` 0 %, `weapons` 39 %
+(30 Extinction), `persuasion` 100 %, `idle` 0 %. Three of the five strategies never or always won.
+
+### 4.2 What decides a run — read off `containment_breakdown` in the running game
+
+- **Loud strategies are ended by their own Footprint.** A Cyber run is discovered around day 100
+  and the governments' pressure is `1 + 0.15 × Footprint(9–21) + share`; the track fills in
+  ~300 days, Ascendance needs ~700. Robotics is discovered by day ~17 (fleets on the map) and the
+  public ends it by day ~270 with no region yet controlled.
+- **Quiet strategies are protected by their brakes, and the brakes had no floor.** Persuasion's
+  nodes multiply the growth by ×0.22 and its Evasion by ×0.40 — about ×0.09 together; greedy buys
+  everything and gets the same. A quiet run is discovered late (Persuasion day 173–350), and after
+  that every region the agent controls takes its capacity away: the track stalls around 0.3 and
+  the run is won. No pressure weight reaches a strategy that is braked to ×0.09.
+- **A higher base rate cannot be the lever.** It speeds the hunt on everyone, and a strategy that
+  is discovered on day 17 dies at any base rate high enough to catch Persuasion (sweep R3: Robotics
+  0–1 % at 0.0024).
+- **Scrutiny over time does not help either** — the quiet bots are found by their footprint, not by
+  the clock (S1 ≈ S3: ×3 and ×5 changed nothing).
+
+### 4.3 The levers, and why each
+
+| Lever | From → to | Aimed at | Why |
+| --- | --- | --- | --- |
+| **Brake floor** (new: `containment.brake_floor`) | none → 0.7 | the quiet wins | brakes still matter — ×1 to ×0.7 is a 30 % slower hunt — but no build makes a faction powerless; the only lever that reaches Persuasion and greedy |
+| Footprint weight, labs · researchers · governments | 0.15 → 0.05 · 0.05 · 0.03 | the loud strategies | Footprint was the whole of a loud run's pressure; now it is a term among four |
+| Footprint weight, public | 0.15 → 0.02 | Robotics, Biology | the public sees fleets and deaths already (their own terms) |
+| Public `deaths_share` weight | 20 → 10 | Biology | at 20 the public ended half of the Biology runs before Release could finish |
+| Public `fleet` weight | 0.05 → 0.02 | Robotics | fleets are Robotics' verb |
+| Researchers `share` weight | 1.5 → 2.5 | greedy, Persuasion | both lose only to the researchers |
+| `containment.base_rate` | 0.0014 → 0.0018 | everyone, a little | with the floor, the pace of the hunt at the S4.10 content |
+
+### 4.4 Sweeps (100 seeds, win share per bot; the floor as a temporary patch in a worktree)
+
+| Variant | base | floor | FP (l·g·r / p) | public deaths | res share | greedy | cyber | bio | robo | weap | pers |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| S4.10 (500) | 0.0014 | — | 0.15 / 0.15 | 20 | 1.5 | 83 | 0 | 45 | 0 | 39 | 100 |
+| F30 | 0.0014 | 0.3 | 0.15 / 0.15 | 20 | 1.5 | 75 | 0 | 48 | 0 | 38 | 100 |
+| V4 | 0.0024 | 0.3 | 0.08 / 0.08 | 20 | 1.5 | 41 | 0 | 42 | 0 | 39 | 98 |
+| R3c | 0.0024 | 0.5 | 0.05 / 0.05 | 20 | 1.5 | 46 | 11 | 19 | 1 | 63 | 75 |
+| S1 | 0.0014 | 0.5 | 0.05 / 0.05 | 20 | 1.5 | 97 | 99 | 37 | 69 | 56 | 100 |
+| T1 | 0.0018 | 0.7 | 0.05 / 0.05 | 20 | 1.5 | 67 | 37 | 21 | 15 | 59 | 78 |
+| U2 | 0.0018 | 0.7 | 0.05 / 0.03 | 10 | 2.0 | 56 | 27 | 26 | 23 | 55 | 68 |
+
+(R3 on also carries the bots' breadth rule, PROGRESS *Decisions*, S4.10 amended.)
+| W1 | 0.0018 | 0.7 | 0.05 / 0.03 | 10 | 2.5 | 47 | 16 | 27 | 18 | 49 | 52 |
+| **X1** | 0.0018 | 0.7 | 0.05 (gov 0.03) / 0.02, fleet 0.02 | 10 | 2.5 | **46** | **20** | **26** | **20** | **56** | **53** |
+| X3 | 0.0017 | 0.7 | as X1 | 10 | 2.5 | 54 | 31 | 25 | 23 | 56 | 64 |
+| X4 | 0.0018 | 0.7 | as X1, watched statuses ½ | 10 | 2.75 | 47 | 11 | 30 | 15 | 52 | 45 |
+
+Halving the weight on watched statuses (the loud abilities) changed nothing (X2 ≈ X1). Between X1
+and X3 the base rate trades the loud strategies (up at 0.0017) against greedy and Persuasion (up
+too, past half). Past X1 each step buys one strategy at another's cost: the band has closed as far
+as these levers close it.
+
+### 4.5 Chosen: X1
+
+`containment.base_rate` 0.0018, `containment.brake_floor` **0.7** (new), and in `factions.json`:
+Footprint weights 0.05 (labs, researchers), 0.03 (governments), 0.02 (public); researchers' share
+2.5; public deaths 10, fleets 0.02. The closing 500-seed baseline is in §4.6 and under *Balance
+baselines* in PROGRESS.
+
+What the numbers say, strategy by strategy:
+- **`greedy` wins a little more often than it loses (56 % over 500 seeds; 46 % in the 100-seed
+  sweep)** — just short of the first run BALANCE §1 asks for (lost more often than won); one more
+  step on the researchers (2.75) takes it under half and Persuasion with it (X4).
+- **Persuasion wins about half its runs (49 %) and is no longer a free win.** The researchers now
+  catch half the quiet runs before control takes their capacity away.
+- **Weapons reaches Extinction in half its runs** (51 %), Biology in a quarter (24 %): both paths
+  exist; both still die of Autophagy often (the race between killing and starving, which is the
+  design's — Opposition §8.5 — but see §4.7).
+- **Cyber and Robotics win about a fifth of their runs.** They are the loud strategies, found
+  early; the Footprint weights are what keeps them alive at all.
+
+### 4.6 The closing baseline (500 seeds)
+
+`sim_report --seeds=1..500`, one process per policy, the committed data and code (2026-09-24).
+**0 rejected commands in 3 500 runs.**
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Deaths p50 | Loop |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 100 % contained | 0 · 0 · 100 · 0 % | 1329 | 815 | 0 | 0 · 0 · 17 · 0 · 17 · 0 · 0 |
+| `greedy` | **56 % Ascendance**, 44 % contained | 0 · 0 · 44 · 0 % | 627 | 196 | 0.006 | 19 · 5 · 11 · 7 · 11 · 11 · 1 |
+| `cyber` | **20 % Ascendance**, 80 % contained | 0 · 0 · 80 · 0 % | 404 | 95 | 0.012 | 29 · 4 · 12 · 4 · 12 · 6 · 0 |
+| `biology` | **24 % Extinction · 5 % Ascendance**, 31 % contained, 37 % Autophagy, 3 % no compute | 0 · 7 · 23 · 0 % | 715 | 193 | 0.999 | 13 · 7 · 13 · 6 · 13 · 7 · 6 |
+| `robotics` | **19 % Ascendance**, 81 % contained | 0 · 0 · 81 · 0 % | 386 | 67 | 0.123 | 11 · 3 · 12 · 6 · 12 · 14 · 1 |
+| `weapons` | **51 % Extinction · 7 % Ascendance**, 29 % Autophagy, 13 % no compute | — | 652 | 165 | 1.000 | 21 · 6 · 14 · 6 · 14 · 2 · 1 |
+| `persuasion` | **49 % Ascendance**, 51 % contained | 0 · 0 · 51 · 0 % | 573 | 145 | 0 | 14 · 6 · 10 · 6 · 10 · 6 · 0 |
+
+*Loop*: abilities used · events answered (opening · counter-move · chain) · counter-moves suffered ·
+assets deployed · lost. Against the 100-seed sweep (X1) `greedy` is 10 points higher over 500 seeds
+(56 %, not 46 %) — the other bots are within the sweep's noise. **The researchers now end every
+contained run of every bot**: the other three factions are pressure, not executioners.
+
+
+### 4.7 For the user at the gate, and after
+
+1. **The band.** Every strategy bot wins between ~19 % and ~58 % of its runs; `greedy` 56 %.
+   G4's step says *an agreed band* — is 20–60 % the band, or should the loud ones be nearer the
+   quiet ones? Closing it further needs content (the loud nodes' own Footprint), not weights.
+2. **Genuinely different viable strategies** — the user's play-through decides; the bots only show
+   that five different plans can each win.
+3. **Autophagy** (S4.5's question) is left at 30 days: at 35–40 Weapons jumps to ~75–80 % (U3, W4)
+   and Biology gains little. A Harvest on the only region is still fatal.
+4. **Cyber never starves** — it is contained first, so G3's "Blackout before Robotics starves" is
+   not seen with bots. It needs a human run.
+5. `brake_floor` is a formula change made in a design step — the pass could not be measured without
+   it (PROGRESS *Deviations*).
 
 ---
 

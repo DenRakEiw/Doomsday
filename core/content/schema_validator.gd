@@ -275,8 +275,10 @@ static func _balance_containment(raw: Variant, file: String,
 	if not _is_object(raw, file, path, errors):
 		return
 	var d: Dictionary = raw
-	_check_keys(d, ["base_rate", "capacity_weight_by_tier", "thresholds"], file, path, errors)
+	_check_keys(d, ["base_rate", "brake_floor", "capacity_weight_by_tier", "thresholds"], file,
+		path, errors)
 	_number(d, "base_rate", file, path, errors)
+	_number(d, "brake_floor", file, path, errors, 0.0, 1.0)
 
 	if _require(d, "capacity_weight_by_tier", file, path, errors):
 		var weight_path: String = "containment.capacity_weight_by_tier"

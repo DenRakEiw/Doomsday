@@ -78,6 +78,9 @@ static func containment_breakdown(world: World, db: ContentDB, faction_id: Strin
 	var capacity: float = _capacity(world, db, definition.capacity_attr)
 	var brakes: float = world.modifiers.value("containment_growth") \
 		* world.modifiers.value(definition.brake)
+	# G4 (BALANCE §4.3): brakes still matter, down to the floor, and no build
+	# makes a faction powerless.
+	brakes = maxf(brakes, db.balance.containment_brake_floor)
 	return {
 		TERMS: terms,
 		PRESSURE: pressure,

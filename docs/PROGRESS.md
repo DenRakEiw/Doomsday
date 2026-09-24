@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G4 — Balance pass 2 and the M4 gate** (IMPLEMENTATION Block 9). The tuning can run alone; the gate needs the user's play-through and verdict. Start from *Balance baselines* (S4.10) and its five questions. |
+| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Meanwhile the design block goes on: **D5.1 — Architectures, directives, difficulty** (it does not depend on the verdict). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D5.1 → D5.4 (M5 design), then S4.P |
-| **Last completed** | D4.5 — German review in context: every German string read on its screen; *Aktionen* for the abilities, „…“ quotation marks, soft hyphens and three shorter node names for the two-line rule, faction lines that never need a verb to agree, ß stays SS; layout findings confirmed for S4.P (2026-09-24) |
-| **Before that** | S4.10 — Strategy bots, second generation (2026-09-24) |
+| **After it** | D5.2 → D5.4 (M5 design), then S4.P |
+| **Last completed** | G4 tuning — balance pass 2: `containment.brake_floor` 0.7 (new), base rate 0.0018, the faction weights; every strategy bot wins 19–58 %, `greedy` 56 %, persuasion 49 %, Extinction reached by Weapons 51 % and Biology 24 %. 1268 tests green (2026-09-24). **The M4 gate itself is open.** |
+| **Before that** | D4.5 — German review in context (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -816,6 +816,13 @@ without new information.
   had used an ability before); a region going dark ends its statuses, cause `"dark"`, without
   their `on_end` (loop-mechanics §3.5's invariant; `go_dark` gained the `ContentDB`). Both change
   no run without abilities.
+- **2026-09-24** (G4, tuning — **the gate itself waits for the user**) — **Balance pass 2 is
+  BALANCE §4's X1**: `containment.base_rate` 0.0014 → 0.0018; new `containment.brake_floor` 0.7
+  (a faction's brakes never go below it — without it a quiet build braked every hunt to ×0.09 and
+  could not lose); Footprint weights 0.15 → 0.05 (labs, researchers), 0.03 (governments), 0.02
+  (public); researchers' share 1.5 → 2.5; public deaths 20 → 10, fleets 0.05 → 0.02. Every strategy
+  bot now wins between ~20 % and ~56 %, `greedy` just over half (56 % — BALANCE §4.7 item 1). Why each lever, and the eight
+  sweep rounds: BALANCE §4.
 - **2026-09-24** (D4.5) — **The German terms, fixed:** *Capabilities* (the tree, its tab, the dock
   button, the results' node count) = **Fähigkeiten**, as in English; *Abilities* (the picker, the
   sheet entry, a command failure) = **Aktionen** — the region panel already called them that;
@@ -957,6 +964,12 @@ never Harvest below six regions.)
   something per row — it belongs with the rest of D4.5's layout findings.
 
 ## Deviations from the plan or a spec
+
+- **2026-09-24** (G4) — **A design step changed a formula**: `containment.brake_floor` (balance
+  key, `BalanceDef`, loader, validator, one line in `ContainmentSystem`, a test). The pass could not
+  be measured without it — the sweeps ran it as a temporary patch first — and a half-applied pass
+  (weights without the floor) would have left Persuasion at 100 %. Everything else G4 changed is
+  data.
 
 - **2026-09-24** (S4.9) — **`text_scale` is applied from S4.9, not from M5** (ui-foundation.md
   §9.3 stored it and ignored it until M5): IMPLEMENTATION's S4.9 asks for the setting at 150 %.
@@ -1557,7 +1570,33 @@ never Harvest below six regions.)
 judge (the phase fantasies and the fleet as the body, the busy Cyber branch, the vector cap of
 two, the Merge/Terror exclusion, the cadence table). Changes go into the spec before D4.1 starts.
 
+**G4 (2026-09-24): the M4 gate.** Play a run or two (German and English, desktop and phone), then
+answer BALANCE §4.7: is 19–58 % the agreed band (and `greedy` at 56 % close enough to "lost more
+often than won"), are the five strategies genuinely different, Autophagy at 30 days, Cyber's
+starvation, and the `brake_floor` formula change. S4.9's screenshot set and D4.5's changes are
+there to look at too.
+
 ## Balance baselines
+
+**2026-09-24 (G4) — balance pass 2, the closing baseline** (BALANCE §4.6; the S4.10 table below is
+the pass's starting point). `sim_report --seeds=1..500`, one process per policy, the committed data and code (2026-09-24).
+**0 rejected commands in 3 500 runs.**
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Deaths p50 | Loop |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 100 % contained | 0 · 0 · 100 · 0 % | 1329 | 815 | 0 | 0 · 0 · 17 · 0 · 17 · 0 · 0 |
+| `greedy` | **56 % Ascendance**, 44 % contained | 0 · 0 · 44 · 0 % | 627 | 196 | 0.006 | 19 · 5 · 11 · 7 · 11 · 11 · 1 |
+| `cyber` | **20 % Ascendance**, 80 % contained | 0 · 0 · 80 · 0 % | 404 | 95 | 0.012 | 29 · 4 · 12 · 4 · 12 · 6 · 0 |
+| `biology` | **24 % Extinction · 5 % Ascendance**, 31 % contained, 37 % Autophagy, 3 % no compute | 0 · 7 · 23 · 0 % | 715 | 193 | 0.999 | 13 · 7 · 13 · 6 · 13 · 7 · 6 |
+| `robotics` | **19 % Ascendance**, 81 % contained | 0 · 0 · 81 · 0 % | 386 | 67 | 0.123 | 11 · 3 · 12 · 6 · 12 · 14 · 1 |
+| `weapons` | **51 % Extinction · 7 % Ascendance**, 29 % Autophagy, 13 % no compute | — | 652 | 165 | 1.000 | 21 · 6 · 14 · 6 · 14 · 2 · 1 |
+| `persuasion` | **49 % Ascendance**, 51 % contained | 0 · 0 · 51 · 0 % | 573 | 145 | 0 | 14 · 6 · 10 · 6 · 10 · 6 · 0 |
+
+*Loop*: abilities used · events answered (opening · counter-move · chain) · counter-moves suffered ·
+assets deployed · lost. Against the 100-seed sweep (X1) `greedy` is 10 points higher over 500 seeds
+(56 %, not 46 %) — the other bots are within the sweep's noise. **The researchers now end every
+contained run of every bot**: the other three factions are pressure, not executioners.
+
 
 **2026-09-24 (S4.10) — the second-generation bots, 500 seeds each** (`sim_report
 --seeds=1..500`, one process per policy from a worktree snapshot). The current game: trees v3,
@@ -1758,6 +1797,16 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — G4 Balance pass 2 (tuning; the gate waits) [F]
+- Read what decides a run off `containment_breakdown` in the running game (loud strategies die of
+  their own Footprint, quiet ones were braked to ×0.09 with no floor), then eight sweep rounds of
+  four variants × six bots × 100 seeds, the floor as a worktree-only patch until it was chosen
+  (BALANCE §4.2–§4.4). The bots' breadth rule came out of round 2 and was committed on its own.
+- Chosen: X1 — `brake_floor` 0.7 (a small formula change, *Deviations*), base rate 0.0018, the
+  faction weights. Closing 500-seed baseline under *Balance baselines*; the gate's five points in
+  BALANCE §4.7. 1268 tests green. **The M4 gate (the user's play-through and verdict) is open**;
+  D5.1 goes on meanwhile.
 
 ### 2026-09-24 — D4.5 German review in context [F]
 - Read every German row of `data/loc/strings.csv` against S4.9's screenshot set and the running

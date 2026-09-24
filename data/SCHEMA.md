@@ -303,6 +303,7 @@ as ≥ 0 unless stated. The meaning of each constant is defined by the formula t
 | `harm.daily_rate` | float | |
 | `discovery.scrutiny_per_day` `.per_footprint` `.breadth_rate` `.breadth_free` `.deaths_certain_share` | float | the last two are shares of the world, in [0, 1] |
 | `containment.base_rate` | float | the gain per day at pressure 1, capacity 1, brakes 1 (opposition.md §5.4) |
+| `containment.brake_floor` | float | in [0, 1]; a faction's brakes (`containment_growth` × its own brake) never go below it — G4, BALANCE §4.3. The test fixtures keep 0 |
 | `containment.capacity_weight_by_tier` | [float × 5] | index = the tier of a faction's `capacity_attr`; sum > 0 — one table for all four attributes |
 | `containment.thresholds` | [float] | ascending, each in (0, 1); announced once when crossed |
 | `factions.prepare_days` `.prepare_min_days` | int | ≥ 1; a move is prepared for `max(min, round(prepare × (1 − containment)))` days (S4.5) |
