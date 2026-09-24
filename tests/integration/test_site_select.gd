@@ -171,3 +171,21 @@ func _first_ineligible() -> int:
 				and Game.db.regions[i].attr("industry") >= 2:
 			return i
 	return 0
+
+
+## S5.8 (scenarios.md §5): with a scenario, the strip's detail line is the
+## scenario's intro in place of the general origin line.
+func test_a_scenario_sets_the_scene_in_the_origin_prompt() -> void:
+	var detail: Label = _prompt.get_node("%SitePromptDetail") as Label
+	Game.start_run(SEED)
+	Game.set_speed(0)
+	await wait_process_frames(2)
+	assert_eq(Game.site_request.kind, SiteRequest.KIND_ORIGIN)
+	assert_eq(detail.text, tr("UI_ORIGIN_PROMPT_DETAIL"))
+	Game.stop_run()
+	Game.start_run(SEED, "", RunSetup.create(ArchitectureDef.DEFAULT_ID, [],
+		DifficultyDef.DEFAULT_ID, "inheritance"))
+	Game.set_speed(0)
+	await wait_process_frames(2)
+	assert_eq(Game.site_request.kind, SiteRequest.KIND_ORIGIN)
+	assert_eq(detail.text, tr("SCENARIO_INHERITANCE_INTRO"))

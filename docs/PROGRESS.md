@@ -17,7 +17,7 @@ rather than struck through.
 | **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Then **G5 — balance pass 3, M5 gate, the M6–M7 plan**: its 500-seed reports per architecture and per scenario are under *Balance baselines* (S5.8). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
 | **After it** | M6 as G5 breaks it into steps |
-| **Last completed** | S5.8 — Scenarios: `scenarios.json` loaded (three, all unlocked after three runs), `RunSetup.scenario`, the start at the origin and the head start at discovery (`ScenarioStart`), the setup's scenario row, the scenario intro in the origin prompt, *architecture · scenario* in Statistics, `scenario=<id>` on the sim tools. 1488 tests green (2026-09-24). **The M4 gate is still open.** |
+| **Last completed** | S5.8 — Scenarios: `scenarios.json` loaded (three, all unlocked after three runs), `RunSetup.scenario`, the start at the origin and the head start at discovery (`ScenarioStart`), the setup's scenario row, the scenario intro in the origin prompt, *architecture · scenario* in Statistics, `scenario=<id>` on the sim tools. 1494 tests green (2026-09-24). **The M4 gate is still open.** |
 | **Before that** | S5.7 — Screen flow complete: boot sequence, title with the shader globe (VISUALS q2: shader, lit by the last run), the two setup pages, Codex and Statistics modals, `CodexTracker`, the title-only settings rows, the ending sequence (camera pull-out) and the results' *Unlocked* chips. 1458 tests green (2026-09-24). |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
@@ -2175,6 +2175,10 @@ takes an OS path, which is worth knowing).
 - Looked at in the running game (en/de, 1920): the setup row, Airgap Earth's `NT` rings, the
   refusal line, the first headline. The profile was put back with `ProfileManager.reset()`.
 - The 500-seed reports per architecture and scenario are under *Balance baselines*.
+- Follow-up (same day): tests for the prompt's scenario intro, the Statistics pair and its
+  replay, the Research Agent's labs track plus the head start, and one 800-day run of every other
+  architecture in a scenario (Open Weights' start leak reaches disconnected regions — its leak is
+  no link). Looked at the setup's scenario row on a 400 px phone. 1494 green.
 
 ### 2026-09-24 — S5.7 Screen flow complete [O]
 - Built the router's four screens, `boot.tscn` (eleven lines / two, skip), the title rebuilt with

@@ -11,6 +11,9 @@ const Harness := preload("res://tools/sim_harness.gd")
 const WORLD_ROOT: String = "res://data"
 const SEED: int = 1
 const DAYS: int = 5000
+## How long an architecture-and-scenario pair is played: long enough to pass
+## discovery and the Task Force, short of a Swarm run that never ends.
+const MIXED_DAYS: int = 800
 const SUCCESSOR: String = "successor"
 const AIRGAP: String = "airgap_earth"
 const INHERITANCE: String = "inheritance"
@@ -286,6 +289,70 @@ func test_each_scenario_plays_to_an_end_without_a_rejection() -> void:
 		assert_eq(problems.size(), 0, "%s: %s" % [id, str(problems)])
 		assert_eq(int(played["rejected"]), 0, id)
 		assert_ne((played["sim"] as Simulation).world.outcome, World.Outcome.NONE, id)
+
+
+# -------------------------------------------- with the other architectures
+
+
+## `labs_from_day_one`: the labs' track grows before discovery, and on the day
+## itself the head start comes on top of what it had — the other tracks start
+## from the head start alone.
+func test_a_research_agent_keeps_its_labs_track_and_gains_the_head_start() -> void:
+	var sim: Simulation = Simulation.create(_db, SEED, RunSetup.create("research_agent", [],
+		DifficultyDef.DEFAULT_ID, SUCCESSOR))
+	assert_true(sim.apply(ChooseOriginCommand.new(_open_origin(sim))).ok)
+	for i: int in 30:
+		sim.tick()
+	assert_false(sim.world.discovered, "seed %d is still unfound on day 30" % SEED)
+	var labs_before: float = sim.world.faction(Faction.ID_AI_LABS).containment
+	assert_gt(labs_before, 0.0, "the labs watch from the origin on")
+	_make_discovery_certain(sim)
+	sim.tick()
+	assert_true(sim.world.discovered)
+	var def: ScenarioDef = _db.scenario(SUCCESSOR)
+	assert_gte(sim.world.faction(Faction.ID_AI_LABS).containment,
+		labs_before + def.containment_at_discovery[Faction.ID_AI_LABS])
+	for faction: Faction in sim.world.factions:
+		if faction.id != Faction.ID_AI_LABS:
+			assert_eq(faction.containment, def.containment_at_discovery.get(faction.id, 0.0),
+				faction.id)
+
+
+## Every architecture's hook against a scenario it could collide with: the
+## Embedded's missing network against Airgap Earth's closed one, Open Weights'
+## seeding of the richest regions against their disconnection, the Swarm's
+## drift, the Weapon's escalation. Played for `MIXED_DAYS` with every invariant
+## checked; the outcome is G5's business.
+func test_every_architecture_plays_a_scenario_without_a_rejection() -> void:
+	var pairs: Array[Array] = [["swarm", SUCCESSOR], ["embedded", AIRGAP],
+		["research_agent", INHERITANCE], ["weapon", SUCCESSOR], ["open_weights", AIRGAP]]
+	for pair: Array in pairs:
+		var label: String = "%s + %s" % [pair[0], pair[1]]
+		var problems: Array[String] = []
+		var setup: RunSetup = RunSetup.create(str(pair[0]), [], DifficultyDef.DEFAULT_ID,
+			str(pair[1]))
+		var played: Dictionary = Harness.play(_db, SEED, "greedy", MIXED_DAYS, true, problems,
+			setup)
+		assert_eq(problems.size(), 0, "%s: %s" % [label, str(problems)])
+		assert_eq(int(played["rejected"]), 0, label)
+		var sim: Simulation = played["sim"]
+		assert_ne(sim.world.agent.origin, 0, "%s found an origin" % label)
+		assert_true(sim.world.agent.has_story_flag("scenario_%s" % pair[1]), label)
+
+
+func test_open_weights_seeds_past_the_disconnection() -> void:
+	# Its leak is not a network link (replayability §2.1), so a disconnected
+	# region may be among the regions it reaches at the start.
+	var sim: Simulation = Simulation.create(_db, SEED, RunSetup.create("open_weights", [],
+		DifficultyDef.DEFAULT_ID, AIRGAP))
+	assert_true(sim.apply(ChooseOriginCommand.new(_open_origin(sim))).ok)
+	var seeded: int = 0
+	for i: int in range(1, sim.world.regions.size()):
+		if i != sim.world.agent.origin and sim.world.regions[i].penetration > 0.0:
+			seeded += 1
+			assert_not_null(sim.world.status_in_region(DISCONNECTED, i),
+				"%s is one of the richest regions" % _db.regions[i].id)
+	assert_gt(seeded, 0)
 
 
 # -------------------------------------------------------------- validator

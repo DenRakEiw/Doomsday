@@ -115,3 +115,36 @@ func test_play_this_seed_again_hands_over_the_run() -> void:
 	var setup: RunSetup = args[1]
 	assert_eq(setup.difficulty, "hard")
 	assert_eq(setup.directives, ["yield_greedy"] as Array[String])
+
+
+## S5.8 (scenarios.md §1): a run played in a scenario names it beside its
+## architecture, and *Play this seed again* carries it.
+func test_a_scenario_run_is_named_and_replayed_with_its_scenario() -> void:
+	ProfileManager.history = [{"n": 4, "architecture": "swarm", "difficulty": "standard",
+		"directives": [], "scenario": "airgap_earth", "outcome": "lose_contained",
+		"variant": "lose_contained", "days": 300, "seed": 42, "origin": "nigeria",
+		"regions": [1], "controlled": []}]
+	var statistics: Statistics = _statistics()
+	var expected: String = tr("UI_STATS_SCENARIO_PAIR").format({
+		"architecture": tr("ARCH_SWARM_NAME"), "scenario": tr("SCENARIO_AIRGAP_EARTH_NAME")})
+	var texts: Array[String] = []
+	for label: Node in statistics.find_children("*", "Label", true, false):
+		texts.append((label as Label).text)
+	assert_has(texts, expected)
+	watch_signals(statistics)
+	for button: Node in statistics.find_children("*", "ConsoleButton", true, false):
+		if (button as ConsoleButton).label_key == Statistics.KEY_REPLAY:
+			button.emit_signal("pressed")
+	var setup: RunSetup = get_signal_parameters(statistics, "replay_requested")[1]
+	assert_eq(setup.scenario, "airgap_earth")
+	assert_eq(setup.architecture, "swarm")
+
+
+func test_a_run_without_a_scenario_is_named_by_its_architecture_alone() -> void:
+	ProfileManager.history = [{"n": 1, "architecture": "swarm", "difficulty": "standard",
+		"directives": [], "outcome": "lose_contained", "variant": "lose_contained",
+		"days": 300, "seed": 42, "origin": "usa", "regions": [1], "controlled": []}]
+	var texts: Array[String] = []
+	for label: Node in _statistics().find_children("*", "Label", true, false):
+		texts.append((label as Label).text)
+	assert_has(texts, tr("ARCH_SWARM_NAME"))
