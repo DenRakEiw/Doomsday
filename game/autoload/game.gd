@@ -362,8 +362,8 @@ func _day_line() -> String:
 # ------------------------------------------------------- debug keys (M2 only)
 
 
-## §10.2: F5/F6/F7 start a bot run — with Shift, the three strategy bots of
-## S3.6 instead of the shape bots of S1.8 — L and M toggle the two settings
+## §10.2: F5/F6/F7 start a bot run — greedy / biology / persuasion, with Shift
+## cyber / robotics / weapons (the second generation of S4.10) — L and M toggle the two settings
 ## (Shift+L the pseudo-locale of S4.9), K steps the text scale, F9 and F10 save
 ## and load. All of this goes away in M6, when the real screens
 ## exist.
@@ -374,11 +374,11 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	var strategy: bool = key.shift_pressed
 	match key.keycode:
 		KEY_F5:
-			_start_debug_run(CyberRushPolicy.ID if strategy else GreedyPolicy.ID)
+			_start_debug_run(CyberPolicy.ID if strategy else GreedyPolicy.ID)
 		KEY_F6:
-			_start_debug_run(StealthSpreadPolicy.ID if strategy else StealthPolicy.ID)
+			_start_debug_run(RoboticsPolicy.ID if strategy else BiologyPolicy.ID)
 		KEY_F7:
-			_start_debug_run(PersuaderPolicy.ID if strategy else IdlePolicy.ID)
+			_start_debug_run(WeaponsPolicy.ID if strategy else PersuasionPolicy.ID)
 		KEY_L:
 			if strategy:
 				Settings.set_pseudo_locale(not Settings.pseudo_locale)

@@ -130,7 +130,7 @@ static func _harm_burst(sim: Simulation, effect: EffectDef, context: EffectConte
 			deaths += region.alive
 			region.deaths += region.alive
 			region.alive = 0.0
-			PopulationSystem.go_dark(world, region, i, events)
+			PopulationSystem.go_dark(world, sim.db, region, i, events)
 	events.append(SimEvent.new(SimEvent.HARM_BURST, world.day, {
 		"node": context.node,
 		"source": context.source,

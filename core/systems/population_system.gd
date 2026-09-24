@@ -24,7 +24,7 @@ func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 		if region.alive < 1.0:
 			region.deaths += region.alive
 			region.alive = 0.0
-			go_dark(world, region, i, events)
+			go_dark(world, db, region, i, events)
 
 
 ## A dark region is inert for good: no hardware, no relay, no yield, no
@@ -33,7 +33,8 @@ func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 ##
 ## Static and public because a one-shot `harm_burst` empties regions outside the
 ## tick as well, and the rule must be written once.
-static func go_dark(world: World, region: Region, index: int, events: Array[SimEvent]) -> void:
+static func go_dark(world: World, db: ContentDB, region: Region, index: int,
+		events: Array[SimEvent]) -> void:
 	region.dark = true
 	region.penetration = 0.0
 	# Everything standing there goes with it. The nodes stay owned: what was
@@ -56,6 +57,11 @@ static func go_dark(world: World, region: Region, index: int, events: Array[SimE
 			"anomaly": anomaly.id,
 			"region": region.def.id,
 		}))
+	# A status there has nothing left to act on (loop-mechanics §3.5): it ends,
+	# cause "dark", without its on_end — a status cut short never came to pass.
+	# Only S4.10's bots put statuses on regions they then emptied.
+	for status: Status in world.statuses_in_region(index):
+		StatusSystem.end(world, db, status, SimEvent.CAUSE_DARK, events)
 	# A map event about this place has nothing left to be about.
 	EventSystem.drop_in_region(world, index, events)
 	events.append(SimEvent.new(SimEvent.REGION_DEPOPULATED, world.day, {"region": region.def.id}))

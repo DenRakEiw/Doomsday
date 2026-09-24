@@ -16,9 +16,53 @@ const MAX_COMMANDS_PER_DAY: int = 64
 const SEED_FACTOR: int = 7919
 const SEED_OFFSET: int = 17
 
+## The effect families an event option is scored on (`answer_event`). A weight
+## is what one unit is worth to the policy, in compute: one compute granted, one
+## footprint held for `FOOTPRINT_DAYS`, one region seeded, a harm burst of 1, one
+## point of containment (×4 for all factions), one asset, a counter-move's status
+## endured, one ×1 of penetration.
+const W_COMPUTE: String = "compute"
+const W_FOOTPRINT: String = "footprint"
+const W_SEED: String = "seed"
+const W_HARM: String = "harm"
+const W_CONTAINMENT: String = "containment"
+const W_ASSET: String = "asset"
+const W_ASSET_LOST: String = "asset_lost"
+const W_ENDURE: String = "endure"
+const W_PENETRATION: String = "penetration"
+## A footprint pulse is weighed per month it lasts.
+const FOOTPRINT_DAYS: float = 30.0
+
+## The region attribute a region-target ability is aimed by (S4.10): the one it
+## feeds on or hurts most. Ties go to the lower index.
+const ABILITY_TARGET_ATTR: Dictionary[String, String] = {
+	"harvest": "compute", "squeeze": "wealth", "blackout": "industry",
+	"halt": "manufacturing", "reroute": "connectivity", "silence": "population",
+	"suppress": "population", "lobby": "wealth", "fabricate": "industry",
+}
+## An ability that answers a counter-move is used only where its status stands.
+const ABILITY_ANSWERS: Dictionary[String, Array] = {
+	"lobby": ["lockdown", "rationing", "audit"],
+	"suppress": ["protest"],
+}
+## Abilities that pay for themselves keep no reserve.
+const INCOME_ABILITIES: Array[String] = ["harvest", "squeeze"]
+## Harvest silences its region for a month: a run with fewer regions starves on it.
+const HARVEST: String = "harvest"
+const HARVEST_MIN_SEEDED: int = 6
+## Pause is for a world that is closing in, not a habit.
+const PAUSE: String = "pause"
+const PAUSE_CONTAINMENT: float = 0.5
+## A target with the answered status, or anywhere but the origin for Harvest,
+## outranks any attribute difference.
+const TARGET_BONUS: float = 100.0
+
 ## The policy's own stream. Seeded by `setup`, never the world's.
 var _rng: SimRng = null
 var _db: ContentDB = null
+## What an event option's effects are worth to this policy; empty means it
+## answers every event with its default.
+var _weights: Dictionary[String, float] = {}
 
 
 ## The policy with this id, or null. Both the headless runners and the `Game`
@@ -36,13 +80,31 @@ static func create(id: String) -> Policy:
 		return StealthSpreadPolicy.new()
 	if id == PersuaderPolicy.ID:
 		return PersuaderPolicy.new()
+	if id == CyberPolicy.ID:
+		return CyberPolicy.new()
+	if id == BiologyPolicy.ID:
+		return BiologyPolicy.new()
+	if id == RoboticsPolicy.ID:
+		return RoboticsPolicy.new()
+	if id == WeaponsPolicy.ID:
+		return WeaponsPolicy.new()
+	if id == PersuasionPolicy.ID:
+		return PersuasionPolicy.new()
 	return null
 
 
-## The shape bots of S1.8 first, the three strategies of S3.6 after them.
+## The bots a report runs (S4.10, loop-redesign §9): the floor, the impatient
+## first run, and one per intended strategy.
 static func ids() -> Array[String]:
-	return [IdlePolicy.ID, GreedyPolicy.ID, StealthPolicy.ID, CyberRushPolicy.ID,
-		StealthSpreadPolicy.ID, PersuaderPolicy.ID]
+	return [IdlePolicy.ID, GreedyPolicy.ID, CyberPolicy.ID, BiologyPolicy.ID, RoboticsPolicy.ID,
+		WeaponsPolicy.ID, PersuasionPolicy.ID]
+
+
+## The bots of S1.8 and S3.6 that the second generation replaced. `create` still
+## makes them — the debug keys and a comparison with an old baseline use them —
+## but a report runs them only when asked for by name.
+static func legacy_ids() -> Array[String]:
+	return [StealthPolicy.ID, CyberRushPolicy.ID, StealthSpreadPolicy.ID, PersuaderPolicy.ID]
 
 
 ## The stream a policy gets for a world seed.
@@ -65,10 +127,11 @@ func next_command(sim: Simulation) -> Command:
 	return null
 
 
-## The oldest open event answered with its default, or null when none is open.
-## Every policy asks this first: a bot never lets a deadline decide, so batch
-## runs stay comparable and no command is rejected for an event that expired
-## (`loop-mechanics.md` §19). S4.10 gives the bots rules of their own.
+## The oldest open event answered, or null when none is open. Every policy asks
+## this first: a bot never lets a deadline decide, so batch runs stay comparable
+## and no command is rejected for an event that expired (`loop-mechanics.md`
+## §19). A policy without weights answers with the default; one with weights
+## answers by them (`answer_event`, S4.10).
 func answer_events(sim: Simulation) -> Command:
 	if sim.world.events.is_empty():
 		return null
@@ -76,7 +139,76 @@ func answer_events(sim: Simulation) -> Command:
 	var def: EventDef = sim.db.event(event.def)
 	if def == null:
 		return null
-	return ChooseEventOptionCommand.new(event.id, def.default_option)
+	return ChooseEventOptionCommand.new(event.id, answer_event(sim, event, def))
+
+
+## loop-redesign §9: the option a policy picks, by rule and never at random. Each
+## option the command would accept is scored on the effects it lists — the
+## weights say what this strategy wants — and the best wins; the default wins
+## every tie, so a policy that cares about nothing an option does leaves it be.
+func answer_event(sim: Simulation, event: OpenEvent, def: EventDef) -> String:
+	if _weights.is_empty():
+		return def.default_option
+	var best: String = def.default_option
+	var best_score: float = -INF
+	for option: EventOptionDef in def.options:
+		if not sim.can_apply(ChooseEventOptionCommand.new(event.id, option.id)).is_empty():
+			continue
+		var score: float = option_score(sim, event, def, option)
+		if score > best_score or (score == best_score and option.id == def.default_option):
+			best = option.id
+			best_score = score
+	return best
+
+
+## What an option is worth to this policy: its effects, its chances weighted by
+## their probability, its cost in compute, and the status a counter-move leaves
+## behind unless the option skips it.
+func option_score(sim: Simulation, event: OpenEvent, def: EventDef,
+		option: EventOptionDef) -> float:
+	var score: float = -option.cost * _weight(W_COMPUTE)
+	for effect: EffectDef in option.effects:
+		score += _effect_score(sim, event.region, effect)
+	for branch: EventChanceDef in option.chance:
+		for effect: EffectDef in branch.effects:
+			score += branch.p * _effect_score(sim, event.region, effect)
+	if not def.status.is_empty() and not option.skip_status:
+		score += _weight(W_ENDURE)
+	return score
+
+
+func _effect_score(sim: Simulation, region: int, effect: EffectDef) -> float:
+	match effect.effect:
+		EffectDef.COMPUTE_GRANT:
+			var amount: float = effect.value
+			if effect.per_hardware:
+				amount *= sim.hardware(region) if region > 0 else sim.stat("hardware")
+			return amount * _weight(W_COMPUTE)
+		EffectDef.FOOTPRINT_PULSE:
+			return effect.value * float(effect.days) / FOOTPRINT_DAYS * _weight(W_FOOTPRINT)
+		EffectDef.SEED_NEIGHBOURS:
+			return float(effect.count) * _weight(W_SEED)
+		EffectDef.HARM_BURST:
+			return effect.value * _weight(W_HARM)
+		EffectDef.CONTAINMENT_ADD:
+			var factions: float = float(Faction.FACTION_IDS.size()) \
+				if effect.faction == EffectDef.FACTION_ALL else 1.0
+			return effect.value * factions * _weight(W_CONTAINMENT)
+		EffectDef.CONTAINMENT_ROLLBACK, EffectDef.FUNDING_RESET:
+			return -effect.value * _weight(W_CONTAINMENT)
+		EffectDef.GRANT_ASSETS:
+			return float(effect.count) * _weight(W_ASSET)
+		EffectDef.DESTROY_ASSETS:
+			return float(effect.count) * _weight(W_ASSET_LOST)
+		EffectDef.PENETRATION_MUL:
+			return (effect.value - 1.0) * _weight(W_PENETRATION)
+		EffectDef.CONTROL_ADD:
+			return effect.value * _weight(W_PENETRATION)
+	return 0.0
+
+
+func _weight(key: String) -> float:
+	return float(_weights.get(key, 0.0))
 
 
 ## Region indices that `ChooseOriginCommand` would accept, in index order.
@@ -103,6 +235,57 @@ func best_site(sim: Simulation, node: TechNodeDef) -> String:
 			best = i
 			best_score = score
 	return "" if best == 0 else sim.db.regions[best].id
+
+
+## The first of `ability_ids` that is unlocked, ready, affordable with `reserve`
+## left over, and has somewhere to go (S4.10). Null when none does.
+func _use_ability(sim: Simulation, ability_ids: Array[String], reserve: float) -> Command:
+	for ability_id: String in ability_ids:
+		var def: AbilityDef = sim.db.ability(ability_id)
+		if def == null or sim.ability_level(ability_id) == 0:
+			continue
+		if sim.ability_ready_day(ability_id) > sim.world.day:
+			continue
+		var keep: float = 0.0 if INCOME_ABILITIES.has(ability_id) else reserve
+		if sim.world.agent.compute - def.cost < keep:
+			continue
+		if ability_id == HARVEST and sim.world.seeded_count() < HARVEST_MIN_SEEDED:
+			continue
+		if ability_id == PAUSE and sim.world.max_containment() < PAUSE_CONTAINMENT:
+			continue
+		var command: Command = _ability_command(sim, def)
+		if command != null:
+			return command
+	return null
+
+
+## The ability aimed at its best region, or null when it can go nowhere.
+func _ability_command(sim: Simulation, def: AbilityDef) -> Command:
+	if def.target == AbilityDef.TARGET_GLOBAL:
+		var global: UseAbilityCommand = UseAbilityCommand.new(def.id, "")
+		return global if sim.can_apply(global).is_empty() else null
+	var answers: Array = ABILITY_ANSWERS.get(def.id, [])
+	var attr: String = str(ABILITY_TARGET_ATTR.get(def.id, ""))
+	var best: int = 0
+	var best_score: float = 0.0
+	for i: int in range(1, sim.db.regions.size()):
+		var command: UseAbilityCommand = UseAbilityCommand.new(def.id, sim.db.regions[i].id)
+		if not sim.can_apply(command).is_empty():
+			continue
+		var answering: bool = false
+		for status: Variant in answers:
+			answering = answering or sim.world.has_status(str(status), i)
+		if not answers.is_empty() and not answering:
+			continue
+		var score: float = float(sim.db.regions[i].attr(attr)) if not attr.is_empty() else 0.0
+		if answering or (def.id == HARVEST and i != sim.world.agent.origin):
+			score += TARGET_BONUS
+		if best == 0 or score > best_score:
+			best = i
+			best_score = score
+	if best == 0:
+		return null
+	return UseAbilityCommand.new(def.id, sim.db.regions[best].id)
 
 
 ## The oldest anomaly on the map — `world.anomalies` is in spawn order.

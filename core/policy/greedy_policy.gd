@@ -1,12 +1,21 @@
 class_name GreedyPolicy
 extends Policy
 ## The impatient player: the biggest home it can find, every anomaly it sees,
-## and the cheapest thing on the board at all times.
+## every ability the moment it is ready, and the cheapest thing on the board at
+## all times. It answers events for the compute in them and does not mind being
+## seen — the first run G4 wants lost more often than won (loop-redesign §9).
 
 const ID: String = "greedy"
 ## Ties between equally cheap nodes go down this list.
 const TREE_ORDER: Array[String] = ["infiltration", "capabilities", "evasion"]
 const SKIP_NOTHING: Array[String] = []
+
+
+func _init() -> void:
+	_weights = {
+		W_COMPUTE: 1.5, W_SEED: 2.0, W_CONTAINMENT: -5.0, W_ASSET: 2.0, W_ASSET_LOST: -2.0,
+		W_ENDURE: -1.0, W_PENETRATION: 3.0,
+	}
 
 
 func policy_id() -> String:
@@ -22,8 +31,19 @@ func next_command(sim: Simulation) -> Command:
 	var anomaly: Command = _collect_oldest(sim)
 	if anomaly != null:
 		return anomaly
+	var ability: Command = _use_ability(sim, _every_ability(sim), 0.0)
+	if ability != null:
+		return ability
 	# One node per call, so the escalated cost is read again after each purchase.
 	return _cheapest_affordable(sim, TREE_ORDER, SKIP_NOTHING)
+
+
+## Every ability in `abilities.json` order: greedy has no favourite.
+static func _every_ability(sim: Simulation) -> Array[String]:
+	var out: Array[String] = []
+	for def: AbilityDef in sim.db.abilities:
+		out.append(def.id)
+	return out
 
 
 ## The most hardware, then the best connected, then the lowest index.

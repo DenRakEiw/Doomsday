@@ -19,13 +19,16 @@ const CAUSE_CANCELLED: String = "cancelled"
 
 
 ## Everything whose day has come, in one order: statuses, then pulses, then
-## timed flags. Cooldowns need nothing — `ability_ready_day` compares.
+## timed flags, then cooldowns. A cleared cooldown is taken off the agent so that
+## "absent = ready" holds (loop-mechanics §3.1) and the invariant of §3.5 with it —
+## no bot used an ability before S4.10, which is how a stale entry went unseen.
 func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 	if world.agent.origin == 0:
 		return
 	_expire_statuses(world, db, events)
 	_expire_pulses(world, events)
 	_expire_flags(world, events)
+	_expire_cooldowns(world)
 
 
 ## Puts a status on a region (0 = on the agent) and answers the record. Never
@@ -234,6 +237,17 @@ static func _expire_flags(world: World, events: Array[SimEvent]) -> void:
 		world.agent.timed_flags.erase(flag)
 		world.modifiers.remove_source(ModifierStack.source_for_flag(flag))
 		events.append(SimEvent.new(SimEvent.FLAG_EXPIRED, world.day, {"flag": flag}))
+
+
+## No event: the Actions row and the ability picker read the cooldown each time
+## they draw, and nothing in the world changes when one clears.
+static func _expire_cooldowns(world: World) -> void:
+	var cleared: Array[String] = []
+	for ability_id: String in world.agent.cooldowns:
+		if world.agent.cooldowns[ability_id] <= world.day:
+			cleared.append(ability_id)
+	for ability_id: String in cleared:
+		world.agent.cooldowns.erase(ability_id)
 
 
 # ----------------------------------------------------------------- the links

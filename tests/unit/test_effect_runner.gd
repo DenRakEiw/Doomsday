@@ -145,7 +145,7 @@ func test_a_region_going_dark_loses_what_it_held() -> void:
 	sim.world.set_assets(NEIGHBOUR, AssetDef.KIND_LAB, 1)
 	var region: Region = sim.world.regions[NEIGHBOUR]
 	region.alive = 0.0
-	PopulationSystem.go_dark(sim.world, region, NEIGHBOUR, events)
+	PopulationSystem.go_dark(sim.world, sim.db, region, NEIGHBOUR, events)
 	assert_false(region.has_assets())
 	var lost: Array[SimEvent] = _events_of(SimEvent.ASSET_LOST)
 	assert_eq(lost.size(), 2, "one line per kind held")

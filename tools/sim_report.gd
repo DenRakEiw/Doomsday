@@ -53,7 +53,7 @@ func _run_policy(db: ContentDB, policy_id: String, bounds: PackedInt32Array, max
 		var problems: Array[String] = []
 		var played: Dictionary = Harness.play(db, seed_value, policy_id, max_days, false, problems)
 		var summary: Dictionary = Harness.summarise(played["sim"], seed_value, policy_id, max_days,
-			int(played["rejected"]), played["headlines"])
+			int(played["rejected"]), played["headlines"], played["stats"])
 		summary.merge(_nodes_bought(played["sim"]))
 		runs.append(summary)
 		if file != null:
@@ -99,6 +99,8 @@ func _print_report(rows: Array[Dictionary], bounds: PackedInt32Array) -> void:
 		column: String) -> String: return "%.0f %%" % (100.0 * _share(run, "lost_to", column)))
 	_print_table(rows, "Leading at the end", Faction.FACTION_IDS, func(run: Dictionary,
 		column: String) -> String: return "%.0f %%" % (100.0 * _share(run, "leader", column)))
+	_print_table(rows, "Loop (mean per run)", Harness.STAT_FIELDS, func(run: Dictionary,
+		column: String) -> String: return "%.1f" % _mean(run, column))
 	_print_table(rows, "Bought", _node_columns(), func(run: Dictionary,
 		column: String) -> String: return "%.1f" % _mean(run, column))
 	_print_table(rows, "Said", ["headlines_consequence", "headlines_reaction",

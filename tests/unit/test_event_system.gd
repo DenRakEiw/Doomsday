@@ -249,7 +249,7 @@ func test_a_pending_event_without_a_region_picks_one_or_is_dropped() -> void:
 func test_an_open_event_goes_with_a_region_that_goes_dark() -> void:
 	var event: OpenEvent = Fixtures.open_event(sim, Fixtures.OPENING_EVENT, "fx_birch")
 	var events: Array[SimEvent] = []
-	PopulationSystem.go_dark(sim.world, sim.world.regions[BIRCH], BIRCH, events)
+	PopulationSystem.go_dark(sim.world, sim.db, sim.world.regions[BIRCH], BIRCH, events)
 	assert_null(sim.world.event_by_id(event.id))
 	assert_eq(_of(events, SimEvent.EVENT_DROPPED).size(), 1)
 	assert_true(_of(events, SimEvent.EVENT_EXPIRED).is_empty(), "no default runs")

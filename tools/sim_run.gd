@@ -37,7 +37,7 @@ func _init() -> void:
 		args.has("check"), problems)
 	var sim: Simulation = played["sim"]
 	var summary: Dictionary = Harness.summarise(sim, seed_value, policy_id, max_days,
-		int(played["rejected"]), played["headlines"])
+		int(played["rejected"]), played["headlines"], played["stats"])
 	print(JSON.stringify(summary))
 	if args.has("headlines"):
 		_print_headlines(played["headlines"])

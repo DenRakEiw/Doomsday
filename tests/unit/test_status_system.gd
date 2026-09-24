@@ -262,3 +262,31 @@ func test_a_healthy_run_with_statuses_has_no_problems() -> void:
 	_apply(HUSH, 0)
 	StatusSystem.add_pulse(sim.world, 1.0, sim.world.day + 2, [] as Array[String], events)
 	assert_eq(str(sim.world.check_invariants(sim.db)), "[]")
+
+
+## S4.10: the bots were the first to use abilities over a whole run, and a
+## cleared cooldown stayed on the agent until `check_invariants` said so.
+func test_a_cooldown_is_taken_off_the_day_it_clears() -> void:
+	sim.world.agent.cooldowns["fx_ability"] = sim.world.day + 2
+	sim.tick()
+	assert_true(sim.world.agent.cooldowns.has("fx_ability"), "still cooling down")
+	sim.tick()
+	assert_false(sim.world.agent.cooldowns.has("fx_ability"), "ready, so absent")
+	assert_eq(sim.world.check_invariants(sim.db).size(), 0)
+
+
+## S4.10: a bot silenced a region and then emptied it, and the status stood on
+## in the dark — loop-mechanics §3.5 says no status stands in a dark region.
+func test_a_region_going_dark_ends_its_statuses_without_their_consequence() -> void:
+	_apply(DIM, BIRCH)
+	events = []
+	# Emptied first, as the population system does: a dark region has nobody.
+	sim.world.regions[BIRCH].deaths += sim.world.regions[BIRCH].alive
+	sim.world.regions[BIRCH].alive = 0.0
+	PopulationSystem.go_dark(sim.world, sim.db, sim.world.regions[BIRCH], BIRCH, events)
+	assert_false(sim.world.has_status(DIM, BIRCH))
+	var ended: Array[SimEvent] = events.filter(func(e: SimEvent) -> bool:
+		return e.type == SimEvent.STATUS_ENDED)
+	assert_eq(ended.size(), 1)
+	assert_eq(str(ended[0].data["cause"]), SimEvent.CAUSE_DARK)
+	assert_eq(sim.world.check_invariants(sim.db).size(), 0)

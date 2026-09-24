@@ -98,8 +98,8 @@ func test_stealth_buys_no_capabilities_while_the_world_is_still_free() -> void:
 
 func test_an_unknown_policy_id_yields_nothing() -> void:
 	assert_null(Harness.make_policy("reckless"))
-	# Three shape bots (S1.8) and three strategies (S3.6).
-	assert_eq(Harness.policy_ids().size(), 6)
+	# The floor, the impatient first run and five strategies (S4.10).
+	assert_eq(Harness.policy_ids().size(), 7)
 
 # ------------------------------------------------- S4.1: where a bot places
 

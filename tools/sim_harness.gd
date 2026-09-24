@@ -21,8 +21,15 @@ const OUTCOME_TIMEOUT: String = "timeout"
 ## The order the summary's fields are printed and written in.
 const FIELDS: Array[String] = ["seed", "policy", "outcome", "days", "discovery_day", "phase",
 	"nodes_owned", "regions_seeded", "regions_dark", "deaths_share", "containment", "leader",
-	"lost_to", "compute_earned", "rejected_commands", "headlines_consequence", "headlines_reaction",
-	"headlines_filler", "hash"]
+	"lost_to", "compute_earned", "rejected_commands", "abilities_used", "events_opening",
+	"events_counter_move", "events_chain", "counter_moves", "assets_deployed", "assets_lost",
+	"headlines_consequence", "headlines_reaction", "headlines_filler", "hash"]
+## S4.10 (loop-redesign §9): what a run did with the redesigned loop, counted from
+## the events of every command and every tick. `events_<kind>` counts the events
+## the policy answered; `counter_moves` every counter-move that opened on it.
+const STAT_FIELDS: Array[String] = ["abilities_used", "events_opening", "events_counter_move",
+	"events_chain", "counter_moves", "assets_deployed", "assets_lost"]
+const EVENTS_FIELD_PREFIX: String = "events_"
 ## The summary field per headline stream (ticker.md §6).
 const HEADLINE_FIELD_PREFIX: String = "headlines_"
 
@@ -62,15 +69,17 @@ static func play(db: ContentDB, seed_value: int, policy_id: String, max_days: in
 	var policy: Policy = make_policy(policy_id)
 	policy.setup(db, policy_seed(seed_value))
 	var headlines: Array[Dictionary] = []
-	var rejected: int = advance(sim, policy, max_days, check, problems, headlines)
-	return {"sim": sim, "rejected": rejected, "headlines": headlines}
+	var stats: Dictionary[String, int] = empty_stats()
+	var rejected: int = advance(sim, policy, max_days, check, problems, headlines, stats)
+	return {"sim": sim, "rejected": rejected, "headlines": headlines, "stats": stats}
 
 
 ## The day loop, on a simulation that may already have days behind it — which is
 ## what lets a test continue a loaded save with the same policy. Returns the
 ## number of rejected commands.
 static func advance(sim: Simulation, policy: Policy, until_day: int, check: bool,
-		problems: Array[String], headlines: Array[Dictionary] = []) -> int:
+		problems: Array[String], headlines: Array[Dictionary] = [],
+		stats: Dictionary[String, int] = {}) -> int:
 	var rejected: int = 0
 	while sim.world.outcome == World.Outcome.NONE and sim.world.day < until_day:
 		for i: int in MAX_COMMANDS_PER_DAY:
@@ -80,12 +89,14 @@ static func advance(sim: Simulation, policy: Policy, until_day: int, check: bool
 			var result: CommandResult = sim.apply(command)
 			if result.ok:
 				collect_headlines(result.events, headlines)
+				collect_stats(sim.db, result.events, stats)
 			else:
 				# A rejected command is a policy bug, never a game state: the
 				# policy asked `can_apply` or should have.
 				rejected += 1
 		sim.tick()
 		collect_headlines(sim.outbox, headlines)
+		collect_stats(sim.db, sim.outbox, stats)
 		if check:
 			var found: Array[String] = sim.world.check_invariants(sim.db)
 			if not found.is_empty():
@@ -108,6 +119,38 @@ static func collect_headlines(events: Array[SimEvent], into: Array[Dictionary]) 
 		})
 
 
+## Every `STAT_FIELDS` counter at zero.
+static func empty_stats() -> Dictionary[String, int]:
+	var out: Dictionary[String, int] = {}
+	for field: String in STAT_FIELDS:
+		out[field] = 0
+	return out
+
+
+## Counts what one tick or one command did into `stats`. A caller that passes no
+## dictionary counts nothing.
+static func collect_stats(db: ContentDB, events: Array[SimEvent],
+		stats: Dictionary[String, int]) -> void:
+	if stats.is_empty():
+		return
+	for event: SimEvent in events:
+		match event.type:
+			SimEvent.ABILITY_USED:
+				stats["abilities_used"] += 1
+			SimEvent.ASSET_DEPLOYED:
+				stats["assets_deployed"] += int(event.data.get("count", 1))
+			SimEvent.ASSET_LOST:
+				stats["assets_lost"] += int(event.data.get("count", 1))
+			SimEvent.EVENT_OPENED:
+				if str(event.data.get("kind", "")) == EventDef.KIND_COUNTER_MOVE:
+					stats["counter_moves"] += 1
+			SimEvent.EVENT_ANSWERED:
+				var def: EventDef = db.event(str(event.data.get("def", "")))
+				var field: String = EVENTS_FIELD_PREFIX + (def.kind if def != null else "")
+				if stats.has(field):
+					stats[field] += 1
+
+
 ## How many lines each stream said, for the batch report.
 static func headline_counts(headlines: Array[Dictionary]) -> Dictionary[String, int]:
 	var counts: Dictionary[String, int] = {}
@@ -120,7 +163,8 @@ static func headline_counts(headlines: Array[Dictionary]) -> Dictionary[String, 
 
 
 static func summarise(sim: Simulation, seed_value: int, policy_id: String, max_days: int,
-		rejected: int, headlines: Array[Dictionary] = []) -> Dictionary:
+		rejected: int, headlines: Array[Dictionary] = [],
+		stats: Dictionary[String, int] = {}) -> Dictionary:
 	var world: World = sim.world
 	var dark: int = 0
 	for i: int in range(1, world.regions.size()):
@@ -146,6 +190,13 @@ static func summarise(sim: Simulation, seed_value: int, policy_id: String, max_d
 		"lost_to": lost_to(world),
 		"compute_earned": world.agent.compute_earned,
 		"rejected_commands": rejected,
+		"abilities_used": int(stats.get("abilities_used", 0)),
+		"events_opening": int(stats.get("events_opening", 0)),
+		"events_counter_move": int(stats.get("events_counter_move", 0)),
+		"events_chain": int(stats.get("events_chain", 0)),
+		"counter_moves": int(stats.get("counter_moves", 0)),
+		"assets_deployed": int(stats.get("assets_deployed", 0)),
+		"assets_lost": int(stats.get("assets_lost", 0)),
 		"headlines_consequence": counts[HeadlineDef.STREAM_CONSEQUENCE],
 		"headlines_reaction": counts[HeadlineDef.STREAM_REACTION],
 		"headlines_filler": counts[HeadlineDef.STREAM_FILLER],

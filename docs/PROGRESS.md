@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S4.10 — Strategy bots, second generation** (IMPLEMENTATION Block 8; *Read first* is loop-redesign §9) |
+| **Next step** | **D4.5 — German review in context** (IMPLEMENTATION Block 9; run the game, fresh screenshots — S4.9's set is in the S4.9 session log) |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D4.5 → G4 (the gates still need the user) |
-| **Last completed** | S4.9 — Localisation tooling and overflow screenshots: `tools/check_strings.gd` in `tools/test.sh` (keys named in code and scenes, empty cells, placeholders, duplicates, content), the pseudo-locale (`-- --pseudo`, Shift+L), the text scale (100 / 125 / 150 %, settings row, K), the session theme handed to every `CanvasLayer`, `ModalPanel`, and the German screenshot set (54 shots, list in the session log) with its fixes and findings. 1253 tests, all green (2026-09-24) |
-| **Before that** | S4.8 — Analysis screen (2026-09-24) |
+| **After it** | G4 — balance pass 2 and the M4 gate (**needs the user**) |
+| **Last completed** | S4.10 — Strategy bots, second generation: `StrategyPolicy` + `cyber` · `biology` · `robotics` · `weapons` · `persuasion`, `greedy` with abilities, events answered by weights on the effect vocabulary, abilities aimed by rule, the report's *Loop* table; two core gaps fixed (cooldowns expire, a dark region ends its statuses); the 500-seed baselines with G4's five questions. 1267 tests, all green (2026-09-24) |
+| **Before that** | S4.9 — Localisation tooling and overflow screenshots (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay` · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -28,7 +28,7 @@ rather than struck through.
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
-| **Run it** | `run_project` starts at the **title** (`game/main.tscn`); New run → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **A** ability picker · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 stealth · F7 idle (**with Shift**: cyber_rush · stealth_spread · persuader) · **F8** puts the first opening on the origin at the next tick, **Shift+F8** the first global event (the wire card); from godot-mcp: `game_call_method /root/Game debug_schedule_event ["<def id>", "<region id or empty>"]`, then `advance [1]` · L locale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
+| **Run it** | `run_project` starts at the **title** (`game/main.tscn`); New run → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **A** ability picker · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 biology · F7 persuasion (**with Shift**: cyber · robotics · weapons; S4.10) · **F8** puts the first opening on the origin at the next tick, **Shift+F8** the first global event (the wire card); from godot-mcp: `game_call_method /root/Game debug_schedule_event ["<def id>", "<region id or empty>"]`, then `advance [1]` · L locale (Shift+L pseudo-locale) · K text scale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
 | **Compact layout** | Below 1100 px the interface switches (§5.7). A desktop window narrower than that lays out one logical pixel per window pixel, **`game_window set_size 400 860` resized correctly in S2.P** — try it first; `game_set_property /root size {"x":400,"y":860}` is the fallback and in S2.P it rendered a blank frame. After any resize at runtime the camera keeps a zoom from the old viewport: write `zoom` and give it one `game_scroll` notch down to settle it at `zoom_min`. |
 | **Look at the map** | `game_click` (**`button: 1`, never `"left"`** — see *Known issues*), `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Main/ScreenSlot/Session/MapLayer/MapView` (the router’s slot is in the path now), `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead — but a property write emits no `view_changed`, so links and markers keep the old zoom until the next real camera movement (**one `game_scroll` notch fixes it**). |
 
@@ -109,10 +109,10 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S4.7 [O] Chains
 - [x] S4.8 [O] Analysis screen
 - [x] S4.9 [O] Localisation tooling and overflow screenshots
-- [ ] **S4.10 [O] Strategy bots, second generation**
+- [x] S4.10 [O] Strategy bots, second generation
 
 **Block 9 — M4 gate, M5 design · Fable**
-- [ ] D4.5 [F] German review in context
+- [ ] **D4.5 [F] German review in context**
 - [ ] G4 [F] Balance pass 2 and M4 gate
 - [ ] D5.1 [F] Architectures, directives, difficulty
 - [ ] D5.2 [F] Response Task Force; endings
@@ -783,6 +783,36 @@ without new information.
   numbers stay English) and is built from `strings.csv` at run time — a development switch that
   an exported build, which has no CSV, silently lacks. Placeholders and BBCode tags are copied
   untouched, so every `format()` still fills.
+- **2026-09-24** (S4.10) — **The second-generation bots are one class, `StrategyPolicy`, and five
+  data sets** (`cyber`, `biology`, `robotics`, `weapons`, `persuasion`; `core/policy/`): a branch,
+  a *path* of named nodes in the order wanted (the other branches' and trees' prerequisites
+  included — Weapons crosses two Evasion lines and Cyber's communications denial, Biology
+  Persuasion's cover, Robotics Cyber's grid), Evasion from the start or once discovered, an
+  ability priority list, event weights and origin attributes. A day: origin · the oldest event ·
+  the oldest anomaly · an ability · a vector while there is none · the next path node · the
+  cheapest allowed node **only when no path node is waiting for compute** (the bot saves for its
+  path and keeps that much back from any ability that costs; Harvest and Squeeze pay for
+  themselves and keep nothing back). Tier cap: 1, 2 from the second vector, 3 from the third or
+  from discovery with two. `greedy` keeps its cheapest-first buying and now uses every ability
+  the moment it can. `idle` answers every event with its default. The S3.6 bots stay makeable
+  by name and on no report.
+- **2026-09-24** (S4.10) — **An event is answered by weights on the effect vocabulary, never by
+  option id and never at random** (`Policy.answer_event`): each option the command accepts is
+  scored — compute granted (per hardware when the effect says so), footprint × days / 30, regions
+  seeded, harm, containment (×4 for `all`), assets granted / destroyed, ×penetration, the
+  counter-move's status if the option does not skip it, the option's cost — with chances
+  weighted by *p*; the best wins and the default wins ties. The five profiles are in the
+  policies' `_init`. A new event needs no bot change.
+- **2026-09-24** (S4.10) — **Ability targets by rule** (`Policy._ability_command`): the eligible
+  region with the most of the ability's attribute (`ABILITY_TARGET_ATTR`); Lobby only where a
+  lockdown, rationing or audit stands and Suppress only where a protest does; Harvest never
+  below six seeded regions and anywhere but the origin first (the Autophagy trap of *Design
+  questions*); Pause only once a track reaches 0.5.
+- **2026-09-24** (S4.10) — **Two core gaps the bots found, fixed:** a cleared cooldown now leaves
+  `agent.cooldowns` on the tick it clears (it stayed, and `check_invariants` flagged it — no bot
+  had used an ability before); a region going dark ends its statuses, cause `"dark"`, without
+  their `on_end` (loop-mechanics §3.5's invariant; `go_dark` gained the `ContentDB`). Both change
+  no run without abilities.
 
 ## Design questions for Fable
 
@@ -1537,6 +1567,33 @@ two, the Merge/Terror exclusion, the cadence table). Changes go into the spec be
 
 ## Balance baselines
 
+**2026-09-24 (S4.10) — the second-generation bots, 500 seeds each** (`sim_report
+--seeds=1..500`, one process per policy from a worktree snapshot). The current game: trees v3,
+chains, counter-moves, abilities, assets. **0 rejected commands and no broken invariant in 3 500
+runs.** *Loop* is the mean per run: abilities used · events answered (opening · counter-move ·
+chain) · counter-moves suffered · assets deployed · lost.
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Deaths p50 | Loop |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 100 % contained | 0 · 0 · 100 · 0 % | 1430 | 815 | 0 | 0 · 0 · 18 · 0 · 19 · 0 · 0 |
+| `greedy` | **83 % Ascendance**, 17 % contained | 0 · 0 · 17 · 0 % | 669 | 196 | 0.007 | 26 · 6 · 14 · 8 · 14 · 11 · 2 |
+| `cyber` | **100 % contained** | 0 · 100 · 0 · 0 % | 404 | 97 | 0.011 | 16 · 4 · 9 · 5 · 9 · 6 · 0 |
+| `biology` | 34 % Extinction · 11 % Ascendance · 7 % contained · 2 % no compute · **46 % Autophagy** | 0 · 6 · 1 · 0 % | 766 | 342 | 1.000 | 12 · 8 · 9 · 7 · 9 · 7 · 6 |
+| `robotics` | **100 % contained** | 0 · 0 · 0 · 100 % | 270 | 69 | 0.050 | 2 · 3 · 6 · 4 · 6 · 12 · 1 |
+| `weapons` | 30 % Extinction · 9 % Ascendance · 4 % no compute · **56 % Autophagy** | — | 640 | 268 | 0.739 | 14 · 7 · 4 · 6 · 4 · 2 · 1 |
+| `persuasion` | **100 % Ascendance** | — | 755 | 173 | 0 | 16 · 8 · 5 · 7 · 5 · 6 · 0 |
+
+**What G4 has to answer** (none of it a bot fault — each bot plays its branch as §9 intends):
+1. **`greedy` wins 83 %** — BALANCE §1 wants the first run lost more often than won.
+2. **Cyber and Robotics never win.** The governments end every Cyber run by day ~400 (its loud
+   Tier 2s are governments-watched), the public every Robotics run by day ~270 (fleets on the
+   map). Cyber never reaches Autophagy: it is contained first.
+3. **Weapons and Biology die of Autophagy about half the time** (56 %, 46 %): their deaths empty
+   the regions they run on before the last human is gone. Extinction is reached in 30 % / 34 % —
+   the paths exist; the race between killing and starving decides.
+4. **The researchers lead almost every quiet run** and the labs never end one (as in S4.4/S4.5).
+5. **Persuasion wins every run** — the quiet win is free. §1: "none wins for free".
+
 **2026-09-24 (S4.5 content, commit 20ebfea) — counter-moves, Societal Function, Autophagy; the M3
 bots, 500 seeds each** (`sim_report --seeds=1..500`, run from a worktree snapshot during S4.6–S4.9,
 99 minutes). **S4.5's acceptance holds: 0 rejected bot commands in all 3000 runs.** No run went
@@ -1709,6 +1766,20 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — S4.10 Strategy bots, second generation [O]
+- **Bots:** `StrategyPolicy` and five data sets (`core/policy/*_policy.gd`), `greedy` rewritten
+  (abilities, weights), `idle` unchanged, the S3.6 bots kept by name (`Policy.legacy_ids`); the
+  rules are under *Decisions*. Debug keys F5–F7 play the new ones.
+- **Report:** `tools/sim_harness.gd` counts abilities used, events answered by kind, counter-moves
+  suffered, assets deployed and lost (`STAT_FIELDS`, CSV columns, the *Loop* table).
+- **Found by the bots, fixed in the core:** cleared cooldowns stayed on the agent; statuses stood on
+  in regions gone dark. Found in the bots themselves by the first report: Biology's and
+  Persuasion's paths lacked `requires_any` nodes (Biology bought two nodes of its branch in
+  500 runs) — `test_every_path_carries_what_its_nodes_need` holds every path to it now, and a path
+  names its vectors.
+- **Tests:** `test_strategy_bots_v2.gd` (12), cooldown and go-dark tests in `test_status_system.gd`.
+  1267 tests green. Baselines and G4's five questions under *Balance baselines*. Next: **D4.5**.
 
 ### 2026-09-24 — S4.9 Localisation tooling and overflow screenshots [O]
 - **Tooling:** `StringTable` (the CSV as rows), `tools/string_scan.gd` + `tools/check_strings.gd`
