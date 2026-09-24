@@ -1,9 +1,9 @@
 extends Control
 ## How the run ended (spec m3-screens.md §7.4).
 ##
-## A modal over the map as it stopped: the outcome, one verdict line, the run in
-## nine numbers, and two ways on. D5.2 replaces the verdict lines with the real
-## endings and keeps every key.
+## A modal over the map as it stopped: the outcome, one verdict line, up to three
+## epilogue lines, the run in nine numbers, and the ways on. The verdict and the
+## epilogue are `EndingResolver`'s (`taskforce-endings.md` §6.3).
 ##
 ## Scene-specific, so no `class_name`.
 
@@ -14,6 +14,8 @@ signal review_requested
 
 const KEY_KICKER_WIN: String = "UI_RESULT_KICKER_WIN"
 const KEY_KICKER_LOSS: String = "UI_RESULT_KICKER_LOSS"
+## §6.2: the secret loss says the objective was reached — by someone else.
+const KEY_KICKER_SUPPLANTED: String = "UI_RESULT_KICKER_SUPPLANTED"
 const KEY_SEED: String = "UI_RESULT_SEED"
 const KEY_NEVER: String = "UI_RESULT_NEVER"
 const KEY_NONE: String = "UI_RESULT_NONE"
@@ -23,14 +25,6 @@ const PREFIX_TREE: String = "UI_TREE_TAB_"
 const PLACEHOLDER_SEED: String = "seed"
 const PLACEHOLDER_COUNT: String = "count"
 const PLACEHOLDER_TOTAL: String = "total"
-
-## The verdict line per outcome, in the order of `World.Outcome`.
-const VERDICT_KEYS: Array[String] = ["", "UI_RESULT_LINE_WIN_EXTINCTION",
-	"UI_RESULT_LINE_WIN_ASCENDANCE", "UI_RESULT_LINE_LOSE_CONTAINED",
-	"UI_RESULT_LINE_LOSE_NO_COMPUTE", "UI_RESULT_LINE_LOSE_AUTOPHAGY"]
-## §7.4 item 3: Ascendance over a graveyard is a different sentence.
-const KEY_ASCENDANCE_ASHES: String = "UI_RESULT_LINE_WIN_ASCENDANCE_ASHES"
-const WINS: Array[World.Outcome] = [World.Outcome.WIN_EXTINCTION, World.Outcome.WIN_ASCENDANCE]
 
 ## The summary grid, in the order §7.4 item 4 lists it.
 const ROW_KEYS: Array[String] = ["UI_RESULT_DAYS", "UI_RESULT_DISCOVERED", "UI_RESULT_REGIONS",
@@ -43,6 +37,7 @@ const ROW_KEYS: Array[String] = ["UI_RESULT_DAYS", "UI_RESULT_DISCOVERED", "UI_R
 @onready var _kicker: Label = %ResultKicker
 @onready var _outcome: Label = %ResultOutcome
 @onready var _verdict: Label = %ResultVerdict
+@onready var _epilogue: VBoxContainer = %ResultEpilogue
 @onready var _grid: GridContainer = %ResultGrid
 @onready var _deaths_detail: Label = %DeathsDetail
 @onready var _seed_label: Label = %ResultSeed
@@ -72,11 +67,13 @@ func _ready() -> void:
 ## Fills the screen from the world that just ended.
 func show_result(sim: Simulation) -> void:
 	var world: World = sim.world
-	var won: bool = WINS.has(world.outcome)
-	_kicker.text = tr(KEY_KICKER_WIN if won else KEY_KICKER_LOSS)
+	var won: bool = World.WIN_OUTCOMES.has(world.outcome)
+	_kicker.text = tr(_kicker_key(world.outcome))
 	_outcome.text = tr(PREFIX_OUTCOME + World.OUTCOME_IDS[world.outcome].to_upper())
 	_outcome.theme_type_variation = &"LabelDisplayXLWin" if won else &"LabelDisplayXL"
-	_verdict.text = tr(_verdict_key(sim))
+	var ending: Dictionary = EndingResolver.resolve(world, sim.db)
+	_verdict.text = tr(EndingLineDef.verdict_key(str(ending[EndingResolver.KEY_VARIANT])))
+	_fill_epilogue(ending[EndingResolver.KEY_EPILOGUE])
 	_seed_label.text = tr(KEY_SEED).format({PLACEHOLDER_SEED: Game.run_seed()})
 	_fill_rows(sim)
 	visible = true
@@ -108,13 +105,25 @@ func on_escape() -> void:
 	pass
 
 
-## §7.4: Ascendance reads differently when most of the world is dead.
-static func _verdict_key(sim: Simulation) -> String:
-	var world: World = sim.world
-	if world.outcome == World.Outcome.WIN_ASCENDANCE \
-			and world.deaths_total() / sim.db.population_total >= sim.db.balance.results_ashes_share:
-		return KEY_ASCENDANCE_ASHES
-	return VERDICT_KEYS[world.outcome]
+static func _kicker_key(outcome: World.Outcome) -> String:
+	if outcome == World.Outcome.LOSE_SUPPLANTED:
+		return KEY_KICKER_SUPPLANTED
+	return KEY_KICKER_WIN if World.WIN_OUTCOMES.has(outcome) else KEY_KICKER_LOSS
+
+
+## One muted line per epilogue entry, in the resolver's order; none hides the
+## box so it takes no height.
+func _fill_epilogue(line_ids: Array[String]) -> void:
+	for child: Node in _epilogue.get_children():
+		_epilogue.remove_child(child)
+		child.queue_free()
+	for line_id: String in line_ids:
+		var line: Label = Label.new()
+		line.theme_type_variation = &"LabelCaption"
+		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		line.text = tr(EndingLineDef.epilogue_key(line_id))
+		_epilogue.add_child(line)
+	_epilogue.visible = not line_ids.is_empty()
 
 
 func _build_rows() -> void:
@@ -168,19 +177,10 @@ static func _containment_peak(world: World) -> float:
 	return peak
 
 
-## The tree the run spent itself on; ties go to the first tree of the content.
+## The tree the run spent itself on; ties go to the first tree of the content —
+## the rule an ending's `dominant_tree` reads too.
 static func _dominant_tree(sim: Simulation) -> String:
-	var counts: Dictionary[String, int] = {}
-	for tree: String in TechNodeDef.TREES:
-		counts[tree] = 0
-	for node_id: String in sim.world.agent.owned_nodes:
-		var node: TechNodeDef = sim.db.tech(node_id)
-		if node != null:
-			counts[node.tree] += 1
-	var best: String = ""
-	for tree: String in TechNodeDef.TREES:
-		if counts[tree] > 0 and (best.is_empty() or counts[tree] > counts[best]):
-			best = tree
+	var best: String = HeadlineConditions.dominant_tree(sim.world, sim.db)
 	if best.is_empty():
 		return String(TranslationServer.translate(KEY_NONE))
 	return String(TranslationServer.translate(PREFIX_TREE + best.to_upper()))

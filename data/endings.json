@@ -1,5 +1,5 @@
 {
-	"_comment": "D5.2 (docs/specs/taskforce-endings.md section 6): the ending resolver's data. Per outcome, the first variant whose `when` (SCHEMA section 8 grammar plus the six D5.2 keys) holds gives the verdict line UI_RESULT_LINE_<VARIANT ID>; the last variant of each outcome has an empty `when`. Then up to epilogue_max epilogue lines ENDING_EPILOGUE_<ID>, file order = priority; `outcomes` empty = any outcome. Staged: S5.6 moves it to data/endings.json.",
+	"_comment": "D5.2 (docs/specs/taskforce-endings.md section 6): the ending resolver's data. Per outcome, the first variant whose `when` (SCHEMA section 8 grammar plus the six D5.2 keys) holds gives the verdict line UI_RESULT_LINE_<VARIANT ID>; the last variant of each outcome has an empty `when`. Then up to epilogue_max epilogue lines ENDING_EPILOGUE_<ID>, file order = priority; `outcomes` empty = any outcome. Loaded from S5.6 on by EndingResolver; data/SCHEMA.md section 6i.",
 	"version": 1,
 	"epilogue_max": 3,
 	"endings": [

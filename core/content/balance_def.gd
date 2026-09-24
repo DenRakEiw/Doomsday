@@ -128,8 +128,6 @@ var task_force_distance_penalty: float = 0.25
 ## §5 Existential: every node costs `× (1 + this × controlled share)`.
 var difficulty_cost_by_control: float = 0.0
 
-## m3-screens §7.4: Ascendance over this share of the world dead reads as ashes.
-var results_ashes_share: float = 0.5
 var history_interval_days: int
 ## analysis.md §3.1, §4.3: the most samples kept before thinning, the most log
 ## entries kept.

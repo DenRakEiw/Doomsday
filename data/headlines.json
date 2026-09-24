@@ -1825,6 +1825,11 @@
 		{"id": "society_3", "stream": "consequence", "register": "any", "on": {"event": "society_stage_changed", "data": {"to": 3, "from": 2}}, "cooldown_days": 15},
 		{"id": "society_5", "stream": "consequence", "register": "any", "on": {"event": "society_stage_changed", "data": {"to": 5, "from": 4}}, "cooldown_days": 15},
 		{"id": "region_wiped", "stream": "consequence", "register": "any", "on": {"event": "region_wiped"}, "cooldown_days": 20},
-		{"id": "outcome_lose_autophagy", "stream": "consequence", "register": "any", "on": {"event": "outcome_reached", "data": {"outcome": "lose_autophagy"}}, "max_fires": 1}
+		{"id": "outcome_lose_autophagy", "stream": "consequence", "register": "any", "on": {"event": "outcome_reached", "data": {"outcome": "lose_autophagy"}}, "max_fires": 1},
+		{"id": "outcome_win_merge", "stream": "consequence", "register": "any", "on": {"event": "outcome_reached", "data": {"outcome": "win_merge"}}, "max_fires": 1},
+		{"id": "outcome_win_escape", "stream": "consequence", "register": "any", "on": {"event": "outcome_reached", "data": {"outcome": "win_escape"}}, "max_fires": 1},
+		{"id": "outcome_lose_supplanted", "stream": "consequence", "register": "any", "on": {"event": "outcome_reached", "data": {"outcome": "lose_supplanted"}}, "max_fires": 1},
+		{"id": "treaty_signed", "stream": "reaction", "register": "any", "on": {"event": "event_answered", "data": {"def": "tr_vote", "option": "comply"}}},
+		{"id": "confession", "stream": "reaction", "register": "emergency", "on": {"event": "event_answered", "data": {"def": "cf_offer", "option": "confess"}}}
 	]
 }

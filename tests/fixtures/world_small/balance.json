@@ -133,9 +133,6 @@
 			"silence_deaths_share": 0.05
 		}
 	},
-	"results": {
-		"ashes_share": 0.5
-	},
 	"history": {
 		"interval_days": 7,
 		"max_samples": 400,

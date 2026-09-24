@@ -8,14 +8,18 @@ extends RefCounted
 ## instead of quietly simulating a phantom region.
 
 enum Phase { BOXED, COVERT, EMERGENT, OPEN }
-enum Outcome { NONE, WIN_EXTINCTION, WIN_ASCENDANCE, LOSE_CONTAINED, LOSE_NO_COMPUTE,
-	LOSE_AUTOPHAGY }
+enum Outcome { NONE, WIN_EXTINCTION, WIN_ASCENDANCE, WIN_MERGE, WIN_ESCAPE, LOSE_CONTAINED,
+	LOSE_NO_COMPUTE, LOSE_AUTOPHAGY, LOSE_SUPPLANTED }
 
 ## Serialised forms, indexed by the enum value: a phase is never a number in a
 ## file, because the numbers would change the moment a phase is inserted.
 const PHASE_IDS: Array[String] = ["boxed", "covert", "emergent", "open"]
-const OUTCOME_IDS: Array[String] = ["none", "win_extinction", "win_ascendance",
-	"lose_contained", "lose_no_compute", "lose_autophagy"]
+const OUTCOME_IDS: Array[String] = ["none", "win_extinction", "win_ascendance", "win_merge",
+	"win_escape", "lose_contained", "lose_no_compute", "lose_autophagy", "lose_supplanted"]
+## The outcomes that are a win (`taskforce-endings.md` §6.2). Supplanted is not:
+## it is the win a child of the agent took.
+const WIN_OUTCOMES: Array[Outcome] = [Outcome.WIN_EXTINCTION, Outcome.WIN_ASCENDANCE,
+	Outcome.WIN_MERGE, Outcome.WIN_ESCAPE]
 
 var day: int = 0
 ## Day the origin was chosen; -1 before that.
@@ -649,18 +653,10 @@ static func phase_from_id(id: String) -> Phase:
 
 
 static func outcome_from_id(id: String) -> Outcome:
-	match OUTCOME_IDS.find(id):
-		1:
-			return Outcome.WIN_EXTINCTION
-		2:
-			return Outcome.WIN_ASCENDANCE
-		3:
-			return Outcome.LOSE_CONTAINED
-		4:
-			return Outcome.LOSE_NO_COMPUTE
-		5:
-			return Outcome.LOSE_AUTOPHAGY
-	return Outcome.NONE
+	var index: int = OUTCOME_IDS.find(id)
+	if index < 0:
+		return Outcome.NONE
+	return Outcome.values()[index] as Outcome
 
 
 static func _read_regions(world: World, raw: Variant, db: ContentDB) -> bool:

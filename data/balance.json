@@ -135,9 +135,6 @@
 			"silence_deaths_share": 0.05
 		}
 	},
-	"results": {
-		"ashes_share": 0.5
-	},
 	"history": {
 		"_comment": "analysis.md section 3.1 and 4.3: a sample a day from the origin, thinned (every second dropped, the stride doubled) past max_samples; the run log keeps its last log_max entries.",
 		"interval_days": 1,

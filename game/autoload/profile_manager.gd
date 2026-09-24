@@ -94,8 +94,8 @@ func slots_unlocked(slot_count: int) -> int:
 
 
 ## Counts one finished run: the counters, its architecture's row, the history,
-## the ending. `outcome` is an outcome id; `variant` the ending's (S5.6), or the
-## outcome itself until endings have variants.
+## the ending. `outcome` is an outcome id; `variant` the ending's variant id
+## (`EndingResolver`, S5.6), or the outcome itself when none is given.
 func record_run(sim: Simulation, outcome: String, variant: String = "") -> void:
 	var world: World = sim.world
 	var won: bool = outcome.begins_with(WIN_PREFIX)
@@ -337,4 +337,4 @@ func _on_run_started(_seed_value: int) -> void:
 func _on_run_ended(outcome: String) -> void:
 	if Game.sim == null or Game.policy != null:
 		return
-	record_run(Game.sim, outcome)
+	record_run(Game.sim, outcome, EndingResolver.variant(Game.sim.world, Game.sim.db, outcome))

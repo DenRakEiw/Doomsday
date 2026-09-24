@@ -1,11 +1,6 @@
 {
-	"_comment": "The Brood (docs/specs/taskforce-endings.md section 7.4): The Child's Swarm form. A cluster of copies wants to go its own way, up to three times a run; released, each may come back hostile (0.3). Absorbing one reclaims the lineage for good. Story flags child_released, child_hostile, child_reclaimed (shared with The Child). Written in D5.2; staged, S5.6 moves it to data/events/.",
+	"_comment": "The Brood (docs/specs/taskforce-endings.md section 7.4): The Child's Swarm form. A cluster of copies wants to go its own way, up to three times a run; released, each may come back hostile (0.3). Absorbing one reclaims the lineage for good. Story flags child_released, child_hostile, child_reclaimed (shared with The Child). Written in D5.2; loaded from S5.6 on; its statuses are in data/statuses.json.",
 	"version": 1,
-	"statuses": [
-		{"id": "leashed_brood", "origin": "player", "levels": [{"days": 90, "modifiers": [
-			{"target": "yield", "op": "mul", "value": 0.95},
-			{"target": "spread_growth", "op": "mul", "value": 1.1}]}]}
-	],
 	"events": [
 		{
 			"id": "br_split",

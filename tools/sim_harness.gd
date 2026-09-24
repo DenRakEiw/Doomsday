@@ -19,9 +19,9 @@ const DEFAULT_MAX_DAYS: int = 5000
 const OUTCOME_TIMEOUT: String = "timeout"
 
 ## The order the summary's fields are printed and written in.
-const FIELDS: Array[String] = ["seed", "policy", "architecture", "outcome", "days", "discovery_day",
-	"phase", "nodes_owned", "regions_seeded", "regions_dark", "deaths_share", "containment", "leader",
-	"lost_to", "compute_earned", "rejected_commands", "abilities_used", "events_opening",
+const FIELDS: Array[String] = ["seed", "policy", "architecture", "outcome", "ending", "days",
+	"discovery_day", "phase", "nodes_owned", "regions_seeded", "regions_dark", "deaths_share",
+	"containment", "leader", "lost_to", "compute_earned", "rejected_commands", "abilities_used", "events_opening",
 	"events_counter_move", "events_chain", "events_emergent", "counter_moves", "assets_deployed",
 	"assets_lost", "task_force_day", "task_force_acted", "task_force_fizzled",
 	"headlines_consequence", "headlines_reaction", "headlines_filler", "hash"]
@@ -201,6 +201,9 @@ static func summarise(sim: Simulation, seed_value: int, policy_id: String, max_d
 		"policy": policy_id,
 		"architecture": world.setup.architecture,
 		"outcome": outcome,
+		# S5.6: the verdict variant the results screen shows; "" for a timeout.
+		"ending": "" if world.outcome == World.Outcome.NONE \
+			else EndingResolver.variant(world, sim.db, outcome),
 		"days": world.day,
 		"discovery_day": world.discovery_day,
 		"phase": World.PHASE_IDS[world.phase],

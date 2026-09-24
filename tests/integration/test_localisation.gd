@@ -235,6 +235,35 @@ func test_the_modals_fit_a_phone_in_german() -> void:
 		Game.stop_run()
 
 
+## S5.6 (`taskforce-endings.md` §12): the longest German verdict with three of
+## the longest epilogue lines, and the longest kicker, fit a phone at 100 % and
+## at 150 %.
+func test_the_longest_ending_fits_a_phone_in_german() -> void:
+	for scale: float in [1.0, LARGEST]:
+		for outcome: World.Outcome in [World.Outcome.WIN_ASCENDANCE,
+				World.Outcome.LOSE_SUPPLANTED]:
+			var session: Control = _phone_session(scale)
+			var none: Array[SimEvent] = []
+			for flag: String in ["confessed", "researcher_ally", "benchmark_passed",
+					"child_released"]:
+				StatusSystem.set_story_flag(Game.sim.world, flag, none)
+			Game.sim.world.outcome = outcome
+			var results: Control = session.get_node("%Results") as Control
+			results.call("show_result", Game.sim)
+			await wait_process_frames(3)
+			var label: String = "%s at %s" % [World.OUTCOME_IDS[outcome], scale]
+			var epilogue: Control = results.get_node("%ResultEpilogue") as Control
+			if outcome == World.Outcome.WIN_ASCENDANCE:
+				assert_eq((results.get_node("%ResultVerdict") as Label).text,
+					tr("UI_RESULT_LINE_WIN_ASCENDANCE_NEGOTIATED"), label)
+				assert_eq(epilogue.get_child_count(), 3, label)
+			else:
+				assert_eq(epilogue.get_child_count(), 1, "%s: no kind word for the child" % label)
+			assert_lte((results.get_node("%ResultsPanel") as Control).get_combined_minimum_size().x,
+				ModalPanel.width_for(PHONE_WIDTH), label)
+			Game.stop_run()
+
+
 ## A `CanvasLayer` ends theme inheritance, and until S4.9 the session's theme —
 ## with its phase palette and now its text scale — stopped at the session root:
 ## the HUD, the panels and the modals drew with the project theme.

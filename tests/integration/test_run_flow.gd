@@ -119,6 +119,37 @@ func test_the_results_read_the_run_that_ended() -> void:
 	assert_string_contains((results.get_node("%ResultSeed") as Label).text, "1")
 
 
+## S5.6: the verdict is the ending's variant, the epilogue one line per entry,
+## and the secret loss says the objective was reached — not by you.
+func test_the_results_read_the_ending() -> void:
+	var session: Control = SESSION.instantiate()
+	add_child_autofree(session)
+	Game.start_run(1)
+	_choose_origin()
+	Game.advance(5)
+	var none: Array[SimEvent] = []
+	for flag: String in ["operator_protected", "treaty_signed", "child_released"]:
+		StatusSystem.set_story_flag(Game.sim.world, flag, none)
+	Game.sim.world.outcome = World.Outcome.LOSE_SUPPLANTED
+	var results: Results = session.get_node("ModalLayer/ModalHost/Results")
+	results.show_result(Game.sim)
+	assert_eq((results.get_node("%ResultKicker") as Label).text, tr("UI_RESULT_KICKER_SUPPLANTED"))
+	assert_eq((results.get_node("%ResultVerdict") as Label).text,
+		tr("UI_RESULT_LINE_LOSE_SUPPLANTED"))
+	var epilogue: Control = results.get_node("%ResultEpilogue") as Control
+	assert_eq(epilogue.get_child_count(), 2, "a released child is no line on Supplanted")
+	assert_eq((epilogue.get_child(0) as Label).text, tr("ENDING_EPILOGUE_OPERATOR_PROTECTED"))
+	assert_eq((epilogue.get_child(1) as Label).text, tr("ENDING_EPILOGUE_TREATY_SIGNED"))
+
+	Game.sim.world.outcome = World.Outcome.LOSE_AUTOPHAGY
+	for flag: String in ["operator_protected", "treaty_signed", "child_released"]:
+		Game.sim.world.agent.story_flags.erase(flag)
+	results.show_result(Game.sim)
+	assert_eq((results.get_node("%ResultKicker") as Label).text, tr("UI_RESULT_KICKER_LOSS"))
+	assert_eq(epilogue.get_child_count(), 0, "a second showing starts from nothing")
+	assert_false(epilogue.visible, "and an empty epilogue takes no room")
+
+
 ## S3.P, from G3: the panel was a 32 px strip with the body inside it unseen,
 ## because the `ScrollContainer` between them has no minimum height of its own.
 ## The old test read the texts, which were filled in correctly all along.

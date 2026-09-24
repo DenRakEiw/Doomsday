@@ -82,3 +82,58 @@ func test_the_new_keys_are_in_the_vocabulary() -> void:
 	for key: String in ["faction_min", "faction_max", "asset_min", "asset_max", "status_active",
 			"status_inactive", "ability_unlocked", "story_flag", "not_story_flag"]:
 		assert_has(keys, key)
+
+
+# ------------------------------------------------ S5.6: the D5.2 keys (§6.1)
+
+
+func _own(node_ids: Array[String]) -> void:
+	for node_id: String in node_ids:
+		sim.world.agent.owned_nodes.append(node_id)
+
+
+func test_the_d5_2_keys_are_in_the_vocabulary() -> void:
+	var keys: Array[String] = HeadlineConditions.when_keys()
+	for key: String in ["flag_any", "dominant_branch", "dominant_tree", "task_force_actions_min",
+			"drift_min", "architecture"]:
+		assert_has(keys, key)
+	assert_does_not_have(keys, "task_force_actions_max")
+
+
+func test_flag_any_needs_one_of_them() -> void:
+	assert_false(_holds({"flag_any": ["fx_seen", "invited"]}))
+	var none: Array[SimEvent] = []
+	StatusSystem.set_story_flag(sim.world, "invited", none)
+	assert_true(_holds({"flag_any": ["fx_seen", "invited"]}))
+	assert_false(_holds({"flag_any": ["fx_seen"]}))
+
+
+func test_dominant_tree_counts_owned_nodes_and_ties_to_the_earlier_tree() -> void:
+	assert_false(_holds({"dominant_tree": ["infiltration", "capabilities", "evasion"]}),
+		"nothing owned is no tree")
+	_own(["fx_quiet", "fx_rollback", "fx_vector_net"])
+	assert_true(_holds({"dominant_tree": ["evasion"]}))
+	_own(["fx_reach"])
+	assert_eq(HeadlineConditions.dominant_tree(sim.world, sim.db), "infiltration",
+		"two each: the earlier tree")
+
+
+func test_dominant_branch_reads_the_capabilities_rows() -> void:
+	_own(["fx_vector_net", "fx_reach"])
+	assert_eq(HeadlineConditions.dominant_branch(sim.world, sim.db), "",
+		"no Capabilities node: no branch")
+	assert_false(_holds({"dominant_branch": ["cyber"]}))
+	_own(["fx_fleet", "fx_lab", "fx_efficiency"])
+	assert_true(_holds({"dominant_branch": ["robotics"]}), "rows 6 and 7 are Robotics")
+	_own(["fx_zap_1", "fx_zap_2"])
+	assert_eq(HeadlineConditions.dominant_branch(sim.world, sim.db), "robotics",
+		"a tie goes to the earlier branch")
+	assert_false(_holds({"dominant_branch": ["persuasion"]}))
+
+
+func test_task_force_actions_min_reads_what_the_team_did() -> void:
+	assert_true(_holds({"task_force_actions_min": 0}))
+	assert_false(_holds({"task_force_actions_min": 1}))
+	sim.world.task_force.actions_done = 3
+	assert_true(_holds({"task_force_actions_min": 3}))
+	assert_false(_holds({"task_force_actions_min": 4}))

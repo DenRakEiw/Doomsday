@@ -24,6 +24,8 @@ const READINGS: Dictionary[String, Array] = {
 	"owned_count": [false, true],
 	# D5.2 (`taskforce-endings.md` §6.1): the Swarm's drift, 0 elsewhere.
 	"drift": [false, false],
+	# D5.2 §6.1: how many times the Task Force has acted.
+	"task_force_actions": [false, true],
 }
 const SUFFIX_MIN: String = "_min"
 const SUFFIX_MAX: String = "_max"
@@ -35,8 +37,10 @@ const KEY_OWNED_ANY: String = "owned_any"
 const KEY_NOT_OWNED: String = "not_owned"
 const KEY_FLAG: String = "flag"
 const KEY_NOT_FLAG: String = "not_flag"
+## D5.2 §6.1: at least one of them set.
+const KEY_FLAG_ANY: String = "flag_any"
 const NODE_LISTS: Array[String] = [KEY_OWNED, KEY_OWNED_ANY, KEY_NOT_OWNED]
-const FLAG_LISTS: Array[String] = [KEY_FLAG, KEY_NOT_FLAG]
+const FLAG_LISTS: Array[String] = [KEY_FLAG, KEY_NOT_FLAG, KEY_FLAG_ANY]
 const KEY_DISCOVERED: String = "discovered"
 
 ## The state keys map events added (`loop-mechanics.md` §10.3). One vocabulary
@@ -57,6 +61,10 @@ const KEY_NOT_STORY_FLAG: String = "not_story_flag"
 const STORY_FLAG_LISTS: Array[String] = [KEY_STORY_FLAG, KEY_NOT_STORY_FLAG]
 ## D5.2 §6.1: the run's architecture is one of these.
 const KEY_ARCHITECTURE: String = "architecture"
+## D5.2 §6.1: the Capabilities branch, or the tree, the agent owns most nodes
+## in is one of these.
+const KEY_DOMINANT_BRANCH: String = "dominant_branch"
+const KEY_DOMINANT_TREE: String = "dominant_tree"
 
 ## Event fields the `on` filters read.
 const FIELD_REGION: String = "region"
@@ -75,6 +83,8 @@ static func when_keys() -> Array[String]:
 	keys.append(KEY_ABILITY_UNLOCKED)
 	keys.append_array(STORY_FLAG_LISTS)
 	keys.append(KEY_ARCHITECTURE)
+	keys.append(KEY_DOMINANT_BRANCH)
+	keys.append(KEY_DOMINANT_TREE)
 	for name: String in READINGS:
 		keys.append(name + SUFFIX_MIN)
 		if bool(READINGS[name][0]):
@@ -218,6 +228,11 @@ static func _condition_holds(key: String, expected: Variant, world: World,
 		return _as_strings(expected).has(World.PHASE_IDS[world.phase])
 	if key == KEY_ARCHITECTURE:
 		return _as_strings(expected).has(world.setup.architecture)
+	# Nothing owned is no branch and no tree, which no list names.
+	if key == KEY_DOMINANT_BRANCH:
+		return _as_strings(expected).has(dominant_branch(world, db))
+	if key == KEY_DOMINANT_TREE:
+		return _as_strings(expected).has(dominant_tree(world, db))
 	if NODE_LISTS.has(key) or FLAG_LISTS.has(key) or STATUS_LISTS.has(key) \
 			or STORY_FLAG_LISTS.has(key) or key == KEY_ABILITY_UNLOCKED:
 		return _list_holds(key, _as_strings(expected), world, db)
@@ -291,6 +306,11 @@ static func _list_holds(key: String, ids: Array[String], world: World,
 				if flag_set(world, flag):
 					return false
 			return true
+		KEY_FLAG_ANY:
+			for flag: String in ids:
+				if flag_set(world, flag):
+					return true
+			return false
 		KEY_STORY_FLAG:
 			for flag: String in ids:
 				if not world.agent.has_story_flag(flag):
@@ -355,10 +375,43 @@ static func reading(name: String, world: World, db: ContentDB) -> float:
 			return float(world.agent.owned_nodes.size())
 		"drift":
 			return world.agent.drift
+		"task_force_actions":
+			return float(world.task_force.actions_done)
 	# `days_since_discovery`. Never discovered: no bound on it can hold.
 	if not world.discovered:
 		return -INF
 	return float(world.day - world.discovery_day)
+
+
+## The tree with the most owned nodes; a tie goes to the earlier tree of
+## `TechNodeDef.TREES`, and nothing owned is "" (the results screen's rule).
+static func dominant_tree(world: World, db: ContentDB) -> String:
+	var counts: Dictionary[String, int] = {}
+	for node_id: String in world.agent.owned_nodes:
+		var node: TechNodeDef = db.tech(node_id)
+		if node != null:
+			counts[node.tree] = int(counts.get(node.tree, 0)) + 1
+	return _most(counts, TechNodeDef.TREES)
+
+
+## The Capabilities branch with the most owned nodes, by the same rule over
+## `TechNodeDef.BRANCHES`; "" when no Capabilities node is owned.
+static func dominant_branch(world: World, db: ContentDB) -> String:
+	var counts: Dictionary[String, int] = {}
+	for node_id: String in world.agent.owned_nodes:
+		var node: TechNodeDef = db.tech(node_id)
+		if node != null and not node.branch().is_empty():
+			counts[node.branch()] = int(counts.get(node.branch(), 0)) + 1
+	return _most(counts, TechNodeDef.BRANCHES)
+
+
+## The id in `order` with the highest count above 0; the earlier one on a tie.
+static func _most(counts: Dictionary[String, int], order: Array[String]) -> String:
+	var best: String = ""
+	for id: String in order:
+		if int(counts.get(id, 0)) > 0 and (best.is_empty() or counts[id] > counts[best]):
+			best = id
+	return best
 
 
 static func dark_count(world: World) -> int:

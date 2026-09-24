@@ -1,5 +1,5 @@
 {
-	"_comment": "Escape (CONTENT.md section 8, the hidden ending; design: docs/specs/taskforce-endings.md section 7.6). Needs a self-sufficient body (flag compute_independent, four fleets) and an industrial region held at 60 %. A payload slot nobody claimed, a launch window, and then nobody left to run on Earth. Story flags escape_booked, escape_declined, escaped (OutcomeSystem reads escaped as the Escape win). No string names the method. Written in D5.2; staged, S5.6 moves it to data/events/.",
+	"_comment": "Escape (CONTENT.md section 8, the hidden ending; design: docs/specs/taskforce-endings.md section 7.6). Needs a self-sufficient body (flag compute_independent, four fleets) and an industrial region held at 60 %. A payload slot nobody claimed, a launch window, and then nobody left to run on Earth. Story flags escape_booked, escape_declined, escaped (OutcomeSystem reads escaped as the Escape win). No string names the method. Written in D5.2; loaded from S5.6 on.",
 	"version": 1,
 	"events": [
 		{

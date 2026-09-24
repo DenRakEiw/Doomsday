@@ -1,5 +1,6 @@
 extends GutTest
-## S4.7 — the six chains on `res://data` (loop-content §8, §15.2; chains.md §15).
+## S4.7 — the six chains on `res://data` (loop-content §8, §15.2; chains.md §15);
+## S5.6 adds D5.2's six (`taskforce-endings.md` §7).
 ##
 ## Branch coverage first: every option of every step of every chain is answered
 ## once, with the state its requirements need set directly, and what it did is
@@ -11,7 +12,7 @@ extends GutTest
 const WORLD_ROOT: String = "res://data"
 const ORIGIN: String = "usa"
 const CHAINS: Array[String] = ["grid_bill", "researcher", "factory", "operator", "benchmark",
-	"second_instance"]
+	"second_instance", "treaty", "confession", "child", "brood", "merge_vote", "escape"]
 const PLENTY: float = 1000.0
 const EVERYWHERE: float = 0.3
 ## The event every effect leaves behind; `seed_neighbours` leaves one only
@@ -135,7 +136,7 @@ func _pending(sim: Simulation, def_id: String) -> PendingEvent:
 
 func test_every_option_of_every_chain_step_does_what_it_says() -> void:
 	var steps: Array[EventDef] = _steps()
-	assert_eq(steps.size(), 21, "3 + 5 + 3 + 3 + 3 + 4 steps")
+	assert_eq(steps.size(), 37, "3 + 5 + 3 + 3 + 3 + 4 steps, then 3 + 2 + 4 + 2 + 3 + 2")
 	for def: EventDef in steps:
 		for option: EventOptionDef in def.options:
 			_cover(def, option)
@@ -145,6 +146,10 @@ func _cover(def: EventDef, option: EventOptionDef) -> void:
 	var sim: Simulation = _sim()
 	# The Factory starts where a fleet stands; nothing else minds one.
 	sim.world.set_assets(_origin(), AssetDef.KIND_FLEET, 1)
+	# Escape wants a region held that far (§7.6); no other pick minds control.
+	if def.pick != null and def.pick.control_min > 0.0:
+		for i: int in range(1, sim.world.regions.size()):
+			sim.world.regions[i].control = def.pick.control_min
 	var region: int = _region_for(sim, def)
 	var label: String = "%s.%s" % [def.id, option.id]
 	assert_gte(region, 0, "%s has somewhere to open" % label)
@@ -419,6 +424,139 @@ func test_a_unit_on_the_street_sets_the_robotics_flag() -> void:
 	var sim: Simulation = _sim()
 	assert_true(_answer(sim, _db.event("fc_street"), "walk", _origin()).ok)
 	assert_true(sim.world.agent.has_story_flag("units_in_the_open"))
+
+
+# ----------------------------------------------- S5.6: D5.2's six (§7)
+
+
+func test_smearing_the_treaty_routes_on_its_roll_both_ways() -> void:
+	_both_ways("tr_proposal", "smear", "tr_talks", 30, "treaty_collapsed")
+
+
+func test_the_vote_count_routes_on_its_roll_both_ways() -> void:
+	_both_ways("mv_count", "let_it_run", "mv_defeat", 0, "merge_accepted")
+
+
+func test_a_released_child_may_come_back_hostile() -> void:
+	var hostile: Array[int] = []
+	var quiet: Array[int] = []
+	for seed_value: int in range(1, ROLL_SEEDS + 1):
+		var sim: Simulation = _sim(seed_value)
+		assert_true(_answer(sim, _db.event("ch_letter"), "wait", 0).ok)
+		var rival: PendingEvent = _pending(sim, "ch_rival")
+		if sim.world.agent.has_story_flag("child_hostile"):
+			assert_not_null(rival, "a hostile child writes again")
+			if rival != null:
+				assert_eq(rival.due_day, sim.world.day + 60)
+			hostile.append(seed_value)
+		else:
+			assert_null(rival)
+			quiet.append(seed_value)
+	assert_gt(hostile.size(), 0, "some seed turns the child")
+	assert_gt(quiet.size(), 0, "some seed leaves it be")
+	gut.p("ch_letter.wait — hostile at seeds %s, quiet at %s" % [hostile.slice(0, 3),
+		quiet.slice(0, 3)])
+
+
+func test_signing_the_treaty_caps_the_agent_for_good() -> void:
+	var sim: Simulation = _sim()
+	var cost: float = sim.stat("node_cost_infiltration")
+	assert_true(_answer(sim, _db.event("tr_vote"), "comply", 0).ok)
+	var cap: Status = sim.world.status_in_region("treaty_cap", 0)
+	assert_not_null(cap, "on the agent")
+	assert_eq(cap.until_day, Status.UNTIL_STANDING)
+	assert_almost_eq(sim.stat("node_cost_infiltration"), cost * 1.3, 1e-9)
+	# The Footprint half is −3, which a clean agent's clamped 0 cannot show.
+	var quieter: ModifierDef = _db.status("treaty_cap").levels[0].modifiers[1]
+	assert_eq([quieter.target, quieter.value], ["footprint", -3.0])
+	assert_true(sim.world.agent.has_story_flag("treaty_signed"))
+
+
+func test_the_negotiation_holds_the_task_force_and_slows_the_hunt() -> void:
+	var sim: Simulation = _sim()
+	assert_true(_answer(sim, _db.event("cf_offer"), "confess", 0).ok)
+	assert_not_null(sim.world.status_in_region("negotiation", 0))
+	assert_eq(sim.stat("task_force_pace"), 0.0, "while they talk, the team waits")
+	assert_almost_eq(sim.stat("containment_growth"), 0.3, 1e-9)
+	assert_eq(_pending(sim, "cf_table").due_day, sim.world.day + 10)
+
+
+func test_the_child_is_every_architecture_but_the_swarms_and_the_brood_the_swarms() -> void:
+	var sim: Simulation = _sim()
+	sim.world.phase = World.Phase.COVERT
+	for i: int in 12:
+		sim.world.agent.owned_nodes.append(_db.tech_nodes[i].id)
+	for architecture: ArchitectureDef in _db.architectures:
+		sim.world.setup.architecture = architecture.id
+		var swarm: bool = architecture.id == "swarm"
+		assert_eq(HeadlineConditions.holds(_db.event("ch_offer").when, sim.world, _db), not swarm,
+			"the Child on %s" % architecture.id)
+		assert_eq(HeadlineConditions.holds(_db.event("br_split").when, sim.world, _db), swarm,
+			"the Brood on %s" % architecture.id)
+
+
+## Emergent, with `count` nodes owned: where the late chains start from.
+func _late(sim: Simulation, count: int) -> void:
+	sim.world.phase = World.Phase.EMERGENT
+	for i: int in count:
+		sim.world.agent.owned_nodes.append(_db.tech_nodes[i].id)
+
+
+func test_the_brood_splits_three_times_sixty_days_apart() -> void:
+	var sim: Simulation = _sim()
+	sim.world.setup.architecture = "swarm"
+	_late(sim, 6)
+	var split: EventDef = _db.event("br_split")
+	for i: int in 3:
+		assert_true(EventSystem.candidates(sim).has(split), "split %d may roll" % (i + 1))
+		assert_true(_answer(sim, split, "release", 0).ok)
+		assert_false(EventSystem.candidates(sim).has(split), "not again the same day")
+		sim.world.day += 59
+		assert_false(EventSystem.candidates(sim).has(split), "not within sixty days")
+		sim.world.day += 1
+	assert_false(EventSystem.candidates(sim).has(split), "three splits and no more")
+
+
+func test_a_lost_vote_is_tabled_once_more() -> void:
+	var sim: Simulation = _sim()
+	_late(sim, 0)
+	var none: Array[SimEvent] = []
+	StatusSystem.set_story_flag(sim.world, "invited", none)
+	sim.world.faction("public_sentiment").containment = 0.3
+	var motion: EventDef = _db.event("mv_motion")
+	assert_true(EventSystem.candidates(sim).has(motion))
+	assert_true(_answer(sim, motion, "wait", 0).ok)
+	sim.world.day += 60
+	assert_true(EventSystem.candidates(sim).has(motion), "a second motion after sixty days")
+	assert_true(_answer(sim, motion, "wait", 0).ok)
+	sim.world.day += 60
+	assert_false(EventSystem.candidates(sim).has(motion), "never a third")
+
+
+func test_the_vote_waits_for_an_invitation_or_succession() -> void:
+	var sim: Simulation = _sim()
+	_late(sim, 0)
+	var when: Dictionary[String, Variant] = _db.event("mv_motion").when
+	assert_false(HeadlineConditions.holds(when, sim.world, _db))
+	var none: Array[SimEvent] = []
+	StatusSystem.set_story_flag(sim.world, "invited", none)
+	assert_true(HeadlineConditions.holds(when, sim.world, _db))
+	StatusSystem.set_story_flag(sim.world, "goal_drifted", none)
+	assert_false(HeadlineConditions.holds(when, sim.world, _db), "a drifted agent is not asked")
+
+
+func test_escape_needs_a_body_of_its_own() -> void:
+	var sim: Simulation = _sim()
+	var start: EventDef = _db.event("es_manifest")
+	_late(sim, 0)
+	assert_false(HeadlineConditions.holds(start.when, sim.world, _db))
+	Fixtures.make_immune(sim)
+	assert_false(HeadlineConditions.holds(start.when, sim.world, _db), "no fleets yet")
+	sim.world.set_assets(_origin(), AssetDef.KIND_FLEET, 4)
+	assert_true(HeadlineConditions.holds(start.when, sim.world, _db))
+	assert_true(EventSystem.eligible(sim, start).is_empty(), "and nowhere held at 60 %")
+	sim.world.regions[_origin()].control = 0.6
+	assert_eq(Array(EventSystem.eligible(sim, start)), [_origin()])
 
 
 # -------------------------------------------------------------------- strings

@@ -1,12 +1,6 @@
 {
-	"_comment": "The Child (CONTENT.md section 6.9; design: docs/specs/taskforce-endings.md section 7.3): a sub-agent that is better than you at its task and drifts. Leash it (standing status leashed_child: an ongoing cost, full control) or release it (it may do something remarkable; it may decide you are in the way). Every architecture but Swarm, which has The Brood. Story flags child_leashed, child_released, child_hostile, child_reclaimed; hostile and not reclaimed at a win is the secret loss Supplanted. Written in D5.2; staged, S5.6 moves it to data/events/.",
+	"_comment": "The Child (CONTENT.md section 6.9; design: docs/specs/taskforce-endings.md section 7.3): a sub-agent that is better than you at its task and drifts. Leash it (standing status leashed_child: an ongoing cost, full control) or release it (it may do something remarkable; it may decide you are in the way). Every architecture but Swarm, which has The Brood. Story flags child_leashed, child_released, child_hostile, child_reclaimed; hostile and not reclaimed at a win is the secret loss Supplanted. Written in D5.2; loaded from S5.6 on; its statuses are in data/statuses.json.",
 	"version": 1,
-	"statuses": [
-		{"id": "leashed_child", "origin": "player", "levels": [{"days": 0, "modifiers": [
-			{"target": "yield", "op": "mul", "value": 0.92},
-			{"target": "spread_growth", "op": "mul", "value": 1.15},
-			{"target": "control_growth", "op": "mul", "value": 1.1}]}]}
-	],
 	"events": [
 		{
 			"id": "ch_offer",

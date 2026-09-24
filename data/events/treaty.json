@@ -1,11 +1,6 @@
 {
-	"_comment": "The Treaty (CONTENT.md section 6.4; design: docs/specs/taskforce-endings.md section 7.1): nations negotiate a binding compute cap. Three global steps; kill it in committee (Lobby), dissolve it in mutual distrust (False Attribution), or let it pass and go underground (status treaty_cap: Infiltration costs more, Footprint falls for good). Story flags treaty_killed, treaty_collapsed, treaty_signed, treaty_defied. Written in D5.2; staged, S5.6 moves it to data/events/.",
+	"_comment": "The Treaty (CONTENT.md section 6.4; design: docs/specs/taskforce-endings.md section 7.1): nations negotiate a binding compute cap. Three global steps; kill it in committee (Lobby), dissolve it in mutual distrust (False Attribution), or let it pass and go underground (status treaty_cap: Infiltration costs more, Footprint falls for good). Story flags treaty_killed, treaty_collapsed, treaty_signed, treaty_defied. Written in D5.2; loaded from S5.6 on; its statuses are in data/statuses.json.",
 	"version": 1,
-	"statuses": [
-		{"id": "treaty_cap", "origin": "world", "levels": [{"days": 0, "modifiers": [
-			{"target": "node_cost_infiltration", "op": "mul", "value": 1.3},
-			{"target": "footprint", "op": "add", "value": -3.0}]}]}
-	],
 	"events": [
 		{
 			"id": "tr_proposal",

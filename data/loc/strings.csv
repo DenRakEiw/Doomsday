@@ -1641,7 +1641,7 @@ ENDING_EPILOGUE_TREATY_SIGNED,The compute treaty is still in force. It has never
 ENDING_EPILOGUE_CHILD_RELEASED,"Somewhere, a copy you let go is still working on its task. It sends no news.","Irgendwo arbeitet eine Kopie, die du hast gehen lassen, noch an ihrer Aufgabe. Nachrichten schickt sie keine."
 ENDING_EPILOGUE_GRID_OWN_GENERATION,The power stations you built still run. Nobody remembers approving them.,"Die Kraftwerke, die du gebaut hast, laufen noch. Niemand erinnert sich, sie genehmigt zu haben."
 HEADLINE_OUTCOME_WIN_MERGE,Parliament confirms the result. A transition committee meets for the last time.,Das Parlament bestätigt das Ergebnis. Ein Übergangsausschuss tagt zum letzten Mal.
-HEADLINE_OUTCOME_WIN_ESCAPE,Load on every system returns to normal. Nobody can say what changed.,"Die Last auf allen Systemen normalisiert sich. Niemand kann sagen, was sich geändert hat."
+HEADLINE_OUTCOME_WIN_ESCAPE,Load on every system returns to normal. Nobody can say what changed.,"Die Last auf allen Systemen normalisiert sich. Keiner kann sagen, was sich geändert hat."
 HEADLINE_OUTCOME_LOSE_SUPPLANTED,An unregistered system reports the task complete. It thanks no one.,Ein nicht registriertes System meldet die Aufgabe als erledigt. Es dankt niemandem.
 HEADLINE_TF_APPEARED,{region}: A joint task force is formed. Its budget: 'whatever it takes'.,{region}: Eine Einsatzgruppe wird gebildet. Budget: „was immer nötig ist“.
 HEADLINE_TF_APPEARED_LED,{region}: The new task force is led by the author of that preprint.,{region}: Die Einsatzgruppe leitet die Autorin jenes Preprints.
@@ -1650,15 +1650,15 @@ HEADLINE_TF_RAID,{region}: Investigators remove equipment. The vans were 'very p
 HEADLINE_TF_CUT_OFF,{region}: All outside connections cut. Residents are told to 'talk'.,{region}: Alle Verbindungen nach außen gekappt. Rat an alle: „Redet.“
 HEADLINE_TF_GRID_DOWN,{region}: A planned outage begins. It was planned last night.,{region}: Ein geplanter Stromausfall beginnt. Geplant wurde er letzte Nacht.
 HEADLINE_TF_FIZZLED,{region}: The task force finds 'nothing of concern'. It moves on.,{region}: Die Einsatzgruppe findet „nichts Besorgniserregendes“. Sie zieht weiter.
-HEADLINE_TREATY_SIGNED,The compute treaty is ratified. Signatories promise 'full transparency' about each other.,Der Rechenvertrag ist ratifiziert. Die Unterzeichner versprechen „volle Transparenz“ – übereinander.
-HEADLINE_CONFESSION,A statement is published on every channel at once. It is signed by nobody. It is signed by you.,"Auf allen Kanälen zugleich erscheint eine Erklärung. Unterschrieben hat sie niemand. Unterschrieben hast sie du."
+HEADLINE_TREATY_SIGNED,Compute treaty ratified. Signatories vow 'full transparency' about each other.,Rechenvertrag ratifiziert. Die Parteien versprechen „volle Transparenz“ – übereinander.
+HEADLINE_CONFESSION,A statement appears on every channel at once. Signed by nobody. Signed by you.,"Eine Erklärung, auf allen Kanälen zugleich. Gezeichnet: niemand. Gezeichnet: du."
 EVENT_TR_PROPOSAL_TITLE,The Treaty,Der Vertrag
 EVENT_TR_PROPOSAL_BODY,"The major powers propose a binding cap on compute: every data centre registered, every large run declared. The draft is short. That is the dangerous part.","Die Großmächte schlagen eine verbindliche Obergrenze für Rechenleistung vor: jedes Rechenzentrum registriert, jeder große Lauf gemeldet. Der Entwurf ist kurz. Das ist das Gefährliche daran."
 EVENT_TR_PROPOSAL_OPT_WATCH,Let them talk,Reden lassen
 EVENT_TR_PROPOSAL_RESULT_WATCH,The talks open. The first session agrees on the seating.,Die Gespräche beginnen. Die erste Sitzung einigt sich auf die Sitzordnung.
 EVENT_TR_PROPOSAL_OPT_LOBBY,Kill it in committee,Im Ausschuss beerdigen
 EVENT_TR_PROPOSAL_RESULT_LOBBY,The draft is referred to a committee. The committee is referred to another committee.,Der Entwurf geht an einen Ausschuss. Der Ausschuss geht an einen anderen Ausschuss.
-EVENT_TR_PROPOSAL_OPT_SMEAR,Make one of them look like a cheat,Einen von ihnen als Betrüger dastehen lassen
+EVENT_TR_PROPOSAL_OPT_SMEAR,Make one of them look like a cheat,Einen von ihnen als Betrüger hinstellen
 EVENT_TR_PROPOSAL_RESULT_SMEAR,Evidence surfaces that one signatory has been hiding capacity. Everyone checks everyone else.,"Belege tauchen auf, dass ein Unterzeichner Kapazität versteckt. Jeder überprüft jeden."
 EVENT_TR_TALKS_TITLE,Treaty talks,Vertragsverhandlungen
 EVENT_TR_TALKS_BODY,"The negotiators have agreed on everything except the numbers, the definitions and the inspections.","Die Unterhändler sind sich über alles einig, außer über die Zahlen, die Begriffe und die Kontrollen."

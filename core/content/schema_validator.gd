@@ -27,7 +27,7 @@ const INTEGER_MAX: int = 9007199254740992
 
 const BALANCE_KEYS: Array[String] = ["stats", "population_tiers", "spread", "control", "compute",
 	"anomaly", "milestones", "harm", "discovery", "containment", "factions", "society", "phase",
-	"headlines", "results", "history", "events",
+	"headlines", "history", "events",
 	"emergent", "drift", "escalation", "distributed", "difficulty", "task_force"]
 ## The two cuts of one society stage (opposition.md §8.2).
 const SOCIETY_STAGE_KEYS: Array[String] = ["capacity_mul", "yield_mul"]
@@ -112,8 +112,6 @@ static func validate_balance(file: String, raw: Variant, errors: Array[Validatio
 		_balance_phase(d["phase"], file, errors)
 	if _require(d, "headlines", file, "", errors):
 		_balance_headlines(d["headlines"], file, errors)
-	if _require(d, "results", file, "", errors):
-		_balance_results(d["results"], file, errors)
 	if _require(d, "history", file, "", errors):
 		_balance_history(d["history"], file, errors)
 	if _require(d, "events", file, "", errors):
@@ -473,16 +471,6 @@ static func _balance_filler(raw: Variant, file: String, path: String,
 	_check_keys(gaps, World.PHASE_IDS, file, gaps_path, errors)
 	for phase_id: String in World.PHASE_IDS:
 		_number(gaps, phase_id, file, gaps_path, errors, 0.0, INF, true)
-
-
-## m3-screens §7.4: the deaths share above which Ascendance reads as ashes.
-static func _balance_results(raw: Variant, file: String, errors: Array[ValidationError]) -> void:
-	var path: String = "results"
-	if not _is_object(raw, file, path, errors):
-		return
-	var d: Dictionary = raw
-	_check_keys(d, ["ashes_share"], file, path, errors)
-	_number(d, "ashes_share", file, path, errors, 0.0, 1.0, true)
 
 
 static func _balance_history(raw: Variant, file: String, errors: Array[ValidationError]) -> void:
@@ -2779,6 +2767,12 @@ static func _headline_condition(when: Dictionary, key: String, file: String, pat
 	if key == HeadlineConditions.KEY_ARCHITECTURE:
 		_id_list(when, key, file, path, errors)
 		return
+	if key == HeadlineConditions.KEY_DOMINANT_BRANCH:
+		_headline_id_list(when, key, TechNodeDef.BRANCHES, file, path, errors)
+		return
+	if key == HeadlineConditions.KEY_DOMINANT_TREE:
+		_headline_id_list(when, key, TechNodeDef.TREES, file, path, errors)
+		return
 	if HeadlineConditions.NODE_LISTS.has(key):
 		var nodes: Array[String] = []
 		for id: String in known["node"]:
@@ -3004,6 +2998,111 @@ static func validate_task_force(file: String, raw: Variant, statuses_raw: Varian
 		if e.has("rule"):
 			_eligibility(e["rule"], file, _join(path, "rule"), no_continents, false, statuses,
 				statuses_known, errors)
+
+
+## `endings.json` (`taskforce-endings.md` §6.3). Optional. With it: every outcome
+## but `none` exactly once, each with variants whose last `when` is empty and no
+## earlier one is; epilogue ids unique, their `outcomes` real outcome ids; every
+## line's string in the table.
+static func validate_endings(file: String, raw: Variant, tech_raws: Array,
+		statuses: Dictionary[String, int], abilities: Dictionary[String, bool],
+		strings: Dictionary[String, bool], strings_known: bool,
+		errors: Array[ValidationError]) -> void:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return
+	var d: Dictionary = raw
+	_check_keys(d, EndingDef.ROOT_KEYS, file, "", errors)
+	_content_version(d, file, errors)
+	if _require(d, EndingDef.EPILOGUE_MAX_KEY, file, "", errors):
+		_integer(d, EndingDef.EPILOGUE_MAX_KEY, file, "", errors, 0)
+	var status_ids: Dictionary[String, bool] = {}
+	for status_id: String in statuses:
+		status_ids[status_id] = true
+	var known: Dictionary[String, Dictionary] = {
+		"node": _tech_ids(tech_raws),
+		"status": status_ids,
+		"ability": abilities,
+	}
+	var outcomes: Array[String] = World.OUTCOME_IDS.slice(1)
+	if _require(d, EndingDef.ROOT_KEY, file, "", errors) \
+			and _is_list(d[EndingDef.ROOT_KEY], file, EndingDef.ROOT_KEY, errors):
+		var seen: Dictionary[String, bool] = {}
+		var list: Array = d[EndingDef.ROOT_KEY]
+		for i: int in list.size():
+			var path: String = "%s[%d]" % [EndingDef.ROOT_KEY, i]
+			if not _is_object(list[i], file, path, errors):
+				continue
+			var e: Dictionary = list[i]
+			_check_keys(e, EndingDef.KEYS, file, path, errors)
+			var outcome: String = _text(e, "outcome", file, path, errors)
+			if not outcome.is_empty() and not outcomes.has(outcome):
+				_add(errors, file, _join(path, "outcome"), "\"%s\" is not one of %s"
+					% [outcome, outcomes])
+			elif seen.has(outcome):
+				_add(errors, file, _join(path, "outcome"), "duplicate outcome \"%s\"" % outcome)
+			seen[outcome] = true
+			_ending_variants(e, file, path, known, strings, strings_known, errors)
+		for outcome: String in outcomes:
+			if not seen.has(outcome):
+				_add(errors, file, EndingDef.ROOT_KEY, "no ending for \"%s\"" % outcome)
+	if _require(d, EndingDef.EPILOGUE_KEY, file, "", errors) \
+			and _is_list(d[EndingDef.EPILOGUE_KEY], file, EndingDef.EPILOGUE_KEY, errors):
+		var ids: Dictionary[String, bool] = {}
+		var lines: Array = d[EndingDef.EPILOGUE_KEY]
+		for i: int in lines.size():
+			var path: String = "%s[%d]" % [EndingDef.EPILOGUE_KEY, i]
+			if not _is_object(lines[i], file, path, errors):
+				continue
+			var e: Dictionary = lines[i]
+			_check_keys(e, EndingLineDef.EPILOGUE_KEYS, file, path, errors)
+			var id: String = _id(e, "id", file, path, errors)
+			if ids.has(id):
+				_add(errors, file, _join(path, "id"), "duplicate epilogue line \"%s\"" % id)
+			ids[id] = true
+			if _require(e, "when", file, path, errors):
+				_headline_when(e["when"], file, _join(path, "when"), known, errors, true)
+			if _require(e, "outcomes", file, path, errors):
+				_headline_id_list(e, "outcomes", outcomes, file, path, errors)
+			if strings_known and not id.is_empty():
+				_event_string(EndingLineDef.epilogue_key(id), strings, file, _join(path, "id"),
+					errors)
+
+
+## One outcome's variants: at least one, the last with an empty `when` and no
+## earlier one with an empty `when` — the variants after it could never hold.
+static func _ending_variants(e: Dictionary, file: String, path: String,
+		known: Dictionary[String, Dictionary], strings: Dictionary[String, bool],
+		strings_known: bool, errors: Array[ValidationError]) -> void:
+	var variants_path: String = _join(path, "variants")
+	if not _require(e, "variants", file, path, errors) \
+			or not _is_list(e["variants"], file, variants_path, errors):
+		return
+	var variants: Array = e["variants"]
+	if variants.is_empty():
+		_add(errors, file, variants_path, "an outcome needs at least one variant")
+		return
+	for i: int in variants.size():
+		var variant_path: String = "%s[%d]" % [variants_path, i]
+		if not _is_object(variants[i], file, variant_path, errors):
+			continue
+		var v: Dictionary = variants[i]
+		_check_keys(v, EndingLineDef.VARIANT_KEYS, file, variant_path, errors)
+		var id: String = _id(v, "id", file, variant_path, errors)
+		if strings_known and not id.is_empty():
+			_event_string(EndingLineDef.verdict_key(id), strings, file,
+				_join(variant_path, "id"), errors)
+		if not _require(v, "when", file, variant_path, errors):
+			continue
+		_headline_when(v["when"], file, _join(variant_path, "when"), known, errors, true)
+		if typeof(v["when"]) != TYPE_DICTIONARY:
+			continue
+		var empty: bool = (v["when"] as Dictionary).is_empty()
+		var last: bool = i == variants.size() - 1
+		if last and not empty:
+			_add(errors, file, _join(variant_path, "when"), "the last variant's when must be empty")
+		elif not last and empty:
+			_add(errors, file, _join(variant_path, "when"),
+				"only the last variant may have an empty when")
 
 
 ## `difficulty.json` (`replayability.md` §5, §8.3). Optional. With it: ids

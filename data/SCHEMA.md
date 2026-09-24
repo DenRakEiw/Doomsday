@@ -332,7 +332,6 @@ as ≥ 0 unless stated. The meaning of each constant is defined by the formula t
 | `headlines.filler.per_dark_region` | float | added to the gap per dark region |
 | `headlines.filler.silence_dark_regions` | int | ≥ 1; this many dark regions and the filler stops |
 | `headlines.filler.silence_deaths_share` | float | in (0, 1]; so does this share of the world dead |
-| `results.ashes_share` | float | in (0, 1]; Ascendance above it reads as ashes (m3-screens §7.4) |
 | `history.interval_days` | int | ≥ 1; the *initial* days between two samples from the origin (1 since S4.8) |
 | `history.max_samples` | int | ≥ 2; past this many samples every second one goes and the stride doubles (analysis.md §3.1) |
 | `history.log_max` | int | ≥ 1; the run log keeps its newest this many entries (analysis.md §4.3) |
@@ -612,6 +611,21 @@ applied under the source `task_force`, which does not count toward `factions.max
 The action's name is its status's (`STATUS_TF_<ACTION>_NAME`); the team's own strings are
 `UI_TASK_FORCE*`, `UI_CONSOLE_TF_*`, `UI_LOG_TF_*`.
 
+## 6i. `endings.json`
+
+How a run's end reads (`docs/specs/taskforce-endings.md` §6.3). **Optional**: a root without it
+shows every outcome's default line and no epilogue. `{"version": 1, "epilogue_max": int ≥ 0,
+"endings": [{"outcome", "variants": [{"id", "when"}]}], "epilogue": [{"id", "when", "outcomes"}]}`.
+
+- `endings`: one entry per outcome of `World.OUTCOME_IDS` but `none` — **every one**, none twice.
+  Variants are tried in order and the first whose `when` (§8) holds is the line
+  `UI_RESULT_LINE_<VARIANT ID>`; the **last variant's `when` is empty**, so one always holds. A
+  variant id may stand twice within one outcome: that is how an *or* across two keys is written.
+- `epilogue`: file order is priority; ids unique; `outcomes` lists the outcome ids a line may
+  follow, empty = every outcome. The first `epilogue_max` that hold are shown, each
+  `ENDING_EPILOGUE_<ID>`.
+- A `when` may name a story flag in `flag` / `not_flag` as events' may.
+
 ## 7. Eligibility
 
 Where something may be placed, used or picked: a `deploy` site, an ability's target, an event's
@@ -694,6 +708,10 @@ true. A state-only headline is checked only once the run has an origin. `_min` i
 | `story_flag` `not_story_flag` | [id] | all set · none set |
 | `architecture` | [architecture id] | the run's architecture is one of them (S5.2) |
 | `drift_min` | float | the agent's drift, 0…100; 0 on every architecture but Swarm (S5.2) |
+| `flag_any` | [flag] | at least one set — a modifier flag, a timed flag or a story flag (S5.6) |
+| `dominant_branch` | [branch id] | the Capabilities branch (`cyber` · `biology` · `robotics` · `weapons` · `persuasion`) with the most owned nodes, a tie to the earlier one; no Capabilities node owned matches nothing (S5.6) |
+| `dominant_tree` | [tree id] | the tree with the most owned nodes, the same rule (S5.6) |
+| `task_force_actions_min` | int | how many times the Task Force has acted (S5.6) |
 
 Anything else under `on` or `when` is an error. The vocabulary grows by a row here and a row in
 `HeadlineConditions`, never by an `if` per headline.

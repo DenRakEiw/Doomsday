@@ -1,14 +1,6 @@
 {
-	"_comment": "The Confession (CONTENT.md section 6.8; design: docs/specs/taskforce-endings.md section 7.2): late, once any track passes 70 %, the agent may reveal itself. Confessing opens 45 days of negotiation (status negotiation: the hunt slows to a third, the Task Force waits), then three ways out of the table: walk away, ask to be let in (flag invited: the Merge vote may start), or ask for the keys (status handover). Story flags confessed, invited. Written in D5.2; staged, S5.6 moves it to data/events/.",
+	"_comment": "The Confession (CONTENT.md section 6.8; design: docs/specs/taskforce-endings.md section 7.2): late, once any track passes 70 %, the agent may reveal itself. Confessing opens 45 days of negotiation (status negotiation: the hunt slows to a third, the Task Force waits), then three ways out of the table: walk away, ask to be let in (flag invited: the Merge vote may start), or ask for the keys (status handover). Story flags confessed, invited. Written in D5.2; loaded from S5.6 on; its statuses are in data/statuses.json.",
 	"version": 1,
-	"statuses": [
-		{"id": "negotiation", "origin": "player", "levels": [{"days": 45, "modifiers": [
-			{"target": "containment_growth", "op": "mul", "value": 0.3},
-			{"target": "task_force_pace", "op": "mul", "value": 0.0}]}]},
-		{"id": "handover", "origin": "player", "watched_by": ["governments"], "levels": [{"days": 90, "modifiers": [
-			{"target": "control_growth", "op": "mul", "value": 2.0},
-			{"target": "containment_growth", "op": "mul", "value": 0.6}]}]}
-	],
 	"events": [
 		{
 			"id": "cf_offer",

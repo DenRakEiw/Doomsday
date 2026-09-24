@@ -51,6 +51,12 @@ var difficulty_default: String = DifficultyDef.DEFAULT_ID
 ## `task_force.json` (`taskforce-endings.md` §3): the actions in the order they are
 ## tried. A root without the file has none, and its team never acts.
 var task_force_actions: Array[TaskForceActionDef] = []
+## `endings.json` (`taskforce-endings.md` §6.3): outcome id → its variants, the
+## epilogue lines in priority order, and how many of them one ending shows. A
+## root without the file has none, and every outcome reads its default line.
+var endings: Dictionary[String, EndingDef] = {}
+var epilogue: Array[EndingLineDef] = []
+var epilogue_max: int = 0
 var balance: BalanceDef = null
 ## Σ `RegionDef.population`, as a float because every formula using it is one.
 var population_total: float = 0.0

@@ -30,6 +30,9 @@ const DIFFICULTY_FILE: String = "difficulty.json"
 ## Optional too (`taskforce-endings.md` §3): a root without it has a team that
 ## never acts.
 const TASK_FORCE_FILE: String = "task_force.json"
+## Optional as well (`taskforce-endings.md` §6.3): a root without it reads every
+## outcome's default line and no epilogue.
+const ENDINGS_FILE: String = "endings.json"
 const TECH_DIR: String = "tech"
 ## Every `*.json` below it is one events file (§15); the directory must exist.
 const EVENTS_DIR: String = "events"
@@ -104,12 +107,15 @@ static func load_root(root: String) -> ContentLoadResult:
 	var task_force_raw: Variant = null
 	if FileAccess.file_exists(root.path_join(TASK_FORCE_FILE)):
 		task_force_raw = _read(root.path_join(TASK_FORCE_FILE), errors)
+	var endings_raw: Variant = null
+	if FileAccess.file_exists(root.path_join(ENDINGS_FILE)):
+		endings_raw = _read(root.path_join(ENDINGS_FILE), errors)
 	var strings: Dictionary[String, bool] = {}
 	var strings_known: bool = _read_strings(root.path_join(STRINGS_FILE), strings)
 	return _finish(root, balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
 		abilities_raw, tech_files, tech_raws, event_files, event_raws, factions_raw,
 		headlines_raw, strings, strings_known, errors, architectures_raw, directives_raw,
-		difficulty_raw, task_force_raw)
+		difficulty_raw, task_force_raw, endings_raw)
 
 
 ## Loads content that is already parsed — for tests, and for anything that builds
@@ -195,7 +201,7 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 		headlines_raw: Variant, strings: Dictionary[String, bool], strings_known: bool,
 		errors: Array[ValidationError], architectures_raw: Variant = null,
 		directives_raw: Variant = null, difficulty_raw: Variant = null,
-		task_force_raw: Variant = null) -> ContentLoadResult:
+		task_force_raw: Variant = null, endings_raw: Variant = null) -> ContentLoadResult:
 	# The order is SCHEMA's: balance, regions, links, technology, and the
 	# cross-file checks inside the validators that need an earlier file.
 	SchemaValidator.validate_balance(root.path_join(BALANCE_FILE), balance_raw, errors)
@@ -247,13 +253,15 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 		regions_known, strings, strings_known, errors)
 	SchemaValidator.validate_task_force(root.path_join(TASK_FORCE_FILE), task_force_raw,
 		statuses_raw, statuses, statuses_known, errors)
+	SchemaValidator.validate_endings(root.path_join(ENDINGS_FILE), endings_raw, tech_raws,
+		statuses, abilities, strings, strings_known, errors)
 
 	var result: ContentLoadResult = ContentLoadResult.new()
 	result.errors = errors
 	if errors.is_empty():
 		result.db = _build(balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
 			abilities_raw, tech_raws, event_raws, factions_raw, headlines_raw, architectures_raw,
-			directives_raw, difficulty_raw, task_force_raw)
+			directives_raw, difficulty_raw, task_force_raw, endings_raw)
 	return result
 
 
@@ -286,7 +294,7 @@ static func _build(balance_raw: Dictionary, regions_raw: Dictionary, links_raw: 
 		tech_raws: Array, event_raws: Array, factions_raw: Dictionary,
 		headlines_raw: Dictionary, architectures_raw: Variant,
 		directives_raw: Variant = null, difficulty_raw: Variant = null,
-		task_force_raw: Variant = null) -> ContentDB:
+		task_force_raw: Variant = null, endings_raw: Variant = null) -> ContentDB:
 	var db: ContentDB = ContentDB.new()
 	db.balance = _build_balance(balance_raw)
 	_build_regions(db, regions_raw)
@@ -302,10 +310,38 @@ static func _build(balance_raw: Dictionary, regions_raw: Dictionary, links_raw: 
 	_build_directives(db, directives_raw)
 	_build_difficulty(db, difficulty_raw)
 	_build_task_force(db, task_force_raw)
+	_build_endings(db, endings_raw)
 	db.content_hash = _content_hash(balance_raw, regions_raw, links_raw, assets_raw, statuses_raw,
 		abilities_raw, tech_raws, event_raws, factions_raw, headlines_raw, architectures_raw,
-		directives_raw, difficulty_raw, task_force_raw)
+		directives_raw, difficulty_raw, task_force_raw, endings_raw)
 	return db
+
+
+## `endings.json`: the variants per outcome, the epilogue in priority order.
+static func _build_endings(db: ContentDB, raw: Variant) -> void:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return
+	var d: Dictionary = raw
+	db.epilogue_max = int(d[EndingDef.EPILOGUE_MAX_KEY])
+	for entry: Variant in d[EndingDef.ROOT_KEY]:
+		var e: Dictionary = entry
+		var def: EndingDef = EndingDef.new()
+		def.outcome = str(e["outcome"])
+		for variant: Variant in e["variants"]:
+			def.variants.append(_ending_line(variant))
+		db.endings[def.outcome] = def
+	for entry: Variant in d[EndingDef.EPILOGUE_KEY]:
+		db.epilogue.append(_ending_line(entry))
+
+
+static func _ending_line(raw: Variant) -> EndingLineDef:
+	var e: Dictionary = raw
+	var line: EndingLineDef = EndingLineDef.new()
+	line.id = str(e["id"])
+	line.when = HeadlineConditions.cast_when(e.get("when", {}))
+	for outcome: Variant in e.get("outcomes", []):
+		line.outcomes.append(str(outcome))
+	return line
 
 
 ## `task_force.json`: the actions in the order they are tried.
@@ -839,7 +875,8 @@ static func _content_hash(balance: Dictionary, regions: Dictionary, links: Dicti
 		assets: Dictionary, statuses: Dictionary, abilities: Dictionary, tech_raws: Array,
 		event_raws: Array, factions: Dictionary, headlines: Dictionary,
 		architectures: Variant = null, directives: Variant = null,
-		difficulty: Variant = null, task_force: Variant = null) -> String:
+		difficulty: Variant = null, task_force: Variant = null,
+		endings: Variant = null) -> String:
 	var text: String = JSON.stringify(balance, "", true, true)
 	text += JSON.stringify(regions, "", true, true)
 	text += JSON.stringify(links, "", true, true)
@@ -861,6 +898,8 @@ static func _content_hash(balance: Dictionary, regions: Dictionary, links: Dicti
 		text += JSON.stringify(difficulty, "", true, true)
 	if typeof(task_force) == TYPE_DICTIONARY:
 		text += JSON.stringify(task_force, "", true, true)
+	if typeof(endings) == TYPE_DICTIONARY:
+		text += JSON.stringify(endings, "", true, true)
 	return text.sha256_text()
 
 
@@ -977,8 +1016,6 @@ static func _build_balance(d: Dictionary) -> BalanceDef:
 	def.headlines_filler_silence_dark = int(filler["silence_dark_regions"])
 	def.headlines_filler_silence_deaths_share = float(filler["silence_deaths_share"])
 
-	var results: Dictionary = d["results"]
-	def.results_ashes_share = float(results["ashes_share"])
 	var emergent: Dictionary = d["emergent"]
 	def.emergent_base_chance = float(emergent["base_chance"])
 	def.emergent_suppress_cost = float(emergent["suppress_cost"])

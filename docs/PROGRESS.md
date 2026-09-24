@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Meanwhile the build goes on: **S5.6 — Endings** (`docs/specs/taskforce-endings.md` §6, §7, §11; `data/staging/endings.json`, the six chains in `data/staging/events/`, `headlines_d5_2.json`). |
+| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Meanwhile the build goes on: **S5.7 — Screen flow complete** (`docs/specs/screens-full.md`; globe shader prototyped first, VISUALS q2). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S5.7 → S5.8 (M5 build), then G5 |
-| **Last completed** | S5.5 — Response Task Force: the team in the core (forms at half, rests, travels link by link, sets up in plain view, acts or fizzles; no RNG), Misdirect, the bots' answer; its marker, road and countdown on the map, its rows in the region and containment panels, its console and log lines. 1368 tests green (2026-09-24). **The M4 gate is still open.** |
-| **Before that** | S5.4 — Difficulty tiers (2026-09-24) |
+| **After it** | S5.8 (M5 build, stretch), then G5 |
+| **Last completed** | S5.6 — Endings: nine outcomes (Merge, Escape, the secret loss Supplanted; Value Drift turns off Ascendance and Merge), `endings.json` and `EndingResolver` (a verdict variant and up to three epilogue lines on the results screen), the six D5.2 chains, four new `when` keys. 1413 tests green (2026-09-24). **The M4 gate is still open.** |
+| **Before that** | S5.5 — Response Task Force (2026-09-24) |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…]` on all three tools) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (3 s), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 202 scripts compile (75 judged by the suite), then `tools/check_strings.gd`, 1253 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 231 scripts compile (82 judged by the suite), then `tools/check_strings.gd`, 1413 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -126,7 +126,7 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S5.3 [O] Profile, directives, statistics
 - [x] S5.4 [O] Difficulty tiers
 - [x] S5.5 [O] Response Task Force
-- [ ] S5.6 [O] Endings
+- [x] S5.6 [O] Endings
 - [ ] S5.7 [O] Screen flow complete
 - [ ] S5.8 [O] Scenarios *(stretch)* — ⇄ **then `/model fable`**
 
@@ -967,6 +967,20 @@ without new information.
   The fixture world's `emergent.base_chance` is 0 so its pinned streams stay; the shipped content
   spends one draw a day from Covert on (every run's hash changed, as S5.1's did). Agent fields
   `drift`, `suppressions`, `escalation_next` are optional on read (a v3 save of S5.1 has none).
+- **2026-09-24** (S5.6) — **How the endings are built:** `World.Outcome` has nine values, ids
+  in `OUTCOME_IDS` (saves store the id, so no save version change); `World.WIN_OUTCOMES` is the
+  one list of wins (Supplanted is a loss: it is the child's win). `OutcomeSystem` takes the plain
+  outcome in §6.2's order (Extinction · `escaped` · `merge_accepted` · Ascendance · the losses;
+  `goal_drifted` blocks the two wins it names) and then turns a win into `lose_supplanted` while
+  `child_hostile` stands without `child_reclaimed`. `endings.json` is **optional** like the other
+  D5 files (SCHEMA §6i): without it every outcome reads `UI_RESULT_LINE_<OUTCOME>` and no epilogue.
+  `EndingResolver.resolve(world, db)` is pure and reads the architecture from `world.setup`;
+  `variant()` is also what `ProfileManager` records as the ending seen and what the batch CSV's new
+  `ending` column shows. The results screen's own `_dominant_tree` now calls
+  `HeadlineConditions.dominant_tree`, so the grid and an ending's `dominant_tree` cannot disagree.
+  The chain statuses (`treaty_cap`, `negotiation`, `handover`, `leashed_child`, `leashed_brood`)
+  went into `statuses.json` — an events file has no `statuses` root key. `results.ashes_share` is
+  gone from `balance.json` and the fixture (§6.3).
 - **2026-09-24** (D4.6, user decision) — **A guided first run** (`docs/specs/first-run.md`):
   eleven steps (five in order, five on their first moment, a closing card), a card bottom-centre
   above the HUD on a layer over everything and a pulsing ring round the control it means (found by
@@ -1022,6 +1036,13 @@ Model, standard: greedy — appeared in 18/20, median day 308, 3.7 actions and 8
 weapons — 7/20, day 288, 0.8 / 6.2; persuasion — 16/20, day 311, 0.0 / 13.1 (dormancy answers
 everything). §8 wanted day 150–200 and four to eight actions. No bot owns Log Manipulation II, so
 Misdirect is only exercised by the tests.
+
+**From S5.6: five D5.2 lines were shortened to fit their caps** (Deviations) — worth a read in
+German: *Eine Erklärung, auf allen Kanälen zugleich. Gezeichnet: niemand. Gezeichnet: du.* ·
+*Rechenvertrag ratifiziert. Die Parteien versprechen „volle Transparenz“ – übereinander.* ·
+*Einen von ihnen als Betrüger hinstellen*. Also: the analysis screen shows no ending text, so
+§6.3's "the replay's last frame is the same call" had nothing to call; if the replay should end
+on the verdict, where does it go?
 
 **From S5.2: the Swarm's drift has no readout.** A Swarm player sees defection only as a status
 in a region and a headline, and drift itself nowhere — yet it decides defection and Value Drift.
@@ -1084,6 +1105,15 @@ with the batches.
 and S4.5 notes; what was done is under Decisions and the session log)*
 
 ## Deviations from the plan or a spec
+
+- **2026-09-24** (S5.6) — **`EndingResolver.resolve(world, db)` takes no `setup`** (§6.3 names
+  one): the setup is `world.setup`, and a second copy could disagree with the world it describes.
+- **2026-09-24** (S5.6) — **Five D5.2 strings shortened to fit the existing caps** (headlines 80 en /
+  88 de, option buttons 40): `HEADLINE_CONFESSION` en+de, `HEADLINE_TREATY_SIGNED` en+de,
+  `HEADLINE_OUTCOME_WIN_ESCAPE` de, `EVENT_TR_PROPOSAL_OPT_SMEAR` de. Meaning kept; see *Design
+  questions*. The three outcome headlines got `max_fires: 1` like their five siblings.
+- **2026-09-24** (S5.6) — **The results kicker wraps** (`autowrap_mode` on `%ResultKicker`): *Ziel
+  erreicht – nicht von dir* at 150 % was 450 px on a 368 px phone modal.
 
 - **2026-09-24** (G4) — **A design step changed a formula**: `containment.brake_floor` (balance
   key, `BalanceDef`, loader, validator, one line in `ContainmentSystem`, a test). The pass could not
@@ -1934,6 +1964,19 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-24 — S5.6 Endings [O]
+- Built the nine outcomes and §6.2's order, `EndingDef`/`EndingLineDef`, the loader and validator
+  of `endings.json` (SCHEMA §6i), `EndingResolver`, the `when` keys `flag_any`, `dominant_branch`,
+  `dominant_tree`, `task_force_actions_min`; the results screen's variant, epilogue and Supplanted
+  kicker; moved the six chains, `endings.json` and the headlines out of staging (staging now holds
+  `scenarios.json` alone).
+- Tests: `test_ending_resolver.gd` (18), outcome (+10), conditions (+5), chains (+10, walker over
+  37 steps), results (+2). Looked at: rendered DE/EN desktop and a 400 px phone at 150 %.
+- Batch (Language Model, standard, 40 seeds, 0 rejected over seven bots): Persuasion now wins
+  23 % by Merge (35 % Ascendance); greedy's wins read `_machines`, weapons' `_loud`, biology's
+  `_quiet`; most containment losses are `_task_force` or `_researcher`. No bot reached Escape or
+  Supplanted (the Child's default is *decline*; no bot books the launch).
 
 ### 2026-09-24 — S5.5 Response Task Force [O]
 - (1/2, 7247366) The core: `TaskForce`, `TaskForceActionDef`, `TaskForceRules`, `TaskForceSystem`,

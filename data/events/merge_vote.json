@@ -1,5 +1,5 @@
 {
-	"_comment": "The Merge vote (CONTENT.md section 8, humanity votes you in; design: docs/specs/taskforce-endings.md section 7.5). Starts once Succession (flag merge_path) is owned or the Confession won an invitation (flag invited), while the public is below 60 %. The count is a roll: 0.45 alone, 0.7 with a campaign behind it or with legal standing (Constitutional Integration). Passing sets merge_accepted, which OutcomeSystem reads as the Merge win. A lost vote may be tabled once more. Written in D5.2; staged, S5.6 moves it to data/events/.",
+	"_comment": "The Merge vote (CONTENT.md section 8, humanity votes you in; design: docs/specs/taskforce-endings.md section 7.5). Starts once Succession (flag merge_path) is owned or the Confession won an invitation (flag invited), while the public is below 60 %. The count is a roll: 0.45 alone, 0.7 with a campaign behind it or with legal standing (Constitutional Integration). Passing sets merge_accepted, which OutcomeSystem reads as the Merge win. A lost vote may be tabled once more. Written in D5.2; loaded from S5.6 on.",
 	"version": 1,
 	"events": [
 		{
