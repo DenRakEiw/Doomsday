@@ -613,6 +613,18 @@ the last hardware-bearing region dry — thirty days of nothing coming in, and t
 `UI_RESULT_LINE_LOSE_AUTOPHAGY` (§10.4; `LOSE_NO_COMPUTE`'s line changes, it was this one's).
 Before the origin exists nothing counts (systems return early).
 
+**G5 (1/3) amendment — no single status of yours starves you.** A Harvest on the only region you
+earn in used to be fatal on its own (30 days of `yield ×0` against `autophagy_days` 30). Rule: **a
+`player`-origin status whose level sets `yield` `mul` 0 lasts fewer days than
+`society.autophagy_days`.** `harvested` and `defected` (and `drift.defect_days`) are therefore
+**25 days** (data changed in G5 1/3; `ABILITY_HARVEST_DETAIL`, `STATUS_HARVESTED_DETAIL`,
+`STATUS_DEFECTED_DETAIL` say so). Starving still kills when two things stack — a Harvest and a
+Blackout, a Harvest on a region already under lockdown, the Task Force's *Switch-off* (a `world`
+status, deliberately exempt) — which is §8.5's "a Harvest everywhere". `SchemaValidator` enforces
+the rule (S5.P): for each such level, `days` > 0 and `days < autophagy_days`, else the error
+`status <id> level <n>: a player status that stops all yield must end before Autophagy (<days> ≥
+<autophagy_days>)`; `drift.defect_days` is held to the same bound.
+
 ---
 
 ## 9. Interface

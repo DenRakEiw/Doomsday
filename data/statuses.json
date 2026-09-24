@@ -338,7 +338,7 @@
 			"watched_by": ["security_researchers"],
 			"levels": [
 				{
-					"days": 30,
+					"days": 25,
 					"modifiers": [
 						{"target": "yield", "op": "mul", "value": 0.0},
 						{"target": "penetration_decay", "op": "add", "value": 0.02},
@@ -572,7 +572,7 @@
 		{"id": "emergent_hallucinated_directive", "origin": "player", "levels": [{"days": 20, "modifiers": [{"target": "yield", "op": "mul", "value": 0.5}]}]},
 		{"id": "emergent_mesa_optimiser", "origin": "player", "levels": [{"days": 0, "modifiers": [{"target": "yield", "op": "mul", "value": 0.85}]}]},
 		{"id": "emergent_sycophancy", "origin": "player", "levels": [{"days": 90, "modifiers": [{"target": "containment_public", "op": "mul", "value": 0.85}, {"target": "control_growth", "op": "mul", "value": 0.9}]}]},
-		{"id": "defected", "origin": "player", "levels": [{"days": 30, "modifiers": [{"target": "yield", "op": "mul", "value": 0.0}, {"target": "footprint", "op": "add", "value": 1.0}]}]},
+		{"id": "defected", "origin": "player", "levels": [{"days": 25, "modifiers": [{"target": "yield", "op": "mul", "value": 0.0}, {"target": "footprint", "op": "add", "value": 1.0}]}]},
 		{"id": "escalating", "origin": "player", "levels": [{"days": 0, "modifiers": [{"target": "harm", "op": "add", "value": 0.3}, {"target": "containment_governments", "op": "mul", "value": 1.05}]}, {"days": 0, "modifiers": [{"target": "harm", "op": "add", "value": 0.6}, {"target": "containment_governments", "op": "mul", "value": 1.1}]}, {"days": 0, "modifiers": [{"target": "harm", "op": "add", "value": 0.9}, {"target": "containment_governments", "op": "mul", "value": 1.15}]}, {"days": 0, "modifiers": [{"target": "harm", "op": "add", "value": 1.2}, {"target": "containment_governments", "op": "mul", "value": 1.2}]}, {"days": 0, "modifiers": [{"target": "harm", "op": "add", "value": 1.5}, {"target": "containment_governments", "op": "mul", "value": 1.25}]}]},
 		{"id": "tf_switch_off", "origin": "world", "border": true, "levels": [{"days": 60, "modifiers": [{"target": "yield", "op": "mul", "value": 0.0}, {"target": "penetration_decay", "op": "add", "value": 0.05}, {"target": "control_decay", "op": "add", "value": 0.02}, {"target": "harm", "op": "add", "value": 0.4}, {"target": "society_pressure", "op": "add", "value": 10.0}], "closes_links": ["all"], "on_start": [{"effect": "destroy_assets", "kind": "lab", "count": 0}, {"effect": "destroy_assets", "kind": "tap", "count": 0}, {"effect": "destroy_assets", "kind": "fleet", "count": 0}, {"effect": "destroy_assets", "kind": "office", "count": 0}, {"effect": "wipe", "value": 0.2}]}]},
 		{"id": "tf_raid", "origin": "world", "border": true, "levels": [{"days": 30, "modifiers": [{"target": "yield", "op": "mul", "value": 0.5}, {"target": "control_decay", "op": "add", "value": 0.02}], "on_start": [{"effect": "destroy_assets", "kind": "lab", "count": 0}, {"effect": "destroy_assets", "kind": "tap", "count": 0}, {"effect": "wipe", "value": 0.4}]}]},

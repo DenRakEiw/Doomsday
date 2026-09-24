@@ -154,7 +154,7 @@ read of you). `on_start` runs once, on application; a refresh re-runs it (loop-m
 
 | Status | Origin · watched by | L1 | L2 |
 | --- | --- | --- | --- |
-| `harvested` (Harvest) | player · researchers | **30 d**: on start `compute_grant` **3 × hardware(r)**; `yield ×0`, `penetration_decay +0.02`, `society_pressure +4`, `footprint +2` | — |
+| `harvested` (Harvest) | player · researchers | **25 d** *(30 until G5 1/3 — `opposition.md` §8.5's amendment)*: on start `compute_grant` **3 × hardware(r)**; `yield ×0`, `penetration_decay +0.02`, `society_pressure +4`, `footprint +2` | — |
 | `crisis` (Squeeze) | player · governments | 30 d: on start `compute_grant` **2 × hardware(r)**; `society_pressure +4`, `control_growth ×1.2`, `footprint +2` | 30 d: `compute_grant` **3 ×**; `society +8`, `control_growth ×1.3`, `footprint +2` |
 | `blackout` (Blackout) | player · governments, public | 20 d: `yield ×0.5`, `containment_capacity ×0`, `society +8`, `harm +0.5`, `spread_growth ×1.3`, `footprint +3` (S4.2's example, kept) | 40 d: as L1 with `society +14`, `harm +1.5`; on start `spread_status blackout L1 10 d` |
 | `shortage` (Halt) | player · governments, public | 30 d: `society +6`, `harm +0.3`, `control_growth ×1.5`, `footprint +2` | 30 d: `society +12`, `harm +1.0`, `control_growth ×1.5`, `footprint +2` |

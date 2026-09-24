@@ -113,6 +113,14 @@ on mobile and web, as now). Version caption bottom-right, as now.
 **Compact (< 1100 px):** the globe on top (diameter `width − 2 × GUTTER`, at most 45 % of the
 height), the column below it at full width.
 
+**G5 (1/3) amendment — the version caption.** It overlapped the last button in a narrow desktop
+window. In **compact** the caption is not in the corner overlay: it is the **last row of the
+column**, a `LabelCaption` in `TEXT_2`, right-aligned (`SIZE_SHRINK_END`), `SPACE_2` above it, so
+it can never cover a button. In the full layout it stays bottom-right in `Corner`. The switch
+happens where the title already switches layouts (one node reparented, or two labels with one
+visible — the builder's choice; the text is the same `VersionLabel` text). Test: at 400 × 860 and
+at 1000 × 700 the caption's rect intersects no button's rect.
+
 Focus starts on the primary button. `Escape` does nothing.
 
 ### 3.1 The globe (`ui/components/globe.gd`, `class_name Globe`, a `ColorRect` + shader)
@@ -282,6 +290,24 @@ On `EventBus.run_ended`:
    `ENDING_PULL_MS` (2400 ms, `ease_in_out`), the map's overlay switching to the penetration view.
    Reduced motion: cut to it at once. Input on the map is ignored meanwhile.
 3. After it (or after `RESULTS_DELAY` if the camera was already there), the results modal opens.
+
+**G5 (1/3) amendment — the pull always starts from where the run ended.** Most players end zoomed
+out, so step 2 showed nothing. It becomes three beats:
+
+- **2a. Push-in.** The *ending region* = the region of the **newest `world.run_log` entry that
+  carries one** (`RunLogText.region_index` > 0 — the last wipe, the Task Force's last action, the
+  last region taken); none → the origin. The camera moves to it as `F` focuses a region (the same
+  zoom `MapCamera.focus_region` uses), tweened over `ENDING_PUSH_MS` **700 ms** `ease_out`. The
+  region gets the **hover** highlight (`MapView.hover_index`), not a selection — no panel opens.
+  Skipped when the camera already centres that region at that zoom or closer.
+- **2b. Hold** `ENDING_HOLD_MS` **600 ms**.
+- **2c. Pull-out** exactly as step 2 (to `zoom_min`, centred, `ENDING_PULL_MS` 2400 ms, overlay to
+  penetration); the hover highlight clears as it starts.
+
+Reduced motion: no push, no hold — cut straight to the whole world, then `RESULTS_DELAY`, as now.
+Input stays ignored through all three. The three durations sit in the ending sequence's `const`
+block beside `ENDING_PULL_MS`. Test (S5.P): the ending region picks the newest entry with a region
+and falls back to the origin; the push is skipped when already there; reduced motion skips it.
 
 **Results, changed from m3-screens §7.4:**
 

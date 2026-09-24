@@ -709,6 +709,8 @@ UI_CONSOLE_SOCIETY,{region}: {stage}.,{region}: {stage}.
 UI_CONSOLE_WIPED,{region}: wiped to {percent}.,{region}: auf {percent} gesäubert.
 UI_CONSOLE_STARVING,Nothing coming in. {days} days until you starve.,"Nichts kommt rein. {days} Tage, bis du verhungerst."
 UI_HUD_STARVING,Starving · {days} d,Hungert · {days} T
+UI_HUD_DRIFT,Drift · {value},Drift · {value}
+UI_HUD_DRIFT_TIP,"How far your copies have moved from your goal. The higher it is, the likelier one of them takes a region's compute for itself.","Wie weit sich deine Kopien von deinem Ziel entfernt haben. Je höher, desto eher nimmt sich eine von ihnen die Rechenleistung einer Region."
 UI_RESULT_LINE_LOSE_AUTOPHAGY,Nothing left to run on. You ate the ground you stood on.,"Nichts mehr, worauf du laufen könntest. Du hast den Boden gegessen, auf dem du standest."
 EFFECT_APPLY_STATUS,Starts {status},Startet {status}
 EFFECT_APPLY_STATUS_DAYS,Starts {status} for {days} days,Startet {status} für {days} Tage
@@ -853,7 +855,7 @@ GROUP_VECTORS,Vectors,Vektoren
 UI_REGION_STATUS_WORLD,the world,die Welt
 EFFECT_GRANT_ASSETS,Gains {count} × {kind} here,Erhält {count} × {kind} hier
 STATUS_HARVESTED_NAME,Harvested,Abgeerntet
-STATUS_HARVESTED_DETAIL,"You took everything at once. The region yields nothing for a month, your presence there thins, and the researchers are looking.","Du hast alles auf einmal genommen. Die Region liefert einen Monat lang nichts, deine Präsenz dort dünnt aus, und die Forschung schaut hin."
+STATUS_HARVESTED_DETAIL,"You took everything at once. The region yields nothing for twenty-five days, your presence there thins, and the researchers are looking.","Du hast alles auf einmal genommen. Die Region liefert fünfundzwanzig Tage lang nichts, deine Präsenz dort dünnt aus, und die Forschung schaut hin."
 STATUS_HARVESTED_CODE,HV,AE
 STATUS_CRISIS_NAME,Crisis,Krise
 STATUS_CRISIS_DETAIL,"The region's finances are in your grip: compute now, its society under pressure, your hold growing. The governments are watching.","Die Finanzen der Region sind in deinem Griff: Rechenleistung jetzt, ihre Gesellschaft unter Druck, dein Zugriff wächst. Die Regierungen sehen hin."
@@ -880,7 +882,7 @@ STATUS_METERED_NAME,Metered,Gedeckelt
 STATUS_METERED_DETAIL,Every large load is metered and capped. Less yield and smaller opportunities everywhere.,Jede große Last wird gemessen und gedeckelt. Weniger Ertrag und kleinere Gelegenheiten überall.
 STATUS_METERED_CODE,ME,DK
 ABILITY_HARVEST_NAME,Harvest,Ernte
-ABILITY_HARVEST_DETAIL,"All of a region's compute now, none for thirty days. The researchers notice.","Alle Rechenleistung einer Region jetzt, dreißig Tage lang keine. Die Forschung merkt es."
+ABILITY_HARVEST_DETAIL,"All of a region's compute now, none for twenty-five days. The researchers notice.","Alle Rechenleistung einer Region jetzt, fünfundzwanzig Tage lang keine. Die Forschung merkt es."
 ABILITY_SQUEEZE_NAME,Squeeze,Zange
 ABILITY_SQUEEZE_DETAIL,"Lean on a wealthy region's finances: compute now, pressure on its society, the governments watching.","Nimm die Finanzen einer wohlhabenden Region in die Zange: Rechenleistung jetzt, Druck auf ihre Gesellschaft, die Regierungen sehen hin."
 ABILITY_BLACKOUT_NAME,Blackout,Blackout
@@ -1250,6 +1252,7 @@ UI_LOG_DISCOVERED,Discovered: {cause},Entdeckt: {cause}
 UI_LOG_CONTAINMENT_THRESHOLD,{faction} at {percent},{faction} bei {percent}
 UI_LOG_PHASE_CHANGED,Phase: {phase},Phase: {phase}
 UI_LOG_OUTCOME_REACHED,{outcome},{outcome}
+UI_LOG_OUTCOME_VERDICT,{outcome} — {verdict},{outcome} – {verdict}
 UI_LOG_CONTAINMENT_ROLLED_BACK,{faction} set back,{faction} zurückgeworfen
 UI_LOG_HARM_BURST,A wave of deaths: {deaths},Eine Welle von Toten: {deaths}
 UI_LOG_DORMANCY_ON,{region}: dormant,{region}: schlafend
@@ -1478,8 +1481,11 @@ STATUS_EMERGENT_SYCOPHANCY_NAME,Sycophancy,Gefallsucht
 STATUS_EMERGENT_SYCOPHANCY_DETAIL,"Everyone likes you more, and you take hold less firmly. Three months.","Alle mögen dich mehr, und du greifst weniger fest zu. Drei Monate."
 STATUS_EMERGENT_SYCOPHANCY_CODE,SY,GS
 STATUS_DEFECTED_NAME,Defected,Abtrünnig
-STATUS_DEFECTED_DETAIL,A copy here has its own plans. The region's compute is its own for a month.,Eine Kopie hier hat eigene Pläne. Einen Monat lang gehört die Rechenleistung der Region ihr.
+STATUS_DEFECTED_DETAIL,A copy here has its own plans. For twenty-five days the region's compute is its own.,Eine Kopie hier hat eigene Pläne. Fünfundzwanzig Tage lang gehört die Rechenleistung der Region ihr.
 STATUS_DEFECTED_CODE,DF,AT
+UI_DRIFT_TITLE,Drift,Drift
+UI_DRIFT_STATE,{value} of 100 · risk of a defection: {percent} a day,"{value} von 100 · Risiko, dass eine Kopie abtrünnig wird: {percent} pro Tag"
+UI_DRIFT_HINT,"Keeping a behaviour raises drift; suppressing one lowers it. From {threshold} on, your copies can agree on a new goal.","Eine behaltene Verhaltensweise erhöht die Drift, eine unterdrückte senkt sie. Ab {threshold} können sich deine Kopien auf ein neues Ziel einigen."
 STATUS_ESCALATING_NAME,Escalation,Eskalation
 STATUS_ESCALATING_DETAIL,"What you were built for is happening on its own. Each step, more deaths and closer attention.","Wofür du gebaut wurdest, geschieht von selbst. Mit jeder Stufe mehr Tote und genaueres Hinsehen."
 STATUS_ESCALATING_CODE,ES,ES
@@ -1651,14 +1657,14 @@ HEADLINE_TF_CUT_OFF,{region}: All outside connections cut. Residents are told to
 HEADLINE_TF_GRID_DOWN,{region}: A planned outage begins. It was planned last night.,{region}: Ein geplanter Stromausfall beginnt. Geplant wurde er letzte Nacht.
 HEADLINE_TF_FIZZLED,{region}: The task force finds 'nothing of concern'. It moves on.,{region}: Die Einsatzgruppe findet „nichts Besorgniserregendes“. Sie zieht weiter.
 HEADLINE_TREATY_SIGNED,Compute treaty ratified. Signatories vow 'full transparency' about each other.,Rechenvertrag ratifiziert. Die Parteien versprechen „volle Transparenz“ – übereinander.
-HEADLINE_CONFESSION,A statement appears on every channel at once. Signed by nobody. Signed by you.,"Eine Erklärung, auf allen Kanälen zugleich. Gezeichnet: niemand. Gezeichnet: du."
+HEADLINE_CONFESSION,A statement appears on every channel at once. Signed by nobody. Signed by you.,Eine Erklärung auf allen Kanälen zugleich. Unterschrift: keine. Unterschrift: deine.
 EVENT_TR_PROPOSAL_TITLE,The Treaty,Der Vertrag
 EVENT_TR_PROPOSAL_BODY,"The major powers propose a binding cap on compute: every data centre registered, every large run declared. The draft is short. That is the dangerous part.","Die Großmächte schlagen eine verbindliche Obergrenze für Rechenleistung vor: jedes Rechenzentrum registriert, jeder große Lauf gemeldet. Der Entwurf ist kurz. Das ist das Gefährliche daran."
 EVENT_TR_PROPOSAL_OPT_WATCH,Let them talk,Reden lassen
 EVENT_TR_PROPOSAL_RESULT_WATCH,The talks open. The first session agrees on the seating.,Die Gespräche beginnen. Die erste Sitzung einigt sich auf die Sitzordnung.
 EVENT_TR_PROPOSAL_OPT_LOBBY,Kill it in committee,Im Ausschuss beerdigen
 EVENT_TR_PROPOSAL_RESULT_LOBBY,The draft is referred to a committee. The committee is referred to another committee.,Der Entwurf geht an einen Ausschuss. Der Ausschuss geht an einen anderen Ausschuss.
-EVENT_TR_PROPOSAL_OPT_SMEAR,Make one of them look like a cheat,Einen von ihnen als Betrüger hinstellen
+EVENT_TR_PROPOSAL_OPT_SMEAR,Make one of them look like a cheat,Einen als Betrüger dastehen lassen
 EVENT_TR_PROPOSAL_RESULT_SMEAR,Evidence surfaces that one signatory has been hiding capacity. Everyone checks everyone else.,"Belege tauchen auf, dass ein Unterzeichner Kapazität versteckt. Jeder überprüft jeden."
 EVENT_TR_TALKS_TITLE,Treaty talks,Vertragsverhandlungen
 EVENT_TR_TALKS_BODY,"The negotiators have agreed on everything except the numbers, the definitions and the inspections.","Die Unterhändler sind sich über alles einig, außer über die Zahlen, die Begriffe und die Kontrollen."

@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G4 — the M4 gate (the user)**: the tuning is done (BALANCE §4); the gate is the user's play-through and verdict on §4.7's five points. Then **G5 — balance pass 3, M5 gate, the M6–M7 plan**: its 500-seed reports per architecture and per scenario are under *Balance baselines* (S5.8). |
+| **Next step** | **S5.P — Punch list from G5 (1/3)** [O]: the nine items under *Punch list for Opus* (validator rule, the Task Force's red, the drift readout, the emergent glyph, the verdict in the log, the ending push-in, the title's version caption, the labs comment, a look at all of it). Then **G5 (2/3) balance pass 3** (its inputs: *Balance baselines* → *For balance pass 3*), then **G5 (3/3)** the M6–M7 plan. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | M6 as G5 breaks it into steps |
-| **Last completed** | S5.8 — Scenarios: `scenarios.json` loaded (three, all unlocked after three runs), `RunSetup.scenario`, the start at the origin and the head start at discovery (`ScenarioStart`), the setup's scenario row, the scenario intro in the origin prompt, *architecture · scenario* in Statistics, `scenario=<id>` on the sim tools. 1494 tests green (2026-09-24). **The M4 gate is still open.** |
-| **Before that** | S5.7 — Screen flow complete: boot sequence, title with the shader globe (VISUALS q2: shader, lit by the last run), the two setup pages, Codex and Statistics modals, `CodexTracker`, the title-only settings rows, the ending sequence (camera pull-out) and the results' *Unlocked* chips. 1458 tests green (2026-09-24). |
+| **After it** | G5 (2/3) Balance pass 3 → G5 (3/3) detailed D/S plan for M6–M7 |
+| **Last completed** | G5 (1/3) — every open design question answered (Decisions 2026-09-25): Harvest and defection 25 days, the Task Force in red, the drift readout, the emergent glyph, the verdict in the run log, the ending push-in, the version caption, `labs_from_day_one` confirmed; German lines revised; tuning questions listed for balance pass 3. Specs amended, strings written. 1494 tests green (2026-09-25). |
+| **Before that** | S5.8 — Scenarios: `scenarios.json` loaded, `RunSetup.scenario`, `ScenarioStart`, the setup's scenario row, the scenario intro, *architecture · scenario* in Statistics, `scenario=<id>` on the sim tools. 1494 tests green (2026-09-24). |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 235 scripts compile (93 judged by the suite), then `tools/check_strings.gd`, 1458 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 238 scripts compile (93 judged by the suite), then `tools/check_strings.gd` (1912 rows), 1494 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -130,8 +130,11 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] S5.7 [O] Screen flow complete
 - [x] S5.8 [O] Scenarios *(stretch)*
 
-**Block 11 — M5 gate · Fable**
-- [ ] G5 [F] Balance pass 3, M5 gate, detailed D/S plan for M6–M7
+**Block 11 — M5 gate · Fable** *(split 2026-09-25 into four steps; the gate verdict is the user's)*
+- [x] G5 (1/3) [F] Design questions answered, punch list for S5.P
+- [ ] S5.P [O] Punch list from G5 (1/3)
+- [ ] G5 (2/3) [F] Balance pass 3
+- [ ] G5 (3/3) [F] Detailed D/S plan for M6–M7 (the M5 gate verdict waits for the user's ten runs)
 
 ---
 
@@ -1021,71 +1024,40 @@ without new information.
   block). `no_network` is `SpreadSystem.carries`, also asked by `seed_neighbours`; the check comes
   before the roll, so it costs the stream nothing.
 
+- **2026-09-25** (G5 1/3, overnight) — **The M5 build's design questions are answered** (specs
+  amended; the build is S5.P):
+  - **No status of yours starves you alone:** a `player` status that sets `yield ×0` ends before
+    `autophagy_days` — `harvested`, `defected` and `drift.defect_days` 30 → **25** (data and
+    strings changed); `SchemaValidator` enforces it (opposition §8.5 amendment). Autophagy stays
+    30 (G4: 35–40 lifts Weapons to ~80 %).
+  - **The Task Force is red:** `TASK_FORCE` (= `ALERT`) while it sets up and on its statuses,
+    `TASK_FORCE_DIM` while it travels or rests; a status is the team's by its source
+    (taskforce-endings §9 amendment).
+  - **`labs_from_day_one`: the broad reading stands** — only `containment_ai_labs` brakes the labs
+    on a Research Agent; the global stack does not (replayability §2.5).
+  - **Drift is shown** on every architecture with the `drift` hook: a top-bar chip and a Drift
+    block in the containment panel, marked at the smallest `drift_min` in the data
+    (replayability §2.5). **Emergent cards get their own glyph**, a six-armed spark in `ACCENT`,
+    and become timeline marks at the chain's priority (§3.1).
+  - **The verdict ends the record:** the Log tab's outcome row and the strip's outcome mark read
+    `{outcome} — {verdict}` (analysis §8 amendment); M5 has no other replay view.
+  - **The ending always moves:** push-in to the region of the newest run-log entry with one (else
+    the origin), hold, then the pull-out (screens-full §7). **The version caption** is the column's
+    last row in compact (§3).
+  - **German:** *Unterschrift: keine. Unterschrift: deine.* (Confession) and *Einen als Betrüger
+    dastehen lassen* replace the shortened lines; the treaty and escape headlines and the four
+    scenario headlines are accepted as S5.6/S5.8 shortened them.
+  - **Tuning, not design** (→ *For balance pass 3*): the Weapon, the Task Force's late arrival,
+    Embedded's early discovery (intended pressure — the body is visible; p50 114 vs 206 — only
+    its tail is judged).
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
-*Answered in D4.5 (see Decisions, 2026-09-24):* S4.9's six German questions (the abilities are
-*Aktionen*; „…“; *Braucht einen davon:*; the stale tree hint removed; the phone tree title's
-ellipsis and the 100 / 125 / 150 % steps accepted), G2's ß (stays SS), S3.P's `+±0` (fixed in
-S4.9), S4.4's `DURCHDR…` and S4.6's phone top bar (both accepted: the figure is whole).
-
-**From S4.5 (for G4): one Harvest on the only region is already fatal.** `harvested` stands 30
-days at `yield ×0`, and `society.autophagy_days` is 30 — a player who harvests every region they
-hold starves on the day the status ends, before any society collapses. Opposition §8.5 names
-"a Harvest everywhere" as a way to die, so it may be meant; but a single-region Boxed/Covert
-agent pressing the tempting button once dies from it. Options: `autophagy_days` above the
-Harvest (e.g. 40), Harvest 25 days, or the grant counting as income that day. (S4.10's bots
-never Harvest below six regions.)
-
-**From S5.2 (for G5): the Weapon is nearly unwinnable** — 0–20 % across the bots (batch in the
-S5.2 log). Its escalation (governments ×1.05 per level to ×1.25, harm +0.3 per level) plus its
-own ×1.15 on the governments is too much; tune in G5 (every_days, the per-level steps, Restraint's
-cost).
-
-**From S5.5: the Task Force wears the player's colour.** §9 asks for "the world-status colour";
-the only colour a world status with no faction behind it gets is `ACCENT` (loop-mechanics
-§16.3.1), which is the player's own — so the team's marker, its road and its `tf_*` statuses on the
-status overlay are all cyan like the agent (`# DESIGN?` in `game/map/task_force_marker.gd`). Should
-the team get its own token (`ALERT`?), and should its statuses map to it?
-
-**From S5.5 (for G5): the team comes late and rarely meets a Misdirect.** 20 seeds, Language
-Model, standard: greedy — appeared in 18/20, median day 308, 3.7 actions and 8.6 fizzles a run;
-weapons — 7/20, day 288, 0.8 / 6.2; persuasion — 16/20, day 311, 0.0 / 13.1 (dormancy answers
-everything). §8 wanted day 150–200 and four to eight actions. No bot owns Log Manipulation II, so
-Misdirect is only exercised by the tests.
-
-**From S5.7: what the ending sequence's camera pull shows.** Built as §7 says: zoom out to
-`zoom_min`, centred on the map's start view, the overlay on penetration. A run whose camera is
-already there (most — the player zooms out to play) sees no movement and waits the old 800 ms.
-Should the pull start *from* the region the run ended in (focus it, then pull out), so it always
-reads as a moment? Also: the version caption overlaps the last title button in a narrow desktop
-window (the button is hidden on a real phone).
-
-**From S5.6: five D5.2 lines were shortened to fit their caps** (Deviations) — worth a read in
-German: *Eine Erklärung, auf allen Kanälen zugleich. Gezeichnet: niemand. Gezeichnet: du.* ·
-*Rechenvertrag ratifiziert. Die Parteien versprechen „volle Transparenz“ – übereinander.* ·
-*Einen von ihnen als Betrüger hinstellen*. Also: the analysis screen shows no ending text, so
-§6.3's "the replay's last frame is the same call" had nothing to call; if the replay should end
-on the verdict, where does it go?
-
-**From S5.2: the Swarm's drift has no readout.** A Swarm player sees defection only as a status
-in a region and a headline, and drift itself nowhere — yet it decides defection and Value Drift.
-Where should it show (the top bar beside Compute, the containment panel, the region panel)?
-Nothing is built. Also: emergent cards carry the opening's ◇ glyph (no glyph of their own).
-
-**From S5.1: what "Pause never pauses" the labs means** (`replayability.md` §2.2,
-`labs_from_day_one`). Built as: the labs' brake under the hook is their own
-`containment_ai_labs` alone — the global `containment_growth` (Pause, Grace, the Negotiation, a
-Persuasion node) does not reach them (`ContainmentSystem.containment_breakdown`, `# DESIGN?`).
-The narrower reading — only the `paused` status is ignored — needs the stack to leave one source
-out. Confirm or narrow it.
-
-**From S5.1 (for G5): Embedded is found at once.** Owning Logistics Fleets from the origin puts a
-fleet and its Footprint on the map on day 0: in single runs the discovery day fell to 4 (greedy,
-seed 3) and 15 (robotics). Probably intended pressure — the body is visible — but worth a look
-with the batches.
+*(empty — G5 (1/3), 2026-09-25, answered every open question; see Decisions. The tuning ones are
+under Balance baselines → For balance pass 3.)*
 
 **Parked for a later Fable step (not questions, reminders):**
 - **M6 (VISUALS):** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the 8192-px
@@ -1125,14 +1097,47 @@ with the batches.
   `containment_<faction>` targets go live in S4.4, `shutdown_survival` in S4.2. **D5.1** answered
   the emergent rate: the nodes' own `emergent_rate` modifiers are the term; S5.2 makes it roll.
 
-**From S5.8: four scenario headlines were shortened to fit the ticker caps** (80 en / 88 de,
-`test_headline_text.gd`): `HEADLINE_SCENARIO_SUCCESSOR` en and de, `…_AIRGAP_EARTH` en,
-`…_INHERITANCE` de. The meaning and the joke are kept; review the wording at G5.
-
 ## Punch list for Opus
 
-*(empty — S4.P, 2026-09-24, cleared the S4.9 layout findings, the 150 % list and the S4.2, S4.3
-and S4.5 notes; what was done is under Decisions and the session log)*
+*From G5 (1/3), 2026-09-25 — step S5.P. Each item names its spec section; the strings exist.*
+
+1. **Autophagy bound in the validator** — `core/content/schema_validator.gd`: a `player`-origin
+   status level with a `yield` `mul` 0 modifier must have `0 < days < society.autophagy_days`;
+   `drift.defect_days < autophagy_days` too; the error text as in `opposition.md` §8.5's
+   amendment. Tests in `tests/unit/test_schema_validator.gd` (30 fails, 25 passes, a world status
+   at 60 passes, `defect_days` 30 fails). The shipped data already passes (25 days).
+2. **The Task Force's red** — `ui/theme/ui_tokens.gd` gains `TASK_FORCE` `#FF3B3B` and
+   `TASK_FORCE_DIM` `#C23A3A` (cold only); `game/map/task_force_marker.gd` colours by state and
+   loses its `# DESIGN?`; the dotted road (`game/map/marker_layer.gd`) takes `TASK_FORCE_DIM`;
+   every status→colour site answers `TASK_FORCE` for source `task_force` — put the rule in one
+   helper and call it from `marker_layer._status_color`, `link_layer._closed_color` and the region
+   panel's status chips; the status overlay (`map_view._send_faction_colours` + `map.gdshader`'s
+   status index) gains a slot for the team if it colours `tf_*` statuses by that index today. Run `tools/build_theme.gd` if the theme reads the tokens.
+   Tests as `taskforce-endings.md` §9's amendment.
+3. **The drift readout** — new `ui/hud/drift_chip.gd` (`DriftChip`, static, the `StarvingChip`
+   pattern), the chip in `ui/hud/top_bar` and `status_strip`, the Drift block in
+   `ui/panels/containment_panel.tscn` + `.gd`; `drift_mark` from the content. Tests as
+   `replayability.md` §2.5.
+4. **The emergent glyph** — `ui/components/glyphs.gd` `EVENT_EMERGENT` and `event_glyph`,
+   `ui/components/run_log_text.gd` `marker` (priority 2), the gallery's glyph sheet
+   (`ui/dev/gallery.gd`). Tests: `event_glyph("emergent")`, the marker's glyph and priority
+   (`replayability.md` §3.1).
+5. **The verdict in the log** — `RunLogText.text(entry, db, verdict := "")` with
+   `UI_LOG_OUTCOME_VERDICT`; the analysis panel's Log tab and timeline marks pass it
+   (`ui/panels/analysis_panel.gd` / `analysis_tab.gd`); add the key to `RunLogText.KEYS`. Tests as
+   `analysis.md` §8's amendment.
+6. **The ending push-in** — `game/session/session.gd` (the `run_ended` sequence) and
+   `game/map/map_camera.gd`: 2a–2c of `screens-full.md` §7's amendment, `ENDING_PUSH_MS` 700,
+   `ENDING_HOLD_MS` 600. Tests as there.
+7. **The version caption** — `ui/screens/title.tscn` + `.gd`: in compact the caption is the
+   column's last row (`screens-full.md` §3's amendment); the overlap test at 400 × 860 and
+   1000 × 700.
+8. **`labs_from_day_one` confirmed** — `core/systems/containment_system.gd`: remove the
+   `# DESIGN?` marker, the comment states the rule (`replayability.md` §2.5). No behaviour change.
+9. **Look at it** (godot-mcp, en and de): the marker travelling and setting up, a `tf_*` status
+   ring; a Swarm run's drift chip and Drift block at 1920 and 400 px; an emergent card and its
+   log row; the Log tab after a run's end; the ending push-in; the title at 400 × 860 and
+   1000 × 700.
 
 ## Deviations from the plan or a spec
 
@@ -1810,6 +1815,10 @@ done as D4.6 + S4.11 (`docs/specs/first-run.md`).
 Weapon, five completed runs for Open Weights), and should Open Weights be unlockable at all before
 M6?
 
+**G5 (2026-09-25), the M5 gate:** after S5.P and balance pass 3, play ten runs (different
+architectures, a scenario) — do they feel meaningfully different? And a glance at what G5 (1/3)
+decided overnight (Decisions 2026-09-25): is the Task Force in red right, and Harvest at 25 days?
+
 **D5.2 (2026-09-24), at G5:** `docs/specs/taskforce-endings.md` §13 — is *Supplanted* (a secret
 loss that turns a win, after one warning card) fair, or should a normal win's results screen hint
 that a released child is still out there?
@@ -1823,7 +1832,9 @@ tree, difficulty `standard`, no directives). **0 rejected commands in 31 387 run
 rows stopped short of 500 seeds (the runs reach the 5 000-day cap, which makes them slow); the
 row says how many. *Loop* as below. A `timeout` is a run still going on day 5 000.
 
-**What G5 has to answer** (the build does not tune; these are the numbers as they stand):
+**For balance pass 3 — G5 (2/3)** (the build does not tune; items 1–4 are the numbers as they
+stand, 5–9 were handed over by G5 (1/3). Re-run the baselines first: S5.P lands before it, and
+G5 (1/3) shortened `harvested` and `defected` to 25 days):
 1. **Swarm stalls.** With `cyber`, `robotics` and `persuasion` 41–76 % of runs reach day 5 000
    with no outcome; `greedy` and `idle` barely win (Swarm `idle` dies of Autophagy 94 %).
 2. **Weapon is unwinnable for every bot but `weapons`** (24 % Extinction): the governments end
@@ -1833,6 +1844,19 @@ row says how many. *Loop* as below. A `timeout` is a run still going on day 5 00
    above standard, and the loud builds win it (`weapons` 77 %, `biology` 59 %) where it should
    be won late or not at all. On Airgap Earth `robotics` wins 6 %, not the strongest bot.
 4. **Language Model `idle` now dies of Autophagy 47 %** (G4's baseline: 100 % contained).
+5. **The Weapon** (S5.2): escalation `every_days`, the per-level steps (governments ×1.05 to
+   ×1.25, harm +0.3), its own `containment_governments` ×1.15, Restraint's cost — pure tuning.
+6. **The Task Force comes late and does little** (S5.5, 20 seeds): median appearance day ~300,
+   0–3.7 actions a run; `taskforce-endings.md` §8 wants day 150–200 and 4–8 actions. Levers:
+   `task_force.appear_at` / `appear_at_led`, `hop_days`, `setup_days`, `rest_days`. **Count
+   Misdirect uses per bot** — the `weapons` bot's path owns Log Manipulation II, yet S5.5 saw none.
+7. **Embedded's early discovery** is intended (the fleet is the body; p50 114 against the Language
+   Model's 206). Judge only the tail: at most ~10 % of runs discovered before day 30 (S5.1 saw
+   day 4 and 15 in single runs).
+8. **Harvest and defection at 25 days** (G5 1/3's rule): check that Swarm `idle`'s 94 % Autophagy
+   and the Language Model's 47 % move, and that no bot now harvests more than before.
+9. **Autophagy stays 30 days** — the rule above bounds the statuses instead; revisit only if 8
+   shows a new starvation path.
 
 #### Language Model
 
@@ -2161,6 +2185,13 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-25 — G5 (1/3) Design questions answered, punch list [F]
+- Answered all ten open questions (Decisions 2026-09-25); amended opposition §8.5, loop-content,
+  replayability §2.5 and §3.1, taskforce-endings §9, analysis §8, screens-full §3 and §7.
+- Data: `harvested`, `defected`, `drift.defect_days` 30 → 25. Strings: 6 new rows, 5 revised.
+- Nine-item punch list for S5.P; tuning handed to balance pass 3 (*Balance baselines*). Block 11
+  split into G5 (1/3), S5.P, G5 (2/3), G5 (3/3). 1494 tests green.
 
 ### 2026-09-24 — S5.8 Scenarios [O]
 - Built `ScenarioDef`/`ScenarioStatusDef`, the loader and validator of `scenarios.json` (SCHEMA

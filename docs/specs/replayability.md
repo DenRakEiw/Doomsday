@@ -92,7 +92,7 @@ is read in exactly one place:
 - **Flag `network_presence`** (SCHEMA §4.3): granted by `cloud_federation`, `research_networks`,
   `model_update_channels`, `bandwidth_shaping` (added to those nodes in S5.1). Read by the
   `no_network` hook only; inert on every other architecture.
-- **Status `defected`** (regional, 30 days, `yield` ×0, `footprint` +1, code *DF*) and
+- **Status `defected`** (regional, 25 days since G5 1/3 — `opposition.md` §8.5's amendment, `yield` ×0, `footprint` +1, code *DF*) and
   **status `escalating`** (global, five levels, standing) — `statuses.json` rows, §8.4.
 - **Ability `restrain`** (global, cost 6, cooldown 40, applies `end_statuses`-like "down one level"
   — expressed as the effect **`status_level_add {status, value}`** (new one-shot effect, S5.2:
@@ -105,6 +105,43 @@ is read in exactly one place:
 `restrain` is granted by the architecture, not by a node: `architectures.json` lists
 `"abilities": ["restrain"]`, and `Simulation.ability_level` answers 1 for them. Its text says what
 it costs: holding a weapon down is the one expense the other architectures never pay.
+
+### 2.5 G5 (1/3) amendments
+
+**`labs_from_day_one` — the broad reading is the rule** (S5.1's `# DESIGN?`). On a Research Agent
+the AI Labs' brake is **their own `containment_ai_labs` alone**: the global `containment_growth`
+stack — Pause, Grace, the Negotiation, every Persuasion node — does not reach them. Why: the lab
+watches the agent directly, every day; nothing the agent does to the *world* changes what its own
+lab sees. Only what is aimed at the labs (`containment_ai_labs`: the Obedient Shell directive, the
+nodes that carry it) slows them — the string `ARCH_RESEARCH_AGENT_DETAIL` already says "nothing
+you do pauses them". `ContainmentSystem.containment_breakdown` stays as built; S5.P removes the
+`# DESIGN?` marker and states the rule in the comment. The containment panel's labs track already
+shows the brakes the rule leaves (`UI_CONTAINMENT_BRAKES` from `breakdown.brakes`).
+
+**The drift readout (Swarm).** Drift decides defection and Value Drift, so it is shown wherever
+the architecture has the `drift` hook — read from the run's architecture def, never an id check —
+from the origin day on, before discovery too:
+
+1. **Top bar** (`ui/hud/top_bar`), after the Compute cell, before the day cell: a `Chip`
+   `UI_HUD_DRIFT` (`{value}` = `world.agent.drift` rounded down, `Format` PLAIN), tooltip
+   `UI_HUD_DRIFT_TIP`. `ChipAccent` once `drift ≥ drift_mark` (below), default `Chip` under it.
+   Never `ALERT` — drift is a state, not a moment. The rule lives in one static helper, `DriftChip`
+   (`ui/hud/drift_chip.gd`, the `StarvingChip` pattern). **Compact:** the same chip in the status
+   strip's second row, before the starving chip (opposition §9.4).
+2. **Containment panel**, a *Drift* block after the Task Force block (the same shape: a
+   `LabelHeading` `UI_DRIFT_TITLE`, then) a `StatBar` 0…100 with the default fill and one tick at
+   `drift_mark`; a `LabelCaption` `UI_DRIFT_STATE` (`{value}` as above, `{percent}` =
+   `Format.percent_fine(world.agent.drift / 100 × b.drift.defect_chance)` — today's defection chance); a
+   `LabelCaption` in `TEXT_1` `UI_DRIFT_HINT` (`{threshold}` = `drift_mark`). Unlike the Task
+   Force block it is visible before discovery. Hidden (not greyed) on every other architecture.
+3. **`drift_mark`** = the smallest `drift_min` any event def's `when` names (today only Value
+   Drift's 60), read once from the `ContentDB` when the HUD and the panel bind; no `drift_min`
+   anywhere → no tick, no accent, and `UI_DRIFT_HINT` is not shown.
+4. Refreshed on every `tick_advanced`, `run_started` and load, like the starving chip.
+
+Tests (S5.P): the chip and the block exist on Swarm and not on Language Model; the chip turns
+accent at the mark; the percent follows `drift` and `defect_chance`; `drift_mark` comes from the
+data (a fixture event with `drift_min` 40 moves the tick).
 
 ---
 
@@ -134,6 +171,14 @@ it costs: holding a weapon down is the one expense the other architectures never
   new vocabulary for one card. G5 revisits it if playtests miss a second meeting.
 - "They are free": keeping never raises a node's cost.
 - Every emergent card says in its body what the behaviour does, by outcome, never by method.
+- **Glyph (G5 1/3):** the kind `emergent` gets its own glyph, `Glyphs.Glyph.EVENT_EMERGENT` — a
+  six-armed spark: three 2 px strokes through the centre of the 24 px grid, each 16 px long, at
+  90°, 30° and 150°, square ends (the family of `EVENT_OPENING`'s ◇ and `EVENT_CHAIN`'s »), drawn
+  in `ACCENT` (it is the agent's own behaviour). It replaces the opening's ◇ wherever an emergent
+  def shows its kind: `Glyphs.event_glyph("emergent")` (the wire card's kind glyph and any map
+  or pending-event mark), `RunLogText.marker` for an `event_opened` of kind `emergent`
+  (`EVENT_EMERGENT`, `ACCENT`, **priority 2**, the chain's — so emergent cards become timeline
+  strip marks, `analysis.md` §7), and the gallery's glyph sheet.
 
 ### 3.2 The twelve (CONTENT §5)
 

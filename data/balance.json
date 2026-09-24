@@ -147,7 +147,7 @@
 		"max_open": 3
 	},
 	"emergent": {"base_chance": 0.012, "suppress_cost": 4.0, "suppress_step": 0.5},
-	"drift": {"per_kept": 8.0, "per_day": 0.05, "per_suppressed": 6.0, "defect_chance": 0.02, "defect_min_penetration": 0.3, "defect_days": 30},
+	"drift": {"per_kept": 8.0, "per_day": 0.05, "per_suppressed": 6.0, "defect_chance": 0.02, "defect_min_penetration": 0.3, "defect_days": 25},
 	"escalation": {"every_days": 60, "hold_days": 60},
 	"distributed": {"floor": 0.05, "start_penetration": 0.05, "hold_regions": 10},
 	"difficulty": {"cost_by_control": 1.0},

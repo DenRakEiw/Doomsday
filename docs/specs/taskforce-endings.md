@@ -419,6 +419,29 @@ four to eight actions; `switch_off` only after containment 0.8. A player who ans
   Misdirect to the lowest-value region when owned, else nothing — through the weight vocabulary
   of S4.10, never an id check.
 
+**G5 (1/3) amendment — the team's own colour** (S5.5's `# DESIGN?`: "the world-status colour" came
+out as `ACCENT`, the player's cyan). The team is the one thing on the map that hunts you in
+person, so it wears red — `ALERT`'s hue, which keeps meaning *now* in both palettes (the Open
+variant does not remap it). Two new colour tokens in `UiTokens` (§3.1 data colours, cold set
+only; the `OPEN` table does not list them, like `ALERT`):
+
+| Token | Value | Used for |
+| --- | --- | --- |
+| `TASK_FORCE` | `#FF3B3B` (= `ALERT`) | the marker's stroke and countdown ring **while it sets up** (the moment before it acts); every `tf_*` status: its ring on the status overlay, its map marker, its chip in the region panel |
+| `TASK_FORCE_DIM` | `#C23A3A` (≥ 3 : 1 on `BG_2` in both palettes) | the marker's stroke **while it travels or rests**, and the dotted road to its target |
+
+- A status belongs to the team when its **source** is `TaskForceSystem.SOURCE` (`"task_force"`),
+  never by the `tf_` id prefix; that is the one new branch in the status→colour rule (loop-
+  mechanics §16.3.1): player → `ACCENT`, source `task_force` → `TASK_FORCE`, a faction's →
+  its faction colour, any other world status → `ACCENT` as now.
+- The marker's badge fill stays `BG_2`, its code letters `TEXT_0`.
+- The containment panel's Task Force row and the region panel's Task Force row keep their text
+  colours; their leading glyph (if any) takes `TASK_FORCE`.
+- `ALERT` itself is untouched; the discovered `!` and the starving chip keep it.
+
+Tests (S5.P): the marker's colour is `TASK_FORCE_DIM` while travelling and `TASK_FORCE` while
+setting up; a `tf_*` status resolves to `TASK_FORCE` and a player status still to `ACCENT`.
+
 ---
 
 ## 10. Strings

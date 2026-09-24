@@ -469,6 +469,23 @@ variants: `dormancy_changed` → `UI_LOG_DORMANCY_ON` / `_OFF`; `ability_used` w
 `_GLOBAL`. An id the content no longer has (a save from an older content set) renders the id
 itself, never an empty string.
 
+**G5 (1/3) amendment — the verdict at the end of the run's record** (`taskforce-endings.md` §6.3
+said "the replay's last frame is the same call"; there is no replay view in M5 — the analysis
+sheet in review *is* the replay). The `outcome_reached` entry carries the ending's verdict:
+
+```gdscript
+static func text(entry: RunLogEntry, db: ContentDB, verdict: String = "") -> String
+```
+
+With `verdict` non-empty and `entry.type == outcome_reached`, the text is
+`UI_LOG_OUTCOME_VERDICT` (`{outcome}` as before, `{verdict}` = the given, already translated
+line); otherwise unchanged (`UI_LOG_OUTCOME_REACHED`). The callers that have the world — the Log
+tab's list and the timeline strip's marks (§7, the outcome mark's `text`) — pass
+`tr("UI_RESULT_LINE_" + EndingResolver.resolve(world, db)["variant"].to_upper())` while
+`world.outcome != NONE`, else `""`. Epilogue lines are **not** added (the results modal keeps
+them). Test (S5.P): a finished run's last log row and the strip's outcome mark read the variant's
+line; a running world's rows are unchanged.
+
 Row glyphs (16 px): the marker's glyph and colour when `marker` is non-empty; otherwise `›` in
 `ACCENT` for *yours*, `·` in `TEXT_1` for *theirs*. Marker glyphs: `event_opened` chain `»`
 `TEXT_0`, opening `◇` `ACCENT`, counter-move `!` in `UiTokens.faction_color(faction)`;

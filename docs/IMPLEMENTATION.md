@@ -289,7 +289,10 @@ before the *next* row; "—" means stay on the same model.
 | 61 | S5.6 Endings | [O] | — |
 | 62 | S5.7 Screen flow complete | [O] | — |
 | 63 | S5.8 Scenarios *(stretch)* | [O] | **`/model fable`** |
-| 64 | G5 Balance pass 3, M5 gate, detailed plan for M6–M7 | **[F]** | per new plan |
+| 64 | G5 (1/3) Design questions answered, punch list *(split 2026-09-25)* | **[F]** | — |
+| 64a | S5.P Punch list from G5 (1/3) | [O] | — |
+| 64b | G5 (2/3) Balance pass 3 | **[F]** | — |
+| 64c | G5 (3/3) Detailed D/S plan for M6–M7; the M5 gate with the user | **[F]** | per new plan |
 
 Design runs a block ahead of the build on purpose. The cost is that a spec can be overtaken by what
 the build learns; the remedy is the *Deviations* and *Design questions* sections of `PROGRESS.md`,
@@ -831,6 +834,22 @@ Each step reads its section of the corresponding spec.
 **Done when:** ten consecutive runs feel meaningfully different to the user. Decide CONTENT
 question 4 (Containment mode). **Break M6 and M7 into D/S steps here** — the outline below is
 deliberately coarse because it depends on what M3–M5 taught us.
+
+*Split on 2026-09-25 into four sessions (one step each, `/clear` between):*
+
+- **G5 (1/3) [F] — design questions and punch list.** Answer every entry under *Design questions
+  for Fable*; amend the specs; write any new strings; list pure tuning under *Balance baselines →
+  For balance pass 3*; the build consequences become the *Punch list for Opus*.
+- **S5.P [O] — punch list from G5 (1/3).** Build the list (each item names its spec section);
+  tests, a look in the running game. Skip if empty.
+- **G5 (2/3) [F] — balance pass 3.** Re-run the 500-seed baselines per architecture and
+  scenario on the S5.P tree, then tune *For balance pass 3* (Swarm's stalls, the Weapon, the
+  scenarios' targets, the Task Force's timing, Embedded's tail, the 25-day statuses); record the
+  pass in `docs/BALANCE.md` §5 as G4 did in §4.
+- **G5 (3/3) [F] — the plan for M6–M7.** Break the outlines below into D/S steps with *Read
+  first* lists and the run sheet rows; confirm CONTENT q4 (D5.4 answered it: a mode, post-launch).
+  The M5 gate's verdict — the ten runs — is the user's and stays under *Waiting on the user*
+  until given; the plan does not wait for it.
 
 ## M6 — Production polish (outline)
 
