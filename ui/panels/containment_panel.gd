@@ -21,6 +21,12 @@ const KEY_CAUSE_DEATHS: String = "UI_DISCOVERY_CAUSE_DEATHS"
 const PREFIX_FACTION: String = "FACTION_"
 const PLACEHOLDER_PERCENT: String = "percent"
 const PLACEHOLDER_DAY: String = "day"
+## `replayability.md` §2.5 (G5 1/3): the Swarm's Drift block.
+const KEY_DRIFT_TITLE: String = "UI_DRIFT_TITLE"
+const KEY_DRIFT_STATE: String = "UI_DRIFT_STATE"
+const KEY_DRIFT_HINT: String = "UI_DRIFT_HINT"
+const PLACEHOLDER_VALUE: String = "value"
+const PLACEHOLDER_THRESHOLD: String = "threshold"
 
 ## The three terms of the discovery risk, in the order §4.1 lists them.
 const RISK_KEYS: Array[String] = ["UI_CONTAINMENT_RISK_TIME", "UI_CONTAINMENT_RISK_FOOTPRINT",
@@ -38,18 +44,26 @@ const RISK_FIELDS: Array[String] = [ContainmentSystem.RISK_TIME, ContainmentSyst
 @onready var _task_force_block: Control = %TaskForceBlock
 @onready var _task_force_title: Label = %TaskForceTitle
 @onready var _task_force_state: Label = %TaskForceState
+@onready var _drift_block: Control = %DriftBlock
+@onready var _drift_title: Label = %DriftTitle
+@onready var _drift_bar: StatBar = %DriftBar
+@onready var _drift_state: Label = %DriftState
+@onready var _drift_hint: Label = %DriftHint
 @onready var _not_yet: Label = %NotYet
 @onready var _thresholds: Label = %ThresholdsHint
 
 ## Faction id → its track, built once per run.
 var _track_nodes: Dictionary[String, FactionTrack] = {}
 var _risk_values: Array[Label] = []
+## The drift the block's tick sits at, read once per run (`DriftChip.mark`).
+var _drift_mark: float = DriftChip.NO_MARK
 
 
 func _ready() -> void:
 	super()
 	add_to_group(CoachRing.group(CoachRing.TARGET_CONTAINMENT_PANEL))
 	_build_risk_rows()
+	_bind_drift()
 	_close_button.pressed.connect(close)
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.run_started.connect(_on_run_started)
@@ -72,6 +86,7 @@ func refresh() -> void:
 	_apply_status(world)
 	_apply_tracks(world)
 	_apply_task_force(world)
+	_apply_drift()
 
 
 func open() -> void:
@@ -83,6 +98,9 @@ func _refresh_strings() -> void:
 	_title.text = tr(KEY_TITLE)
 	_tracks_title.text = tr(KEY_TRACKS)
 	_task_force_title.text = tr(TaskForceText.KEY_TITLE)
+	_drift_title.text = tr(KEY_DRIFT_TITLE)
+	_drift_hint.text = tr(KEY_DRIFT_HINT).format({PLACEHOLDER_THRESHOLD:
+		Format.number(_drift_mark, Format.Kind.PLAIN)})
 	_not_yet.text = tr(KEY_NOT_YET)
 	_thresholds.text = tr(KEY_THRESHOLDS)
 	for i: int in RISK_KEYS.size():
@@ -166,6 +184,39 @@ func _apply_task_force(world: World) -> void:
 		_task_force_state.text = TaskForceText.state_line(world, Game.db)
 
 
+## `replayability.md` §2.5: the Drift block after the Task Force's — on every
+## architecture with the `drift` hook, before discovery too; hidden, not greyed,
+## everywhere else.
+func _apply_drift() -> void:
+	_drift_block.visible = DriftChip.shows(Game.sim)
+	if not _drift_block.visible:
+		return
+	var drift: int = DriftChip.value(Game.sim)
+	_drift_bar.set_value_raw(Game.sim.world.agent.drift / DriftSystem.DRIFT_MAX, float(drift),
+		Format.Kind.PLAIN)
+	_drift_state.text = tr(KEY_DRIFT_STATE).format({
+		PLACEHOLDER_VALUE: Format.number(float(drift), Format.Kind.PLAIN),
+		PLACEHOLDER_PERCENT: Format.percent_fine(DriftChip.defect_chance(Game.sim))})
+
+
+## The mark comes from the content: the bar's one tick, and the hint that names
+## it — both absent when no event names a drift threshold.
+func _bind_drift() -> void:
+	_drift_mark = DriftChip.mark(Game.db)
+	var ticks: Array[float] = []
+	if _drift_mark != DriftChip.NO_MARK:
+		ticks.append(_drift_mark / DriftSystem.DRIFT_MAX)
+	_drift_bar.ticks = ticks
+	_drift_hint.visible = _drift_mark != DriftChip.NO_MARK
+	_drift_hint.text = tr(KEY_DRIFT_HINT).format({PLACEHOLDER_THRESHOLD:
+		Format.number(_drift_mark, Format.Kind.PLAIN)})
+
+
+## The drift tick, for the tests; empty without a mark.
+func drift_ticks() -> Array[float]:
+	return _drift_bar.ticks
+
+
 # --------------------------------------------------------------------- rows
 
 
@@ -185,6 +236,7 @@ func _on_tick_advanced(_day: int) -> void:
 
 func _on_run_started(_seed_value: int) -> void:
 	close()
+	_bind_drift()
 	for child: Node in _tracks.get_children():
 		_tracks.remove_child(child)
 		child.queue_free()

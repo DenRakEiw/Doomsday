@@ -372,10 +372,7 @@ func _status_share(status: Status) -> float:
 ## §16.3.1: the colour is read off the **source**, never off the definition —
 ## a world status a chain applied has no faction behind it.
 func _status_color(status: Status) -> Color:
-	var faction: String = status.faction()
-	if faction.is_empty():
-		return UiTokens.color(&"ACCENT")
-	return UiTokens.faction_color(faction)
+	return UiTokens.status_color(status.source)
 
 
 ## The status rings on the map, for the tests.
@@ -476,7 +473,7 @@ func _draw() -> void:
 	# §9: the team's road, from its badge to the target's anchor, dotted because
 	# it is where the team is going, not a link it runs along.
 	if _team != null and _team_line_to > 0 and Game.sim != null:
-		var colour: Color = UiTokens.color(&"ACCENT")
+		var colour: Color = UiTokens.color(&"TASK_FORCE_DIM")
 		colour.a = TEAM_LINE_ALPHA
 		draw_dashed_line(_team.position + TaskForceMarker.centre() / _zoom,
 			Vector2(Game.sim.world.regions[_team_line_to].def.anchor), colour,

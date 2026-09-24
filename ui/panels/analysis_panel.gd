@@ -309,12 +309,13 @@ func _refresh_strings() -> void:
 ## §7: the marks come from the run log; the domain and the bands are the tab's.
 func _refresh_strip(world: World) -> void:
 	var marks: Array[Dictionary] = []
+	var verdict: String = RunLogText.verdict_of(world, Game.db)
 	for entry: RunLogEntry in world.run_log:
 		var mark: Dictionary = RunLogText.marker(entry)
 		if mark.is_empty():
 			continue
 		mark["day"] = entry.day - world.origin_day
-		mark["text"] = RunLogText.text(entry, Game.db)
+		mark["text"] = RunLogText.text(entry, Game.db, verdict)
 		marks.append(mark)
 	var last: int = 0
 	if not world.history.is_empty():
@@ -445,7 +446,9 @@ func _log_row(entry: RunLogEntry, world: World) -> Control:
 	glyph.color_token = mark["token"]
 	row.add_child(glyph)
 	var text: Label = Label.new()
-	text.text = RunLogText.text(entry, Game.db)
+	# analysis.md §8 (G5 1/3): the record ends on the ending's verdict.
+	var verdict: String = RunLogText.verdict_of(world, Game.db) 		if entry.type == SimEvent.OUTCOME_REACHED else ""
+	text.text = RunLogText.text(entry, Game.db, verdict)
 	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text.mouse_filter = Control.MOUSE_FILTER_IGNORE

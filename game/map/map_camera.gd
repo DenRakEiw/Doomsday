@@ -49,6 +49,12 @@ const VELOCITY_FRAMES: int = 3
 ## §7.5: the start view, centred on the inhabited middle of the map.
 const START_CENTER: Vector2 = Vector2(2048.0, 875.0)
 
+## screens-full.md §7 (G5 1/3): the zoom the ending's push-in reaches, as a
+## multiple of `zoom_min`. The spec names `focus_region`'s zoom, which is the
+## current one — at `zoom_min`, where most runs end, that is no push at all.
+# DESIGN? a placeholder factor; the push never zooms out (see PROGRESS.md).
+const ENDING_PUSH_ZOOM_FACTOR: float = 2.0
+
 ## What a node above the map implements to be offered a tap before the land is
 ## picked: `func try_tap(screen: Vector2) -> bool`, true meaning "mine". Asked in
 ## reverse tree order, so the layer drawn last is asked first.
@@ -352,6 +358,31 @@ func pull_out(seconds: float) -> float:
 		return 0.0
 	_tween_to(center, zoom_min, seconds, Tween.EASE_IN_OUT)
 	return seconds
+
+
+## screens-full.md §7 (G5 1/3) beat 2a: the push-in to where the run ended.
+## Locks the map's input like `pull_out` and answers how long the move takes —
+## 0 when there is nothing to do: an unknown region, `seconds` 0 (reduced
+## motion skips the beat), or the camera already centring the region at the
+## push's zoom or closer.
+func push_in(index: int, seconds: float) -> float:
+	input_locked = true
+	_stop_inertia()
+	_panning = false
+	var anchor: Vector2i = _anchor_of(index)
+	if anchor == Vector2i(-1, -1) or seconds <= 0.0:
+		return 0.0
+	var zoom_level: float = maxf(target_zoom(), push_zoom())
+	var center: Vector2 = clamp_center(Vector2(anchor), zoom_level, view_size())
+	if is_equal_approx(zoom_level, target_zoom()) and target_center().is_equal_approx(center):
+		return 0.0
+	_tween_to(center, zoom_level, seconds, Tween.EASE_OUT)
+	return seconds
+
+
+## The zoom the ending's push-in reaches from anything further out.
+func push_zoom() -> float:
+	return minf(ZOOM_MAX, zoom_min * ENDING_PUSH_ZOOM_FACTOR)
 
 
 ## True while a drag is moving the map — `MapView` does not hover then.

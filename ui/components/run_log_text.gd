@@ -15,7 +15,7 @@ const KEYS: Array[String] = ["UI_LOG_ORIGIN_CHOSEN", "UI_LOG_NODE_PURCHASED",
 	"UI_LOG_EVENT_EXPIRED", "UI_LOG_COUNTER_MOVE_PREPARED", "UI_LOG_COUNTER_MOVE_CANCELLED",
 	"UI_LOG_FUNDING_RESET", "UI_LOG_THREAT_LEADER_CHANGED", "UI_LOG_SOCIETY_STAGE_CHANGED",
 	"UI_LOG_REGION_WIPED", "UI_LOG_TF_APPEARED", "UI_LOG_TF_ACTED", "UI_LOG_TF_FIZZLED",
-	"UI_LOG_TF_MISDIRECTED"]
+	"UI_LOG_TF_MISDIRECTED", "UI_LOG_OUTCOME_VERDICT"]
 ## §4.2's *Class* column: the entries that are the player's own doing.
 const YOURS: Array[String] = ["origin_chosen", "node_purchased", "region_controlled",
 	"containment_rolled_back", "harm_burst", "dormancy_changed", "asset_deployed",
@@ -32,15 +32,24 @@ const KEY_PREFIX: String = "UI_LOG_"
 const TASK_FORCE_PREFIX: String = "task_force_"
 const KEY_TASK_FORCE_PREFIX: String = "UI_LOG_TF_"
 const GLOBAL_SUFFIX: String = "_GLOBAL"
+const KEY_OUTCOME_VERDICT: String = "UI_LOG_OUTCOME_VERDICT"
 
 
 ## The entry as one line in the current language, placeholders filled. An id the
 ## content no longer has renders as the id, never as nothing.
-static func text(entry: RunLogEntry, db: ContentDB) -> String:
+##
+## `verdict` is the ending's line, already translated (analysis.md §8, G5 1/3):
+## given, the run's last entry reads `{outcome} — {verdict}`. Only a finished
+## run's callers pass one (`verdict_of`).
+static func text(entry: RunLogEntry, db: ContentDB, verdict: String = "") -> String:
 	var d: Dictionary = entry.data
 	var key: String = KEY_PREFIX + entry.type.to_upper()
 	var args: Dictionary = {}
 	match entry.type:
+		SimEvent.OUTCOME_REACHED:
+			if not verdict.is_empty():
+				key = KEY_OUTCOME_VERDICT
+				args["verdict"] = verdict
 		SimEvent.DORMANCY_CHANGED:
 			key = "UI_LOG_DORMANCY_ON" if bool(d.get("dormant", false)) else "UI_LOG_DORMANCY_OFF"
 		SimEvent.ABILITY_USED:
@@ -80,13 +89,25 @@ static func text(entry: RunLogEntry, db: ContentDB) -> String:
 	return TranslationServer.translate(key).format(args)
 
 
+## The ending's verdict line for a finished run, translated; "" while the run
+## is still going — its log rows then read as they always did.
+static func verdict_of(world: World, db: ContentDB) -> String:
+	if world == null or db == null or world.outcome == World.Outcome.NONE:
+		return ""
+	var variant: String = str(EndingResolver.resolve(world, db).get(
+		EndingResolver.KEY_VARIANT, ""))
+	if variant.is_empty():
+		return ""
+	return TranslationServer.translate(EndingLineDef.verdict_key(variant))
+
+
 ## §4.2's *Class*: yours or theirs.
 static func is_yours(entry: RunLogEntry) -> bool:
 	return YOURS.has(entry.type)
 
 
 ## §7: the strip's mark for an entry, or `{}` — only openings, chain steps,
-## counter-moves, the discovery and the end are marks.
+## emergent behaviours, counter-moves, the discovery and the end are marks.
 static func marker(entry: RunLogEntry) -> Dictionary:
 	match entry.type:
 		SimEvent.OUTCOME_REACHED:
@@ -102,6 +123,10 @@ static func marker(entry: RunLogEntry) -> Dictionary:
 					return _mark(Glyphs.Glyph.EVENT_CHAIN, &"TEXT_0", PRIORITY_CHAIN)
 				EventDef.KIND_OPENING:
 					return _mark(Glyphs.Glyph.EVENT_OPENING, &"ACCENT", PRIORITY_OPENING)
+				# replayability.md §3.1 (G5 1/3): the agent's own behaviour, at
+				# the chain's priority.
+				EventDef.KIND_EMERGENT:
+					return _mark(Glyphs.Glyph.EVENT_EMERGENT, &"ACCENT", PRIORITY_CHAIN)
 	return {}
 
 

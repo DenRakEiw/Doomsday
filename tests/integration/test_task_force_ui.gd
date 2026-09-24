@@ -101,6 +101,45 @@ func test_the_watcher_node_shows_the_road_too() -> void:
 	assert_eq(int(_markers().call("team_line_target")), _index_of(NEIGHBOUR))
 
 
+## §9's G5 (1/3) amendment: the team wears red — dimmed on the move, full in
+## the moment before it acts.
+func test_the_marker_is_dim_red_while_travelling_and_red_while_setting_up() -> void:
+	_place(TaskForce.STATE_TRAVEL, ORIGIN, NEIGHBOUR)
+	assert_eq(_team_marker().stroke_color(), UiTokens.color(&"TASK_FORCE_DIM"))
+	_place(TaskForce.STATE_REST, ORIGIN)
+	assert_eq(_team_marker().stroke_color(), UiTokens.color(&"TASK_FORCE_DIM"))
+	_place(TaskForce.STATE_SETUP, ORIGIN, ORIGIN, "grid_down")
+	assert_eq(_team_marker().stroke_color(), UiTokens.color(&"TASK_FORCE"))
+
+
+func test_a_team_status_is_red_and_a_player_status_still_accent() -> void:
+	assert_eq(UiTokens.status_token(TaskForceSystem.SOURCE), &"TASK_FORCE")
+	assert_eq(UiTokens.status_color(TaskForceSystem.SOURCE), UiTokens.color(&"TASK_FORCE"))
+	var ability: String = Status.source_for(Status.SOURCE_ABILITY, "harvest")
+	assert_eq(UiTokens.status_token(ability), &"ACCENT")
+	var faction: String = Status.source_for(Status.SOURCE_FACTION, "governments")
+	assert_eq(UiTokens.status_token(faction), &"FACTION_GOVERNMENTS")
+
+
+## By its source, never by the `tf_` prefix of its id.
+func test_a_status_is_the_teams_by_its_source_not_its_id() -> void:
+	var events: Array[SimEvent] = []
+	var region: int = _index_of(NEIGHBOUR)
+	var status: Status = StatusSystem.apply(Game.sim.world, Game.db, "tf_raid", region,
+		TaskForceSystem.SOURCE, 1, "", events)
+	assert_eq(RegionData.status_index(Game.sim.world, region), RegionData.STATUS_TASK_FORCE)
+	var chip: Chip = Chip.new()
+	add_child_autofree(chip)
+	chip.set_status_source(status.source)
+	assert_eq(chip.kind, Chip.Kind.TASK_FORCE)
+	assert_eq(String(chip.theme_type_variation), "ChipTaskForce")
+	StatusSystem.end(Game.sim.world, Game.db, status, StatusSystem.CAUSE_ENDED, events)
+	StatusSystem.apply(Game.sim.world, Game.db, "tf_raid", region,
+		Status.source_for(Status.SOURCE_EFFECT, "test"), 1, "", events)
+	assert_eq(RegionData.status_index(Game.sim.world, region), RegionData.STATUS_PLAYER,
+		"the same id from any other source keeps the old colour")
+
+
 func test_the_marker_goes_when_the_team_does() -> void:
 	_place(TaskForce.STATE_REST, ORIGIN)
 	Game.sim.world.task_force = TaskForce.new()

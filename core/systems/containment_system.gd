@@ -78,9 +78,11 @@ static func containment_breakdown(world: World, db: ContentDB, faction_id: Strin
 	var capacity: float = _capacity(world, db, definition.capacity_attr)
 	var brakes: float = world.modifiers.value("containment_growth") \
 		* world.modifiers.value(definition.brake)
-	# DESIGN? `labs_from_day_one` says Pause never pauses the labs. Read here as:
-	# the global brake (Pause, Grace, a persuasion node) does not reach them, only
-	# their own `containment_ai_labs` does. PROGRESS, *Design questions*.
+	# `labs_from_day_one` (replayability.md §2.5): on a Research Agent the lab
+	# watches the agent directly, every day, so nothing done to the world — the
+	# global `containment_growth` stack of Pause, Grace, the Negotiation and the
+	# Persuasion nodes — slows it. Only what is aimed at the labs, their own
+	# `containment_ai_labs`, brakes them.
 	if holds_steady(world, db, faction_id):
 		brakes = world.modifiers.value(definition.brake)
 	# G4 (BALANCE §4.3): brakes still matter, down to the floor, and no build

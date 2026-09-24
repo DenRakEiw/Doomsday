@@ -44,6 +44,8 @@ const GLOBE_COMPACT_HEIGHT_SHARE: float = 0.45
 @onready var _globe_box: Control = %GlobeBox
 @onready var _globe: Globe = %Globe
 @onready var _version: Label = %VersionLabel
+@onready var _buttons: Control = %Buttons
+@onready var _corner: Control = $Corner
 @onready var _settings_menu: Control = %TitleSettings
 @onready var _codex: Control = %Codex
 @onready var _statistics: Control = %Statistics
@@ -148,6 +150,25 @@ func _fit() -> void:
 		_column.custom_minimum_size.x = COLUMN_MAX_WIDTH
 		diameter = minf(view.y * GLOBE_HEIGHT_SHARE, view.x * GLOBE_WIDTH_SHARE)
 	_globe.custom_minimum_size = Vector2(diameter, diameter)
+	_place_version(compact)
+
+
+## §3's G5 (1/3) amendment: in the corner the caption covered the last button
+## of a narrow window, so in compact it is the column's last row instead — in
+## the buttons' stack, `SPACE_2` under Quit, right-aligned. The same label moves;
+## its text is set once.
+func _place_version(compact: bool) -> void:
+	var home: Control = _buttons if compact else _corner
+	if _version.get_parent() != home:
+		_version.reparent(home, false)
+	home.move_child(_version, home.get_child_count() - 1)
+	_version.size_flags_horizontal = Control.SIZE_SHRINK_END if compact 		else Control.SIZE_FILL
+	_version.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+
+
+## The version caption, for the tests.
+func version_label() -> Label:
+	return _version
 
 
 func _on_new_run_pressed() -> void:

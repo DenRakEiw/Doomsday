@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://ui/panels/containment_panel.gd" id="1_containment"]
 [ext_resource type="Script" path="res://ui/components/icon_button.gd" id="2_icon_button"]
 [ext_resource type="Script" path="res://ui/components/chip.gd" id="3_chip"]
 [ext_resource type="Script" path="res://ui/components/console_panel.gd" id="4_console_panel"]
+[ext_resource type="PackedScene" path="res://ui/components/stat_bar.tscn" id="5_stat_bar"]
 
 [node name="ContainmentPanel" type="Control"]
 layout_mode = 3
@@ -101,6 +102,34 @@ theme_type_variation = &"LabelHeading"
 [node name="TaskForceState" type="Label" parent="Panel/Scroll/Body/TaskForceBlock"]
 unique_name_in_owner = true
 layout_mode = 2
+autowrap_mode = 3
+
+[node name="DriftBlock" type="VBoxContainer" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"StackTight"
+
+[node name="DriftTitle" type="Label" parent="Panel/Scroll/Body/DriftBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelHeading"
+
+[node name="DriftBar" parent="Panel/Scroll/Body/DriftBlock" instance=ExtResource("5_stat_bar")]
+unique_name_in_owner = true
+layout_mode = 2
+show_head = false
+
+[node name="DriftState" type="Label" parent="Panel/Scroll/Body/DriftBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+autowrap_mode = 3
+
+[node name="DriftHint" type="Label" parent="Panel/Scroll/Body/DriftBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelCaptionHint"
 autowrap_mode = 3
 
 [node name="NotYet" type="Label" parent="Panel/Scroll/Body"]

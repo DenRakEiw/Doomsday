@@ -50,12 +50,16 @@ uniform vec4 faction_1 : source_color;
 uniform vec4 faction_2 : source_color;
 uniform vec4 faction_3 : source_color;
 uniform vec4 faction_4 : source_color;
+// The Response Task Force's own red (taskforce-endings 9, G5 1/3).
+uniform vec4 task_force : source_color;
 uniform float hover_gain;
 // `UiTokens.MAP_OVERLAY_MIX`: how much of the ramp's colour covers the land.
 uniform float overlay_mix;
 
-// The colour of row 1's status index: 1 is the player's, 2…5 a faction's.
+// The colour of row 1's status index: 1 is the player's, 2…5 a faction's,
+// 6 the Task Force's.
 vec3 status_color(int index) {
+	if (index == 6) { return task_force.rgb; }
 	if (index == 2) { return faction_1.rgb; }
 	if (index == 3) { return faction_2.rgb; }
 	if (index == 4) { return faction_3.rgb; }

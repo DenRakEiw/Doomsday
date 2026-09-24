@@ -78,6 +78,11 @@ var _speed_buttons: Array[IconButton] = []
 var _pending: Chip = null
 ## §9.4: shown while the agent is starving, `ALERT` in the last days.
 var _starving: Chip = null
+## `replayability.md` §2.5: the Swarm's drift, after the compute cell. On a
+## phone the status strip carries it instead.
+var _drift: Chip = null
+## The drift the chip lights at, read once per run (`DriftChip.mark`).
+var _drift_mark: float = DriftChip.NO_MARK
 
 
 func _ready() -> void:
@@ -96,6 +101,10 @@ func _ready() -> void:
 	_starving = StarvingChip.create()
 	_row_main.add_child(_starving)
 	_row_main.move_child(_starving, _pending.get_index())
+	_drift = DriftChip.create()
+	_row_main.add_child(_drift)
+	_row_main.move_child(_drift, _compute_cell.get_index() + 1)
+	_drift_mark = DriftChip.mark(Game.db)
 	_build_speed_buttons()
 	_menu_button.pressed.connect(menu_requested.emit)
 	_apply_compact()
@@ -132,6 +141,9 @@ func refresh() -> void:
 	_set_phase(world.phase)
 	_refresh_pending(world)
 	StarvingChip.apply(_starving, Game.sim)
+	DriftChip.apply(_drift, Game.sim, _drift_mark)
+	if compact:
+		_drift.visible = false
 
 
 ## The global events standing open — only a person answers them, so a bot run
@@ -148,6 +160,11 @@ func _refresh_pending(world: World) -> void:
 func _on_hold_changed(_held: bool) -> void:
 	if Game.sim != null:
 		_refresh_pending(Game.sim.world)
+
+
+## The drift chip, for the tests.
+func drift_chip() -> Chip:
+	return _drift
 
 
 ## The starving chip, for the tests.
@@ -235,6 +252,9 @@ func _apply_compact() -> void:
 	var row_height: int = UiTokens.TOP_BAR_ROW_HEIGHT if compact else UiTokens.TOP_BAR_HEIGHT
 	_row_main.custom_minimum_size.y = float(row_height)
 	_row_second.custom_minimum_size.y = float(UiTokens.TOP_BAR_ROW_HEIGHT)
+	# The drift chip is the strip's on a phone (replayability.md §2.5).
+	if _drift != null:
+		refresh()
 
 
 func _move(node: Control, parent: Container) -> void:
@@ -246,6 +266,7 @@ func _move(node: Control, parent: Container) -> void:
 
 
 func _on_run_started(_seed_value: int) -> void:
+	_drift_mark = DriftChip.mark(Game.db)
 	refresh()
 
 

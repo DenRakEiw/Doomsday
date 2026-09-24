@@ -188,3 +188,48 @@ func test_a_wrapped_log_row_makes_its_button_taller() -> void:
 	var row: Control = button.find_children("*", "HBoxContainer", false, false)[0] as Control
 	assert_gt(row.get_combined_minimum_size().y, float(UiTokens.HIT_MIN), "the line wraps")
 	assert_gte(button.size.y, row.get_combined_minimum_size().y)
+
+
+## analysis.md §8's G5 (1/3) amendment: the record ends on the verdict — the
+## Log tab's last row and the strip's outcome mark both read it.
+func test_a_finished_runs_record_ends_on_the_verdict() -> void:
+	_start()
+	var world: World = Game.sim.world
+	world.outcome = World.Outcome.LOSE_CONTAINED
+	world.run_log.append(RunLogEntry.create(world.day, SimEvent.OUTCOME_REACHED,
+		{"outcome": World.OUTCOME_IDS[world.outcome]}))
+	var verdict: String = tr(EndingLineDef.verdict_key(str(
+		EndingResolver.resolve(world, Game.db)[EndingResolver.KEY_VARIANT])))
+	assert_false(verdict.is_empty())
+	_panel.open()
+	_panel.select_tab(AnalysisPanel.Tab.LOG)
+	var rows: Array[Control] = _panel.log_rows()
+	assert_true(_row_text(rows.back()).contains(verdict), _row_text(rows.back()))
+	assert_eq(_outcome_mark_text(), RunLogText.text(world.run_log.back(), Game.db, verdict))
+	assert_true(_outcome_mark_text().contains(verdict))
+
+
+func test_a_running_worlds_rows_carry_no_verdict() -> void:
+	_start()
+	var world: World = Game.sim.world
+	var entry: RunLogEntry = RunLogEntry.create(world.day, SimEvent.OUTCOME_REACHED,
+		{"outcome": "lose_contained"})
+	assert_eq(RunLogText.verdict_of(world, Game.db), "", "no outcome, no verdict")
+	assert_eq(RunLogText.text(entry, Game.db, RunLogText.verdict_of(world, Game.db)),
+		RunLogText.text(entry, Game.db))
+
+
+func _row_text(row: Control) -> String:
+	var out: String = ""
+	for label: Node in row.find_children("*", "Label", true, false):
+		out += (label as Label).text
+	return out
+
+
+func _outcome_mark_text() -> String:
+	var slots: Dictionary[int, Array] = _panel.strip().slots()
+	for slot: int in slots:
+		for mark: Variant in slots[slot]:
+			if (mark as Dictionary)["glyph"] == Glyphs.Glyph.OUTCOME:
+				return str((mark as Dictionary)["text"])
+	return ""

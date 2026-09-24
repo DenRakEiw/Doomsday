@@ -74,6 +74,12 @@ const FACTION_TOKENS: Dictionary[String, StringName] = {
 	"security_researchers": &"FACTION_RESEARCHERS",
 	"public_sentiment": &"FACTION_PUBLIC",
 }
+## `taskforce-endings.md` §9 (G5 1/3): the Response Task Force hunts you in
+## person, so it wears `ALERT`'s red — full while it sets up and on its
+## statuses, dimmed while it travels or rests. Cold set only, like `ALERT`: red
+## keeps meaning "now" in both palettes.
+const TASK_FORCE: Color = Color("#FF3B3B")
+const TASK_FORCE_DIM: Color = Color("#C23A3A")
 
 
 # ---------------------------------------------------------- §3.1 magnitude ramp
@@ -328,6 +334,10 @@ const ALERT_FLASH_ALPHA: float = 0.25
 const RESULTS_DELAY: int = 800
 ## screens-full.md §7: the camera's pull out to the whole world when a run ends.
 const ENDING_PULL: int = 2400
+## §7's G5 (1/3) amendment: before the pull, a push-in to where the run ended,
+## and a hold on it.
+const ENDING_PUSH: int = 700
+const ENDING_HOLD: int = 600
 const AUTOSAVE_INTERVAL_DAYS: int = 7
 
 ## opposition.md §9.6: the discovery risk that fills the threat bar before
@@ -500,6 +510,30 @@ static func faction_color(faction: String) -> Color:
 	if not FACTION_TOKENS.has(faction):
 		return color(&"ACCENT")
 	return color(FACTION_TOKENS[faction])
+
+
+## The token a running status is drawn in, by its source (`loop-mechanics.md`
+## §16.3.1, `taskforce-endings.md` §9): the Task Force's own red, a faction's
+## colour, or the console's accent for the player's and for any other world
+## status. The one rule every status→colour site asks — map rings, closed links,
+## the status overlay and the region panel's chips.
+static func status_token(source: String) -> StringName:
+	if is_task_force_source(source):
+		return &"TASK_FORCE"
+	var faction: String = Status.faction_of(source)
+	if FACTION_TOKENS.has(faction):
+		return FACTION_TOKENS[faction]
+	return &"ACCENT"
+
+
+## `status_token`'s colour in the active set.
+static func status_color(source: String) -> Color:
+	return color(status_token(source))
+
+
+## A status belongs to the team by its source, never by its id's `tf_` prefix.
+static func is_task_force_source(source: String) -> bool:
+	return source == TaskForceSystem.SOURCE
 
 
 ## The §3.1 ramp as a 256-wide gradient, built once and shared by the map shader

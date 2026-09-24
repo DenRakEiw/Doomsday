@@ -230,6 +230,8 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 	var statuses: Dictionary[String, int] = SchemaValidator.validate_statuses(
 		root.path_join(STATUSES_FILE), statuses_raw, strings, strings_known, errors)
 	var statuses_known: bool = typeof(statuses_raw) == TYPE_DICTIONARY
+	SchemaValidator.validate_autophagy_bound(root.path_join(STATUSES_FILE), statuses_raw,
+		root.path_join(BALANCE_FILE), balance_raw, errors)
 	SchemaValidator.validate_tech(tech_files, tech_raws, regions, regions_known, statuses,
 		statuses_known, strings, strings_known, errors)
 	SchemaValidator.validate_abilities(root.path_join(ABILITIES_FILE), abilities_raw, regions,

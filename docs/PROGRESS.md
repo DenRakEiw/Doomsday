@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S5.P — Punch list from G5 (1/3)** [O]: the nine items under *Punch list for Opus* (validator rule, the Task Force's red, the drift readout, the emergent glyph, the verdict in the log, the ending push-in, the title's version caption, the labs comment, a look at all of it). Then **G5 (2/3) balance pass 3** (its inputs: *Balance baselines* → *For balance pass 3*), then **G5 (3/3)** the M6–M7 plan. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **G5 (2/3) — Balance pass 3** [F]: re-run the 500-seed baselines per architecture and scenario on the S5.P tree, then tune *Balance baselines → For balance pass 3*; record the pass in `docs/BALANCE.md` §5. Answer the one new design question first (the ending push-in's zoom). Then **G5 (3/3)** the M6–M7 plan. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | G5 (2/3) Balance pass 3 → G5 (3/3) detailed D/S plan for M6–M7 |
-| **Last completed** | G5 (1/3) — every open design question answered (Decisions 2026-09-25): Harvest and defection 25 days, the Task Force in red, the drift readout, the emergent glyph, the verdict in the run log, the ending push-in, the version caption, `labs_from_day_one` confirmed; German lines revised; tuning questions listed for balance pass 3. Specs amended, strings written. 1494 tests green (2026-09-25). |
-| **Before that** | S5.8 — Scenarios: `scenarios.json` loaded, `RunSetup.scenario`, `ScenarioStart`, the setup's scenario row, the scenario intro, *architecture · scenario* in Statistics, `scenario=<id>` on the sim tools. 1494 tests green (2026-09-24). |
+| **After it** | G5 (3/3) detailed D/S plan for M6–M7 |
+| **Last completed** | S5.P — the G5 (1/3) punch list: the validator's Autophagy bound, the Task Force in red (tokens, `UiTokens.status_token`, overlay slot 6, `Chip.Kind.TASK_FORCE`), the drift readout (`DriftChip`, strip, Drift block), the emergent spark, the verdict in the log, the ending push-in, the version caption, the labs comment. 1521 tests green (2026-09-25). |
+| **Before that** | G5 (1/3) — every open design question answered (Decisions 2026-09-25); specs amended, strings written; the nine-item punch list. 1494 tests green (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 238 scripts compile (93 judged by the suite), then `tools/check_strings.gd` (1912 rows), 1494 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 239 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (1912 rows), 1521 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -132,7 +132,7 @@ which file was being edited, and anything learned that the files do not show)*
 
 **Block 11 — M5 gate · Fable** *(split 2026-09-25 into four steps; the gate verdict is the user's)*
 - [x] G5 (1/3) [F] Design questions answered, punch list for S5.P
-- [ ] S5.P [O] Punch list from G5 (1/3)
+- [x] S5.P [O] Punch list from G5 (1/3)
 - [ ] G5 (2/3) [F] Balance pass 3
 - [ ] G5 (3/3) [F] Detailed D/S plan for M6–M7 (the M5 gate verdict waits for the user's ten runs)
 
@@ -1056,8 +1056,11 @@ without new information.
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
-*(empty — G5 (1/3), 2026-09-25, answered every open question; see Decisions. The tuning ones are
-under Balance baselines → For balance pass 3.)*
+- **S5.P (2026-09-25): how far does the ending push in?** `screens-full.md` §7 2a says "the same
+  zoom `MapCamera.focus_region` uses" — but `focus_region` (and `F`) keep the *current* zoom, so a
+  player who ends zoomed out (the case the amendment is for) would get no push at all. Placeholder
+  (`# DESIGN?` in `game/map/map_camera.gd`): `ENDING_PUSH_ZOOM_FACTOR` 2.0 — the push goes to
+  `zoom_min × 2` (capped at `ZOOM_MAX`) and never zooms out of a closer view. Keep, or name a zoom?
 
 **Parked for a later Fable step (not questions, reminders):**
 - **M6 (VISUALS):** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the 8192-px
@@ -1099,48 +1102,18 @@ under Balance baselines → For balance pass 3.)*
 
 ## Punch list for Opus
 
-*From G5 (1/3), 2026-09-25 — step S5.P. Each item names its spec section; the strings exist.*
-
-1. **Autophagy bound in the validator** — `core/content/schema_validator.gd`: a `player`-origin
-   status level with a `yield` `mul` 0 modifier must have `0 < days < society.autophagy_days`;
-   `drift.defect_days < autophagy_days` too; the error text as in `opposition.md` §8.5's
-   amendment. Tests in `tests/unit/test_schema_validator.gd` (30 fails, 25 passes, a world status
-   at 60 passes, `defect_days` 30 fails). The shipped data already passes (25 days).
-2. **The Task Force's red** — `ui/theme/ui_tokens.gd` gains `TASK_FORCE` `#FF3B3B` and
-   `TASK_FORCE_DIM` `#C23A3A` (cold only); `game/map/task_force_marker.gd` colours by state and
-   loses its `# DESIGN?`; the dotted road (`game/map/marker_layer.gd`) takes `TASK_FORCE_DIM`;
-   every status→colour site answers `TASK_FORCE` for source `task_force` — put the rule in one
-   helper and call it from `marker_layer._status_color`, `link_layer._closed_color` and the region
-   panel's status chips; the status overlay (`map_view._send_faction_colours` + `map.gdshader`'s
-   status index) gains a slot for the team if it colours `tf_*` statuses by that index today. Run `tools/build_theme.gd` if the theme reads the tokens.
-   Tests as `taskforce-endings.md` §9's amendment.
-3. **The drift readout** — new `ui/hud/drift_chip.gd` (`DriftChip`, static, the `StarvingChip`
-   pattern), the chip in `ui/hud/top_bar` and `status_strip`, the Drift block in
-   `ui/panels/containment_panel.tscn` + `.gd`; `drift_mark` from the content. Tests as
-   `replayability.md` §2.5.
-4. **The emergent glyph** — `ui/components/glyphs.gd` `EVENT_EMERGENT` and `event_glyph`,
-   `ui/components/run_log_text.gd` `marker` (priority 2), the gallery's glyph sheet
-   (`ui/dev/gallery.gd`). Tests: `event_glyph("emergent")`, the marker's glyph and priority
-   (`replayability.md` §3.1).
-5. **The verdict in the log** — `RunLogText.text(entry, db, verdict := "")` with
-   `UI_LOG_OUTCOME_VERDICT`; the analysis panel's Log tab and timeline marks pass it
-   (`ui/panels/analysis_panel.gd` / `analysis_tab.gd`); add the key to `RunLogText.KEYS`. Tests as
-   `analysis.md` §8's amendment.
-6. **The ending push-in** — `game/session/session.gd` (the `run_ended` sequence) and
-   `game/map/map_camera.gd`: 2a–2c of `screens-full.md` §7's amendment, `ENDING_PUSH_MS` 700,
-   `ENDING_HOLD_MS` 600. Tests as there.
-7. **The version caption** — `ui/screens/title.tscn` + `.gd`: in compact the caption is the
-   column's last row (`screens-full.md` §3's amendment); the overlap test at 400 × 860 and
-   1000 × 700.
-8. **`labs_from_day_one` confirmed** — `core/systems/containment_system.gd`: remove the
-   `# DESIGN?` marker, the comment states the rule (`replayability.md` §2.5). No behaviour change.
-9. **Look at it** (godot-mcp, en and de): the marker travelling and setting up, a `tf_*` status
-   ring; a Swarm run's drift chip and Drift block at 1920 and 400 px; an emergent card and its
-   log row; the Log tab after a run's end; the ending push-in; the title at 400 × 860 and
-   1000 × 700.
+*(empty — S5.P, 2026-09-25, built the G5 (1/3) list.)*
 
 ## Deviations from the plan or a spec
 
+- **2026-09-25** (S5.P) — **The drift hint needed a caption in `TEXT_1`** (replayability §2.5)
+  and the theme had none: new variation `LabelCaptionHint` (`LabelCaption` in `TEXT_1`). The
+  Drift block's bar has no head (`show_head = false`) — the state caption under it already says
+  the number. **The region panel's Task Force chip** (the team's row, `TF`) wears `TASK_FORCE`
+  as the row's "leading glyph" (§9 amendment). **The version caption in compact** sits as the
+  last row of the buttons' stack (that stack's `SPACE_2` is the gap §3 asks for), not after the
+  hidden failure line. **The fixture's `autophagy_days` is 7** (was 3) and `defect_days` 5, so
+  the fixture's own `fx_reaped` (6 days, yield ×0) obeys the new validator rule.
 - **2026-09-24** (S5.8) — **The 50-run batch per scenario is a `sim_batch`/`sim_report` run, not
   a GUT test** (scenarios.md §6): 50 runs take ~190 s per scenario. `test_scenarios.gd` plays one
   full greedy run per scenario; the batches are under *Balance baselines*.
@@ -1818,6 +1791,8 @@ M6?
 **G5 (2026-09-25), the M5 gate:** after S5.P and balance pass 3, play ten runs (different
 architectures, a scenario) — do they feel meaningfully different? And a glance at what G5 (1/3)
 decided overnight (Decisions 2026-09-25): is the Task Force in red right, and Harvest at 25 days?
+S5.P (overnight, pending user confirmation): the ending's push-in zooms to twice the widest view —
+too close, too far, or right?
 
 **D5.2 (2026-09-24), at G5:** `docs/specs/taskforce-endings.md` §13 — is *Supplanted* (a secret
 loss that turns a win, after one warning card) fair, or should a normal win's results screen hint
@@ -2185,6 +2160,14 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-25 — S5.P Punch list from G5 (1/3) [O]
+- Built all nine: `validate_autophagy_bound`; `TASK_FORCE`/`_DIM` via `UiTokens.status_token`
+  (marker, road, rings, links, overlay slot 6, chips); `DriftChip` + Drift block; the emergent
+  spark; `RunLogText.verdict_of`; `MapCamera.push_in` + hold; compact version caption; labs comment.
+- +27 tests (3 new files), 1521 green; theme rebuilt. One `# DESIGN?`: the push-in's zoom.
+- Looked at (de/en, 1920/400): title, drift chip/block, team + `tf_*` rings, Log tab after a clean
+  greedy Swarm ending, push-in by hand; `ProfileManager.reset()` afterwards.
 
 ### 2026-09-25 — G5 (1/3) Design questions answered, punch list [F]
 - Answered all ten open questions (Decisions 2026-09-25); amended opposition §8.5, loop-content,

@@ -53,6 +53,7 @@ const HOLD_EVENT: StringName = &"event"
 @onready var _wire: WireCard = %WireCard
 @onready var _results: Results = %Results
 @onready var _camera: MapCamera = %MapCamera
+@onready var _map_view: MapView = $MapLayer/MapView
 @onready var _menu_sheet: SlidePanel = %MenuSheet
 @onready var _analysis: AnalysisPanel = %AnalysisPanel
 
@@ -308,10 +309,12 @@ func _on_quit_requested() -> void:
 	ScreenRouter.go_to_title()
 
 
-## screens-full.md §7: the ending sequence. The camera pulls out to the whole
-## world on the penetration view while the last headline runs, the map taking
-## no input; then the results. A camera already there waits the old beat, so
-## the last frame and the outcome line are seen before the modal covers them.
+## screens-full.md §7: the ending sequence. The camera pushes in to where the
+## run ended and holds there (G5 1/3), then pulls out to the whole world on the
+## penetration view while the last headline runs, the map taking no input; then
+## the results. A camera already there waits the old beat, so the last frame
+## and the outcome line are seen before the modal covers them. Reduced motion
+## skips the push and the hold and cuts to the whole world.
 ## The profile has counted the run already (`ProfileManager` hears the signal
 ## first), so what it unlocked is the difference to the run's start.
 func _on_run_ended(_outcome: String) -> void:
@@ -322,6 +325,14 @@ func _on_run_ended(_outcome: String) -> void:
 	var architectures: Array[String] = _new_architectures()
 	var slots: Array[String] = _new_slots()
 	EventBus.overlay_changed.emit(int(MapView.Overlay.PENETRATION))
+	if not UiTokens.reduced_motion():
+		var region: int = ending_region(Game.sim.world, Game.db)
+		var push: float = _camera.push_in(region, UiTokens.duration(UiTokens.ENDING_PUSH))
+		_map_view.hover_index = region
+		await get_tree().create_timer(push + UiTokens.seconds(UiTokens.ENDING_HOLD)).timeout
+		if not is_inside_tree() or Game.sim == null:
+			return
+		_map_view.hover_index = 0
 	var pull: float = _camera.pull_out(UiTokens.duration(UiTokens.ENDING_PULL))
 	var wait: float = pull if pull > 0.0 else UiTokens.seconds(UiTokens.RESULTS_DELAY)
 	await get_tree().create_timer(wait).timeout
@@ -331,6 +342,17 @@ func _on_run_ended(_outcome: String) -> void:
 	_results.show_result(Game.sim)
 	_results.show_unlocks(architectures, slots, codex_new)
 	_modals.open(_results)
+
+
+## §7 beat 2a: where the run ended — the region of the newest run-log entry
+## that names one (the last wipe, the team's last action, the last region
+## taken), or the origin when none does.
+static func ending_region(world: World, db: ContentDB) -> int:
+	for i: int in range(world.run_log.size() - 1, -1, -1):
+		var index: int = RunLogText.region_index(world.run_log[i], db)
+		if index > 0:
+			return index
+	return world.agent.origin
 
 
 ## The architectures a player's run has unlocked since it started.

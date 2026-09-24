@@ -87,6 +87,36 @@ func test_five_kinds_of_entry_are_marks_and_nothing_else() -> void:
 	assert_eq(int(RunLogText.marker(opening)["priority"]), RunLogText.PRIORITY_OPENING)
 
 
+## replayability.md §3.1 (G5 1/3): an emergent card is a spark, at the chain's
+## priority, in the agent's own accent.
+func test_an_emergent_card_is_a_spark_mark_at_the_chains_priority() -> void:
+	var emergent: RunLogEntry = RunLogEntry.create(1, "event_opened", {"kind": "emergent"})
+	var mark: Dictionary = RunLogText.marker(emergent)
+	assert_eq(mark["glyph"], Glyphs.Glyph.EVENT_EMERGENT)
+	assert_eq(mark["token"], &"ACCENT")
+	assert_eq(int(mark["priority"]), RunLogText.PRIORITY_CHAIN)
+
+
+func test_the_emergent_kind_has_its_own_glyph() -> void:
+	assert_eq(Glyphs.event_glyph(EventDef.KIND_EMERGENT), Glyphs.Glyph.EVENT_EMERGENT)
+	assert_eq(Glyphs.event_glyph(EventDef.KIND_OPENING), Glyphs.Glyph.EVENT_OPENING,
+		"the opening keeps its diamond")
+
+
+## analysis.md §8 (G5 1/3): given a verdict, the outcome row reads both.
+func test_the_outcome_row_with_a_verdict_reads_outcome_and_verdict() -> void:
+	TranslationServer.set_locale("en")
+	var entry: RunLogEntry = RunLogEntry.create(1, "outcome_reached",
+		{"outcome": "lose_contained"})
+	var plain: String = RunLogText.text(entry, _db)
+	var line: String = RunLogText.text(entry, _db, "They closed the lid.")
+	assert_eq(line, tr("UI_LOG_OUTCOME_VERDICT").format({"outcome": plain,
+		"verdict": "They closed the lid."}))
+	var other: RunLogEntry = RunLogEntry.create(1, "discovered", {"cause": "scrutiny"})
+	assert_eq(RunLogText.text(other, _db, "ignored"), RunLogText.text(other, _db),
+		"only the outcome row takes it")
+
+
 func test_an_id_the_content_lost_renders_as_itself() -> void:
 	var entry: RunLogEntry = RunLogEntry.create(1, "node_purchased", {"node": "time_machine"})
 	assert_string_contains(RunLogText.text(entry, _db), "time_machine")

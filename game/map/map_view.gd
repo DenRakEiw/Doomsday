@@ -46,6 +46,7 @@ const COLOR_TOKENS: Dictionary[String, StringName] = {
 	"map_select": &"MAP_SELECT",
 	"map_death": &"MAP_DEATH",
 	"accent": &"ACCENT",
+	"task_force": &"TASK_FORCE",
 }
 
 ## 0 means none. Written by S2.3's picking, read by the shader.
@@ -134,7 +135,8 @@ func _ready() -> void:
 ## Hover follows the pointer (§7.4). Touch has none, and a drag is the camera's,
 ## not a pass over the land.
 func _unhandled_input(event: InputEvent) -> void:
-	if _camera == null or OS.has_feature("mobile") or _camera.is_panning():
+	# The ending sequence locks the map; its hover is the sequence's (§7).
+	if _camera == null or OS.has_feature("mobile") or _camera.is_panning() 			or _camera.input_locked:
 		return
 	var motion: InputEventMouseMotion = event as InputEventMouseMotion
 	if motion == null:

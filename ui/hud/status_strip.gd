@@ -23,6 +23,9 @@ const PREFIX_FACTION: String = "FACTION_"
 ## `loop-mechanics.md` §16.9: the readout is the strip's second row on a phone.
 var _assets: AssetReadout = null
 var _starving: Chip = null
+## `replayability.md` §2.5: the drift chip, before the starving chip.
+var _drift: Chip = null
+var _drift_mark: float = DriftChip.NO_MARK
 
 ## One `[button, caption, value]` per readout, in the order of `KEYS`.
 var _values: Array[ValueLabel] = []
@@ -39,6 +42,10 @@ func _ready() -> void:
 	custom_minimum_size.y = float(UiTokens.STATUS_STRIP_HEIGHT)
 	_assets = AssetReadout.new()
 	_rows.add_child(_assets)
+	_drift = DriftChip.create()
+	_drift.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_rows.add_child(_drift)
+	_drift_mark = DriftChip.mark(Game.db)
 	# opposition.md §9.4: the starving chip sits in the second row too.
 	_starving = StarvingChip.create()
 	_starving.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
@@ -64,6 +71,7 @@ func refresh() -> void:
 	_values[1].set_number(world.footprint(), KINDS[1])
 	_values[2].set_number(world.max_harm(), KINDS[2])
 	_apply_threat(world)
+	DriftChip.apply(_drift, Game.sim, _drift_mark)
 	StarvingChip.apply(_starving, Game.sim)
 
 
@@ -163,4 +171,10 @@ func _on_tick_advanced(_day: int) -> void:
 
 
 func _on_run_started(_seed_value: int) -> void:
+	_drift_mark = DriftChip.mark(Game.db)
 	refresh()
+
+
+## The drift chip, for the tests.
+func drift_chip() -> Chip:
+	return _drift

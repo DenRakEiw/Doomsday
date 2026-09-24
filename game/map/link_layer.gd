@@ -99,7 +99,7 @@ func refresh() -> void:
 
 
 ## §16.4: a link a status closed is drawn in that status's colour — the
-## player's accent, or the faction's. A transparent colour means nothing is
+## player's accent, the faction's, or the Task Force's red (`UiTokens.status_token`). A transparent colour means nothing is
 ## holding it, so the muted line of §7.8 stands.
 func _closed_color(world: World, link: Link) -> Color:
 	if link.open:
@@ -107,8 +107,7 @@ func _closed_color(world: World, link: Link) -> Color:
 	for status: Status in world.statuses:
 		if not status.closed_links.has(link.def.id):
 			continue
-		var faction: String = status.faction()
-		return UiTokens.color(&"ACCENT") if faction.is_empty() 			else UiTokens.faction_color(faction)
+		return UiTokens.status_color(status.source)
 	return Color(0.0, 0.0, 0.0, 0.0)
 
 

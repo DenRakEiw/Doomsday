@@ -7,10 +7,12 @@ extends PanelContainer
 ## kind sets two variations, the chip's and its label's. That keeps the ban on
 ## per-node overrides intact.
 
-enum Kind { DEFAULT, ACCENT, ALERT }
+## `TASK_FORCE` is the team's own red (`taskforce-endings.md` §9, G5 1/3) — a
+## status the Response Task Force put on a region.
+enum Kind { DEFAULT, ACCENT, ALERT, TASK_FORCE }
 
 ## Suffixes on the two variation names, in the order of `Kind`.
-const KIND_SUFFIX: Array[String] = ["", "Accent", "Alert"]
+const KIND_SUFFIX: Array[String] = ["", "Accent", "Alert", "TaskForce"]
 const VARIATION: String = "Chip"
 const LABEL_VARIATION: String = "ChipLabel"
 
@@ -42,6 +44,18 @@ var _label: CapsLabel = null
 func _ready() -> void:
 	_build_label()
 	_apply_variation()
+
+
+## A running status's chip: the variation of the colour `UiTokens.status_token`
+## gives its source — the team's red, a faction's colour, or the accent.
+func set_status_source(source: String) -> void:
+	var token: StringName = UiTokens.status_token(source)
+	if token == &"TASK_FORCE":
+		kind = Kind.TASK_FORCE
+	elif token == &"ACCENT":
+		kind = Kind.ACCENT
+	else:
+		faction = Status.faction_of(source)
 
 
 ## The key and its placeholders — a chip often carries a day or a number (§5.6).

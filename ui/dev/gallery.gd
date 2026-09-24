@@ -251,6 +251,10 @@ func _build_chips() -> void:
 	long_chip.kind = Chip.Kind.ALERT
 	long_chip.label_key = KEY_DARK
 	_state(row, "long text", long_chip)
+	var team_chip: Chip = Chip.new()
+	team_chip.kind = Chip.Kind.TASK_FORCE
+	team_chip.label_key = TaskForceText.KEY_CODE
+	_state(row, "task force", team_chip)
 
 
 func _build_value_labels() -> void:
@@ -489,6 +493,8 @@ func _build_charts() -> void:
 	strip.set_marks([
 		{"day": 40, "glyph": Glyphs.Glyph.EVENT_OPENING, "color": UiTokens.color(&"ACCENT"),
 			"priority": 1, "text": "opening"},
+		{"day": 80, "glyph": Glyphs.Glyph.EVENT_EMERGENT, "color": UiTokens.color(&"ACCENT"),
+			"priority": 2, "text": "emergent"},
 		{"day": 41, "glyph": Glyphs.Glyph.EVENT_CHAIN, "color": UiTokens.color(&"TEXT_0"),
 			"priority": 2, "text": "chain"},
 		{"day": 120, "glyph": Glyphs.Glyph.EVENT_COUNTER, "color": UiTokens.color(&"ALERT"),

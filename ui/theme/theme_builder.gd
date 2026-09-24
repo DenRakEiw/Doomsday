@@ -103,6 +103,7 @@ const VARIATIONS: Dictionary[String, String] = {
 	"Chip": PANEL_CONTAINER,
 	"ChipAccent": PANEL_CONTAINER,
 	"ChipAlert": PANEL_CONTAINER,
+	"ChipTaskForce": PANEL_CONTAINER,
 	"PanelRule": H_SEPARATOR,
 	"PanelContent": "VBoxContainer",
 	"Gutter": "MarginContainer",
@@ -151,6 +152,7 @@ const VARIATIONS: Dictionary[String, String] = {
 	"ChipLabel": "LabelCaps",
 	"ChipLabelAccent": "LabelCaps",
 	"ChipLabelAlert": "LabelCaps",
+	"ChipLabelTaskForce": "LabelCaps",
 	"ChipLabelAiLabs": "LabelCaps",
 	"ChipLabelGovernments": "LabelCaps",
 	"ChipLabelSecurityResearchers": "LabelCaps",
@@ -161,6 +163,7 @@ const VARIATIONS: Dictionary[String, String] = {
 	"LabelConsoleLine": "LabelCaption",
 	"LabelCaptionAlert": "LabelCaption",
 	"LabelCaptionAccent": "LabelCaption",
+	"LabelCaptionHint": "LabelCaption",
 	"ConsoleButtonFlat": BUTTON,
 	"TechGrid": "GridContainer",
 	"TechGridCompact": "GridContainer",
@@ -232,6 +235,9 @@ static func _colours() -> Theme:
 	theme.set_color(COLOR_FONT, "LabelCaptionAlert", UiTokens.color(&"ALERT"))
 	# opposition.md §9.2: a brake below 1 reads as the good news it is.
 	theme.set_color(COLOR_FONT, "LabelCaptionAccent", UiTokens.color(&"ACCENT"))
+	# replayability.md §2.5 (G5 1/3): a caption that advises — the drift hint —
+	# reads a step brighter than a caption that only labels.
+	theme.set_color(COLOR_FONT, "LabelCaptionHint", UiTokens.color(&"TEXT_1"))
 	theme.set_color(COLOR_FONT, "LabelDisplay", UiTokens.color(&"TEXT_0"))
 	theme.set_color(COLOR_FONT, "LabelDisplayXL", UiTokens.color(&"TEXT_0"))
 	# m3-screens §7.4: a win is lit, a loss is not — and neither is `ALERT`,
@@ -247,6 +253,8 @@ static func _colours() -> Theme:
 		theme.set_color(COLOR_FONT, "ChipLabel%s" % Chip.faction_suffix(faction),
 			UiTokens.faction_color(faction))
 	theme.set_color(COLOR_FONT, "ChipLabelAlert", UiTokens.color(&"ALERT"))
+	# taskforce-endings §9 (G5 1/3): a status the team put there wears its red.
+	theme.set_color(COLOR_FONT, "ChipLabelTaskForce", UiTokens.color(&"TASK_FORCE"))
 	theme.set_color(COLOR_FONT, "Ticker", UiTokens.color(&"TEXT_1"))
 	# §7.7: the tooltip is a caption on a chip-shaped box, but it is read over a
 	# moving map — so `TEXT_0`, not the caption's `TEXT_2`.
@@ -294,6 +302,7 @@ static func _typography() -> Theme:
 	_type(theme, "LabelCaption", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
 	_type(theme, "LabelCaptionAlert", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
 	_type(theme, "LabelCaptionAccent", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
+	_type(theme, "LabelCaptionHint", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
 	_type(theme, "MapTooltipLabel", mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
 	_type(theme, "LabelConsoleLine", mono_regular, UiTokens.TYPE_CAPTION,
 		UiTokens.LINE_CAPTION)
@@ -301,7 +310,7 @@ static func _typography() -> Theme:
 	_type(theme, "LabelDisplayXL", display, UiTokens.TYPE_DISPLAY_XL, UiTokens.LINE_DISPLAY_XL)
 	_type(theme, "LabelDisplayXLWin", display, UiTokens.TYPE_DISPLAY_XL, UiTokens.LINE_DISPLAY_XL)
 	_type(theme, "LabelHeading", heading, UiTokens.TYPE_HEADING, UiTokens.LINE_HEADING)
-	for chip: String in ["ChipLabel", "ChipLabelAccent", "ChipLabelAlert"]:
+	for chip: String in ["ChipLabel", "ChipLabelAccent", "ChipLabelAlert", "ChipLabelTaskForce"]:
 		_type(theme, chip, caps, UiTokens.TYPE_LABEL, UiTokens.LINE_LABEL)
 	for state: String in VALUE_STATES:
 		_type(theme, VALUE_LABEL + state, mono_medium, UiTokens.TYPE_DATA, UiTokens.LINE_DATA)
@@ -368,6 +377,9 @@ static func _panels() -> Theme:
 		_flat(UiTokens.color(&"BG_3"), UiTokens.color(&"ACCENT_DIM"), UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
 	theme.set_stylebox(STYLE_PANEL, "ChipAlert",
 		_flat(UiTokens.color(&"BG_3"), UiTokens.color(&"ALERT"), UiTokens.BORDER, UiTokens.RADIUS_S, chip_pad))
+	theme.set_stylebox(STYLE_PANEL, "ChipTaskForce",
+		_flat(UiTokens.color(&"BG_3"), UiTokens.color(&"TASK_FORCE"), UiTokens.BORDER,
+			UiTokens.RADIUS_S, chip_pad))
 	# §16.5: a world status wears the colour of the faction behind it. One
 	# variation per faction rather than a colour written onto the node, so the
 	# ban on per-node overrides holds.

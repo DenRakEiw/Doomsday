@@ -13,7 +13,8 @@ extends RefCounted
 enum Glyph { PAUSE, PLAY, FAST_2, FAST_4, CLOSE, CHEVRON_LEFT, CHEVRON_RIGHT, CHEVRON_DOWN,
 	OVERLAY, CHECK, LOCK, EXTERNAL, MENU, DORMANT, ASSET_FLEET, ASSET_LAB, ASSET_TAP,
 	ASSET_OFFICE, EVENT_COUNTER, EVENT_OPENING, EVENT_CHAIN, FACTION_AI_LABS,
-	FACTION_GOVERNMENTS, FACTION_RESEARCHERS, FACTION_PUBLIC, OUTCOME, LOG_YOURS, LOG_THEIRS }
+	FACTION_GOVERNMENTS, FACTION_RESEARCHERS, FACTION_PUBLIC, OUTCOME, LOG_YOURS, LOG_THEIRS,
+	EVENT_EMERGENT }
 
 ## The names `assets.json` may give as a kind's `glyph`, in `AssetDef.KINDS`
 ## order. The validator checks against this list, `asset_glyph` turns a name into
@@ -59,6 +60,10 @@ const EVENT_BANG_DOT: Rect2 = Rect2(10.5, 18.0, 3.0, 3.0)
 const EVENT_DIAMOND: float = 8.0
 const EVENT_CHAIN_DEPTH: float = 5.0
 const EVENT_CHAIN_GAP: float = 6.0
+## replayability.md §3.1 (G5 1/3): an emergent behaviour is a six-armed spark —
+## three strokes through the centre, 16 px long, at 90°, 30° and 150°.
+const EVENT_SPARK_LENGTH: float = 16.0
+const EVENT_SPARK_ANGLES_DEG: Array[float] = [90.0, 30.0, 150.0]
 
 ## The four faction glyphs (opposition.md §9.7), placeholders until the icon set.
 const FACTION_HEX_RADIUS: float = 9.0
@@ -129,6 +134,8 @@ static func draw(canvas: CanvasItem, glyph: Glyph, box: Rect2, color: Color,
 			_event_diamond(canvas, box, color, stroke)
 		Glyph.EVENT_CHAIN:
 			_event_chain(canvas, box, color, stroke)
+		Glyph.EVENT_EMERGENT:
+			_event_spark(canvas, box, color, stroke)
 		Glyph.FACTION_AI_LABS:
 			_faction_hexagon(canvas, box, color, stroke)
 		Glyph.FACTION_GOVERNMENTS:
@@ -170,13 +177,15 @@ static func asset_glyph(name: String) -> Glyph:
 
 
 ## The mark a map event of this kind carries (§16.3.2): `!` for a counter-move,
-## ◇ for an opening, » for a chain step.
+## ◇ for an opening, » for a chain step, the spark for an emergent behaviour.
 static func event_glyph(kind: String) -> Glyph:
 	match kind:
 		EventDef.KIND_COUNTER_MOVE:
 			return Glyph.EVENT_COUNTER
 		EventDef.KIND_CHAIN:
 			return Glyph.EVENT_CHAIN
+		EventDef.KIND_EMERGENT:
+			return Glyph.EVENT_EMERGENT
 	return Glyph.EVENT_OPENING
 
 
@@ -323,6 +332,14 @@ static func _event_diamond(canvas: CanvasItem, box: Rect2, color: Color, stroke:
 		centre + Vector2(-EVENT_DIAMOND, 0.0),
 		centre + Vector2(0.0, -EVENT_DIAMOND),
 	]), color, stroke)
+
+
+## Three strokes crossing at the centre: six arms, one spark.
+static func _event_spark(canvas: CanvasItem, box: Rect2, color: Color, stroke: float) -> void:
+	var centre: Vector2 = box.get_center()
+	for degrees: float in EVENT_SPARK_ANGLES_DEG:
+		var arm: Vector2 = Vector2.from_angle(deg_to_rad(degrees)) * EVENT_SPARK_LENGTH * 0.5
+		canvas.draw_line(centre - arm, centre + arm, color, stroke)
 
 
 ## Two small chevrons pointing right, side by side.

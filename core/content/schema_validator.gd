@@ -930,6 +930,87 @@ static func validate_statuses(file: String, raw: Variant, strings: Dictionary[St
 	return levels
 
 
+## `opposition.md` §8.5 (G5 1/3 amendment): no status of the player's may starve
+## the run on its own. A `player`-origin level that sets `yield` × 0 has to end
+## before `society.autophagy_days` — and so does a defection, which is the same
+## silence under another name. A `world` status (the Task Force's Switch-off) is
+## deliberately exempt. Runs after both files were checked and says nothing when
+## either could not be read: that was already reported.
+static func validate_autophagy_bound(statuses_file: String, statuses_raw: Variant,
+		balance_file: String, balance_raw: Variant, errors: Array[ValidationError]) -> void:
+	if typeof(balance_raw) != TYPE_DICTIONARY:
+		return
+	var balance: Dictionary = balance_raw
+	if typeof(balance.get("society")) != TYPE_DICTIONARY:
+		return
+	var society: Dictionary = balance["society"]
+	var autophagy_days: int = _whole(society.get("autophagy_days"))
+	if autophagy_days == INVALID_INT:
+		return
+	if typeof(balance.get("drift")) == TYPE_DICTIONARY:
+		var defect_days: int = _whole((balance["drift"] as Dictionary).get("defect_days"))
+		if defect_days != INVALID_INT and defect_days >= autophagy_days:
+			_add(errors, balance_file, "drift.defect_days",
+				"a defection stops all yield and must end before Autophagy (%d ≥ %d)"
+				% [defect_days, autophagy_days])
+	if typeof(statuses_raw) != TYPE_DICTIONARY:
+		return
+	var list: Variant = (statuses_raw as Dictionary).get(StatusDef.ROOT_KEY)
+	if typeof(list) != TYPE_ARRAY:
+		return
+	var statuses: Array = list
+	for i: int in statuses.size():
+		if typeof(statuses[i]) != TYPE_DICTIONARY:
+			continue
+		var s: Dictionary = statuses[i]
+		if str(s.get("origin", StatusDef.ORIGIN_PLAYER)) != StatusDef.ORIGIN_PLAYER:
+			continue
+		if typeof(s.get("levels")) != TYPE_ARRAY:
+			continue
+		var levels: Array = s["levels"]
+		for k: int in levels.size():
+			if typeof(levels[k]) != TYPE_DICTIONARY:
+				continue
+			var l: Dictionary = levels[k]
+			if not _stops_all_yield(l):
+				continue
+			var days: int = _whole(l.get("days"))
+			if days == INVALID_INT:
+				continue
+			if days > 0 and days < autophagy_days:
+				continue
+			_add(errors, statuses_file, "%s[%d].levels[%d].days" % [StatusDef.ROOT_KEY, i, k],
+				"status %s level %d: a player status that stops all yield must end before "
+				% [str(s.get("id", "")), k + 1]
+				+ "Autophagy (%d ≥ %d)" % [days, autophagy_days])
+
+
+## True when a status level's modifiers set `yield` × 0.
+static func _stops_all_yield(level: Dictionary) -> bool:
+	if typeof(level.get("modifiers")) != TYPE_ARRAY:
+		return false
+	for entry: Variant in level["modifiers"]:
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var m: Dictionary = entry
+		if str(m.get("target", "")) != "yield" or str(m.get("op", "")) != "mul":
+			continue
+		var value: Variant = m.get("value")
+		if (typeof(value) == TYPE_FLOAT or typeof(value) == TYPE_INT) and float(value) == 0.0:
+			return true
+	return false
+
+
+## A whole number already checked elsewhere, or `INVALID_INT` when it is not one.
+static func _whole(raw: Variant) -> int:
+	if typeof(raw) != TYPE_FLOAT and typeof(raw) != TYPE_INT:
+		return INVALID_INT
+	var value: float = float(raw)
+	if value != floorf(value) or value < 0.0:
+		return INVALID_INT
+	return int(value)
+
+
 ## The `levels` list of one status: at least one, each with a whole number of
 ## days, unscoped modifiers, and effects that may run in a region only when the
 ## status can be in one.

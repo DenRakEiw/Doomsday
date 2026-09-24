@@ -406,7 +406,7 @@ func _refresh_task_force(world: World) -> void:
 	_task_force_row.visible = not line.is_empty()
 	if line.is_empty():
 		return
-	_task_force_chip.kind = Chip.Kind.ACCENT
+	_task_force_chip.kind = Chip.Kind.TASK_FORCE
 	_task_force_chip.set_label(TaskForceText.KEY_CODE)
 	_task_force_chip.tooltip_text = tr(TaskForceText.KEY_TITLE)
 	_task_force_line.text = line
@@ -430,11 +430,7 @@ func _status_row(status: Status, world: World) -> Control:
 	var head: HBoxContainer = HBoxContainer.new()
 	head.theme_type_variation = VARIATION_ROW
 	var chip: Chip = Chip.new()
-	var faction: String = status.faction()
-	if faction.is_empty():
-		chip.kind = Chip.Kind.ACCENT
-	else:
-		chip.faction = faction
+	chip.set_status_source(status.source)
 	chip.set_label(PREFIX_STATUS + status.id.to_upper() + SUFFIX_CODE)
 	head.add_child(chip)
 	var name_label: Label = Label.new()

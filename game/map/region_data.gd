@@ -23,10 +23,11 @@ const ROW_INTERFACE: int = 1
 const FORMAT: Image.Format = Image.FORMAT_RGBA8
 
 ## Row 1's R channel: 0 none, 1 a player status, 2…5 the faction of a world
-## status (`Faction.FACTION_IDS` index + 2).
+## status (`Faction.FACTION_IDS` index + 2), 6 the Task Force's (G5 1/3).
 const STATUS_NONE: int = 0
 const STATUS_PLAYER: int = 1
 const STATUS_FACTION_BASE: int = 2
+const STATUS_TASK_FORCE: int = 6
 ## The G and B channels are flags, so they are full or nothing.
 const ON: float = 1.0
 const OFF: float = 0.0
@@ -82,27 +83,31 @@ static func encode_row1(world: World, db: ContentDB, region_index: int, eligible
 
 
 ## The status colour index of a region (§16.3.1): 0 for none, 1 for one of the
-## player's own, and the faction's index + 2 for the world's.
+## player's own, the faction's index + 2 for the world's, and
+## `STATUS_TASK_FORCE` for one the team put there (`UiTokens.status_token`).
 ##
-## The world wins over the player's; among the world's, the one with the most
-## days left — a standing status (−1 day left) never wins that, because the one
+## The world wins over the player's; among the world's — the team's included —
+## the one with the most days left — a standing status (−1 day left) never wins that, because the one
 ## that is about to end is the one the border is about to lose.
 static func status_index(world: World, region_index: int) -> int:
 	var best: int = STATUS_NONE
 	var best_days: int = -2
 	for status: Status in world.statuses_in_region(region_index):
-		var faction: String = status.faction()
-		if faction.is_empty():
+		var candidate: int = STATUS_NONE
+		if UiTokens.is_task_force_source(status.source):
+			candidate = STATUS_TASK_FORCE
+		else:
+			var index: int = Faction.FACTION_IDS.find(status.faction())
+			if index >= 0:
+				candidate = STATUS_FACTION_BASE + index
+		if candidate == STATUS_NONE:
 			if best == STATUS_NONE:
 				best = STATUS_PLAYER
-			continue
-		var index: int = Faction.FACTION_IDS.find(faction)
-		if index < 0:
 			continue
 		var days: int = status.days_left(world.day)
 		if best >= STATUS_FACTION_BASE and days <= best_days:
 			continue
-		best = STATUS_FACTION_BASE + index
+		best = candidate
 		best_days = days
 	return best
 

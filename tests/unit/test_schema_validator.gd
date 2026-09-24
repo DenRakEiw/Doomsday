@@ -9,6 +9,7 @@ const REGIONS: String = "world/regions.json"
 const LINKS: String = "world/links.json"
 const TECH: String = "tech[0]"
 const HEADLINES: String = "headlines.json"
+const STATUSES: String = "statuses.json"
 
 
 func after_all() -> void:
@@ -558,6 +559,70 @@ func test_shipped_headlines_validate() -> void:
 	var result: ContentLoadResult = ContentLoader.load_root("res://data")
 	assert_true(result.ok(), result.error_text())
 	assert_gt(result.db.headlines.size(), 0, "and there are headlines to say")
+
+
+# ---------------------------------------------- the Autophagy bound (G5 1/3)
+
+
+## `opposition.md` §8.5's amendment: a Harvest alone may not last as long as
+## Autophagy takes.
+func test_a_player_status_stopping_yield_for_autophagy_days_is_rejected() -> void:
+	var content: Dictionary = _autophagy_content(30)
+	_reaped(content)["days"] = 30
+	_expect(content, STATUSES, "statuses[%d].levels[0].days" % _reaped_index(content),
+		"must end before Autophagy (30 ≥ 30)")
+
+
+func test_a_player_status_stopping_yield_shorter_than_autophagy_passes() -> void:
+	var content: Dictionary = _autophagy_content(30)
+	_reaped(content)["days"] = 25
+	var result: ContentLoadResult = Fixtures.load_raw(content)
+	assert_true(result.ok(), result.error_text())
+
+
+## The Task Force's Switch-off is a `world` status and deliberately exempt.
+func test_a_world_status_stopping_yield_past_autophagy_passes() -> void:
+	var content: Dictionary = _autophagy_content(30)
+	var list: Array = (content["statuses"] as Dictionary)["statuses"]
+	for entry: Variant in list:
+		var s: Dictionary = entry
+		if str(s["origin"]) != StatusDef.ORIGIN_WORLD:
+			continue
+		var level: Dictionary = (s["levels"] as Array)[0]
+		level["days"] = 60
+		var modifiers: Array = level.get("modifiers", [])
+		modifiers.append({"target": "yield", "op": "mul", "value": 0.0})
+		level["modifiers"] = modifiers
+		break
+	var result: ContentLoadResult = Fixtures.load_raw(content)
+	assert_true(result.ok(), result.error_text())
+
+
+func test_a_defection_as_long_as_autophagy_is_rejected() -> void:
+	var content: Dictionary = _autophagy_content(30)
+	((content["balance"] as Dictionary)["drift"] as Dictionary)["defect_days"] = 30
+	_expect(content, BALANCE, "drift.defect_days", "must end before Autophagy (30 ≥ 30)")
+
+
+## The fixture with Autophagy at `days`, every other duration left as it is.
+func _autophagy_content(days: int) -> Dictionary:
+	var content: Dictionary = Fixtures.raw_content()
+	((content["balance"] as Dictionary)["society"] as Dictionary)["autophagy_days"] = days
+	return content
+
+
+func _reaped_index(content: Dictionary) -> int:
+	var list: Array = (content["statuses"] as Dictionary)["statuses"]
+	for i: int in list.size():
+		if str((list[i] as Dictionary)["id"]) == Fixtures.REAP_STATUS:
+			return i
+	return -1
+
+
+## The first level of the fixture's own yield-stopping status.
+func _reaped(content: Dictionary) -> Dictionary:
+	var list: Array = (content["statuses"] as Dictionary)["statuses"]
+	return ((list[_reaped_index(content)] as Dictionary)["levels"] as Array)[0]
 
 
 ## Replaces the fixture headline list with one entry, broken in the given way.

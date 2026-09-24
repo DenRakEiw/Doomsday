@@ -6,7 +6,8 @@ extends Node2D
 ## counting the setup down around it, as a counter-move's marker counts its
 ## deadline.
 ##
-## Drawn in the world-status colour a status with no faction behind it gets.
+## Drawn in the team's own red (G5 1/3): `TASK_FORCE` while it sets up — the
+## moment before it acts — and `TASK_FORCE_DIM` while it travels or rests.
 ## Scaled by `1 / zoom` by the layer that owns it, so everything here is in screen
 ## pixels; it sits on the anchor and draws itself at `MARKER_TF_OFFSET` from it.
 ##
@@ -41,11 +42,15 @@ static func centre() -> Vector2:
 	return UiTokens.MARKER_TF_OFFSET
 
 
+## The badge's and the ring's colour for the state it shows: a setup (a ring
+## to count down) is the full red, anything else the dimmed one.
+func stroke_color() -> Color:
+	return UiTokens.color(&"TASK_FORCE" if share >= 0.0 else &"TASK_FORCE_DIM")
+
+
 func _draw() -> void:
 	var at: Vector2 = centre()
-	# DESIGN? §9 says "the world-status colour"; the only colour a world status
-	# with no faction gets is `ACCENT` (loop-mechanics §16.3.1), the player's own.
-	var colour: Color = UiTokens.color(&"ACCENT")
+	var colour: Color = stroke_color()
 	var box: Rect2 = Rect2(at - Vector2(HALF, HALF), Vector2(HALF, HALF) * 2.0)
 	draw_rect(box, UiTokens.color(&"BG_2"))
 	draw_rect(box, colour, false, STROKE)
