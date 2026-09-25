@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.2 — Phase-shift variants and map polish** [O]: `docs/specs/polish-visuals.md` §8–§10 (variants, map) — the Open accent through `UiTokens`/`ThemeBuilder` (rebuild the theme), the coast and outline pass, the Societal Function overlay. IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.3 — Credits and licences screen; the illustration hooks** [O]: `docs/specs/icons.md` (credits screen) · `docs/specs/illustrations.md` §8 — `data/credits.json` loader/validator, the modal on the title, the licence texts, a test comparing credits with `ASSET_LICENCES.md`; then `IllustrationSlot`, `EndingDef.illustration`, the results/Codex slots, the illustrations test. IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.3–S6.8 (S6.3 now also carries the illustration hooks, `illustrations.md` §8), then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | S6.1 — the full-screen pass: `ScreenFx` autoload (layer 1025, last), `ui/fx/screen_fx.gdshader` (8 stages), `ScreenFxRules`/`ScreenFxParams`/`FlashLimiter`, heat, impulses, the wash moved in, the screen dissolve, *Screen effects* setting (pause menu row, **V**); frame time under *Performance notes*; 1599 tests green (2026-09-25). |
-| **Before that** | S5.9 — the Task Force's mark and the scenario levers `closed_cross`/`term_scale` (2026-09-25). |
+| **After it** | S6.4–S6.8, then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | S6.2 — the Open accent is pale amber (`#FFD08A` family, theme rebuilt), the map's coast pass and mask-built outlines from zoom 2, the Societal Function view (row 2 of `RegionData`, lavender, stepped, four views from Emergent), the §8.3 colour-floor test (`tests/support/colour_audit.gd`); 1614 tests green (2026-09-25). |
+| **Before that** | S6.1 — the full-screen pass (`ScreenFx`, 8 stages, heat, impulses, dissolve, *Screen effects*) (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 244 scripts compile (100 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1599 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 245 scripts compile (100 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1614 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -155,7 +155,7 @@ it and take the next row (IMPLEMENTATION §4).*
 **Block 14 — M6 build I**
 - [x] S5.9 [O] The Task Force against dormancy; the scenario levers
 - [x] S6.1 [O] Post-processing pass
-- [ ] S6.2 [O] Phase-shift variants and map polish
+- [x] S6.2 [O] Phase-shift variants and map polish
 - [ ] S6.3 [O] Credits and licences screen; the illustration hooks
 - [ ] S6.4 [O] Icon pipeline
 - [ ] S6.5 [O] Audio I: service, buses, cues, captions
@@ -1314,6 +1314,16 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
 
 ## Deviations from the plan or a spec
 
+- **2026-09-25** (S6.2) — **The society view's divisor is a uniform** (`society_stage_max`, the
+  balance's threshold count, sent by `MapView.refresh`) instead of §10.2's literal `5.0`, so the
+  shader keeps no balance number. **`MapCamera.is_outline_smooth(zoom)`** is a static rule the
+  view applies on `view_changed` (§2 has the camera "tell" the view; the view already listens to
+  the zoom). **The compact overlay button now cycles only through the modes the phase offers**
+  (it cycled all of `MODE_KEYS`, so a Covert phone could reach Population). The borrowed-coast
+  lookup and the ±1/±2 selection taps are two helper functions in `map.gdshader`. The colour
+  audit is `tests/support/colour_audit.gd` (`class_name ColourAudit`, like `Fixtures`); its
+  worst-case values reproduce §8.3's table to one decimal.
+
 - **2026-09-25** (S6.1) — **`test_looping_periods_…` skips `FX_*` names**: §3.5 names the
   scanline pitch `FX_SCANLINE_PERIOD` (3 px), which is spatial, not a loop, and would fail §6
   rule 3's ≥ 500 check. **Frame time** was sampled with godot-mcp's `game_performance` (Engine
@@ -2043,7 +2053,8 @@ the two scenarios promise?
 **D6.1 (2026-09-25, overnight, pending user confirmation):** `docs/specs/polish-visuals.md` —
 (1) the Open accent turns pale amber (`#FFD08A`) instead of orange, because orange was the
 Governments' colour — right? (2) CRT curvature is cut — fine? (3) the society view in lavender, a
-fourth button from Emergent on — worth the space? Best judged on the S6.1/S6.2 screenshots.
+fourth button from Emergent on — worth the space? Best judged on the S6.1/S6.2 screenshots
+(S6.2 built it: session scene, a `weapons` bot run around day 440, *Society* button).
 
 **D6.2 (2026-09-25, overnight, pending user confirmation):** `docs/specs/icons.md` — (1) what goes
 under *Made by* in the credits (a name, a studio; AI assistance credited or not)? Until then the
@@ -2407,6 +2418,11 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.2 Phase-shift variants and map polish [O]
+- Open accent → `#FFD08A` family (`UiTokens.OPEN`), theme rebuilt; `MAP_SOCIETY`, `MAP_SMOOTH_OUTLINE_ZOOM`, `MAP_OUTLINE_MASK`.
+- `map.gdshader`: coast pass (borrowed region at `land_mask` alpha), mask-built selection/eligible outlines from zoom 2, `OVERLAY_SOCIETY`; `RegionData` row 2; picker's fourth view.
+- Looked at: zoom 1.4/2.6/4.5 (Mediterranean, Caribbean, cold/open, selection, origin request), society view stepped vs. panel stage, gallery **O**. +15 tests, 1614 green.
 
 ### 2026-09-25 — S6.1 Post-processing pass [O]
 - `ScreenFx` autoload (layer 1025, registered last), `screen_fx.gdshader` (CA, chroma bloom, wash,

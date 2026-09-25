@@ -276,6 +276,13 @@ func set_view(center: Vector2, zoom_level: float) -> void:
 	view_changed.emit(position, wanted_zoom)
 
 
+## polish-visuals.md §9.3: whether the map draws its outlines from the border
+## mask at this zoom. Below the switch a texel is under two screen pixels and the
+## ID-map taps are exact; from it on they would step.
+static func is_outline_smooth(zoom_level: float) -> bool:
+	return zoom_level >= UiTokens.MAP_SMOOTH_OUTLINE_ZOOM
+
+
 ## Multiplies the zoom, keeping the world point under `screen_point` where it
 ## is. `tweened` is the wheel (§7.5 tweens a notch); pinch is continuous.
 ##

@@ -10,11 +10,12 @@ extends PanelContainer
 ##
 ## Scene-specific, so no `class_name`.
 
-## §7.2's three modes, in order, and the term each one shows.
+## §7.2's three modes and polish-visuals.md §10.3's fourth, in order, and the
+## term each one shows.
 const MODE_KEYS: Array[String] = ["UI_TERM_PENETRATION", "UI_TERM_CONTROL",
-	"UI_TERM_POPULATION"]
+	"UI_TERM_POPULATION", "UI_TERM_SOCIETY"]
 
-## §5.7: three toggles, or one button that steps through them.
+## §5.7: the toggles, or one button that steps through them.
 var compact: bool = false:
 	set(value):
 		if value == compact and is_node_ready():
@@ -30,6 +31,9 @@ var mode: int = int(MapView.Overlay.PENETRATION)
 @onready var _cycle: ConsoleButton = %Cycle
 
 var _buttons: Array[ConsoleButton] = []
+## How many of `MODE_KEYS` the phase offers; the compact button cycles through
+## these only.
+var _allowed: int = MODE_KEYS.size()
 
 
 func _ready() -> void:
@@ -40,7 +44,7 @@ func _ready() -> void:
 	_apply_mode()
 
 
-## The three toggles of §5.4 as one group. Built here so that adding a mode is a
+## The toggles of §5.4 as one group. Built here so that adding a mode is a
 ## key in `MODE_KEYS` and nothing else.
 func _build_buttons() -> void:
 	var group: ButtonGroup = ButtonGroup.new()
@@ -55,14 +59,15 @@ func _build_buttons() -> void:
 	_buttons[mode].set_pressed_no_signal(true)
 
 
-## §6.1: nothing to compare in Boxed, two modes in Covert, the population from
-## Emergent on. A mode that is no longer offered falls back to penetration.
+## §6.1: nothing to compare in Boxed, two modes in Covert, the population and
+## the society (polish-visuals.md §10.3) from Emergent on. A mode that is no
+## longer offered falls back to penetration.
 func apply_reveal(phase: World.Phase) -> void:
-	var allowed: int = _modes_for(phase)
-	visible = allowed > 0
+	_allowed = _modes_for(phase)
+	visible = _allowed > 0
 	for i: int in _buttons.size():
-		_buttons[i].visible = i < allowed
-	if mode >= allowed:
+		_buttons[i].visible = i < _allowed
+	if mode >= _allowed:
 		_set_mode(int(MapView.Overlay.PENETRATION))
 
 
@@ -99,4 +104,4 @@ func _on_mode_pressed(index: int) -> void:
 
 
 func _on_cycle_pressed() -> void:
-	_set_mode((mode + 1) % MODE_KEYS.size())
+	_set_mode((mode + 1) % maxi(_allowed, 1))

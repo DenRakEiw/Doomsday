@@ -1,6 +1,7 @@
 extends GutTest
 ## S6.1 — the guards spec polish-visuals.md puts over the tokens: the flash
-## limits of §6 and the contrast under the full-screen pass of §8.4.
+## limits of §6 and the contrast under the full-screen pass of §8.4. S6.2 — the
+## colour floor of §8.3 and the Open accent of §8.2.
 
 ## WCAG's floors (§8.4): body text, and the secondary text that is never essential.
 const FLOOR_TEXT_1: float = 4.5
@@ -14,6 +15,26 @@ const SUFFIX_PERIOD: String = "_PERIOD"
 const PREFIX_FX: String = "FX_"
 ## The surface §8.4's table measures on.
 const SURFACE: StringName = &"BG_2"
+## §8.3: map-mark pairs keep a worst-case CIEDE2000 of at least this.
+const FLOOR_DELTA_E: float = 9.0
+## §8.3's table: the pairs that can meet in one map channel.
+const MAP_CHANNEL_PAIRS: Array[Array] = [
+	[&"ACCENT", &"CAT_SKY"],
+	[&"ACCENT", &"CAT_ORANGE"],
+	[&"ACCENT", &"CAT_GREEN"],
+	[&"ACCENT", &"CAT_PINK"],
+	[&"ACCENT", &"TASK_FORCE"],
+	[&"TASK_FORCE", &"CAT_ORANGE"],
+	[&"TASK_FORCE", &"CAT_PINK"],
+]
+## §11: `INK` on the Open accent fills.
+const FLOOR_INK_ON_ACCENT: float = 7.0
+const INK_FILLS: Array[StringName] = [&"ACCENT", &"ACCENT_HOVER", &"ACCENT_PRESSED"]
+## Sharma, Wu and Dalal (2005), test pair 1: two Lab colours and their CIEDE2000.
+const SHARMA_LAB_1: Vector3 = Vector3(50.0, 2.6772, -79.7751)
+const SHARMA_LAB_2: Vector3 = Vector3(50.0, 0.0, -82.7485)
+const SHARMA_DELTA_E: float = 2.0425
+const SHARMA_EPSILON: float = 0.0001
 
 var _variant: StringName = UiTokens.VARIANT_COLD
 
@@ -54,6 +75,43 @@ func test_text_contrast_holds_under_the_pass() -> void:
 			"TEXT_1 in %s" % variant)
 		assert_gte(_contrast(UiTokens.color(&"TEXT_2"), ground, dim), FLOOR_TEXT_2,
 			"TEXT_2 in %s" % variant)
+
+
+func test_map_channel_pairs_clear_the_colour_floor() -> void:
+	for variant: StringName in [UiTokens.VARIANT_COLD, UiTokens.VARIANT_OPEN]:
+		UiTokens.variant = variant
+		for pair: Array in MAP_CHANNEL_PAIRS:
+			var a: StringName = pair[0]
+			var b: StringName = pair[1]
+			var worst: float = ColourAudit.worst_delta_e(UiTokens.color(a), UiTokens.color(b))
+			assert_gte(worst, FLOOR_DELTA_E, "%s vs %s in %s" % [a, b, variant])
+
+
+func test_open_accent_ink_contrast() -> void:
+	UiTokens.variant = UiTokens.VARIANT_OPEN
+	for fill: StringName in INK_FILLS:
+		assert_gte(ColourAudit.contrast(UiTokens.color(&"INK"), UiTokens.color(fill)),
+			FLOOR_INK_ON_ACCENT, fill)
+
+
+func test_open_accent_is_the_pale_amber_family() -> void:
+	# §8.2: the one correction D6.1 made to the Open set.
+	assert_eq(UiTokens.OPEN[&"ACCENT"], Color("#FFD08A"))
+	assert_eq(UiTokens.OPEN[&"ACCENT_DIM"], Color("#8C6A3A"))
+	assert_eq(UiTokens.OPEN[&"ACCENT_HOVER"], Color("#FFE0B0"))
+	assert_eq(UiTokens.OPEN[&"ACCENT_PRESSED"], Color("#E8B66C"))
+
+
+func test_colour_audit_matches_the_published_ciede2000_value() -> void:
+	assert_almost_eq(ColourAudit.delta_e(SHARMA_LAB_1, SHARMA_LAB_2), SHARMA_DELTA_E,
+		SHARMA_EPSILON)
+
+
+func test_society_colour_is_the_same_in_both_variants() -> void:
+	# §10.2: lavender in both sets, so the view reads the same after the swap.
+	assert_false(UiTokens.OPEN.has(&"MAP_SOCIETY"))
+	UiTokens.variant = UiTokens.VARIANT_OPEN
+	assert_eq(UiTokens.color(&"MAP_SOCIETY"), UiTokens.MAP_SOCIETY)
 
 
 ## WCAG 2.2 contrast of two sRGB colours, both multiplied by `gain` first.

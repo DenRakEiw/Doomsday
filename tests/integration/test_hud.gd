@@ -152,13 +152,51 @@ func test_the_overlay_picker_announces_the_mode_it_switched_to() -> void:
 		[int(MapView.Overlay.CONTROL)])
 
 
-func test_the_compact_picker_cycles_through_the_three_modes() -> void:
+func test_the_compact_picker_cycles_through_the_four_modes() -> void:
 	var picker: Node = _block("OverlayPicker")
+	picker.call(&"apply_reveal", World.Phase.EMERGENT)
 	picker.set("compact", true)
 	var cycle: Button = picker.get_node("%Cycle") as Button
-	for expected: int in [1, 2, 0]:
+	for expected: int in [1, 2, 3, 0]:
 		cycle.emit_signal("pressed")
 		assert_eq(int(picker.get("mode")), expected)
+
+
+## polish-visuals.md §10.3: the society view from Emergent on.
+func test_emergent_offers_four_views() -> void:
+	var picker: Node = _block("OverlayPicker")
+	picker.call(&"apply_reveal", World.Phase.EMERGENT)
+	assert_eq(_visible_modes(picker), 4)
+	var row: HBoxContainer = picker.get_node("%Row") as HBoxContainer
+	watch_signals(EventBus)
+	(row.get_child(3) as Button).emit_signal("pressed")
+	assert_signal_emitted_with_parameters(EventBus, "overlay_changed",
+		[int(MapView.Overlay.SOCIETY)])
+
+
+func test_covert_offers_two() -> void:
+	var picker: Node = _block("OverlayPicker")
+	picker.call(&"apply_reveal", World.Phase.COVERT)
+	assert_eq(_visible_modes(picker), 2)
+
+
+func test_the_compact_picker_cycles_only_through_the_offered_modes() -> void:
+	var picker: Node = _block("OverlayPicker")
+	picker.call(&"apply_reveal", World.Phase.COVERT)
+	picker.set("compact", true)
+	var cycle: Button = picker.get_node("%Cycle") as Button
+	for expected: int in [1, 0]:
+		cycle.emit_signal("pressed")
+		assert_eq(int(picker.get("mode")), expected)
+
+
+func _visible_modes(picker: Node) -> int:
+	var row: HBoxContainer = picker.get_node("%Row") as HBoxContainer
+	var count: int = 0
+	for child: Node in row.get_children():
+		if (child as Control).visible:
+			count += 1
+	return count
 
 
 # --------------------------------------------------------------------- dock

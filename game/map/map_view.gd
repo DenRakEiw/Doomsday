@@ -19,7 +19,8 @@ extends Sprite2D
 ## `MapCamera`.
 
 ## §7.2 overlays, in the order the picker (S2.5) lists them.
-enum Overlay { PENETRATION, CONTROL, POPULATION }
+## polish-visuals.md §10 added the Societal Function view as the fourth.
+enum Overlay { PENETRATION, CONTROL, POPULATION, SOCIETY }
 
 ## §7.3's selection outline, in screen pixels.
 const OUTLINE_SCREEN_PX: float = 2.0
@@ -32,6 +33,9 @@ const PARAM_OVERLAY: String = "overlay_mode"
 const PARAM_OUTLINE: String = "outline_px"
 const PARAM_HOVER_GAIN: String = "hover_gain"
 const PARAM_OVERLAY_MIX: String = "overlay_mix"
+const PARAM_SMOOTH_OUTLINE: String = "smooth_outline"
+const PARAM_OUTLINE_MASK: String = "outline_mask"
+const PARAM_SOCIETY_STAGE_MAX: String = "society_stage_max"
 ## The four faction colours the shader draws a world status in (§16.3.1).
 const PARAM_FACTION: String = "faction_%d"
 
@@ -45,6 +49,7 @@ const COLOR_TOKENS: Dictionary[String, StringName] = {
 	"map_border_dark": &"MAP_BORDER_DARK",
 	"map_select": &"MAP_SELECT",
 	"map_death": &"MAP_DEATH",
+	"map_society": &"MAP_SOCIETY",
 	"accent": &"ACCENT",
 	"task_force": &"TASK_FORCE",
 }
@@ -72,6 +77,13 @@ var outline_px: float = OUTLINE_SCREEN_PX:
 	set(value):
 		outline_px = maxf(value, 0.0)
 		_set_param(PARAM_OUTLINE, outline_px)
+
+## polish-visuals.md §9.3: true from `MAP_SMOOTH_OUTLINE_ZOOM` on, where a texel
+## is two screen pixels or more and the outlines follow the border mask.
+var smooth_outline: bool = false:
+	set(value):
+		smooth_outline = value
+		_set_param(PARAM_SMOOTH_OUTLINE, smooth_outline)
 
 var overlay_mode: Overlay = Overlay.PENETRATION:
 	set(value):
@@ -109,12 +121,14 @@ func _ready() -> void:
 	_shader.set_shader_parameter(PARAM_RAMP, UiTokens.ramp_texture())
 	_shader.set_shader_parameter(PARAM_HOVER_GAIN, UiTokens.MAP_HOVER_GAIN)
 	_shader.set_shader_parameter(PARAM_OVERLAY_MIX, UiTokens.MAP_OVERLAY_MIX)
+	_shader.set_shader_parameter(PARAM_OUTLINE_MASK, UiTokens.MAP_OUTLINE_MASK)
 	_send_colours()
 	_send_faction_colours()
 	_set_param(PARAM_HOVER, hover_index)
 	_set_param(PARAM_SELECTED, selected_index)
 	_set_param(PARAM_OVERLAY, int(overlay_mode))
 	_set_param(PARAM_OUTLINE, outline_px)
+	_set_param(PARAM_SMOOTH_OUTLINE, smooth_outline)
 
 	EventBus.theme_variant_changed.connect(_on_theme_variant_changed)
 	EventBus.run_started.connect(_on_run_started)
@@ -186,6 +200,9 @@ func refresh() -> void:
 		push_error("map_view: %d regions do not fit the %d-pixel data row"
 			% [RegionData.highest_index(Game.sim.world), RegionData.WIDTH])
 		return
+	else:
+		_set_param(PARAM_SOCIETY_STAGE_MAX,
+			float(Game.db.balance.society_stage_thresholds.size()))
 	# Never a new texture: the shader keeps the one it was given.
 	_data_texture.update(_data_image)
 
@@ -266,11 +283,15 @@ func _overlay_from_int(mode: int) -> Overlay:
 			return Overlay.CONTROL
 		2:
 			return Overlay.POPULATION
+		3:
+			return Overlay.SOCIETY
 	return Overlay.PENETRATION
 
 
 ## §7.3's outline is a reach in map pixels, so it has to shrink as the camera
-## zooms in to stay two screen pixels wide.
+## zooms in to stay two screen pixels wide. From polish-visuals.md §9.3's switch
+## zoom on, the border mask draws it instead.
 func _on_camera_view_changed(_center: Vector2, zoom_level: float) -> void:
 	if zoom_level > 0.0:
 		outline_px = OUTLINE_SCREEN_PX / zoom_level
+	smooth_outline = MapCamera.is_outline_smooth(zoom_level)

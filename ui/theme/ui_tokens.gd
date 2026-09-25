@@ -113,6 +113,14 @@ const MAP_HOVER_GAIN: float = 1.15
 const MAP_SELECT: Color = Color("#FFFFFF")
 ## The population overlay's end colour (alive share → 0).
 const MAP_DEATH: Color = Color("#FF8C6B")
+## polish-visuals.md §10.2: the Societal Function view's end colour, stepped by
+## stage. The same in both sets — lavender is a fill no faction colour uses.
+const MAP_SOCIETY: Color = Color("#C9B8FF")
+## §9.3: from this camera zoom on a texel is at least two screen pixels, and the
+## selection and eligibility outlines follow the border mask instead of ID-map taps.
+const MAP_SMOOTH_OUTLINE_ZOOM: float = 2.0
+## §9.3: the border-mask values the mask-built outline fades in between.
+const MAP_OUTLINE_MASK: Vector2 = Vector2(0.25, 0.6)
 
 const STAT_PENETRATION: Color = Color("#B5DE2B")
 const STAT_FOOTPRINT: Color = Color("#6FE3FF")
@@ -146,10 +154,12 @@ const OPEN: Dictionary[StringName, Color] = {
 	&"TEXT_0": Color("#F2E4E1"),
 	&"TEXT_1": Color("#C9A29E"),
 	&"TEXT_2": Color("#87646A"),
-	&"ACCENT": Color("#FFB35C"),
-	&"ACCENT_DIM": Color("#8F5E2A"),
-	&"ACCENT_HOVER": Color("#FFC985"),
-	&"ACCENT_PRESSED": Color("#E39A46"),
+	# polish-visuals.md §8.2 (D6.1): pale amber, clear of the Governments' orange
+	# to a dichromat (worst-case ΔE₀₀ 13.4; the old #FFB35C was 5.3).
+	&"ACCENT": Color("#FFD08A"),
+	&"ACCENT_DIM": Color("#8C6A3A"),
+	&"ACCENT_HOVER": Color("#FFE0B0"),
+	&"ACCENT_PRESSED": Color("#E8B66C"),
 	&"INK": Color("#0C0608"),
 	&"MAP_LAND": Color("#2C1B22"),
 	&"MAP_DARK": Color("#120A0D"),

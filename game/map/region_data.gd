@@ -1,13 +1,13 @@
 class_name RegionData
 extends RefCounted
 ## The map's data texture of spec ui-foundation.md §7.2 and
-## `loop-mechanics.md` §16.3.1: **two** pixels per region, rewritten on every
+## `loop-mechanics.md` §16.3.1: **three** pixels per region, rewritten on every
 ## tick and handed to the shader.
 ##
 ## Row 0 is the region's own numbers and its six flags; row 1 is what the
 ## interface is saying about it right now — the status colour, whether it is an
 ## eligible site, whether it is flashing, and whether a standing status draws its
-## border.
+## border; row 2 is its Societal Function stage (polish-visuals.md §10.1).
 ##
 ## Pure and static, like `MapPicker`, so the encoding can be checked without a
 ## viewport: `MapView` owns the `Image` and the `ImageTexture`, this decides what
@@ -17,9 +17,11 @@ extends RefCounted
 ## region". A world with a higher index than this row holds cannot be drawn.
 const WIDTH: int = 256
 ## Row 0: the region. Row 1: what the interface says about it (§16.3.1).
-const HEIGHT: int = 2
+## Row 2: the Societal Function stage (polish-visuals.md §10.1).
+const HEIGHT: int = 3
 const ROW_REGION: int = 0
 const ROW_INTERFACE: int = 1
+const ROW_SOCIETY: int = 2
 const FORMAT: Image.Format = Image.FORMAT_RGBA8
 
 ## Row 1's R channel: 0 none, 1 a player status, 2…5 the faction of a world
@@ -67,7 +69,21 @@ static func write(image: Image, world: World, db: ContentDB,
 			encode(world.regions[i], db.balance.control_complete, with_anomaly.has(i)))
 		image.set_pixel(i, ROW_INTERFACE,
 			encode_row1(world, db, i, eligible.has(i), flashing.has(i)))
+		image.set_pixel(i, ROW_SOCIETY, encode_society(world.regions[i], db.balance))
 	return true
+
+
+## Row 2 of polish-visuals.md §10.1: R is the stage (0…5) stored the way the
+## flags are, `stage / 255`, so the shader reads an integer back and never sees
+## the thresholds; G, B and A are reserved.
+static func encode_society(region: Region, balance: BalanceDef) -> Color:
+	var stage: int = SocietalFunctionSystem.stage(region.society, balance)
+	return Color(float(stage) / 255.0, OFF, OFF, OFF)
+
+
+## The stage a row-2 pixel carries, decoded the way the shader decodes it.
+static func society_stage_of(pixel: Color) -> int:
+	return roundi(pixel.r * 255.0)
 
 
 ## Row 1 of §16.3.1. The status colour is read off the status's **source**: a

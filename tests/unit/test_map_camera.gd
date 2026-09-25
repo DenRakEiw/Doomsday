@@ -182,3 +182,10 @@ func test_a_free_rectangle_smaller_than_the_margin_is_ignored() -> void:
 	var center: Vector2 = Vector2(2048.0, 875.0)
 	assert_eq(MapCamera.reveal_center(center, 2.0, WIDE, Vector2.ZERO,
 		Rect2(0.0, 0.0, 40.0, 40.0), 32.0), center, "rather than pan to nowhere")
+
+
+## polish-visuals.md §9.3: the outline switches to the border mask at zoom 2.
+func test_outline_is_smooth_from_the_switch_zoom() -> void:
+	assert_false(MapCamera.is_outline_smooth(1.0))
+	assert_true(MapCamera.is_outline_smooth(UiTokens.MAP_SMOOTH_OUTLINE_ZOOM))
+	assert_true(MapCamera.is_outline_smooth(MapCamera.ZOOM_MAX))

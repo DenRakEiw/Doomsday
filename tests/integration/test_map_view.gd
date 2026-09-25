@@ -87,3 +87,31 @@ func test_without_a_run_the_row_is_empty() -> void:
 	var image: Image = _data_image()
 	for i: int in [0, 1, 2, RegionData.WIDTH - 1]:
 		assert_eq(image.get_pixel(i, 0).a, 0.0, "pixel %d" % i)
+
+
+# ------------------------------------------------- S6.2 (polish-visuals §9, §10)
+
+
+func test_the_society_view_gets_its_colour_and_stage_count() -> void:
+	assert_eq(_material.get_shader_parameter("map_society"), UiTokens.MAP_SOCIETY)
+	Game.start_run(SEED, GreedyPolicy.ID)
+	Game.set_speed(0)
+	Game.advance(1)
+	assert_eq(_material.get_shader_parameter("society_stage_max"),
+		float(Game.db.balance.society_stage_thresholds.size()))
+
+
+func test_the_society_overlay_reaches_the_shader() -> void:
+	EventBus.overlay_changed.emit(int(MapView.Overlay.SOCIETY))
+	assert_eq(_view.overlay_mode, MapView.Overlay.SOCIETY)
+	assert_eq(_material.get_shader_parameter("overlay_mode"), int(MapView.Overlay.SOCIETY))
+
+
+func test_the_outline_is_smooth_from_the_switch_zoom_on() -> void:
+	assert_eq(_material.get_shader_parameter("outline_mask"), UiTokens.MAP_OUTLINE_MASK)
+	_view.call(&"_on_camera_view_changed", Vector2.ZERO, UiTokens.MAP_SMOOTH_OUTLINE_ZOOM)
+	assert_true(_material.get_shader_parameter("smooth_outline"))
+	_view.call(&"_on_camera_view_changed", Vector2.ZERO,
+		UiTokens.MAP_SMOOTH_OUTLINE_ZOOM * 0.5)
+	assert_false(_material.get_shader_parameter("smooth_outline"),
+		"below the switch a texel is under two screen pixels and the taps are exact")

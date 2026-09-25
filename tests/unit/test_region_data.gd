@@ -29,9 +29,10 @@ func _written() -> Image:
 func test_the_row_is_the_size_and_format_the_shader_expects() -> void:
 	var image: Image = RegionData.create_image()
 	assert_eq(image.get_width(), RegionData.WIDTH)
-	# Two rows since S4.1: the region, and what the interface says about it.
+	# Three rows since S6.2: the region, what the interface says about it, and
+	# its Societal Function stage.
 	assert_eq(image.get_height(), RegionData.HEIGHT)
-	assert_eq(image.get_height(), 2)
+	assert_eq(image.get_height(), 3)
 	assert_eq(image.get_format(), RegionData.FORMAT)
 
 
@@ -148,3 +149,33 @@ func _anomaly_in(region_index: int) -> Anomaly:
 	anomaly.spawn_day = 0
 	anomaly.expires_day = 10
 	return anomaly
+
+
+# ------------------------------------------------------ row 2 (polish-visuals §10.1)
+
+
+func test_image_is_three_rows() -> void:
+	assert_eq(RegionData.create_image().get_height(), 3)
+	assert_eq(RegionData.ROW_SOCIETY, 2)
+
+
+func test_row_two_holds_the_society_stage() -> void:
+	var thresholds: Array[float] = _db.balance.society_stage_thresholds
+	# Just past the third threshold: stage 3.
+	_region(1).society = thresholds[2] + 0.5
+	_region(2).society = 0.0
+	var image: Image = _written()
+	assert_eq(RegionData.society_stage_of(image.get_pixel(1, RegionData.ROW_SOCIETY)),
+		SocietalFunctionSystem.stage(_region(1).society, _db.balance))
+	assert_eq(RegionData.society_stage_of(image.get_pixel(1, RegionData.ROW_SOCIETY)), 3)
+	assert_eq(RegionData.society_stage_of(image.get_pixel(2, RegionData.ROW_SOCIETY)), 0)
+
+
+func test_row_two_reserves_its_other_channels() -> void:
+	_region(1).society = SocietalFunctionSystem.SOCIETY_MAX
+	var pixel: Color = _written().get_pixel(1, RegionData.ROW_SOCIETY)
+	assert_eq(RegionData.society_stage_of(pixel),
+		_db.balance.society_stage_thresholds.size(), "the top stage at full disorder")
+	assert_eq(pixel.g, RegionData.OFF)
+	assert_eq(pixel.b, RegionData.OFF)
+	assert_eq(pixel.a, RegionData.OFF)
