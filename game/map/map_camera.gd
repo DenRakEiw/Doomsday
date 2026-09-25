@@ -49,10 +49,9 @@ const VELOCITY_FRAMES: int = 3
 ## §7.5: the start view, centred on the inhabited middle of the map.
 const START_CENTER: Vector2 = Vector2(2048.0, 875.0)
 
-## screens-full.md §7 (G5 1/3): the zoom the ending's push-in reaches, as a
-## multiple of `zoom_min`. The spec names `focus_region`'s zoom, which is the
-## current one — at `zoom_min`, where most runs end, that is no push at all.
-# DESIGN? a placeholder factor; the push never zooms out (see PROGRESS.md).
+## screens-full.md §7 2a: the ending's push-in centres its region at twice
+## `zoom_min` (G5 2/3) — `focus_region` keeps the current zoom, which at
+## `zoom_min`, where most runs end, would be no push at all. It never zooms out.
 const ENDING_PUSH_ZOOM_FACTOR: float = 2.0
 
 ## What a node above the map implements to be offered a tap before the land is

@@ -25,6 +25,8 @@ const VECTORS_FOR_TIER_3: int = 3
 ## Below this share of the world's regions seeded, saving for the path still
 ## lets Infiltration through.
 const BREADTH_SHARE: float = 0.5
+## The Weapon's own ability (replayability §7): holds the escalation back.
+const RESTRAIN: String = "restrain"
 
 ## `TechNodeDef.BRANCH_*`: the Capabilities branch the strategy stays inside.
 var branch: String = ""
@@ -36,6 +38,9 @@ var path: Array[String] = []
 var evasion_early: bool = false
 ## Abilities in the order the strategy reaches for them.
 var abilities: Array[String] = []
+## Restraint ahead of `abilities` where the architecture grants it (BALANCE §5.6
+## item 3) — every strategy but one whose plan is the harm.
+var restrains: bool = true
 
 
 func next_command(sim: Simulation) -> Command:
@@ -51,7 +56,7 @@ func next_command(sim: Simulation) -> Command:
 	if misdirect != null:
 		return misdirect
 	var saving: float = saving_for(sim)
-	var ability: Command = _use_ability(sim, abilities, saving)
+	var ability: Command = _use_ability(sim, ability_order(), saving)
 	if ability != null:
 		return ability
 	if _vectors(sim) == 0:
@@ -73,6 +78,17 @@ func next_command(sim: Simulation) -> Command:
 			return _cheapest_allowed(sim, TREE_ORDER, _is_vector)
 		return null
 	return _cheapest_allowed(sim, TREE_ORDER, _allows.bind(sim))
+
+
+## The abilities in the order the strategy reaches for them, Restraint first
+## when it restrains. An ability the run does not have is skipped by
+## `_use_ability`, so on every other architecture Restraint costs nothing.
+func ability_order() -> Array[String]:
+	if not restrains or abilities.has(RESTRAIN):
+		return abilities
+	var out: Array[String] = [RESTRAIN]
+	out.append_array(abilities)
+	return out
 
 
 ## The price of the path node the strategy is waiting to afford, or 0 when none

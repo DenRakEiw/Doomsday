@@ -171,6 +171,28 @@ func test_the_report_counts_the_loop() -> void:
 	assert_gt(int(summary["abilities_used"]), 0, "greedy uses every ability it has")
 
 
+## BALANCE §5.6 item 4: how a run answered the Task Force — Misdirect uses and the
+## setups slept through, which a redirect's own fizzle is not.
+func test_the_report_counts_misdirect_and_dormancy_answers() -> void:
+	var stats: Dictionary[String, int] = Harness.empty_stats()
+	var events: Array[SimEvent] = [
+		SimEvent.new(SimEvent.TASK_FORCE_FIZZLED, 1, {"cause": TaskForceSystem.CAUSE_DORMANT}),
+		SimEvent.new(SimEvent.TASK_FORCE_FIZZLED, 2, {"cause": TaskForceSystem.CAUSE_DORMANT}),
+		SimEvent.new(SimEvent.TASK_FORCE_FIZZLED, 3, {"cause": TaskForceSystem.CAUSE_REDIRECTED}),
+		SimEvent.new(SimEvent.TASK_FORCE_MISDIRECTED, 3, {"region": "usa"}),
+	]
+	Harness.collect_stats(_db, events, stats)
+	assert_eq(stats["task_force_fizzled"], 3)
+	assert_eq(stats["task_force_dormant"], 2)
+	assert_eq(stats["task_force_misdirected"], 1)
+	var summary: Dictionary = Harness.summarise(_sim_with_origin(), SEED, "greedy", DAYS, 0,
+		[] as Array[Dictionary], stats)
+	assert_eq(int(summary["task_force_dormant"]), 2)
+	assert_eq(int(summary["task_force_misdirected"]), 1)
+	for field: String in ["task_force_misdirected", "task_force_dormant"]:
+		assert_true(Harness.FIELDS.has(field), "%s is a CSV column" % field)
+
+
 ## S4.10's first 500-seed report: Biology stopped at two nodes of its branch,
 ## because the lab needs one of two nodes its path never named. A path must
 ## carry everything its nodes need, or the strategy stalls where it matters.

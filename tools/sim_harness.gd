@@ -26,13 +26,13 @@ const FIELDS: Array[String] = ["seed", "policy", "architecture", "scenario", "ou
 	"containment", "leader", "lost_to", "compute_earned", "rejected_commands", "abilities_used", "events_opening",
 	"events_counter_move", "events_chain", "events_emergent", "counter_moves", "assets_deployed",
 	"assets_lost", "task_force_day", "task_force_acted", "task_force_fizzled",
-	"headlines_consequence", "headlines_reaction", "headlines_filler", "hash"]
+	"task_force_misdirected", "task_force_dormant", "headlines_consequence", "headlines_reaction", "headlines_filler", "hash"]
 ## S4.10 (loop-redesign §9): what a run did with the redesigned loop, counted from
 ## the events of every command and every tick. `events_<kind>` counts the events
 ## the policy answered; `counter_moves` every counter-move that opened on it.
 const STAT_FIELDS: Array[String] = ["abilities_used", "events_opening", "events_counter_move",
 	"events_chain", "events_emergent", "counter_moves", "assets_deployed", "assets_lost",
-	"task_force_acted", "task_force_fizzled"]
+	"task_force_acted", "task_force_fizzled", "task_force_misdirected", "task_force_dormant"]
 const EVENTS_FIELD_PREFIX: String = "events_"
 ## The summary field per headline stream (ticker.md §6).
 const HEADLINE_FIELD_PREFIX: String = "headlines_"
@@ -171,6 +171,11 @@ static func collect_stats(db: ContentDB, events: Array[SimEvent],
 				stats["task_force_acted"] += 1
 			SimEvent.TASK_FORCE_FIZZLED:
 				stats["task_force_fizzled"] += 1
+				# BALANCE §5.6 item 4: the setups dormancy answered.
+				if str(event.data.get("cause", "")) == TaskForceSystem.CAUSE_DORMANT:
+					stats["task_force_dormant"] += 1
+			SimEvent.TASK_FORCE_MISDIRECTED:
+				stats["task_force_misdirected"] += 1
 			SimEvent.EVENT_OPENED:
 				if str(event.data.get("kind", "")) == EventDef.KIND_COUNTER_MOVE:
 					stats["counter_moves"] += 1
@@ -234,6 +239,9 @@ static func summarise(sim: Simulation, seed_value: int, policy_id: String, max_d
 		"task_force_day": world.task_force.appeared_day,
 		"task_force_acted": int(stats.get("task_force_acted", 0)),
 		"task_force_fizzled": int(stats.get("task_force_fizzled", 0)),
+		# G5 2/3: how the policy answered it — Misdirect uses, setups slept through.
+		"task_force_misdirected": int(stats.get("task_force_misdirected", 0)),
+		"task_force_dormant": int(stats.get("task_force_dormant", 0)),
 		"counter_moves": int(stats.get("counter_moves", 0)),
 		"assets_deployed": int(stats.get("assets_deployed", 0)),
 		"assets_lost": int(stats.get("assets_lost", 0)),

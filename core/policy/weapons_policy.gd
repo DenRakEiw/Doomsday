@@ -16,6 +16,8 @@ func _init() -> void:
 		"launch_authority", "total_communications_denial", "dead_hand_override"]
 	evasion_early = true
 	abilities = ["harvest", "silence"]
+	# The harm is the plan: it never holds the escalation back.
+	restrains = false
 	_weights = {
 		W_COMPUTE: 1.0, W_FOOTPRINT: -1.0, W_SEED: 2.0, W_HARM: 3.0, W_CONTAINMENT: -15.0,
 		W_ASSET: 2.0, W_ASSET_LOST: -2.0, W_ENDURE: -2.0, W_PENETRATION: 3.0,

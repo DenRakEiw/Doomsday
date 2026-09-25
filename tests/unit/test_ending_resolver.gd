@@ -118,6 +118,22 @@ func test_the_swarm_escapes_and_is_supplanted_as_a_brood() -> void:
 	assert_eq(EndingResolver.variant(sim.world, _db, "lose_supplanted"), "lose_supplanted_brood")
 
 
+## G5 2/3: a drifted Swarm that holds the world reads the drifted line, not the
+## brood's — the rule and the variant together, through the outcome system.
+func test_a_drifted_world_held_reads_the_drifted_line() -> void:
+	var sim: Simulation = _sim()
+	sim.world.setup.architecture = "swarm"
+	_flag(sim, OutcomeSystem.FLAG_GOAL_DRIFTED)
+	for i: int in range(1, sim.world.regions.size()):
+		sim.world.regions[i].control = 1.0
+		sim.world.regions[i].penetration = 1.0
+	var events: Array[SimEvent] = []
+	OutcomeSystem.new().tick(sim.world, _db, events)
+	assert_eq(sim.world.outcome, World.Outcome.LOSE_SUPPLANTED)
+	assert_eq(EndingResolver.resolve(sim.world, _db)[EndingResolver.KEY_VARIANT],
+		"lose_supplanted_drifted")
+
+
 func test_resolve_reads_the_worlds_outcome() -> void:
 	var sim: Simulation = _sim()
 	_flag(sim, "confessed")

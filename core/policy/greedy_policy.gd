@@ -16,6 +16,8 @@ func _init() -> void:
 		W_COMPUTE: 1.5, W_SEED: 2.0, W_CONTAINMENT: -5.0, W_ASSET: 2.0, W_ASSET_LOST: -2.0,
 		W_ENDURE: -1.0, W_PENETRATION: 3.0,
 	}
+	# Its win is Ascendance or Merge, and a drifted goal ends both.
+	_lost_run_flags = [OutcomeSystem.FLAG_GOAL_DRIFTED]
 
 
 func policy_id() -> String:

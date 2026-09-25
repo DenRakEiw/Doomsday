@@ -56,6 +56,11 @@ const PAUSE_CONTAINMENT: float = 0.5
 ## A target with the answered status, or anywhere but the origin for Harvest,
 ## outranks any attribute difference.
 const TARGET_BONUS: float = 100.0
+## What an option that sets one of `_lost_run_flags` is worth: less than any
+## price, so the policy pays whatever it can to refuse it and takes it only
+## when nothing else is on offer (BALANCE §5.6 item 2). Finite, so a chance
+## branch's probability of 0 still scores 0.
+const LOST_RUN: float = -1.0e9
 
 ## The policy's own stream. Seeded by `setup`, never the world's.
 var _rng: SimRng = null
@@ -63,6 +68,10 @@ var _db: ContentDB = null
 ## What an event option's effects are worth to this policy; empty means it
 ## answers every event with its default.
 var _weights: Dictionary[String, float] = {}
+## Flags that end this policy's plan: an option setting one is a lost run
+## (`LOST_RUN`). Value Drift's `goal_drifted` for a policy that wins by
+## Ascendance or Merge (replayability §7, G5 2/3).
+var _lost_run_flags: Array[String] = []
 
 
 ## The policy with this id, or null. Both the headless runners and the `Game`
@@ -204,6 +213,8 @@ func _effect_score(sim: Simulation, region: int, effect: EffectDef) -> float:
 			return (effect.value - 1.0) * _weight(W_PENETRATION)
 		EffectDef.CONTROL_ADD:
 			return effect.value * _weight(W_PENETRATION)
+		EffectDef.SET_FLAG:
+			return LOST_RUN if _lost_run_flags.has(effect.flag) else 0.0
 	return 0.0
 
 

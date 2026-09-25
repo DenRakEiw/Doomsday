@@ -22,6 +22,7 @@ func _init() -> void:
 		W_COMPUTE: 1.0, W_FOOTPRINT: -0.5, W_SEED: 2.0, W_CONTAINMENT: -10.0,
 		W_ASSET: 2.0, W_ASSET_LOST: -2.0, W_ENDURE: -2.0, W_PENETRATION: 4.0,
 	}
+	_lost_run_flags = [OutcomeSystem.FLAG_GOAL_DRIFTED]
 
 
 func policy_id() -> String:

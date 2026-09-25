@@ -700,7 +700,7 @@ Per setup (*Task Force*: appearance day p50 · actions done · setups fizzled, m
 5. `game/map/map_camera.gd`: the push-in's `# DESIGN?` marker goes; the comment cites
    screens-full §7 2a (answered: `zoom_min` × 2).
 
-After 1–3 the Swarm and Weapon rows are re-measured (a 100-seed check, not a pass).
+After 1–3 the Swarm and Weapon rows are re-measured (a 100-seed check, not a pass). *Built by S5.P2; the check is under PROGRESS *Balance baselines* (2026-09-25, S5.P2).*
 
 ### 5.7 For the user at the gate, and after
 

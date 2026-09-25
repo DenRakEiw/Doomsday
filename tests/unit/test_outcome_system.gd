@@ -214,12 +214,25 @@ func test_merge_comes_before_ascendance() -> void:
 	assert_eq(sim.world.outcome, World.Outcome.WIN_MERGE)
 
 
-func test_a_drifted_goal_turns_off_ascendance_and_merge() -> void:
+func test_a_drifted_world_held_is_supplanted() -> void:
 	var held: Simulation = Fixtures.sim_with_origin()
 	_hold_everything(held)
 	_flag(held, OutcomeSystem.FLAG_GOAL_DRIFTED)
 	_run(held)
-	assert_eq(held.world.outcome, World.Outcome.NONE, "every region held ends nothing")
+	assert_eq(held.world.outcome, World.Outcome.LOSE_SUPPLANTED, "the copies hold the world")
+	assert_eq(events[0].data["outcome"], "lose_supplanted", "the event never says win_*")
+
+
+func test_a_drifted_world_held_comes_before_containment() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	_hold_everything(sim)
+	_flag(sim, OutcomeSystem.FLAG_GOAL_DRIFTED)
+	sim.world.factions[0].containment = 1.0
+	_run(sim)
+	assert_eq(sim.world.outcome, World.Outcome.LOSE_SUPPLANTED)
+
+
+func test_a_drifted_goal_turns_off_merge() -> void:
 	var voted: Simulation = Fixtures.sim_with_origin()
 	_flag(voted, OutcomeSystem.FLAG_GOAL_DRIFTED)
 	_flag(voted, OutcomeSystem.FLAG_MERGE_ACCEPTED)

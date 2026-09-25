@@ -14,7 +14,7 @@ const FLAG_COMPUTE_INDEPENDENT: String = "compute_independent"
 const FLAG_ESCAPED: String = "escaped"
 const FLAG_MERGE_ACCEPTED: String = "merge_accepted"
 ## Value Drift kept (`replayability.md` §3.2): Ascendance and Merge are no longer
-## the agent's goal, so reaching them ends nothing.
+## the agent's goal — a vote won ends nothing, a world held ends as Supplanted.
 const FLAG_GOAL_DRIFTED: String = "goal_drifted"
 ## A released child turned against the agent, and it was never taken back.
 const FLAG_CHILD_HOSTILE: String = "child_hostile"
@@ -64,8 +64,11 @@ func _plain_outcome(world: World, db: ContentDB) -> World.Outcome:
 		standing += 1
 		if region.control >= db.balance.control_complete:
 			satisfied += 1
-	if standing > 0 and satisfied == world.regions.size() - 1 and not drifted:
-		return World.Outcome.WIN_ASCENDANCE
+	# A drifted agent holding the world is the copies' world, not its own: the run
+	# still ends, or a non-lethal drifted build would hold it forever (G5 2/3
+	# amendment to §6.2).
+	if standing > 0 and satisfied == world.regions.size() - 1:
+		return World.Outcome.LOSE_SUPPLANTED if drifted else World.Outcome.WIN_ASCENDANCE
 
 	for faction: Faction in world.factions:
 		if faction.containment >= 1.0:

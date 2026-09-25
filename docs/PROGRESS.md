@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S5.P2 — punch list from balance pass 3** [O]: the five items of *Punch list for Opus* (BALANCE §5.6 — the drifted-run rule → Supplanted, the bots' Value Drift answer, Restraint in the strategy bots, the harness's Misdirect/dormancy columns, the push-in marker), then a 100-seed check of Swarm and Weapon. IMPLEMENTATION Block 12. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **D5.5 — the Task Force against dormancy; the scenario levers** [F]: answer BALANCE §5.7 (3) (dormancy is free against a five-day setup) and (4) (Airgap Earth's Robotics, The Inheritance's loud builds need rules). IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D5.5 [F] The Task Force against dormancy; the scenario levers — then the rest of Block 13 (D6.1–D6.7). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | G5 (3/3) — the detailed plan for M6–M7: Blocks 12–19, run-sheet rows 65–104, §6 table; CONTENT q4 confirmed (overnight, pending user confirmation). Docs only (2026-09-25). |
-| **Before that** | G5 (2/3) — balance pass 3 (data only): the Weapon (a quiet start), the three scenarios retuned, the drifted-run rule designed (Supplanted), the push-in zoom answered; closing baseline 200 seeds (BALANCE §5). 1521 tests green (2026-09-25). |
+| **After it** | the rest of Block 13 (D6.1–D6.7), then Block 14 (S5.9, S6.1–S6.8). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | S5.P2 — punch list from balance pass 3: drifted Ascendance → Supplanted, the bots refuse Value Drift / restrain, the harness's Misdirect and dormancy columns, the push-in marker gone; 100-seed check of Swarm and Weapon (*Balance baselines*). 1531 tests green (2026-09-25). |
+| **Before that** | G5 (3/3) — the detailed plan for M6–M7: Blocks 12–19, run-sheet rows 65–104, §6 table; CONTENT q4 confirmed (overnight, pending user confirmation). Docs only (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 239 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (1913 rows), 1521 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (1913 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -140,7 +140,7 @@ which file was being edited, and anything learned that the files do not show)*
 it and take the next row (IMPLEMENTATION §4).*
 
 **Block 12 — M5 close · build**
-- [ ] S5.P2 [O] Punch list from balance pass 3
+- [x] S5.P2 [O] Punch list from balance pass 3
 
 **Block 13 — M6 design I: the look, the sound, the teaching**
 - [ ] D5.5 [F] The Task Force against dormancy; the scenario levers
@@ -1194,17 +1194,7 @@ Task Force against dormancy, BALANCE §5.7 (3), is scheduled as D5.5.)*
 
 ## Punch list for Opus
 
-**From G5 (2/3), 2026-09-25** — details and tests in `docs/BALANCE.md` §5.6; built by **S5.P2**
-(Block 12):
-1. **A drifted run still ends:** `OutcomeSystem` — Ascendance's condition met while `goal_drifted`
-   stands → `LOSE_SUPPLANTED`; the verdict `lose_supplanted_drifted` is in `endings.json`
-   (`taskforce-endings.md` §6.2, G5 2/3 amendment).
-2. **The bots answer Value Drift by their win:** `greedy`, `cyber`, `robotics`, `persuasion` score
-   `goal_drifted` as a lost run (suppress when affordable); `biology`, `weapons` keep it.
-3. **Restraint in the strategy bots** (replayability §7): first in the ability list of every
-   strategy policy but `weapons` when the architecture grants it.
-4. **`sim_harness`:** CSV columns for Misdirect uses and dormancy answers per run.
-5. **`game/map/map_camera.gd`:** remove the push-in's `# DESIGN?` marker; cite screens-full §7 2a.
+*(empty — S5.P2 built the five items of G5 (2/3))*
 
 ## Deviations from the plan or a spec
 
@@ -1921,6 +1911,24 @@ real phones.
 
 ## Balance baselines
 
+**2026-09-25 (S5.P2) — the 100-seed check of Swarm and Weapon after the punch list** (a check,
+not a pass: `sim_report --seeds=1..100 --policies=<one> --setup=<swarm|weapon>`, max 5 000 days,
+committed data). **0 rejected commands in 1 400 runs; no Swarm run passed day 712 — the stall is
+gone.** Win share in %, pass 3's 200-seed row in brackets.
+
+| Setup | `idle` | `greedy` | `cyber` | `biology` | `robotics` | `weapons` | `persuasion` |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Swarm | 0 (0) | 46 (25) | 30 (0, TO 44) | 26 (28) | 56 (2, TO 71) | 49 (54) | 58 (6, TO 76) |
+| Weapon | 0 (0) | 41 (44) | 8 (2) | 17 (1) | 34 (8) | 58 (60) | 29 (16) |
+
+- **Swarm Supplanted** 14–26 % for every bot: `_drifted` 2–10 % for the four that suppress (the
+  suppression they could not afford), 21–22 % for `biology`/`weapons` (they keep drift, then take
+  the world instead of emptying it); `_brood` 3–16 % (the Brood chain, unchanged).
+- **Weapon:** Restraint lifts Biology 1 → 17, Robotics 8 → 34, Persuasion 16 → 29; Cyber stays
+  low (8 %, contained 92 %, discovered p50 day 78 — its loud Tier 2s, not the escalation).
+- **Task Force answers** (new columns, mean per run): dormancy 6–13 setups, Misdirect 0–3.4 (only
+  `weapons` owns Log Manipulation II on its path); acted 0–8. D5.5's question stands.
+
 **2026-09-25 (G5 2/3) — balance pass 3, the closing baseline** (BALANCE §5.5, full tables there;
 `sim_report --seeds=1..200 --policies=<one> --setup=<architecture>` or
 `--setup=language_model,standard,scenario=<id>`, standard, no directives, the committed data).
@@ -1945,10 +1953,9 @@ Language Model 618 · 194 · 303 · 0–8 / 2–15; Weapon 441 · 172 · 285 (lo
 `idle` loses everywhere — contained or (Language Model 47 %, Weapon 60 %, scenarios 41–68 %)
 starved under the Task Force's and the counter-moves' world statuses.
 
-**For the next pass** (after the punch list's items 1–3; BALANCE §5.6–§5.7):
-1. **Swarm** — re-measure once drifted runs end (item 1) and the bots suppress Value Drift
-   (item 2); with drift off the sweep gave 51 · 35 · 33 · 60 · 48 · 64 %.
-2. **Weapon** — re-measure Cyber, Biology, Robotics once they restrain (item 3); they sit at 1–8 %.
+**For the next pass** (BALANCE §5.6–§5.7; items 1–2 of this list were re-measured by S5.P2, above):
+1. **Swarm** — ends now; Supplanted 14–26 % per bot is the new thing to judge.
+2. **Weapon** — Cyber still 8 % (its own loudness).
 3. **The Task Force against dormancy** — a design question first (BALANCE §5.7).
 4. **Airgap Earth's Robotics and The Inheritance's loud builds** — the targets need rules, not
    numbers (BALANCE §5.7).
@@ -2172,6 +2179,12 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-25 — S5.P2 Punch list from balance pass 3 [O]
+- `OutcomeSystem`: a drifted Ascendance → `LOSE_SUPPLANTED` (`_drifted` line); `Policy._lost_run_flags`
+  (`LOST_RUN`) — greedy/cyber/robotics/persuasion suppress Value Drift; `StrategyPolicy.ability_order()`
+  puts `restrain` first (not `weapons`); harness columns `task_force_misdirected`/`_dormant`; push-in marker gone.
+- +10 tests (1 new file), 1531 green. 100-seed check of Swarm and Weapon under *Balance baselines*.
 
 ### 2026-09-25 — G5 (3/3) Detailed plan for M6–M7 [F]
 - Broke M6/M7 into Blocks 12–19 (IMPLEMENTATION §4 rows 65–104, §5 entries with *Read first* and
