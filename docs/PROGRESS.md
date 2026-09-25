@@ -1355,6 +1355,15 @@ without new information.
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
+- **User, 2026-09-25 — emergent cards are a false choice.** For the windfall behaviours
+  (`deceptive_reasoning`, `situational_awareness`, `goal_generalisation`, …) *Keep* is free and
+  only helps, *Suppress* costs compute and does nothing — on every architecture but the Swarm
+  (drift). The user: "then keep is doubly good — where is the point?" Options put to the user:
+  (1) every windfall gets a catch (e.g. deceptive reasoning: labs slower for 90 d, but a
+  discovery inside that window spikes the public's anger) — **recommended, the default unless
+  the user picks another**; (2) keeping raises an "autonomy" measure on every architecture that
+  feeds the endings; (3) windfalls become notices with one "Got it" button and only harmful
+  behaviours ask. Answer before G6 with the effect-line design (punch item 3).
 - **S6.13 — a watched run that ends without an outcome** (a recording still going at `max_days`,
   e.g. every 300-day mock entry): `benchmark.md` §12 does not say how it ends. It ends on the
   entry's `end_day` like a run — `run_ended("timeout")`, the results over the stopped map with the
@@ -1413,7 +1422,21 @@ without new information.
 
 ## Punch list for Opus
 
-*(empty — S6.P1 cleared D6.8's eight items.)*
+**From the user's play-through (2026-09-25, build ca7a25c, Windows at 150 % display scaling,
+2560×1440 primary + a portrait 1200×1920 monitor to its left) — before G6:**
+1. **Blocker — clicks don't reach the map in the session.** Some anomaly circles can be clicked,
+   others can't; over the failing ones not even the hover tooltip appears (South America works).
+   An event card ("Aktion" popup) then took no clicks at all. Title and setup take clicks fine.
+   Being debugged on a branch (regression test over many anomaly positions); the fix lands as
+   S6.P2.
+2. **The tech tree (*Fähigkeiten*) is taller than the display** — the user wants a compact
+   layout in which the whole tree fits without scrolling at 1920×1080 and on their 2560×1440.
+3. **Event cards don't say what an option does** (en and de): the user could not tell what
+   *Täuschendes Schließen* (keep/suppress) or *Zielverallgemeinerung* meant, and paid for a
+   Suppress that bought nothing. Every option shows a generated effect line (cost, what changes,
+   for how long, where — from the option's effects), and after the answer the result names what
+   changed (e.g. the node `unlock_near_node` opened, highlighted in the tree). Design in the
+   next [F] step, build after it.
 
 ## Deviations from the plan or a spec
 
