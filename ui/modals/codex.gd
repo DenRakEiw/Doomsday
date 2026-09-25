@@ -25,6 +25,11 @@ const KEY_ARCH_TAGLINE: String = "ARCH_%s_TAGLINE"
 const KEY_ARCH_DETAIL: String = "ARCH_%s_DETAIL"
 const KEY_TECH_EFFECT: String = "TECH_%s_EFFECT"
 const KEY_TECH_FLAVOUR: String = "TECH_%s_FLAVOUR"
+## plain-language.md §5.2 C7: what an unplanned behaviour's name means, keyed by
+## its status id (`CODEX_EMERGENT_<ID>_TERM`); shown when written.
+const KEY_TERM: String = "CODEX_%s_TERM"
+## A status with more than one level lists each (C3).
+const KEY_STATUS_LEVEL: String = "UI_CODEX_STATUS_LEVEL"
 const KEY_UNLOCK_RUNS: String = "UI_SETUP_UNLOCK_RUNS"
 const KEY_UNLOCK_WIN: String = "UI_SETUP_UNLOCK_WIN"
 const KEY_UNLOCK_WIN_BY: String = "UI_SETUP_UNLOCK_WIN_BY"
@@ -173,10 +178,7 @@ func show_entry(id: String) -> void:
 			_heading(tr(KEY_CHARACTER_NAME % id.to_upper()))
 			_body(tr(KEY_CHARACTER_TEXT % id.to_upper()))
 		CodexEntries.TAB_STATUSES:
-			_icon(Icons.KIND_STATUS, id, UiTokens.ICON_L, &"TEXT_0")
-			_heading(tr(StatusDef.name_key(id)))
-			_caps(tr(StatusDef.code_key(id)))
-			_body(tr(StatusDef.detail_key(id)))
+			_fill_status(id)
 		CodexEntries.TAB_ARCHITECTURES:
 			_fill_architecture(id)
 		CodexEntries.TAB_ENDINGS:
@@ -233,6 +235,28 @@ func _fill_help(id: String) -> void:
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.text = KeyNames.format(tr(HelpPages.paragraph_key(id, n)))
 		column.add_child(label)
+
+
+## A status: its name and code, the plain line on what an unplanned behaviour's
+## name means where one is written (plain-language.md §5.2 C7), the detail, and
+## per level the generated line of what it does and for how long (C3).
+func _fill_status(id: String) -> void:
+	_icon(Icons.KIND_STATUS, id, UiTokens.ICON_L, &"TEXT_0")
+	_heading(tr(StatusDef.name_key(id)))
+	_caps(tr(StatusDef.code_key(id)))
+	var term_key: String = KEY_TERM % id.to_upper()
+	if tr(term_key) != term_key:
+		_body(tr(term_key))
+	_body(tr(StatusDef.detail_key(id)))
+	var definition: StatusDef = _db.status(id)
+	if definition == null:
+		return
+	var levels: int = definition.levels.size()
+	for level: int in range(1, levels + 1):
+		var line: String = StatusText.line(_db, id, level)
+		if levels > 1:
+			line = tr(KEY_STATUS_LEVEL).format({"level": level, "line": line})
+		_caption(line)
 
 
 func _fill_region(id: String) -> void:

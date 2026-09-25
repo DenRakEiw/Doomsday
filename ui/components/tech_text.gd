@@ -33,24 +33,39 @@ const PREFIX_FACTION: String = "FACTION_"
 const PREFIX_STATUS: String = "STATUS_"
 const KEY_SCOPE_ASSET: String = "UI_TREE_SCOPE_ASSET"
 const KEY_SCOPE_ASSET_MIN: String = "UI_TREE_SCOPE_ASSET_MIN"
-## The two effects whose line depends on a field rather than on the id alone.
+## The effects whose line depends on a field rather than on the id alone.
 const KEY_GRANT_PER_HARDWARE: String = "EFFECT_COMPUTE_GRANT_PER_HARDWARE"
 const KEY_FLAG_PERMANENT: String = "EFFECT_SET_FLAG_PERMANENT"
+## A timed Footprint that names the factions who notice it (plain-language.md
+## §5.2 C1).
+const KEY_PULSE_WATCHED: String = "EFFECT_FOOTPRINT_PULSE_WATCHED"
+## Every faction's track at once — `"faction": "all"` has no name of its own.
+const KEY_CONTAINMENT_ALL: String = "EFFECT_CONTAINMENT_ADD_ALL"
 ## What joins a list of names in one line.
 const JOIN: String = ", "
 
 ## The effects whose `value` is a share of something, and therefore a percentage.
-const EFFECT_SHARES: Array[String] = ["containment_rollback", "funding_reset", "harm_burst"]
+const EFFECT_SHARES: Array[String] = ["containment_rollback", "funding_reset", "harm_burst",
+	"wipe"]
+## The effects that add a share to a share — a containment track, a region's
+## control — and read as a signed percentage (§5.2 C4).
+const EFFECT_SIGNED_SHARES: Array[String] = ["containment_add", "control_add"]
+## The effects whose `value` is a factor, read as the change it makes (C4).
+const EFFECT_FACTORS: Array[String] = ["penetration_mul"]
+## The effects whose `value` is a signed count of points (Footprint, levels).
+const EFFECT_SIGNED: Array[String] = ["footprint_pulse", "status_level_add"]
+## The modifier targets that are a share per day or of a whole: an `add` on them
+## is a signed percentage, not a bare `+0.03` (C4).
+const SHARE_TARGETS: Array[String] = ["penetration_decay", "control_decay", "closed_cross",
+	"shutdown_survival"]
 
 
 ## One modifier as a sentence: what it changes, by how much, and where.
 static func modifier_line(modifier: ModifierDef, db: ContentDB) -> String:
 	var key: String = KEY_MOD_MUL if modifier.op == ModifierDef.Op.MUL else KEY_MOD_ADD
-	var value: String = Format.factor(modifier.value) if modifier.op == ModifierDef.Op.MUL \
-		else _signed(modifier.value)
 	var line: String = tr_key(key).format({
 		"stat": tr_key(PREFIX_STAT + modifier.target.to_upper()),
-		"value": value,
+		"value": modifier_value(modifier),
 	})
 	var scope: String = scope_line(modifier, db)
 	if not scope.is_empty():
@@ -99,26 +114,46 @@ static func _effect_key(effect: EffectDef) -> String:
 		return KEY_GRANT_PER_HARDWARE
 	if effect.effect == EffectDef.SET_FLAG and effect.days <= 0:
 		return KEY_FLAG_PERMANENT
+	if effect.effect == EffectDef.FOOTPRINT_PULSE and not effect.watched_by.is_empty():
+		return KEY_PULSE_WATCHED
+	if effect.effect == EffectDef.CONTAINMENT_ADD and effect.faction == EffectDef.FACTION_ALL:
+		return KEY_CONTAINMENT_ALL
 	return PREFIX_EFFECT + effect.effect.to_upper()
 
 
 ## Every placeholder any effect line takes. A key that does not use one simply
 ## ignores it, so there is one table rather than a branch per effect.
 static func _effect_args(effect: EffectDef) -> Dictionary:
-	var value: String = Format.percent(effect.value) if EFFECT_SHARES.has(effect.effect) \
-		else Format.number(effect.value, Format.Kind.COMPUTE)
 	var names: Array[String] = []
 	for status: String in effect.ids:
 		names.append(tr_key(PREFIX_STATUS + status.to_upper() + SUFFIX_NAME))
+	var watchers: Array[String] = []
+	for faction: String in effect.watched_by:
+		watchers.append(tr_key(PREFIX_FACTION + faction.to_upper()))
 	return {
-		"value": value,
+		"value": effect_value(effect),
 		"count": effect.count,
 		"days": effect.days,
 		"kind": asset_name(effect.kind, effect.count),
 		"status": tr_key(PREFIX_STATUS + effect.status.to_upper() + SUFFIX_NAME),
 		"statuses": JOIN.join(names),
 		"faction": tr_key(PREFIX_FACTION + effect.faction.to_upper()),
+		"factions": JOIN.join(watchers),
 	}
+
+
+## An effect's `value` in the form its meaning asks for: a share as a percentage,
+## a factor as the change it makes, points signed, compute as compute (C4).
+static func effect_value(effect: EffectDef) -> String:
+	if EFFECT_SHARES.has(effect.effect):
+		return Format.percent(effect.value)
+	if EFFECT_SIGNED_SHARES.has(effect.effect):
+		return Format.signed_percent(effect.value)
+	if EFFECT_FACTORS.has(effect.effect):
+		return Format.change(effect.value)
+	if EFFECT_SIGNED.has(effect.effect):
+		return _signed(effect.value)
+	return Format.number(effect.value, Format.Kind.COMPUTE)
 
 
 ## An asset kind's name, singular or plural. Content ids never reach the player.
@@ -139,11 +174,14 @@ static func stat_name(target: String) -> String:
 	return tr_key(PREFIX_STAT + target.to_upper())
 
 
-## One modifier's number the way the detail pane writes it: a factor for a
-## `mul`, a signed number for an `add` (`loop-mechanics.md` §16.2).
+## One modifier's number the way every generated line writes it
+## (plain-language.md §5.2 C4): a `mul` as the change it makes (`×0.8` → `−20 %`),
+## an `add` signed — as a percentage where the target is a share.
 static func modifier_value(modifier: ModifierDef) -> String:
 	if modifier.op == ModifierDef.Op.MUL:
-		return Format.factor(modifier.value)
+		return Format.change(modifier.value)
+	if SHARE_TARGETS.has(modifier.target):
+		return Format.signed_percent(modifier.value)
 	return _signed(modifier.value)
 
 

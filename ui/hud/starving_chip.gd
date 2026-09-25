@@ -6,6 +6,7 @@ extends RefCounted
 ## the switch-off is about to happen. Never instantiated.
 
 const KEY_STARVING: String = "UI_HUD_STARVING"
+const KEY_TIP: String = "UI_HUD_STARVING_TIP"
 const PLACEHOLDER_DAYS: String = "days"
 
 
@@ -13,6 +14,9 @@ const PLACEHOLDER_DAYS: String = "days"
 static func create() -> Chip:
 	var chip: Chip = Chip.new()
 	chip.visible = false
+	# plain-language.md §8: what the counter means and how to stop it.
+	chip.mouse_filter = Control.MOUSE_FILTER_STOP
+	chip.tooltip_text = KEY_TIP
 	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	return chip
 

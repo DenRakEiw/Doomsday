@@ -374,9 +374,9 @@ func _refresh_society(region: Region) -> void:
 	_society_chip.kind = Chip.Kind.ACCENT if stage >= SOCIETY_ACCENT_STAGE \
 		else Chip.Kind.DEFAULT
 	_society_cuts.text = tr(KEY_SOCIETY_CUTS).format({
-		PLACEHOLDER_CAPACITY: Format.factor(SocietalFunctionSystem.capacity_mul(region.society,
+		PLACEHOLDER_CAPACITY: Format.change(SocietalFunctionSystem.capacity_mul(region.society,
 			balance)),
-		PLACEHOLDER_YIELD: Format.factor(SocietalFunctionSystem.yield_mul(region.society, balance)),
+		PLACEHOLDER_YIELD: Format.change(SocietalFunctionSystem.yield_mul(region.society, balance)),
 	})
 
 
@@ -439,7 +439,8 @@ func _refresh_statuses(world: World) -> void:
 func _status_row(status: Status, world: World) -> Control:
 	var box: VBoxContainer = VBoxContainer.new()
 	box.theme_type_variation = &"StackTight"
-	box.tooltip_text = tr(PREFIX_STATUS + status.id.to_upper() + SUFFIX_DETAIL)
+	# plain-language.md §5.2 C3: the detail, what the status does, its days.
+	box.tooltip_text = StatusText.tooltip(Game.db, status, world.day)
 
 	var head: HBoxContainer = HBoxContainer.new()
 	head.theme_type_variation = VARIATION_ROW

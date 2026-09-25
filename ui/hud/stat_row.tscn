@@ -20,6 +20,8 @@ theme_type_variation = &"RowWide"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 0
+tooltip_text = "UI_HUD_PRESENCE_TIP"
 theme_type_variation = &"StatBarPenetration"
 label_key = "UI_TERM_PENETRATION"
 
@@ -27,6 +29,8 @@ label_key = "UI_TERM_PENETRATION"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 0
+tooltip_text = "UI_HUD_FOOTPRINT_TIP"
 theme_type_variation = &"StatBarFootprint"
 label_key = "UI_TERM_FOOTPRINT"
 
@@ -34,6 +38,8 @@ label_key = "UI_TERM_FOOTPRINT"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 0
+tooltip_text = "UI_HUD_HARM_TIP"
 theme_type_variation = &"StatBarHarm"
 label_key = "UI_TERM_HARM"
 

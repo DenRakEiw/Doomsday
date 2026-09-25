@@ -36,6 +36,8 @@ const GROUP_SIZE: int = 3
 const DECIMALS_ONE: int = 1
 const DECIMALS_TWO: int = 2
 const DECIMAL_STEP: float = 0.1
+## From this factor on `change` writes `×2` rather than `+100 %` (§5.2 C4).
+const CHANGE_FACTOR_FROM: float = 2.0
 
 
 ## A value in the form its `Kind` asks for, in the current locale.
@@ -82,6 +84,29 @@ static func factor(value: float) -> String:
 	if not is_equal_approx(value, snappedf(value, DECIMAL_STEP)):
 		decimals = DECIMALS_TWO
 	return TIMES + _decimal(absf(value), is_german(), decimals)
+
+
+## A factor as the change it makes (plain-language.md §5.2 C4): below `×2` a
+## signed percentage — `×0.8` reads `−20%`, `×1.3` reads `+30%`, `×1` reads `+0%`
+## — and from `×2` on the factor itself, because *+100 %* says less than *×2*.
+## The percentage keeps one decimal where a whole one would round it away.
+static func change(value: float) -> String:
+	if value >= CHANGE_FACTOR_FROM:
+		return factor(value)
+	var german: bool = is_german()
+	var percent_value: float = (value - 1.0) * PERCENT_SCALE
+	var body: String = _decimal(absf(percent_value), german) + _unit_gap(german) + "%"
+	if is_zero_approx(snappedf(percent_value, DECIMAL_STEP)):
+		return "+" + body
+	return (MINUS if percent_value < 0.0 else "+") + body
+
+
+## A share added to a share (a containment track, a region's control), as a signed
+## percentage: `0.05` reads `+5%`, `−0.03` reads `−3%`.
+static func signed_percent(value_01: float) -> String:
+	var german: bool = is_german()
+	var body: String = _decimal(absf(value_01) * PERCENT_SCALE, german) + _unit_gap(german) + "%"
+	return (MINUS if value_01 < 0.0 else "+") + body
 
 
 ## A plain number with up to `decimals` places, trailing zeros dropped — a chart's

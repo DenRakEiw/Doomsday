@@ -24,6 +24,7 @@ const KEY_PATTERN: String = "(?<!&)\"([A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+)\""
 ## token or an enum name and is skipped by the pattern itself.
 const NOT_KEYS: PackedStringArray = ["ASSET_FLEET", "ASSET_LAB", "ASSET_TAP", "ASSET_OFFICE"]
 const CONTENT_ROOT: String = "res://data"
+const SUMMARY_PATTERN: String = "^EVENT_(\\w+)_SUMMARY$"
 
 
 ## Every finding, sorted; empty means the strings are complete.
@@ -40,7 +41,25 @@ static func findings() -> PackedStringArray:
 	var loaded: ContentLoadResult = ContentLoader.load_root(CONTENT_ROOT)
 	if not loaded.ok():
 		out.append("%s: %s" % [CONTENT_ROOT, loaded.error_text()])
+	else:
+		out.append_array(summary_findings(table, loaded.db))
 	out.sort()
+	return out
+
+
+## plain-language.md §5.2 C6: an `EVENT_<ID>_SUMMARY` is optional, and a row always
+## has both languages — so what is left to check is that it names an event.
+static func summary_findings(table: Dictionary[String, PackedStringArray],
+		db: ContentDB) -> PackedStringArray:
+	var out: PackedStringArray = []
+	var pattern: RegEx = RegEx.create_from_string(SUMMARY_PATTERN)
+	var events: Dictionary[String, bool] = {}
+	for def: EventDef in db.events:
+		events[def.id.to_upper()] = true
+	for key: String in table:
+		var hit: RegExMatch = pattern.search(key)
+		if hit != null and not events.has(hit.get_string(1)):
+			out.append("%s: names no event" % key)
 	return out
 
 

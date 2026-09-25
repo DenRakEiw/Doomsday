@@ -62,6 +62,12 @@ var _selection: Dictionary[int, String] = {}
 var _scroll_at: Dictionary[int, Vector2i] = {}
 ## Node id → the day it was bought, as far as this session saw it (§3.6 item 8).
 var _purchase_day: Dictionary[String, int] = {}
+## plain-language.md §5.2 C2: the nodes an event's answer handed over, marked
+## until the tree has been open once since.
+var _marked: Dictionary[String, bool] = {}
+## Whether this run has answered an event yet. The nodes an architecture starts
+## with are owned for nothing too, but at the origin — before any answer.
+var _answered_once: bool = false
 var _is_open: bool = false
 var _compact: bool = false
 
@@ -146,6 +152,8 @@ func close() -> void:
 	_is_open = false
 	visible = false
 	_sheet.close()
+	# Seen now: the mark was for the next opening.
+	_marked.clear()
 	Game.release(HOLD)
 	closed.emit()
 
@@ -266,6 +274,7 @@ func _show_tab(index: int) -> void:
 	_tab = index
 	_tab_buttons[index].button_pressed = true
 	_board.show_tree(TABS[index], Game.db, Game.sim)
+	_board.set_marked(_marked)
 	var remembered: String = _selection.get(index, "")
 	if remembered.is_empty():
 		_detail.clear()
@@ -442,8 +451,20 @@ func _on_tick_advanced(_day: int) -> void:
 
 
 func _on_sim_event(event: SimEvent) -> void:
+	if event.type == SimEvent.EVENT_ANSWERED or event.type == SimEvent.EVENT_EXPIRED:
+		_answered_once = true
 	if event.type == SimEvent.NODE_PURCHASED:
-		_purchase_day[str(event.data["node"])] = event.day
+		var node_id: String = str(event.data["node"])
+		_purchase_day[node_id] = event.day
+		if _answered_once and float(event.data.get("cost", 0.0)) <= 0.0:
+			_marked[node_id] = true
+
+
+## The nodes marked as handed over by an answer, for the tests.
+func marked_nodes() -> Array[String]:
+	var out: Array[String] = []
+	out.assign(_marked.keys())
+	return out
 
 
 func _on_hold_changed(_held: bool) -> void:
@@ -453,6 +474,8 @@ func _on_hold_changed(_held: bool) -> void:
 
 func _on_run_started(_seed_value: int) -> void:
 	_purchase_day.clear()
+	_marked.clear()
+	_answered_once = false
 	_selection.clear()
 	_scroll_at.clear()
 	if _is_open:

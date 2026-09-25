@@ -143,3 +143,48 @@ func test_percent_fine_keeps_the_first_decimal() -> void:
 func test_percent_fine_drops_a_decimal_that_is_zero() -> void:
 	_english()
 	assert_eq(Format.percent_fine(0.25), "25%")
+
+
+# ------------------------------------------- change (plain-language.md §5.2 C4)
+
+
+func test_change_reads_a_factor_below_one_as_a_negative_percentage() -> void:
+	_english()
+	assert_eq(Format.change(0.8), "−20%")
+
+
+func test_change_reads_a_factor_above_one_as_a_positive_percentage() -> void:
+	_english()
+	assert_eq(Format.change(1.3), "+30%")
+
+
+func test_change_puts_the_german_unit_gap() -> void:
+	_german()
+	assert_eq(Format.change(0.85), "−15 %")
+
+
+func test_change_reads_zero_as_minus_one_hundred() -> void:
+	_english()
+	assert_eq(Format.change(0.0), "−100%")
+
+
+func test_change_keeps_a_decimal_that_would_round_away() -> void:
+	_german()
+	assert_eq(Format.change(0.925), "−7,5 %")
+
+
+func test_change_from_two_on_is_a_factor() -> void:
+	_english()
+	assert_eq(Format.change(2.0), "×2")
+	assert_eq(Format.change(3.0), "×3")
+
+
+func test_change_of_one_is_plus_nothing() -> void:
+	_english()
+	assert_eq(Format.change(1.0), "+0%")
+
+
+func test_signed_percent_carries_its_sign() -> void:
+	_english()
+	assert_eq(Format.signed_percent(0.05), "+5%")
+	assert_eq(Format.signed_percent(-0.03), "−3%")

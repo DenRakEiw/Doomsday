@@ -87,7 +87,8 @@ mouse_filter = 2
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-mouse_filter = 2
+mouse_filter = 1
+tooltip_text = "UI_TREE_FP_TIP"
 theme_type_variation = &"TechNodeFootprint"
 
 [node name="GlyphBox" type="Control" parent="Content/Column/Footer"]

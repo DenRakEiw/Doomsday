@@ -55,9 +55,49 @@ static func option_text(def_id: String, option_id: String) -> String:
 	return TechText.tr_key(EventOptionDef.text_key(def_id, option_id))
 
 
+## The result line of an answer. `args` are what the answer's events give it
+## (`ChangeText.result_args`: `{node}`, `{days}`), so a writer may name them (C2).
 static func result_text(def_id: String, option_id: String, world: World,
-		region_index: int) -> String:
-	return format(EventOptionDef.result_key(def_id, option_id), world, region_index)
+		region_index: int, args: Dictionary = {}) -> String:
+	var all: Dictionary = args.duplicate()
+	all[PLACEHOLDER_REGION] = region_name(world, region_index)
+	return TechText.tr_key(EventOptionDef.result_key(def_id, option_id)).format(all)
+
+
+## Whether the event has the plain summary of plain-language.md §5.2 C6.
+static func has_summary(def_id: String) -> bool:
+	var key: String = EventDef.summary_key(def_id)
+	return TechText.tr_key(key) != key
+
+
+## What the card says first (§2.3): what happens. A counter-move is explained by
+## its status — the written detail and the generated line of what it does, here —
+## an unplanned behaviour by its body, an opening or a story by its summary where
+## one is written and by its body where not.
+static func explanation(def: EventDef, event: OpenEvent, sim: Simulation) -> String:
+	if def.kind == EventDef.KIND_COUNTER_MOVE and not def.status.is_empty():
+		var lines: PackedStringArray = [TechText.tr_key(StatusDef.detail_key(def.status))]
+		var status_line: String = StatusText.line(sim.db, def.status, event.level, 0,
+			region_name(sim.world, event.region))
+		if not status_line.is_empty():
+			lines.append(status_line)
+		return "\n".join(lines)
+	if def.kind != EventDef.KIND_EMERGENT and has_summary(def.id):
+		return format(EventDef.summary_key(def.id), sim.world, event.region)
+	return body(def.id, sim.world, event.region)
+
+
+## The wire copy (§2.3): the body of a counter-move, or of an opening or a story
+## that has a summary — shown under the options in caption style. "" when the
+## body already is the explanation.
+static func wire_copy(def: EventDef, event: OpenEvent, sim: Simulation) -> String:
+	if def.kind == EventDef.KIND_EMERGENT:
+		return ""
+	if def.kind == EventDef.KIND_COUNTER_MOVE and not def.status.is_empty():
+		return body(def.id, sim.world, event.region)
+	if has_summary(def.id):
+		return body(def.id, sim.world, event.region)
+	return ""
 
 
 ## The dateline of the wire card: the region, the faction of a counter-move, or

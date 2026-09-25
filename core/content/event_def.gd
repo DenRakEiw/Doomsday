@@ -113,6 +113,12 @@ static func body_key(event_id: String) -> String:
 	return "EVENT_%s_BODY" % event_id.to_upper()
 
 
+## plain-language.md §5.2 C6: the optional plain sentence an opening or a chain
+## card shows as its explanation, above the options and the wire copy.
+static func summary_key(event_id: String) -> String:
+	return "EVENT_%s_SUMMARY" % event_id.to_upper()
+
+
 ## `UI_EVENT_KIND_OPENING` and so on — the card's dateline.
 static func kind_key(event_kind: String) -> String:
 	return "UI_EVENT_KIND_%s" % event_kind.to_upper()

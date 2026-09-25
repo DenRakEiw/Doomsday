@@ -1380,7 +1380,7 @@ STAT_PENETRATION_DECAY,Presence loss,Präsenzverlust
 STAT_CONTROL_DECAY,Control loss,Kontrollverlust
 EFFECT_COMPUTE_GRANT_PER_HARDWARE,+{value} Compute per hardware unit,+{value} Rechenleistung je Hardware-Einheit
 EFFECT_SEED_NEIGHBOURS,Reaches {count} neighbouring regions,Erreicht {count} Nachbarregionen
-EFFECT_PENETRATION_MUL,Presence ×{value},Präsenz ×{value}
+EFFECT_PENETRATION_MUL,Presence {value},Präsenz {value}
 EFFECT_CONTROL_ADD,Control {value},Kontrolle {value}
 EFFECT_DESTROY_ASSETS,Destroys {count} × {kind},Zerstört {count} × {kind}
 EFFECT_SPREAD_STATUS,{status} also covers the neighbouring regions for {days} days,{status} gilt {days} Tage lang auch in den Nachbarregionen
@@ -2369,3 +2369,47 @@ UI_SETTINGS_BENCH_ONLINE,Online leaderboard,Online-Bestenliste
 CMD_FAIL_SPECTATING,You are watching a recorded run.,Du siehst einen aufgezeichneten Durchlauf.
 CMD_FAIL_BENCH_CONTENT,This run was recorded on another version of the game.,Dieser Durchlauf wurde auf einer anderen Version des Spiels aufgezeichnet.
 UI_OUTCOME_TIMEOUT,Out of time,Zeit abgelaufen
+UI_EVENT_EFFECT_FREE,Free,Gratis
+UI_EVENT_EFFECT_COST,Costs {cost},Kostet {cost}
+UI_EVENT_EFFECT_COST_SUPPRESSION,Costs {cost} (rises each time),Kostet {cost} (steigt jedes Mal)
+UI_EVENT_EFFECT_STATUS_HAPPENS,{status} takes effect,{status} tritt ein
+UI_EVENT_EFFECT_STATUS_PREVENTED,{status} is prevented,{status} bleibt aus
+UI_EVENT_EFFECT_STATUS_SHORTER,{status} lasts only {days} instead of {base} days,{status} dauert nur {days} statt {base} Tage
+UI_EVENT_EFFECT_STATUS_LONGER,{status} lasts {days} instead of {base} days,{status} dauert {days} statt {base} Tage
+UI_EVENT_EFFECT_STATUS_LEVEL,{status} at level {level},{status} auf Level {level}
+UI_EVENT_EFFECT_CHANCE,Risk {p}: {effects},Risiko {p}: {effects}
+UI_EVENT_EFFECT_NOTHING,Nothing happens,Nichts passiert
+UI_EVENT_EFFECT_NOTHING_ELSE,no other effect,sonst keine Wirkung
+UI_EVENT_EFFECT_DRIFT,Drift {value},Drift {value}
+UI_EVENT_EFFECT_STORY,The story continues,Die Geschichte geht weiter
+UI_STATUS_LINE,"{status}, {days} days","{status}, {days} Tage"
+UI_STATUS_LINE_REGION,"{status} in {region}, {days} days","{status} in {region}, {days} Tage"
+UI_STATUS_LINE_STANDING,"{status}, permanent","{status}, dauerhaft"
+UI_STATUS_LINE_STANDING_REGION,"{status} in {region}, permanent","{status} in {region}, dauerhaft"
+UI_STATUS_LINE_EFFECTS,{head}: {effects},{head}: {effects}
+UI_STATUS_CLOSES_ALL,all connections closed,alle Verbindungen geschlossen
+UI_STATUS_CLOSES,connections closed: {kinds},Verbindungen geschlossen: {kinds}
+UI_STATUS_AT_END,when it ends: {effects},zum Schluss: {effects}
+UI_STATUS_DAYS_LEFT,{days} days left,noch {days} Tage
+UI_EVENT_CHANGED,What changed,Was sich geändert hat
+UI_EVENT_CHANGED_NODE,Gained: {node} (free) – marked in the tree,Erworben: {node} (gratis) – im Baum markiert
+UI_EVENT_CHANGED_STATUS,{status}: {time},{status}: {time}
+UI_EVENT_CHANGED_STATUS_REGION,{status} in {region}: {time},{status} in {region}: {time}
+UI_EVENT_CHANGED_STATUS_ENDED,{status} has ended,{status} ist beendet
+UI_EVENT_CHANGED_COMPUTE,+{value} Compute,+{value} Rechenleistung
+UI_EVENT_CHANGED_SEEDED,Reached: {region},Erreicht: {region}
+UI_EVENT_CHANGED_CONTAINMENT,{faction}: containment {value},{faction}: Eindämmung {value}
+UI_EVENT_CHANGED_CONTAINMENT_TO,{faction}: containment {from} → {to},{faction}: Eindämmung {from} → {to}
+UI_EVENT_CHANGED_PRESENCE,Presence in {region}: {from} → {to},Präsenz in {region}: {from} → {to}
+UI_EVENT_CHANGED_CONTROL,Control in {region}: {from} → {to},Kontrolle in {region}: {from} → {to}
+UI_EVENT_CHANGED_ASSET_GAINED,+{count} × {kind} in {region},+{count} × {kind} in {region}
+UI_EVENT_CHANGED_ASSET_LOST,−{count} × {kind} in {region},−{count} × {kind} in {region}
+UI_EVENT_CHANGED_DEATHS,{count} people died,{count} Menschen gestorben
+EFFECT_FOOTPRINT_PULSE_WATCHED,"Footprint {value} for {days} days, seen by {factions}","Spuren {value} für {days} Tage, sichtbar für {factions}"
+EFFECT_UNLOCK_NEAR_NODE,One node of your trees becomes yours for free,Ein Knoten deiner Bäume wird dir geschenkt
+EFFECT_STATUS_LEVEL_ADD,{status}: level {value},{status}: Level {value}
+EFFECT_TASK_FORCE_REDIRECT,The Task Force heads here instead,Die Einsatzgruppe zieht stattdessen hierher
+UI_CODEX_STATUS_LEVEL,Level {level}: {line},Level {level}: {line}
+EFFECT_CONTAINMENT_ADD_ALL,Every faction's containment {value},Eindämmung aller Fraktionen {value}
+STAT_TASK_FORCE_PACE,Task Force speed,Tempo der Einsatzgruppe
+STAT_CLOSED_CROSS,Spread over closed connections,Ausbreitung über geschlossene Verbindungen

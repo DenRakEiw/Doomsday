@@ -9,7 +9,10 @@ extends Control
 ## answering: the event keeps its deadline and its marker, or for a global event
 ## the top bar's pending chip, brings it back.
 ##
-## After an answer the card says what came of it and offers one button to close.
+## Explanation first, flavour under it (plain-language.md §2.3): what happens,
+## the answers with the generated line of what each does, the deadline, then the
+## wire copy in the caption's style. After an answer the card says what changed,
+## then the result line, and offers one button to close.
 ##
 ## Built in code, like the event card: its content changes per event, and the
 ## modal host shows it in a slot that owns no `%` names of its own.
@@ -22,6 +25,8 @@ const COMPACT_WIDTH: float = 1100.0
 const VARIATION_PANEL: StringName = &"ConsolePanelWire"
 const VARIATION_CAPTION: StringName = &"LabelCaption"
 const VARIATION_CAPTION_ALERT: StringName = &"LabelCaptionAlert"
+const VARIATION_CHANGED: StringName = &"LabelCaptionHint"
+const VARIATION_CAPS: StringName = &"LabelCaps"
 const KEY_CLOSE: String = "UI_COMMON_CLOSE"
 
 var _panel: PanelContainer = null
@@ -32,6 +37,11 @@ var _title: Label = null
 var _body: Label = null
 var _options: EventOptions = null
 var _deadline: Label = null
+## The wire copy under the options, when the body is not the explanation (§2.3).
+var _wire: Label = null
+## "What changed" (§5.2 C2): its heading and its generated lines.
+var _changed_title: Label = null
+var _changed: Label = null
 var _result: Label = null
 var _close: ConsoleButton = null
 
@@ -91,6 +101,22 @@ func layout() -> BoxContainer:
 	return _layout
 
 
+func body_label() -> Label:
+	return _body
+
+
+func wire_label() -> Label:
+	return _wire
+
+
+func changed_label() -> Label:
+	return _changed
+
+
+func result_label() -> Label:
+	return _result
+
+
 ## §16.7: `Escape` closes the card and answers nothing.
 ## accessibility.md §3.4: what is spoken when the modal opens.
 func a11y_summary() -> String:
@@ -132,7 +158,7 @@ func _refresh(event: OpenEvent, sim: Simulation) -> void:
 	_illustration.show_illustration(def.illustration, fallback, &"TEXT_2", icon_kind, def.id)
 	_dateline.text = Format.caps(EventView.dateline(event, sim.world))
 	_title.text = EventView.title(def.id, sim.world, event.region)
-	_body.text = EventView.body(def.id, sim.world, event.region)
+	_body.text = EventView.explanation(def, event, sim)
 	_body.visible = true
 	_options.visible = true
 	_options.show_event(event, sim)
@@ -140,6 +166,9 @@ func _refresh(event: OpenEvent, sim: Simulation) -> void:
 	_deadline.text = EventView.deadline(event, def, sim.world.day)
 	_deadline.theme_type_variation = VARIATION_CAPTION_ALERT \
 		if EventView.deadline_is_near(event, sim.world.day) else VARIATION_CAPTION
+	_wire.text = EventView.wire_copy(def, event, sim)
+	_wire.visible = not _wire.text.is_empty()
+	_show_changed(PackedStringArray())
 	_result.visible = false
 	_close.visible = false
 
@@ -190,7 +219,23 @@ func _build() -> void:
 	_deadline.theme_type_variation = VARIATION_CAPTION
 	_deadline.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(_deadline)
+	_wire = Label.new()
+	_wire.theme_type_variation = VARIATION_CAPTION
+	_wire.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_wire.visible = false
+	column.add_child(_wire)
+	_changed_title = Label.new()
+	_changed_title.theme_type_variation = VARIATION_CAPS
+	_changed_title.visible = false
+	column.add_child(_changed_title)
+	_changed = Label.new()
+	_changed.theme_type_variation = VARIATION_CHANGED
+	_changed.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_changed.visible = false
+	column.add_child(_changed)
+	# §2.3: the result line is flavour, under what changed.
 	_result = Label.new()
+	_result.theme_type_variation = VARIATION_CAPTION
 	_result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_result.visible = false
 	column.add_child(_result)
@@ -220,13 +265,26 @@ func _on_option_chosen(option_id: String) -> void:
 		_answered = false
 		_options.show_failure(option_id, result.reason)
 		return
-	_result.text = EventView.result_text(def_id, option_id, sim.world, region)
+	var day: int = sim.world.day
+	_show_changed(ChangeText.lines(result.events, day))
+	_result.text = EventView.result_text(def_id, option_id, sim.world, region,
+		ChangeText.result_args(result.events, day))
 	_result.visible = true
 	_body.visible = false
 	_options.visible = false
 	_deadline.visible = false
+	_wire.visible = false
 	_close.visible = true
 	_close.grab_focus.call_deferred()
+
+
+## §5.2 C2: the generated lines of what the answer changed, under a heading;
+## nothing at all when it changed nothing the player can see.
+func _show_changed(lines: PackedStringArray) -> void:
+	_changed_title.text = Format.caps(tr(ChangeText.KEY_TITLE))
+	_changed.text = "\n".join(lines)
+	_changed.visible = not lines.is_empty()
+	_changed_title.visible = _changed.visible
 
 
 func _on_tick_advanced(_day: int) -> void:

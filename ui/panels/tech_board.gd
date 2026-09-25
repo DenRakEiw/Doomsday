@@ -100,6 +100,13 @@ func select(node_id: String) -> void:
 		_draw_edges(_sim)
 
 
+## plain-language.md §5.2 C2: the nodes an answer handed over wear a mark until
+## the tree has been open once.
+func set_marked(ids: Dictionary[String, bool]) -> void:
+	for id: String in _nodes:
+		_nodes[id].set_marked(ids.has(id))
+
+
 func selected_id() -> String:
 	return _selected
 

@@ -123,7 +123,7 @@ func _apply_numbers(breakdown: Dictionary) -> void:
 	_capacity.text = tr(KEY_CAPACITY).format({PLACEHOLDER_PERCENT:
 		Format.percent(float(breakdown[ContainmentSystem.CAPACITY]))})
 	var brakes: float = float(breakdown[ContainmentSystem.BRAKES])
-	_brakes.text = tr(KEY_BRAKES).format({PLACEHOLDER_VALUE: Format.factor(brakes)})
+	_brakes.text = tr(KEY_BRAKES).format({PLACEHOLDER_VALUE: Format.change(brakes)})
 	_brakes.theme_type_variation = &"LabelCaptionAccent" if brakes < BRAKES_NEUTRAL \
 		else &"LabelCaption"
 	_daily.text = tr(KEY_DAILY).format({PLACEHOLDER_PERCENT:

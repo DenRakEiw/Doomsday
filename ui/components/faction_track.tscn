@@ -70,16 +70,22 @@ theme_type_variation = &"FlowSnug"
 [node name="Capacity" type="Label" parent="Detail"]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 0
+tooltip_text = "UI_CONTAINMENT_CAPACITY_TIP"
 theme_type_variation = &"LabelCaption"
 
 [node name="Brakes" type="Label" parent="Detail"]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 0
+tooltip_text = "UI_CONTAINMENT_BRAKES_TIP"
 theme_type_variation = &"LabelCaption"
 
 [node name="Daily" type="Label" parent="Detail"]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 0
+tooltip_text = "UI_CONTAINMENT_DAILY_TIP"
 theme_type_variation = &"LabelCaption"
 
 [node name="Terms" type="VBoxContainer" parent="."]

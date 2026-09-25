@@ -63,6 +63,8 @@ var has_external_prerequisite: bool = false
 
 var _cell: Vector2i = Vector2i.ZERO
 var _is_selected: bool = false
+## Handed over by an event's answer (plain-language.md §5.2 C2).
+var _is_marked: bool = false
 var _flash_alpha: float = 0.0
 var _flash_tween: Tween = null
 ## Kept so that the accessible name can be rebuilt on a locale change.
@@ -137,6 +139,18 @@ func set_selected(value: bool) -> void:
 
 func is_selected() -> bool:
 	return _is_selected
+
+
+## An answer handed this node over: its border stays lit until the tree closes.
+func set_marked(value: bool) -> void:
+	if value == _is_marked:
+		return
+	_is_marked = value
+	queue_redraw()
+
+
+func is_marked() -> bool:
+	return _is_marked
 
 
 ## The border lights up and fades back to the state's own (§3.3).
@@ -228,6 +242,8 @@ func _fit_icon() -> void:
 
 func _draw() -> void:
 	_draw_glyph()
+	if _is_marked and not _is_selected:
+		_draw_border(UiTokens.color(&"ACCENT"), float(UiTokens.BORDER_FOCUS))
 	if _is_selected:
 		_draw_border(UiTokens.color(&"MAP_SELECT"), float(UiTokens.BORDER_FOCUS))
 	if _flash_alpha > 0.0:

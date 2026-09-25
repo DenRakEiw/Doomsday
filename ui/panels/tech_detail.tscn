@@ -102,12 +102,6 @@ unique_name_in_owner = true
 layout_mode = 2
 autowrap_mode = 3
 
-[node name="Flavour" type="Label" parent="Scroll/Content/Body"]
-unique_name_in_owner = true
-layout_mode = 2
-autowrap_mode = 3
-theme_type_variation = &"LabelCaption"
-
 [node name="EffectsTitle" type="Label" parent="Scroll/Content/Body"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -172,6 +166,12 @@ layout_mode = 2
 theme_type_variation = &"Flow"
 
 [node name="WatchedNone" type="Label" parent="Scroll/Content/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelCaption"
+
+[node name="Flavour" type="Label" parent="Scroll/Content/Body"]
 unique_name_in_owner = true
 layout_mode = 2
 autowrap_mode = 3

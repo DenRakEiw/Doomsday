@@ -323,7 +323,8 @@ before the *next* row; "—" means stay on the same model.
 | 89 | S6.13 Spectator view and the online list | [O] | — |
 | 89a | D6.11 (1/2) Text clarity audit, style rules, glossary, 30 examples *(inserted 2026-09-25 by the user)* | **[F]** | — |
 | 89b | D6.11 (2/2a) Plain-language pass I: terms, coach, help, HUD and panels, console — **[needs user]** *(the user's answer on `plain-language.md` first)* | **[F]** | — |
-| 89c | S6.P3 Event effect lines, "what changed", explanation-first layout, compact tech tree *(punch items 2–3)* | [O] | — |
+| 89c | S6.P3a Event effect lines, "what changed", explanation-first layout, status lines, tooltips *(punch item 3; C1–C7)* | [O] | — |
+| 89c′ | S6.P3b The compact tech tree, why a node is locked, the mute button *(punch item 2 + the user's requests of 2026-09-25)* | [O] | — |
 | 89d | D6.11 (2/2b) Plain-language pass II: cards, what you buy, the flavour check | **[F]** | — |
 | 90 | G6 (1/2) Balance pass 4 *(tuning; data only)* | **[F]** | — |
 | 91 | D6.10 Illustrations produced — **[needs user]** | **[F]** | — |
@@ -1238,6 +1239,20 @@ punch item 2 (the compact tech tree). Placeholder text for new keys is marked `#
 where the spec gives none.
 **Done when:** every shipped option shows its effect line in both languages (tested), the
 screenshots of §5.3 item 4 are taken, `tools/test.sh` is green.
+*Split at §1.6 (2026-09-25):* **S6.P3a** built C1–C7 and the ten tooltips; the tree half is
+**S6.P3b** below.
+
+### S6.P3b — The compact tech tree, why a node is locked, the mute button **[O]** · **Read first:** `PROGRESS.md` *Punch list for Opus* items 2, 4–5 · *In progress*
+Punch item 2: a compact tree layout in which a whole tab fits without scrolling at 1920×1080
+and 2560×1440 (100 % text; larger text may scroll). Item 4 (the user, 2026-09-25): every node
+that cannot be bought says why, in plain words, on hover and in the detail pane — the exact
+reason from the simulation (missing prerequisites named, all vs one of, excluded by which
+owned node, phase or architecture, missing assets with counts, no eligible site and why, the
+compute shortfall), strings added where a reason has none. Item 5: the mute button beside the
+menu button. A real-click test through the main scene: select a locked node (its reason
+shows), buy from the compact tree; the tree screenshots of §5.3 item 4.
+**Done when:** the three tabs fit at 1920×1080 in both languages (tested by geometry), the
+reasons show and are tested, `tools/test.sh` is green.
 
 ### D6.11 (2/2b) — Plain-language pass II **[F]** · **Read first:** `plain-language.md` §2, §3, §5.1 passes 4, 5, 7
 The cards (titles, emergent bodies, options, summaries where the wire copy does not say what is

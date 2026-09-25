@@ -697,10 +697,14 @@ func _hover_status(region_index: int) -> void:
 	var status: Status = Game.sim.world.statuses_in_region(region_index)[0]
 	var days: String = tr(KEY_STANDING) if status.is_standing() \
 		else str(status.days_left(Game.sim.world.day))
-	_tooltip_label.text = tr(KEY_STATUS_TIP).format({
+	# plain-language.md §5.2 C3: under the name and the days, what the status does
+	# — one generated line per modifier, since a map tooltip does not wrap.
+	var lines: PackedStringArray = [tr(KEY_STATUS_TIP).format({
 		PLACEHOLDER_STATUS: tr(StatusDef.name_key(status.id)),
 		PLACEHOLDER_DAYS: days,
-	})
+	})]
+	lines.append_array(StatusText.effects(Game.db, status.id, status.level))
+	_tooltip_label.text = "\n".join(lines)
 	_tooltip.visible = true
 	_place_tooltip_at(_statuses[region_index].position)
 

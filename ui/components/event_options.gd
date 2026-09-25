@@ -5,15 +5,19 @@ extends VBoxContainer
 ##
 ## The event card in the region panel and the wire card show the same list, so
 ## it is one component: a button per option with its text and a trailing price
-## chip, and under it a caption — why it is locked, that the Compute is short,
-## or that this is what happens if you wait. Pressing asks; the owner sends the
-## command and hands a refusal back through `show_failure`.
+## chip; under it the generated line of what the answer does
+## (plain-language.md §5.2 C1), and a caption — why it is locked, that the
+## Compute is short, or that this is what happens if you wait. Pressing asks; the
+## owner sends the command and hands a refusal back through `show_failure`.
 
 signal option_chosen(option_id: String)
 
 const KEY_INSUFFICIENT: String = "CMD_FAIL_INSUFFICIENT_COMPUTE"
 const PREFIX_FAIL: String = "CMD_FAIL_"
 const VARIATION_CAPTION: StringName = &"LabelCaption"
+## The effect line reads a step brighter than a caption that only labels: it is
+## the answer's explanation (plain-language.md §2.3), in the caption's size.
+const VARIATION_EFFECT: StringName = &"LabelCaptionHint"
 const VARIATION_ROW: StringName = &"Row"
 const VARIATION_STACK: StringName = &"StackTight"
 
@@ -21,6 +25,8 @@ const VARIATION_STACK: StringName = &"StackTight"
 var _captions: Dictionary[String, Label] = {}
 ## Option id → its button, for the tests and the focus.
 var _buttons: Dictionary[String, ConsoleButton] = {}
+## Option id → the generated line of what it does (C1).
+var _effects: Dictionary[String, Label] = {}
 
 
 func _ready() -> void:
@@ -35,6 +41,7 @@ func show_event(event: OpenEvent, sim: Simulation) -> void:
 		child.queue_free()
 	_captions.clear()
 	_buttons.clear()
+	_effects.clear()
 	if event == null or sim == null:
 		return
 	var def: EventDef = sim.db.event(event.def)
@@ -47,6 +54,11 @@ func show_event(event: OpenEvent, sim: Simulation) -> void:
 ## The button of an option, or null.
 func button_of(option_id: String) -> ConsoleButton:
 	return _buttons.get(option_id, null)
+
+
+## The generated line of what an option does, or null (C1).
+func effect_of(option_id: String) -> Label:
+	return _effects.get(option_id, null)
 
 
 ## The caption under an option, or null.
@@ -94,6 +106,13 @@ func _row(def: EventDef, option: EventOptionDef, event: OpenEvent, sim: Simulati
 	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(chip)
 	box.add_child(row)
+
+	var effect: Label = Label.new()
+	effect.theme_type_variation = VARIATION_EFFECT
+	effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	effect.text = OptionText.line(sim, def, option, event.level)
+	box.add_child(effect)
+	_effects[option.id] = effect
 
 	var caption: Label = Label.new()
 	caption.theme_type_variation = VARIATION_CAPTION
