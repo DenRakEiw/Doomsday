@@ -111,3 +111,37 @@ func test_a_standing_status_is_permanent() -> void:
 func test_a_status_in_a_region_names_it() -> void:
 	assert_string_starts_with(StatusText.line(_db(), "lockdown", 1, 0, "Brazil"),
 		"%s in Brazil, 45 days" % tr(StatusDef.name_key("lockdown")))
+
+
+## S6.P4 (plain-language.md §9.4 item 4): *Captured* says what it does — the
+## statuses it ends and the counter-moves that pass its region by.
+func test_a_status_names_what_it_ends_and_what_it_blocks() -> void:
+	var lockdown: String = tr(StatusDef.name_key("lockdown"))
+	var purge: String = tr(StatusDef.name_key("purge"))
+	var ended: PackedStringArray = [lockdown, tr(StatusDef.name_key("rationing")),
+		tr(StatusDef.name_key("audit"))]
+	var parts: PackedStringArray = StatusText.effects(_db(), "captured")
+	assert_has(parts, tr(StatusText.KEY_ENDS).format({"statuses": ", ".join(ended)}))
+	var blocks: String = parts[parts.size() - 1]
+	assert_string_contains(blocks, lockdown)
+	assert_string_contains(blocks, purge, "purge is blocked, not ended")
+	assert_string_starts_with(blocks, "these counter-moves skip the region: ")
+
+
+## §9.4 item 3: a count of 0 takes every one, in the plural.
+func test_destroying_every_asset_of_a_kind_says_all_in_the_plural() -> void:
+	var lines: PackedStringArray = StatusText.effects(_db(), "tf_raid")
+	assert_has(lines, "Destroys all your %s" % tr("ASSET_LAB_PLURAL"))
+	for line: String in lines:
+		assert_false(line.contains("0 ×"), line)
+	TranslationServer.set_locale("de")
+	assert_has(StatusText.effects(_db(), "tf_raid"),
+		"Zerstört alle deine %s" % tr("ASSET_LAB_PLURAL"))
+
+
+func test_destroying_a_counted_asset_keeps_its_count() -> void:
+	var effect: EffectDef = EffectDef.new()
+	effect.effect = EffectDef.DESTROY_ASSETS
+	effect.kind = "fleet"
+	effect.count = 2
+	assert_eq(TechText.effect_line(effect), "Destroys 2 × %s" % tr("ASSET_FLEET_PLURAL"))

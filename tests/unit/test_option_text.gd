@@ -136,3 +136,61 @@ func test_on_the_swarm_an_answer_says_which_way_the_drift_goes() -> void:
 func test_off_the_swarm_no_line_names_drift() -> void:
 	TranslationServer.set_locale("en")
 	assert_false(_line(_sim(), DECEPTIVE, "keep").contains("Drift"))
+
+
+# ------------------------------------------- S6.P4: plain-language.md §9.4
+
+
+## Item 1: an option's own story flag is named like a `set_flag` effect — the
+## rocket wins the run, and its line says so.
+func test_an_option_flag_that_wins_the_run_is_named() -> void:
+	TranslationServer.set_locale("en")
+	var line: String = _line(_sim(), "es_countdown", "go")
+	assert_string_ends_with(line, tr("FLAG_ESCAPED"))
+	assert_false(line.contains(tr(OptionText.KEY_NOTHING_ELSE)))
+
+
+## Item 2: a roll with nothing to read that routes the story is said.
+func test_a_roll_that_only_turns_the_story_says_its_chance() -> void:
+	TranslationServer.set_locale("de")
+	var sim: Simulation = _sim()
+	var option: EventOptionDef = sim.db.event("bm_published").option("poison")
+	assert_true(option.chance[0].has_next, "the fixture: the roll routes the chain")
+	var line: String = _line(sim, "bm_published", "poison")
+	assert_string_contains(line, tr(OptionText.KEY_CHANCE_STORY).format(
+		{"p": Format.percent(option.chance[0].p)}))
+	assert_false(line.contains(tr(OptionText.KEY_NOTHING_ELSE)))
+
+
+func test_an_answer_that_only_routes_says_the_story_goes_on() -> void:
+	TranslationServer.set_locale("en")
+	assert_eq(_line(_sim(), "bm_published", "ignore"),
+		"%s · %s" % [tr(OptionText.KEY_FREE), tr(OptionText.KEY_STORY)])
+
+
+## No shipped line says *no other effect* where the answer routes the story.
+func test_no_answer_that_routes_says_no_other_effect() -> void:
+	TranslationServer.set_locale("en")
+	var sim: Simulation = _sim()
+	var bad: Array[String] = []
+	for def: EventDef in sim.db.events:
+		for option: EventOptionDef in def.options:
+			var routes: bool = not option.next.is_empty()
+			for roll: EventChanceDef in option.chance:
+				routes = routes or roll.has_next
+			if routes and OptionText.line(sim, def, option).contains(
+					tr(OptionText.KEY_NOTHING_ELSE)):
+				bad.append("%s/%s" % [def.id, option.id])
+	assert_eq(bad, [] as Array[String])
+
+
+## The Codex's line: no run, so the first suppression's price and no drift.
+func test_without_a_run_the_price_is_the_first_one() -> void:
+	TranslationServer.set_locale("de")
+	var db: ContentDB = _db()
+	var def: EventDef = db.event(DECEPTIVE)
+	var price: String = Format.number(db.balance.emergent_suppress_cost, Format.Kind.COMPUTE)
+	assert_eq(OptionText.line_without_run(db, def, def.option("suppress")),
+		"Kostet %s (steigt jedes Mal) · sonst keine Wirkung" % price)
+	assert_eq(OptionText.line_without_run(db, def, def.option("keep")),
+		OptionText.line(_sim(), def, def.option("keep")))

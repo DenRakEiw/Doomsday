@@ -151,8 +151,16 @@ func test_no_target_is_inert_any_more() -> void:
 	assert_true(ModifierStack.INERT_TARGETS.is_empty())
 
 
-func test_an_inert_flag_is_answered_truthfully() -> void:
-	var flag: String = ModifierStack.INERT_FLAGS[0]
+## S6.P4: the merge vote reads both flags the list held, so the tree no longer
+## says *(not active in this build)* under Succession and Constitutional
+## Integration.
+func test_no_flag_is_inert_any_more() -> void:
+	assert_true(ModifierStack.INERT_FLAGS.is_empty())
+	assert_false(TechText.flag_line("merge_path").ends_with(TechText.tr_key(TechText.KEY_INERT)))
+
+
+func test_a_flag_is_answered_truthfully() -> void:
+	var flag: String = "legal_standing"
 	var stack: ModifierStack = _stack()
 	var none: Array[ModifierDef] = []
 	var flags: Array[String] = [flag]

@@ -127,7 +127,68 @@ func test_the_effects_list_reads_the_architecture() -> void:
 	assert_eq(lines.size(), embedded.modifiers.size() + embedded.start_owned.size()
 		+ embedded.start_assets.size() + (0 if embedded.hook.is_empty() else 1))
 	var weapon: ArchitectureDef = Game.db.architecture("weapon")
-	assert_eq(setup.effect_lines(weapon).back(), tr("ARCH_HOOK_ESCALATION"))
+	assert_eq(setup.effect_lines(weapon).back(), tr("ARCH_HOOK_ESCALATION").format(
+		{"days": Game.db.balance.escalation_every_days}))
+
+
+## S6.P4 (plain-language.md §9.4 item 8): a hook's numbers come from balance.
+func test_a_hook_names_its_numbers_from_balance() -> void:
+	var setup: Setup = _open()
+	for locale: String in ["en", "de"]:
+		TranslationServer.set_locale(locale)
+		var distributed: String = setup.hook_line(ArchitectureDef.HOOK_DISTRIBUTED)
+		assert_string_contains(distributed, str(Game.db.balance.distributed_hold_regions))
+		var escalation: String = setup.hook_line(ArchitectureDef.HOOK_ESCALATION)
+		assert_string_contains(escalation, str(Game.db.balance.escalation_every_days))
+		assert_false(distributed.contains("{") or escalation.contains("{"))
+	TranslationServer.set_locale("en")
+
+
+## §9.4 item 6: a difficulty says what it changes and its head start.
+func test_a_difficulty_has_generated_lines() -> void:
+	var setup: Setup = _open()
+	setup.select_difficulty("gentle")
+	var gentle: DifficultyDef = Game.db.difficulty("gentle")
+	var lines: Array[String] = setup.difficulty_lines("gentle")
+	assert_eq(lines.size(), gentle.modifiers.size() + 1, "each modifier, then the start")
+	assert_eq(lines[0], TechText.modifier_line(gentle.modifiers[0], Game.db))
+	assert_eq(lines.back(), tr("UI_SETUP_START_COMPUTE").format(
+		{"value": Format.number(gentle.start_compute, Format.Kind.COMPUTE)}))
+	var shown: VBoxContainer = setup.get_node("%DifficultyEffects") as VBoxContainer
+	assert_true(shown.visible)
+	assert_eq(shown.get_child_count(), lines.size())
+	assert_eq((shown.get_child(0) as Label).text, lines[0])
+	setup.select_difficulty(DifficultyDef.DEFAULT_ID)
+	assert_eq(setup.difficulty_lines(DifficultyDef.DEFAULT_ID), [] as Array[String],
+		"standard changes nothing")
+	assert_false(shown.visible, "and shows no lines")
+
+
+func test_a_directive_has_generated_lines() -> void:
+	_runs(2)
+	var setup: Setup = _open()
+	setup.select_directive("yield", "yield_greedy")
+	var greedy: DirectiveDef = Game.db.directive("yield_greedy")
+	var lines: VBoxContainer = setup.find_child("EffectsYield", true, false) as VBoxContainer
+	assert_true(lines.visible)
+	assert_eq(lines.get_child_count(), greedy.modifiers.size())
+	assert_eq((lines.get_child(0) as Label).text,
+		TechText.modifier_line(greedy.modifiers[0], Game.db))
+	setup.select_directive("yield", "")
+	assert_false(lines.visible, "None says nothing")
+
+
+func test_a_scenario_has_generated_lines() -> void:
+	_runs(Game.db.scenario_unlock_runs)
+	var setup: Setup = _open()
+	var shown: VBoxContainer = setup.get_node("%ScenarioEffects") as VBoxContainer
+	assert_false(shown.visible, "None says nothing")
+	setup.select_scenario("inheritance")
+	var inheritance: ScenarioDef = Game.db.scenario("inheritance")
+	assert_true(shown.visible)
+	assert_eq(shown.get_child_count(), inheritance.modifiers.size())
+	assert_eq((shown.get_child(0) as Label).text,
+		TechText.modifier_line(inheritance.modifiers[0], Game.db))
 
 
 # ------------------------------------------------------ S5.8: scenarios

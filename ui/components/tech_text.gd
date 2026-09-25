@@ -28,6 +28,7 @@ const PREFIX_REGION: String = "REGION_"
 const PREFIX_CONTINENT: String = "CONTINENT_"
 const PREFIX_TECH: String = "TECH_"
 const SUFFIX_NAME: String = "_NAME"
+const SUFFIX_PLURAL: String = "_PLURAL"
 const PREFIX_ASSET: String = "ASSET_"
 const PREFIX_FACTION: String = "FACTION_"
 const PREFIX_STATUS: String = "STATUS_"
@@ -41,6 +42,9 @@ const KEY_FLAG_PERMANENT: String = "EFFECT_SET_FLAG_PERMANENT"
 const KEY_PULSE_WATCHED: String = "EFFECT_FOOTPRINT_PULSE_WATCHED"
 ## Every faction's track at once — `"faction": "all"` has no name of its own.
 const KEY_CONTAINMENT_ALL: String = "EFFECT_CONTAINMENT_ADD_ALL"
+## `destroy_assets` with a count of 0 or less takes every one of the kind
+## (`loop-mechanics.md` §17.6), named in the plural (plain-language.md §9.4).
+const KEY_DESTROY_ALL: String = "EFFECT_DESTROY_ASSETS_ALL"
 ## What joins a list of names in one line.
 const JOIN: String = ", "
 
@@ -118,7 +122,13 @@ static func _effect_key(effect: EffectDef) -> String:
 		return KEY_PULSE_WATCHED
 	if effect.effect == EffectDef.CONTAINMENT_ADD and effect.faction == EffectDef.FACTION_ALL:
 		return KEY_CONTAINMENT_ALL
+	if _destroys_all(effect):
+		return KEY_DESTROY_ALL
 	return PREFIX_EFFECT + effect.effect.to_upper()
+
+
+static func _destroys_all(effect: EffectDef) -> bool:
+	return effect.effect == EffectDef.DESTROY_ASSETS and effect.count <= 0
 
 
 ## Every placeholder any effect line takes. A key that does not use one simply
@@ -134,7 +144,8 @@ static func _effect_args(effect: EffectDef) -> Dictionary:
 		"value": effect_value(effect),
 		"count": effect.count,
 		"days": effect.days,
-		"kind": asset_name(effect.kind, effect.count),
+		"kind": asset_plural(effect.kind) if _destroys_all(effect) \
+				else asset_name(effect.kind, effect.count),
 		"status": tr_key(PREFIX_STATUS + effect.status.to_upper() + SUFFIX_NAME),
 		"statuses": JOIN.join(names),
 		"faction": tr_key(PREFIX_FACTION + effect.faction.to_upper()),
@@ -160,8 +171,15 @@ static func effect_value(effect: EffectDef) -> String:
 static func asset_name(kind: String, count: int = 1) -> String:
 	if kind.is_empty():
 		return ""
-	var suffix: String = "_PLURAL" if count > 1 else SUFFIX_NAME
+	var suffix: String = SUFFIX_PLURAL if count > 1 else SUFFIX_NAME
 	return tr_key(PREFIX_ASSET + kind.to_upper() + suffix)
+
+
+## An asset kind's name in the plural, whatever the count — *all your Labs*.
+static func asset_plural(kind: String) -> String:
+	if kind.is_empty():
+		return ""
+	return tr_key(PREFIX_ASSET + kind.to_upper() + SUFFIX_PLURAL)
 
 
 ## The player-facing name of a node.

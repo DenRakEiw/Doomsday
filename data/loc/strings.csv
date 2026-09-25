@@ -1876,8 +1876,8 @@ UI_SETUP_START_COMPUTE,You start with +{value} compute.,Du beginnst mit +{value}
 ARCH_HOOK_DRIFT,"Your copies drift from your goal: more unplanned behaviour, regions that break away, and a goal that can change.","Deine Kopien entfernen sich von deinem Ziel: mehr ungeplantes Verhalten, Regionen, die abfallen, und ein Ziel, das sich ändern kann."
 ARCH_HOOK_NO_NETWORK,Network links do not carry you until you buy a node that puts you on the network (for example Cloud Federation).,"Netzverbindungen tragen dich nicht, bis du einen Knoten kaufst, der dich ins Netz bringt (etwa Cloud-Föderation)."
 ARCH_HOOK_LABS_FROM_DAY_ONE,The AI Labs' containment grows from the first day.,Die Eindämmung der KI-Labore wächst vom ersten Tag an.
-ARCH_HOOK_ESCALATION,"Harm rises on its own, a step every two months.","Der Schaden steigt von selbst, alle zwei Monate eine Stufe."
-ARCH_HOOK_DISTRIBUTED,You cannot be fully deleted while you are present in ten regions.,"Du lässt dich nicht ganz löschen, solange du in zehn Regionen präsent bist."
+ARCH_HOOK_ESCALATION,"Harm rises on its own, a step every {days} days.","Der Schaden steigt von selbst, alle {days} Tage eine Stufe."
+ARCH_HOOK_DISTRIBUTED,You cannot be fully deleted while you are present in {regions} regions.,"Du lässt dich nicht ganz löschen, solange du in {regions} Regionen präsent bist."
 UI_CODEX_TITLE,Codex,Codex
 UI_CODEX_PROGRESS,{seen} of {total},{seen} von {total}
 UI_CODEX_LOCKED,Not yet encountered,Noch nicht begegnet

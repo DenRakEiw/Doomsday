@@ -247,7 +247,7 @@ func test_the_codex_opens_on_how_to_play() -> void:
 	add_child_autofree(codex)
 	codex.open()
 	assert_eq(codex.tab, CodexEntries.TAB_HELP)
-	assert_eq(CodexEntries.TABS[0], CodexEntries.TAB_HELP, "the first of eight tabs")
+	assert_eq(CodexEntries.TABS[0], CodexEntries.TAB_HELP, "the first of nine tabs")
 	assert_eq(codex.entry_id, HelpPages.ids()[0], "the first page opens at full width")
 
 

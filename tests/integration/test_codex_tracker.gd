@@ -64,6 +64,32 @@ func test_a_counter_move_is_remembered_for_its_faction() -> void:
 	assert_eq(tracker.collected["moves"], [move.id])
 
 
+## S6.P4 (plain-language.md §9.3): an unplanned behaviour is met when its card
+## opens, and a loaded run brings the one on the table with it.
+func test_an_emergent_card_is_remembered_as_a_behaviour() -> void:
+	var tracker: CodexTracker = _tracker()
+	var id: String = CodexEntries.behaviours(Game.content())[0]
+	tracker.take(_event(SimEvent.EVENT_OPENED, {"def": id, "kind": EventDef.KIND_EMERGENT}))
+	tracker.take(_event(SimEvent.EVENT_OPENED, {"def": id, "kind": EventDef.KIND_EMERGENT}))
+	assert_eq(tracker.collected["behaviours"], [id])
+	assert_eq(tracker.collected["moves"], [], "not a counter-move")
+	tracker.merge()
+	assert_true(CodexEntries.is_seen(CodexEntries.TAB_BEHAVIOURS, id, Game.content()),
+		"the profile keeps it")
+
+
+func test_the_sweep_finds_an_open_behaviour() -> void:
+	Game.start_run(1)
+	Game.apply(ChooseOriginCommand.new("usa"))
+	var id: String = CodexEntries.behaviours(Game.sim.db)[0]
+	var open: OpenEvent = OpenEvent.new()
+	open.def = id
+	Game.sim.world.events.append(open)
+	var tracker: CodexTracker = _tracker()
+	tracker.sweep(Game.sim.world, Game.sim.db)
+	assert_eq(tracker.collected["behaviours"], [id])
+
+
 func test_a_faction_is_met_when_its_containment_rises() -> void:
 	Game.start_run(1)
 	Game.apply(ChooseOriginCommand.new("usa"))

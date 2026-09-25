@@ -42,7 +42,7 @@ const CODEX_REGIONS: String = "regions"
 ## `moves` is no tab of its own: it is the counter-moves a faction's entry lists
 ## once each has been seen (§6.1).
 const CODEX_TABS: Array[String] = [CODEX_REGIONS, "factions", "tech", "characters", "statuses",
-	"moves"]
+	"moves", "behaviours"]
 ## `architectures.json`'s unlock rules (§8.1).
 const UNLOCK_RUNS: String = "runs_completed"
 const UNLOCK_WINS: String = "wins"

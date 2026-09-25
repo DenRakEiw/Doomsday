@@ -61,8 +61,9 @@ const CLAMPS: Dictionary[String, Array] = {
 ## yet (`docs/specs/tech-trees.md` §3.3). Each leaves this list in the step that
 ## makes its system live; the content is authored once, now.
 const INERT_TARGETS: Array[String] = []
-## The same for flags: `has_flag` answers truthfully, nobody asks yet.
-const INERT_FLAGS: Array[String] = ["legal_standing", "merge_path"]
+## The same for flags: `has_flag` answers truthfully, nobody asks yet. Empty
+## since the merge vote reads `legal_standing` and `merge_path` (S5; emptied S6.P4).
+const INERT_FLAGS: Array[String] = []
 
 ## What a faction sees of a source that nobody in particular watches (§5.1).
 const UNWATCHED_WEIGHT: float = 0.25

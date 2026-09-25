@@ -20,11 +20,15 @@ const KEY_CLOSES: String = "UI_STATUS_CLOSES"
 const KEY_AT_END: String = "UI_STATUS_AT_END"
 const KEY_DAYS_LEFT: String = "UI_STATUS_DAYS_LEFT"
 const KEY_STANDING: String = "UI_REGION_STATUS_STANDING"
+## plain-language.md §9.4 item 4: what a status keeps out of its region and
+## what it ends there when it starts.
+const KEY_BLOCKS: String = "UI_STATUS_BLOCKS"
+const KEY_ENDS: String = "UI_STATUS_ENDS"
 const PREFIX_LINK: String = "UI_LINK_"
 ## Every key this file names — the strings test reads this list.
 const KEYS: Array[String] = [KEY_HEAD, KEY_HEAD_REGION, KEY_HEAD_STANDING,
 	KEY_HEAD_STANDING_REGION, KEY_WITH_EFFECTS, KEY_CLOSES_ALL, KEY_CLOSES, KEY_AT_END,
-	KEY_DAYS_LEFT]
+	KEY_DAYS_LEFT, KEY_BLOCKS, KEY_ENDS]
 ## What joins the parts of one status: its modifiers, links and one-shots.
 const JOIN: String = ", "
 
@@ -45,8 +49,9 @@ static func line(db: ContentDB, status_id: String, level: int = 1, days: int = 0
 	return TechText.tr_key(KEY_WITH_EFFECTS).format({"head": head, "effects": JOIN.join(parts)})
 
 
-## What the status does at `level`, one part per modifier, closed link and
-## one-shot — without its name or its length (C3's tooltip lines).
+## What the status does at `level`, one part per modifier, closed link,
+## one-shot, the statuses it ends and those it keeps out — without its name or
+## its length (C3's tooltip lines).
 static func effects(db: ContentDB, status_id: String, level: int = 1) -> PackedStringArray:
 	var parts: PackedStringArray = []
 	var definition: StatusDef = db.status(status_id)
@@ -70,6 +75,12 @@ static func effects(db: ContentDB, status_id: String, level: int = 1) -> PackedS
 		parts.append(TechText.modifier_line(modifier, db))
 	for effect: EffectDef in lvl.on_start:
 		parts.append(TechText.effect_line(effect))
+	if not lvl.ends_statuses.is_empty():
+		parts.append(TechText.tr_key(KEY_ENDS).format(
+			{"statuses": JOIN.join(_names(lvl.ends_statuses))}))
+	if not definition.blocks.is_empty():
+		parts.append(TechText.tr_key(KEY_BLOCKS).format(
+			{"statuses": JOIN.join(_names(definition.blocks))}))
 	if not lvl.on_end.is_empty():
 		var ending: PackedStringArray = []
 		for effect: EffectDef in lvl.on_end:
@@ -107,6 +118,13 @@ static func _head(status_id: String, days: int, region_name: String) -> String:
 	if not region_name.is_empty():
 		key = KEY_HEAD_STANDING_REGION if standing else KEY_HEAD_REGION
 	return TechText.tr_key(key).format(args)
+
+
+static func _names(status_ids: Array[String]) -> PackedStringArray:
+	var names: PackedStringArray = []
+	for status_id: String in status_ids:
+		names.append(TechText.tr_key(StatusDef.name_key(status_id)))
+	return names
 
 
 static func _changes_nothing(modifier: ModifierDef) -> bool:

@@ -14,18 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.P4 — Punch list from D6.11 (2/2b)** [O]: *Punch list for Opus* → *From D6.11 (2/2b)*, items 1–8 (their strings are written; `plain-language.md` §9.4) — IMPLEMENTATION §4 row 89e. |
+| **Next step** | **D6.9c — Decision-model backend (TypeSafe Jev)** [F]: amend `benchmark.md` for a second backend kind — IMPLEMENTATION §4 row 89f; first the S6.P4 entry under *Design questions for Fable*. |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | **D6.9c — Decision-model backend (TypeSafe Jev)** [F] → S6.12c (mock only) → **G6 (1/2) — Balance pass 4** [F]: `docs/BALANCE.md` §5 · *Balance baselines*; **whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2, D7.I → S7.3, S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
-| **Last completed** | D6.11 (2/2b) — Plain-language pass II: cards, what you buy, the flavour check; the S6.P3 placeholders worded, story flags that decide a run named, the twelve Codex terms (2026-09-26). |
-| **Before that** | S6.P3b — The whole tech tree on one screen (1920×1080 and 2560×1440), why a node is locked (detail pane and card tooltip), the mute button (2026-09-25). |
-| **Earlier** | S6.P3a — Effect lines, "what changed", explanation-first cards, status lines, % instead of ×, the ten tooltips (2026-09-25). |
+| **After it** | S6.12c (mock only) → **G6 (1/2) — Balance pass 4** [F]: `docs/BALANCE.md` §5 · *Balance baselines*; **whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2, D7.I → S7.3, S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
+| **Last completed** | S6.P4 — Punch list from D6.11 (2/2b): option flags named, the story roll, *all your Labs*, what *Captured* does, the Codex *Behaviours* tab, generated lines under difficulty/directive/scenario, `INERT_FLAGS` emptied, hooks with numbers; overflow shots de 150 % at 1920 and 400 px (2026-09-26). |
+| **Before that** | D6.11 (2/2b) — Plain-language pass II: cards, what you buy, the flavour check; the S6.P3 placeholders worded, story flags that decide a run named, the twelve Codex terms (2026-09-26). |
+| **Earlier** | S6.P3b — The whole tech tree on one screen (1920×1080 and 2560×1440), why a node is locked (detail pane and card tooltip), the mute button (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 353 scripts compile (146 judged by the suite), then `tools/check_strings.gd` (2492 rows), 2340 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 353 scripts compile (147 judged by the suite), then `tools/check_strings.gd` (2492 rows), 2357 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
 | **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
 | **Benchmark** | `"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --model=<id> [--suite=quick] [--seeds=a..b] [--dry-run] [--max-cost=<usd>] [--yes]` (OpenRouter; the key from `OPENROUTER_API_KEY` only) · `--backend=mock:cheapest` (or `wait`, `invalid`, `mixed`; free, no key) · `--bots [--if-missing] [--no-rebuild]` (reference rows, ≈3 min for the standard suite) · `--rebuild` · `--determinism-fixture`. Writes `benchmark/runs/*.json`, `benchmark/leaderboard.json`, `LEADERBOARD.md` (`--out=<dir>` elsewhere; tests use `user://test_bench/`); cache `benchmark/cache/` (ignored). The tool works in `_initialize`, not `_init`: TLS is not ready before the main loop. **Global board (S6.12b):** `"$GODOT" --headless --path . -s tools/bench/verify_runs.gd -- --board=<leaderboard checkout> --game-commit=<40-hex> [--limit=n] [--today=YYYY-MM-DD] [--message=<file>]` (exit 0/1/2/3; a full board of 81 runs ≈80 s); `.github/workflows/leaderboard.yml` (daily + dispatch; no key → gate / read-only dry run). **Whoever changes `data/` regenerates the canary on Windows in the same commit:** `bench_run.gd -- --determinism-fixture` (`test_bench_determinism` fails with that line otherwise). **In the game (S6.13):** title → *Benchmark* (shown when a recorded run exists, the *Online leaderboard* setting is on, or a board on disk has a row): the global board (fetched only when the list opens, ≤ once per 300 s; cache `user://benchmark/online/`, shipped copy `benchmark/global/leaderboard.json`), then the recorded runs (`res://benchmark/showcase/`, `user://benchmark/runs/`, debug builds also `res://benchmark/runs/`); *Watch* replays in the session at 4×. Debug switches: `-- --spectate=<entry.json>`, `-- --global-board=<board.json>` (runs next to it under `runs/`). From godot-mcp: set `local_board_path` on `…/TitleHost/Slot/Benchmark/BoardClient` and call `forget_fetch`; `Game.advance [n]` jumps a watched run ahead. The suite reads `user://test_bench_library/` and `user://test_bench_online/` (`pre_run.gd`). |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
@@ -190,7 +190,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S6.P3a [O] Event effect lines, "what changed", explanation-first layout, status lines, tooltips *(punch item 3; split at §1.6)*
 - [x] S6.P3b [O] The compact tech tree, why a node is locked, the mute button *(punch items 2, 4, 5)*
 - [x] D6.11 (2/2b) [F] Plain-language pass II: cards, what you buy, the flavour check *(`plain-language.md` §9)*
-- [ ] S6.P4 [O] Punch list from D6.11 (2/2b) *(skip if empty)*
+- [x] S6.P4 [O] Punch list from D6.11 (2/2b) *(items 1–8, the overflow shots)*
 - [ ] D6.9c [F] Decision-model backend (TypeSafe Jev) *(user 2026-09-25; amends `benchmark.md`)*
 - [ ] S6.12c [O] The Jev backend, mock only *(the first live run needs the user's `TYPESAFE_API_KEY`)*
 - [ ] G6 (1/2) [F] Balance pass 4 *(tuning; data only)*
@@ -1432,6 +1432,12 @@ without new information.
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
+- **S6.P4 — an answer that only sets unnamed story flags.** `plain-language.md` §9.4 item 2 says
+  it reads `UI_EVENT_EFFECT_STORY` (*another card follows later*). The one such answer today,
+  *Stay on Earth* (`es_countdown/stay`, flag `escape_declined`), leads nowhere and its flag is
+  read by nothing, so the line would be false; it keeps *Nothing happens* (`# DESIGN?` in
+  `option_text.gd` `_told`). A route (`next`) and a roll that routes or sets an unnamed flag say
+  the story as specified. Keep that, or a wording for "a flag only the epilogue reads"?
 - **S6.P3b — a key for the mute button?** `M` is the reduced-motion debug key; no free letter
   reads as *mute*, so the action has no key (the button and the pause menu's volumes remain).
   Give it one (and move the debug key), or leave it pointer-only?
@@ -1530,36 +1536,18 @@ without new information.
    remappable key action if a sensible free key exists (not `M`, a debug key). → **done in
    S6.P3b**, without a key: every free letter would be a guess (*Design questions*).
 
-**From D6.11 (2/2b)** (`plain-language.md` §9.2, §9.4; every string is already in `strings.csv`):
-1. **Option-level `flags` are named** like `set_flag` effects when a `FLAG_*` row exists
-   (`OptionText`): *Leave Earth* reads *Costs 25 · no other effect* and wins the run
-   (`FLAG_ESCAPED`, also `FLAG_INVITED`, `FLAG_CHILD_RECLAIMED`).
-2. **The story roll:** a roll with nothing readable that routes the story (`next`, an empty
-   override included) or sets an unnamed flag reads `UI_EVENT_EFFECT_CHANCE_STORY` ({p}); an
-   option whose only consequences are a route or hidden flags says `UI_EVENT_EFFECT_STORY`,
-   never *no other effect* (*Alter the evaluation data*). Removes the two `# DESIGN?` in
-   `option_text.gd`.
-3. **`destroy_assets` with count ≤ 0** reads `EFFECT_DESTROY_ASSETS_ALL` with the *plural* asset
-   name (*Destroys 0 × Lab* today: purge, raid, switch-off).
-4. **`StatusText` names `blocks` and `ends_statuses`** (`UI_STATUS_BLOCKS`, `UI_STATUS_ENDS`,
-   status names joined): *Captured, 60 days* says nothing today.
-5. **Codex tab *Behaviours*** (`UI_CODEX_TAB_BEHAVIOURS`): every emergent event once seen —
-   title, `CODEX_EMERGENT_<ID>_TERM`, the card body, both options' effect lines, the status line
-   where there is one. Seen-tracking by event id.
-6. **Setup: generated lines under directive, difficulty and scenario details**, as
-   `effect_lines` does for architectures (modifiers; a difficulty's `start_compute` as
-   `UI_SETUP_START_COMPUTE`). The details were written number-free for it.
-7. **`ModifierStack.INERT_FLAGS`** still lists `legal_standing` and `merge_path`, which the
-   merge vote reads (`mv_motion`, `mv_count`): the tree says *(not active in this build)* under
-   Succession and Constitutional Integration. Empty it (and its test).
-8. **Hooks with numbers:** `ARCH_HOOK_DISTRIBUTED` (*ten regions*, `distributed.hold_regions`)
-   and `ARCH_HOOK_ESCALATION` (*every two months*, `escalation.every_days`) take `{regions}` /
-   `{days}` from balance; reword to *…while you are present in {regions} regions.* / *…a step
-   every {days} days.* (de *…solange du in {regions} Regionen präsent bist.* / *…alle {days}
-   Tage eine Stufe.*).
+**From D6.11 (2/2b)** — items 1–8 **done in S6.P4** (one open point under *Design questions*).
 
 ## Deviations from the plan or a spec
 
+- **2026-09-26** (S6.P4) — **Against `plain-language.md` §9.4 / §5.3 item 4:** (1) item 2's
+  "hidden flags only" case keeps *Nothing happens* (*Design questions*). (2) The *Behaviours*
+  entry names the status through the *Keep* answer's line (it is `StatusText.line`), not a second
+  time. (3) Scenarios get their modifiers only: `start.compute` replaces the start rather than
+  adding to it, and `UI_SETUP_START_COMPUTE` says *+{value}*; the rest stays in the detail.
+  (4) No *before* set of shots; the after set (de 150 % at 1920 and 400 px, en 100 % at 1920)
+  was read for overflow. The profile's Codex gains the tab `behaviours` (older profiles read it
+  as empty).
 - **2026-09-26** (D6.11 2/2b) — **Against IMPLEMENTATION's D6.11 (2/2b) and `plain-language.md`
   §4, §5.3:** (1) the read-through of §5.3 item 5 ran headless (a scratchpad script printing
   every card, node and status as the interface composes them, en and de) — the user was
@@ -2348,9 +2336,14 @@ without new information.
 
 ## Known issues and carry-overs
 
+- **S6.P4:** a tab row pressed from code (`Codex.show_tab`, `open(tab)` on another tab than the
+  last; the tech tree's `open_on`; `Setup.select_difficulty`) leaves the old tab drawn pressed
+  too — `set_pressed_no_signal` does not release the group (the scenario row lets the others go
+  by hand). Clicks are fine. Seen in the S6.P4 shots; small, for the next Opus punch list.
 - **S6.P3b → D7.1/S7:** on a 400 px phone the tech detail sheet runs off the right edge for a node
   whose prerequisite lives in another tab — the row (name, state chip, *in {tab}*) is wider than
-  the screen (seen on *Distributed Synthesis*; before S6.P3 too). The phone layout's step.
+  the screen (seen on *Distributed Synthesis*; before S6.P3 too; S6.P4: *Constitutional
+  Integration* in German at 150 %). The phone layout's step.
 - **D6.9b → S7.2:** the Android preset needs the `INTERNET` permission for the benchmark list's
   download (`benchmark.md` §16.6); without it the list shows its cached or shipped copy.
 
@@ -3045,6 +3038,13 @@ against D6.8's budget on the target machines.
 
 ## Session log
 
+### 2026-09-26 — S6.P4 Punch list from D6.11 (2/2b) [O]
+- `OptionText`: option flags named, story rolls said (`line_without_run` for the Codex); `TechText` *all your {plural}*;
+  `StatusText` ends/blocks; Codex tab *Behaviours* (tracker + profile tab); setup lines under difficulty, directives, scenario;
+  `INERT_FLAGS` empty; hooks `{regions}`/`{days}` from balance. One `# DESIGN?` (*Stay on Earth*).
+- Looked at (windowed, scratch APPDATA, muted): de 150 % 1920 and 400 px, en 1920 — setup, Codex, four cards, tree. No new
+  overflow; known phone tech-detail overflow seen again; tabs pressed from code draw two pressed (known issues). +17 tests
+  (`test_codex_behaviours_click` real clicks). 2357 green. Sim unchanged (no `data/` JSON change).
 ### 2026-09-26 — D6.11 (2/2b) Plain-language pass II [F]
 - Passes 4, 5, 7 in en + de: 12 emergent bodies (what it is, keep, suppress), 80 options, 45 summaries, 70 tech sentences,
   44 statuses, abilities, directives, difficulty, architectures, scenarios; 12 Codex terms; 286 rows changed, 72 added.

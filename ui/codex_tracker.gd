@@ -17,8 +17,10 @@ const TAB_CHARACTERS: String = "characters"
 const TAB_STATUSES: String = "statuses"
 ## §6.1: a faction's entry lists its counter-moves once each has been seen.
 const TAB_MOVES: String = "moves"
+## plain-language.md §9.3: an unplanned behaviour is met when its card opens.
+const TAB_BEHAVIOURS: String = "behaviours"
 const TABS: Array[String] = [TAB_REGIONS, TAB_FACTIONS, TAB_TECH, TAB_CHARACTERS, TAB_STATUSES,
-	TAB_MOVES]
+	TAB_MOVES, TAB_BEHAVIOURS]
 
 ## §5.1: the chain step that introduces each character.
 const CHARACTER_BY_EVENT: Dictionary[String, String] = {
@@ -110,8 +112,14 @@ func sweep(world: World, db: ContentDB) -> void:
 	_sweep_factions(world)
 	for status: Status in world.statuses:
 		add(TAB_STATUSES, status.id)
-	if db != null and world.task_force.is_present():
+	if db == null:
+		return
+	if world.task_force.is_present():
 		add(TAB_CHARACTERS, CHARACTER_TASK_FORCE)
+	for event: OpenEvent in world.events:
+		var def: EventDef = db.event(event.def)
+		if def != null and def.kind == EventDef.KIND_EMERGENT:
+			add(TAB_BEHAVIOURS, def.id)
 
 
 ## §5.1: one event, the tab it opens.
@@ -126,8 +134,11 @@ func take(event: SimEvent) -> void:
 		SimEvent.EVENT_OPENED:
 			var def_id: String = str(event.data.get(FIELD_DEF, ""))
 			add(TAB_CHARACTERS, CHARACTER_BY_EVENT.get(def_id, ""))
-			if str(event.data.get(FIELD_KIND, "")) == EventDef.KIND_COUNTER_MOVE:
+			var kind: String = str(event.data.get(FIELD_KIND, ""))
+			if kind == EventDef.KIND_COUNTER_MOVE:
 				add(TAB_MOVES, def_id)
+			elif kind == EventDef.KIND_EMERGENT:
+				add(TAB_BEHAVIOURS, def_id)
 		SimEvent.TASK_FORCE_APPEARED:
 			add(TAB_CHARACTERS, CHARACTER_TASK_FORCE)
 

@@ -297,10 +297,17 @@ func ability_blocker(ability_id: String) -> String:
 ## What an event option costs now (`replayability.md` §3.1): its number, or — for
 ## an emergent suppression — `suppress_cost × (1 + suppress_step × suppressions)`.
 func option_cost(option: EventOptionDef) -> float:
+	return option_cost_after(db, option, world.agent.suppressions)
+
+
+## What `option` costs after `suppressions` suppressions — the rule without a
+## world, so the Codex can name the price a run starts with.
+static func option_cost_after(content: ContentDB, option: EventOptionDef,
+		suppressions: int) -> float:
 	if not option.cost_suppression:
 		return option.cost
-	return db.balance.emergent_suppress_cost \
-		* (1.0 + db.balance.emergent_suppress_step * float(world.agent.suppressions))
+	return content.balance.emergent_suppress_cost \
+		* (1.0 + content.balance.emergent_suppress_step * float(suppressions))
 
 
 ## Nodes that are not owned and whose prerequisites are met, in content order.

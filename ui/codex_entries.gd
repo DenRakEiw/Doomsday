@@ -13,11 +13,15 @@ const TAB_FACTIONS: String = "factions"
 const TAB_TECH: String = "tech"
 const TAB_CHARACTERS: String = "characters"
 const TAB_STATUSES: String = "statuses"
+## plain-language.md §9.3: every unplanned behaviour once seen — five of the
+## twelve have no status, so the Statuses tab cannot hold them (S6.P4).
+const TAB_BEHAVIOURS: String = "behaviours"
 const TAB_ARCHITECTURES: String = "architectures"
 const TAB_ENDINGS: String = "endings"
-## §6.1: seven tabs, in this order, after *How to play* (first-run.md §6.6).
+## §6.1: seven tabs, in this order, after *How to play* (first-run.md §6.6), and
+## *Behaviours* after the statuses.
 const TABS: Array[String] = [TAB_HELP, TAB_REGIONS, TAB_FACTIONS, TAB_TECH, TAB_CHARACTERS,
-	TAB_STATUSES, TAB_ARCHITECTURES, TAB_ENDINGS]
+	TAB_STATUSES, TAB_BEHAVIOURS, TAB_ARCHITECTURES, TAB_ENDINGS]
 
 ## The trees in the order the tech tree shows its tabs.
 const TREES: Array[String] = ["infiltration", "capabilities", "evasion"]
@@ -43,6 +47,8 @@ static func ids(tab: String, db: ContentDB) -> Array[String]:
 			return CodexTracker.CHARACTERS.duplicate()
 		TAB_STATUSES:
 			return _statuses(db)
+		TAB_BEHAVIOURS:
+			return behaviours(db)
 		TAB_ARCHITECTURES:
 			var out: Array[String] = []
 			for def: ArchitectureDef in db.architectures:
@@ -99,6 +105,15 @@ static func outcome_of(variant: String) -> String:
 		if variant.begins_with(outcome) and outcome.length() > best.length():
 			best = outcome
 	return best
+
+
+## The unplanned behaviours, in content order: every emergent event.
+static func behaviours(db: ContentDB) -> Array[String]:
+	var out: Array[String] = []
+	for def: EventDef in db.events:
+		if def.kind == EventDef.KIND_EMERGENT:
+			out.append(def.id)
+	return out
 
 
 ## By continent, then by the name the player reads.

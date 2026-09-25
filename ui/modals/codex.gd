@@ -1,7 +1,8 @@
 extends Control
 ## The Codex (spec `screens-full.md` §6.1): *How to play* first (`first-run.md`
-## §6.6), then seven tabs that fill as you play, written from strings that
-## already exist, plus four factions and five characters of prose of their own.
+## §6.6), then eight tabs that fill as you play (*Behaviours* since S6.P4),
+## written from strings that already exist, plus four factions and five
+## characters of prose of their own.
 ##
 ## A locked entry is listed as *Not yet encountered* and cannot be opened —
 ## except in Endings, where a locked variant is not listed at all, so the hidden
@@ -51,7 +52,7 @@ const PREFIX_TREE_TAB: String = "UI_TREE_TAB_"
 @onready var _back: ConsoleButton = %BackButton
 @onready var _entry: VBoxContainer = %Entry
 
-## The tab row wraps on a desktop: seven tabs do not fit a 560 px modal, and a
+## The tab row wraps on a desktop: eight tabs do not fit a 560 px modal, and a
 ## wrapped row hides none. On a phone it is one row that scrolls sideways
 ## (accessibility.md §8.2 — at 150 % the wrapped rows took a quarter of the
 ## screen), the current tab scrolled into view.
@@ -179,6 +180,8 @@ func show_entry(id: String) -> void:
 			_body(tr(KEY_CHARACTER_TEXT % id.to_upper()))
 		CodexEntries.TAB_STATUSES:
 			_fill_status(id)
+		CodexEntries.TAB_BEHAVIOURS:
+			_fill_behaviour(id)
 		CodexEntries.TAB_ARCHITECTURES:
 			_fill_architecture(id)
 		CodexEntries.TAB_ENDINGS:
@@ -205,6 +208,8 @@ func entry_name(which: String, id: String) -> String:
 			return tr(KEY_CHARACTER_NAME % id.to_upper())
 		CodexEntries.TAB_STATUSES:
 			return tr(StatusDef.name_key(id))
+		CodexEntries.TAB_BEHAVIOURS:
+			return tr(EventDef.title_key(id))
 		CodexEntries.TAB_ARCHITECTURES:
 			return tr(ArchitectureDef.name_key(id))
 		CodexEntries.TAB_ENDINGS:
@@ -257,6 +262,25 @@ func _fill_status(id: String) -> void:
 		if levels > 1:
 			line = tr(KEY_STATUS_LEVEL).format({"level": level, "line": line})
 		_caption(line)
+
+
+## plain-language.md §9.3 (S6.P4): an unplanned behaviour as its card tells it —
+## the title, what the term means, the body, and each answer with the line of
+## what it does (the price a run starts with; keeping names the status, with
+## its days and numbers, where there is one).
+func _fill_behaviour(id: String) -> void:
+	var def: EventDef = _db.event(id)
+	if def == null:
+		return
+	_icon(Icons.KIND_STATUS, id, UiTokens.ICON_L, &"TEXT_0")
+	_heading(tr(EventDef.title_key(id)))
+	var term_key: String = KEY_TERM % id.to_upper()
+	if tr(term_key) != term_key:
+		_body(tr(term_key))
+	_body(tr(EventDef.body_key(id)))
+	for option: EventOptionDef in def.options:
+		_caps(tr(EventOptionDef.text_key(id, option.id)))
+		_caption(OptionText.line_without_run(_db, def, option))
 
 
 func _fill_region(id: String) -> void:

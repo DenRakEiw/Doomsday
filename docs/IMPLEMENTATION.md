@@ -1293,7 +1293,7 @@ failures only). The read-through in the running game of §5.3 item 5.
 Whatever the read-through of 2/2b found that is code, not text: `PROGRESS.md` *From D6.11 (2/2b)*,
 items 1–8 (`plain-language.md` §9.4; the strings are written). Take the look in the running game
 and the overflow screenshots of §5.3 item 4 that 2/2b could not (German at 150 %, 400 px).
-**Done when:** each item has its test; `tools/test.sh` green.
+**Done when:** each item has its test; `tools/test.sh` green. *Done 2026-09-26.*
 
 ### D6.9c — Decision-model backend (TypeSafe Jev) **[F]** · *(user, 2026-09-25)* · **Read first:** `PROGRESS.md` *Decisions* 2026-09-25 (Jev) · `benchmark.md` §4, §6.1, §7.3, §8, §9, §10.2–§10.3, §11.5, §16.3–§16.4 · TypeSafe's API documentation, read on the day
 Amend `benchmark.md` (a new section; §8's interface changed only as far as needed) for a second

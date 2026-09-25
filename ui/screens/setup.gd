@@ -24,6 +24,8 @@ const KEY_SLOT_LOCKED: String = "UI_SETUP_SLOT_LOCKED"
 const KEY_SEED: String = "UI_SETUP_SEED"
 const KEY_START_OWNED: String = "UI_SETUP_START_OWNED"
 const KEY_START_ASSETS: String = "UI_SETUP_START_ASSETS"
+## plain-language.md §9.4 item 6: a difficulty's head start in Compute.
+const KEY_START_COMPUTE: String = "UI_SETUP_START_COMPUTE"
 const KEY_ARCH_DETAIL: String = "ARCH_%s_DETAIL"
 const KEY_HOOK: String = "ARCH_HOOK_%s"
 const KEY_DIFFICULTY_DETAIL: String = "DIFFICULTY_%s_DETAIL"
@@ -57,11 +59,13 @@ const DIFFICULTY_STACK_WIDTH: float = 520.0
 @onready var _difficulty_title: Label = %DifficultyTitle
 @onready var _difficulty_row: BoxContainer = %DifficultyRow
 @onready var _difficulty_detail: Label = %DifficultyDetail
+@onready var _difficulty_effects: VBoxContainer = %DifficultyEffects
 @onready var _scenario_title: Label = %ScenarioTitle
 @onready var _scenario_row: HFlowContainer = %ScenarioRow
 @onready var _scenario_locked: Label = %ScenarioLocked
 @onready var _scenario_tagline: Label = %ScenarioTagline
 @onready var _scenario_detail: Label = %ScenarioDetail
+@onready var _scenario_effects: VBoxContainer = %ScenarioEffects
 @onready var _seed_row: Control = %SeedRow
 @onready var _seed_label: Label = %SeedLabel
 @onready var _seed_clear: ConsoleButton = %SeedClearButton
@@ -90,6 +94,8 @@ var _scenario_buttons: Dictionary[String, ConsoleButton] = {}
 ## Slot id → directive id ("" = none) → its button.
 var _directive_buttons: Dictionary[String, Dictionary] = {}
 var _directive_details: Dictionary[String, Label] = {}
+## Slot id → the generated lines under the chosen directive's detail.
+var _directive_effects: Dictionary[String, VBoxContainer] = {}
 
 
 func _ready() -> void:
@@ -357,6 +363,11 @@ func _build_directives() -> void:
 			buttons[id] = button
 		_directive_buttons[slot] = buttons
 		_directive_details[slot] = _caption(row)
+		var lines: VBoxContainer = VBoxContainer.new()
+		lines.name = "Effects" + slot.to_pascal_case()
+		lines.theme_type_variation = &"StackTight"
+		row.add_child(lines)
+		_directive_effects[slot] = lines
 		select_directive(slot, str(directives.get(slot, "")))
 
 
@@ -397,8 +408,48 @@ func effect_lines(def: ArchitectureDef) -> Array[String]:
 		lines.append(tr(KEY_START_ASSETS).format(
 			{"count": count, "kind": TechText.asset_name(kind, count)}))
 	if not def.hook.is_empty():
-		lines.append(tr(KEY_HOOK % def.hook.to_upper()))
+		lines.append(hook_line(def.hook))
 	return lines
+
+
+## An architecture's hook, its numbers from balance (§9.4 item 8). One table of
+## every number a hook may name: a hook that names none ignores it.
+func hook_line(hook: String) -> String:
+	return tr(KEY_HOOK % hook.to_upper()).format({
+		"regions": _db.balance.distributed_hold_regions,
+		"days": _db.balance.escalation_every_days,
+	})
+
+
+## §9.4 item 6: a difficulty's modifiers through the tech pane's formatter, and
+## its head start in Compute.
+func difficulty_lines(id: String) -> Array[String]:
+	var lines: Array[String] = []
+	var def: DifficultyDef = _db.difficulty(id)
+	if def == null:
+		return lines
+	lines.append_array(modifier_lines(def.modifiers))
+	if def.start_compute > 0.0:
+		lines.append(tr(KEY_START_COMPUTE).format(
+			{"value": Format.number(def.start_compute, Format.Kind.COMPUTE)}))
+	return lines
+
+
+## §9.4 item 6: what a directive or a scenario changes — its modifiers.
+func modifier_lines(modifiers: Array[ModifierDef]) -> Array[String]:
+	var lines: Array[String] = []
+	for modifier: ModifierDef in modifiers:
+		lines.append(TechText.modifier_line(modifier, _db))
+	return lines
+
+
+static func _fill_lines(box: VBoxContainer, lines: Array[String]) -> void:
+	for child: Node in box.get_children():
+		box.remove_child(child)
+		child.queue_free()
+	for line: String in lines:
+		_caption(box).text = line
+	box.visible = not lines.is_empty()
 
 
 func _refresh_strings() -> void:
@@ -448,6 +499,7 @@ func _refresh_detail() -> void:
 
 func _refresh_difficulty_detail() -> void:
 	_difficulty_detail.text = tr(KEY_DIFFICULTY_DETAIL % difficulty.to_upper())
+	_fill_lines(_difficulty_effects, difficulty_lines(difficulty))
 
 
 ## The chosen scenario's tagline and, below it, its detail; nothing for *None*.
@@ -455,6 +507,11 @@ func _refresh_scenario_detail() -> void:
 	var chosen: bool = not scenario.is_empty()
 	_scenario_tagline.visible = chosen
 	_scenario_detail.visible = chosen
+	var def: ScenarioDef = null if not chosen else _db.scenario(scenario)
+	var lines: Array[String] = []
+	if def != null:
+		lines = modifier_lines(def.modifiers)
+	_fill_lines(_scenario_effects, lines)
 	if not chosen:
 		return
 	_scenario_tagline.text = tr(ScenarioDef.tagline_key(scenario))
@@ -468,6 +525,13 @@ func _refresh_directive_detail(slot: String) -> void:
 	var id: String = str(directives.get(slot, ""))
 	label.text = "" if id.is_empty() else tr(KEY_DIRECTIVE_DETAIL % id.to_upper())
 	label.visible = not id.is_empty()
+	var box: VBoxContainer = _directive_effects.get(slot)
+	var def: DirectiveDef = null if id.is_empty() else _db.directive(id)
+	var lines: Array[String] = []
+	if def != null:
+		lines = modifier_lines(def.modifiers)
+	if box != null:
+		_fill_lines(box, lines)
 
 
 func _refresh_seed() -> void:
