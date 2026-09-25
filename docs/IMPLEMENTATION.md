@@ -1060,7 +1060,10 @@ fallback if G6's ear check rejects an interface cue (`audio.md` §9.5). Every fi
 **Done when:** every cue has a sound within the loudness targets; the ear check is G6's.
 
 ### S6.7 — Tutorial II **[O]** · **Read first:** `first-run.md` §6 (D6.5)
-The new coach steps, the *How to play* pages, the help links; tests per step.
+The ten hints (once per profile, `Settings.hints`, `ProfileManager.hints_seen`), the narrowed
+step 7, the *How to play* tab (`data/help.json` → `HelpPages`), help from `F1`, the **?** on four
+panels, the pause menu and the menu sheet, `ModalHost.open_over`, the `HELP` glyph with its
+`icons.json` row; tests per §6.11.
 **Done when:** first-run §6's acceptance, looked at in German and English, desktop and phone.
 
 ### S6.8 — Accessibility **[O]** · **Read first:** `docs/specs/accessibility.md`

@@ -1,0 +1,20 @@
+{
+	"_comment": "docs/specs/first-run.md §6.6: the Codex's How to play pages, in list order. Text lives in strings.csv as HELP_<ID>_TITLE and HELP_<ID>_P1…P<paragraphs>. `coach`: the coach steps whose More button opens this page (each step on exactly one page). `contexts`: the surfaces whose F1 or ? opens this page (each context on exactly one page). Presentation data, not loaded by the core (SCHEMA §10).",
+	"version": 1,
+	"pages": [
+		{"id": "goal", "paragraphs": 3, "coach": ["done"], "contexts": ["session"]},
+		{"id": "time", "paragraphs": 3, "coach": ["compute", "starving"], "contexts": []},
+		{"id": "phases", "paragraphs": 3, "coach": ["open"], "contexts": []},
+		{"id": "map", "paragraphs": 3, "coach": ["spread", "anomaly"], "contexts": []},
+		{"id": "regions", "paragraphs": 3, "coach": ["origin", "site"], "contexts": ["region"]},
+		{"id": "tree", "paragraphs": 3, "coach": ["open_tree", "buy_vector"], "contexts": ["tree"]},
+		{"id": "events", "paragraphs": 3, "coach": ["event", "counter_arrived", "chain"], "contexts": []},
+		{"id": "abilities", "paragraphs": 3, "coach": ["ability"], "contexts": ["abilities"]},
+		{"id": "containment", "paragraphs": 3, "coach": ["discovered", "counter_move"], "contexts": ["containment"]},
+		{"id": "task_force", "paragraphs": 3, "coach": ["task_force", "task_force_setup"], "contexts": []},
+		{"id": "emergent", "paragraphs": 3, "coach": ["emergent", "drift", "value_drift"], "contexts": []},
+		{"id": "society", "paragraphs": 3, "coach": [], "contexts": []},
+		{"id": "analysis", "paragraphs": 2, "coach": [], "contexts": ["analysis"]},
+		{"id": "controls", "paragraphs": 3, "coach": [], "contexts": []}
+	]
+}

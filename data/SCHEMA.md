@@ -752,6 +752,7 @@ from content ids so that data files never carry text:
 | headline `seed_first` | `HEADLINE_SEED_FIRST` — required, in `en` **and** `de`, for every shipped headline |
 | command failure `insufficient_compute` | `CMD_FAIL_INSUFFICIENT_COMPUTE` |
 | interface text | `UI_<SCREEN>_<ELEMENT>` |
+| help page `task_force` (`help.json`, D6.5) | `HELP_TASK_FORCE_TITLE` · `HELP_TASK_FORCE_P1` … `_P<paragraphs>` — all required, in both languages |
 
 Placeholders are named: `{region}`, `{count}` — never positional. A content root without a
 `loc/strings.csv` — every test fixture — skips the string check entirely: the fixtures have no
@@ -759,16 +760,17 @@ strings and nothing displays them.
 
 ## 10. Presentation data (not loaded by the core)
 
-Three files under `data/` belong to the interface, not to the simulation: `ContentLoader` and
+Four files under `data/` belong to the interface, not to the simulation: `ContentLoader` and
 `SchemaValidator` never read them, and a content root (or a test fixture) does not need them.
 Each is read and validated by its own interface class, which reports a bad file instead of
-crashing. All three carry `"version": 1`, are tab-indented, and ignore keys starting with `_`.
+crashing. All four carry `"version": 1`, are tab-indented, and ignore keys starting with `_`.
 
 | File | Read by | Format |
 | --- | --- | --- |
 | `icons.json` | `Icons` (`ui/components/icons.gd`, S6.4) | `docs/specs/icons.md` §8 — sections `glyphs` (keyed by `Glyphs.Glyph` name), `tech`, `abilities`, `statuses`, `factions`, `architectures`, `counter_moves` (keyed by content id), `stand_ins`; every value a path under `res://assets/icons/` |
 | `credits.json` | `CreditsData` (`ui/modals/credits_data.gd`, S6.3) | `docs/specs/icons.md` §11.3 |
 | `audio.json` | `AudioSheet` (`ui/audio/audio_sheet.gd`, S6.5) | `docs/specs/audio.md` §4 — `buses`, `mix`, `cues`, `triggers` (with the `match` vocabulary of §4.5 and `{field}` templates), `ambience.layers`, `music.stems`, `screens`; every `file` a path under `res://assets/audio/` |
+| `help.json` | `HelpPages` (`ui/help_pages.gd`, S6.7) | `docs/specs/first-run.md` §6.5 — `pages`: `id`, `paragraphs` (1…6), `coach` (coach step ids), `contexts` (from `HelpPages.CONTEXTS`); each coach id and each context on at most one page |
 
 **The one exception to §1's "no player-visible text":** `credits.json` holds proper names —
 works, people, handles, organisations — and URLs. They are shown as written in every language;

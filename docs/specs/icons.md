@@ -321,6 +321,7 @@ file. The tables below are the file, with what each icon **shows** — by outcom
 | `OUTCOME` | `phosphor/square-fill.svg` | a filled square |
 | `LOG_YOURS` | `phosphor/caret-right-bold.svg` | a chevron |
 | `LOG_THEIRS` | `custom/chrome/log-theirs.svg` | a filled dot (own, Phosphor grid) |
+| `HELP` *(D6.5; S6.7 adds the enum value and this row together — `first-run.md` §6.9)* | `phosphor/question-mark-bold.svg` | a question mark |
 
 ### 8.2 Chrome — factions (4)
 

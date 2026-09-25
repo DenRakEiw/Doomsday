@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D6.5 — Tutorial II and help** [F]: amend `docs/specs/first-run.md` (a new §6) — coach steps for the first counter-move, the Task Force, an ability, a chain card, the Open phase, Value Drift (trigger, target, text en/de); a *How to play* part of the Codex; a *?* on panels if it earns its place. IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **D6.6 — Accessibility** [F]: `docs/specs/accessibility.md` — screen-reader names per component (AccessKit), the ticker as a live region, focus order per screen, key remapping (or why not), a colour-vision audit of every map state and chip, captions (from `audio.md`), 150 % text on the new screens (incl. D6.5's Codex tab and hints); strings en/de; a per-screen checklist for S6.8. IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | the rest of Block 13 (D6.6–D6.7), then Block 14 (S5.9, S6.1–S6.8). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | D6.4 — `docs/specs/audio.md`: five buses from data, `data/audio.json` (56 cues, 50 triggers, 4 ambience layers, 4 music stems; tension = the screen pass's heat), captions for every world sound, all 64 files synthesised from `tools/audio/recipes.json` (S6.6 writes the tool); Kenney *Interface Sounds* (CC0, verified) named as fallback only; 32 strings; 1531 tests green (2026-09-25). |
-| **Before that** | D6.3 — the own silhouettes: 24 illustrative + 3 chrome SVGs in `assets/icons/custom/`, built by `tools/icons/draw_silhouettes.py`; `voluntary_pause` keeps its stand-in; row `icons_custom` (2026-09-25). |
+| **After it** | D6.7 (the rest of Block 13), then Block 14 (S5.9, S6.1–S6.8). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | D6.5 — `first-run.md` §6: ten **hints** (once per profile, `Settings.hints`, `ProfileManager.hints_seen`) for starving, the Task Force (appears, sets up), counter-move, Value Drift, emergent, chain, ability, Open, drift; step 7 narrowed to openings; *How to play* = the Codex's first tab (14 pages, `data/help.json`); help from `F1`, a **?** on four panels, pause menu, menu sheet, the coach's *More*; `ModalHost.open_over`; `HELP` glyph; 84 strings; 1531 tests green (2026-09-25). |
+| **Before that** | D6.4 — `docs/specs/audio.md`, `data/audio.json` (56 cues), 64 synth recipes; 32 strings (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (1984 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (2068 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -148,7 +148,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] D6.2 [F] Icon system and the credits screen *(`docs/specs/icons.md`, `data/icons.json`, `data/credits.json`)*
 - [x] D6.3 [F] Custom silhouettes *(`assets/icons/custom/`, `tools/icons/draw_silhouettes.py`)*
 - [x] D6.4 [F] Audio direction and cue sheet *(`docs/specs/audio.md`, `data/audio.json`, `tools/audio/recipes.json`)*
-- [ ] D6.5 [F] Tutorial II and help
+- [x] D6.5 [F] Tutorial II and help *(`docs/specs/first-run.md` §6, `data/help.json`)*
 - [ ] D6.6 [F] Accessibility
 - [ ] D6.7 [F] Illustration style and briefs *(no pictures yet)*
 
@@ -1210,6 +1210,18 @@ without new information.
   (CC0) named only as a fallback for interface cues; no generated music until a licence is
   verified. Hover and focus sounds, positional audio and headline sounds are out.
 
+- **2026-09-25** (D6.5, overnight, pending user confirmation) — **Tutorial II and help**
+  (`first-run.md` §6): the introduction stays per run; **hints** are a second kind of coach card,
+  shown **once per profile** the first time their moment comes, in any run (`Settings.hints`,
+  default on; `ProfileManager.hints_seen`; switching hints on again clears the list). Ten hints —
+  IMPLEMENTATION's six plus `emergent` and `starving`; the Task Force and Value Drift each split
+  in two (*appears* / *sets up*; the drift readout / the card, told apart by `drift_min`, not id). Step 7 narrows to openings.
+  **How to play** is the Codex's first tab (14 pages, `data/help.json`, text in `strings.csv`); the
+  Codex opens on it and also opens in a run (holds the clock) from `F1`, a **?** in the headers of
+  the tech tree, containment, analysis and region panels (nowhere else), the pause menu, the menu
+  sheet and every coach card's *More*. `ModalHost.open_over`: one level of stacking, Codex only.
+  New glyph `HELP` → `phosphor/question-mark-bold.svg` (S6.7 adds the `icons.json` row with the enum).
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
@@ -2001,6 +2013,10 @@ synthesised sound set (own work, no licence risk) as the start — right? (2) Th
 the synthesised stems, or later a commissioned or generated piece (a verified licence needed)?
 The ear check itself is G6's.
 
+**D6.5 (2026-09-25, overnight, pending user confirmation):** `docs/specs/first-run.md` §6 —
+(1) hints once per profile across runs (not per run) — right? (2) the **?** on four panels, and the
+Codex opening on *How to play* — worth it? (3) the 14 help pages' text (`HELP_*` in `strings.csv`).
+
 **D5.2 (2026-09-24), at G5:** `docs/specs/taskforce-endings.md` §13 — is *Supplanted* (a secret
 loss that turns a win, after one warning card) fair, or should a normal win's results screen hint
 that a released child is still out there?
@@ -2283,6 +2299,11 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-25 — D6.5 Tutorial II and help [F]
+- `first-run.md` §6: ten once-per-profile hints (trigger, ring target, end, page), step 7 narrowed,
+  `Settings.hints`/`hints_seen`, the Codex's *How to play* tab, `F1`/**?**/menus/*More*, `open_over`, `HELP` glyph.
+- `data/help.json` (14 pages), 84 strings en/de, SCHEMA §9/§10, icons.md §8.1 note. Suite green (1531).
 
 ### 2026-09-25 — D6.4 Audio direction and cue sheet [F]
 - `docs/specs/audio.md`: buses from data, settings rows, trigger/match vocabulary, admission and

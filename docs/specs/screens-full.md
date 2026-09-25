@@ -239,6 +239,9 @@ the close button or `Escape`.
 
 ### 6.1 Codex (`ui/modals/codex.tscn`)
 
+*(D6.5: an eighth tab, **How to play**, comes first and the Codex opens on it; it also opens in a
+run, over what is open — `first-run.md` §6.5–§6.8. The profile gains `hints_seen`, §6.1 there.)*
+
 `LabelDisplay` `UI_CODEX_TITLE` · a tab row (`UI_CODEX_TAB_*`, horizontally scrolling in compact) ·
 `LabelCaption` `UI_CODEX_PROGRESS` (`{seen}` of `{total}` for the tab) · a list (left, 40 %; on
 its own page in compact, with Back) and the entry (right). A locked entry is listed as
