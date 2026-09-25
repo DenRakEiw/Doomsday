@@ -14,18 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D6.9c — Decision-model backend (TypeSafe Jev)** [F]: amend `benchmark.md` for a second backend kind — IMPLEMENTATION §4 row 89f; first the S6.P4 entry under *Design questions for Fable*. |
+| **Next step** | **S6.12c — The Jev backend, mock only** [O]: build `benchmark.md` §17 — IMPLEMENTATION §4 row 89g; tests on `MockChoiceBackend` only, never a request to TypeSafe. |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.12c (mock only) → **G6 (1/2) — Balance pass 4** [F]: `docs/BALANCE.md` §5 · *Balance baselines*; **whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2, D7.I → S7.3, S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
-| **Last completed** | S6.P4 — Punch list from D6.11 (2/2b): option flags named, the story roll, *all your Labs*, what *Captured* does, the Codex *Behaviours* tab, generated lines under difficulty/directive/scenario, `INERT_FLAGS` emptied, hooks with numbers; overflow shots de 150 % at 1920 and 400 px (2026-09-26). |
-| **Before that** | D6.11 (2/2b) — Plain-language pass II: cards, what you buy, the flavour check; the S6.P3 placeholders worded, story flags that decide a run named, the twelve Codex terms (2026-09-26). |
-| **Earlier** | S6.P3b — The whole tech tree on one screen (1920×1080 and 2560×1440), why a node is locked (detail pane and card tooltip), the mute button (2026-09-25). |
+| **After it** | **G6 (1/2) — Balance pass 4** [F]: `docs/BALANCE.md` §5 · *Balance baselines*; **whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2, D7.I → S7.3, S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
+| **Last completed** | D6.9c — Decision-model backend (TypeSafe Jev): `benchmark.md` §17 — one request of choice questions per decision over legal moves only, rankings by probability, the combiner, cache basis, `model_version`, the published price and a request cap, `MockChoiceBackend`; the `choice`/`typesafe` config keys specified (§3 — they enter `benchmark.json` with their reader in S6.12c); 21 `BENCH_CHOICE_*` strings (2026-09-26). |
+| **Before that** | S6.P4 — Punch list from D6.11 (2/2b): option flags named, the story roll, *all your Labs*, what *Captured* does, the Codex *Behaviours* tab, generated lines under difficulty/directive/scenario, `INERT_FLAGS` emptied, hooks with numbers; overflow shots de 150 % at 1920 and 400 px (2026-09-26). |
+| **Earlier** | D6.11 (2/2b) — Plain-language pass II: cards, what you buy, the flavour check; the S6.P3 placeholders worded, story flags that decide a run named, the twelve Codex terms (2026-09-26). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 353 scripts compile (147 judged by the suite), then `tools/check_strings.gd` (2492 rows), 2357 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 353 scripts compile (147 judged by the suite), then `tools/check_strings.gd` (2513 rows), 2357 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
 | **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
 | **Benchmark** | `"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --model=<id> [--suite=quick] [--seeds=a..b] [--dry-run] [--max-cost=<usd>] [--yes]` (OpenRouter; the key from `OPENROUTER_API_KEY` only) · `--backend=mock:cheapest` (or `wait`, `invalid`, `mixed`; free, no key) · `--bots [--if-missing] [--no-rebuild]` (reference rows, ≈3 min for the standard suite) · `--rebuild` · `--determinism-fixture`. Writes `benchmark/runs/*.json`, `benchmark/leaderboard.json`, `LEADERBOARD.md` (`--out=<dir>` elsewhere; tests use `user://test_bench/`); cache `benchmark/cache/` (ignored). The tool works in `_initialize`, not `_init`: TLS is not ready before the main loop. **Global board (S6.12b):** `"$GODOT" --headless --path . -s tools/bench/verify_runs.gd -- --board=<leaderboard checkout> --game-commit=<40-hex> [--limit=n] [--today=YYYY-MM-DD] [--message=<file>]` (exit 0/1/2/3; a full board of 81 runs ≈80 s); `.github/workflows/leaderboard.yml` (daily + dispatch; no key → gate / read-only dry run). **Whoever changes `data/` regenerates the canary on Windows in the same commit:** `bench_run.gd -- --determinism-fixture` (`test_bench_determinism` fails with that line otherwise). **In the game (S6.13):** title → *Benchmark* (shown when a recorded run exists, the *Online leaderboard* setting is on, or a board on disk has a row): the global board (fetched only when the list opens, ≤ once per 300 s; cache `user://benchmark/online/`, shipped copy `benchmark/global/leaderboard.json`), then the recorded runs (`res://benchmark/showcase/`, `user://benchmark/runs/`, debug builds also `res://benchmark/runs/`); *Watch* replays in the session at 4×. Debug switches: `-- --spectate=<entry.json>`, `-- --global-board=<board.json>` (runs next to it under `runs/`). From godot-mcp: set `local_board_path` on `…/TitleHost/Slot/Benchmark/BoardClient` and call `forget_fetch`; `Game.advance [n]` jumps a watched run ahead. The suite reads `user://test_bench_library/` and `user://test_bench_online/` (`pre_run.gd`). |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
@@ -191,7 +191,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S6.P3b [O] The compact tech tree, why a node is locked, the mute button *(punch items 2, 4, 5)*
 - [x] D6.11 (2/2b) [F] Plain-language pass II: cards, what you buy, the flavour check *(`plain-language.md` §9)*
 - [x] S6.P4 [O] Punch list from D6.11 (2/2b) *(items 1–8, the overflow shots)*
-- [ ] D6.9c [F] Decision-model backend (TypeSafe Jev) *(user 2026-09-25; amends `benchmark.md`)*
+- [x] D6.9c [F] Decision-model backend (TypeSafe Jev) *(user 2026-09-25; `benchmark.md` §17)*
 - [ ] S6.12c [O] The Jev backend, mock only *(the first live run needs the user's `TYPESAFE_API_KEY`)*
 - [ ] G6 (1/2) [F] Balance pass 4 *(tuning; data only)*
 - [ ] D6.10 [F] Illustrations produced — **[needs user]**
@@ -235,6 +235,24 @@ it and take the next row (IMPLEMENTATION §4).*
 Dated, one line each, with the reason. A decision recorded here is not re-argued in a later session
 without new information.
 
+- **2026-09-26** (D6.9c) — **How Jev plays** (`benchmark.md` §17): one request per decision; `state`
+  = the chat brief items 1–8 + `BENCH_CHOICE_RULES` and the digest text, as two members; one choice
+  question per kind of move (stance, origin, each event, wake, sleep, ability + a target question
+  per region ability, purchase + a site question per deploying node), **offering only what
+  `sim.can_apply` accepts now**, option keys = content ids, control keys `none`/`later`; the
+  probabilities rank (ties in plan order), multi-picks = options ranked above `none`, at most
+  3 buys / 2 abilities / 2 wakes / 2 sleeps a report, applied events → wake → sleep → abilities →
+  buys while the compute lasts. Entries unchanged but `backend: "typesafe"`, model
+  `typesafe/jev-latest`, optional `model_version` (the served version); `choice_version` and the
+  limits live in `params`; confidence only in the cache. **Price published** (0.042 USD per
+  million input tokens, output free — the user's brief assumed none): a standard suite ≈ 0.49 USD
+  likely, 1.52 at most, under the 2 USD cap; a 3 000-request cap per invocation backs it. Reason:
+  an invalid answer becomes impossible, the two kinds of model see the same text, and nothing
+  downstream (verifier, `validate.py`, list, spectator) changes.
+- **2026-09-26** (D6.9c, answering S6.P4) — ***Stay on Earth* keeps *Nothing happens*:** an
+  answer whose only effect is a flag nothing reads says so; *another card follows* would be false.
+  No answer today sets a flag only the epilogue reads; if content adds one, that design step words
+  it. S6.12c turns the `# DESIGN?` into a why-comment.
 - **2026-09-26** (D6.11 2/2b) — **Pass II's answers to S6.P3a/b** (`plain-language.md` §9.3): a
   roll the player cannot read says *{p} chance: the story takes another turn*; an option that
   routes the story never says *no other effect*; *Risk {p}* became *{p} chance* (rolls can be
@@ -1432,12 +1450,6 @@ without new information.
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
-- **S6.P4 — an answer that only sets unnamed story flags.** `plain-language.md` §9.4 item 2 says
-  it reads `UI_EVENT_EFFECT_STORY` (*another card follows later*). The one such answer today,
-  *Stay on Earth* (`es_countdown/stay`, flag `escape_declined`), leads nowhere and its flag is
-  read by nothing, so the line would be false; it keeps *Nothing happens* (`# DESIGN?` in
-  `option_text.gd` `_told`). A route (`next`) and a roll that routes or sets an unnamed flag say
-  the story as specified. Keep that, or a wording for "a flag only the epilogue reads"?
 - **S6.P3b — a key for the mute button?** `M` is the reduced-motion debug key; no free letter
   reads as *mute*, so the action has no key (the button and the pause menu's volumes remain).
   Give it one (and move the debug key), or leave it pointer-only?
@@ -2524,6 +2536,14 @@ alternative). Two things to weigh: three node names already use the word in anot
 (the coach's losing condition) is corrected as the spec proposed. Changing the word again touches
 the nine rows in `plain-language.md` §8 only.
 
+**D6.9c (2026-09-26): TypeSafe API key — enter it with the same helper as the OpenRouter key**
+(the environment variable `TYPESAFE_API_KEY`; never an argument or a file). Usable once S6.12c is
+built. In PowerShell from `F:\Doomsday`, free look first, then one seed (≈ 0.05 USD, at most
+0.15): `& $env:GODOT --headless --path . -s tools/bench/bench_run.gd -- --model=typesafe/jev-latest --suite=quick --seeds=1001 --dry-run`,
+then the same without `--dry-run`. Also (default unless you object): the ranked row is the alias
+`jev-latest` with the served version recorded, and Jev may make up to 3 purchases / 2 abilities /
+2 wakes / 2 sleeps per report (`benchmark.md` §17.11).
+
 **S6.12 (2026-09-25): the first live benchmark run** needs `OPENROUTER_API_KEY` in the
 environment (never an argument or a file). A cheap first try — one seed of `openai/gpt-4o-mini`,
 estimated ≈0.15 USD, the 2 USD cap guarding it — in PowerShell from `F:\Doomsday`:
@@ -3037,6 +3057,13 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-26 — D6.9c Decision-model backend (TypeSafe Jev) [F]
+- `benchmark.md` §17 (+ touch-ups §0, §1, §3, §8.1, §9, §10.2–3, §11, §13): legal-only choice questions per decision,
+  rankings, combiner, cache basis, `model_version`, TypeSafe backend, tool rules, `MockChoiceBackend`, S6.12c tests.
+- TypeSafe docs: price published (0.042 USD/M input, output free), versions pinnable, 32 k state limit, not deterministic.
+  21 `BENCH_CHOICE_*` rows; S6.P4 answered; `validate.py` takes any backend. Config keys land with their reader in S6.12c
+  (`test_bench_config` wants a reader per key — my first try went red, reverted). No content change, no canary. Green.
 
 ### 2026-09-26 — S6.P4 Punch list from D6.11 (2/2b) [O]
 - `OptionText`: option flags named, story rolls said (`line_without_run` for the Codex); `TechText` *all your {plural}*;

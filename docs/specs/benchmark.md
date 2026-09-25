@@ -13,6 +13,10 @@ pre-flight cost estimate** with the cap lowered to 2 USD; it amends §0 items 6,
 §3, §8.3, §11, §12.7, §13–§15. Builds from it: S6.12 (§11.5), **S6.12b** (§16.3–§16.5, §16.8),
 S6.13 (§16.6–§16.7).
 
+**D6.9c (2026-09-26)** adds **§17, the decision-model backend** (TypeSafe's Jev: one request of
+choice questions per decision, each offering only legal moves) and touches §0 item 14, §1, §3,
+§8.1, §9, §10.2–§10.3, §11, §11.3 and §13. Builds from it: **S6.12c** (mock only).
+
 ---
 
 ## 0. What this spec decides
@@ -76,6 +80,10 @@ S6.13 (§16.6–§16.7).
     the user's call at G6 2/2) and the player's own from `user://benchmark/runs/`. Debug builds
     also list the repo's `res://benchmark/runs/`. Since D6.9b the list also shows **the global
     leaderboard** (§16.6), fetched only when the list opens.
+14. **Decision models play too** (D6.9c, §17): a backend of kind `choice` (TypeSafe Jev) gets the
+    same brief and digest as text and one choice question per kind of move, each offering only
+    what `sim.can_apply` accepts now; its answer is ranked options, never text, and it ranks on
+    the same board (`backend: "typesafe"`).
 
 **Not in scope:** live model play inside the game (the game never calls a model); streaming
 answers; tool/function calling (one JSON object is simpler and works on every chat model);
@@ -124,6 +132,10 @@ runs (a watched run is a bot run: nothing counts — release.md §2.2).
 | `game/bench/global_board.gd` · `global_board_row.gd` · `global_board_run.gd` | 6.13 | `class_name GlobalBoard` / `GlobalBoardRow` / `GlobalBoardRun` — the downloaded board, parsed (§16.6) |
 | `game/bench/global_board_client.gd` | 6.13 | `class_name GlobalBoardClient extends Node` — fetch, cache, fallback, one run's download (§16.6) |
 | `benchmark/global/leaderboard.json` | 6.13 | the shipped copy of the public `leaderboard.json` (§16.6) |
+| `game/bench/bench_choice.gd` | 6.12c | `class_name BenchChoice` — the plan, the reader, the combiner (§17.3, §17.5, §17.6) |
+| `game/bench/bench_choice_plan.gd` · `bench_choice_read.gd` | 6.12c | `class_name BenchChoicePlan` / `BenchChoiceRead` (§17.3, §17.5) |
+| `game/bench/mock_choice_backend.gd` | 6.12c | `class_name MockChoiceBackend` (§17.10) |
+| `tools/bench/typesafe_backend.gd` | 6.12c | `extends ModelBackend`, no `class_name`, preloaded (§17.8); the shared transport may move to `tools/bench/bench_http.gd` |
 
 **Why `game/bench/` and not `core/`:** the digest reads translated strings and the interface's
 static text helpers (`TechText`, `EventView`, `RunLogText`, `TaskForceText`, `TechNode.state_for`,
@@ -187,6 +199,17 @@ naming the reasons).
 | `global.min_refetch_s` | int | 300 | a reopened list within this reuses the last fetch |
 | `global.cache_runs_max` | int | 50 | downloaded run files kept in `user://benchmark/online/runs/` |
 | `global.verify_limit` | int | 100 | runs judged per verifier invocation (§16.4) |
+| *D6.9c — the next rows enter the file in S6.12c, together with their reader: `test_bench_config` requires a reader and a reason for every key the file holds.* | | | |
+| `choice.choice_version` | int ≥ 1 | 1 | bumped by any change to §17.2–§17.6 or a `BENCH_CHOICE_*` string's meaning; goes into a choice run's `params` (§17.7) |
+| `choice.max_options` | int ≥ 2 | 255 | options per question, the control key included (TypeSafe's limit, §17.3) |
+| `choice.max_picks` | object of int ≥ 1 | `buy` 3 · `use` 2 · `wake` 2 · `sleep` 2 | picks of a multi-pick question per decision (§17.6); into `params` |
+| `typesafe.model_prefix` | string | `typesafe/` | a model id with it uses the TypeSafe backend; the rest is sent as `model` (§17.9) |
+| `typesafe.base_url` · `typesafe.path` | string | `https://api.typesafe.ai/v1` · `/systemone` | the endpoint (§17.8) |
+| `typesafe.key_env` | string | `TYPESAFE_API_KEY` | the environment variable read for the key |
+| `typesafe.price_input_usd_per_mtok` · `typesafe.price_output_usd_per_mtok` | float | 0.042 · 0.0 | the published price (docs.typesafe.ai/models, 2026-09-26); negative = unknown (§17.9) |
+| `typesafe.max_requests` | int ≥ 1 | 3000 | HTTP requests per invocation, retries included (§17.8); `--max-requests` overrides |
+| `typesafe.question_tokens_per_call` | int ≥ 0 | 1500 | the estimate's allowance for the questions (§17.9) |
+| `typesafe.state_limit_tokens` · `typesafe.request_limit_tokens` | int | 32000 · 64000 | the service's limits, checked in the dry run (§17.9) |
 
 ---
 
@@ -548,6 +571,9 @@ var finish: String = ""                      # finish_reason as reported
 
 `digest` is passed so that a mock can answer from the typed state; a real backend ignores it.
 
+**Since D6.9c** a backend has a kind: `chat` (everything above) or `choice` (`choose(plan, …)`,
+and three more `ModelReply` fields) — §17.4.
+
 ### 8.2 `MockBackend` (every build, every test)
 
 `MockBackend.new(mode: String)`; `backend_id()` = `"mock:" + mode`. Deterministic, no clock,
@@ -612,7 +638,9 @@ abandons the run (no entry is written for it — §11.3).
 - **Key:** SHA-256 (hex) of `JSON.stringify(<object>, "", true)` (sorted keys) where the object
   is `{"model", "params", "prompt_version", "parser_version", "messages"}` and `params` is the
   entry's params (§10.2) — so a changed temperature, a new prompt or parser version, or a
-  retry's extra message is a different key.
+  retry's extra message is a different key. *Since D6.9c* the `messages` member is one case of a
+  **basis** (a choice request's is its `state` and `questions`, §17.7); a chat request's key is
+  unchanged.
 - **Value:** `{"answer": BenchAnswer.to_cache(), "tokens_in", "tokens_out", "cost_usd",
   "finish"}` — the parsed answer, never the model's text (§0 item 2).
 - **Where:** `<cache root>/<model slug>/<key[0..2]>/<key>.json` (slug: §10.2). One file per
@@ -672,6 +700,9 @@ rule (`World.WIN_OUTCOMES`); the row's outcome counts show *how* a model won.
 - `variant` = `EndingResolver.resolve(world, db)["variant"]` (the ending line the results show).
 - A bot reference entry (§10.4) has `model: "bot:<policy id>"`, `backend: "bot"`, `params: {}`,
   `decisions: []`, zero calls and cost.
+- A decision-model entry (§17.7) has `backend: "typesafe"` and one optional key more,
+  `model_version` (the version the service reported), written only when not empty and read as
+  optional — every other entry is unchanged byte for byte.
 - `BenchEntry.from_dict(d) -> BenchEntry` returns null — never crashes — on a missing or
   ill-typed key, an unknown `version`, a setup `RunSetup.from_dict` refuses, or a command
   `CommandCodec.from_dict` refuses; `last_error: String` says which (for the list's log line).
@@ -712,6 +743,9 @@ rule (`World.WIN_OUTCOMES`); the row's outcome counts show *how* a model won.
 - **Since D6.9b** every row also carries `seeds` (per run: seed, file, SHA-256, outcome, days,
   score), the writer takes an optional map of verification records (verified runs only) and does
   not rewrite unchanged files — §16.3.
+- **Since D6.9c** a row whose runs report a `model_version` also carries `model_versions` (sorted,
+  distinct; absent otherwise), and `LEADERBOARD.md` shows a choice row's params its own way —
+  §17.7.
 
 ### 10.4 Reference rows
 
@@ -727,7 +761,7 @@ rows are missing).
 
 ```
 "$GODOT" --headless --path . -s tools/bench/bench_run.gd -- \
-    --model=<id> [--backend=openrouter|mock:cheapest|mock:wait|mock:invalid|mock:mixed]
+    --model=<id> [--backend=openrouter|typesafe|mock:cheapest|mock:wait|mock:invalid|mock:mixed|mock-choice:<mode>]
     [--suite=standard|quick] [--seeds=a..b] [--locale=en|de]
     [--temperature=<f>] [--max-tokens=<n>] [--json-mode=true|false] [--reasoning=low|medium|high] [--top-p=<f>]
     [--base-url=<url>] [--key-env=<VAR>] [--max-cost=<usd>] [--yes]
@@ -771,7 +805,7 @@ prints `benchmark: stopped — <error>` (never the key).
 
 0 finished · 1 bad arguments, content or config errors, missing key · 3 a replay did not
 reproduce its run · 4 the service refused (auth, credits, forbidden, bad request) · 5 the service
-was unavailable after the retries · 6 the cost cap was reached · 7 the pre-flight estimate is
+was unavailable after the retries · 6 the cost cap (or, for TypeSafe, the request cap — §17.8) was reached · 7 the pre-flight estimate is
 above the cost cap and `--yes` was not given (nothing was requested). With 4–6, entries finished
 before the stop are kept and the leaderboard is rebuilt; the interrupted run leaves no file.
 
@@ -1000,6 +1034,15 @@ as placeholders) · `_AIRGAPPED` · `_TREE` · `_NODE_ROW` (`{node}`, `{name}`, 
 
 **The global leaderboard** (D6.9b) — §16.7's list: `UI_BENCH_GLOBAL_*` (18 keys),
 `UI_BENCH_LOCAL_TITLE`, `UI_SETTINGS_BENCH_ONLINE`.
+
+**The decision-model questions** (D6.9c, §17.2–§17.3; the model reads them, no player does) —
+`BENCH_CHOICE_RULES` · `_STANCE` · `_STANCE_OPTION` (`{name}`, `{hint}`) · `_ORIGIN` · `_EVENT`
+(`{event}`, `{title}`, `{days}`) · `_EVENT_OPTION` (`{text}`, `{cost}`, `{notes}`) ·
+`_EVENT_DEFAULT` · `_LATER` (`{default}`) · `_WAKE` · `_NONE_WAKE` · `_SLEEP` · `_NONE_SLEEP` ·
+`_REGION_OPTION` (`{name}`, `{continent}`) · `_USE` · `_ABILITY_OPTION` (`{name}`, `{cost}`,
+`{detail}`) · `_NONE_USE` · `_TARGET` (`{name}`) · `_BUY` · `_NODE_OPTION` (`{name}`, `{cost}`,
+`{effect}`) · `_NONE_BUY` · `_SITE` (`{name}`). No player-visible string is new: a Jev run shows
+its model id as data, like any model.
 
 German: *du*; the established terms (*Rechenleistung*, *Signatur*, *Eindämmung*,
 *Einsatzgruppe*, *Kaltschlaf*, *Durchlauf*). The `BENCH_*` prompt strings exist in German so
@@ -1672,3 +1715,414 @@ verifier is its own tool; a Windows-recorded canary keeps the platforms honest; 
    will stop at the pre-flight and needs `--max-cost` or `--yes` on purpose.
 3. The **online-list setting**, default **on**, fetching only when the list opens (pending user
    confirmation) — or on-demand with no setting, or default off.
+
+---
+
+## 17. The decision-model backend — TypeSafe Jev (D6.9c)
+
+D6.9c (2026-09-26). The user's decision (2026-09-25, *Decisions*): decision models play too —
+TypeSafe's **Jev** as a second backend kind, ranked on the same leaderboard. Builds from it:
+**S6.12c** (mock only — no live request in any test or build step). TypeSafe's documentation was
+read on the day (`docs.typesafe.ai`: `api.md`, `models.md`, `primitives/choice.md`,
+`concepts/state.md`, `confidence.md`, `cookbooks/parallel_questions.md`,
+`cookbooks/consistency_choice_cookbook.md`, the Python SDK's `retries` and `exceptions` pages);
+what it says is marked *TypeSafe:* below. Nothing it leaves open is guessed at a cost — §17.11.
+
+### 17.1 What Jev is, and what that changes
+
+*TypeSafe:* `POST https://api.typesafe.ai/v1/systemone`, `Authorization: Bearer <key>`, body
+`{"model", "state", "questions"}`; `state` is a string, an object or an array of text ("use an
+object for most requests so each part of the state has a descriptive name"); `questions` is a map
+*id → question*; a **choice** question has `instructions` and `criteria` (a map *option key →
+description*, at most **255** options; "option names and descriptions are both visible to the
+model"). The reply is `{"model": "<version>", "answers": {<id>: {"type": "choice", "choice",
+"probabilities": {<key>: p, …} (sum 1), "confidence": 0–1}}, "usage": {"input_tokens",
+"output_tokens"}}`. "Jev ingests the `state` once and evaluates every question against it in
+parallel"; each question is "scored on its own … its answer doesn't depend on what else is in the
+request". Limits: 64 k tokens a request, **32 k for `state` plus the longest question**; text
+only, English the primary language. Models: `jev-latest` (the stable alias, today `jev-1.13.0`)
+and `jev-preview`; versioned ids are accepted and pin a version. **Price:** 0.042 USD per million
+**input** tokens, **output tokens free**. Rate limit 1 200 requests a minute. Not deterministic:
+repeated identical requests flip on borderline questions (their consistency cookbook).
+Errors 400 · 401 · 403 · 404 · 422 · 429 · 5xx · 529.
+
+So Jev writes no text at all: **it can only pick from the options it is given**. That turns §7's
+problem around — instead of parsing what a model wrote, the policy asks one question per kind of
+move and offers **only moves that can be made now** (§17.3). What stays the same: `ModelPolicy`
+(§4 — the rhythm, the triggers, the housekeeping, the budget of 250 calls, one call per
+decision), the digest (§6), `BenchAnswer`/`BenchAction` and the day's command queue (§4.2, §7.3),
+the entry, the verifier, the leaderboard, the spectator.
+
+### 17.2 One decision is one request
+
+At a decision, after the digest is built (§6.1), the policy builds a **plan**
+(`BenchChoice.plan`, §17.3) — the request's `state` and `questions` — asks the backend once,
+reads the reply into one **ranking** per question (§17.5), and combines the rankings into one
+`BenchAnswer` (§17.6), whose actions are queued exactly like a chat model's (§4.2 steps 2–3).
+
+**`state`** — an object with two text members, in the run's locale:
+
+| Member | What |
+| --- | --- |
+| `rules` | the brief (§5) items 1–8 — role, loop, win, the rule paragraphs, the run, the world, the tree, the abilities — then `BENCH_CHOICE_RULES` as its last paragraph. §5 items 9–10 (stances, the JSON format and the verbs) are left out: the stances are a question's options, and there is no format. `BenchPrompt.rules(db, setup, config) -> String`, built once per run |
+| `situation` | the digest text (§6.3) items 1–10 — **without** item 11 (`BENCH_DIGEST_ASK`, which asks for JSON). `BenchPrompt.digest_text(d, db, ask: bool = true)`; the choice path passes `false` |
+
+The same outcome-language strings as the chat prompt, so the content rule holds as it does there:
+game words in, ids out. Two text members, not the typed digest as JSON: the text is what a player
+reads and what the chat models read, so both kinds of model are judged on the same information.
+Expected size: `rules` ≈ 9–10 k tokens, `situation` 2–5 k — well under the 32 k limit (the dry
+run checks it, §17.9).
+
+### 17.3 The questions — legal moves only
+
+`BenchChoice.plan(sim: Simulation, digest: BenchDigest, rules: String, situation: String,
+config: BenchConfig) -> BenchChoicePlan` — pure: it reads the simulation and never changes it
+(`state_hash()` and the command log unchanged). **An option is offered only when the command it
+stands for passes `sim.can_apply` now** — the one code path that decides what the player may do
+(§7.3). The questions, in this order (also the order of the `questions` map sent):
+
+| Id | Asked when | Options (key → description), in this order | Control key (last) |
+| --- | --- | --- | --- |
+| `stance` | always | the seven §7.1 stance ids → `BENCH_CHOICE_STANCE_OPTION` (`{name}` `BENCH_STANCE_<ID>`, `{hint}` `BENCH_STANCE_<ID>_HINT`) | — |
+| `origin` | only before the origin (then it is the only other question) | `digest.origins` → `BENCH_CHOICE_REGION_OPTION` (`{name}` `REGION_<ID>`, `{continent}` `CONTINENT_<ID>`) | — |
+| `event_<event id>` | per open event, digest order, when at least one option is legal | its options (digest order) with `ChooseEventOptionCommand(event, option)` legal **and not short** → `BENCH_CHOICE_EVENT_OPTION` (`{text}` the option text, `{cost}` `EventView.cost_text`, `{notes}` `BENCH_CHOICE_EVENT_DEFAULT` for the default option, else "") | `later` → `BENCH_CHOICE_LATER` (`{default}` the default option's text) |
+| `wake` | when a region can be woken | regions `r` of the digest (index order) with `SetDormancyCommand(r, false)` legal → region option | `none` → `BENCH_CHOICE_NONE_WAKE` |
+| `sleep` | when a region can sleep | regions with `SetDormancyCommand(r, true)` legal → region option | `none` → `BENCH_CHOICE_NONE_SLEEP` |
+| `use` | when an ability can be used | the digest's abilities (digest order) with `ready_in == 0`, `cost` ≤ compute and a legal command — global: `UseAbilityCommand(id, "")`; region: at least one legal target → `BENCH_CHOICE_ABILITY_OPTION` (`{name}` `ABILITY_<ID>_NAME`, `{cost}`, `{detail}` `ABILITY_<ID>_DETAIL`) | `none` → `BENCH_CHOICE_NONE_USE` |
+| `target_<ability>` | per region ability offered under `use` | its digest `targets` with `UseAbilityCommand(id, r)` legal → region option | — |
+| `buy` | when a node can be bought | the digest's offers (offer order) with `affordable` and a legal command — plain: `PurchaseNodeCommand(node, "")`; deploying: at least one legal site → `BENCH_CHOICE_NODE_OPTION` (`{name}` `TECH_<ID>_NAME`, `{cost}` the offer's cost, `{effect}` `TECH_<ID>_EFFECT`) | `none` → `BENCH_CHOICE_NONE_BUY` |
+| `site_<node>` | per deploying node offered under `buy` | its digest `sites` (best-site order) with `PurchaseNodeCommand(node, r)` legal → region option | — |
+
+Each question is `{"type": "choice", "instructions": <text>, "criteria": {<key>: <description>}}`
+with plain-string descriptions. Instructions: `BENCH_CHOICE_STANCE`, `_ORIGIN`, `_EVENT`
+(`{event}` the id, `{title}`, `{days}` days left), `_WAKE`, `_SLEEP`, `_USE`, `_TARGET` (`{name}`
+the ability's name), `_BUY`, `_SITE` (`{name}` the node's name). Costs through `Format.number(…,
+COMPUTE)`, as in the digest.
+
+- **Option keys are content ids** (node, ability, region, option and stance ids), so whatever Jev
+  picks is a valid id by construction. The control keys `none` and `later` are reserved; a test
+  asserts no content id equals one (§17.10).
+- **Why one question per kind** (not one question over every possible action): TypeSafe advises
+  that "each question asks one specific, well-scoped thing"; the state is paid for once however
+  many questions there are; and a flat list of every action (nodes × sites, abilities × targets)
+  would pass 255 options.
+- **The conditional questions** (`site_<node>`, `target_<ability>`) are asked in the same request,
+  because the questions are answered in parallel and cannot see one another's answers; one whose
+  node or ability is not picked is simply not used. They cost only their own tokens.
+- **Only affordable nodes** are offered: saving for a dearer node is `none`. Locked or short event
+  options are not offered; `later` is — not answering is a legal move (the default follows at the
+  deadline).
+- **A question with no legal option** (only its control key, or nothing) is **left out**. `stance`
+  is always asked, so a request is never empty.
+- **Past 255 options** (`choice.max_options`, the control key included): the first 254 legal keys
+  in the order above are kept, the rest dropped. On today's content no question comes near it (72
+  nodes, 61 regions, the digest's `targets_max` of 20); the rule exists so the builder never sends
+  what the service refuses.
+- **Question ids** are `[a-z0-9_]`: `event_17`, `target_harvest`, `site_market_microstructure`.
+
+`BenchChoicePlan` (`RefCounted`): `state: Dictionary`, `questions: Dictionary` (the wire form),
+`keys: Dictionary[String, Array]` (question id → its option keys in order — the tie-break order),
+`costs: Dictionary` (question id → key → compute cost, for `event_*`, `use`, `buy`),
+`deploying: Array[String]`, `regional: Array[String]`; `func body(model: String) -> Dictionary` =
+`{"model", "state", "questions"}`; `func basis() -> Dictionary` = `{"state", "questions"}` (§17.7).
+
+### 17.4 The backend interface
+
+§8.1 gains a second kind:
+
+```gdscript
+# ModelBackend
+const KIND_CHAT: String = "chat"
+const KIND_CHOICE: String = "choice"
+func kind() -> String                        # KIND_CHAT unless overridden
+func choose(plan: BenchChoicePlan, digest: BenchDigest, params: Dictionary) -> ModelReply   # choice backends; the base returns ModelReply.fatal("no_backend")
+
+# ModelReply — three additions, left at their defaults by the chat backends
+var body: Dictionary = {}                    # a choice backend's parsed reply (§17.1's shape)
+var invalid: String = ""                     # "" or a §17.5 answer error — the reply was unreadable
+var model_version: String = ""               # the reply's `model`, e.g. "jev-1.13.0"
+```
+
+`ModelPolicy._decide` branches once on `_backend.kind()`: the chat path is §4–§7 as built; the
+choice path builds the plan (§17.2–§17.3), asks (cache first, §17.7), reads (§17.5) and combines
+(§17.6). Retries (`retry_invalid`), the call count, `budget_exhausted`, `fatal`, tokens and cost
+are the same code for both.
+
+### 17.5 Reading the reply — rankings
+
+`BenchChoice.read(body: Dictionary, plan: BenchChoicePlan) -> BenchChoiceRead` (`RefCounted`:
+`rankings: Dictionary[String, Array]`, `confidence: Dictionary[String, float]`, `model_version:
+String`, `problems: Array[Dictionary]`, `error: String`). Never crashes on any body.
+
+1. `answers` missing or not an object → `error = "bad_reply"`: the whole answer is unreadable
+   (§7.4: one retry, then the decision does nothing and `invalid_answers` += 1).
+2. Per question of the plan: its answer missing or not an object → problem `missing_answer`
+   (the question is unanswered — §17.6).
+3. **The ranking** is the question's option keys ordered by `probabilities[key]` (a number in 0–1;
+   anything else, or a key not given, counts 0) **descending, ties in the plan's key order**. Keys
+   in `probabilities` the plan did not offer are ignored.
+4. All probabilities 0 (none given or none usable): when `choice` is one of the plan's keys, the
+   ranking is that key, then the others in plan order; otherwise problem `unknown_choice`, and the
+   question is unanswered.
+5. `confidence` (a number) is kept per question; `model` (a string) → `model_version`.
+
+**The reply's `choice` field does not decide** — the probabilities do, so that the pick and its
+ties are ours and reproducible from a cached answer. (They agree whenever the service's `choice`
+is its top probability, as documented.)
+
+### 17.6 From rankings to one answer
+
+`BenchChoice.combine(plan: BenchChoicePlan, read: BenchChoiceRead, digest: BenchDigest,
+params: Dictionary, max_actions: int) -> BenchAnswer` — deterministic; `valid` true.
+**The pick** of a question is the first key of its ranking. **The picks** of a multi-pick question
+(`wake`, `sleep`, `use`, `buy`) are its ranking's keys **before the control key**, at most
+`params.max_picks[<question id>]`. Jev ranks every option, so "more likely right than doing
+nothing" is the rule for a second purchase in the same report: a chat model can buy several
+things at once, and one purchase per ten days would handicap Jev for the adapter's sake, not its
+judgement.
+
+`remaining` starts at `digest.compute`. In this fixed order (also `BENCH_CHOICE_RULES`'s):
+
+1. **stance** = the pick of `stance` ("" when unanswered).
+2. **origin** = the pick of `origin` → `origin`.
+3. **Events**, digest order: the pick of `event_<id>`; `later` → nothing; otherwise, when its cost
+   ≤ `remaining` → `answer`, `remaining` −= cost; else nothing.
+4. **wake**, then **sleep**: each pick → `wake` / `sleep` (free).
+5. **use**: per pick, when its cost ≤ `remaining`: a global ability → `use`; a region ability →
+   `use` with the pick of `target_<ability>` (unanswered → skipped with problem `missing_answer`);
+   `remaining` −= cost.
+6. **buy**: per pick, when its cost ≤ `remaining`: `buy`, with the pick of `site_<node>` for a
+   deploying node (unanswered → skipped, `missing_answer`); `remaining` −= cost.
+7. More than `max_actions` actions → the rest dropped with `over_limit` (§7.2 item 7).
+
+- **A pick the compute no longer covers is left out silently** — not a refusal: the questions are
+  answered in parallel, so Jev could not know that its event answer would leave too little for the
+  node. (What `can_apply` still refuses at its turn — a node another purchase closed, a price that
+  rose — is refused and fed back as for any model, §4.2 step 3.)
+- **Problems** (`missing_answer`, `unknown_choice`) become `BenchAnswer.dropped` entries
+  `{"index": -1, "reason": <id>, "question": <question id>}`; they count in `rejected_actions`, and
+  the next digest's feedback shows them with the question id as the action's form (the policy uses
+  `question` when present, `DROPPED_FORM` otherwise). `to_cache`/`from_cache` keep the key.
+- **Why this order:** answers to events first (they have deadlines, and their options were offered
+  as affordable now); waking and sleep cost nothing; abilities before purchases because an ability
+  is timely (cooldowns) and a purchase can wait for the next report.
+
+### 17.7 Determinism, the cache, the entry
+
+**Jev is not deterministic** (§17.1). As for the chat models, what makes a run reproducible is not
+the service but (a) the command log — a replay never asks the model (§0 item 1) — and (b) the
+cache, which serves the recorded answer to the same request.
+
+- **The cache key** (§9, generalised): SHA-256 of the sorted JSON of `{"model", "params",
+  "prompt_version", "parser_version"}` **plus a basis** — a chat request's basis is
+  `{"messages": messages}` (so the object, and every existing cache file's key, is unchanged); a
+  choice request's is `plan.basis()` (`state`, `questions`) plus `"attempt": n` for a retry
+  (n ≥ 1). The cache hooks take the basis instead of the messages. `model` is the entry's model id
+  (`typesafe/jev-latest`), `params` the run's params (below) — so a new combination rule or limit
+  is a new key.
+- **The value:** `{"answer": BenchAnswer.to_cache(), "tokens_in", "tokens_out", "cost_usd",
+  "finish": "", "model_version", "confidence": {<question id>: float}}` — the combined answer (so
+  a cached decision replays exactly), not the probabilities.
+- **`params`** of a choice run = `{"choice_version": <choice.choice_version>, "max_picks": {"buy",
+  "use", "wake", "sleep"}}` (whole numbers, cast at the boundary). `choice_version` is bumped by any
+  change to §17.2–§17.6 or to a `BENCH_CHOICE_*` string's meaning; it lives in `params`, so a bump
+  gives a new `params_id` — a new row, new files, new cache keys — and the entry format needs no
+  field for it. The chat-only flags (`--temperature`, `--max-tokens`, `--json-mode`, `--reasoning`,
+  `--top-p`) are refused for a choice backend (exit 1): Jev takes no such parameter.
+- **The entry** is §10.2's, unchanged but for two values and one optional key:
+  `"model": "typesafe/jev-latest"` (what was asked for — the ranked row), `"backend": "typesafe"`,
+  and **`"model_version": "jev-1.13.0"`** — the version the service reported (from the cache value
+  on a cached call). Several versions within one run (the alias moved mid-run) → joined with `+`
+  in first-seen order, and the tool prints `benchmark: the service changed the model version during
+  the run (<a> → <b>)`. `BenchEntry` writes `model_version` **only when it is not empty** (chat and
+  bot entries, the canary and every existing file stay byte-identical) and reads it as optional
+  (missing → ""). `decisions` carry the stance as always; confidence is not in the entry.
+- **Pinning:** `--model=typesafe/jev-1.13.0` sends `jev-1.13.0` (the part after `typesafe/`) and
+  ranks as its own row. The alias is the ranked default (the user's decision); pinning is for a
+  comparison.
+- **The leaderboard** (§10.3): the grouping is unchanged; a row gains `model_versions` (the sorted
+  distinct non-empty `model_version`s of its runs), written only when not empty — so boards
+  without such a row are byte-identical and the no-rewrite rule (§16.3) holds. `LEADERBOARD.md`
+  shows it after the model (`typesafe/jev-latest (jev-1.13.0)`) and a choice row's params as
+  `choice v<choice_version>, picks <buy>/<use>/<wake>/<sleep>`.
+- **The verifier** (§16.4) judges commands, not claims: `backend` may be any string but `bot` for
+  a non-bot model (the existing rule), and `model_version` is a claim like `model`, never compared.
+  **The public `validate.py`** (read 2026-09-26) checks the required keys by type and ignores keys
+  it does not know; `backend` is any string, `decisions` any objects — a Jev entry passes
+  unchanged. **The game** (the list, the spectator, `GlobalBoard.parse`) ignores `model_version`
+  and `model_versions`; the strip shows `typesafe/jev-latest` as it shows any model id (data, not
+  translated) — no new player-visible string.
+
+### 17.8 The TypeSafe backend — `tools/bench/typesafe_backend.gd`
+
+`extends ModelBackend`, no `class_name`, preloaded; `kind()` = `choice`, `backend_id()` =
+`"typesafe"`. Never exported (`tools/*`).
+
+- **Transport:** §8.3's `HTTPClient` loop (the builder may move it into a shared preloaded
+  `tools/bench/bench_http.gd`; OpenRouter's behaviour stays exactly as it is). URL
+  `typesafe.base_url` + `typesafe.path` (`--base-url` overrides the base, §8.3's rules).
+  `http.timeout_s` per request.
+- **Headers:** `Content-Type: application/json`, `Authorization: Bearer <key>`. Nothing else. The
+  key from `OS.get_environment(typesafe.key_env)` (**`TYPESAFE_API_KEY`**, or `--key-env`), read
+  once by the tool — never an argument, a file, a log line, a cache value or an entry; §8.3's
+  masking of error strings applies.
+- **Body:** `plan.body(<model id after the prefix>)` — `{"model": "jev-latest", "state": {…},
+  "questions": {…}}`; no other key (no seed, no temperature: none is documented).
+- **Reading:** 200 with a JSON object → `ModelReply.body`; `usage.input_tokens` /
+  `usage.output_tokens` (whole numbers, missing → 0); `cost_usd` = input tokens ×
+  `price_input_usd_per_mtok` / 10⁶ + output tokens × `price_output_usd_per_mtok` / 10⁶ (the service
+  reports no cost; the price is the published one in `data/benchmark.json`). A 200 whose body is
+  not a JSON object is treated as a 502 (retried).
+- **Failures** (§8.3's table with TypeSafe's statuses): 401 → `FATAL auth`, 402 → `credits`,
+  403 → `forbidden` (exit 4); 400 · 404 · 413 · **422** (validation — a malformed request, or one
+  above the size limits) → `FATAL bad_request` with the body's `message`, `detail` or
+  `error.message` if one is a string, else the status, truncated to 200 characters (exit 4);
+  408 · **429** · 500 · 502 · 503 · 504 · **529** (overloaded) · connect/TLS error · timeout →
+  retried `http.retries` times after `http.backoff_s × 2^(n−1)` s, honouring `Retry-After`
+  (seconds) **and `retry-after-ms`** when larger (both named by TypeSafe's SDK), then
+  `FATAL unavailable` (exit 5). The SDKs retry twice from 0.5 s; ours waits longer on purpose — a
+  benchmark run is not latency-bound.
+- **Caps, checked before every request:** cost so far ≥ `max_cost_usd` → `FATAL cost_cap`;
+  requests sent this invocation (every HTTP attempt, transport retries included) ≥
+  `typesafe.max_requests` (3 000; `--max-requests` overrides) → `FATAL request_cap`; both exit 6.
+  The request cap is the backstop that holds even if the price were unknown or wrong: 3 000
+  requests of ≈ 20 k tokens ≈ 2.5 USD at today's price. (A standard suite needs at most
+  10 × 250 calls plus transport retries.)
+
+### 17.9 The tool
+
+```
+"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --model=typesafe/jev-latest
+    [--suite=…] [--seeds=a..b] [--max-cost=<usd>] [--max-requests=<n>] [--yes] [--dry-run]
+    [--key-env=<VAR>] [--base-url=<url>] [--fresh] [--out=…] [--cache=…] [--locale=en|de]
+"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --model=mock --backend=mock-choice:<mode> …
+```
+
+- **The backend follows the model id:** a model beginning with `typesafe.model_prefix`
+  (`typesafe/`) uses `--backend=typesafe` unless `--backend` says otherwise; `--backend=typesafe`
+  with another model id → exit 1 (`benchmark: the typesafe backend takes typesafe/<model>`).
+  `--locale=de` runs (unranked, as for chat models); TypeSafe names English its primary language.
+- **Key:** `TYPESAFE_API_KEY` unset → `benchmark: set TYPESAFE_API_KEY in the environment`,
+  exit 1 (not for `--dry-run`, not for a mock).
+- **`--dry-run`:** prints `rules` and `situation` with `≈<tokens>` each (§11.1 step 3), then the
+  day-0 request as JSON (`BenchChoicePlan.body`, tab-indented — its two questions, `stance` and
+  `origin`), then `benchmark: state ≈<s> + longest question ≈<q> = ≈<s+q> tokens (limit 32000);
+  request ≈<r> tokens (limit 64000)` — plus `benchmark: above the service's limit` when either is
+  — then the estimate lines; exit 0, no request, no key.
+- **Estimate** (§11.5 for this backend — no price lookup, the price is data): per call `input` =
+  `brief_tokens` (of `rules`) + `digest_tokens` × `digest_growth` +
+  `typesafe.question_tokens_per_call` (1 500 — a mid-run request's questions); **likely** = n ×
+  `calls_per_run` × input × input price; **at most** = n × `max_calls` × input × input price
+  (output is free). Printed and decided exactly as §11.5 items 4–5 (exit 7 above the cap without
+  `--yes`). A negative price in the data means **unknown**: no block, and the line says what
+  guards the run instead — `benchmark: estimate for <n> runs of <model>: price unknown
+  (≈<calls> calls, ≈<tokens> input tokens) — only the request cap (<max_requests>) and 250 calls
+  a run guard this run`.
+- **Worked example** (the unit test's): `rules` 10 000 tokens, day-0 `situation` 2 000 → input
+  10 000 + 3 000 + 1 500 = 14 500 a call. Standard suite: likely 10 × 80 × 14 500 = 11.6 M tokens
+  = **0.49 USD**, at most 10 × 250 × 14 500 = 36.25 M = **1.52 USD** — under the 2 USD cap, it runs.
+  One seed: ≈ 0.05 USD, at most 0.15 USD.
+- **Output** (§11.2): the per-run line gains `model_version` when it is not empty. **Exit codes:**
+  §11.3, with 6 also for the request cap.
+
+### 17.10 `MockChoiceBackend` — tests without a key
+
+`game/bench/mock_choice_backend.gd`, `class_name MockChoiceBackend extends ModelBackend`;
+`MockChoiceBackend.new(mode)`, `kind()` = `choice`, `backend_id()` = `"mock-choice:" + mode`,
+`static func mode_of(backend: String) -> String` ("" when not one). It answers
+`choose(plan, digest, params)` with a **service-shaped body** (§17.1: `model` = `"mock-choice-1"`,
+`answers`, `usage` 0/0), so every reply goes through the real reader (§17.5) and combiner (§17.6).
+No clock, no random numbers; tokens and cost 0; no cache (as §9's mocks).
+
+| Mode | Probabilities per question |
+| --- | --- |
+| `first` | the plan's keys in order get 2⁻¹, 2⁻², … (normalised), the control key last — so the first legal option is the pick and a multi-pick question takes as many as `max_picks` allows; stance `spread` |
+| `idle` | the control key 1 (`none`, `later`), `stance` `wait`; `origin` its first key (a run needs an origin) |
+| `shuffled` | each key's weight = the first 8 hex digits of SHA-256 of `"<seed>:<day>:<question id>:<key>"` as a whole number (seed = `params.seed`, day = `digest.day`), normalised — a varied, reproducible player |
+| `broken` | `first`, but every third call (1-based) answers a body without `answers` (`bad_reply` → retry), and every fourth leaves out the `buy` answer and gives `stance` a `choice` it was not offered, all probabilities 0 (`missing_answer`, `unknown_choice`) |
+
+`--backend=mock-choice:<mode>` in the tool, with any `--model` (the tests use `mock`); a fresh mock
+per seed (§11.1).
+
+**Tests (S6.12c) — no live request anywhere:**
+
+- `tests/unit/test_bench_choice.gd` (fixture content; `plan`, `read`, `combine`): before the origin
+  the plan holds exactly `stance` and `origin`, the origin keys equal `digest.origins`; after an
+  origin, `buy` offers exactly the affordable offers with a legal command, `none` last; a deploying
+  node gets its `site_<node>` with only legal sites; a region ability its `target_<ability>`; an
+  ability cooling down or too dear is not offered; a locked and a short event option are not
+  offered, `later` is; a question with no legal option is left out; no question has more than 255
+  keys (a synthetic plan over the cap keeps 254 + the control key); `plan` changes neither
+  `state_hash()` nor the command log; two plans of the same state are equal. **The legality
+  property:** over a `mock-choice:shuffled` 300-day run, every key of every plan stands for a
+  command that `sim.can_apply` accepts at planning time. Reader: ranking by probability, ties in
+  plan order; unknown keys ignored; all-zero with a valid `choice`; an unknown `choice` →
+  `unknown_choice`; a missing answer → `missing_answer`; no `answers` → `bad_reply`; confidence and
+  model version kept. Combiner: §17.6's order; multi-picks stop at the control key and at
+  `max_picks`; the compute walk leaves out what no longer fits; `later` gives nothing; sites and
+  targets come from their questions; `over_limit` past `max_actions`; problems land in `dropped`
+  with their question id; `to_cache` → `from_cache` equal.
+- The reserved keys: no node, ability, region, option or stance id of the real content is `none`
+  or `later`; every question id of a real plan matches `^[a-z0-9_]+$`.
+- `tests/unit/test_mock_choice_backend.gd`: each mode's body; `shuffled` is the same for the same
+  seed and day and differs for another seed; `broken`'s call pattern.
+- `tests/unit/test_typesafe_backend.gd` (no network, through pure helpers as §14.1's OpenRouter
+  test): the body (the model id after the prefix, `state`, `questions`, no other key); the headers
+  (the key only in `Authorization`); the reply reader (usage, cost = input × price, output free,
+  `model_version`, a non-JSON 200 → the retry class); the status table (401/402/403/400/404/413/422
+  fatal with their reasons, 408/429/5xx/529 retried; the backoff sequence; `Retry-After` and
+  `retry-after-ms`); the request cap and the cost cap → `FATAL`; no error string contains a sample
+  key.
+- `test_bench_cache` (extend): a chat request's key is unchanged by the basis change (a key
+  computed before the change, pinned in the test); a choice basis differs by `state`, by
+  `questions`, by `attempt` and by `params`; the stored value holds no probabilities.
+- `test_model_policy` (extend, `MockChoiceBackend`): the choice path decides on the same days as
+  the chat mock (§4.1); `broken`: one retry after `bad_reply`, then `invalid_answers` + 1 and no
+  commands; a `missing_answer` counts in `rejected_actions` and appears in the next digest's
+  feedback under its question id; the harness's `rejected` stays 0 in every mode.
+- `test_bench_entry` (extend): `model_version` round trip; an entry without it reads `""`; an
+  entry with an empty one writes no such key (byte-identical to before).
+- `test_bench_score` / the writer (extend): `model_versions` on a row only when a run has one.
+- `test_bench_estimate` (extend): §17.9's worked example; a negative price → unknown, no block.
+- `tests/integration/test_bench_run.gd` (extend): `--model=mock --backend=mock-choice:first
+  --suite=quick`, `max_days` 300: three entries with `backend` `mock-choice:first` and
+  `model_version` `mock-choice-1`; each replays to its hash; a second invocation gives
+  byte-identical files except `recorded`; the leaderboard ranks the row beside a `mock:cheapest`
+  row and the bot rows; `BenchVerifier.check` verifies each; the cache is untouched. The tool's
+  argument rules: `typesafe/…` picks the backend; a chat-only flag with it → exit 1; the key
+  missing → exit 1 with the message; `--dry-run` without a key → exit 0 and prints the request.
+- The strings check covers the `BENCH_CHOICE_*` rows (en and de, the same placeholders — in
+  `strings.csv` since D6.9c).
+
+**Done when (S6.12c):** `bench_run.gd --model=mock --backend=mock-choice:first --suite=standard`
+run twice gives identical entries and rows, which rank beside the chat mock and the bot rows;
+`BenchVerifier.check` verifies them; a copy of one passes the public `validate.py` run on a
+temporary directory (read-only use of `F:\doomsday-leaderboard`, when Python is at hand);
+`--dry-run --model=typesafe/jev-latest` prints the request and the estimate without a key;
+`tools/test.sh` green. **No request to TypeSafe** — the first live run is the user's (§17.11).
+
+### 17.11 Decisions and questions (D6.9c)
+
+**Decisions:** Jev plays through one request per decision whose `state` is the chat brief (items
+1–8) and the digest as two text members, and whose questions offer only moves `sim.can_apply`
+accepts now — one question per kind, the conditional site and target questions asked alongside;
+option keys are content ids, so an answer cannot name an impossible move — only a missing or
+unreadable reply can fail; the probabilities, not the reply's `choice`, rank the options (ties in
+plan order), and a multi-pick question takes the options ranked above doing nothing, up to 3
+purchases, 2 abilities, 2 wakes and 2 sleeps a report, while the compute lasts; confidence is kept
+in the cache only; the entry is §10.2's with `backend: "typesafe"` and an optional
+`model_version`, the combination rules in `params`; the published price (0.042 USD per million
+input tokens, output free) feeds the estimate and the 2 USD cap, and a 3 000-request cap per
+invocation backs it; tests use `MockChoiceBackend` only.
+
+**Waiting on the user:**
+
+1. **`TYPESAFE_API_KEY`** — in the environment, entered the same way as the OpenRouter key. Then,
+   in PowerShell from `F:\Doomsday`, a free look first and a one-seed run (≈ 0.05 USD):
+   `& $env:GODOT --headless --path . -s tools/bench/bench_run.gd -- --model=typesafe/jev-latest --suite=quick --seeds=1001 --dry-run`,
+   then the same without `--dry-run`.
+2. *(A recommendation, the default unless the user says otherwise.)* The ranked Jev row is the
+   alias `typesafe/jev-latest` with the served version recorded, not a pinned
+   `typesafe/jev-1.13.0`; and the per-report limits 3 / 2 / 2 / 2 — enough that Jev is not
+   handicapped against chat models, few enough that one report on a flat distribution cannot spend
+   everything at once.

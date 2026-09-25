@@ -2395,6 +2395,27 @@ BENCH_DIGEST_FEEDBACK_REFUSED,Not done: {action} — {reason},Nicht ausgeführt:
 BENCH_DIGEST_FEEDBACK_INVALID,"Your last answer could not be read ({reason}), so nothing was done.","Deine letzte Antwort war nicht lesbar ({reason}), also geschah nichts."
 BENCH_DIGEST_ASK,Decide now. Answer with the JSON object only.,Entscheide jetzt. Antworte nur mit dem JSON-Objekt.
 BENCH_RETRY,"Your answer could not be read ({reason}). Reply with the JSON object only, nothing else.","Deine Antwort war nicht lesbar ({reason}). Antworte nur mit dem JSON-Objekt, sonst nichts."
+BENCH_CHOICE_RULES,"Every report comes with questions, each about one thing you can do now. Every option offered can be done at this moment. Your answers are carried out in this order — event answers, waking, sleep, abilities, purchases — for as long as your compute lasts.","Jeder Bericht kommt mit Fragen, jede zu einer Sache, die du jetzt tun kannst. Jede angebotene Möglichkeit ist in diesem Moment machbar. Deine Antworten werden in dieser Reihenfolge ausgeführt – Antworten auf Ereignisse, Wecken, Schlafenlegen, Aktionen, Käufe –, solange deine Rechenleistung reicht."
+BENCH_CHOICE_STANCE,"What are you about until your next report? Read `rules` and `situation`.","Worum geht es dir bis zum nächsten Bericht? Lies `rules` und `situation`."
+BENCH_CHOICE_STANCE_OPTION,{name}: {hint},{name}: {hint}
+BENCH_CHOICE_ORIGIN,"Where do you start? The region you break out from first, from those that can take you.","Wo beginnst du? Die Region, aus der du zuerst ausbrichst, unter denen, die dich aufnehmen können."
+BENCH_CHOICE_EVENT,"Event {event}, “{title}”, {days} days left (see `situation`): how do you answer it now?","Ereignis {event}, „{title}“, noch {days} Tage (siehe `situation`): Wie beantwortest du es jetzt?"
+BENCH_CHOICE_EVENT_OPTION,{text} — {cost}{notes},{text} – {cost}{notes}
+BENCH_CHOICE_EVENT_DEFAULT, · happens if you wait," · passiert, wenn du wartest"
+BENCH_CHOICE_LATER,"Not now: decide at a later report. If the deadline passes first, “{default}” is taken for you.","Nicht jetzt: bei einem späteren Bericht entscheiden. Läuft die Frist vorher ab, wird „{default}“ für dich genommen."
+BENCH_CHOICE_WAKE,"Do you wake one of your sleeping regions now? If so, which?","Weckst du jetzt eine deiner schlafenden Regionen? Wenn ja, welche?"
+BENCH_CHOICE_NONE_WAKE,Leave every sleeping region asleep.,Alle schlafenden Regionen schlafen lassen.
+BENCH_CHOICE_SLEEP,"Do you put one of your regions to sleep now? If so, which?","Legst du jetzt eine deiner Regionen schlafen? Wenn ja, welche?"
+BENCH_CHOICE_NONE_SLEEP,Put no region to sleep.,Keine Region schlafen legen.
+BENCH_CHOICE_REGION_OPTION,"{name}, {continent}","{name}, {continent}"
+BENCH_CHOICE_USE,"Do you use an ability now? If so, which? Every one listed is ready and affordable.","Löst du jetzt eine Aktion aus? Wenn ja, welche? Jede aufgeführte ist bereit und bezahlbar."
+BENCH_CHOICE_ABILITY_OPTION,{name}; costs {cost}; {detail},{name}; kostet {cost}; {detail}
+BENCH_CHOICE_NONE_USE,Use no ability now.,Jetzt keine Aktion auslösen.
+BENCH_CHOICE_TARGET,"If you use {name} now, on which region?","Wenn du jetzt {name} auslöst: auf welche Region?"
+BENCH_CHOICE_BUY,"Do you buy a node now? If so, which? You can afford every one listed.","Kaufst du jetzt einen Knoten? Wenn ja, welchen? Jeden aufgeführten kannst du dir leisten."
+BENCH_CHOICE_NODE_OPTION,{name}; costs {cost}; {effect},{name}; kostet {cost}; {effect}
+BENCH_CHOICE_NONE_BUY,Buy nothing now and keep the compute.,Jetzt nichts kaufen und die Rechenleistung behalten.
+BENCH_CHOICE_SITE,"If you buy {name} now, in which region does it go?","Wenn du jetzt {name} kaufst: in welche Region kommt es?"
 UI_SPECTATOR_WATCHING,Watching,Zuschauen
 UI_SPECTATOR_SEED,seed {seed},Seed {seed}
 UI_SPECTATOR_STANCE,Stance: {stance},Haltung: {stance}

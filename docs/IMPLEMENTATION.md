@@ -1310,15 +1310,28 @@ entry, the spectator overlay, nothing); the cache key, the budget and cost readi
 `typesafe/jev-latest`, a `backend` or `kind` key, params) so it ranks on the same board and the
 verifier and the public `validate.py` accept it; a mock mode for the tests; strings en/de if any.
 What the documentation leaves open goes to the user, not into a guess.
-**Done when:** S6.12c has nothing to decide.
+**Done when:** S6.12c has nothing to decide. *Done 2026-09-26 (`benchmark.md` §17; data
+`BENCH_CHOICE_*` strings en/de; the `choice`/`typesafe` keys are specified in §3 and enter
+`benchmark.json` in S6.12c).*
 
-### S6.12c — The Jev backend, mock only **[O]** · **Read first:** D6.9c's section of `benchmark.md`
-The backend in `tools/bench/` (never exported), the question builder and the answer mapper, the
-tool's flag or model prefix, the entry fields, the verifier's and the list's acceptance, a mock
-for the decision kind; tests on the mock only — never a live request.
-**Done when:** a mock-backed Jev suite run is reproducible, its entries verify and rank beside the
-chat-model and bot rows; `tools/test.sh` green. **The first live run needs `TYPESAFE_API_KEY` from
-the user** — it goes under *Waiting on the user*.
+### S6.12c — The Jev backend, mock only **[O]** · **Read first:** `benchmark.md` §17 (all of it), then §8.1, §9, §10.2–§10.3, §11.1 and §11.5 as §17 amends them
+Build §17: `BenchChoice` (plan §17.3, reader §17.5, combiner §17.6) with `BenchChoicePlan` and
+`BenchChoiceRead`; `BenchPrompt.rules` and `digest_text(…, ask)`; `ModelBackend.kind`/`choose`
+and the three `ModelReply` fields (§17.4); the choice branch in `ModelPolicy._decide` and the
+dropped entries with a `question`; the cache's basis (§17.7 — a chat key must stay the same);
+the `choice` and `typesafe` blocks of §3 added to `data/benchmark.json` **with** `BenchConfig`
+reading them (`test_bench_config` requires a reader and a reason for every key of the file); `BenchEntry.model_version` (optional, written only
+when not empty) and the writer's `model_versions`; `MockChoiceBackend` (§17.10);
+`tools/bench/typesafe_backend.gd` (§17.8) and the tool's rules (§17.9: the prefix, the key, the
+refused chat flags, `--max-requests`, the dry run's request and limit lines, the estimate). Also
+(S6.P4's design question, answered in D6.9c): turn the `# DESIGN?` in
+`ui/components/option_text.gd` `_told` into a plain why-comment — *Stay on Earth* keeps *Nothing
+happens*. Tests: §17.10's list — **mock only, never a request to TypeSafe**. No `data/` content
+change, so no canary.
+**Done when:** §17.10's *Done when*: a mock-backed Jev suite run is reproducible, its entries
+verify and rank beside the chat-model and bot rows, the dry run prints the request without a
+key; `tools/test.sh` green. **The first live run needs `TYPESAFE_API_KEY` from the user** — it is
+under *Waiting on the user* (§17.11 has the command).
 
 ### G6 (1/2) — Balance pass 4 **[F]** · **Read first:** `docs/BALANCE.md` §5 · *Balance baselines*
 Re-baseline everything on the M6 tree (every architecture, scenario and difficulty), tune data
