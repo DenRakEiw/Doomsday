@@ -327,7 +327,7 @@ func reset_history() -> void
 | --- | --- | --- |
 | `EventBus.sim_event(event)` | `sim`, `type == event.type` | `event.data` |
 | `EventBus.command_applied(command, result)` with `result.ok == false` | `command_rejected` | `{"reason": result.reason}` |
-| `EventBus.speed_changed(speed)` | `bus`, `signal == "speed_changed"` | `{"speed": speed}` |
+| `EventBus.speed_changed(speed)` | `bus`, `signal == "speed_changed"` | `{"speed": speed, "hold": Game.is_hold_change()}` *(D6.8: `hold` is true when a hold or its release forced the speed, so a modal opening is not also a pause; the four speed triggers match `"hold": {"not": true}`)* |
 | `EventBus.region_selected(index)` | `bus`, `signal == "region_selected"` | `{"index": index}` |
 | `ScreenRouter.screen_changed(screen)` | `router` | `{"screen": "boot" / "title" / "setup" / "session"}` (the enum name, lower case) |
 | every `BaseButton.pressed` (§5.2) | `button` | `{}` |
@@ -771,10 +771,10 @@ the question.
 | Group | Target | Tolerance |
 | --- | --- | --- |
 | clicks and ticks (`ui_click`, `ui_select`, `boot_line`, `ui_pause`, `ui_speed`, `ui_dissolve`) | sample peak −12…−16 dBFS (the recipe's `peak_db`) | ±0.5 dB |
-| other interface cues | peak −6…−11 dBFS | ±0.5 dB |
+| other interface cues | peak −6…−12 dBFS *(D6.8: −12 for `ui_open`/`ui_close`, which sound on every modal)* | ±0.5 dB |
 | `map_*`, `tf_move` | peak −16…−18 dBFS | ±0.5 dB |
 | `prep_*` | peak −14 dBFS | ±0.5 dB |
-| stings and alerts | peak −5…−10 dBFS | ±0.5 dB |
+| stings and alerts | peak −5…−11 dBFS *(D6.8: −11 for `ev_expired`, a minor sting)* | ±0.5 dB |
 | the big five (`alert_discovered`, `phase_open`, `tf_appeared`, `tf_acted`, `end_*`) | peak −3…−4 dBFS | ±0.5 dB |
 | ambience layers | −32 LUFS integrated (`amb_covert` −34) | ±1 LU |
 | music stems | bed −28, pulse −30, chords −28, edge −32 LUFS | ±1 LU |

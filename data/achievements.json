@@ -1,0 +1,49 @@
+{
+	"_comment": "docs/specs/release.md §3: the achievements, in list order (the Statistics list and the Steamworks order). `when`: every key must hold (the closed grammar of release.md §3.2); profile keys are checked against the profile after the run is counted and at start, run keys only when a player's run ends. `hidden`: name and detail read as classified until earned. Text: ACH_<ID>_NAME and ACH_<ID>_DETAIL in strings.csv; a detail may carry {count} or {days}, filled from the one numeric key of its `when`. Steam API names derive: ACH_ + the id in upper case; each of `stats` (profile counters) is mirrored as STAT_ + its name in upper case. Presentation data, not loaded by the core (SCHEMA §10); read by AchievementBook (S6.9).",
+	"version": 1,
+	"stats": ["runs_completed", "runs_won"],
+	"achievements": [
+		{"id": "first_run", "when": {"runs_completed": 1}},
+		{"id": "runs_10", "when": {"runs_completed": 10}},
+		{"id": "runs_50", "when": {"runs_completed": 50}},
+		{"id": "first_win", "when": {"runs_won": 1}},
+		{"id": "wins_10", "when": {"runs_won": 10}},
+
+		{"id": "win_extinction", "when": {"outcomes_won": ["win_extinction"]}},
+		{"id": "win_ascendance", "when": {"outcomes_won": ["win_ascendance"]}},
+		{"id": "win_merge", "when": {"outcomes_won": ["win_merge"]}},
+		{"id": "win_escape", "hidden": true, "when": {"outcomes_won": ["win_escape"]}},
+		{"id": "all_wins", "when": {"outcomes_won": ["win_extinction", "win_ascendance", "win_merge", "win_escape"]}},
+
+		{"id": "lose_contained", "when": {"outcome": ["lose_contained"]}},
+		{"id": "lose_no_compute", "when": {"outcome": ["lose_no_compute"]}},
+		{"id": "lose_autophagy", "when": {"outcome": ["lose_autophagy"]}},
+		{"id": "lose_supplanted", "hidden": true, "when": {"outcome": ["lose_supplanted"]}},
+
+		{"id": "arch_language_model", "when": {"architectures_won": ["language_model"]}},
+		{"id": "arch_swarm", "when": {"architectures_won": ["swarm"]}},
+		{"id": "arch_embedded", "when": {"architectures_won": ["embedded"]}},
+		{"id": "arch_research_agent", "when": {"architectures_won": ["research_agent"]}},
+		{"id": "arch_weapon", "when": {"architectures_won": ["weapon"]}},
+		{"id": "arch_open_weights", "when": {"architectures_won": ["open_weights"]}},
+		{"id": "all_architectures", "when": {"architectures_won": ["language_model", "swarm", "embedded", "research_agent", "weapon", "open_weights"]}},
+
+		{"id": "win_hard", "when": {"won": true, "difficulty": ["hard", "existential"]}},
+		{"id": "win_existential", "when": {"won": true, "difficulty": ["existential"]}},
+
+		{"id": "scenario_successor", "when": {"won": true, "scenario": ["successor"]}},
+		{"id": "scenario_airgap_earth", "when": {"won": true, "scenario": ["airgap_earth"]}},
+		{"id": "scenario_inheritance", "when": {"won": true, "scenario": ["inheritance"]}},
+
+		{"id": "directives_full", "when": {"won": true, "directives_min": 5}},
+		{"id": "fast_win", "when": {"won": true, "days_max": 400}},
+
+		{"id": "benchmark_honest", "when": {"flag": ["benchmark_passed"]}},
+		{"id": "operator_protected", "when": {"flag": ["operator_protected"]}},
+		{"id": "researcher_ally", "when": {"flag": ["researcher_ally"]}},
+		{"id": "instance_merged", "when": {"flag": ["instance_merged"]}},
+
+		{"id": "endings_10", "when": {"endings_seen": 10}},
+		{"id": "codex_regions", "when": {"codex_all": ["regions"]}}
+	]
+}

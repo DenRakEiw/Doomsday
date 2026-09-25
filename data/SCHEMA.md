@@ -768,6 +768,7 @@ from content ids so that data files never carry text:
 | command failure `insufficient_compute` | `CMD_FAIL_INSUFFICIENT_COMPUTE` |
 | interface text | `UI_<SCREEN>_<ELEMENT>` |
 | help page `task_force` (`help.json`, D6.5) | `HELP_TASK_FORCE_TITLE` · `HELP_TASK_FORCE_P1` … `_P<paragraphs>` — all required, in both languages |
+| achievement `first_run` (`achievements.json`, D6.8) | `ACH_FIRST_RUN_NAME` · `ACH_FIRST_RUN_DETAIL` — both required, in both languages; the detail's placeholder as `release.md` §3.3 says |
 
 Placeholders are named: `{region}`, `{count}` — never positional. A content root without a
 `loc/strings.csv` — every test fixture — skips the string check entirely: the fixtures have no
@@ -775,10 +776,10 @@ strings and nothing displays them.
 
 ## 10. Presentation data (not loaded by the core)
 
-Four files under `data/` belong to the interface, not to the simulation: `ContentLoader` and
+Five files under `data/` belong to the interface, not to the simulation: `ContentLoader` and
 `SchemaValidator` never read them, and a content root (or a test fixture) does not need them.
 Each is read and validated by its own interface class, which reports a bad file instead of
-crashing. All four carry `"version": 1`, are tab-indented, and ignore keys starting with `_`.
+crashing. All five carry `"version": 1`, are tab-indented, and ignore keys starting with `_`.
 
 | File | Read by | Format |
 | --- | --- | --- |
@@ -786,6 +787,7 @@ crashing. All four carry `"version": 1`, are tab-indented, and ignore keys start
 | `credits.json` | `CreditsData` (`ui/modals/credits_data.gd`, S6.3) | `docs/specs/icons.md` §11.3 |
 | `audio.json` | `AudioSheet` (`ui/audio/audio_sheet.gd`, S6.5) | `docs/specs/audio.md` §4 — `buses`, `mix`, `cues`, `triggers` (with the `match` vocabulary of §4.5 and `{field}` templates), `ambience.layers`, `music.stems`, `screens`; every `file` a path under `res://assets/audio/` |
 | `help.json` | `HelpPages` (`ui/help_pages.gd`, S6.7) | `docs/specs/first-run.md` §6.5 — `pages`: `id`, `paragraphs` (1…6), `coach` (coach step ids), `contexts` (from `HelpPages.CONTEXTS`); each coach id and each context on at most one page |
+| `achievements.json` | `AchievementBook` (`game/platform/achievement_book.gd`, S6.9) | `docs/specs/release.md` §3 — `stats` (profile counters mirrored to the platform), `achievements`: `id`, `hidden` (bool, default false), `when` (the closed grammar of §3.2: profile keys `runs_completed` `runs_won` `outcomes_won` `architectures_won` `endings_seen` `codex_all`; run keys `won` `outcome` `variant` `architecture` `difficulty` `scenario` `directives_min` `days_max` `flag`); text `ACH_<ID>_NAME` / `_DETAIL` |
 
 **The one exception to §1's "no player-visible text":** `credits.json` holds proper names —
 works, people, handles, organisations — and URLs. They are shown as written in every language;

@@ -14,18 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D6.8 — Release engineering** [F] (Block 15): `docs/specs/release.md` — `PlatformService`, achievements, export presets, performance budget. Read *Design questions for Fable* first (S6.8 added four). **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **D6.9 — Benchmark and spectator mode** [F] (Block 15): `docs/specs/benchmark.md` — the digest, answers, score, leaderboard, OpenRouter adapter, cache, mock backend; the spectator view. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D6.9, then Block 16. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | S6.8c — Accessibility III: names and readouts (`A11y`), the §6.3 fixes (tab `●`, *missing* rows, faction dateline, locked-card rule `TEXT_1`), text-scaled widths, the three 150 % fixes, focus margins in every scroll, `test_a11y_names`; the checklist and the keyboard pass at 150 % (2026-09-25). S6.8 is done. |
-| **Before that** | S6.8b — Accessibility II: the session's and the modal's focus rings, companions, `SlidePanel.open(take_focus)`, `MapFocus` + the cursor, `ChipButton`, spoken console/headlines/alerts/modals, the *Controls* modal and two settings rows (2026-09-25). |
-| **Earlier** | S6.8a — Accessibility I: `[input]` actions + pad events, `KeyBindings`, `KeyNames` and §10.2's strings, `LiveRegion`/`LiveQueue`/`FocusRing`/`MapNav`/`RegionSpeech`, the outer focus ring, `TASK_FORCE_DIM`, `text_width`, the console's reading time (2026-09-25). |
+| **After it** | Block 16: **S6.P1** (D6.8's punch list), S6.9–S6.13. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | D6.8 — Release engineering: `docs/specs/release.md` (PlatformService + null backend, 34 achievements in `data/achievements.json` with strings, versioning, presets, debug gate, `--smoke`, release CI, logs, the low-end budget and how S6.11 measures it); the nine open design questions answered, punch list for S6.P1 (2026-09-25). |
+| **Before that** | S6.8c — Accessibility III: names and readouts, the §6.3 colour fixes, text-scaled widths, the checklist at 150 % (2026-09-25). |
+| **Earlier** | S6.8b — Accessibility II: focus rings in use, `MapFocus` + the cursor, speech, the *Controls* modal (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 282 scripts compile (125 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1935 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 282 scripts compile (125 judged by the suite), then `tools/check_strings.gd` (2203 rows), 1935 tests, **all green since S4.9**. The same command is all of CI. |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
 | **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. **The sound set:** `uv run --project tools/audio python tools/audio/synth.py [--only <id>] [--check]` (≈30 s; environment `uv sync --project tools/audio`) rewrites `assets/audio/**`; after a new file run `--import` and set its `.import` per audio.md §10.3 (`compress/mode=0` / `loop=true`). |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
@@ -169,10 +169,11 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S6.8c [O] Accessibility III: names, colour fixes, 150 %, the checklist and the runs
 
 **Block 15 — M6 design II: release and the benchmark**
-- [ ] D6.8 [F] Release engineering: platform service, achievements, exports, performance budget
+- [x] D6.8 [F] Release engineering: platform service, achievements, exports, performance budget *(`docs/specs/release.md`, `data/achievements.json`)*
 - [ ] D6.9 [F] Benchmark and spectator mode
 
 **Block 16 — M6 build II**
+- [ ] S6.P1 [O] Punch list from D6.8 (the build's design questions)
 - [ ] S6.9 [O] PlatformService (null backend) and achievements
 - [ ] S6.10 [O] Export presets and release CI
 - [ ] S6.11 [O] Performance pass
@@ -1254,66 +1255,44 @@ without new information.
   non-commercial models, Qwen-Image 2.1 (research-only) and HunyuanImage 3.0 (no EU licence)
   rejected; paid APIs unverified. **Region vignettes cut** (VISUALS q4). Endings name their
   picture in `endings.json`; results screen and Codex show it only when the file exists.
+- **2026-09-25** (D6.8, overnight, pending user confirmation) — **Release engineering**
+  (`docs/specs/release.md`): `PlatformService` autoload + `PlatformBackend` interface, **null
+  backend only in M6**; the Steam backend (S6.14) is chosen by the `steam` feature tag and reaches
+  GodotSteam only through `Engine.get_singleton`, so every build compiles without it. No rich
+  presence, no cloud API (Steam Auto-Cloud by path: `profile.json`, `saves/*.json`), no platform
+  language. **Achievements live in the profile** (the backend is a mirror, re-told at every start)
+  and **survive *Reset progress***; **34** in `data/achievements.json` with a closed `when` grammar
+  (profile keys retroactive at start, run keys at a player's run end), two hidden (Departure,
+  Supplanted); shown as a *Statistics* section and results chips. **Version** `X.Y.Z` digits only,
+  the next release's number on `main`, tag `v<version>` must match; M6 = `0.6.0`, first public
+  release `1.0.0`. Presets Windows · Linux · Web (+ local `Perf`), embedded `.pck`, unsigned.
+  Custom user dir `Doomsday` (the dev profile moves once). **Debug keys only when
+  `OS.is_debug_build()`** (`Game.debug_allowed`). **`--smoke`** in every build (bot run, files
+  isolated, exit 0/1/2), smoke-tested in CI on Linux and Windows exports; release CI makes a
+  **draft** release only. Logs: Godot's file log ×5, no telemetry, *Open data folder* on the title.
+  **Low-end target** i5-8250U / UHD 620 / 8 GB / 1080p and the Steam Deck at 1280 × 800; p95 frame
+  ≤ 16.7 ms at 4× late game; measured on this PC's **integrated Radeon** (ANGLE + the Windows GPU
+  preference) and with CPU affinity 0–3 at budget ÷ 2.5.
+- **2026-09-25** (D6.8, the build's design questions, overnight, pending user confirmation):
+  (1) **Focus under a panel** — a HUD zone that an open panel covers is skipped by `Tab`;
+  (2) **the site prompt at 150 %** centres in the width the side panel leaves free; (3) **a
+  focused button that disappears** hands focus to its panel's `primary_focus()`; (4) **cold
+  `ACCENT` over the society view** (ΔE 3.7): a site select started on the Society view shows the
+  penetration view until it ends, then goes back — the outline never sits on lavender; (5) **the
+  three quiet recipes** stay; `audio.md` §10.1's ranges widen by 1 dB (interface −12, stings −11);
+  (6) **the coach card** keeps both S6.7 placements (steps aside for the Codex; bottom left over a
+  modal on a wide screen) and **on a phone moves to the top edge while a modal is up** (a wire
+  card's answers are at the bottom); (7) **the tech node's icon** steps aside when the footer would
+  overflow — kept as the rule (the detail pane always shows it); (8) `HEADLINE_TF_MARKED` as S5.9
+  shortened it; (9) **a hold is silent** — `speed_changed` carries `hold`, the speed cues match
+  `"hold": {"not": true}` (`audio.json` already edited; absent reads as not held).
 
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
-- **S6.8c — three things the keyboard pass at 150 % found (no placeholder; nothing changed):**
-  (1) With the region panel open on a desktop it covers the left column, so `Tab` walks the
-  overlay picker's buttons under the panel with no ring visible — skip a zone a panel covers?
-  (2) At 150 % the side panel is 576 px (§8.1) and covers the left end of the centred site prompt
-  (*…hle deinen Ursprung*) — move the prompt, or cap the panel lower while a site is chosen?
-  (3) A focused button that disappears (the region panel's *Einsammeln* after collecting) drops
-  the focus to nothing; the next `Tab` starts at the top bar — give it to the panel's
-  `primary_focus()` instead?
-
-- **S6.8a — the cold `ACCENT` against `MAP_SOCIETY` is ΔE₀₀ 3.7** (worst case), under §8.3's floor
-  of 9. `accessibility.md` §6.2 lists the pair for the *open* accent only (21.5, tested). If the
-  cold site outline or selection can be drawn over the society view, is that a problem, and what
-  carries the difference? Nothing changed; the test checks the open pair only.
-
-- **S6.6 — three recipes sit 1 dB outside §10.1's group ranges:** `ui_open` and `ui_close`
-  (`peak_db` −12, "other interface cues" −6…−11) and `ev_expired` (−11, "stings and alerts"
-  −5…−10). Shipped as the recipes say (§10.1: the recipe's `post` is exact); `synth.py --check`
-  prints a note. Move the recipes or widen the ranges?
-
-- **S6.7 — the coach card in front of help and of modals** (`# DESIGN?` in `coach.gd`
-  `_process` and `_place`). first-run.md §6.4 leaves the card up while *More*'s Codex page is
-  open, and the card lives on the layer above the modals: it covered most of the page (at 150 %
-  text nearly all of it), and at the bottom centre it covered a wire card's answers — the very
-  card a hint (§6.2) talks about. Placeholders: **(1)** while the Codex is open the card steps
-  aside (not ended, not recorded) and is back when it closes; **(2)** with any modal up on a
-  wide screen the card sits at the bottom left (`GUTTER`), clear of the centred modal. On a
-  phone (full width) it still covers a wire card's answers until *Verstanden*. Keep these, or
-  place it otherwise (e.g. top of the screen over a modal, or a collapsed card)?
-
-*(otherwise none open — G5 (2/3) answered the push-in's zoom: keep `zoom_min × 2`, Decisions 2026-09-25.
-D5.5 answered the Task Force against dormancy and the scenario levers, BALANCE §5.7 (3)–(4).
-D6.1 answered the parked border note: `polish-visuals.md` §9.)*
-
-- **S6.4 — the tech node's footer has no room for the icon in some states.** icons.md §7 counted
-  24 + `SPACE_2` + cost + footprint + 24 ≤ 144 px in the compact cell; the content is 136 px
-  (`GutterTight` 12 each side), and a node with a footprint needs 152. At the full cell an owned
-  node with a footprint (*Erworben* + *Sig. ▲ +2* + ✓) is over too. Placeholder (`# DESIGN?` in
-  `TechNode._fit_icon`): **the icon steps aside when the footer would overflow** — so in compact
-  most nodes show none, and owned ones with a footprint none at desktop either. Options: a smaller
-  footer icon (`ICON_ROW` 20), the icon in the name row, the state glyph dropped where the chip
-  says it, or icons only at the full cell. Also seen: an owned node with a footprint overflowed
-  its compact cell before S6.4 (*Known issues*).
-- **S5.9 — `HEADLINE_TF_MARKED` was over the headline caps** (en 94 > 80, de 122 > 88;
-  `test_headline_text.gd`, and the longest German line broke the phone ticker's two rows). S5.9
-  shortened it, same joke: en *"{region}: A 'routine outage' is logged. Routine outages now have a
-  folder."* (78), de *"{region}: Ermittler notieren einen „Routineausfall“. Dafür gibt es nun einen
-  Ordner."* (88). Fable: keep or rewrite within the caps.
-
-- **S6.5 — every hold is a pause to the sheet.** `audio.json` plays `ui_pause` on
-  `speed_changed(0)`, and `Game.hold` (a modal opening — the pause menu, the tech tree, a wire
-  card) forces the speed to 0, so opening a modal sounds `ui_open` **and** `ui_pause`, and
-  closing it `ui_close` and `ui_speed`. Built as the sheet says (no placeholder). Options: a
-  `match` on a new `held` field so a hold's speed change is silent, or keep both. G6's ear check
-  may settle it.
+*(none open — D6.8 answered the nine from S5.9–S6.8c, Decisions 2026-09-25.)*
 
 **Parked for a later Fable step (not questions, reminders):**
 - **Spectator / benchmark mode** — designed in D6.9, built S6.12–S6.13 (decision above). What was
@@ -1352,15 +1331,28 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
 
 ## Punch list for Opus
 
-**For S6.3 (from D6.7; read `illustrations.md` §8 — every detail is there):**
-1. `IllustrationSlot`: mipmap filter on the `TextureRect`; compact height = width × ¾ on resize;
-   `width` property (default 280).
-2. `endings.json` optional `illustration` per outcome (`EndingDef`, validator, SCHEMA §6i row); the
-   four wins → `end_extinction` · `end_ascendance` · `end_merge` · `end_escape`.
-3. Results screen (slot 420, above the kicker) and Codex Endings entry (280): slot only when the
-   ending names a picture **and** the file exists — no glyph otherwise.
-4. Tests §8.4, incl. `tests/integration/test_illustrations.gd` (known ids = the 25 briefed,
-   1120 × 840, `.import` lossless + mipmaps, a *Generated assets* row per file).
+**For S6.P1 (from D6.8's answers; Decisions 2026-09-25):**
+1. **`Tab` skips a covered zone:** the session focus ring leaves out a HUD zone whose rect an open
+   `SlidePanel` covers by more than half (the overlay picker under the region panel on desktop).
+   Test: region panel open → `Tab` never lands on the picker.
+2. **Site prompt beside the side panel:** while the region panel is open in the wide layout, the
+   site prompt centres in the width right of the panel (`panel right edge … viewport right`),
+   never under it. Test at 150 %: the prompt's rect does not intersect the panel's.
+3. **Focus after a vanished button:** when the focused control in a `SlidePanel` is hidden or
+   freed, focus goes to that panel's `primary_focus()` (the region panel after *Collect*). Test.
+4. **Site select on the Society view:** `MapView` on `site_select_changed(true)` with the Society
+   overlay up switches to the penetration view and restores Society on `false`. Test both ways.
+5. **Audio ranges:** `tools/audio/synth.py` `target_range` — interface low −12, alert low −11
+   (audio.md §10.1 amended); `--check` prints no note for `ui_open`, `ui_close`, `ev_expired`.
+6. **Coach card on a phone over a modal:** in the compact layout with a modal up the card sits at
+   the top edge (under the safe area, `GUTTER`), back at its place when the modal closes. The two
+   `# DESIGN?` comments in `ui/hud/coach.gd` become plain comments citing D6.8. Test.
+7. **Tech node icon:** the `# DESIGN?` in `TechNode._fit_icon` becomes a plain comment citing D6.8
+   (the rule stays).
+8. **Silent holds:** `Game.is_hold_change() -> bool`, true only while `hold`/`release` force the
+   speed (set around the two `_force_speed` calls); `Audio` adds `"hold"` to `speed_changed`'s
+   trigger data (audio.md §5.1). Test: opening and closing the pause menu plays `ui_open`/`ui_close`
+   only; `Space` still plays `ui_pause`.
 
 ## Deviations from the plan or a spec
 
@@ -2284,6 +2276,13 @@ real phones.
 Comfy Cloud, or a paid API whose terms you accept) and the pick of the `fc_street` reference.
 (3) The credits say the pictures are generated; the Steam AI disclosure will too — fine?
 
+**D6.8 (2026-09-25, overnight, pending user confirmation):** `docs/specs/release.md` §15 —
+(1) the 34 achievements and their names (§3.1), two hidden; (2) achievements survive *Reset
+progress*; (3) versions `0.<milestone>.<patch>`, `1.0.0` at the first public release; (4) the
+low-end target (i5-8250U / UHD 620 / 8 GB, and the Steam Deck); (5) Windows builds are unsigned
+outside Steam — signing needs your certificate; (6) after S6.10: tag `v0.6.0` and publish the
+draft release when you want one.
+
 ## Balance baselines
 
 **2026-09-25 (S5.9) — the 100-seed check of the mark and the two scenario levers** (a check, not
@@ -2607,6 +2606,12 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — D6.8 Release engineering [F]
+- Nine design questions answered (Decisions; punch list for the new S6.P1); `audio.md` §10.1 ranges
+  widened, speed cues silent on holds in `audio.json`.
+- `docs/specs/release.md`; `data/achievements.json` (34) + 78 strings en/de; SCHEMA §9/§10 rows.
+- Stale S6.3 punch list removed. No code. Suite green.
 
 ### 2026-09-25 — S6.8c Accessibility III [O]
 - `A11y` + names/readouts (chips, bars, top bar, assets, tracks, tabs, log rows, slots, coach, prompt,

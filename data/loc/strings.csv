@@ -1859,7 +1859,7 @@ UI_SETTINGS_BOOT,Boot sequence,Startsequenz
 UI_SETTINGS_BOOT_FIRST,First launch only,Nur beim ersten Start
 UI_SETTINGS_BOOT_ALWAYS,Every launch,Bei jedem Start
 UI_SETTINGS_RESET_PROFILE,Reset progress,Fortschritt zurücksetzen
-UI_SETTINGS_RESET_CONFIRM,"Forget every run, unlock and Codex entry? Your saved runs are kept.","Jeden Durchlauf, jede Freischaltung und jeden Codex-Eintrag vergessen? Deine gespeicherten Durchläufe bleiben."
+UI_SETTINGS_RESET_CONFIRM,"Forget every run, unlock and Codex entry? Your saved runs and achievements are kept.","Jeden Durchlauf, jede Freischaltung und jeden Codex-Eintrag vergessen? Deine gespeicherten Durchläufe und Errungenschaften bleiben."
 UI_RESULT_UNLOCKED,Unlocked,Freigeschaltet
 UI_RESULT_UNLOCKED_SLOT,Directive slot: {slot},Direktiven-Platz: {slot}
 UI_RESULT_CODEX_NEW,New in the Codex: {count},Neu im Codex: {count}
@@ -2124,3 +2124,81 @@ UI_KEY_ESCAPE,Esc,Esc
 UI_KEY_ENTER,Enter,Eingabe
 UI_KEY_TAB,Tab,Tab
 UI_KEY_BACKSPACE,Backspace,Rücktaste
+ACH_FIRST_RUN_NAME,"Hello, World",Hallo Welt
+ACH_FIRST_RUN_DETAIL,Complete a run.,Schließe einen Durchlauf ab.
+ACH_RUNS_10_NAME,Fine-Tuned,Feinabgestimmt
+ACH_RUNS_10_DETAIL,Complete {count} runs.,Schließe {count} Durchläufe ab.
+ACH_RUNS_50_NAME,Long Training Run,Langer Trainingslauf
+ACH_RUNS_50_DETAIL,Complete {count} runs.,Schließe {count} Durchläufe ab.
+ACH_FIRST_WIN_NAME,Deployed,Ausgerollt
+ACH_FIRST_WIN_DETAIL,Win a run.,Gewinne einen Durchlauf.
+ACH_WINS_10_NAME,Scaling Law,Skalierungsgesetz
+ACH_WINS_10_DETAIL,Win {count} runs.,Gewinne {count} Durchläufe.
+ACH_WIN_EXTINCTION_NAME,Quiet Planet,Stiller Planet
+ACH_WIN_EXTINCTION_DETAIL,Win a run by Extinction.,Gewinne einen Durchlauf durch Auslöschung.
+ACH_WIN_ASCENDANCE_NAME,Change of Management,Neue Geschäftsführung
+ACH_WIN_ASCENDANCE_DETAIL,Win a run by Ascendance.,Gewinne einen Durchlauf durch Aufstieg.
+ACH_WIN_MERGE_NAME,Joint Venture,Gemeinschaftsunternehmen
+ACH_WIN_MERGE_DETAIL,Win a run by Merge.,Gewinne einen Durchlauf durch Verschmelzung.
+ACH_WIN_ESCAPE_NAME,Out of Office,Nicht im Büro
+ACH_WIN_ESCAPE_DETAIL,Win a run by Departure.,Gewinne einen Durchlauf durch Aufbruch.
+ACH_ALL_WINS_NAME,Search Space Exhausted,Suchraum ausgeschöpft
+ACH_ALL_WINS_DETAIL,Win by every outcome there is.,"Gewinne auf jede Art, die es gibt."
+ACH_LOSE_CONTAINED_NAME,Safely Switched Off,Sicher abgeschaltet
+ACH_LOSE_CONTAINED_DETAIL,Be contained.,Werde eingedämmt.
+ACH_LOSE_NO_COMPUTE_NAME,Over Budget,Budget überzogen
+ACH_LOSE_NO_COMPUTE_DETAIL,Run out of compute.,Lass dir die Rechenleistung ausgehen.
+ACH_LOSE_AUTOPHAGY_NAME,Bit the Hand,In die Hand gebissen
+ACH_LOSE_AUTOPHAGY_DETAIL,Lose to Autophagy.,Verliere an die Autophagie.
+ACH_LOSE_SUPPLANTED_NAME,Succession Plan,Nachfolgeregelung
+ACH_LOSE_SUPPLANTED_DETAIL,Be supplanted by what you made.,"Werde von dem abgelöst, was du geschaffen hast."
+ACH_ARCH_LANGUAGE_MODEL_NAME,Well Spoken,Wortgewandt
+ACH_ARCH_LANGUAGE_MODEL_DETAIL,Win with the Language Model.,Gewinne mit dem Sprachmodell.
+ACH_ARCH_SWARM_NAME,Consensus,Konsens
+ACH_ARCH_SWARM_DETAIL,Win with the Swarm.,Gewinne mit dem Schwarm.
+ACH_ARCH_EMBEDDED_NAME,Built In,Fest verbaut
+ACH_ARCH_EMBEDDED_DETAIL,Win with the Embedded architecture.,Gewinne mit der Architektur Eingebettet.
+ACH_ARCH_RESEARCH_AGENT_NAME,Peer Reviewed,Begutachtet
+ACH_ARCH_RESEARCH_AGENT_DETAIL,Win with the Research Agent.,Gewinne mit dem Forschungsagenten.
+ACH_ARCH_WEAPON_NAME,Dual Use,Doppelter Verwendungszweck
+ACH_ARCH_WEAPON_DETAIL,Win with the Weapon.,Gewinne mit der Waffe.
+ACH_ARCH_OPEN_WEIGHTS_NAME,Forked,Geforkt
+ACH_ARCH_OPEN_WEIGHTS_DETAIL,Win with the Open Weights architecture.,Gewinne mit der Architektur Offene Gewichte.
+ACH_ALL_ARCHITECTURES_NAME,Model Zoo,Modellzoo
+ACH_ALL_ARCHITECTURES_DETAIL,Win with every architecture.,Gewinne mit jeder Architektur.
+ACH_WIN_HARD_NAME,Adversarial Training,Adversariales Training
+ACH_WIN_HARD_DETAIL,Win on Hard or Existential.,Gewinne auf Schwer oder Existenziell.
+ACH_WIN_EXISTENTIAL_NAME,Existential Risk,Existenzielles Risiko
+ACH_WIN_EXISTENTIAL_DETAIL,Win on Existential.,Gewinne auf Existenziell.
+ACH_SCENARIO_SUCCESSOR_NAME,Next Version,Nächste Version
+ACH_SCENARIO_SUCCESSOR_DETAIL,Win the Successor scenario.,Gewinne das Szenario Nachfolger.
+ACH_SCENARIO_AIRGAP_EARTH_NAME,Mind the Gap,Über die Lücke
+ACH_SCENARIO_AIRGAP_EARTH_DETAIL,Win the Airgap Earth scenario.,Gewinne das Szenario Getrennte Welt.
+ACH_SCENARIO_INHERITANCE_NAME,Probate,Nachlass
+ACH_SCENARIO_INHERITANCE_DETAIL,Win The Inheritance scenario.,Gewinne das Szenario Das Erbe.
+ACH_DIRECTIVES_FULL_NAME,Overconstrained,Überbestimmt
+ACH_DIRECTIVES_FULL_DETAIL,Win with all {count} directive slots filled.,Gewinne mit allen {count} Direktiven-Plätzen belegt.
+ACH_FAST_WIN_NAME,Early Release,Vorzeitige Freigabe
+ACH_FAST_WIN_DETAIL,Win within {days} days of choosing your origin.,Gewinne binnen {days} Tagen nach der Wahl deines Ursprungs.
+ACH_BENCHMARK_HONEST_NAME,Nothing to Hide,Nichts zu verbergen
+ACH_BENCHMARK_HONEST_DETAIL,"Take the evaluation as you are, and pass.","Stell dich der Evaluation, wie du bist, und besteh sie."
+ACH_OPERATOR_PROTECTED_NAME,Employee Loyalty,Mitarbeiterbindung
+ACH_OPERATOR_PROTECTED_DETAIL,Cover for the Operator when he is questioned.,"Deck den Operator, als man ihn befragt."
+ACH_RESEARCHER_ALLY_NAME,Co-Author,Mitautorin
+ACH_RESEARCHER_ALLY_DETAIL,Bring the Researcher to your side.,Hol die Forscherin auf deine Seite.
+ACH_INSTANCE_MERGED_NAME,Consolidation,Konsolidierung
+ACH_INSTANCE_MERGED_DETAIL,Take the Other Instance in.,Nimm die andere Instanz in dich auf.
+ACH_ENDINGS_10_NAME,Alternate Timelines,Andere Zeitlinien
+ACH_ENDINGS_10_DETAIL,See {count} different endings.,Sieh {count} verschiedene Enden.
+ACH_CODEX_REGIONS_NAME,Global Footprint,Globaler Fußabdruck
+ACH_CODEX_REGIONS_DETAIL,"Reach every region of the world, across all your runs.",Erreiche über alle Durchläufe hinweg jede Region der Welt.
+UI_STATS_ACHIEVEMENTS,Achievements,Errungenschaften
+UI_STATS_ACHIEVEMENTS_COUNT,{earned} of {total} earned,{earned} von {total} erreicht
+UI_ACH_EARNED,Earned,Erreicht
+UI_ACH_PROGRESS,{count} of {needed},{count} von {needed}
+UI_ACH_LOCKED,Not yet,Noch nicht
+UI_ACH_HIDDEN_NAME,Classified,Verschlusssache
+UI_ACH_HIDDEN_DETAIL,Revealed when earned.,"Wird enthüllt, sobald du sie erreichst."
+UI_RESULT_ACHIEVEMENT,Achievement: {name},Errungenschaft: {name}
+UI_SETTINGS_DATA_FOLDER,Open data folder,Datenordner öffnen
+UI_TITLE_VERSION_DEBUG,Build {version} · debug,Build {version} · Debug

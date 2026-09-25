@@ -313,6 +313,7 @@ before the *next* row; "—" means stay on the same model.
 | 82 | S6.8 Accessibility *(split at S6.8a: a · b · c, below)* | [O] | — |
 | 83 | D6.8 Release engineering: platform service, achievements, exports, performance budget | **[F]** | — |
 | 84 | D6.9 Benchmark and spectator mode | **[F]** | — |
+| 84a | S6.P1 Punch list from D6.8 (the build's design questions) *(added at D6.8)* | [O] | — |
 | 85 | S6.9 PlatformService (null backend) and achievements | [O] | — |
 | 86 | S6.10 Export presets and release CI | [O] | — |
 | 87 | S6.11 Performance pass | [O] | — |
@@ -1104,6 +1105,8 @@ release CI (tag → artefacts, an exported-build smoke test); the debug keys out
 builds; logs and crash handling; **the performance budget and the low-end target** (a named
 class of machine, frame time, memory, load time) and how S6.11 measures it on this PC.
 **Done when:** S6.9–S6.11 have nothing to decide.
+*Done 2026-09-25: `docs/specs/release.md`, `data/achievements.json`; the nine open design
+questions answered, their build consequences are S6.P1.*
 
 ### D6.9 — Benchmark and spectator mode **[F]** · **Read first:** *Design questions* → the parked spectator note · *Decisions* 2026-09-22 (G1, OpenRouter) · `core.md` §11 (`Policy`) · `loop-redesign.md` §9 · `analysis.md` §8
 `docs/specs/benchmark.md`: the typed per-interval digest (what the model sees, in the game's own
@@ -1117,6 +1120,13 @@ entry replayed from its command log), what it overlays, strings en/de.
 **Done when:** S6.12 and S6.13 have nothing to decide.
 
 ## Block 16 — M6 build II · build
+
+### S6.P1 — Punch list from D6.8 **[O]** · **Read first:** `PROGRESS.md` *Punch list for Opus* · *Decisions* 2026-09-25 (D6.8, the build's design questions)
+Eight small items from the answers to S5.9–S6.8c's design questions: focus skips a covered zone,
+the site prompt beside the side panel, focus after a vanished button, site select leaves the
+Society view, `synth.py`'s ranges, the coach card on a phone over a modal, the two `# DESIGN?`
+markers retired, silent holds (`Game.is_hold_change`, `hold` in `speed_changed`'s audio data).
+**Done when:** each item has its test; no `# DESIGN?` left for them; suite green.
 
 ### S6.9 — PlatformService (null backend) and achievements **[O]** · **Read first:** `release.md` (platform, achievements)
 The interface, the null backend, achievements evaluated and kept in the profile (a profile
