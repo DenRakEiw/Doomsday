@@ -220,7 +220,7 @@ func _fill_help(id: String) -> void:
 	for n: int in range(1, HelpPages.paragraphs(id) + 1):
 		var label: Label = Label.new()
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.text = tr(HelpPages.paragraph_key(id, n))
+		label.text = KeyNames.format(tr(HelpPages.paragraph_key(id, n)))
 		column.add_child(label)
 
 

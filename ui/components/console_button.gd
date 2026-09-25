@@ -90,6 +90,9 @@ func _refresh_strings() -> void:
 		text = translated if list_row else Format.caps(translated)
 		accessibility_name = translated
 	if not tooltip_key.is_empty():
-		tooltip_text = tr(tooltip_key)
+		tooltip_text = KeyNames.format(tr(tooltip_key))
 		if label_key.is_empty():
 			accessibility_name = tooltip_text
+		else:
+			# accessibility.md §3.2 item 2: a tooltip that explains is a description.
+			accessibility_description = tooltip_text

@@ -15,6 +15,10 @@ const WARMUP_DAYS: int = 80
 const PHONE_WIDTH: float = 400.0
 const PHONE_HEIGHT: float = 860.0
 const LARGEST: float = 1.5
+## accessibility.md §10.2: the texts that name a remappable key.
+const KEY_TEXTS: Array[String] = ["HELP_TIME_P1", "HELP_CONTROLS_P1", "HELP_CONTROLS_P2",
+	"HELP_CONTAINMENT_P2", "HELP_ANALYSIS_P1", "UI_COACH_COMPUTE_BODY", "UI_COACH_OPEN_TREE_BODY",
+	"UI_COACH_DISCOVERED_BODY", "UI_COACH_TASK_FORCE_BODY", "UI_HELP_BUTTON_TIP"]
 
 var _locale: String = ""
 var _text_scale: float = 1.0
@@ -47,6 +51,16 @@ func after_each() -> void:
 func test_the_shipped_strings_have_no_findings() -> void:
 	var findings: PackedStringArray = Scan.findings()
 	assert_eq(findings.size(), 0, "\n".join(findings))
+
+
+func test_the_texts_that_name_a_key_render_whole_in_both_languages() -> void:
+	# S6.8 (accessibility.md §10.2): every key placeholder is filled.
+	for locale: String in ["en", "de"]:
+		TranslationServer.set_locale(locale)
+		for key: String in KEY_TEXTS:
+			var text: String = KeyNames.format(tr(key))
+			assert_ne(text, key, "%s exists in %s" % [key, locale])
+			assert_false(text.contains("{"), "%s in %s: %s" % [key, locale, text])
 
 
 func test_a_key_the_code_names_and_the_table_lacks_is_a_finding() -> void:

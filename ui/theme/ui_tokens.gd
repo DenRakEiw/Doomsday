@@ -13,6 +13,7 @@ extends RefCounted
 ## Where `reduced_motion` looks for the setting, and what it reads there.
 const SETTINGS_PATH: NodePath = ^"/root/Settings"
 const SETTING_REDUCED_MOTION: StringName = &"reduced_motion"
+const SETTING_TEXT_SCALE: StringName = &"text_scale"
 
 ## Built on first use by `ramp_texture`, then shared by everything that ramps.
 static var _ramp: GradientTexture1D = null
@@ -79,7 +80,9 @@ const FACTION_TOKENS: Dictionary[String, StringName] = {
 ## statuses, dimmed while it travels or rests. Cold set only, like `ALERT`: red
 ## keeps meaning "now" in both palettes.
 const TASK_FORCE: Color = Color("#FF3B3B")
-const TASK_FORCE_DIM: Color = Color("#C23A3A")
+## accessibility.md §6.3: raised from `#C23A3A`, which was 2.9 : 1 on `MAP_LAND` —
+## under WCAG 1.4.11's 3 : 1 for the resting badge's border and the team's road.
+const TASK_FORCE_DIM: Color = Color("#CC4040")
 
 
 # ---------------------------------------------------------- §3.1 magnitude ramp
@@ -251,6 +254,8 @@ const RADIUS_S: int = 2
 const RADIUS_M: int = 4
 const BORDER: int = 1
 const BORDER_FOCUS: int = 2
+## accessibility.md §4.2: how far outside a control its focus ring is drawn.
+const FOCUS_OUTSET: int = 4
 ## The minimum size of anything tappable, on every platform. One logical pixel is
 ## one dp (§6.1), so this is 48 dp everywhere.
 const HIT_MIN: int = 48
@@ -333,6 +338,8 @@ const MODAL_MAX_WIDTH: int = 560
 ## pace, and the geometry of the markers M4 adds.
 const WIRE_MAX_WIDTH: int = 840
 const CONSOLE_LINE_MS: int = 4000
+## accessibility.md §9 item 2: plus this much per character, the captions' pace.
+const CONSOLE_PER_CHAR_MS: int = 40
 const CONSOLE_QUEUE_MAX: int = 3
 const MOTION_SCOPE_FLASH: int = 1500
 const MARKER_ROW_OFFSET: int = 18
@@ -532,6 +539,22 @@ static func accent_wash() -> Color:
 ## is already washed (an owned tech node, m3-screens §3.4).
 static func accent_wash_raised() -> Color:
 	return color(&"BG_4").lerp(color(&"ACCENT"), PRESSED_WASH)
+
+
+## accessibility.md §8.1: a text-bearing maximum width at the current text size,
+## so a box at 150 % holds as many words as at 100 %. The caller still caps the
+## result by the viewport. Outside the tree (a tool, a unit test) the scale is 1.
+static func text_width(px: float) -> float:
+	return px * text_scale()
+
+
+## `Settings.text_scale`, or 1 wherever there is no `Settings`.
+static func text_scale() -> float:
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	if tree == null or tree.root == null:
+		return 1.0
+	var settings: Node = tree.root.get_node_or_null(SETTINGS_PATH)
+	return float(settings.get(SETTING_TEXT_SCALE)) if settings != null else 1.0
 
 
 ## A motion token as tween seconds, or 0 while `Settings.reduced_motion` is on.

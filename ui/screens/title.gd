@@ -9,6 +9,8 @@ const KEY_TAGLINE: String = "UI_TITLE_TAGLINE"
 const KEY_CONTINUE_DAY: String = "UI_TITLE_CONTINUE_DAY"
 const KEY_LOAD_FAILED: String = "UI_TITLE_LOAD_FAILED"
 const KEY_VERSION: String = "UI_TITLE_VERSION"
+## accessibility.md §5.1: `F1` and the pad's Back.
+const ACTION_HELP: StringName = &"game_help"
 const PLACEHOLDER_DAY: String = "day"
 const PLACEHOLDER_VERSION: String = "version"
 const SETTING_VERSION: String = "application/config/version"
@@ -98,9 +100,9 @@ func on_escape() -> void:
 
 
 ## first-run.md §6.7: `F1` opens the Codex on *How to play*, and closes it again.
-func _unhandled_key_input(event: InputEvent) -> void:
-	var key: InputEventKey = event as InputEventKey
-	if key == null or not key.pressed or key.echo or key.keycode != KEY_F1:
+## An action since S6.8 (accessibility.md §5.1): a remapped key, or Back on a pad.
+func _unhandled_input(event: InputEvent) -> void:
+	if not event.is_action_pressed(ACTION_HELP):
 		return
 	get_viewport().set_input_as_handled()
 	if _host.current() == _codex:

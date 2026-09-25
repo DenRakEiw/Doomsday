@@ -35,6 +35,7 @@ func _start(days: int = DAYS) -> void:
 func _press_g() -> void:
 	var key: InputEventKey = InputEventKey.new()
 	key.keycode = KEY_G
+	key.physical_keycode = KEY_G
 	key.pressed = true
 	_session._input(key)
 

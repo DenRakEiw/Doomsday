@@ -16,6 +16,8 @@ signal closed
 
 ## The method a modal may have to answer `Escape` itself.
 const METHOD_ESCAPE: StringName = &"on_escape"
+## `Escape` and the pad's B.
+const ACTION_CANCEL: StringName = &"ui_cancel"
 ## audio.md §7.1: the two `call` triggers of the sheet.
 const CUE_OPEN: StringName = &"ui_open"
 const CUE_CLOSE: StringName = &"ui_close"
@@ -139,11 +141,9 @@ func current() -> Control:
 	return _current
 
 
-func _unhandled_key_input(event: InputEvent) -> void:
-	if _current == null:
-		return
-	var key: InputEventKey = event as InputEventKey
-	if key == null or not key.pressed or key.echo or key.keycode != KEY_ESCAPE:
+## `Escape`, or B on a pad (accessibility.md §4.1): offered to the modal first.
+func _unhandled_input(event: InputEvent) -> void:
+	if _current == null or not event.is_action_pressed(ACTION_CANCEL):
 		return
 	get_viewport().set_input_as_handled()
 	if _current.has_method(METHOD_ESCAPE):

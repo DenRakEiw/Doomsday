@@ -126,6 +126,10 @@ func clear() -> void:
 
 
 func _process(delta: float) -> void:
+	# accessibility.md §9 item 2: a line that arrives as the player pauses can be
+	# read — its clock does not run while the game stands still.
+	if _clock_holds():
+		return
 	_left -= delta
 	if _left > 0.0:
 		return
@@ -140,7 +144,7 @@ func _process(delta: float) -> void:
 func _show_next() -> void:
 	text = _queue.pop_front()
 	visible = true
-	_left = float(UiTokens.CONSOLE_LINE_MS) / 1000.0
+	_left = standing_seconds(text)
 	set_process(true)
 	_fade(1.0)
 
@@ -163,6 +167,17 @@ func _kill_tween() -> void:
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
 	_tween = null
+
+
+## accessibility.md §9 item 2: how long `line` stands — longer lines longer,
+## at the captions' reading pace.
+static func standing_seconds(line: String) -> float:
+	return UiTokens.seconds(UiTokens.CONSOLE_LINE_MS + UiTokens.CONSOLE_PER_CHAR_MS * line.length())
+
+
+## Paused, or held by a modal: the run stands, and so does the line.
+func _clock_holds() -> bool:
+	return Game.sim != null and (Game.speed == 0 or Game.is_held())
 
 
 func _is_bot_run() -> bool:

@@ -310,7 +310,7 @@ before the *next* row; "—" means stay on the same model.
 | 79 | S6.5 Audio I: service, buses, cues, captions | [O] | — |
 | 80 | S6.6 Audio II: the sound set | [O] | — |
 | 81 | S6.7 Tutorial II | [O] | — |
-| 82 | S6.8 Accessibility | [O] | — |
+| 82 | S6.8 Accessibility *(split at S6.8a: a · b · c, below)* | [O] | — |
 | 83 | D6.8 Release engineering: platform service, achievements, exports, performance budget | **[F]** | — |
 | 84 | D6.9 Benchmark and spectator mode | **[F]** | — |
 | 85 | S6.9 PlatformService (null backend) and achievements | [O] | — |
@@ -1079,6 +1079,18 @@ and the *Controls* modal, with §10.2's key-placeholder strings swapped in; the 
 three 150 % fixes; the console's reading time.
 **Done when:** accessibility.md §12's checklist and §13's acceptance: a keyboard-only and a
 pad-only run from the boot to the results; the Narrator check recorded.
+
+*Split 2026-09-25 (§1.6), same model:*
+- **S6.8a — Accessibility I** *(done)*: §4.1 and §5.1's actions, every key through them,
+  `KeyBindings` and the settings, `KeyNames` and §10.2's strings, the pure pieces (`LiveRegion`,
+  `LiveQueue`, `FocusRing`, `MapNav`, `RegionSpeech`), §4.2's ring style, §6.3 item 1,
+  `text_width`, §9's reading time; their tests.
+- **S6.8b — Accessibility II**: §4.3–§4.6 in use (session ring, modal trap and companions, the
+  confirm, `SlidePanel` focus, `MapFocus` + cursor, `ChipButton`), §3.4's speech wiring and §7.2's
+  announced cues, §5.3's *Controls* modal and the settings rows; their tests.
+- **S6.8c — Accessibility III**: §3.3's names, §6.3 items 2–5, §8's widths and fixes, the
+  scroll containers' `follow_focus`; `test_a11y_names.gd`; then §12, §13 (the runs, the
+  screenshots). The Narrator check waits for the user.
 
 ## Block 15 — M6 design II: release and the benchmark · design
 

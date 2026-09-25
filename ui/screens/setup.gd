@@ -212,7 +212,8 @@ func begin() -> void:
 	ScreenRouter.start_new_run(build_setup(), seed_value)
 
 
-func _unhandled_key_input(event: InputEvent) -> void:
+## `Escape`, or B on a pad (accessibility.md §4.1).
+func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"ui_cancel"):
 		get_viewport().set_input_as_handled()
 		back()

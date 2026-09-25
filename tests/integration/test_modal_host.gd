@@ -94,6 +94,6 @@ func test_escape_closes_only_the_top() -> void:
 	var key: InputEventKey = InputEventKey.new()
 	key.keycode = KEY_ESCAPE
 	key.pressed = true
-	_host.call(&"_unhandled_key_input", key)
+	_host.call(&"_unhandled_input", key)
 	assert_eq(_host.current(), tree)
 	assert_true(tree.visible)

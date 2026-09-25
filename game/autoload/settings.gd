@@ -43,6 +43,14 @@ const KEY_VOLUME_PREFIX: String = "volume_"
 const KEY_VOLUMES: String = "volumes"
 const KEY_SOUND_CAPTIONS: String = "sound_captions"
 const KEY_AUDIO_BACKGROUND: String = "audio_background"
+## accessibility.md §3.4: headlines spoken to a screen reader.
+const KEY_ANNOUNCE_HEADLINES: String = "announce_headlines"
+## accessibility.md §5.2: action → physical keycode, only the player's overrides.
+const KEY_KEYS: String = "keys"
+## The key table's own rules decide which stored overrides a build can apply.
+const KeyBindingsScript: GDScript = preload("res://game/autoload/key_bindings.gd")
+## `DisplayServer.accessibility_should_reduce_animation()` answers this for yes.
+const OS_ANSWER_YES: int = 1
 ## Where a desktop and a handheld start (§5.1).
 const FEATURE_WEB: String = "web"
 ## After `--` on the command line: start with the pseudo-locale on (UI.md §4).
@@ -64,12 +72,16 @@ var volumes: Dictionary[String, float] = {}
 var sound_captions: bool = false
 ## audio.md §5.7: false mutes the game while its window has no focus (desktop).
 var audio_background: bool = true
+## accessibility.md §3.4: the ticker speaks its headlines to a screen reader.
+var announce_headlines: bool = true
+## accessibility.md §5.2: the overrides `KeyBindings` applies over the defaults.
+var keys: Dictionary[String, int] = {}
 ## The overflow check of UI.md §4. A development switch, never written to the file.
 var pseudo_locale: bool = false
 
 
 func _ready() -> void:
-	var values: Dictionary = values_from(_read(), system_locale())
+	var values: Dictionary = values_from(_read(), system_locale(), os_reduced_motion())
 	locale = str(values[KEY_LOCALE])
 	reduced_motion = bool(values[KEY_REDUCED_MOTION])
 	text_scale = float(values[KEY_TEXT_SCALE])
@@ -83,6 +95,10 @@ func _ready() -> void:
 		volumes[str(bus)] = float(stored_volumes[bus])
 	sound_captions = bool(values[KEY_SOUND_CAPTIONS])
 	audio_background = bool(values[KEY_AUDIO_BACKGROUND])
+	announce_headlines = bool(values[KEY_ANNOUNCE_HEADLINES])
+	var stored_keys: Dictionary = values[KEY_KEYS]
+	for action: Variant in stored_keys:
+		keys[str(action)] = int(stored_keys[action])
 	TranslationServer.set_locale(locale)
 	write()
 	if OS.get_cmdline_user_args().has(ARG_PSEUDO):
@@ -101,6 +117,12 @@ static func default_screen_effects() -> float:
 	return UiTokens.FX_INTENSITY_DESKTOP
 
 
+## accessibility.md §9 item 3: whether the machine asks for less animation.
+## Read once, for a first launch; after that the stored value rules.
+static func os_reduced_motion() -> bool:
+	return DisplayServer.accessibility_should_reduce_animation() == OS_ANSWER_YES
+
+
 ## The locale the machine asks for, as one of `LOCALES`.
 static func system_locale() -> String:
 	return LOCALE_DE if OS.get_locale_language() == LOCALE_DE else LOCALE_EN
@@ -109,10 +131,13 @@ static func system_locale() -> String:
 ## Every field of a settings file, each replaced by its default when it is
 ## missing or not the type it should be. Static and side-effect free, so the
 ## whole of the file format is testable without touching the disk.
-static func values_from(raw: Variant, fallback_locale: String) -> Dictionary:
+## `first_reduced_motion` is what a first launch — no file at all — starts with
+## (accessibility.md §9 item 3: the OS's answer).
+static func values_from(raw: Variant, fallback_locale: String,
+		first_reduced_motion: bool = DEFAULT_REDUCED_MOTION) -> Dictionary:
 	var values: Dictionary = {
 		KEY_LOCALE: fallback_locale,
-		KEY_REDUCED_MOTION: DEFAULT_REDUCED_MOTION,
+		KEY_REDUCED_MOTION: first_reduced_motion if raw == null else DEFAULT_REDUCED_MOTION,
 		KEY_TEXT_SCALE: DEFAULT_TEXT_SCALE,
 		KEY_TREE_PAUSES: default_tree_pauses(),
 		KEY_TUTORIAL: true,
@@ -122,6 +147,8 @@ static func values_from(raw: Variant, fallback_locale: String) -> Dictionary:
 		KEY_VOLUMES: {},
 		KEY_SOUND_CAPTIONS: false,
 		KEY_AUDIO_BACKGROUND: true,
+		KEY_ANNOUNCE_HEADLINES: true,
+		KEY_KEYS: {},
 	}
 	if typeof(raw) != TYPE_DICTIONARY:
 		return values
@@ -159,7 +186,24 @@ static func values_from(raw: Variant, fallback_locale: String) -> Dictionary:
 		values[KEY_SOUND_CAPTIONS] = bool(stored[KEY_SOUND_CAPTIONS])
 	if typeof(stored.get(KEY_AUDIO_BACKGROUND)) == TYPE_BOOL:
 		values[KEY_AUDIO_BACKGROUND] = bool(stored[KEY_AUDIO_BACKGROUND])
+	if typeof(stored.get(KEY_ANNOUNCE_HEADLINES)) == TYPE_BOOL:
+		values[KEY_ANNOUNCE_HEADLINES] = bool(stored[KEY_ANNOUNCE_HEADLINES])
+	values[KEY_KEYS] = _keys_from(stored.get(KEY_KEYS))
 	return values
+
+
+## The stored key overrides a build can apply; everything else is dropped.
+static func _keys_from(raw: Variant) -> Dictionary:
+	var out: Dictionary = {}
+	if typeof(raw) != TYPE_DICTIONARY:
+		return out
+	var stored: Dictionary = raw
+	for action: Variant in stored:
+		if typeof(action) != TYPE_STRING:
+			continue
+		if KeyBindingsScript.is_valid_override(str(action), stored[action]):
+			out[str(action)] = int(stored[action])
+	return out
 
 
 func set_locale(value: String) -> void:
@@ -240,6 +284,22 @@ func set_sound_captions(enabled: bool) -> void:
 	EventBus.sound_captions_changed.emit(sound_captions)
 
 
+## accessibility.md §3.4.
+func set_announce_headlines(enabled: bool) -> void:
+	if enabled == announce_headlines:
+		return
+	announce_headlines = enabled
+	write()
+
+
+## accessibility.md §5.2: `KeyBindings` hands over the whole set of overrides.
+func set_keys(value: Dictionary[String, int]) -> void:
+	if value == keys:
+		return
+	keys = value.duplicate()
+	write()
+
+
 func set_audio_background(enabled: bool) -> void:
 	if enabled == audio_background:
 		return
@@ -313,6 +373,8 @@ func to_dict() -> Dictionary:
 		KEY_SCREEN_EFFECTS: screen_effects,
 		KEY_SOUND_CAPTIONS: sound_captions,
 		KEY_AUDIO_BACKGROUND: audio_background,
+		KEY_ANNOUNCE_HEADLINES: announce_headlines,
+		KEY_KEYS: keys.duplicate(),
 	}
 	for bus: String in volumes:
 		out[KEY_VOLUME_PREFIX + bus] = volumes[bus]

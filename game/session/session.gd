@@ -43,7 +43,25 @@ const HOLD_EVENT: StringName = &"event"
 const HOLD_HELP: StringName = &"help"
 ## The keys that open a surface do nothing while the Codex is over it: `T` would
 ## close the tree under the page instead of the page.
-const KEYS_BLOCKED_BY_HELP: Array[Key] = [KEY_T, KEY_C, KEY_G, KEY_A]
+const ACTIONS_BLOCKED_BY_HELP: Array[StringName] = [&"game_tree", &"game_containment",
+	&"game_analysis", &"game_abilities"]
+## accessibility.md §5.1: the session's actions.
+const ACTION_HELP: StringName = &"game_help"
+const ACTION_PAUSE: StringName = &"game_pause"
+const ACTION_SPEED_1: StringName = &"game_speed_1"
+const ACTION_SPEED_2: StringName = &"game_speed_2"
+const ACTION_SPEED_3: StringName = &"game_speed_3"
+const ACTION_SPEED_CYCLE: StringName = &"game_speed_cycle"
+const ACTION_TREE: StringName = &"game_tree"
+const ACTION_CONTAINMENT: StringName = &"game_containment"
+const ACTION_ANALYSIS: StringName = &"game_analysis"
+const ACTION_ABILITIES: StringName = &"game_abilities"
+const ACTION_MENU: StringName = &"game_menu"
+const ACTION_CANCEL: StringName = &"ui_cancel"
+## §4.7: Y steps paused → 1× → 2× → 4× → 1×.
+const SPEED_CYCLE: Dictionary[int, int] = {0: 1, 1: 2, 2: 4, 4: 1}
+## §4.1: a stick counts as the player's hands on the pad past this deflection.
+const PAD_MOTION_THRESHOLD: float = 0.5
 
 @onready var _safe_area: MarginContainer = %SafeArea
 @onready var _hud: Control = %Hud
@@ -63,6 +81,11 @@ const KEYS_BLOCKED_BY_HELP: Array[Key] = [KEY_T, KEY_C, KEY_G, KEY_A]
 @onready var _menu_sheet: SlidePanel = %MenuSheet
 @onready var _analysis: AnalysisPanel = %AnalysisPanel
 @onready var _codex: CodexModal = %Codex
+
+## accessibility.md §4.1: the player is on the keyboard or a pad rather than a
+## pointer. A key or a pad button sets it, a click or a touch clears it; it
+## decides whether a panel takes the focus and whether the map cursor shows.
+var keyboard_mode: bool = false
 
 ## The speed `Space` toggles against; the last one the player ran at.
 var _last_speed: int = SPEED_DEFAULT
@@ -136,75 +159,104 @@ func _ready() -> void:
 ## `_input` — ahead of the GUI. A focused `Button` turns `Space` into `ui_accept`
 ## and swallows it, so after any click on the HUD the pause key was dead (G2).
 ## A text field is the one thing that may keep them: there the keys are letters.
+## Since S6.8 they are actions (accessibility.md §5.1), so a remapped key and a
+## pad button run the same code.
 func _input(event: InputEvent) -> void:
-	var key: InputEventKey = event as InputEventKey
-	if key == null or not key.pressed or key.echo or _text_has_focus():
+	_track_input_mode(event)
+	if not event.is_pressed() or event.is_echo() or _text_has_focus():
 		return
-	if is_help_open() and KEYS_BLOCKED_BY_HELP.has(key.keycode):
+	if is_help_open() and _any_action(event, ACTIONS_BLOCKED_BY_HELP):
 		get_viewport().set_input_as_handled()
 		return
-	match key.keycode:
-		KEY_F1:
-			# first-run.md §6.7: the page for what is on top; again, and it closes.
-			if is_help_open():
-				close_help()
-			else:
-				open_help(HelpPages.page_for_context(help_context()))
-		KEY_SPACE:
-			Game.set_speed(0 if Game.speed > 0 else _last_speed)
-		KEY_1:
-			Game.set_speed(1)
-		KEY_2:
-			Game.set_speed(2)
-		KEY_3:
-			Game.set_speed(4)
-		KEY_T:
-			_toggle_tech_tree()
-		KEY_C:
-			_toggle_containment()
-		KEY_G:
-			_toggle_analysis()
-		KEY_A:
-			_toggle_ability_picker()
-		KEY_V:
-			# polish-visuals.md §5.1: Off → Subtle → Full, for review.
-			Settings.cycle_screen_effects()
-			print("screen effects: %s" % Settings.screen_effects)
-		KEY_ESCAPE:
-			if _modals.is_open():
-				# The modal host answers `Escape` itself (m3-screens §10.4).
-				return
-			# `Escape` leaves site select (`loop-mechanics.md` §16.1) — except
-			# the origin's, which cannot be cancelled: there is nothing behind
-			# the run's first decision, so the key goes on to the pause menu.
-			if Game.is_selecting_site() and Game.site_request.can_cancel():
-				Game.site_cancel()
-				get_viewport().set_input_as_handled()
-				return
-			if _containment.is_open:
-				_containment.close()
-				get_viewport().set_input_as_handled()
-				return
-			if _analysis.is_open:
-				_analysis.close()
-				get_viewport().set_input_as_handled()
-				return
-			# The phone's menu sheet is a panel like the others (m3-screens §9.2);
-			# only its × closed it until S4.P.
-			if _menu_sheet.is_open:
-				_menu_sheet.close()
-				get_viewport().set_input_as_handled()
-				return
-			if _region_panel.is_open:
-				# One door (§5.6): the map clears its outline on the same signal.
-				EventBus.region_selected.emit(0)
-				get_viewport().set_input_as_handled()
-				return
-			# §7.3: with nothing else open, `Escape` is the pause menu.
+	if event.is_action_pressed(ACTION_HELP):
+		# first-run.md §6.7: the page for what is on top; again, and it closes.
+		if is_help_open():
+			close_help()
+		else:
+			open_help(HelpPages.page_for_context(help_context()))
+	elif event.is_action_pressed(ACTION_PAUSE):
+		Game.set_speed(0 if Game.speed > 0 else _last_speed)
+	elif event.is_action_pressed(ACTION_SPEED_1):
+		Game.set_speed(1)
+	elif event.is_action_pressed(ACTION_SPEED_2):
+		Game.set_speed(2)
+	elif event.is_action_pressed(ACTION_SPEED_3):
+		Game.set_speed(4)
+	elif event.is_action_pressed(ACTION_SPEED_CYCLE):
+		Game.set_speed(int(SPEED_CYCLE.get(Game.speed, SPEED_DEFAULT)))
+	elif event.is_action_pressed(ACTION_TREE):
+		_toggle_tech_tree()
+	elif event.is_action_pressed(ACTION_CONTAINMENT):
+		_toggle_containment()
+	elif event.is_action_pressed(ACTION_ANALYSIS):
+		_toggle_analysis()
+	elif event.is_action_pressed(ACTION_ABILITIES):
+		_toggle_ability_picker()
+	elif event.is_action_pressed(ACTION_MENU):
+		# §4.7: Start opens the pause menu and closes it again.
+		if _modals.current() == _pause_menu:
+			_pause_menu.call(&"on_escape")
+		else:
 			_open_pause_menu()
-		_:
+	elif event is InputEventKey and (event as InputEventKey).keycode == KEY_V:
+		# polish-visuals.md §5.1: Off → Subtle → Full, for review. A debug key,
+		# not an action (accessibility.md §5.1).
+		Settings.cycle_screen_effects()
+		print("screen effects: %s" % Settings.screen_effects)
+	elif event.is_action_pressed(ACTION_CANCEL):
+		if not _on_cancel():
 			return
+	else:
+		return
 	get_viewport().set_input_as_handled()
+
+
+## The `Escape` chain (§4.7: B on a pad): false when the modal host answers it.
+func _on_cancel() -> bool:
+	if _modals.is_open():
+		# The modal host answers `Escape` itself (m3-screens §10.4).
+		return false
+	# `Escape` leaves site select (`loop-mechanics.md` §16.1) — except the
+	# origin's, which cannot be cancelled: there is nothing behind the run's first
+	# decision, so the key goes on to the pause menu.
+	if Game.is_selecting_site() and Game.site_request.can_cancel():
+		Game.site_cancel()
+	elif _containment.is_open:
+		_containment.close()
+	elif _analysis.is_open:
+		_analysis.close()
+	elif _menu_sheet.is_open:
+		# The phone's menu sheet is a panel like the others (m3-screens §9.2).
+		_menu_sheet.close()
+	elif _region_panel.is_open:
+		# One door (§5.6): the map clears its outline on the same signal.
+		EventBus.region_selected.emit(0)
+	else:
+		# §7.3: with nothing else open, `Escape` is the pause menu.
+		_open_pause_menu()
+	return true
+
+
+static func _any_action(event: InputEvent, actions: Array[StringName]) -> bool:
+	for action: StringName in actions:
+		if event.is_action_pressed(action):
+			return true
+	return false
+
+
+## accessibility.md §4.1: which hands are on the game.
+func _track_input_mode(event: InputEvent) -> void:
+	if event is InputEventMouseButton or event is InputEventScreenTouch:
+		if event.is_pressed():
+			keyboard_mode = false
+		return
+	if event is InputEventKey or event is InputEventJoypadButton:
+		if event.is_pressed():
+			keyboard_mode = true
+		return
+	var motion: InputEventJoypadMotion = event as InputEventJoypadMotion
+	if motion != null and absf(motion.axis_value) > PAD_MOTION_THRESHOLD:
+		keyboard_mode = true
 
 
 ## first-run.md §6.7: the Codex on *How to play*, on `page` ("" = the first),

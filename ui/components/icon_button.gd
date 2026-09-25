@@ -83,5 +83,5 @@ func _on_toggled(_pressed: bool) -> void:
 func _refresh_strings() -> void:
 	if tooltip_key.is_empty():
 		return
-	tooltip_text = tr(tooltip_key)
+	tooltip_text = KeyNames.format(tr(tooltip_key))
 	accessibility_name = tooltip_text

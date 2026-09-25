@@ -26,7 +26,22 @@ const MAP_CHANNEL_PAIRS: Array[Array] = [
 	[&"ACCENT", &"TASK_FORCE"],
 	[&"TASK_FORCE", &"CAT_ORANGE"],
 	[&"TASK_FORCE", &"CAT_PINK"],
+	# S6.8 (accessibility.md §6.2): the four factions against each other and the
+	# team, the two event-marker inks, the site outline and the society view.
+	[&"CAT_SKY", &"CAT_ORANGE"],
+	[&"CAT_SKY", &"CAT_GREEN"],
+	[&"CAT_SKY", &"CAT_PINK"],
+	[&"CAT_ORANGE", &"CAT_GREEN"],
+	[&"CAT_ORANGE", &"CAT_PINK"],
+	[&"CAT_GREEN", &"CAT_PINK"],
+	[&"TASK_FORCE", &"CAT_SKY"],
+	[&"TASK_FORCE", &"CAT_GREEN"],
+	[&"ACCENT", &"TEXT_0"],
+	[&"ACCENT", &"MAP_SELECT"],
+	[&"MAP_SOCIETY", &"CAT_PINK"],
 ]
+## accessibility.md §6.3: WCAG 1.4.11's floor for a mark on the ground it sits on.
+const FLOOR_NON_TEXT: float = 3.0
 ## §11: `INK` on the Open accent fills.
 const FLOOR_INK_ON_ACCENT: float = 7.0
 const INK_FILLS: Array[StringName] = [&"ACCENT", &"ACCENT_HOVER", &"ACCENT_PRESSED"]
@@ -112,6 +127,32 @@ func test_society_colour_is_the_same_in_both_variants() -> void:
 	assert_false(UiTokens.OPEN.has(&"MAP_SOCIETY"))
 	UiTokens.variant = UiTokens.VARIANT_OPEN
 	assert_eq(UiTokens.color(&"MAP_SOCIETY"), UiTokens.MAP_SOCIETY)
+
+
+func test_the_open_accent_clears_the_society_view() -> void:
+	# S6.8 (accessibility.md §6.2 lists this pair for the open accent only; the
+	# cold accent against the society view is 3.7 — see PROGRESS, Design questions).
+	UiTokens.variant = UiTokens.VARIANT_OPEN
+	assert_gte(ColourAudit.worst_delta_e(UiTokens.color(&"ACCENT"), UiTokens.color(&"MAP_SOCIETY")),
+		FLOOR_DELTA_E)
+
+
+func test_resting_task_force_red_clears_three_to_one_on_land() -> void:
+	# S6.8 (accessibility.md §6.3 item 1): `#C23A3A` was 2.9 : 1.
+	for variant: StringName in [UiTokens.VARIANT_COLD, UiTokens.VARIANT_OPEN]:
+		UiTokens.variant = variant
+		assert_gte(ColourAudit.contrast(UiTokens.color(&"TASK_FORCE_DIM"),
+			UiTokens.color(&"MAP_LAND")), FLOOR_NON_TEXT, String(variant))
+
+
+func test_text_width_scales_with_the_text() -> void:
+	# S6.8 (accessibility.md §8.1).
+	var before: float = Settings.text_scale
+	Settings.text_scale = 1.5
+	assert_almost_eq(UiTokens.text_width(560.0), 840.0, 0.001)
+	Settings.text_scale = 1.0
+	assert_almost_eq(UiTokens.text_width(560.0), 560.0, 0.001)
+	Settings.text_scale = before
 
 
 ## WCAG 2.2 contrast of two sRGB colours, both multiplied by `gain` first.

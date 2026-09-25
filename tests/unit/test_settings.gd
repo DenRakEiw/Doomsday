@@ -160,3 +160,32 @@ func test_switching_hints_back_on_clears_the_hints_seen() -> void:
 	Settings.set_hints(true)
 	assert_false(ProfileManager.has_seen_hint("starving"))
 	Settings.set_hints(before)
+
+
+func test_headlines_are_read_to_a_screen_reader_until_the_file_says_otherwise() -> void:
+	# S6.8 (accessibility.md §3.4).
+	assert_true(bool(_values(null)[SettingsScript.KEY_ANNOUNCE_HEADLINES]))
+	assert_false(bool(_values({"announce_headlines": false})[SettingsScript.KEY_ANNOUNCE_HEADLINES]))
+	assert_true(bool(_values({"announce_headlines": 0})[SettingsScript.KEY_ANNOUNCE_HEADLINES]),
+		"a wrong type falls back to on")
+
+
+func test_key_overrides_round_trip_and_fall_back() -> void:
+	# S6.8 (accessibility.md §5.2): only valid overrides survive a read.
+	var values: Dictionary = _values({"keys": {"game_tree": float(KEY_Y)}})
+	assert_eq(values[SettingsScript.KEY_KEYS], {"game_tree": int(KEY_Y)})
+	assert_eq(_values(null)[SettingsScript.KEY_KEYS], {}, "a missing key reads empty")
+	assert_eq(_values({"keys": [1, 2]})[SettingsScript.KEY_KEYS], {}, "a wrong type too")
+
+
+func test_a_first_launch_takes_reduced_motion_from_the_os() -> void:
+	# S6.8 (accessibility.md §9 item 3): only when there is no file at all.
+	var first: Dictionary = SettingsScript.values_from(null, SettingsScript.LOCALE_EN, true)
+	assert_true(bool(first[SettingsScript.KEY_REDUCED_MOTION]))
+	var stored: Dictionary = SettingsScript.values_from({"reduced_motion": false},
+		SettingsScript.LOCALE_EN, true)
+	assert_false(bool(stored[SettingsScript.KEY_REDUCED_MOTION]), "the stored value rules")
+	var older: Dictionary = SettingsScript.values_from({"locale": "en"},
+		SettingsScript.LOCALE_EN, true)
+	assert_false(bool(older[SettingsScript.KEY_REDUCED_MOTION]),
+		"a file without the key is not a first launch")

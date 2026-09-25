@@ -431,7 +431,8 @@ func _render() -> void:
 	_more.visible = not HelpPages.page_for_step(_step).is_empty()
 	var key: String = "UI_COACH_%s" % _step.to_upper()
 	_title.text = tr(key + "_TITLE")
-	_body.text = tr(key + "_BODY")
+	# accessibility.md §5.3: a body that names a key names the player's key.
+	_body.text = KeyNames.format(tr(key + "_BODY"))
 
 
 ## The card as it reads now, for the tests: the caps line, and whether each of

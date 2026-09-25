@@ -52,6 +52,8 @@ func _focus_a_speed_button() -> void:
 func _press(keycode: Key) -> void:
 	var key: InputEventKey = InputEventKey.new()
 	key.keycode = keycode
+	# The game's actions bind physical keys (accessibility.md §5.1).
+	key.physical_keycode = keycode
 	key.pressed = true
 	_session.call("_input", key)
 

@@ -41,8 +41,17 @@ const DRAG_SLOP_PX: float = 8.0
 ## `v *= exp(−DECAY × delta)`, stopped below `INERTIA_STOP_PX`.
 const INERTIA_DECAY: float = 6.0
 const INERTIA_STOP_PX: float = 20.0
-## Screen pixels per second for the arrow keys.
+## Screen pixels per second for the arrow keys and the right stick.
 const KEY_PAN_PX: float = 400.0
+## accessibility.md §4.5: the right stick pans past this much deflection.
+const STICK_DEADZONE: float = 0.2
+## §5.1: the actions the camera answers.
+const ACTION_ZOOM_IN: StringName = &"game_zoom_in"
+const ACTION_ZOOM_OUT: StringName = &"game_zoom_out"
+const ACTION_FOCUS_REGION: StringName = &"game_focus_region"
+## The focusable map (`MapFocus`) is in this group; with it focused the arrows
+## move its cursor, and pan only with Shift held (§4.5).
+const GROUP_MAP_FOCUS: StringName = &"map_focus"
 ## The mean over the last frames is the throw's velocity; one frame alone is
 ## noise, and a long tail keeps a stopped finger moving.
 const VELOCITY_FRAMES: int = 3
@@ -86,6 +95,8 @@ var _started: bool = false
 ## screens-full.md §7: while the run's end pulls the camera out, the map takes
 ## no input — no pan, no zoom, no tap.
 var input_locked: bool = false
+## A trigger zooms once per pull, not once per motion event (§4.7).
+var _trigger_down: Dictionary[StringName, bool] = {}
 
 
 # ------------------------------------------------------------- pure geometry
@@ -228,25 +239,28 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if handle_pointer(event):
+	if handle_pointer(event) or handle_action(event):
 		get_viewport().set_input_as_handled()
 
 
-func _unhandled_key_input(event: InputEvent) -> void:
-	var key: InputEventKey = event as InputEventKey
-	if key == null or not key.pressed or key.echo or input_locked:
-		return
-	match key.keycode:
-		KEY_EQUAL, KEY_PLUS, KEY_KP_ADD:
-			zoom_by(ZOOM_STEP, view_size() * 0.5, true)
-		KEY_MINUS, KEY_KP_SUBTRACT:
-			zoom_by(1.0 / ZOOM_STEP, view_size() * 0.5, true)
-		KEY_F:
-			# §7.5: `focus_region` has no caller in M2 but this one.
-			focus_region(_selected_index)
-		_:
-			return
-	get_viewport().set_input_as_handled()
+## The zoom and focus actions of accessibility.md §5.1 — keys, a stick button or
+## a trigger. True when the event was one of them.
+func handle_action(event: InputEvent) -> bool:
+	if input_locked or event is InputEventMouse:
+		return false
+	var direction: float = 0.0
+	if _pressed_once(event, ACTION_ZOOM_IN):
+		direction = 1.0
+	elif _pressed_once(event, ACTION_ZOOM_OUT):
+		direction = -1.0
+	elif event.is_action_pressed(ACTION_FOCUS_REGION):
+		# §7.5: `focus_region` has no caller in M2 but this one.
+		focus_region(_selected_index)
+		return true
+	else:
+		return false
+	zoom_by(ZOOM_STEP if direction > 0.0 else 1.0 / ZOOM_STEP, view_size() * 0.5, true)
+	return true
 
 
 ## The camera's world → screen transform, from its own state rather than from
@@ -513,17 +527,50 @@ func _dispatch_tap(screen: Vector2) -> void:
 # ------------------------------------------------------------------ plumbing
 
 
+## A key press, a button, or a trigger crossing its deadzone — once per pull:
+## an axis sends a stream of motion events while it is held.
+func _pressed_once(event: InputEvent, action: StringName) -> bool:
+	if not event is InputEventJoypadMotion:
+		return event.is_action_pressed(action)
+	if not event.is_action(action):
+		return false
+	var down: bool = event.is_action_pressed(action)
+	var was_down: bool = _trigger_down.get(action, false)
+	_trigger_down[action] = down
+	return down and not was_down
+
+
+## accessibility.md §4.5: the arrows pan only while no control has the focus,
+## or the map has it and Shift is held — moving through a menu with them no
+## longer moves the map. The right stick pans always.
 func _key_pan() -> Vector2:
 	var pan: Vector2 = Vector2.ZERO
-	if Input.is_key_pressed(KEY_LEFT):
-		pan.x -= 1.0
-	if Input.is_key_pressed(KEY_RIGHT):
-		pan.x += 1.0
-	if Input.is_key_pressed(KEY_UP):
-		pan.y -= 1.0
-	if Input.is_key_pressed(KEY_DOWN):
-		pan.y += 1.0
+	if arrows_pan():
+		if Input.is_key_pressed(KEY_LEFT):
+			pan.x -= 1.0
+		if Input.is_key_pressed(KEY_RIGHT):
+			pan.x += 1.0
+		if Input.is_key_pressed(KEY_UP):
+			pan.y -= 1.0
+		if Input.is_key_pressed(KEY_DOWN):
+			pan.y += 1.0
+	for device: int in Input.get_connected_joypads():
+		var stick: Vector2 = Vector2(Input.get_joy_axis(device, JOY_AXIS_RIGHT_X),
+			Input.get_joy_axis(device, JOY_AXIS_RIGHT_Y))
+		if stick.length() > STICK_DEADZONE:
+			pan += stick
 	return pan
+
+
+## Whether the arrow keys move the camera right now (§4.5).
+func arrows_pan() -> bool:
+	var viewport: Viewport = get_viewport()
+	if viewport == null:
+		return false
+	var focus: Control = viewport.gui_get_focus_owner()
+	if focus == null:
+		return true
+	return focus.is_in_group(GROUP_MAP_FOCUS) and Input.is_key_pressed(KEY_SHIFT)
 
 
 func _tween_to(center: Vector2, zoom_level: float, seconds: float,

@@ -417,8 +417,7 @@ static func _panels() -> Theme:
 	theme.set_stylebox(STYLE_PANEL, "ChartFrame",
 		_flat(UiTokens.color(&"BG_2"), UiTokens.color(&"LINE_1"), UiTokens.BORDER, UiTokens.RADIUS_M,
 			chart_pad))
-	theme.set_stylebox(STYLE_FOCUS, "ChartFrame", _flat(Color.TRANSPARENT,
-		UiTokens.color(&"ACCENT"), UiTokens.BORDER_FOCUS, UiTokens.RADIUS_M, chart_pad))
+	theme.set_stylebox(STYLE_FOCUS, "ChartFrame", focus_ring(UiTokens.RADIUS_M))
 
 	# §5.5: the ticker is a strip with a top border and no other edge.
 	var ticker: StyleBoxFlat = _flat(UiTokens.color(&"BG_2"), UiTokens.color(&"LINE_1"), 0, 0,
@@ -644,9 +643,9 @@ static func _button_styles(theme: Theme, type: String, pad: Vector2i, normal: Co
 	theme.set_stylebox(STYLE_DISABLED, type,
 		_flat(UiTokens.color(&"BG_2"), UiTokens.color(&"LINE_0"), width, radius, pad))
 	# Focus draws on top of whichever state is underneath, so it is a border and
-	# nothing else (§4.2).
-	theme.set_stylebox(STYLE_FOCUS, type, _flat(Color.TRANSPARENT, UiTokens.color(&"ACCENT"),
-		UiTokens.BORDER_FOCUS, radius, pad))
+	# nothing else (§4.2) — outside the control since S6.8 (accessibility.md
+	# §4.2): on an accent-filled or toggled button an inner border was invisible.
+	theme.set_stylebox(STYLE_FOCUS, type, focus_ring(radius))
 
 
 static func _button_colours(theme: Theme, type: String, normal: Color, hover: Color,
@@ -663,6 +662,17 @@ static func _button_colours(theme: Theme, type: String, normal: Color, hover: Co
 	theme.set_color(COLOR_ICON_HOVER_PRESSED, type, pressed)
 	theme.set_color(COLOR_ICON_FOCUS, type, normal)
 	theme.set_color(COLOR_ICON_DISABLED, type, UiTokens.color(&"TEXT_2"))
+
+
+## accessibility.md §4.2: the focus ring — a 2 px `ACCENT` border drawn
+## `FOCUS_OUTSET` outside the control, with the gap between showing whatever is
+## behind, so it reads on a filled button, a toggled one and any surface.
+static func focus_ring(radius: int) -> StyleBoxFlat:
+	var box: StyleBoxFlat = _flat(Color.TRANSPARENT, UiTokens.color(&"ACCENT"),
+		UiTokens.BORDER_FOCUS, radius + UiTokens.FOCUS_OUTSET, Vector2i.ZERO)
+	box.draw_center = false
+	box.set_expand_margin_all(float(UiTokens.FOCUS_OUTSET))
+	return box
 
 
 ## Every surface in the game is a `StyleBoxFlat` (§3.8) — no texture anywhere.
