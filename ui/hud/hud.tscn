@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://ui/hud/hud.gd" id="1_hud"]
 [ext_resource type="PackedScene" path="res://ui/hud/top_bar.tscn" id="2_top_bar"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://ui/hud/site_prompt.tscn" id="7_site_prompt"]
 [ext_resource type="PackedScene" path="res://ui/hud/status_strip.tscn" id="8_status_strip"]
 [ext_resource type="PackedScene" path="res://ui/hud/console_line.tscn" id="9_console_line"]
+[ext_resource type="PackedScene" path="res://ui/hud/caption_stack.tscn" id="10_caption_stack"]
 
 [node name="Hud" type="Control"]
 layout_mode = 3
@@ -60,6 +61,15 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+
+[node name="CaptionSpacer" type="Control" parent="Layout/Middle/Islands/LeftColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="CaptionStack" parent="Layout/Middle/Islands/LeftColumn" instance=ExtResource("10_caption_stack")]
+unique_name_in_owner = true
+layout_mode = 2
 
 [node name="Gap" type="Control" parent="Layout/Middle/Islands"]
 layout_mode = 2

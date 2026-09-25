@@ -34,6 +34,13 @@ const KEY_TUTORIAL: String = "tutorial"
 const KEY_BOOT_ALWAYS: String = "boot_always"
 ## polish-visuals.md §5.1: the intensity of the full-screen pass, 0…1.
 const KEY_SCREEN_EFFECTS: String = "screen_effects"
+## audio.md §3.2: one volume per bus, `volume_<bus id>`, 0…1. An absent key is
+## the sheet's default, which `Audio` knows and this file does not.
+const KEY_VOLUME_PREFIX: String = "volume_"
+## The volumes `values_from` read, bus id → value (not a key of the file).
+const KEY_VOLUMES: String = "volumes"
+const KEY_SOUND_CAPTIONS: String = "sound_captions"
+const KEY_AUDIO_BACKGROUND: String = "audio_background"
 ## Where a desktop and a handheld start (§5.1).
 const FEATURE_WEB: String = "web"
 ## After `--` on the command line: start with the pseudo-locale on (UI.md §4).
@@ -47,6 +54,13 @@ var tutorial: bool = true
 var boot_always: bool = false
 ## One of `UiTokens.FX_INTENSITIES`; a stored value between the steps is kept.
 var screen_effects: float = UiTokens.FX_INTENSITY_DESKTOP
+## audio.md §3.2: the volumes the player has set, bus id → 0…1. A bus that is
+## not here plays at the sheet's default.
+var volumes: Dictionary[String, float] = {}
+## audio.md §8: the caption stack on the map's left.
+var sound_captions: bool = false
+## audio.md §5.7: false mutes the game while its window has no focus (desktop).
+var audio_background: bool = true
 ## The overflow check of UI.md §4. A development switch, never written to the file.
 var pseudo_locale: bool = false
 
@@ -60,6 +74,11 @@ func _ready() -> void:
 	tutorial = bool(values[KEY_TUTORIAL])
 	boot_always = bool(values[KEY_BOOT_ALWAYS])
 	screen_effects = float(values[KEY_SCREEN_EFFECTS])
+	var stored_volumes: Dictionary = values[KEY_VOLUMES]
+	for bus: Variant in stored_volumes:
+		volumes[str(bus)] = float(stored_volumes[bus])
+	sound_captions = bool(values[KEY_SOUND_CAPTIONS])
+	audio_background = bool(values[KEY_AUDIO_BACKGROUND])
 	TranslationServer.set_locale(locale)
 	write()
 	if OS.get_cmdline_user_args().has(ARG_PSEUDO):
@@ -95,6 +114,9 @@ static func values_from(raw: Variant, fallback_locale: String) -> Dictionary:
 		KEY_TUTORIAL: true,
 		KEY_BOOT_ALWAYS: false,
 		KEY_SCREEN_EFFECTS: default_screen_effects(),
+		KEY_VOLUMES: {},
+		KEY_SOUND_CAPTIONS: false,
+		KEY_AUDIO_BACKGROUND: true,
 	}
 	if typeof(raw) != TYPE_DICTIONARY:
 		return values
@@ -117,6 +139,19 @@ static func values_from(raw: Variant, fallback_locale: String) -> Dictionary:
 	var effects_type: int = typeof(stored.get(KEY_SCREEN_EFFECTS))
 	if effects_type == TYPE_FLOAT or effects_type == TYPE_INT:
 		values[KEY_SCREEN_EFFECTS] = float(stored[KEY_SCREEN_EFFECTS])
+	var read_volumes: Dictionary = {}
+	for key: Variant in stored:
+		var field: String = str(key)
+		var kind: int = typeof(stored[key])
+		var bus: String = field.trim_prefix(KEY_VOLUME_PREFIX)
+		if bus == field or bus.is_empty() or (kind != TYPE_FLOAT and kind != TYPE_INT):
+			continue
+		read_volumes[bus] = clampf(float(stored[key]), 0.0, 1.0)
+	values[KEY_VOLUMES] = read_volumes
+	if typeof(stored.get(KEY_SOUND_CAPTIONS)) == TYPE_BOOL:
+		values[KEY_SOUND_CAPTIONS] = bool(stored[KEY_SOUND_CAPTIONS])
+	if typeof(stored.get(KEY_AUDIO_BACKGROUND)) == TYPE_BOOL:
+		values[KEY_AUDIO_BACKGROUND] = bool(stored[KEY_AUDIO_BACKGROUND])
 	return values
 
 
@@ -180,6 +215,31 @@ func cycle_screen_effects() -> void:
 	set_screen_effects(UiTokens.FX_INTENSITIES.front())
 
 
+## audio.md §3.2: a bus's volume, clamped to 0…1. `Audio` applies it.
+func set_volume(bus: String, value: float) -> void:
+	var clamped: float = clampf(value, 0.0, 1.0)
+	if volumes.has(bus) and is_equal_approx(volumes[bus], clamped):
+		return
+	volumes[bus] = clamped
+	write()
+	EventBus.volume_changed.emit(StringName(bus), clamped)
+
+
+func set_sound_captions(enabled: bool) -> void:
+	if enabled == sound_captions:
+		return
+	sound_captions = enabled
+	write()
+	EventBus.sound_captions_changed.emit(sound_captions)
+
+
+func set_audio_background(enabled: bool) -> void:
+	if enabled == audio_background:
+		return
+	audio_background = enabled
+	write()
+
+
 ## Shows the pseudo-locale in place of English, whatever the stored locale is;
 ## off, the stored locale comes back. Nothing is written.
 func set_pseudo_locale(enabled: bool) -> void:
@@ -223,7 +283,7 @@ func set_boot_always(enabled: bool) -> void:
 
 
 func to_dict() -> Dictionary:
-	return {
+	var out: Dictionary = {
 		KEY_VERSION: VERSION,
 		KEY_LOCALE: locale,
 		KEY_REDUCED_MOTION: reduced_motion,
@@ -232,7 +292,12 @@ func to_dict() -> Dictionary:
 		KEY_TUTORIAL: tutorial,
 		KEY_BOOT_ALWAYS: boot_always,
 		KEY_SCREEN_EFFECTS: screen_effects,
+		KEY_SOUND_CAPTIONS: sound_captions,
+		KEY_AUDIO_BACKGROUND: audio_background,
 	}
+	for bus: String in volumes:
+		out[KEY_VOLUME_PREFIX + bus] = volumes[bus]
+	return out
 
 
 func write() -> void:

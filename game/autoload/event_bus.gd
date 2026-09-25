@@ -47,3 +47,10 @@ signal event_card_requested(region_index: int)
 ## The wire card is asked to show an open event again (§16.7): the top bar's
 ## pending chip, for a global event that was put away with `Escape`.
 signal wire_requested(event_id: int)
+## audio.md §3.2: a bus's volume setting changed (0…1); `Audio` applies it.
+signal volume_changed(bus: StringName, value: float)
+## audio.md §8: the *Sound captions* setting.
+signal sound_captions_changed(enabled: bool)
+## audio.md §5.3: an admitted cue with a caption — whatever the volume, the mute
+## or the web lock. The caption stack shows it when the setting is on.
+signal caption_pushed(key: String, args: Dictionary)

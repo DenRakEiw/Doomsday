@@ -104,3 +104,40 @@ func test_cycle_screen_effects_wraps() -> void:
 	assert_almost_eq(float(Settings.to_dict()[SettingsScript.KEY_SCREEN_EFFECTS]),
 		Settings.screen_effects, 1e-9, "the file holds it")
 	Settings.set_screen_effects(before)
+
+
+# ---------------------------------------------------------- S6.5, audio.md §3.2
+
+
+func test_the_sound_keys_round_trip() -> void:
+	var values: Dictionary = _values({
+		"volume_music": 0.5, "volume_alerts": 0, "sound_captions": true,
+		"audio_background": false,
+	})
+	var volumes: Dictionary = values[SettingsScript.KEY_VOLUMES]
+	assert_almost_eq(float(volumes["music"]), 0.5, 1e-9)
+	assert_almost_eq(float(volumes["alerts"]), 0.0, 1e-9, "a whole number is read")
+	assert_true(bool(values[SettingsScript.KEY_SOUND_CAPTIONS]))
+	assert_false(bool(values[SettingsScript.KEY_AUDIO_BACKGROUND]))
+
+
+func test_a_volume_above_one_is_clamped() -> void:
+	var volumes: Dictionary = _values({"volume_master": 1.7})[SettingsScript.KEY_VOLUMES]
+	assert_almost_eq(float(volumes["master"]), 1.0, 1e-9)
+
+
+func test_a_volume_that_is_not_a_number_falls_back() -> void:
+	var volumes: Dictionary = _values({"volume_master": "loud", "volume_music": 0.25})[
+		SettingsScript.KEY_VOLUMES]
+	assert_false(volumes.has("master"), "absent: the sheet's default applies")
+	assert_almost_eq(float(volumes["music"]), 0.25, 1e-9, "the good one is kept")
+
+
+func test_sound_captions_default_off() -> void:
+	assert_false(bool(_values(null)[SettingsScript.KEY_SOUND_CAPTIONS]))
+	assert_false(bool(_values({"sound_captions": "yes"})[SettingsScript.KEY_SOUND_CAPTIONS]))
+
+
+func test_audio_background_defaults_on() -> void:
+	assert_true(bool(_values(null)[SettingsScript.KEY_AUDIO_BACKGROUND]))
+	assert_true((_values(null)[SettingsScript.KEY_VOLUMES] as Dictionary).is_empty())

@@ -34,6 +34,9 @@ const STAMP_FORMAT: String = "[%s] %s"
 const SKIP_FROM_LINE: int = 1
 ## §2: the console is a column at most this wide, in the upper third.
 const COLUMN_MAX_WIDTH: float = 720.0
+## audio.md §7.1: the two `call` triggers of the sheet.
+const CUE_POWER: StringName = &"boot_power"
+const CUE_LINE: StringName = &"boot_line"
 
 @onready var _ink: ColorRect = %Ink
 @onready var _column: Control = %Column
@@ -46,6 +49,8 @@ var full: bool = false
 var _lines: Array[String] = []
 var _elapsed: float = 0.0
 var _done: bool = false
+## How many lines have started typing, and so have been heard.
+var _heard: int = 0
 
 
 func _ready() -> void:
@@ -136,6 +141,7 @@ static func stamp(seconds: float) -> String:
 func _render() -> void:
 	if not full:
 		_console.visible_characters = -1
+		_hear(_lines.size())
 		return
 	var line_seconds: float = UiTokens.seconds(LINE_MS)
 	var type_seconds: float = UiTokens.duration(TYPE_MS)
@@ -153,6 +159,17 @@ func _render() -> void:
 		shown += (1 if i > 0 else 0) + roundi(float(length) * typed)
 	_console.visible_characters = shown
 	_skip.visible = started > SKIP_FROM_LINE
+	_hear(started)
+
+
+## audio.md §7.1: every line that starts typing ticks, and line 01 of the full
+## sequence powers up first.
+func _hear(started: int) -> void:
+	while _heard < started:
+		if full and _heard == 0:
+			Audio.cue(CUE_POWER)
+		Audio.cue(CUE_LINE)
+		_heard += 1
 
 
 func _fit() -> void:

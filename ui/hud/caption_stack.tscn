@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/hud/caption_stack.gd" id="1_caption_stack"]
+
+[node name="CaptionStack" type="VBoxContainer"]
+visible = false
+size_flags_horizontal = 0
+size_flags_vertical = 8
+mouse_filter = 2
+theme_type_variation = &"Stack"
+script = ExtResource("1_caption_stack")

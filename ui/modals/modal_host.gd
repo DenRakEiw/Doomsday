@@ -15,6 +15,9 @@ signal closed
 
 ## The method a modal may have to answer `Escape` itself.
 const METHOD_ESCAPE: StringName = &"on_escape"
+## audio.md §7.1: the two `call` triggers of the sheet.
+const CUE_OPEN: StringName = &"ui_open"
+const CUE_CLOSE: StringName = &"ui_close"
 
 var _scrim: ColorRect = null
 var _slot: Control = null
@@ -51,6 +54,7 @@ func open(modal: Control) -> void:
 	_set_shown(true)
 	_fade_to(1.0)
 	_focus_first()
+	Audio.cue(CUE_OPEN)
 	opened.emit()
 
 
@@ -65,6 +69,7 @@ func close() -> void:
 	closing.visible = false
 	_set_shown(false)
 	_restore_focus()
+	Audio.cue(CUE_CLOSE)
 	closed.emit()
 	if not _queued.is_empty():
 		var next: Control = _queued.pop_front()

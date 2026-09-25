@@ -14,18 +14,19 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.5 — Audio I: service, buses, cues, captions** [O]: `docs/specs/audio.md` (buses, cues, captions) — an audio autoload (not in `core/`), the bus layout, the volume settings, the cue table as data, dispatch from `EventBus`, cooldowns and voice limits, captions; silent placeholder streams. IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.6 — Audio II: the sound set** [O]: `docs/specs/audio.md` §9–§10, §12.2, §13.2 — `tools/audio/synth.py` renders all 64 files from `tools/audio/recipes.json`, measures peak and loudness (`--check`), the `.import` files, the `audio_synth` licence row. S6.5 built everything against missing files, so S6.6 only adds files. IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.6–S6.8, then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | S6.4 — the icon pipeline: Phosphor 2.1.1 (25) and game-icons `82d9488` (117) vendored by `tools/icons/vendor_icons.py` (hash-checked, normalised to white), `Icons` (`DPITexture` per size, stand-ins, atlas mode), `IconRect`, `Glyphs.draw`/`draw_scaled` on files with the procedural fallback, `tools/build_icon_atlas.gd`, the placements of icons.md §7, rows `icons_phosphor`/`icons_game_icons`; 1675 tests green (2026-09-25). |
-| **Before that** | S6.3 — the credits and licences modal, the illustration hooks (2026-09-25). |
+| **After it** | S6.7–S6.8, then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | S6.5 — Audio I: the `Audio` autoload (buses from `data/audio.json`, pools, dispatch from `EventBus`/router/buttons, `VoiceLedger` admission, ducking, hold dip, ambience per phase and screen, four stems on tension = heat, web unlock, focus), `AudioSheet` + records, `AudioRules`, `CaptionText`, the caption stack in the HUD, seven settings rows, the `call` cues in `ModalHost`/boot; files still missing (warned once each); 1768 tests green (2026-09-25). |
+| **Before that** | S6.4 — the icon pipeline (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 255 scripts compile (103 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1675 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 268 scripts compile (108 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1768 tests, **all green since S4.9**. The same command is all of CI. |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
+| **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -159,7 +160,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S6.2 [O] Phase-shift variants and map polish
 - [x] S6.3 [O] Credits and licences screen; the illustration hooks
 - [x] S6.4 [O] Icon pipeline
-- [ ] S6.5 [O] Audio I: service, buses, cues, captions
+- [x] S6.5 [O] Audio I: service, buses, cues, captions
 - [ ] S6.6 [O] Audio II: the sound set
 - [ ] S6.7 [O] Tutorial II
 - [ ] S6.8 [O] Accessibility
@@ -1275,6 +1276,13 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
   folder."* (78), de *"{region}: Ermittler notieren einen „Routineausfall“. Dafür gibt es nun einen
   Ordner."* (88). Fable: keep or rewrite within the caps.
 
+- **S6.5 — every hold is a pause to the sheet.** `audio.json` plays `ui_pause` on
+  `speed_changed(0)`, and `Game.hold` (a modal opening — the pause menu, the tech tree, a wire
+  card) forces the speed to 0, so opening a modal sounds `ui_open` **and** `ui_pause`, and
+  closing it `ui_close` and `ui_speed`. Built as the sheet says (no placeholder). Options: a
+  `match` on a new `held` field so a hold's speed change is silent, or keep both. G6's ear check
+  may settle it.
+
 **Parked for a later Fable step (not questions, reminders):**
 - **Spectator / benchmark mode** — designed in D6.9, built S6.12–S6.13 (decision above). What was
   noted at S1.8 and is still true: a model player is one more `Policy` (core.md §11), the S1.8 runners are the harness,
@@ -1323,6 +1331,19 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
    1120 × 840, `.import` lossless + mipmaps, a *Generated assets* row per file).
 
 ## Deviations from the plan or a spec
+
+- **2026-09-25** (S6.5) — **Audio, against `audio.md`:** (1) `AudioTriggerDef.conditions` holds
+  the sheet's `match` (`match` is a GDScript keyword). (2) §8.2's `MOTION_FAST` does not exist;
+  the caption fade uses `MOTION_QUICK` (120 ms). (3) A volume row's **preview is not captioned** —
+  `alert_threshold` would have pushed `[{faction}: pressure rising]` with no faction behind the
+  menu. (4) `run_started` also turns the music on at once (a session run directly has no
+  `screen_changed`). (5) The hold dip applies only inside a run (on the title the speed is 0 too).
+  (6) `Settings` reads any `volume_<bus>` key, not a list of buses — it knows nothing of the sheet.
+  (7) Extra API for tests and the HUD: `dispatch()`, `step()`, `now_ms()`, `set_unlocked()`,
+  `reset_ledger()` (also clears a duck in progress), `bus_index()`, loop getters; a caption line is
+  as wide as its text up to 280 px. (8) The pause menu keeps its index constants (§3.3 allowed a
+  key map); the seven rows sit at 5–11. `CAPTION_MAX_WIDTH` scaling with the text size
+  (`accessibility.md` §8.1) is left to S6.8.
 
 - **2026-09-25** (S6.4) — **`Icons` has four helpers the spec does not list**: `section(kind)`
   and `stand_ins()` (the tests read the map through them), `view_box_of(path)` (the atlas tool
@@ -2468,6 +2489,13 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.5 Audio I: service, buses, cues, captions [O]
+- `Audio` autoload (after `ProfileManager`), `AudioSheet` + five records, `AudioRules`, `VoiceLedger`/
+  `AudioVoice`, `CaptionText`, `ui/hud/caption_stack`; `Settings` volumes/captions/background; seven menu rows.
+- Calls in `ModalHost` (open/close) and boot (power, each line). Files missing: warnings only.
+- Looked at: menu 1920 de / 400 en, captions `[Phasenwechsel: Enttarnt]`, faction and anomaly lines
+  at 1920/400; no errors. +93 tests, 1768 green. Deviations and one design question recorded.
 
 ### 2026-09-25 — S6.4 Icon pipeline [O]
 - `tools/icons/vendor_icons.py` (pins + SHA-256 checked, 142 files normalised, `--check`), `Icons`,

@@ -37,6 +37,22 @@ const KEY_TEXT_SCALE: String = "UI_SETTINGS_TEXT_SCALE"
 const KEY_BOOT: String = "UI_SETTINGS_BOOT"
 const KEY_BOOT_FIRST: String = "UI_SETTINGS_BOOT_FIRST"
 const KEY_BOOT_ALWAYS: String = "UI_SETTINGS_BOOT_ALWAYS"
+## audio.md §3.3: the sound rows, after *Text size* and before *Introduction*.
+const KEY_VOLUME_MASTER: String = "UI_SETTINGS_VOLUME_MASTER"
+const KEY_VOLUME_MUSIC: String = "UI_SETTINGS_VOLUME_MUSIC"
+const KEY_VOLUME_AMBIENCE: String = "UI_SETTINGS_VOLUME_AMBIENCE"
+const KEY_VOLUME_INTERFACE: String = "UI_SETTINGS_VOLUME_INTERFACE"
+const KEY_VOLUME_ALERTS: String = "UI_SETTINGS_VOLUME_ALERTS"
+const KEY_SOUND_CAPTIONS: String = "UI_SETTINGS_SOUND_CAPTIONS"
+const KEY_AUDIO_BACKGROUND: String = "UI_SETTINGS_AUDIO_BACKGROUND"
+## Row label → the bus its button cycles.
+const VOLUME_ROWS: Dictionary[String, StringName] = {
+	KEY_VOLUME_MASTER: &"master",
+	KEY_VOLUME_MUSIC: &"music",
+	KEY_VOLUME_AMBIENCE: &"ambience",
+	KEY_VOLUME_INTERFACE: &"interface",
+	KEY_VOLUME_ALERTS: &"alerts",
+}
 const KEY_RESET_PROFILE: String = "UI_SETTINGS_RESET_PROFILE"
 const KEY_RESET_CONFIRM: String = "UI_SETTINGS_RESET_CONFIRM"
 ## The rows in the order they are built. polish-visuals.md §5.1 put *Screen
@@ -47,8 +63,24 @@ const INDEX_REDUCED_MOTION: int = 1
 const INDEX_SCREEN_EFFECTS: int = 2
 const INDEX_TREE_PAUSES: int = 3
 const INDEX_TEXT_SCALE: int = 4
-const INDEX_TUTORIAL: int = 5
-const INDEX_BOOT: int = 6
+const INDEX_VOLUME_MASTER: int = 5
+const INDEX_VOLUME_MUSIC: int = 6
+const INDEX_VOLUME_AMBIENCE: int = 7
+const INDEX_VOLUME_INTERFACE: int = 8
+const INDEX_VOLUME_ALERTS: int = 9
+const INDEX_SOUND_CAPTIONS: int = 10
+const INDEX_AUDIO_BACKGROUND: int = 11
+const INDEX_TUTORIAL: int = 12
+const INDEX_BOOT: int = 13
+## The rows' labels in the order of the indices above.
+const SETTING_KEYS: Array[String] = [KEY_LOCALE, KEY_REDUCED_MOTION, KEY_SCREEN_EFFECTS,
+	KEY_TREE_PAUSES, KEY_TEXT_SCALE, KEY_VOLUME_MASTER, KEY_VOLUME_MUSIC, KEY_VOLUME_AMBIENCE,
+	KEY_VOLUME_INTERFACE, KEY_VOLUME_ALERTS, KEY_SOUND_CAPTIONS, KEY_AUDIO_BACKGROUND,
+	KEY_TUTORIAL, KEY_BOOT]
+## A volume button plays no click: `Audio` previews the bus instead (§3.3).
+const META_AUDIO_CUE: StringName = &"audio_cue"
+const FEATURE_WEB: String = "web"
+const FEATURE_MOBILE: String = "mobile"
 const KEY_ON: String = "UI_SETTINGS_ON"
 const KEY_OFF: String = "UI_SETTINGS_OFF"
 
@@ -205,8 +237,7 @@ func _slot_button(into: Container, action: Callable, with_caption: bool) -> Cons
 ## text scale of UI.md §5 came in S4.9, the introduction (first-run.md §3.1) in
 ## S4.11, and so they are the last rows.
 func _build_settings() -> void:
-	for key: String in [KEY_LOCALE, KEY_REDUCED_MOTION, KEY_SCREEN_EFFECTS, KEY_TREE_PAUSES,
-			KEY_TEXT_SCALE, KEY_TUTORIAL, KEY_BOOT]:
+	for key: String in SETTING_KEYS:
 		var row: HBoxContainer = HBoxContainer.new()
 		row.theme_type_variation = &"Row"
 		var label: Label = Label.new()
@@ -218,12 +249,17 @@ func _build_settings() -> void:
 		label.set_meta(&"key", key)
 		row.add_child(label)
 		var button: ConsoleButton = ConsoleButton.new()
+		if VOLUME_ROWS.has(key):
+			button.set_meta(META_AUDIO_CUE, &"")
 		button.pressed.connect(_on_setting_pressed.bind(_setting_buttons.size()))
 		row.add_child(button)
 		_setting_buttons.append(button)
 		_settings_rows.add_child(row)
 		if key == KEY_BOOT:
 			_title_rows.append(row)
+		# §3.3: a browser or a phone has no window to lose focus to.
+		if key == KEY_AUDIO_BACKGROUND:
+			row.visible = not (OS.has_feature(FEATURE_WEB) or OS.has_feature(FEATURE_MOBILE))
 	# §6.3: progress is not a run — the autosave and the slots stay.
 	_reset = ConsoleButton.new()
 	_reset.label_key = KEY_RESET_PROFILE
@@ -250,9 +286,22 @@ func _refresh_settings() -> void:
 		KEY_ON if Settings.tree_pauses else KEY_OFF))
 	_setting_buttons[INDEX_TEXT_SCALE].text = Format.number(Settings.text_scale,
 		Format.Kind.PERCENT)
+	for i: int in range(INDEX_VOLUME_MASTER, INDEX_VOLUME_ALERTS + 1):
+		_setting_buttons[i].text = volume_text(Audio.volume(VOLUME_ROWS[SETTING_KEYS[i]]))
+	_setting_buttons[INDEX_SOUND_CAPTIONS].text = Format.caps(tr(
+		KEY_ON if Settings.sound_captions else KEY_OFF))
+	_setting_buttons[INDEX_AUDIO_BACKGROUND].text = Format.caps(tr(
+		KEY_ON if Settings.audio_background else KEY_OFF))
 	_setting_buttons[INDEX_TUTORIAL].text = Format.caps(tr(
 		KEY_ON if Settings.tutorial else KEY_OFF))
 	_setting_buttons[INDEX_BOOT].text = Format.caps(tr(KEY_BOOT_ALWAYS if Settings.boot_always 		else KEY_BOOT_FIRST))
+
+
+## audio.md §3.3: a volume as a percentage, or *Off* at 0.
+func volume_text(value: float) -> String:
+	if value <= 0.0:
+		return Format.caps(tr(KEY_OFF))
+	return Format.number(value, Format.Kind.PERCENT)
 
 
 ## §5.1: the button's word for an intensity — the nearest of the three steps.
@@ -293,6 +342,11 @@ func _on_load_pressed(index: int) -> void:
 
 
 func _on_setting_pressed(index: int) -> void:
+	var key: String = SETTING_KEYS[index]
+	if VOLUME_ROWS.has(key):
+		Audio.cycle_volume(VOLUME_ROWS[key])
+		_refresh_settings()
+		return
 	match index:
 		INDEX_LOCALE:
 			Settings.toggle_locale()
@@ -304,6 +358,10 @@ func _on_setting_pressed(index: int) -> void:
 			Settings.set_tree_pauses(not Settings.tree_pauses)
 		INDEX_TEXT_SCALE:
 			Settings.cycle_text_scale()
+		INDEX_SOUND_CAPTIONS:
+			Settings.set_sound_captions(not Settings.sound_captions)
+		INDEX_AUDIO_BACKGROUND:
+			Settings.set_audio_background(not Settings.audio_background)
 		INDEX_TUTORIAL:
 			Settings.set_tutorial(not Settings.tutorial)
 		_:
