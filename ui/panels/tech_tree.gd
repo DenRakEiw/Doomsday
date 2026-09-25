@@ -370,8 +370,13 @@ func _place(definition: TechNodeDef) -> void:
 		return PurchaseNodeCommand.new(definition.id, region_id)
 	request.on_cancel = func() -> void:
 		reopen_requested.emit(definition.id)
-	close()
+	# The request goes in while the tree is still up (as the ability picker does
+	# it). A site select already running — the tree was opened again during one —
+	# is cancelled by it, and its `on_cancel` reopens the tree unless a modal is
+	# up: closing first put the tree straight back on the old node over the new
+	# site select, on every click (S6.P3).
 	Game.site_select(request)
+	close()
 
 
 ## Which nodes of the shown tab are locked right now, so that the ones a purchase
