@@ -1030,8 +1030,8 @@ The full-screen `CanvasLayer` at 1025 set from script, the effect stack, trigger
 **Done when:** the spec's acceptance; the web-safe path (Compatibility, no compute) confirmed.
 
 ### S6.2 — Phase-shift variants and map polish **[O]** · **Read first:** `polish-visuals.md` (variants, map)
-The new token sets through `UiTokens`/`ThemeBuilder` (rebuild the theme), the border fix, the
-Societal Function overlay if D6.1 kept it.
+The corrected Open accent through `UiTokens`/`ThemeBuilder` (rebuild the theme), the coast
+and outline pass, the Societal Function overlay (D6.1 kept it).
 **Done when:** the spec's acceptance; contrast floors hold in every variant.
 
 ### S6.3 — Credits and licences screen **[O]** · **Read first:** `docs/specs/icons.md` (credits screen)
@@ -1214,11 +1214,11 @@ With the user: each platform's candidate played; go / change / cut per platform.
 | --- | --- |
 | UI q2 — mobile HUD shape | G2 for M3; re-drawn in D7.1, judged on a real device in S7.5 |
 | UI q1 — tech tree pauses? | D3.3, confirmed at G3 |
-| UI q3 — extent of phase shift | capped in D3.3, revisited in D6.1 |
+| UI q3 — extent of phase shift | capped in D3.3; D6.1: the cap stands (two sets; the late game escalates in the screen pass) |
 | PLAN §6 — four tracks or two | G3 |
 | VISUALS q5 — DPITexture acceptable? | G3 (yes, with a PNG-atlas fallback); specified in D6.2, built in S6.4 |
 | VISUALS q2 — shader globe sufficient? | S5.7 (shader); geometry only if the M5 gate says so |
-| VISUALS q3 — how far the phase palette goes | D6.1, with the reduced-motion setting |
+| VISUALS q3 — how far the phase palette goes | D6.1: one step, then heat (`polish-visuals.md` §8) |
 | VISUALS q4 — region vignettes | parked at D4.0/D5.3; decided in D6.7 with the illustration briefs (conservative default: cut) |
 | CONTENT q1, q2 — chain persistence, chains per run | D4.2, confirmed G4; D5.4 (no cap) |
 | CONTENT q3 — Value Drift | D5.1, playtested G5; the drifted-run rule G5 (2/3), built S5.P2 |

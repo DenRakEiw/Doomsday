@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D6.1 — Screen effects, phase-shift variants, map polish** [F]: `docs/specs/polish-visuals.md` (the full-screen pass, transitions, reduced motion and an effects-intensity setting, flash limits), UI q3 / VISUALS q3 (the phase variants), the region-border staircase, the Societal Function overlay. IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **D6.2 — Icon system and the credits screen** [F]: `docs/specs/icons.md` (one set per tier with pinned releases, every id mapped, ~25 custom-silhouette briefs, `DPITexture` import and the atlas fallback) and the credits and licences screen (`data/credits.json`, strings). IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | the rest of Block 13 (D6.2–D6.7), then Block 14 (S5.9, S6.1–S6.8). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | D5.5 — the Task Force against dormancy (**the mark**, `taskforce-endings.md` §14) and the scenario levers (`closed_cross` for Airgap Earth, `term_scale` for The Inheritance, `scenarios.md` §8); 7 strings; eight-item punch list for S5.9 (2026-09-25). |
-| **Before that** | S5.P2 — punch list from balance pass 3: drifted Ascendance → Supplanted, the bots refuse Value Drift / restrain, the harness's Misdirect and dormancy columns, the push-in marker gone; 100-seed check of Swarm and Weapon (*Balance baselines*). 1531 tests green (2026-09-25). |
+| **After it** | the rest of Block 13 (D6.3–D6.7), then Block 14 (S5.9, S6.1–S6.8). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | D6.1 — `docs/specs/polish-visuals.md`: the screen pass (autoload `ScreenFx`, one shader, heat, *Screen effects* setting, flash limits), UI q3 / VISUALS q3 answered (two palettes; the Open accent corrected to pale amber), the coast/outline border pass, the Societal Function overlay kept; 4 strings; 1531 tests green (2026-09-25). |
+| **Before that** | D5.5 — the Task Force against dormancy (**the mark**, `taskforce-endings.md` §14) and the scenario levers (`closed_cross`, `term_scale`, `scenarios.md` §8); 7 strings; eight-item punch list for S5.9 (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (1917 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (1921 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -144,7 +144,7 @@ it and take the next row (IMPLEMENTATION §4).*
 
 **Block 13 — M6 design I: the look, the sound, the teaching**
 - [x] D5.5 [F] The Task Force against dormancy; the scenario levers *(`taskforce-endings.md` §14, `scenarios.md` §8)*
-- [ ] D6.1 [F] Screen effects, phase-shift variants, map polish
+- [x] D6.1 [F] Screen effects, phase-shift variants, map polish *(`docs/specs/polish-visuals.md`)*
 - [ ] D6.2 [F] Icon system and the credits screen
 - [ ] D6.3 [F] Custom silhouettes
 - [ ] D6.4 [F] Audio direction and cue sheet
@@ -1159,6 +1159,22 @@ without new information.
   **`term_scale`** (scenario field) — The Inheritance counts the public's `deaths_share` and the
   governments' `harm` terms double. Both open to later content; neither is a hook. Values are
   first guesses; S5.9 checks, balance pass 4 tunes.
+- **2026-09-25** (D6.1, overnight, pending user confirmation) — **The look of M6**
+  (`polish-visuals.md`): one full-screen pass (autoload `ScreenFx`, layer 1025, one shader:
+  aberration on alerts → chroma-keyed bloom → alert wash → vignette → static scanlines → grain →
+  ordered dither → dissolve); **heat** (phase + endgame) scales it, so the late game escalates
+  there and **not in a third palette** (UI q3 / VISUALS q3: the two-set cap stands; the Task
+  Force's red stays a mark, never chrome). A separate **Screen effects** setting (Off · Subtle ·
+  Full; Subtle on phones and web) next to Reduced motion, which switches off everything that
+  moves. Flash limits: ≤ 3 full-screen flashes a second through one `FlashLimiter`, wash alpha
+  ≤ 0.25, no loop under 500 ms. **CRT curvature cut** (it moves controls off their hit areas).
+  - **The Open accent moves to pale amber** (`#FFD08A` family): `#FFB35C` was the Governments'
+    orange to a dichromat (worst ΔE 5). New floor: map-mark pairs keep worst-case ΔE₀₀ ≥ 9.
+  - **The staircase is the coast and the outlines**, not the inner borders: a shader border pass
+    (coast borrows the nearest land region at `land_mask` alpha; outlines from `border_mask` at
+    zoom ≥ 2). The 2× ID map is rejected (128 MiB of video memory).
+  - **The Societal Function overlay is built** (S6.2): a fourth view, stepped by stage, lavender
+    `#C9B8FF`, from Emergent on.
 
 ## Design questions for Fable
 
@@ -1166,12 +1182,10 @@ without new information.
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
 *(none open — G5 (2/3) answered the push-in's zoom: keep `zoom_min × 2`, Decisions 2026-09-25.
-D5.5 answered the Task Force against dormancy and the scenario levers, BALANCE §5.7 (3)–(4).)*
+D5.5 answered the Task Force against dormancy and the scenario levers, BALANCE §5.7 (3)–(4).
+D6.1 answered the parked border note: `polish-visuals.md` §9.)*
 
 **Parked for a later Fable step (not questions, reminders):**
-- **M6 (VISUALS) → D6.1:** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the
-  8192-px masks anti-alias the coast but not the borders between regions. Acceptable for M2–M5; a vector
-  border pass or a 2× ID map is an M6 polish item, not a bug.
 - **Spectator / benchmark mode** — designed in D6.9, built S6.12–S6.13 (decision above). What was
   noted at S1.8 and is still true: a model player is one more `Policy` (core.md §11), the S1.8 runners are the harness,
   candidate driver [TypeSafe](https://docs.typesafe.ai/introduction) / **Jev** (typed Choice /
@@ -1935,6 +1949,11 @@ is **the mark** — a region that fools it by sleeping is known for 40 days (`ta
 links, and The Inheritance counts Harm and deaths double (`scenarios.md` §8) — do these match what
 the two scenarios promise?
 
+**D6.1 (2026-09-25, overnight, pending user confirmation):** `docs/specs/polish-visuals.md` —
+(1) the Open accent turns pale amber (`#FFD08A`) instead of orange, because orange was the
+Governments' colour — right? (2) CRT curvature is cut — fine? (3) the society view in lavender, a
+fourth button from Emergent on — worth the space? Best judged on the S6.1/S6.2 screenshots.
+
 **D5.2 (2026-09-24), at G5:** `docs/specs/taskforce-endings.md` §13 — is *Supplanted* (a secret
 loss that turns a win, after one warning card) fair, or should a normal win's results screen hint
 that a released child is still out there?
@@ -2217,6 +2236,12 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-25 — D6.1 Screen effects, phase-shift variants, map polish [F]
+- `docs/specs/polish-visuals.md`: `ScreenFx` pass (8 stages, heat, costs, tokens), triggers
+  (impulses, wash moved in, dissolve), *Screen effects* setting, reduced-motion table, flash rules.
+- UI q3 / VISUALS q3: two palettes stay; Open accent → `#FFD08A` (colour audit, ΔE floor 9).
+  Map: coast + mask-outline pass (looked at zoom 4); society overlay kept. 4 strings; 1531 green.
 
 ### 2026-09-25 — D5.5 The Task Force against dormancy; the scenario levers [F]
 - **The mark** (`taskforce-endings.md` §14): a `dormant` fizzle marks the region 40 days; dormancy

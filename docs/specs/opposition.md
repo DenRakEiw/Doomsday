@@ -30,7 +30,8 @@ additions; tests and acceptance for S4.4 and S4.5.
 `blackout`, `harvested`, … and every ability — §18 says what D4.3 must provide for the options to
 resolve); headlines for the events named here (D4.3); the Response Task Force (D5.2, a fifth mover
 on this machinery); bots that answer counter-moves by rule (S4.10 — until then the default option);
-the map overlay for Societal Function (M6, VISUALS §2 calls it cuttable).
+the map overlay for Societal Function (M6, VISUALS §2 calls it cuttable — *kept at D6.1, built
+in S6.2: `polish-visuals.md` §10*).
 
 **What each build step takes from here:**
 

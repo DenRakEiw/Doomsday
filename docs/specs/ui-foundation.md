@@ -809,7 +809,8 @@ locale in M2 (there is no settings screen yet).
 ### 9.3 Settings file
 
 `user://settings.json`: `{"version": 1, "locale": "en", "reduced_motion": false, "text_scale": 1.0}`.
-`text_scale` is stored and ignored until M5. Missing or invalid → defaults, file rewritten;
+`text_scale` is stored and ignored until M5. *(Later keys: `tree_pauses`, `tutorial`,
+`boot_always`; D6.1 adds `screen_effects`, `polish-visuals.md` §5.1.)* Missing or invalid → defaults, file rewritten;
 never a crash.
 
 ---

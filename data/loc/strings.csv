@@ -72,6 +72,7 @@ UI_TERM_CONTROL,Control,Kontrolle
 UI_TERM_FOOTPRINT,Footprint,Signatur
 UI_TERM_HARM,Harm,Schaden
 UI_TERM_POPULATION,Population,Bevölkerung
+UI_TERM_SOCIETY,Society,Gesellschaft
 UI_COMMON_CLOSE,Close,Schließen
 UI_HUD_COMPUTE_RATE,{rate} / day,{rate} / Tag
 UI_HUD_PHASE,Phase,Phase
@@ -447,6 +448,9 @@ UI_SETTINGS_LOCALE,Language,Sprache
 UI_SETTINGS_LOCALE_EN,English,Englisch
 UI_SETTINGS_LOCALE_DE,German,Deutsch
 UI_SETTINGS_REDUCED_MOTION,Reduced motion,Weniger Bewegung
+UI_SETTINGS_SCREEN_EFFECTS,Screen effects,Bildschirmeffekte
+UI_SETTINGS_FX_SUBTLE,Subtle,Dezent
+UI_SETTINGS_FX_FULL,Full,Voll
 UI_SETTINGS_TREE_PAUSES,Pause while the tree is open,"Pausieren, solange der Baum offen ist"
 UI_SETTINGS_ON,On,An
 UI_SETTINGS_OFF,Off,Aus

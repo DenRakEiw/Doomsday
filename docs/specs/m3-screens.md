@@ -466,10 +466,10 @@ Same tokens, hotter values; the map ramp, the categorical set, `ALERT` and `MAP_
 | `TEXT_0` | `#DCE6EE` | `#F2E4E1` |
 | `TEXT_1` | `#93A6B5` | `#C9A29E` |
 | `TEXT_2` | `#5E7282` | `#87646A` |
-| `ACCENT` | `#6FE3FF` | `#FFB35C` |
-| `ACCENT_DIM` | `#2E6E80` | `#8F5E2A` |
-| `ACCENT_HOVER` | `#8FEAFF` | `#FFC985` |
-| `ACCENT_PRESSED` | `#4FCBE8` | `#E39A46` |
+| `ACCENT` | `#6FE3FF` | `#FFD08A` *(D6.1; was `#FFB35C`)* |
+| `ACCENT_DIM` | `#2E6E80` | `#8C6A3A` *(D6.1; was `#8F5E2A`)* |
+| `ACCENT_HOVER` | `#8FEAFF` | `#FFE0B0` *(D6.1; was `#FFC985`)* |
+| `ACCENT_PRESSED` | `#4FCBE8` | `#E8B66C` *(D6.1; was `#E39A46`)* |
 | `INK` | `#07090C` | `#0C0608` |
 | `STAT_FOOTPRINT` | = `ACCENT` | = `ACCENT` |
 | `MAP_LAND` | `#1A2530` | `#2C1B22` |
@@ -479,6 +479,10 @@ Same tokens, hotter values; the map ramp, the categorical set, `ALERT` and `MAP_
 | `MAP_DARK_MARK` | `#5E7282` | `#87646A` |
 | `BACKDROP_GRID` | `#121A22` | `#1F1116` |
 | `BACKDROP_STAR` | `#2C3D4C` | `#4A2E38` |
+
+*D6.1 (`polish-visuals.md` §8.2): the old Open accent collided with the Governments' orange
+(worst-case ΔE 5), so the accent family moved to pale amber; the contrasts above were measured
+for the old values — the new ones are in that section.*
 
 Everything not listed keeps its cold value in both variants (`ALERT`, `MAP_SELECT`, `MAP_DEATH`,
 `STAT_PENETRATION`, `STAT_HARM`, the ramp, `CAT_*`, all numbers).

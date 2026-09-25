@@ -394,7 +394,11 @@ cheap to control now and expensive to fix later.
    over a new equirectangular region-ID texture (`screens-full.md` §3.1), built in S5.7; geometry
    only if G5 judges the prototype insufficient.*
 3. How far does the phase palette shift go before it stops being atmosphere and starts being
-   unreadable? Cap it and test at the reduced-motion setting.
+   unreadable? Cap it and test at the reduced-motion setting. *Decided at D6.1 (2026-09-25): one
+   palette step (`cold` → `open`) and no further; beyond Open the screen pass's heat escalates
+   grain, dither, scanlines and glow, which touch no token, under a contrast floor for text and a
+   colour-difference floor for map marks (`polish-visuals.md` §3.6, §8). CRT curvature is cut
+   (it moves controls away from where they are hit).*
 4. Do region vignettes justify their cost, or is the map plus the ticker enough? Decide at M4.
    *(D4.0: the wire card takes the story-picture role first; vignettes are judged after it exists.)*
 5. Is `DPITexture`'s experimental status acceptable for ~140 shipped icons, or do we keep a PNG
