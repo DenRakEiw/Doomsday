@@ -4,9 +4,9 @@ extends GutTest
 ## glossary (§3) retired stay out of rule-A text.
 ##
 ## The retired words are checked over the key groups the plain-language pass has
-## rewritten (§5.1 passes 1–3 and 6); D6.11 (2/2b) adds passes 4 and 5 to
-## `REWRITTEN`. The terms the user renamed on screen (§6 Q1, Q2, Q7) are checked
-## over every rule-A group already, so no screen shows the old word beside the
+## rewritten (§5.1 passes 1–6; passes 4 and 5 and the Codex terms added in D6.11
+## 2/2b). The terms the user renamed on screen (§6 Q1, Q2, Q7) are checked over
+## every rule-A group, so no screen shows the old word beside the
 ## new one. Flavour (§2.2) is exempt: headlines, result lines, tech flavour, the
 ## Codex, endings.
 
@@ -28,8 +28,8 @@ const CAPS: Dictionary[String, int] = {
 	"^ABILITY_\\w+_NAME$": 14,
 	"^UI_PHASE_[A-Z]+$": 10,
 }
-## §5.1 passes 1–3 and 6: the groups whose every row follows rule A and the
-## glossary now. D6.11 (2/2b) adds passes 4 and 5.
+## §5.1 passes 1–6: the groups whose every row follows rule A and the glossary
+## now (passes 4 and 5, and §5.2 C7's Codex terms, since D6.11 2/2b).
 const REWRITTEN: Array[String] = [
 	"^UI_TERM_", "^UI_ATTR_", "^UI_PHASE_", "^STAT_", "^FLAG_", "^EFFECT_", "^ASSET_",
 	"^STATUS_\\w+_NAME$", "^ABILITY_\\w+_NAME$", "^GROUP_", "^SOCIETY_",
@@ -38,6 +38,10 @@ const REWRITTEN: Array[String] = [
 	"^UI_ORIGIN_", "^UI_ELIGIBLE_", "^UI_DISCOVERY_", "^UI_DRIFT_", "^UI_TASK_FORCE_",
 	"^CMD_FAIL_", "^UI_DOCK_", "^UI_ANALYSIS_", "^UI_CHART_", "^UI_SERIES_", "^UI_ABILITIES_",
 	"^UI_MAP_", "^UI_CONSOLE_", "^UI_LOG_", "^UI_CAPTION_",
+	"^EVENT_\\w+_(OPT_\\w+|TITLE|SUMMARY)$", "^EVENT_EMERGENT_\\w+_BODY$", "^TECH_\\w+_EFFECT$",
+	"^STATUS_\\w+_DETAIL$", "^ABILITY_\\w+_DETAIL$", "^DIRECTIVE_", "^DIFFICULTY_\\w+_DETAIL$",
+	"^ARCH_\\w+_DETAIL$", "^ARCH_HOOK_", "^SCENARIO_\\w+_(DETAIL|INTRO)$",
+	"^CODEX_EMERGENT_\\w+_TERM$",
 ]
 ## §2.0 rule A and the names, less what is out of scope (§1.3).
 const RULE_A: Array[String] = [

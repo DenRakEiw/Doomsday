@@ -99,8 +99,8 @@ func test_a_status_line_names_days_and_numbers() -> void:
 	assert_string_contains(line, "−20%")
 
 
-func test_a_lockdown_line_says_it_closes_every_connection() -> void:
-	assert_has(StatusText.effects(_db(), "lockdown"), "all connections closed")
+func test_a_lockdown_line_says_it_closes_every_link() -> void:
+	assert_has(StatusText.effects(_db(), "lockdown"), "all links closed")
 
 
 func test_a_standing_status_is_permanent() -> void:

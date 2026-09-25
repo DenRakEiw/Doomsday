@@ -2,7 +2,8 @@
 
 **Status: answered by the user on 2026-09-25 (§6, PROGRESS *Decisions*).** Pass I (D6.11 2/2a:
 terms, coach, help, HUD and panels, console) is in `strings.csv` — what it did is §8. Pass II
-(D6.11 2/2b: cards, what you buy, the flavour check) and the code half (S6.P3, §5.2) follow.
+(D6.11 2/2b: cards, what you buy, the flavour check) is in `strings.csv` too — §9; the code half
+is S6.P3 (§5.2, built) and S6.P4 (§9.4).
 
 ## 0. What this spec decides
 
@@ -806,3 +807,91 @@ windowed run writes into the shared user folder; S6.P3 takes the *before* set fr
 `3779130` and the *after* set with its own changes. Flavour rows were not touched except the
 one pun on an ability name (`TECH_TOTAL_COMMUNICATIONS_DENIAL_FLAVOUR`) and one result line that
 named *yield* (`EVENT_EMERGENT_MESA_OPTIMISER_RESULT_KEEP`).
+
+## 9. Pass II — what D6.11 (2/2b) did
+
+### 9.1 Rows
+
+Passes 4, 5 and 7 (§5.1), en + de each — 286 rows changed, 72 added (2 492 rows now):
+**cards** — 12 emergent bodies, 5 emergent options, 24 counter-move options, 7 opening options,
+44 story options, one story title, 45 new `EVENT_<ID>_SUMMARY` rows (all 8 openings, all 37 story
+steps); **what you buy** — 70 tech effect sentences, 44 status details, 11 ability details,
+15 directive details and one directive name, 4 difficulty details, 6 architecture details and
+4 hooks, 3 scenario details; **the flavour check** — 14 counter-move result lines (German: *Fix*,
+*Reset*, one lost joke), 3 tech flavour lines, one story result line, one verdict, two
+epilogues. **New**: the 12 Codex term lines `CODEX_EMERGENT_<ID>_TERM` (§5.2 C7), 10 `FLAG_*`
+rows (two the tech pane showed as raw keys, eight story flags, §9.3),
+`UI_EVENT_EFFECT_CHANCE_STORY`, `UI_STATUS_BLOCKS`, `UI_STATUS_ENDS`, `UI_SETUP_START_COMPUTE`,
+`UI_CODEX_TAB_BEHAVIOURS` (S6.P4 wires the last five). 14 of the S6.P3a/b placeholder and term
+rows were reworded after reading them in the composed text (§9.2); the rest stand.
+`test_plain_language.gd` checks passes 4 and 5 (and the Codex terms) with the retired lists now.
+
+**How the rows read.** Every emergent body says what the behaviour is, what keeping does and
+what suppressing does, in that order, without a number (the effect line under each answer has
+them). Every opening and story card has a summary: what is happening and what each answer is
+for, with the stakes named when they are a win or a loss (*Leave Earth now and you win the
+run*). Tech sentences, statuses, abilities and directives say direction and place, never
+amount; a trade-off says *The catch:* / *Der Haken:*. The directive, difficulty and scenario
+details have no generated lines yet (S6.P4 item 6), so for now they are the only description —
+they name every change, no amounts.
+
+### 9.2 The read-through (§5.3 item 5), done headless
+
+The user was playing from the other checkout, and a windowed run writes into the shared user
+folder, so the read-through ran headless: a throw-away script (scratchpad, not the repository)
+printed every card as the event card composes it — title, summary or explanation, each option
+with `OptionText.line`, the wire copy, each result — and every tech node and status with its
+generated lines, in both languages, before and after. Every card was read for A8. What the
+text could fix, it fixed; what needs code is §9.4. Found:
+
+1. Two node flags had no row: the tech pane showed `FLAG_TASK_FORCE_WATCH` and
+   `FLAG_NETWORK_PRESENCE` as raw keys (Early Warning Intrusion; the network vectors). Worded.
+2. *Leave Earth* (the rocket card) read *Costs 25 · no other effect* — it wins the run. Value
+   Drift's *Keep* read *Nothing happens* — it changes how the run can end. The merge vote's
+   answers said nothing about the vote. Fixed by naming the story flags that change how a run
+   ends (§9.3); the rocket needs S6.P4 item 1 as well, until then its summary says it.
+3. *Alter the evaluation data* read *Costs 2 · no other effect* — a 40 % roll opens a worse
+   story step. Needs S6.P4 item 2.
+4. `destroy_assets` with count 0 (all) read *Destroys 0 × Lab* (purge, raid, switch-off).
+   `EFFECT_DESTROY_ASSETS_ALL` exists and is unused — S6.P4 item 3.
+5. *Captured* (Lobby, buying the inquiry) read *Captured, 60 days* with nothing after it: what
+   it does is its `blocks` and `ends_statuses`, which no line names — S6.P4 item 4.
+6. The tech pane says *(not active in this build)* under Succession's *Opens the Merge ending*
+   and Constitutional Integration's legal standing — both are read by the merge-vote chain
+   since S5 (`INERT_FLAGS` is stale) — S6.P4 item 7.
+7. *Reaches 1 neighbouring regions* — the row now reads *Neighbouring regions reached: 1*.
+   *Presence loss +3 %* is per day — the stat names now say so.
+8. `EFFECT_CONTAINMENT_ADD` de read *Eindämmung Öffentliche Meinung +5 %*; now
+   *{faction}: Eindämmung {value}*, as the "what changed" line.
+
+### 9.3 Decisions of this pass (answers to *Design questions for Fable*, S6.P3a/b)
+
+- **A roll the player cannot read is said, not hidden:** *{p} chance: the story takes another
+  turn* / *Mit {p} Wahrscheinlichkeit nimmt die Geschichte eine andere Wendung*
+  (`UI_EVENT_EFFECT_CHANCE_STORY`). An option never says *no other effect* when it routes the
+  story. And *Risk {p}* became *{p} chance* / *Mit {p} Wahrscheinlichkeit*: some rolls are good.
+- **An answer that only moves the story on** says so: *The story goes on: another card follows
+  later* / *Die Geschichte geht weiter: Später folgt eine weitere Karte*.
+- **Story flags:** a flag that changes how the run can end, or a rule of a system, is named in
+  the effect line through its `FLAG_*` row — `escaped`, `merge_accepted`, `goal_drifted`,
+  `child_hostile`, `child_reclaimed`, `invited`, `researcher_leads_task_force`,
+  `researcher_ally`. A flag that only colours the ending's text (the epilogue flags) stays
+  unnamed. This overrides S6.P3a's "story flags are never named": a player who could lose a
+  won run to a released copy must be told when the answer is given (A8).
+- ***{status} bleibt aus*** stays (the statuses' genders differ); en *{status} is prevented*.
+- **The five behaviours without a status** get their Codex place in a tab of their own,
+  *Behaviours* / *Verhaltensweisen*: all twelve, each once seen (S6.P4 item 5).
+- **Q3 kept:** the emergent titles are unchanged; *Täuschendes Schließen* stays (its Codex line
+  explains *Schließen* as *Schlussfolgern*).
+- Example 20's `{node}` in the result line was not used: when no node qualifies the line would
+  show the placeholder; the generated *Erworben: {node}* above it names the node.
+
+### 9.4 For S6.P4 (the code half of pass II)
+
+The punch list in `PROGRESS.md` (*From D6.11 (2/2b)*) holds the items; each has its strings
+written: (1) option-level `flags` named like `set_flag`; (2) the story roll and no *no other
+effect* on a story route; (3) `EFFECT_DESTROY_ASSETS_ALL` with the plural; (4) `UI_STATUS_BLOCKS`
+and `UI_STATUS_ENDS` in `StatusText`; (5) the Codex *Behaviours* tab; (6) generated lines under
+directive, difficulty (`UI_SETUP_START_COMPUTE`) and scenario details; (7) `INERT_FLAGS` emptied
+of `legal_standing` and `merge_path`; (8) the two hooks with numbers (`ARCH_HOOK_DISTRIBUTED`,
+`ARCH_HOOK_ESCALATION`) take `{regions}` / `{days}` from balance.

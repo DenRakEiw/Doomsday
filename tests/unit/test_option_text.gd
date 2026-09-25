@@ -110,13 +110,13 @@ func test_a_shorter_status_names_both_lengths() -> void:
 		"dauert nur %d statt %d Tage" % [option.status_days, base])
 
 
-func test_a_roll_reads_as_a_risk_with_its_chance() -> void:
+func test_a_roll_reads_as_a_chance_with_its_percentage() -> void:
 	TranslationServer.set_locale("en")
 	var sim: Simulation = _sim()
 	var option: EventOptionDef = sim.db.event(CLUSTER).option("seed")
 	assert_false(option.chance.is_empty(), "the fixture: reaching a neighbour is a gamble")
 	assert_string_contains(_line(sim, CLUSTER, "seed"),
-		"Risk %s: " % Format.percent(option.chance[0].p))
+		"%s chance: " % Format.percent(option.chance[0].p))
 
 
 func test_a_free_answer_with_no_effect_says_nothing_happens() -> void:

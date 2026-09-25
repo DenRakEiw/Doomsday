@@ -1287,10 +1287,12 @@ at stake), what you buy (tech effect sentences, statuses, abilities, directives,
 architectures, scenarios), the flavour check (result lines, tech flavour, Codex, verdicts; B2/B5
 failures only). The read-through in the running game of §5.3 item 5.
 **Done when:** every card passes the A8 test in the read-through, both languages; lint, caps and
-`tools/test.sh` green.
+`tools/test.sh` green. *Done 2026-09-26 (`plain-language.md` §9; the read-through ran headless).*
 
 ### S6.P4 — Punch list from D6.11 (2/2b) **[O]** *(skip if empty)* · **Read first:** `PROGRESS.md` *Punch list for Opus*
-Whatever the read-through of 2/2b found that is code, not text.
+Whatever the read-through of 2/2b found that is code, not text: `PROGRESS.md` *From D6.11 (2/2b)*,
+items 1–8 (`plain-language.md` §9.4; the strings are written). Take the look in the running game
+and the overflow screenshots of §5.3 item 4 that 2/2b could not (German at 150 %, 400 px).
 **Done when:** each item has its test; `tools/test.sh` green.
 
 ### D6.9c — Decision-model backend (TypeSafe Jev) **[F]** · *(user, 2026-09-25)* · **Read first:** `PROGRESS.md` *Decisions* 2026-09-25 (Jev) · `benchmark.md` §4, §6.1, §7.3, §8, §9, §10.2–§10.3, §11.5, §16.3–§16.4 · TypeSafe's API documentation, read on the day
