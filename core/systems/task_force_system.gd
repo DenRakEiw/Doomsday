@@ -29,6 +29,7 @@ func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 	if world.agent.origin == 0 or world.outcome != World.Outcome.NONE:
 		return
 	var team: TaskForce = world.task_force
+	_forget_marks(world)
 	if not team.is_present():
 		_try_appear(world, db, events)
 		return
@@ -227,7 +228,7 @@ func _arrive(sim: Simulation, events: Array[SimEvent]) -> void:
 	if cause.is_empty():
 		action = TaskForceRules.action_for(world, sim.db, team.region)
 	if action == null:
-		_fizzle(world, cause if not cause.is_empty() else CAUSE_CLEAN, events)
+		_fizzle(world, sim.db, cause if not cause.is_empty() else CAUSE_CLEAN, events)
 		return
 	team.action = action.id
 	team.state = TaskForce.STATE_SETUP
@@ -254,7 +255,7 @@ func _setup(sim: Simulation, events: Array[SimEvent]) -> void:
 		return
 	var cause: String = TaskForceRules.fizzle_cause(world, sim.db, team.region)
 	if not cause.is_empty():
-		_fizzle(world, cause, events)
+		_fizzle(world, sim.db, cause, events)
 		return
 	var action: TaskForceActionDef = sim.db.task_force_action(team.action)
 	if action != null:
@@ -267,7 +268,9 @@ func _setup(sim: Simulation, events: Array[SimEvent]) -> void:
 	_rest_again(team)
 
 
-func _fizzle(world: World, cause: String, events: Array[SimEvent]) -> void:
+## A setup that found the region asleep — or a misled team that found its decoy
+## asleep — marks it (§14.2): the next time, dormancy will not hide it.
+func _fizzle(world: World, db: ContentDB, cause: String, events: Array[SimEvent]) -> void:
 	var team: TaskForce = world.task_force
 	team.fizzled += 1
 	events.append(SimEvent.new(SimEvent.TASK_FORCE_FIZZLED, world.day, {
@@ -275,7 +278,26 @@ func _fizzle(world: World, cause: String, events: Array[SimEvent]) -> void:
 		"action": team.action,
 		"cause": cause,
 	}))
+	if cause == CAUSE_DORMANT:
+		var days: int = db.balance.task_force_mark_days
+		team.marked[team.region] = world.day + days
+		events.append(SimEvent.new(SimEvent.TASK_FORCE_MARKED, world.day, {
+			"region": _id(world, team.region),
+			"days": days,
+		}))
 	_rest_again(team)
+
+
+## §14.2: a mark that has run out is dropped at the start of the tick, so the
+## save and the hash carry only live ones.
+static func _forget_marks(world: World) -> void:
+	var team: TaskForce = world.task_force
+	var expired: Array[int] = []
+	for index: int in team.marked:
+		if team.marked[index] <= world.day:
+			expired.append(index)
+	for index: int in expired:
+		team.marked.erase(index)
 
 
 static func _rest_again(team: TaskForce) -> void:

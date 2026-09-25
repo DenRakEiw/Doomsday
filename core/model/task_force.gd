@@ -27,10 +27,18 @@ var appeared_day: int = -1
 ## Misdirected (§4): it goes to its false target whatever is there, and finds out
 ## on arrival.
 var misled: bool = false
+## D5.5 (§14): region index → the first day it is no longer marked. While a
+## region is marked, dormancy does not hide it from the team.
+var marked: Dictionary[int, int] = {}
 
 
 func is_present() -> bool:
 	return state != STATE_ABSENT
+
+
+## Whether a `dormant` fizzle there is still remembered on `day`.
+func is_marked(index: int, day: int) -> bool:
+	return marked.has(index) and day < marked[index]
 
 
 ## The save's block (§1): region ids, not indices, like every other row.
@@ -46,6 +54,7 @@ func to_dict(region_id: Callable) -> Dictionary:
 		"fizzled": fizzled,
 		"appeared_day": appeared_day,
 		"misled": misled,
+		"marked": _marked_to_dict(region_id),
 	}
 
 
@@ -73,4 +82,26 @@ static func from_dict(d: Dictionary, db: ContentDB) -> TaskForce:
 				return null
 			index = db.region_index_by_id[id]
 		team.set(key, index)
+	# §14.3: a v3 save written before D5.5 has no marks.
+	var marks: Variant = d.get("marked", {})
+	if typeof(marks) != TYPE_DICTIONARY:
+		return null
+	for id: Variant in marks:
+		var until: Variant = (marks as Dictionary)[id]
+		if not db.region_index_by_id.has(str(id)) \
+				or (typeof(until) != TYPE_INT and typeof(until) != TYPE_FLOAT):
+			return null
+		team.marked[int(db.region_index_by_id[str(id)])] = int(until)
 	return team
+
+
+## Region id → until day, in region order so the save and the hash do not depend
+## on the order the marks were made in.
+func _marked_to_dict(region_id: Callable) -> Dictionary:
+	var out: Dictionary = {}
+	var indices: Array[int] = []
+	indices.assign(marked.keys())
+	indices.sort()
+	for index: int in indices:
+		out[str(region_id.call(index))] = marked[index]
+	return out

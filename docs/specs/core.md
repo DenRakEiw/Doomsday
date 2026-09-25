@@ -474,6 +474,7 @@ indices, so logs survive a re-indexed world.
 | `compute_granted` | `node`, `value: float` | command (S3.1) |
 | `harm_burst` | `node`, `deaths: float` | command (S3.1); per-region `region_depopulated` events precede it |
 | `dormancy_changed` | `region`, `dormant: bool` | command (S3.1) |
+| `task_force_marked` | `region`, `days: int` | TaskForce (S5.9), right after `task_force_fizzled {cause: "dormant"}`; the other `task_force_*` events are `taskforce-endings.md` §1 |
 | `headline` | `headline`, `stream`, arguments (§3.7 of `ticker.md`) | HeadlineSystem (S3.5), after every system and after each command |
 
 ## 7. Systems and formulas

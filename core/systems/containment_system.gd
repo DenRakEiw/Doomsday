@@ -54,23 +54,28 @@ static func discovery_risk(world: World, db: ContentDB) -> Dictionary:
 
 ## What the next tick will add to one faction's track, and what it is made of
 ## (opposition.md §5.5). The terms in file order, each with its weight, value
-## and contribution; the pressure is `1 + Σ contribution`.
+## and contribution; the pressure is `1 + Σ contribution`. The weight is the one
+## that counts: the run's scenario may scale it (`scenarios.md` §8.2).
 static func containment_breakdown(world: World, db: ContentDB, faction_id: String) -> Dictionary:
 	var definition: FactionDef = db.faction(faction_id)
 	if definition == null:
 		push_error("unknown faction \"%s\"" % faction_id)
 		return {}
+	var scenario: ScenarioDef = db.scenario(world.setup.scenario)
 	var terms: Array[Dictionary] = []
 	var sum: float = 0.0
 	for term: FactionTermDef in definition.terms:
 		var value: float = term.value(world, db, faction_id)
-		var contribution: float = term.weight * value
+		var weight: float = term.weight
+		if scenario != null:
+			weight *= scenario.term_scale(faction_id, term.source)
+		var contribution: float = weight * value
 		sum += contribution
 		terms.append({
 			TERM_SOURCE: term.source,
 			TERM_TREE: term.tree,
 			TERM_KIND: term.kind,
-			TERM_WEIGHT: term.weight,
+			TERM_WEIGHT: weight,
 			TERM_VALUE: value,
 			TERM_CONTRIBUTION: contribution,
 		})

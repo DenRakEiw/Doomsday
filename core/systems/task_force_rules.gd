@@ -10,13 +10,15 @@ const STATUS_PREFIX: String = "tf_"
 const TARGET_CAPACITY: String = "containment_capacity"
 
 
-## §2.1: infected, not dark, not dormant, not hidden (capacity 0), and no action
-## of the team's still running there.
+## §2.1: infected, not dark, not dormant (unless marked, §14), not hidden
+## (capacity 0), and no action of the team's still running there.
 static func eligible(world: World, db: ContentDB, index: int) -> bool:
 	if index <= 0 or index >= world.regions.size():
 		return false
 	var region: Region = world.regions[index]
-	if region.dark or region.dormant or region.penetration <= 0.0:
+	if region.dark or region.penetration <= 0.0:
+		return false
+	if region.dormant and dormancy_hides(world, index):
 		return false
 	if world.modifiers.value(TARGET_CAPACITY, region.def) <= 0.0:
 		return false
@@ -26,13 +28,20 @@ static func eligible(world: World, db: ContentDB, index: int) -> bool:
 	return true
 
 
+## §14: whether a dormant region is hidden from the team — false while it is
+## marked. The one place the rule is asked: `eligible`, `fizzle_cause` and the
+## bots use it.
+static func dormancy_hides(world: World, index: int) -> bool:
+	return not world.task_force.is_marked(index, world.day)
+
+
 ## §1.4's fizzle causes, in the order they are asked: "" when the target still
 ## stands.
 static func fizzle_cause(world: World, db: ContentDB, index: int) -> String:
 	var region: Region = world.regions[index]
 	if region.dark:
 		return SimEvent.CAUSE_DARK
-	if region.dormant:
+	if region.dormant and dormancy_hides(world, index):
 		return TaskForceSystem.CAUSE_DORMANT
 	if region.penetration <= 0.0:
 		return TaskForceSystem.CAUSE_CLEAN

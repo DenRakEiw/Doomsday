@@ -292,9 +292,12 @@ func _answer_task_force(sim: Simulation) -> Command:
 	if team.state != TaskForce.STATE_SETUP or sim.world.regions[team.region].penetration <= 0.0:
 		return null
 	# §9: dormancy first, where the run has it — the setup then finds nothing.
-	var sleep: SetDormancyCommand = SetDormancyCommand.new(sim.db.regions[team.region].id, true)
-	if sim.can_apply(sleep).is_empty():
-		return sleep
+	# §14.5: not in a marked region, where it would hide nothing; Misdirect then.
+	if TaskForceRules.dormancy_hides(sim.world, team.region):
+		var sleep: SetDormancyCommand = SetDormancyCommand.new(sim.db.regions[team.region].id,
+			true)
+		if sim.can_apply(sleep).is_empty():
+			return sleep
 	var hops: PackedInt32Array = TaskForceRules.distances(sim.world, team.region)
 	var decoy: int = 0
 	for i: int in range(1, sim.world.regions.size()):

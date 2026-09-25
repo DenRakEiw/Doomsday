@@ -264,8 +264,10 @@ static func _finish(root: String, balance_raw: Variant, regions_raw: Variant, li
 		statuses_raw, statuses, statuses_known, errors)
 	SchemaValidator.validate_endings(root.path_join(ENDINGS_FILE), endings_raw, tech_raws,
 		statuses, abilities, strings, strings_known, errors)
+	# Scenarios after factions: a `term_scale` names a faction's term source.
 	SchemaValidator.validate_scenarios(root.path_join(SCENARIOS_FILE), scenarios_raw, regions,
-		regions_known, statuses_raw, statuses, statuses_known, strings, strings_known, errors)
+		regions_known, statuses_raw, statuses, statuses_known, strings, strings_known, errors,
+		factions_raw)
 
 	var result: ContentLoadResult = ContentLoadResult.new()
 	result.errors = errors
@@ -361,6 +363,11 @@ static func _build_scenarios(db: ContentDB, raw: Variant) -> void:
 				def.containment_at_discovery[faction_id] = float(containment[faction_id])
 		for flag: Variant in start.get("flags", []):
 			def.flags.append(str(flag))
+		# Validated: at most one entry per pair, so each is its own product.
+		for scale: Variant in e.get("term_scale", []):
+			var t: Dictionary = scale
+			def.term_scales[ScenarioDef.term_scale_key(str(t["faction"]), str(t["source"]))] = \
+				float(t["mul"])
 		db.scenarios.append(def)
 		db.scenario_by_id[def.id] = def
 
@@ -1096,6 +1103,7 @@ static func _build_balance(d: Dictionary) -> BalanceDef:
 	def.task_force_ally_warning_days = int(team["ally_warning_days"])
 	def.task_force_rest_days = int(team["rest_days"])
 	def.task_force_distance_penalty = float(team["distance_penalty"])
+	def.task_force_mark_days = int(team["mark_days"])
 	var difficulty: Dictionary = d["difficulty"]
 	def.difficulty_cost_by_control = float(difficulty["cost_by_control"])
 

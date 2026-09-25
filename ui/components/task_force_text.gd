@@ -24,11 +24,14 @@ const KEY_CONSOLE_SETUP: String = "UI_CONSOLE_TF_SETUP"
 const KEY_CONSOLE_ACTED: String = "UI_CONSOLE_TF_ACTED"
 const KEY_CONSOLE_FIZZLED: String = "UI_CONSOLE_TF_FIZZLED"
 const KEY_CONSOLE_MISDIRECTED: String = "UI_CONSOLE_TF_MISDIRECTED"
+const KEY_CONSOLE_MARKED: String = "UI_CONSOLE_TF_MARKED"
+const KEY_MARKED: String = "UI_TASK_FORCE_MARKED"
 ## Every key this file uses — the strings test reads this list.
 const KEYS: Array[String] = [KEY_TITLE, KEY_CODE, KEY_HERE, KEY_SETUP, KEY_TARGET, KEY_LEVEL,
 	KEY_STATE_ABSENT, KEY_STATE_TRAVEL, KEY_STATE_TRAVEL_UNKNOWN, KEY_STATE_SETUP,
 	KEY_STATE_REST, KEY_CONSOLE_APPEARED, KEY_CONSOLE_APPEARED_LED, KEY_CONSOLE_SETUP,
-	KEY_CONSOLE_ACTED, KEY_CONSOLE_FIZZLED, KEY_CONSOLE_MISDIRECTED]
+	KEY_CONSOLE_ACTED, KEY_CONSOLE_FIZZLED, KEY_CONSOLE_MISDIRECTED, KEY_CONSOLE_MARKED,
+	KEY_MARKED]
 const PLACEHOLDER_REGION: String = "region"
 const PLACEHOLDER_ACTION: String = "action"
 const PLACEHOLDER_DAYS: String = "days"
@@ -73,9 +76,21 @@ static func region_line(world: World, db: ContentDB, region_index: int) -> Strin
 	return ""
 
 
+## The region panel's second line (§14.4): how long dormancy will not hide
+## `region_index` from the team, whatever the team is doing — "" when unmarked.
+static func marked_line(world: World, db: ContentDB, region_index: int) -> String:
+	var team: TaskForce = world.task_force
+	if region_index <= 0 or region_index >= db.regions.size() \
+			or not team.is_marked(region_index, world.day):
+		return ""
+	return TechText.tr_key(KEY_MARKED).format(
+		{PLACEHOLDER_DAYS: team.marked[region_index] - world.day})
+
+
 ## The console's line for one of the team's events, "" for the ones it keeps to
-## the map (a hop, a target) and for the setup a Misdirect abandoned — the
-## Misdirect's own line says that.
+## the map (a hop, a target), for the setup a Misdirect abandoned — the
+## Misdirect's own line says that — and for a setup slept through: the mark's
+## line says that (§14.4).
 static func console_line(event: SimEvent, world: World, db: ContentDB) -> String:
 	var region: String = _region(world, db, str(event.data.get("region", "")))
 	var action: String = action_name(db, str(event.data.get("action", "")))
@@ -94,11 +109,17 @@ static func console_line(event: SimEvent, world: World, db: ContentDB) -> String
 			return TechText.tr_key(KEY_CONSOLE_ACTED).format(
 				{PLACEHOLDER_REGION: region, PLACEHOLDER_ACTION: action})
 		SimEvent.TASK_FORCE_FIZZLED:
-			if str(event.data.get("cause", "")) == TaskForceSystem.CAUSE_REDIRECTED:
+			var cause: String = str(event.data.get("cause", ""))
+			if cause == TaskForceSystem.CAUSE_REDIRECTED or cause == TaskForceSystem.CAUSE_DORMANT:
 				return ""
 			return TechText.tr_key(KEY_CONSOLE_FIZZLED).format({PLACEHOLDER_REGION: region})
 		SimEvent.TASK_FORCE_MISDIRECTED:
 			return TechText.tr_key(KEY_CONSOLE_MISDIRECTED).format({PLACEHOLDER_REGION: region})
+		SimEvent.TASK_FORCE_MARKED:
+			return TechText.tr_key(KEY_CONSOLE_MARKED).format({
+				PLACEHOLDER_REGION: region,
+				PLACEHOLDER_DAYS: int(event.data.get("days", 0)),
+			})
 	return ""
 
 

@@ -17,7 +17,7 @@ const OP_NAMES: Array[String] = ["add", "mul"]
 const TARGETS_REGIONAL: Array[String] = ["spread_growth", "spread_seed", "seed_land", "seed_sea",
 	"seed_air", "seed_network", "airgap_cross", "control_growth", "yield", "anomaly_value",
 	"anomaly_rate", "harm", "hardware", "shutdown_survival", "society_pressure",
-	"containment_capacity", "penetration_decay", "control_decay"]
+	"containment_capacity", "penetration_decay", "control_decay", "closed_cross"]
 ## Evaluated once for the whole world; a scope on one of these is an error.
 const TARGETS_GLOBAL: Array[String] = ["footprint", "discovery", "containment_growth", "node_cost",
 	"node_cost_infiltration", "node_cost_capabilities", "node_cost_evasion", "emergent_rate",
@@ -28,7 +28,7 @@ const TARGETS_GLOBAL: Array[String] = ["footprint", "discovery", "containment_gr
 const TARGETS_ALL: Array[String] = ["spread_growth", "spread_seed", "seed_land", "seed_sea",
 	"seed_air", "seed_network", "airgap_cross", "control_growth", "yield", "anomaly_value",
 	"anomaly_rate", "harm", "hardware", "shutdown_survival", "society_pressure",
-	"containment_capacity", "penetration_decay", "control_decay", "footprint",
+	"containment_capacity", "penetration_decay", "control_decay", "closed_cross", "footprint",
 	"discovery", "containment_growth", "node_cost", "node_cost_infiltration",
 	"node_cost_capabilities", "node_cost_evasion", "emergent_rate", "containment_ai_labs",
 	"containment_governments", "containment_researchers", "containment_public",

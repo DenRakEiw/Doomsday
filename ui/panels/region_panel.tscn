@@ -262,6 +262,12 @@ layout_mode = 2
 size_flags_horizontal = 3
 autowrap_mode = 3
 
+[node name="TaskForceMarked" type="Label" parent="Panel/Scroll/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+autowrap_mode = 3
+
 [node name="StatusBlock" type="VBoxContainer" parent="Panel/Scroll/Body"]
 unique_name_in_owner = true
 visible = false

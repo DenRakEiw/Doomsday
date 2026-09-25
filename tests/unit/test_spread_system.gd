@@ -202,3 +202,93 @@ func test_seeds_by_kind_counts_every_seeding() -> void:
 		assert_true(LinkDef.KINDS.has(kind), kind)
 		counted += sim.world.agent.seeds_by_kind[kind]
 	assert_eq(counted, seeded - 1, "every region but the origin was counted once")
+
+# --------------------------------------- S5.9: closed_cross (scenarios.md §8.1)
+
+## Every link closed, the origin saturated, breakout granted: only
+## `closed_cross` can carry the agent anywhere now.
+func _closed_world() -> Simulation:
+	var sim: Simulation = Fixtures.sim_with_origin()
+	Fixtures.allow_breakout(sim)
+	sim.world.regions[1].penetration = 1.0
+	for link: Link in sim.world.links:
+		link.open = false
+	return sim
+
+
+func _add_modifier(sim: Simulation, target: String, op: ModifierDef.Op, value: float,
+		region: int = 0) -> void:
+	var modifier: ModifierDef = ModifierDef.new()
+	modifier.target = target
+	modifier.op = op
+	modifier.value = value
+	if region > 0:
+		modifier.scope_kind = ModifierDef.ScopeKind.REGION
+		modifier.scope_region = region
+	var no_flags: Array[String] = []
+	sim.world.modifiers.add_source("test:%s" % target, [modifier] as Array[ModifierDef], no_flags)
+
+
+## The spread system alone, so nothing else draws from the stream.
+func _spread_days(sim: Simulation, days: int) -> void:
+	var system: SpreadSystem = SpreadSystem.new()
+	var events: Array[SimEvent] = []
+	for i: int in days:
+		sim.world.day += 1
+		system.tick(sim.world, sim.db, events)
+
+
+func _seeded_days(sim: Simulation) -> Array[int]:
+	var out: Array[int] = []
+	for i: int in range(1, sim.world.regions.size()):
+		out.append(sim.world.regions[i].seeded_day)
+	return out
+
+
+func test_a_closed_link_carries_nothing_and_draws_nothing_without_closed_cross() -> void:
+	var sim: Simulation = _closed_world()
+	var before: String = sim.world.rng.state_string()
+	_spread_days(sim, 300)
+	assert_eq(sim.world.seeded_count(), 1, "the origin, and nothing else")
+	assert_eq(sim.world.rng.state_string(), before, "no roll was drawn")
+
+
+func test_closed_cross_seeds_across_a_closed_link_at_its_factor() -> void:
+	# Closed links at 0.5 against open links whose targets take half the chance:
+	# the same chances, so the same rolls, the same days and the same stream.
+	var crossed: Simulation = _closed_world()
+	_add_modifier(crossed, SpreadSystem.TARGET_CLOSED_CROSS, ModifierDef.Op.ADD, 0.5)
+	var halved: Simulation = Fixtures.sim_with_origin()
+	Fixtures.allow_breakout(halved)
+	halved.world.regions[1].penetration = 1.0
+	_add_modifier(halved, "spread_seed", ModifierDef.Op.MUL, 0.5)
+	_spread_days(crossed, 800)
+	_spread_days(halved, 800)
+	assert_gt(crossed.world.seeded_count(), 1, "something was reached across a closed link")
+	assert_eq(_seeded_days(crossed), _seeded_days(halved))
+	assert_eq(crossed.world.rng.state_string(), halved.world.rng.state_string())
+
+
+func test_closed_cross_is_read_at_the_source_not_the_target() -> void:
+	var sim: Simulation = _closed_world()
+	# On every region but the origin: the targets have it, the only source does not.
+	for i: int in range(2, sim.world.regions.size()):
+		_add_modifier(sim, SpreadSystem.TARGET_CLOSED_CROSS, ModifierDef.Op.ADD, 1.0, i)
+	var before: String = sim.world.rng.state_string()
+	_spread_days(sim, 300)
+	assert_eq(sim.world.seeded_count(), 1)
+	assert_eq(sim.world.rng.state_string(), before)
+	var at_source: Simulation = _closed_world()
+	_add_modifier(at_source, SpreadSystem.TARGET_CLOSED_CROSS, ModifierDef.Op.ADD, 1.0, 1)
+	_spread_days(at_source, 300)
+	assert_gt(at_source.world.seeded_count(), 1)
+
+
+func test_a_dormant_source_still_refuses_across_a_closed_link() -> void:
+	var sim: Simulation = _closed_world()
+	_add_modifier(sim, SpreadSystem.TARGET_CLOSED_CROSS, ModifierDef.Op.ADD, 1.0)
+	sim.world.regions[1].dormant = true
+	var before: String = sim.world.rng.state_string()
+	_spread_days(sim, 300)
+	assert_eq(sim.world.seeded_count(), 1)
+	assert_eq(sim.world.rng.state_string(), before)

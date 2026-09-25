@@ -72,7 +72,8 @@ const COUNTER_MOVE_DROPPED: String = "counter_move_dropped"
 const SOCIETY_STAGE_CHANGED: String = "society_stage_changed"
 ## The Response Task Force (`taskforce-endings.md` §1): it formed; its funding
 ## rose; it chose a target; it moved a hop; it set up an action; it acted; it found
-## nothing; it was sent somewhere else.
+## nothing; it was sent somewhere else; it found a region asleep and will
+## remember it for `days` (§14).
 const TASK_FORCE_APPEARED: String = "task_force_appeared"
 const TASK_FORCE_LEVEL: String = "task_force_level"
 const TASK_FORCE_TARGETED: String = "task_force_targeted"
@@ -81,6 +82,7 @@ const TASK_FORCE_SETUP: String = "task_force_setup"
 const TASK_FORCE_ACTED: String = "task_force_acted"
 const TASK_FORCE_FIZZLED: String = "task_force_fizzled"
 const TASK_FORCE_MISDIRECTED: String = "task_force_misdirected"
+const TASK_FORCE_MARKED: String = "task_force_marked"
 ## What the world says about the rest of them (ticker.md §3.7). Emitted by
 ## `HeadlineSystem` after the systems, never a trigger for another headline.
 const HEADLINE: String = "headline"
@@ -97,7 +99,7 @@ const TYPES_ALL: Array[String] = [ORIGIN_CHOSEN, NODE_PURCHASED, ANOMALY_COLLECT
 	THREAT_LEADER_CHANGED, FUNDING_RESET, COUNTER_MOVE_CANCELLED, COUNTER_MOVE_PREPARED,
 	COUNTER_MOVE_DROPPED, SOCIETY_STAGE_CHANGED, TASK_FORCE_APPEARED, TASK_FORCE_LEVEL,
 	TASK_FORCE_TARGETED, TASK_FORCE_MOVED, TASK_FORCE_SETUP, TASK_FORCE_ACTED,
-	TASK_FORCE_FIZZLED, TASK_FORCE_MISDIRECTED]
+	TASK_FORCE_FIZZLED, TASK_FORCE_MISDIRECTED, TASK_FORCE_MARKED]
 
 ## Fields of a `HEADLINE` event that are not arguments of its text.
 const FIELD_HEADLINE: String = "headline"

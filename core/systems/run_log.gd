@@ -38,6 +38,7 @@ const KEPT: Dictionary[String, Array] = {
 	"task_force_acted": ["region", "action"],
 	"task_force_fizzled": ["region", "cause"],
 	"task_force_misdirected": ["region"],
+	"task_force_marked": ["region", "days"],
 }
 ## The kept keys whose values are floats, written as bits and read back as such.
 const FLOAT_KEYS: Array[String] = ["threshold", "deaths"]

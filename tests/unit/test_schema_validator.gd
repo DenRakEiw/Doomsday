@@ -336,6 +336,27 @@ func test_containment_thresholds_must_ascend() -> void:
 	_expect(content, BALANCE, "containment.thresholds[1]", "ascend")
 
 
+## S5.9 (`taskforce-endings.md` §14.3): the mark's length is required, whole, ≥ 1.
+func test_the_task_force_mark_days_are_required_and_whole() -> void:
+	var cases: Array[Array] = [[null, "missing required field"], [0, "outside"],
+		[2.5, "whole number"]]
+	for case: Array in cases:
+		var content: Dictionary = Fixtures.raw_content()
+		var team: Dictionary = content["balance"]["task_force"]
+		if typeof(case[0]) == TYPE_NIL:
+			team.erase("mark_days")
+		else:
+			team["mark_days"] = case[0]
+		_expect(content, BALANCE, "task_force.mark_days", str(case[1]))
+
+
+## S5.9 (`scenarios.md` §8.1): `closed_cross` is a regional target, base 0, 0…1.
+func test_closed_cross_is_a_known_regional_target_with_its_base_and_clamp() -> void:
+	assert_true(ModifierDef.TARGETS_REGIONAL.has(SpreadSystem.TARGET_CLOSED_CROSS))
+	assert_eq(ModifierStack.CLAMPS[SpreadSystem.TARGET_CLOSED_CROSS], [0.0, 1.0])
+	assert_eq(Fixtures.db().balance.stats[SpreadSystem.TARGET_CLOSED_CROSS], 0.0)
+
+
 func test_an_unknown_milestone_kind_is_rejected() -> void:
 	var content: Dictionary = Fixtures.raw_content()
 	var milestones: Array = content["balance"]["milestones"]

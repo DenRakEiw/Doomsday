@@ -139,13 +139,14 @@ static func validate_balance(file: String, raw: Variant, errors: Array[Validatio
 		}, ["hold_regions"], file, errors)
 
 
-## `taskforce-endings.md` §8: the team's marks, funding steps and working days.
+## `taskforce-endings.md` §8: the team's marks, funding steps and working days;
+## §14: how long a slept-through setup is remembered.
 static func _balance_task_force(raw: Variant, file: String, errors: Array[ValidationError]) -> void:
 	var path: String = "task_force"
 	_balance_block(raw, path, {
 		"appear_at": [0.0, 1.0], "appear_at_led": [0.0, 1.0], "distance_penalty": [0.0, INF],
 	}, ["led_level_bonus", "hop_days", "hop_days_min", "setup_days", "ally_warning_days",
-		"rest_days"], file, errors, ["level_thresholds"])
+		"rest_days", "mark_days"], file, errors, ["level_thresholds"])
 	if typeof(raw) == TYPE_DICTIONARY and (raw as Dictionary).has("level_thresholds"):
 		_float_list((raw as Dictionary)["level_thresholds"], file,
 			_join(path, "level_thresholds"), errors, -1, 0.0, 1.0, true, true)
@@ -3311,12 +3312,14 @@ static func validate_directives(file: String, raw: Variant,
 ## `scenarios.json` (`docs/specs/scenarios.md` §2). Optional. With it: ids
 ## unique; an unlock of `runs_completed` alone; a start `compute` ≥ 0; every
 ## start status a world status; every faction id known, each value in (0, 1);
-## flags valid ids; the four strings of each scenario in both languages.
+## flags valid ids; the four strings of each scenario in both languages; a
+## `term_scale` (§8.2) naming a term source its faction has in `factions_raw`
+## (not checked when that is not a dictionary).
 static func validate_scenarios(file: String, raw: Variant,
 		regions: Dictionary[String, String], regions_known: bool, statuses_raw: Variant,
 		statuses: Dictionary[String, int], statuses_known: bool,
 		strings: Dictionary[String, bool], strings_known: bool,
-		errors: Array[ValidationError]) -> void:
+		errors: Array[ValidationError], factions_raw: Variant = null) -> void:
 	if typeof(raw) != TYPE_DICTIONARY:
 		return
 	var d: Dictionary = raw
@@ -3358,11 +3361,67 @@ static func validate_scenarios(file: String, raw: Variant,
 		if e.has("start") and _is_object(e["start"], file, _join(path, "start"), errors):
 			_scenario_start(e["start"], file, _join(path, "start"), continents, regions_known,
 				world_statuses, statuses, statuses_known, errors)
+		if e.has("term_scale"):
+			_scenario_term_scale(e["term_scale"], file, _join(path, "term_scale"), factions_raw,
+				errors)
 		if strings_known:
 			for key: String in ScenarioDef.string_keys(id):
 				if not strings.has(key):
 					_add(errors, file, _join(path, "id"),
 						"no string \"%s\" with both an en and a de cell" % key)
+
+
+## §8.2: each entry exactly `faction`, `source`, `mul`; one of the four
+## factions; a source that faction has a term of; `mul` finite and > 0; a pair
+## at most once.
+static func _scenario_term_scale(raw: Variant, file: String, path: String,
+		factions_raw: Variant, errors: Array[ValidationError]) -> void:
+	if not _is_list(raw, file, path, errors):
+		return
+	var sources: Dictionary[String, bool] = _faction_term_sources(factions_raw)
+	var seen: Dictionary[String, bool] = {}
+	var list: Array = raw
+	for i: int in list.size():
+		var entry_path: String = "%s[%d]" % [path, i]
+		if not _is_object(list[i], file, entry_path, errors):
+			continue
+		var entry: Dictionary = list[i]
+		_check_keys(entry, ScenarioDef.TERM_SCALE_KEYS, file, entry_path, errors)
+		var faction_id: String = _id(entry, "faction", file, entry_path, errors)
+		var source: String = _id(entry, "source", file, entry_path, errors)
+		_number(entry, "mul", file, entry_path, errors, 0.0, INF, true)
+		if faction_id.is_empty() or source.is_empty():
+			continue
+		if not Faction.FACTION_IDS.has(faction_id):
+			_add(errors, file, _join(entry_path, "faction"), "unknown faction \"%s\"" % faction_id)
+			continue
+		var key: String = ScenarioDef.term_scale_key(faction_id, source)
+		if typeof(factions_raw) == TYPE_DICTIONARY and not sources.has(key):
+			_add(errors, file, _join(entry_path, "source"),
+				"faction \"%s\" has no term of source \"%s\"" % [faction_id, source])
+		if seen.has(key):
+			_add(errors, file, entry_path,
+				"\"%s\" / \"%s\" is scaled twice" % [faction_id, source])
+		seen[key] = true
+
+
+## `"<faction>/<source>"` for every term of a raw `factions.json`; empty for
+## anything that is not one.
+static func _faction_term_sources(raw: Variant) -> Dictionary[String, bool]:
+	var out: Dictionary[String, bool] = {}
+	if typeof(raw) != TYPE_DICTIONARY \
+			or typeof((raw as Dictionary).get(FactionDef.ROOT_KEY)) != TYPE_ARRAY:
+		return out
+	for faction: Variant in (raw as Dictionary)[FactionDef.ROOT_KEY]:
+		if typeof(faction) != TYPE_DICTIONARY \
+				or typeof((faction as Dictionary).get("terms")) != TYPE_ARRAY:
+			continue
+		var faction_id: String = str((faction as Dictionary).get("id", ""))
+		for term: Variant in (faction as Dictionary)["terms"]:
+			if typeof(term) == TYPE_DICTIONARY:
+				out[ScenarioDef.term_scale_key(faction_id,
+					str((term as Dictionary).get("source", "")))] = true
+	return out
 
 
 static func _scenario_start(raw: Dictionary, file: String, path: String,

@@ -163,6 +163,7 @@ const SOCIETY_ACCENT_STAGE: int = 2
 @onready var _task_force_row: Control = %TaskForceRow
 @onready var _task_force_chip: Chip = %TaskForceChip
 @onready var _task_force_line: Label = %TaskForceLine
+@onready var _task_force_marked: Label = %TaskForceMarked
 @onready var _status_block: Control = %StatusBlock
 @onready var _status_title: Label = %StatusTitle
 @onready var _statuses: VBoxContainer = %Statuses
@@ -402,6 +403,11 @@ func society_block() -> Control:
 ## `taskforce-endings.md` §9: the team stands here, sets up here, or — when the
 ## player may see it — is on its way here.
 func _refresh_task_force(world: World) -> void:
+	# §14.4: the mark shows whatever the team is doing — the player needs it
+	# before choosing dormancy.
+	var marked: String = TaskForceText.marked_line(world, Game.db, _index)
+	_task_force_marked.visible = not marked.is_empty()
+	_task_force_marked.text = marked
 	var line: String = TaskForceText.region_line(world, Game.db, _index)
 	_task_force_row.visible = not line.is_empty()
 	if line.is_empty():

@@ -207,6 +207,12 @@ are the ones that make them live.
 | `penetration_decay` | regional | 0 | 0…1 | live | share of penetration the region loses each day, reduced by `shutdown_survival` |
 | `control_decay` | regional | 0 | 0…1 | live | control lost each day, before the day's gain |
 
+**Targets v4** (D5.5, `scenarios.md` §8.1).
+
+| Target | Kind | Base | Clamp | System | Meaning |
+| --- | --- | --- | --- | --- | --- |
+| `closed_cross` | regional | 0 | 0…1 | live (S5.9) | factor on seeding across a **closed** link, read at the **source**; 0 = impossible, and then no roll is drawn |
+
 An `add` may be negative — the clamp decides what comes of it; only a `mul` of 0 or less is an
 error.
 
@@ -347,6 +353,7 @@ as ≥ 0 unless stated. The meaning of each constant is defined by the formula t
 | `task_force.level_thresholds` | [float] | ascending, each in (0, 1): the containment at which the team's level rises to 2 and 3; it never falls (S5.5) |
 | `task_force.led_level_bonus` · `.hop_days` · `.hop_days_min` · `.setup_days` · `.ally_warning_days` · `.rest_days` | int | ≥ 0 (the day counts ≥ 1): the led team's extra level; days per hop (−1 per level above 1, −1 when led, never under the minimum); the setup, three days longer for the Researcher's ally; the rest between jobs (S5.5) |
 | `task_force.distance_penalty` | float | ≥ 0: a candidate target's value is divided by `1 + distance_penalty × hops` (S5.5) |
+| `task_force.mark_days` | int | ≥ 1: how long a setup that fizzled `dormant` marks its region; while marked, dormancy does not hide it from the team (`taskforce-endings.md` §14, S5.9) |
 | `distributed.floor` · `.start_penetration` · `.hold_regions` | float · float · int | Open Weights: the penetration a wipe cannot go under while the agent holds `hold_regions` regions, and the start's penetration in its six regions (S5.2) |
 
 Milestone: `{"id": <id>, "kind": <kind>, "threshold": <number>, "reward": <float>}`, ids unique.
@@ -630,8 +637,12 @@ shows every outcome's default line and no epilogue. `{"version": 1, "epilogue_ma
 
 The scenarios (`docs/specs/scenarios.md` §2). **Optional**: a root without it has none.
 `{"version": 1, "unlock": {"runs_completed": int ≥ 0}, "scenarios": [{"id", "modifiers",
-"start"}]}` — ids unique; modifiers as §4.1, active under `scenario:<id>` after the loadout's and
-before the tier's. `start` takes, each optional:
+"start", "term_scale"}]}` — ids unique; modifiers as §4.1, active under `scenario:<id>` after the
+loadout's and before the tier's. `term_scale` (optional, `scenarios.md` §8.2):
+`[{"faction", "source", "mul"}]` — each entry exactly these three keys; `faction` one of the four;
+`source` a source that faction has a term of in `factions.json`; `mul` finite and > 0; a pair at most
+once. For the whole run, every term of that source counts `mul` times its weight for that faction
+(and the containment breakdown reports the scaled weight). `start` takes, each optional:
 
 | Field | Rule |
 | --- | --- |

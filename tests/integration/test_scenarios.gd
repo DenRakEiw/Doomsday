@@ -371,12 +371,14 @@ func _errors_for(mutate: Callable) -> String:
 	mutate.call(raw)
 	var statuses_raw: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
 		"res://data/statuses.json"))
+	var factions_raw: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		"res://data/factions.json"))
 	var statuses: Dictionary[String, int] = {DISCONNECTED: 1, "lockdown": 1, "harvested": 1}
 	var errors: Array[ValidationError] = []
 	var regions: Dictionary[String, String] = {}
 	var strings: Dictionary[String, bool] = {}
 	SchemaValidator.validate_scenarios("scenarios.json", raw, regions, false, statuses_raw,
-		statuses, true, strings, false, errors)
+		statuses, true, strings, false, errors, factions_raw)
 	var text: String = ""
 	for error: ValidationError in errors:
 		text += str(error) + "\n"
@@ -422,3 +424,86 @@ func test_a_duplicate_id_and_an_unknown_start_field_are_refused() -> void:
 		_start(raw, 2)["hook"] = "anything")
 	assert_string_contains(text, "duplicate scenario")
 	assert_string_contains(text, "hook")
+
+
+# ------------------------------------------------ S5.9: the levers (§8)
+
+
+func _term_scale(raw: Dictionary) -> Array:
+	return ((raw["scenarios"] as Array)[2] as Dictionary)["term_scale"]
+
+
+func test_term_scale_refuses_an_unknown_faction() -> void:
+	var text: String = _errors_for(func(raw: Dictionary) -> void:
+		(_term_scale(raw)[0] as Dictionary)["faction"] = "nobody")
+	assert_string_contains(text, "unknown faction")
+
+
+func test_term_scale_refuses_a_source_the_faction_does_not_have() -> void:
+	var text: String = _errors_for(func(raw: Dictionary) -> void:
+		(_term_scale(raw)[0] as Dictionary)["source"] = "harm")
+	assert_string_contains(text, "has no term of source")
+
+
+func test_term_scale_refuses_a_mul_of_zero_or_less() -> void:
+	var text: String = _errors_for(func(raw: Dictionary) -> void:
+		(_term_scale(raw)[0] as Dictionary)["mul"] = 0.0)
+	assert_string_contains(text, "mul")
+
+
+func test_term_scale_refuses_a_repeated_pair_and_a_fourth_key() -> void:
+	var text: String = _errors_for(func(raw: Dictionary) -> void:
+		var list: Array = _term_scale(raw)
+		list.append((list[0] as Dictionary).duplicate())
+		(list[1] as Dictionary)["why"] = "because")
+	assert_string_contains(text, "scaled twice")
+	assert_string_contains(text, "why")
+
+
+func test_the_inheritance_scales_exactly_its_two_terms() -> void:
+	var def: ScenarioDef = _db.scenario(INHERITANCE)
+	assert_eq(def.term_scale(Faction.ID_PUBLIC_SENTIMENT, FactionTermDef.SOURCE_DEATHS_SHARE),
+		2.0)
+	assert_eq(def.term_scale(Faction.ID_GOVERNMENTS, FactionTermDef.SOURCE_HARM), 2.0)
+	assert_eq(def.term_scale(Faction.ID_GOVERNMENTS, FactionTermDef.SOURCE_SHARE), 1.0)
+	assert_eq(def.term_scale(Faction.ID_PUBLIC_SENTIMENT, FactionTermDef.SOURCE_HARM), 1.0)
+	assert_eq(_db.scenario(SUCCESSOR).term_scale(Faction.ID_PUBLIC_SENTIMENT,
+		FactionTermDef.SOURCE_DEATHS_SHARE), 1.0, "nothing outside the scenario")
+
+
+func test_term_scale_doubles_the_weight_and_the_gain_it_names() -> void:
+	var sim: Simulation = _started(INHERITANCE)
+	# Tests may set state: deaths, so the doubled term has something to read.
+	sim.world.regions[sim.world.agent.origin].deaths = _db.population_total * 0.01
+	var scaled: Dictionary = sim.containment_breakdown(Faction.ID_PUBLIC_SENTIMENT)
+	sim.world.setup.scenario = ""
+	var plain: Dictionary = sim.containment_breakdown(Faction.ID_PUBLIC_SENTIMENT)
+	var terms: Array = scaled[ContainmentSystem.TERMS]
+	var plain_terms: Array = plain[ContainmentSystem.TERMS]
+	var extra: float = 0.0
+	for i: int in terms.size():
+		var term: Dictionary = terms[i]
+		var base: Dictionary = plain_terms[i]
+		var doubled: bool = term[ContainmentSystem.TERM_SOURCE] \
+			== FactionTermDef.SOURCE_DEATHS_SHARE
+		var factor: float = 2.0 if doubled else 1.0
+		assert_almost_eq(float(term[ContainmentSystem.TERM_WEIGHT]),
+			float(base[ContainmentSystem.TERM_WEIGHT]) * factor, 1e-12, str(term))
+		if doubled:
+			assert_gt(float(base[ContainmentSystem.TERM_CONTRIBUTION]), 0.0)
+			extra = float(base[ContainmentSystem.TERM_CONTRIBUTION])
+	assert_almost_eq(float(scaled[ContainmentSystem.PRESSURE]),
+		float(plain[ContainmentSystem.PRESSURE]) + extra, 1e-12)
+	assert_gt(float(scaled[ContainmentSystem.GAIN]), float(plain[ContainmentSystem.GAIN]))
+
+
+func test_airgap_earths_closed_cross_is_live_only_where_a_fleet_stands() -> void:
+	var sim: Simulation = _started(AIRGAP)
+	var origin: int = sim.world.agent.origin
+	assert_eq(sim.stat(SpreadSystem.TARGET_CLOSED_CROSS, origin), 0.0, "no fleet, no crossing")
+	sim.world.set_assets(origin, AssetDef.KIND_FLEET, 1)
+	assert_eq(sim.stat(SpreadSystem.TARGET_CLOSED_CROSS, origin), 0.5)
+	var plain: Simulation = _started("")
+	plain.world.set_assets(origin, AssetDef.KIND_FLEET, 1)
+	assert_eq(plain.stat(SpreadSystem.TARGET_CLOSED_CROSS, origin), 0.0,
+		"a fleet crosses nothing outside the scenario")

@@ -231,7 +231,8 @@ func _on_sim_event(event: SimEvent) -> void:
 			}))
 		SimEvent.SOCIETY_STAGE_CHANGED:
 			_society_changed(event)
-		SimEvent.TASK_FORCE_APPEARED, SimEvent.TASK_FORCE_SETUP, SimEvent.TASK_FORCE_ACTED, 				SimEvent.TASK_FORCE_FIZZLED, SimEvent.TASK_FORCE_MISDIRECTED:
+		SimEvent.TASK_FORCE_APPEARED, SimEvent.TASK_FORCE_SETUP, SimEvent.TASK_FORCE_ACTED, 				SimEvent.TASK_FORCE_FIZZLED, SimEvent.TASK_FORCE_MISDIRECTED, \
+				SimEvent.TASK_FORCE_MARKED:
 			push(TaskForceText.console_line(event, Game.sim.world, Game.db))
 		SimEvent.REGION_WIPED:
 			var from: float = float(event.data.get("from", 0.0))

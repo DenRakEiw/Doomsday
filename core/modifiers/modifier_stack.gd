@@ -42,6 +42,9 @@ const CLAMPS: Dictionary[String, Array] = {
 	"containment_capacity": [0.0, 20.0],
 	"penetration_decay": [0.0, 1.0],
 	"control_decay": [0.0, 1.0],
+	# `scenarios.md` §8.1: a factor on seeding across a closed link, read at the
+	# source; 0 = a closed link carries nothing.
+	"closed_cross": [0.0, 1.0],
 	"node_cost_infiltration": [0.1, 10.0],
 	"node_cost_capabilities": [0.1, 10.0],
 	"node_cost_evasion": [0.1, 10.0],

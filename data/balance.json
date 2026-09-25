@@ -31,7 +31,8 @@
 		"containment_public": 1.0,
 		"containment_capacity": 1.0,
 		"penetration_decay": 0.0,
-		"control_decay": 0.0
+		"control_decay": 0.0,
+		"closed_cross": 0.0
 	},
 	"population_tiers": [5000000, 30000000, 100000000, 300000000],
 	"spread": {
@@ -151,5 +152,5 @@
 	"escalation": {"every_days": 60, "hold_days": 60},
 	"distributed": {"floor": 0.05, "start_penetration": 0.05, "hold_regions": 10},
 	"difficulty": {"cost_by_control": 1.0},
-	"task_force": {"appear_at": 0.5, "appear_at_led": 0.4, "level_thresholds": [0.65, 0.8], "led_level_bonus": 1, "hop_days": 6, "hop_days_min": 3, "setup_days": 5, "ally_warning_days": 3, "rest_days": 8, "distance_penalty": 0.25}
+	"task_force": {"appear_at": 0.5, "appear_at_led": 0.4, "level_thresholds": [0.65, 0.8], "led_level_bonus": 1, "hop_days": 6, "hop_days_min": 3, "setup_days": 5, "ally_warning_days": 3, "rest_days": 8, "distance_penalty": 0.25, "mark_days": 40}
 }

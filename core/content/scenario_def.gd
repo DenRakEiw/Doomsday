@@ -8,10 +8,12 @@ extends RefCounted
 ## names it, "" is none.
 
 ## The keys a `scenarios.json` entry allows, and those of its `start` block.
-const KEYS: Array[String] = ["id", "modifiers", "start"]
+const KEYS: Array[String] = ["id", "modifiers", "start", "term_scale"]
 const START_KEYS: Array[String] = ["compute", "origin_eligible", "statuses",
 	"containment_at_discovery", "flags"]
 const START_STATUS_KEYS: Array[String] = ["status", "eligible"]
+## The keys of one `term_scale` entry (§8.2), all three required.
+const TERM_SCALE_KEYS: Array[String] = ["faction", "source", "mul"]
 ## The root keys of `scenarios.json`.
 const ROOT_KEY: String = "scenarios"
 const UNLOCK_KEY: String = "unlock"
@@ -36,6 +38,9 @@ var start_statuses: Array[ScenarioStatusDef] = []
 var containment_at_discovery: Dictionary[String, float] = {}
 ## Story flags set at the origin.
 var flags: Array[String] = []
+## §8.2 (D5.5): `"<faction id>/<term source>"` → the factor on the weight of every
+## term of that source the faction has, for the whole run.
+var term_scales: Dictionary[String, float] = {}
 
 
 static func name_key(scenario_id: String) -> String:
@@ -64,3 +69,13 @@ static func string_keys(scenario_id: String) -> Array[String]:
 ## The source a start status of this scenario runs under.
 static func status_source(scenario_id: String) -> String:
 	return Status.source_for(SOURCE_PREFIX, scenario_id)
+
+
+## §8.2: how many times its weight a term of `source` counts for `faction_id`
+## in this scenario — 1.0 when the scenario scales nothing there.
+func term_scale(faction_id: String, source: String) -> float:
+	return float(term_scales.get(term_scale_key(faction_id, source), 1.0))
+
+
+static func term_scale_key(faction_id: String, source: String) -> String:
+	return "%s/%s" % [faction_id, source]

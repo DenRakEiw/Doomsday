@@ -64,9 +64,11 @@ static func text(entry: RunLogEntry, db: ContentDB, verdict: String = "") -> Str
 		SimEvent.EVENT_OPENED:
 			if str(d.get("region", "")).is_empty():
 				key += GLOBAL_SUFFIX
-		SimEvent.TASK_FORCE_APPEARED, SimEvent.TASK_FORCE_ACTED, SimEvent.TASK_FORCE_FIZZLED, 				SimEvent.TASK_FORCE_MISDIRECTED:
+		SimEvent.TASK_FORCE_APPEARED, SimEvent.TASK_FORCE_ACTED, SimEvent.TASK_FORCE_FIZZLED, 				SimEvent.TASK_FORCE_MISDIRECTED, \
+				SimEvent.TASK_FORCE_MARKED:
 			key = KEY_TASK_FORCE_PREFIX + entry.type.trim_prefix(TASK_FORCE_PREFIX).to_upper()
 			args["action"] = TaskForceText.action_name(db, str(d.get("action", "")))
+			args["days"] = str(int(d.get("days", 0)))
 	var def: String = str(d.get("def", ""))
 	args["region"] = _named("REGION_%s", str(d.get("region", "")))
 	args["node"] = _named("TECH_%s_NAME", str(d.get("node", "")))

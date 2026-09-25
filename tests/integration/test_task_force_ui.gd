@@ -187,7 +187,48 @@ func test_the_containment_panel_has_the_teams_row_after_discovery() -> void:
 	assert_string_contains(line, tr("UI_TASK_FORCE_STATE_TRAVEL_UNKNOWN"))
 
 
+## S5.9 (§14.4): the mark's line, with the days left, whatever the team does.
+func test_the_marked_line_counts_the_days_left_and_is_empty_unmarked() -> void:
+	var world: World = Game.sim.world
+	assert_eq(TaskForceText.marked_line(world, Game.db, _index_of(ORIGIN)), "")
+	world.task_force.marked[_index_of(ORIGIN)] = world.day + 12
+	assert_eq(TaskForceText.marked_line(world, Game.db, _index_of(ORIGIN)),
+		tr("UI_TASK_FORCE_MARKED").format({"days": 12}))
+	assert_eq(TaskForceText.marked_line(world, Game.db, _index_of(NEIGHBOUR)), "")
+	world.day += 12
+	assert_eq(TaskForceText.marked_line(world, Game.db, _index_of(ORIGIN)), "", "run out")
+
+
+func test_the_region_panel_shows_the_mark_with_no_team_there() -> void:
+	var world: World = Game.sim.world
+	world.task_force.marked[_index_of(ORIGIN)] = world.day + 30
+	var panel: Control = _session.get_node("PanelLayer/RegionPanel") as Control
+	EventBus.region_selected.emit(_index_of(ORIGIN))
+	panel.call("refresh")
+	assert_false((panel.get_node("%TaskForceRow") as Control).visible, "the team is absent")
+	var marked: Label = panel.get_node("%TaskForceMarked") as Label
+	assert_true(marked.visible)
+	assert_eq(marked.text, tr("UI_TASK_FORCE_MARKED").format({"days": 30}))
+	world.task_force.marked.clear()
+	panel.call("refresh")
+	assert_false(marked.visible)
+
+
 # ------------------------------------------------------ the console and the log
+
+
+func test_a_setup_slept_through_speaks_once_through_the_mark() -> void:
+	var fizzled: SimEvent = SimEvent.new(SimEvent.TASK_FORCE_FIZZLED, 1,
+		{"region": ORIGIN, "action": "grid_down", "cause": TaskForceSystem.CAUSE_DORMANT})
+	assert_eq(TaskForceText.console_line(fizzled, Game.sim.world, Game.db), "")
+	var marked: SimEvent = SimEvent.new(SimEvent.TASK_FORCE_MARKED, 1,
+		{"region": ORIGIN, "days": 40})
+	assert_eq(TaskForceText.console_line(marked, Game.sim.world, Game.db),
+		tr("UI_CONSOLE_TF_MARKED").format({"region": tr("REGION_USA"), "days": 40}))
+	var clean: SimEvent = SimEvent.new(SimEvent.TASK_FORCE_FIZZLED, 1,
+		{"region": ORIGIN, "action": "grid_down", "cause": TaskForceSystem.CAUSE_CLEAN})
+	assert_ne(TaskForceText.console_line(clean, Game.sim.world, Game.db), "",
+		"any other fizzle still has its line")
 
 
 func _console() -> Label:

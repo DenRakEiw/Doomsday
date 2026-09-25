@@ -125,6 +125,8 @@ var task_force_setup_days: int = 5
 var task_force_ally_warning_days: int = 3
 var task_force_rest_days: int = 8
 var task_force_distance_penalty: float = 0.25
+## §14 (D5.5): how long a `dormant` fizzle marks its region.
+var task_force_mark_days: int = 40
 ## §5 Existential: every node costs `× (1 + this × controlled share)`.
 var difficulty_cost_by_control: float = 0.0
 

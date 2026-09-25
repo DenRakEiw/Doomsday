@@ -194,3 +194,238 @@ func test_the_team_survives_save_and_load() -> void:
 	assert_true(loaded.ok(), loaded.reason)
 	assert_eq(loaded.sim.world.task_force.region, sim.world.task_force.region)
 	assert_eq(loaded.sim.state_hash(), sim.state_hash())
+
+
+# ------------------------------------ S5.9: the mark (taskforce-endings.md §14)
+
+
+## A team set up on the origin, `setup_days` of work still ahead of it.
+func _set_up_on_origin() -> Simulation:
+	var sim: Simulation = _hunted(0.5)
+	_team_tick(sim)
+	var team: TaskForce = sim.world.task_force
+	var origin: int = sim.world.agent.origin
+	team.region = origin
+	team.target = origin
+	team.state = TaskForce.STATE_TRAVEL
+	_team_tick(sim)
+	assert_eq(team.state, TaskForce.STATE_SETUP)
+	return sim
+
+
+## The origin slept through a setup: the team found it asleep and marked it.
+func _slept_through() -> Simulation:
+	var sim: Simulation = _set_up_on_origin()
+	sim.world.regions[sim.world.agent.origin].dormant = true
+	_team_tick(sim, _db().balance.task_force_setup_days)
+	return sim
+
+
+func _of(events: Array[SimEvent], type: String) -> Array[SimEvent]:
+	return events.filter(func(e: SimEvent) -> bool: return e.type == type)
+
+
+func test_a_dormant_fizzle_marks_the_region_for_mark_days() -> void:
+	var sim: Simulation = _set_up_on_origin()
+	var origin: int = sim.world.agent.origin
+	sim.world.regions[origin].dormant = true
+	var events: Array[SimEvent] = _team_tick(sim, _db().balance.task_force_setup_days)
+	var types: Array[String] = _types(events)
+	var fizzled: int = types.find(SimEvent.TASK_FORCE_FIZZLED)
+	assert_gt(fizzled, -1)
+	assert_eq(types[fizzled + 1], SimEvent.TASK_FORCE_MARKED, "right after the fizzle")
+	var marked: SimEvent = events[fizzled + 1]
+	assert_eq(str(marked.data["region"]), ORIGIN)
+	assert_eq(int(marked.data["days"]), _db().balance.task_force_mark_days)
+	assert_eq(sim.world.task_force.marked[origin],
+		marked.day + _db().balance.task_force_mark_days)
+	assert_true(sim.world.task_force.is_marked(origin, sim.world.day))
+
+
+func test_a_marked_dormant_region_is_eligible_and_its_setup_acts() -> void:
+	var sim: Simulation = _slept_through()
+	var team: TaskForce = sim.world.task_force
+	var origin: int = sim.world.agent.origin
+	assert_true(sim.world.regions[origin].dormant, "still asleep")
+	assert_false(TaskForceRules.dormancy_hides(sim.world, origin))
+	assert_true(TaskForceRules.eligible(sim.world, sim.db, origin))
+	assert_eq(TaskForceRules.fizzle_cause(sim.world, sim.db, origin), "")
+	team.target = origin
+	team.state = TaskForce.STATE_TRAVEL
+	_team_tick(sim)
+	assert_eq(team.state, TaskForce.STATE_SETUP, "it sets up on the sleeping region")
+	var events: Array[SimEvent] = _team_tick(sim, _db().balance.task_force_setup_days)
+	var acted: Array[SimEvent] = _of(events, SimEvent.TASK_FORCE_ACTED)
+	assert_eq(acted.size(), 1)
+	var action: TaskForceActionDef = sim.db.task_force_action(str(acted[0].data["action"]))
+	assert_not_null(sim.world.status_in_region(action.status, origin),
+		"the status lands on the sleeping region")
+	assert_eq(_of(events, SimEvent.TASK_FORCE_MARKED).size(), 0)
+
+
+func test_the_mark_runs_out_on_until_and_dormancy_hides_again() -> void:
+	var sim: Simulation = _slept_through()
+	var origin: int = sim.world.agent.origin
+	var until: int = sim.world.task_force.marked[origin]
+	sim.world.day = until - 1
+	assert_false(TaskForceRules.dormancy_hides(sim.world, origin))
+	sim.world.day = until
+	assert_true(TaskForceRules.dormancy_hides(sim.world, origin))
+	assert_false(TaskForceRules.eligible(sim.world, sim.db, origin))
+	assert_eq(TaskForceRules.fizzle_cause(sim.world, sim.db, origin),
+		TaskForceSystem.CAUSE_DORMANT)
+
+
+func test_an_expired_mark_is_dropped_at_the_start_of_the_tick() -> void:
+	var sim: Simulation = _slept_through()
+	var origin: int = sim.world.agent.origin
+	sim.world.day = sim.world.task_force.marked[origin] - 2
+	_team_tick(sim)
+	assert_true(sim.world.task_force.marked.has(origin), "one day left")
+	_team_tick(sim)
+	assert_false(sim.world.task_force.marked.has(origin), "gone on its last day")
+
+
+func test_hidden_clean_dark_and_redirected_fizzles_mark_nothing() -> void:
+	var breaks: Array[Callable] = [
+		func(sim: Simulation, _origin: int) -> void:
+			var hide: ModifierDef = ModifierDef.new()
+			hide.target = TaskForceRules.TARGET_CAPACITY
+			hide.op = ModifierDef.Op.ADD
+			hide.value = -1.0
+			var no_flags: Array[String] = []
+			sim.world.modifiers.add_source("test:hide", [hide] as Array[ModifierDef], no_flags),
+		func(sim: Simulation, origin: int) -> void:
+			sim.world.regions[origin].penetration = 0.0,
+		func(sim: Simulation, origin: int) -> void:
+			sim.world.regions[origin].dark = true,
+		func(sim: Simulation, _origin: int) -> void:
+			TaskForceSystem.redirect(sim.world, sim.db.region_index_by_id["greenland"],
+				[] as Array[SimEvent]),
+	]
+	var causes: Array[String] = [TaskForceSystem.CAUSE_HIDDEN, TaskForceSystem.CAUSE_CLEAN,
+		SimEvent.CAUSE_DARK, TaskForceSystem.CAUSE_REDIRECTED]
+	for i: int in breaks.size():
+		var sim: Simulation = _set_up_on_origin()
+		var origin: int = sim.world.agent.origin
+		var before: int = sim.world.task_force.fizzled
+		breaks[i].call(sim, origin)
+		var events: Array[SimEvent] = _team_tick(sim, _db().balance.task_force_setup_days)
+		assert_gte(sim.world.task_force.fizzled, before + 1, causes[i])
+		if causes[i] != TaskForceSystem.CAUSE_REDIRECTED:
+			assert_eq(str(_of(events, SimEvent.TASK_FORCE_FIZZLED)[0].data["cause"]), causes[i])
+		assert_eq(_of(events, SimEvent.TASK_FORCE_MARKED).size(), 0, causes[i])
+		assert_true(sim.world.task_force.marked.is_empty(), causes[i])
+
+
+func test_dormancy_while_it_travels_retargets_and_marks_nothing() -> void:
+	var sim: Simulation = _hunted(0.5)
+	_team_tick(sim)
+	var team: TaskForce = sim.world.task_force
+	var origin: int = sim.world.agent.origin
+	team.target = origin
+	team.region = sim.db.region_index_by_id["greenland"]
+	team.state = TaskForce.STATE_TRAVEL
+	sim.world.regions[origin].dormant = true
+	var events: Array[SimEvent] = _team_tick(sim)
+	assert_ne(team.target, origin, "it chose again")
+	assert_eq(_of(events, SimEvent.TASK_FORCE_FIZZLED).size(), 0)
+	assert_true(team.marked.is_empty())
+
+
+func test_a_misled_team_that_finds_its_decoy_asleep_marks_it() -> void:
+	var sim: Simulation = _hunted(0.5)
+	_team_tick(sim)
+	var team: TaskForce = sim.world.task_force
+	var decoy: int = sim.db.region_index_by_id["greenland"]
+	sim.world.regions[decoy].penetration = 0.2
+	sim.world.regions[decoy].dormant = true
+	team.region = decoy
+	team.target = decoy
+	team.misled = true
+	team.state = TaskForce.STATE_TRAVEL
+	var events: Array[SimEvent] = _team_tick(sim)
+	assert_eq(str(_of(events, SimEvent.TASK_FORCE_FIZZLED)[0].data["cause"]),
+		TaskForceSystem.CAUSE_DORMANT)
+	assert_eq(_of(events, SimEvent.TASK_FORCE_MARKED).size(), 1)
+	assert_true(team.is_marked(decoy, sim.world.day))
+
+
+func test_the_same_seed_marks_the_same_way() -> void:
+	var hashes: Array[String] = []
+	for run: int in 2:
+		var sim: Simulation = _slept_through()
+		for day: int in 30:
+			sim.tick()
+		hashes.append(sim.state_hash())
+	assert_eq(hashes[0], hashes[1])
+
+
+# ----------------------------------------------------- the mark in the save
+
+
+func test_the_mark_round_trips_by_region_id() -> void:
+	var sim: Simulation = _slept_through()
+	var origin: int = sim.world.agent.origin
+	var save: Dictionary = JSON.parse_string(WorldSerializer.to_json(sim))
+	var block: Dictionary = (save["world"] as Dictionary)["task_force"]
+	assert_eq(int((block["marked"] as Dictionary)[ORIGIN]), sim.world.task_force.marked[origin])
+	var loaded: LoadResult = WorldSerializer.from_json(WorldSerializer.to_json(sim), sim.db)
+	assert_true(loaded.ok(), loaded.reason)
+	assert_eq(loaded.sim.world.task_force.marked, sim.world.task_force.marked)
+	assert_eq(loaded.sim.state_hash(), sim.state_hash())
+
+
+func _empty_block() -> Dictionary:
+	return TaskForce.new().to_dict(func(_i: int) -> String: return "")
+
+
+func test_a_block_without_marks_loads_with_none() -> void:
+	var block: Dictionary = _empty_block()
+	assert_eq(block["marked"], {}, "written even when empty")
+	block.erase("marked")
+	var team: TaskForce = TaskForce.from_dict(block, _db())
+	assert_not_null(team)
+	assert_true(team.marked.is_empty())
+
+
+func test_an_unknown_region_or_a_day_that_is_no_number_is_refused() -> void:
+	var block: Dictionary = _empty_block()
+	block["marked"] = {"atlantis": 40}
+	assert_null(TaskForce.from_dict(block, _db()))
+	block["marked"] = {ORIGIN: "forty"}
+	assert_null(TaskForce.from_dict(block, _db()))
+	block["marked"] = [ORIGIN]
+	assert_null(TaskForce.from_dict(block, _db()))
+
+
+# ------------------------------------------------------ the bots (§14.5)
+
+
+## A bot's answer to a setup on the origin with dormancy unlocked, Misdirect
+## too when `misdirect` is true, and the origin marked when `marked` is.
+func _answer(marked: bool, misdirect: bool) -> Command:
+	var sim: Simulation = _set_up_on_origin()
+	if misdirect:
+		sim.world.agent.owned_nodes.append("log_manipulation_1")
+		sim.world.agent.owned_nodes.append("log_manipulation_2")
+		sim.rebuild_modifiers()
+		sim.world.agent.compute = 100.0
+	var no_modifiers: Array[ModifierDef] = []
+	var flags: Array[String] = [ModifierDef.FLAG_DORMANCY]
+	sim.world.modifiers.add_source("test:dormancy", no_modifiers, flags)
+	if marked:
+		sim.world.task_force.marked[sim.world.agent.origin] = sim.world.day + 10
+	return GreedyPolicy.new()._answer_task_force(sim)
+
+
+func test_the_bots_sleep_an_unmarked_region() -> void:
+	assert_true(_answer(false, true) is SetDormancyCommand)
+
+
+func test_the_bots_misdirect_from_a_marked_region() -> void:
+	assert_true(_answer(true, true) is UseAbilityCommand)
+
+
+func test_the_bots_do_nothing_in_a_marked_region_without_misdirect() -> void:
+	assert_null(_answer(true, false))

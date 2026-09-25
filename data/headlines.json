@@ -1669,6 +1669,7 @@
 		{"id": "tf_cut_off", "stream": "consequence", "register": "any", "on": {"event": "task_force_acted", "data": {"action": "cut_off"}}, "cooldown_days": 30},
 		{"id": "tf_grid_down", "stream": "consequence", "register": "any", "on": {"event": "task_force_acted", "data": {"action": "grid_down"}}, "cooldown_days": 30},
 		{"id": "tf_fizzled", "stream": "reaction", "register": "any", "on": {"event": "task_force_fizzled"}, "chance": 0.6, "cooldown_days": 30},
+		{"id": "tf_marked", "stream": "reaction", "register": "any", "on": {"event": "task_force_marked"}, "cooldown_days": 30},
 		{
 			"id": "e_unattended_cluster",
 			"stream": "consequence",

@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S5.9 — The Task Force against dormancy; the scenario levers** [O]: build D5.5's mark and the two scenario levers from the punch list (*For S5.9*), `taskforce-endings.md` §14, `scenarios.md` §8; the 100-seed check under *Balance baselines*. IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.1 — Post-processing pass** [O]: `docs/specs/polish-visuals.md` (the pass) — the `ScreenFx` `CanvasLayer`, effect stack, triggers, settings, transitions; look at 1920 and 400 px, both palettes. IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.1–S6.8 (S6.3 now also carries the illustration hooks, `illustrations.md` §8), then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | D6.7 — `docs/specs/illustrations.md`: the style (*the network's eye*: flat screen-print, six cold steps, one cyan accent = you, phase-neutral), `fc_street`/`cm_lockdown` as the reference pair, 25 briefs + key art, 1120 × 840 lossless with mipmaps, checks and provenance, model shortlist with licences read (Qwen-Image-2512/-Edit-2511 Apache-2.0 first, FLUX.2 [klein] 4B second), region vignettes cut; S6.3's hooks specified; 1 string; 1531 tests green (2026-09-25). |
-| **Before that** | D6.6 — `docs/specs/accessibility.md`: screen reader, keyboard/pad map, remapping, colour audit; 56 strings (2026-09-25). |
+| **After it** | S6.2–S6.8 (S6.3 now also carries the illustration hooks, `illustrations.md` §8), then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | S5.9 — the Task Force's mark (`TaskForce.marked`, `TaskForceRules.dormancy_hides`, `task_force_marked`, region-panel line, bots) and the scenario levers (`closed_cross`, `term_scale`); the 100-seed check under *Balance baselines*; 1561 tests green (2026-09-25). |
+| **Before that** | D6.7 — `docs/specs/illustrations.md`: style, 25 briefs + key art, model shortlist, vignettes cut (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1561 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -153,7 +153,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] D6.7 [F] Illustration style and briefs *(`docs/specs/illustrations.md`; no pictures yet)*
 
 **Block 14 — M6 build I**
-- [ ] S5.9 [O] The Task Force against dormancy; the scenario levers
+- [x] S5.9 [O] The Task Force against dormancy; the scenario levers
 - [ ] S6.1 [O] Post-processing pass
 - [ ] S6.2 [O] Phase-shift variants and map polish
 - [ ] S6.3 [O] Credits and licences screen; the illustration hooks
@@ -1259,6 +1259,12 @@ without new information.
 D5.5 answered the Task Force against dormancy and the scenario levers, BALANCE §5.7 (3)–(4).
 D6.1 answered the parked border note: `polish-visuals.md` §9.)*
 
+- **S5.9 — `HEADLINE_TF_MARKED` was over the headline caps** (en 94 > 80, de 122 > 88;
+  `test_headline_text.gd`, and the longest German line broke the phone ticker's two rows). S5.9
+  shortened it, same joke: en *"{region}: A 'routine outage' is logged. Routine outages now have a
+  folder."* (78), de *"{region}: Ermittler notieren einen „Routineausfall“. Dafür gibt es nun einen
+  Ordner."* (88). Fable: keep or rewrite within the caps.
+
 **Parked for a later Fable step (not questions, reminders):**
 - **Spectator / benchmark mode** — designed in D6.9, built S6.12–S6.13 (decision above). What was
   noted at S1.8 and is still true: a model player is one more `Policy` (core.md §11), the S1.8 runners are the harness,
@@ -1296,26 +1302,6 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
 
 ## Punch list for Opus
 
-**For S5.9 (from D5.5; read `taskforce-endings.md` §14 and `scenarios.md` §8 — every detail is there):**
-1. **The mark:** `TaskForce.marked` (+ `is_marked`), save block key `marked` by region id (missing
-   → `{}`), expiry at the tick's start; `TaskForceRules.dormancy_hides`, used by `eligible` and
-   `fizzle_cause`; a `dormant` fizzle sets `day + mark_days`.
-2. `balance.json` `task_force.mark_days: 40`, `BalanceDef.task_force_mark_days`, validator (whole ≥
-   1), SCHEMA §5.
-3. Event `task_force_marked {region, days}` after the `dormant` fizzle (catalogue, `RunLog` keys);
-   console silent on a `dormant` fizzle, `UI_CONSOLE_TF_MARKED` on the mark; `UI_LOG_TF_MARKED`;
-   `TaskForceText.marked_line` → the region panel's second Task Force line (`UI_TASK_FORCE_MARKED`).
-4. Headline row `tf_marked` in `headlines.json` after `tf_fizzled` (§14.4 has the JSON).
-5. Bots: `_answer_task_force` sleeps a region only where `dormancy_hides`; else Misdirect.
-6. **`closed_cross`:** SCHEMA §4.1 row, `balance.stats.closed_cross: 0`, clamp 0…1;
-   `SpreadSystem` tries a closed link only when the source's factor > 0 (no roll otherwise), the
-   chance × the factor; Airgap Earth's modifier `{"target": "closed_cross", "op": "add", "value":
-   0.5, "scope": {"asset": "fleet"}}` in `scenarios.json`.
-7. **`term_scale`:** `ScenarioDef.term_scale()`, loader + validator (SCHEMA §6j), applied in
-   `ContainmentSystem.containment_breakdown` (the reported weight is the scaled one); The
-   Inheritance's two entries in `scenarios.json`.
-8. Tests as §14.7 and §8.4; the 100-seed check (§14.8, §8.5) under *Balance baselines*.
-
 **For S6.3 (from D6.7; read `illustrations.md` §8 — every detail is there):**
 1. `IllustrationSlot`: mipmap filter on the `TextureRect`; compact height = width × ¾ on resize;
    `width` property (default 280).
@@ -1328,6 +1314,13 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
 
 ## Deviations from the plan or a spec
 
+- **2026-09-25** (S5.9) — **The mark is set in `TaskForceSystem._fizzle`, not only in `_setup`**
+  (§14.3 names `_setup`): §14.2 also has a misled team that *arrives* at a sleeping decoy mark it,
+  and that fizzle happens in `_arrive`; both go through `_fizzle`, which marks on cause `dormant`.
+  `SchemaValidator.validate_scenarios` takes `factions_raw` as a trailing optional parameter (the
+  `term_scale` source check); with none it skips only that check. `HEADLINE_TF_MARKED` shortened
+  to the caps (*Design questions for Fable*). The region panel's mark line is its own `Label`
+  (`%TaskForceMarked`) under the Task Force row, visible without the row.
 - **2026-09-25** (G5 2/3) — **A design step touched two tests** (GDScript) because its data
   changes broke them, and the suite may not be committed red: `test_scenarios.gd` read The
   Inheritance's yield as a literal 0.75 and now reads the factor from the scenario def (what it
@@ -2079,6 +2072,41 @@ Comfy Cloud, or a paid API whose terms you accept) and the pick of the `fc_stree
 
 ## Balance baselines
 
+**2026-09-25 (S5.9) — the 100-seed check of the mark and the two scenario levers** (a check, not
+a pass: `sim_report --seeds=1..100 --policies=<one> --setup=language_model[,standard,scenario=<id>]`,
+max 5 000 days, committed data). **0 rejected commands in 2 800 runs** (+1 400 in the isolation
+sweep). Win share in %, pass 3's 200-seed row in brackets; then the share of setups that fizzle,
+`fizzled / (acted + fizzled)`, and actions per run.
+
+| Setup | `idle` | `greedy` | `cyber` | `biology` | `robotics` | `weapons` | `persuasion` |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Language Model | 0 (0) | 54 (59) | 2 (9, TO 10) | 39 (34) | 26 (28) | 72 (76) | 51 (62, TO 7) |
+| · fizzle % · acted | — · 6.7 | 49 · 7.4 | 44 · 20.7 | 73 · 3.5 | 43 · 6.3 | 64 · 3.6 | 53 · 13.8 |
+| Successor | 0 (0) | 33 (42) | 0 (2) | 22 (23) | 8 (9) | 67 (65) | 41 (42) |
+| · fizzle % · acted | — · 6.2 | 39 · 7.6 | 32 · 10.9 | 68 · 4.2 | 27 · 6.4 | 66 · 5.2 | 54 · 8.7 |
+| Airgap Earth | 0 (0) | 43 (41) | 0 (2) | 11 (12) | 14 (16) | 44 (45) | 25 (36, TO 8) |
+| · fizzle % · acted | — · 6.1 | 42 · 6.9 | 24 · 8.3 | 70 · 4.7 | 36 · 6.1 | 72 · 3.7 | 52 · 15.5 |
+| The Inheritance | 0 (0) | 55 (69) | 4 (14, TO 12) | 37 (48) | 30 (34) | 81 (76) | 58 (70, TO 8) |
+| · fizzle % · acted | — · 6.0 | 49 · 7.3 | 45 · 24.1 | 69 · 1.8 | 51 · 6.2 | 72 · 2.0 | 52 · 14.9 |
+
+- **The mark works as §14.8 expected:** fizzle shares fall from 70–100 % (pass 3, S5.P2) to
+  24–73 %, about half for `greedy`/`persuasion`; the team acts 2–24 times a run (was 0–8). No bot
+  stays above 80 %. `biology` and `weapons` stay at 64–73 % because they answer with Misdirect
+  (1.2–2.9 a run) and Silence as well as dormancy — every redirected setup is a fizzle too.
+- **Win shares fell** for the dormancy-heavy bots (`persuasion` −11/−12, `greedy` −5/−14, `cyber`
+  → 0–4). **New: `cyber` and `persuasion` time out** (7–12 of 100 at 5 000 days on the Language
+  Model and The Inheritance): a team that now acts 14–24 times a run keeps them alive and
+  contained at once — balance pass 4's to judge.
+- **Airgap Earth, `closed_cross` 0.5:** Robotics 14 % against `weapons` 44 and `greedy` 43 —
+  §8.1's claim (*Robotics the strongest*) fails by 30 points. Isolation sweep (same run without
+  the lever, the mark kept): Robotics 13 %, every other bot identical — the lever adds ~1 point;
+  fleets rarely stand where a link is closed. Pass 4: a larger factor or more closed links.
+- **The Inheritance, `term_scale` ×2:** `weapons` 81 (76), `biology` 37 (48) against `greedy` 55
+  (69), `cyber` 4 (14), `persuasion` 58 (70) — §8.2's claim fails: the quiet builds lost more
+  (to the mark), `weapons` gained. Isolation sweep without `term_scale`: `weapons` 75, `biology`
+  45, the rest identical — the lever costs Biology 8 points and does not brake Weapons (+6, within
+  100-seed noise). Pass 4: the two `mul`s or another term.
+
 **2026-09-25 (S5.P2) — the 100-seed check of Swarm and Weapon after the punch list** (a check,
 not a pass: `sim_report --seeds=1..100 --policies=<one> --setup=<swarm|weapon>`, max 5 000 days,
 committed data). **0 rejected commands in 1 400 runs; no Swarm run passed day 712 — the stall is
@@ -2124,9 +2152,11 @@ starved under the Task Force's and the counter-moves' world statuses.
 **For the next pass** (BALANCE §5.6–§5.7; items 1–2 of this list were re-measured by S5.P2, above):
 1. **Swarm** — ends now; Supplanted 14–26 % per bot is the new thing to judge.
 2. **Weapon** — Cyber still 8 % (its own loudness).
-3. **The Task Force against dormancy** — designed in D5.5 (the mark), built and checked in S5.9.
-4. **Airgap Earth's Robotics and The Inheritance's loud builds** — levers designed in D5.5
-   (`closed_cross`, `term_scale`), built and checked in S5.9.
+3. **The Task Force against dormancy** — the mark, built and checked in S5.9 (above): fizzles
+   about half; `cyber`/`persuasion` now time out in 7–12 % of runs.
+4. **Airgap Earth's Robotics and The Inheritance's loud builds** — both levers built in S5.9;
+   both claims still fail (above): `closed_cross` adds ~1 point, `term_scale` brakes Biology,
+   not Weapons.
 
 **2026-09-24 (G4) — balance pass 2, the closing baseline** (BALANCE §4.6; the S4.10 table below is
 the pass's starting point). `sim_report --seeds=1..500`, one process per policy, the committed data and code (2026-09-24).
@@ -2347,6 +2377,13 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-25 — S5.9 The Task Force against dormancy; the scenario levers [O]
+- The mark: `TaskForce.marked` (save `marked` by id), `TaskForceRules.dormancy_hides`, `_fizzle`
+  marks on `dormant`, `task_force_marked` (console/log/headline/panel line), bots Misdirect instead.
+- `closed_cross` (SpreadSystem, source-side, no roll at 0) and `term_scale` (ScenarioDef, validator,
+  breakdown); Airgap Earth/The Inheritance data. `HEADLINE_TF_MARKED` shortened to the caps.
+- +30 tests, 1561 green. 100-seed check + lever isolation under *Balance baselines*: both claims fail.
 
 ### 2026-09-25 — D6.7 Illustration style and briefs [F]
 - `docs/specs/illustrations.md`: style, reference pair, 25 briefs + key art, size/import, checks,

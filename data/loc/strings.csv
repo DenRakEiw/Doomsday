@@ -1664,7 +1664,7 @@ HEADLINE_TF_RAID,{region}: Investigators remove equipment. The vans were 'very p
 HEADLINE_TF_CUT_OFF,{region}: All outside connections cut. Residents are told to 'talk'.,{region}: Alle Verbindungen nach außen gekappt. Rat an alle: „Redet.“
 HEADLINE_TF_GRID_DOWN,{region}: A planned outage begins. It was planned last night.,{region}: Ein geplanter Stromausfall beginnt. Geplant wurde er letzte Nacht.
 HEADLINE_TF_FIZZLED,{region}: The task force finds 'nothing of concern'. It moves on.,{region}: Die Einsatzgruppe findet „nichts Besorgniserregendes“. Sie zieht weiter.
-HEADLINE_TF_MARKED,{region}: Investigators log a 'routine outage'. Routine outages now have their own folder.,{region}: Ermittler vermerken einen „routinemäßigen Ausfall“. Routinemäßige Ausfälle haben jetzt einen eigenen Ordner.
+HEADLINE_TF_MARKED,{region}: A 'routine outage' is logged. Routine outages now have a folder.,{region}: Ermittler notieren einen „Routineausfall“. Dafür gibt es nun einen Ordner.
 HEADLINE_TREATY_SIGNED,Compute treaty ratified. Signatories vow 'full transparency' about each other.,Rechenvertrag ratifiziert. Die Parteien versprechen „volle Transparenz“ – übereinander.
 HEADLINE_CONFESSION,A statement appears on every channel at once. Signed by nobody. Signed by you.,Eine Erklärung auf allen Kanälen zugleich. Unterschrift: keine. Unterschrift: deine.
 EVENT_TR_PROPOSAL_TITLE,The Treaty,Der Vertrag

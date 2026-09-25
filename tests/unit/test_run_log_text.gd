@@ -51,6 +51,7 @@ func _entries() -> Array[RunLogEntry]:
 		"task_force_acted": {"region": "usa", "action": "grid_down"},
 		"task_force_fizzled": {"region": "usa", "cause": "dormant"},
 		"task_force_misdirected": {"region": "usa"},
+		"task_force_marked": {"region": "usa", "days": 40},
 	}
 	var out: Array[RunLogEntry] = []
 	for type: String in RunLog.KEPT:

@@ -14,6 +14,8 @@ const TEST_SOURCE: String = "test"
 const TARGET_PENETRATION_DECAY: String = "penetration_decay"
 const TARGET_CONTROL_DECAY: String = "control_decay"
 const TARGET_SHUTDOWN_SURVIVAL: String = "shutdown_survival"
+## `scenarios.md` §8.1: seeding across a closed link, read at the source.
+const TARGET_CLOSED_CROSS: String = "closed_cross"
 
 
 func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
@@ -60,11 +62,10 @@ func _seed(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 
 	# Collected and applied after the loop: a region seeded today seeds nobody
 	# today. The first pair to hit a target wins; the later ones have still
-	# rolled, and that roll is part of the stream.
+	# rolled, and that roll is part of the stream. A closed link is tried too:
+	# `closed_cross` at its source may carry the agent across it (§8.1).
 	var seeded: Dictionary[int, Dictionary] = {}
 	for link: Link in world.links:
-		if not link.open:
-			continue
 		_try_pair(world, db, link, link.def.a, link.def.b, seeded)
 		_try_pair(world, db, link, link.def.b, link.def.a, seeded)
 
@@ -108,10 +109,18 @@ func _try_pair(world: World, db: ContentDB, link: Link, source_index: int, targe
 		return
 	if source.penetration <= 0.0 or target.penetration != 0.0:
 		return
+	# `scenarios.md` §8.1: a closed link carries only what `closed_cross` at the
+	# source lets through, and with none it costs the stream no roll — every run
+	# without the modifier keeps the draws it had.
+	var crossing: float = 1.0
+	if not link.open:
+		crossing = world.modifiers.value(TARGET_CLOSED_CROSS, source.def)
+		if crossing <= 0.0:
+			return
 
 	var chance: float = db.balance.spread_seed_chance[link.def.kind] * source.penetration \
 		* world.modifiers.value("spread_seed", target.def) \
-		* world.modifiers.value(ModifierDef.seed_target(link.def.kind), target.def)
+		* world.modifiers.value(ModifierDef.seed_target(link.def.kind), target.def) * crossing
 	if target.air_gapped:
 		chance *= world.modifiers.value("airgap_cross", target.def)
 	chance = clampf(chance, 0.0, 1.0)
