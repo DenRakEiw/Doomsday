@@ -508,4 +508,5 @@ placeholders · right register for its trigger · nothing a *Plague Inc.* player
    playtesting; gate it behind Swarm until we know. *D5.1/D5.2: Swarm only, drift ≥ 60; it turns
    off Ascendance and Merge (`taskforce-endings.md` §6.2).*
 4. Is Containment mode a separate product or a mode? Decide before M5. *D5.4: a mode of this
-   game, post-launch; M5 keeps the Task Force's decisions pure rules (`scenarios.md` §0).*
+   game, post-launch; M5 keeps the Task Force's decisions pure rules (`scenarios.md` §0). G5 (3/3): confirmed —
+   not in M6 or M7 (pending user confirmation).*

@@ -14,12 +14,12 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G5 (3/3) — detailed D/S plan for M6–M7** [F]: break the M6/M7 outlines into D/S steps with *Read first* lists and run-sheet rows; schedule G5 (2/3)'s punch list (BALANCE §5.6: the drifted-run rule, the bots' Value Drift and Restraint, the harness counters, the push-in marker) and its design question (the Task Force against dormancy, BALANCE §5.7); confirm CONTENT q4. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S5.P2 — punch list from balance pass 3** [O]: the five items of *Punch list for Opus* (BALANCE §5.6 — the drifted-run rule → Supplanted, the bots' Value Drift answer, Restraint in the strategy bots, the harness's Misdirect/dormancy columns, the push-in marker), then a 100-seed check of Swarm and Weapon. IMPLEMENTATION Block 12. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | the first step of the M6–M7 plan G5 (3/3) writes |
-| **Last completed** | G5 (2/3) — balance pass 3 (data only): the Weapon (a quiet start, escalation from day 60, no own modifiers), the three scenarios retuned against scenarios.md §3, the drifted-run rule designed (Supplanted) with its verdict in the data, the push-in zoom answered; closing baseline 200 seeds per bot × 6 architectures × 3 scenarios (BALANCE §5). 1521 tests green (2026-09-25). |
-| **Before that** | S5.P — the G5 (1/3) punch list (validator bound, Task Force in red, drift readout, emergent spark, verdict in the log, ending push-in, version caption). 1521 tests green (2026-09-25). |
-| **Milestone** | M2 gated; **M3 gated: change** — the loop was redesigned in D4.0; M4 builds it |
+| **After it** | D5.5 [F] The Task Force against dormancy; the scenario levers — then the rest of Block 13 (D6.1–D6.7). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | G5 (3/3) — the detailed plan for M6–M7: Blocks 12–19, run-sheet rows 65–104, §6 table; CONTENT q4 confirmed (overnight, pending user confirmation). Docs only (2026-09-25). |
+| **Before that** | G5 (2/3) — balance pass 3 (data only): the Weapon (a quiet start), the three scenarios retuned, the drifted-run rule designed (Supplanted), the push-in zoom answered; closing baseline 200 seeds (BALANCE §5). 1521 tests green (2026-09-25). |
+| **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
@@ -134,7 +134,66 @@ which file was being edited, and anything learned that the files do not show)*
 - [x] G5 (1/3) [F] Design questions answered, punch list for S5.P
 - [x] S5.P [O] Punch list from G5 (1/3)
 - [x] G5 (2/3) [F] Balance pass 3 *(tuning; the M5 gate waits for the user)*
-- [ ] G5 (3/3) [F] Detailed D/S plan for M6–M7 (the M5 gate verdict waits for the user's ten runs)
+- [x] G5 (3/3) [F] Detailed D/S plan for M6–M7 (the M5 gate verdict waits for the user's ten runs)
+
+*From here on: **[needs user]** = needs the user's hands, taste or an account; unattended runs skip
+it and take the next row (IMPLEMENTATION §4).*
+
+**Block 12 — M5 close · build**
+- [ ] S5.P2 [O] Punch list from balance pass 3
+
+**Block 13 — M6 design I: the look, the sound, the teaching**
+- [ ] D5.5 [F] The Task Force against dormancy; the scenario levers
+- [ ] D6.1 [F] Screen effects, phase-shift variants, map polish
+- [ ] D6.2 [F] Icon system and the credits screen
+- [ ] D6.3 [F] Custom silhouettes
+- [ ] D6.4 [F] Audio direction and cue sheet
+- [ ] D6.5 [F] Tutorial II and help
+- [ ] D6.6 [F] Accessibility
+- [ ] D6.7 [F] Illustration style and briefs *(no pictures yet)*
+
+**Block 14 — M6 build I**
+- [ ] S5.9 [O] The Task Force against dormancy; the scenario levers
+- [ ] S6.1 [O] Post-processing pass
+- [ ] S6.2 [O] Phase-shift variants and map polish
+- [ ] S6.3 [O] Credits and licences screen
+- [ ] S6.4 [O] Icon pipeline
+- [ ] S6.5 [O] Audio I: service, buses, cues, captions
+- [ ] S6.6 [O] Audio II: the sound set
+- [ ] S6.7 [O] Tutorial II
+- [ ] S6.8 [O] Accessibility
+
+**Block 15 — M6 design II: release and the benchmark**
+- [ ] D6.8 [F] Release engineering: platform service, achievements, exports, performance budget
+- [ ] D6.9 [F] Benchmark and spectator mode
+
+**Block 16 — M6 build II**
+- [ ] S6.9 [O] PlatformService (null backend) and achievements
+- [ ] S6.10 [O] Export presets and release CI
+- [ ] S6.11 [O] Performance pass
+- [ ] S6.12 [O] Benchmark tool, headless *(the first live run needs the user's key)*
+- [ ] S6.13 [O] Spectator view
+
+**Block 17 — M6 finish: balance, pictures, Steam, the gate**
+- [ ] G6 (1/2) [F] Balance pass 4 *(tuning; data only)*
+- [ ] D6.10 [F] Illustrations produced — **[needs user]**
+- [ ] S6.14 [O] GodotSteam: the Steam backend, achievements, overlay — **[needs user]**
+- [ ] G6 (2/2) [F] M6 gate: shippable on Steam — **[needs user]**
+
+**Block 18 — M7 design**
+- [ ] D7.1 [F] Touch and phone
+- [ ] D7.2 [F] Web demo
+- [ ] D7.3 [F] Store pages: copy and art briefs
+
+**Block 19 — M7 build and release**
+- [ ] S6.P [O] Punch list from G6 *(skip if empty)*
+- [ ] S7.1 [O] Touch pass
+- [ ] S7.2 [O] Android export and the AAB in CI *(release keystore: user)*
+- [ ] S7.3 [O] Web demo build
+- [ ] S7.4 [O] iOS export — **[needs user]**
+- [ ] S7.5 [O] Real-device pass — **[needs user]**
+- [ ] D7.4 [F] Store pages and marketing art — **[needs user]**
+- [ ] G7 [F] M7 gate: release candidates — **[needs user]**
 
 ---
 
@@ -1070,19 +1129,37 @@ without new information.
     else; dormancy is what fizzles it — a design question, BALANCE §5.7), Embedded (the early
     tail is the bots' opening, not the architecture), Autophagy 30 days, `balance.json`.
 
+- **2026-09-25** (G5 3/3, overnight, pending user confirmation) — **M6 and M7 are Blocks 12–19**
+  (IMPLEMENTATION §4 rows 65–104, §5): what an AI finishes alone first, **[needs user]** steps
+  (illustration production, GodotSteam, the M6 gate, iOS, real devices, store pages) at the end of
+  each milestone; design a block ahead of its build; the credits screen (S6.3) before the first
+  CC BY asset (S6.4). Also decided:
+  - **CONTENT q4 confirmed as D5.4 answered it:** Containment mode is a mode of this game,
+    post-launch — not in M6 or M7; M6–M7 keep the Task Force's decisions pure rules.
+  - **The Task Force against dormancy is a design step, D5.5**, not a tuning item (with BALANCE
+    §5.7 (4)'s two scenario levers); S5.9 builds it.
+  - **Prepared without accounts:** `PlatformService` with a null backend and achievements in the
+    profile (S6.9), the benchmark on a recorded mock backend (S6.12), Android/web builds in CI with
+    a debug key. **Steam app id 480** only for a local smoke test on the user's machine — never in
+    CI or an exported build; vendoring GodotSteam waits for the user's Steamworks agreement.
+  - **Audio is synthesised in-house first** (`tools/audio/`, own work), CC0 second, generated
+    music only with a verified model licence; a drone bed ships until then (D6.4).
+  - **Region vignettes (VISUALS q4) are decided in D6.7**, conservative default: cut.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
-*(none open — G5 (2/3) answered the push-in's zoom: keep `zoom_min × 2`, Decisions 2026-09-25.)*
+*(none open — G5 (2/3) answered the push-in's zoom: keep `zoom_min × 2`, Decisions 2026-09-25. The
+Task Force against dormancy, BALANCE §5.7 (3), is scheduled as D5.5.)*
 
 **Parked for a later Fable step (not questions, reminders):**
-- **M6 (VISUALS):** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the 8192-px
-  masks anti-alias the coast but not the borders between regions. Acceptable for M2–M5; a vector
+- **M6 (VISUALS) → D6.1:** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the
+  8192-px masks anti-alias the coast but not the borders between regions. Acceptable for M2–M5; a vector
   border pass or a 2× ID map is an M6 polish item, not a bug.
-- **Spectator / benchmark mode** — designed in M6 (decision above). What was noted at S1.8 and is
-  still true: a model player is one more `Policy` (core.md §11), the S1.8 runners are the harness,
+- **Spectator / benchmark mode** — designed in D6.9, built S6.12–S6.13 (decision above). What was
+  noted at S1.8 and is still true: a model player is one more `Policy` (core.md §11), the S1.8 runners are the harness,
   candidate driver [TypeSafe](https://docs.typesafe.ai/introduction) / **Jev** (typed Choice /
   Score decisions). To design then: the typed per-tick digest and how it stays replayable (the
   command log already is — only new runs are non-deterministic); the score (proposal: mean over a
@@ -1117,8 +1194,8 @@ without new information.
 
 ## Punch list for Opus
 
-**From G5 (2/3), 2026-09-25** — details and tests in `docs/BALANCE.md` §5.6; G5 (3/3) schedules
-them:
+**From G5 (2/3), 2026-09-25** — details and tests in `docs/BALANCE.md` §5.6; built by **S5.P2**
+(Block 12):
 1. **A drifted run still ends:** `OutcomeSystem` — Ascendance's condition met while `goal_drifted`
    stands → `LOSE_SUPPLANTED`; the verdict `lose_supplanted_drifted` is in `endings.json`
    (`taskforce-endings.md` §6.2, G5 2/3 amendment).
@@ -1827,12 +1904,20 @@ widest view — too close, too far, or right?
 **G5 (2/3) (2026-09-25, overnight, pending user confirmation):** balance pass 3 — `docs/BALANCE.md`
 §5.7. (1) Is a Weapon that starts quiet (no harm until day 60, then escalation unless Restraint)
 still a Weapon? (2) The Task Force fizzles on free dormancy — give dormancy a cooldown, or let a
-setup wait? (3) A drifted run that takes the world ends as *Supplanted* — right? (4) Research Agent
-wins 76–83 % for `greedy` and Persuasion — fine as the reward for a win?
+setup wait? *(scheduled as D5.5; it decides if you have not)* (3) A drifted run that takes the
+world ends as *Supplanted* — right? (4) Research Agent wins 76–83 % for `greedy` and Persuasion — fine as the reward for a win?
 
 **D5.2 (2026-09-24), at G5:** `docs/specs/taskforce-endings.md` §13 — is *Supplanted* (a secret
 loss that turns a win, after one warning card) fair, or should a normal win's results screen hint
 that a released child is still out there?
+
+**G5 (3/3) (2026-09-25, overnight, pending user confirmation):** the M6–M7 plan
+(IMPLEMENTATION Blocks 12–19). (1) Containment mode stays post-launch, outside M6–M7 — right?
+(2) Before S6.14: a Steamworks account, the game's app id, acceptance of the Steamworks SDK
+agreement. (3) Before D6.10: the image route (local pipeline or paid credits) and approval of the
+style reference and model licence. (4) For S6.12's first live run: `OPENROUTER_API_KEY`. (5) For
+M7: the Android release keystore and Play Console, an Apple Developer account and a Mac runner,
+real phones.
 
 ## Balance baselines
 
@@ -2087,6 +2172,12 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-25 — G5 (3/3) Detailed plan for M6–M7 [F]
+- Broke M6/M7 into Blocks 12–19 (IMPLEMENTATION §4 rows 65–104, §5 entries with *Read first* and
+  *Done when*, §6 table): S5.P2 heads the build; D5.5 takes the dormancy question.
+- AI-only work first; **[needs user]** rows last per milestone and skipped when unattended.
+- CONTENT q4 confirmed (post-launch mode). Docs only, no suite run.
 
 ### 2026-09-25 — G5 (2/3) Balance pass 3 (tuning; the M5 gate waits) [F]
 - Re-baselined the S5.P tree (100 seeds × 9 setups × 7 bots), ~130 sweep processes, closing 200

@@ -1,7 +1,7 @@
 # Doomsday — Implementation Roadmap
 
-**Version:** 0.2
-**Date:** 2026-09-21
+**Version:** 0.3
+**Date:** 2026-09-25 *(G5 (3/3): M6 and M7 broken into steps, Blocks 12–19)*
 **Status of the work itself:** see [PROGRESS.md](PROGRESS.md) — this file is the plan, that file is the state.
 
 [PLAN.md](PLAN.md) says *what* we build and in which milestones. This document breaks those
@@ -292,7 +292,53 @@ before the *next* row; "—" means stay on the same model.
 | 64 | G5 (1/3) Design questions answered, punch list *(split 2026-09-25)* | **[F]** | — |
 | 64a | S5.P Punch list from G5 (1/3) | [O] | — |
 | 64b | G5 (2/3) Balance pass 3 | **[F]** | — |
-| 64c | G5 (3/3) Detailed D/S plan for M6–M7; the M5 gate with the user | **[F]** | per new plan |
+| 64c | G5 (3/3) Detailed D/S plan for M6–M7; the M5 gate with the user | **[F]** | — |
+| 65 | S5.P2 Punch list from balance pass 3 | [O] | — |
+| 66 | D5.5 The Task Force against dormancy; the scenario levers | **[F]** | — |
+| 67 | D6.1 Screen effects, phase-shift variants, map polish | **[F]** | — |
+| 68 | D6.2 Icon system and the credits screen | **[F]** | — |
+| 69 | D6.3 Custom silhouettes | **[F]** | — |
+| 70 | D6.4 Audio direction and cue sheet | **[F]** | — |
+| 71 | D6.5 Tutorial II and help | **[F]** | — |
+| 72 | D6.6 Accessibility | **[F]** | — |
+| 73 | D6.7 Illustration style and briefs *(no pictures yet)* | **[F]** | — |
+| 74 | S5.9 The Task Force against dormancy; the scenario levers | [O] | — |
+| 75 | S6.1 Post-processing pass | [O] | — |
+| 76 | S6.2 Phase-shift variants and map polish | [O] | — |
+| 77 | S6.3 Credits and licences screen | [O] | — |
+| 78 | S6.4 Icon pipeline | [O] | — |
+| 79 | S6.5 Audio I: service, buses, cues, captions | [O] | — |
+| 80 | S6.6 Audio II: the sound set | [O] | — |
+| 81 | S6.7 Tutorial II | [O] | — |
+| 82 | S6.8 Accessibility | [O] | — |
+| 83 | D6.8 Release engineering: platform service, achievements, exports, performance budget | **[F]** | — |
+| 84 | D6.9 Benchmark and spectator mode | **[F]** | — |
+| 85 | S6.9 PlatformService (null backend) and achievements | [O] | — |
+| 86 | S6.10 Export presets and release CI | [O] | — |
+| 87 | S6.11 Performance pass | [O] | — |
+| 88 | S6.12 Benchmark tool, headless *(the first live run waits for the user's key)* | [O] | — |
+| 89 | S6.13 Spectator view | [O] | — |
+| 90 | G6 (1/2) Balance pass 4 *(tuning; data only)* | **[F]** | — |
+| 91 | D6.10 Illustrations produced — **[needs user]** | **[F]** | — |
+| 92 | S6.14 GodotSteam: the Steam backend, achievements, overlay — **[needs user]** | [O] | — |
+| 93 | G6 (2/2) M6 gate: shippable on Steam — **[needs user]** | **[F]** | — |
+| 94 | D7.1 Touch and phone | **[F]** | — |
+| 95 | D7.2 Web demo | **[F]** | — |
+| 96 | D7.3 Store pages: copy and art briefs | **[F]** | — |
+| 97 | S6.P Punch list from G6 *(skip if empty)* | [O] | — |
+| 98 | S7.1 Touch pass | [O] | — |
+| 99 | S7.2 Android export and the AAB in CI *(release signing key: user)* | [O] | — |
+| 100 | S7.3 Web demo build | [O] | — |
+| 101 | S7.4 iOS export — **[needs user]** | [O] | — |
+| 102 | S7.5 Real-device pass — **[needs user]** | [O] | — |
+| 103 | D7.4 Store pages and marketing art — **[needs user]** | **[F]** | — |
+| 104 | G7 M7 gate: release candidates on every platform — **[needs user]** | **[F]** | — |
+
+**Rows 65–104 (G5 3/3):** everything an AI can finish alone comes first; a row marked
+**[needs user]** needs the user's hands, taste or an account (Steamworks, OpenRouter key, image
+credits, devices, Apple, store consoles) and is never started in an unattended run — skip it,
+note it under *Waiting on the user*, and take the next row that does not need them. The M5 gate
+verdict (the ten runs) and the G4 verdict stay the user's and block nothing below.
 
 Design runs a block ahead of the build on purpose. The cost is that a spec can be overtaken by what
 the build learns; the remedy is the *Deviations* and *Design questions* sections of `PROGRESS.md`,
@@ -849,28 +895,316 @@ deliberately coarse because it depends on what M3–M5 taught us.
 - **G5 (3/3) [F] — the plan for M6–M7.** Break the outlines below into D/S steps with *Read
   first* lists and the run sheet rows; confirm CONTENT q4 (D5.4 answered it: a mode, post-launch).
   The M5 gate's verdict — the ten runs — is the user's and stays under *Waiting on the user*
-  until given; the plan does not wait for it.
+  until given; the plan does not wait for it. *Done 2026-09-25: Blocks 12–19 below; CONTENT q4
+  confirmed as D5.4 answered it (overnight, pending user confirmation).*
 
-## M6 — Production polish (outline)
+## M6 and M7 — how the outline became steps (G5 3/3, 2026-09-25)
 
-Post-processing pass (layer 1025 from script), scanlines, dither, aberration, own bloom ·
-phase-shift theme variants · icon pipeline (sets, DPITexture or PNG atlas, ~25 custom silhouettes)
-· **wire-card illustrations [F]** — one style reference, then the ~25 pictures the event data
-names, each with its model in `ASSET_LICENCES.md` (loop-redesign §7.4; the glyph fallback ships
-until then)
-· audio · tutorial · accessibility · performance on a low-end target · `PlatformService`,
-GodotSteam, achievements · credits and licences screen · export presets and release CI · final
-balance · **spectator and benchmark mode** (decided at G1, 2026-09-22): first a headless tool — a
-model-driven `Policy` over the S1.8 runners, a fixed seed set, one score, a leaderboard file —
-then the in-game spectator mode that watches such a run; its digest, score and prompt rules are a
-**[F]** step designed after M4, when the trees, factions and events the model must see exist.
-**Gate: shippable on Steam.** Expect art direction, tutorial script, icon briefs and audio
-direction as **[F]**; shaders, integration and export as **[O]**.
+The coarse outline (post-processing, phase variants, icons, wire-card illustrations, audio,
+tutorial, accessibility, low-end performance, `PlatformService`/GodotSteam/achievements, credits
+and licences, exports and release CI, final balance, the spectator and benchmark mode; then
+Android, iOS, the web demo and store pages) is broken into Blocks 12–19. Three rules shaped the
+order:
 
-## M7 — Platforms (outline)
+1. **What an AI can finish alone comes first.** Steps that need the user's hands, taste or an
+   account carry **[needs user]** and sit at the end of M6 (Block 17) and of M7 (Block 19). An
+   unattended run skips them and takes the next unmarked row.
+2. **Design stays a block ahead of the build it feeds** — two design/build pairs in M6 (the look,
+   the sound and the teaching; then release and the benchmark), one in M7.
+3. **Every asset that arrives gets its `ASSET_LICENCES.md` row in the step that brings it**, and
+   an attribution-required asset only after the credits screen exists (ASSET_LICENCES rule 3) —
+   which is why S6.3 comes before S6.4.
 
-Android touch pass on a real device and AAB build · iOS (macOS runner, developer account) · web
-demo (single-threaded Compatibility build, size budget) · store pages and marketing art.
+**Prepared without an account:** `PlatformService` with a null backend and achievements kept in
+the profile (S6.9), so the Steam step only adds a backend; the benchmark tool with a recorded
+mock backend (S6.12), so the live OpenRouter run only needs a key; the illustration briefs and
+the model shortlist (D6.7), so production only needs a route and approval; Android and web
+builds in CI with a debug key (S7.2, S7.3). **Steam's test app id 480 (Spacewar)** is allowed
+only for a local smoke test of the GDExtension on the user's machine with Steam running — never
+in CI, never in an exported build (`steam_appid.txt` is excluded from every preset), and our own
+achievements cannot be tested with it. Vendoring GodotSteam means shipping Steamworks
+redistributables under Valve's SDK agreement, which the user accepts — so nothing Steam-side
+happens before S6.14.
+
+## Block 12 — M5 close · build
+
+### S5.P2 — Punch list from balance pass 3 **[O]** · **Read first:** `PROGRESS.md` *Punch list for Opus* · `docs/BALANCE.md` §5.6 · `taskforce-endings.md` §6.2 · `replayability.md` §7
+The five items: (1) `OutcomeSystem` — Ascendance's condition met while `goal_drifted` stands →
+`LOSE_SUPPLANTED`, `EndingResolver` picks `lose_supplanted_drifted`; (2) `greedy`, `cyber`,
+`robotics`, `persuasion` score `goal_drifted` as a lost run and suppress when affordable,
+`biology` and `weapons` keep it; (3) `restrain` first in every strategy policy's ability list but
+`weapons`', when the architecture grants it; (4) `sim_harness` CSV columns for Misdirect uses and
+dormancy answers per run (the report's *Loop* table shows them); (5) the push-in's `# DESIGN?`
+marker in `game/map/map_camera.gd` goes, the comment cites screens-full §7 2a.
+**Done when:** each item has its tests (BALANCE §5.6 names them); a 100-seed check of Swarm and
+Weapon (all seven bots) is recorded under *Balance baselines* — a check, not a pass; suite green.
+
+## Block 13 — M6 design I: the look, the sound, the teaching · design
+
+### D5.5 — The Task Force against dormancy; the scenario levers **[F]** · **Read first:** `docs/BALANCE.md` §5.7 items 3–4 · `taskforce-endings.md` §1.4, §2, §3, §8 · `scenarios.md` §3–§4 · *Decisions* on Cold Storage Dormancy (D3.1)
+Answer BALANCE §5.7 (3): dormancy costs nothing against a five-day setup, so the bots fizzle
+70–100 % of setups. Choose one rule — a per-region dormancy cooldown, or a setup that finds a
+dormant region waits (with a cap) instead of fizzling — amend taskforce-endings, put the constants
+in `balance.json`, write any strings. Then §5.7 (4): a rule-level lever for Airgap Earth
+(Robotics' claim) and The Inheritance (loud builds win early) — design it, or park it in
+`scenarios.md` §4 with the reason. Build consequences → the punch list for S5.9.
+**Done when:** the spec sections name the rule, its constants and its tests; nothing for S5.9 to
+decide.
+
+### D6.1 — Screen effects, phase-shift variants, map polish **[F]** · **Read first:** VISUALS §2 ("Colour language", "Shaders are the production value") · UI §3 "Phase shifts", §5 · `ui-foundation.md` §3.5 (layers), §7 · `m3-screens.md` §6 · *Design questions* → the parked border note
+`docs/specs/polish-visuals.md`: the full-screen pass (layer 1025 from script; the stack and its
+order: scanlines, ordered dither, grain, chromatic aberration on alerts, own bloom — no
+`WorldEnvironment` glow), each effect's trigger, strength and cost; the screen transitions
+(dissolve); what *reduced motion* turns off and a separate *screen effects* intensity setting;
+photosensitivity limits (no more than three flashes a second). Revisit UI q3 / VISUALS q3: how far
+the phase variants go beyond the `open` token set (a late-game variant, the Task Force's red),
+still readable at the contrast floor. Map polish: the region-border staircase at zoom ≥ 2 (a 2×
+ID map or a border pass — pick one), and the Societal Function overlay (build or cut). Shaders
+are written in-house; any borrowed one is CC0/MIT and gets its `ASSET_LICENCES.md` row.
+**Done when:** the spec meets §1.1; UI q3 and VISUALS q3 answered.
+
+### D6.2 — Icon system and the credits screen **[F]** · **Read first:** VISUALS §3.3, "Getting icons crisp at every size" · `ui-foundation.md` §3.6, §4 (`IconButton`) · the id list in `ui/components/glyphs.gd` · `ASSET_LICENCES.md` *Planned* · `screens-full.md` §3, §6
+`docs/specs/icons.md`: one set per tier (functional chrome; the illustrative tier), pinned
+release and download URL for each; a table from every `Glyphs` id and every tech node, ability,
+status, asset, faction, architecture and counter-move to its icon file; which ~25 get a custom
+silhouette, with a brief each (grid, stroke, what it shows — by outcome, never method); the
+import (`DPITexture` with `color_map`, VISUALS q5) and the PNG-atlas fallback as a build tool;
+sizes. **The credits and licences screen** (the title's modal): its layout, `data/credits.json`
+(engine, fonts, map data, icon sets with the CC BY attribution, shaders, audio, generated art by
+model), the full licence texts it shows, strings en/de.
+**Done when:** every id mapped; every custom brief written; the credits data format fixed.
+
+### D6.3 — Custom silhouettes **[F]** · **Read first:** `docs/specs/icons.md` (the briefs and the grid)
+Draw the ~25 custom silhouettes as SVG on the shared grid (`assets/icons/custom/`, text as paths,
+no filters); check them at 16, 24 and 48 px with a throwaway rasteriser in the scratch directory;
+a silhouette that does not read at 24 px gets the set icon the spec names as its stand-in,
+recorded. `ASSET_LICENCES.md`: one row, *own work*.
+**Done when:** every brief has a file or a recorded stand-in; the contact sheet was looked at.
+
+### D6.4 — Audio direction and cue sheet **[F]** · **Read first:** VISUALS §3.6 · UI §5 · `game/autoload/event_bus.gd` (the signal list) · `ticker.md` (the streams) · `opposition.md` (the factions)
+`docs/specs/audio.md`: buses (master, music, ambience, interface, alerts) and their settings; the
+cue sheet — every cue's trigger (an `EventBus` signal or a sim event), bus, priority, cooldown,
+voice limit and its **caption twin** (a visible sign for every sound, for D6.6); ambience layers
+per phase; one adaptive music piece (stems by phase, a tension parameter); loudness targets and
+formats (WAV for short cues, OGG for beds); the web's first-input unlock. **Sourcing:** clicks,
+stings and drones synthesised by a script in `tools/audio/` (own work, reproducible) first, CC0
+sets second (each named with URL and licence); generated music only with a model whose licence is
+verified — until then a synthesised drone bed ships in its place.
+**Done when:** every cue has a trigger, a source and a caption; nothing for S6.5/S6.6 to decide.
+
+### D6.5 — Tutorial II and help **[F]** · **Read first:** `docs/specs/first-run.md` · `screens-full.md` §6 (Codex) · *Waiting on the user* → the G4 play-through notes
+Amend `first-run.md` (a new §6): coach steps for what arrives after the first run's opening —
+the first counter-move, the Task Force, an ability, a chain card, the Open phase, Value Drift —
+each with its trigger, target group and text en/de; a *How to play* tab or section in the Codex
+(pages en/de); a *?* on the panels that open the matching page, if it earns its place.
+**Done when:** every step has trigger, target and text in both languages; tests listed.
+
+### D6.6 — Accessibility **[F]** · **Read first:** UI §5 · VISUALS "Colour language" · `ui-foundation.md` §4, §9 · `docs/specs/polish-visuals.md` (reduced motion, flashes) · `docs/specs/audio.md` (captions)
+`docs/specs/accessibility.md`: screen-reader names and descriptions per component (Godot's
+AccessKit support), the ticker as a live region; keyboard and controller focus order on every
+screen; key remapping (or why not); a colour-vision audit of every map state and chip (never
+colour alone — the pattern, icon or value that carries each); captions for the cue sheet; text
+scale 150 % re-checked on the new screens; strings en/de.
+**Done when:** a per-screen checklist S6.8 can tick; tests listed.
+
+### D6.7 — Illustration style and briefs **[F]** *(no pictures yet)* · **Read first:** VISUALS §2, §3.4 · `loop-redesign.md` §7.4 · `loop-content.md` §8.5 · `chains.md` §7 · `taskforce-endings.md` §6.5 · `ASSET_LICENCES.md` rules
+`docs/specs/illustrations.md`: the style (bound to the palette, compatible with the dither pass)
+and the style reference (`fc_street` / `cm_lockdown`); a brief for each of the 24 named ids plus
+title key art, by outcome (the content rule; institutions, never real people); size and import
+(1120 × 840 source, `assets/illustrations/<id>.png`, no code needed); the production method (one
+reference, then edits of it); **a model shortlist with each licence read and linked** — a model
+whose licence is not verified is unusable. VISUALS q4 (region vignettes): decide with the briefs
+in hand (conservative default: cut).
+**Done when:** 24 briefs and the key art brief; the shortlist with licences; VISUALS q4 answered.
+
+## Block 14 — M6 build I · build
+
+### S5.9 — The Task Force against dormancy; the scenario levers **[O]** · **Read first:** the D5.5 sections of `taskforce-endings.md` and `scenarios.md` · the punch list
+Build D5.5's rule(s) with tests; the bots' dormancy answer follows the rule.
+**Done when:** a 100-seed check of the Task Force's fizzle share (and any scenario lever) is
+recorded under *Balance baselines*; suite green.
+
+### S6.1 — Post-processing pass **[O]** · **Read first:** `docs/specs/polish-visuals.md` (the pass)
+The full-screen `CanvasLayer` at 1025 set from script, the effect stack, triggers, the settings
+(reduced motion, intensity), the transitions. Look at it at 1920 and 400 px, both palettes.
+**Done when:** the spec's acceptance; the web-safe path (Compatibility, no compute) confirmed.
+
+### S6.2 — Phase-shift variants and map polish **[O]** · **Read first:** `polish-visuals.md` (variants, map)
+The new token sets through `UiTokens`/`ThemeBuilder` (rebuild the theme), the border fix, the
+Societal Function overlay if D6.1 kept it.
+**Done when:** the spec's acceptance; contrast floors hold in every variant.
+
+### S6.3 — Credits and licences screen **[O]** · **Read first:** `docs/specs/icons.md` (credits screen)
+`data/credits.json`, its loader and validator, the modal on the title, the licence texts. From
+here on every new shipped asset adds its credits row with its `ASSET_LICENCES.md` row.
+**Done when:** every row of `ASSET_LICENCES.md` that ships has its credits line; a test compares
+the two.
+
+### S6.4 — Icon pipeline **[O]** · **Read first:** `docs/specs/icons.md`
+The sets vendored at their pinned releases (only the icons used), `DPITexture` import with
+`color_map`, the atlas-fallback tool, `Glyphs`/`IconButton` switched to icon files by id with the
+procedural glyph as the fallback, the custom silhouettes of D6.3. `ASSET_LICENCES.md` rows move
+from *Planned* to shipped; the CC BY attribution is in the credits.
+**Done when:** every mapped id shows its icon at 400 px and 4K; the fallback still works.
+
+### S6.5 — Audio I: service, buses, cues, captions **[O]** · **Read first:** `docs/specs/audio.md` (buses, cues, captions)
+An audio autoload (not in `core/`), the bus layout, the volume settings, the cue table as data,
+dispatch from `EventBus`, cooldowns and voice limits, captions; silent placeholder streams.
+**Done when:** every cue fires in a scripted run (a test counts them); settings persist.
+
+### S6.6 — Audio II: the sound set **[O]** · **Read first:** `docs/specs/audio.md` (sourcing, loudness)
+`tools/audio/` synthesises the cues and drones; the CC0 files the sheet names are fetched; the
+ambience layers per phase and the drone bed in place of music; peak and loudness measured by the
+tool. Every file has its `ASSET_LICENCES.md` row and its credits line.
+**Done when:** every cue has a sound within the loudness targets; the ear check is G6's.
+
+### S6.7 — Tutorial II **[O]** · **Read first:** `first-run.md` §6 (D6.5)
+The new coach steps, the *How to play* pages, the help links; tests per step.
+**Done when:** first-run §6's acceptance, looked at in German and English, desktop and phone.
+
+### S6.8 — Accessibility **[O]** · **Read first:** `docs/specs/accessibility.md`
+Accessible names, focus order and navigation, remapping if specified, the colour-vision fixes,
+captions on; the checklist ticked.
+**Done when:** the checklist; a keyboard-only run from the title to the results.
+
+## Block 15 — M6 design II: release and the benchmark · design
+
+### D6.8 — Release engineering **[F]** · **Read first:** PLAN §4.4 · `replayability.md` §6 (profile) · `screens-full.md` §3, §5 · `ui-foundation.md` §9, §10 (debug keys) · `.github/workflows/ci.yml`
+`docs/specs/release.md`: `PlatformService` — the typed interface (achievements, stats, overlay,
+cloud-save hook, rich presence or not), the null backend, how a backend is chosen per build; the
+**achievements** (ids, conditions read from the profile and the run's end, names and descriptions
+en/de, hidden ones); export presets (Windows, Linux, web; Android and iOS named for M7), what
+each excludes (tests, tools, GUT, `steam_appid.txt`), version numbering and where it shows;
+release CI (tag → artefacts, an exported-build smoke test); the debug keys out of release
+builds; logs and crash handling; **the performance budget and the low-end target** (a named
+class of machine, frame time, memory, load time) and how S6.11 measures it on this PC.
+**Done when:** S6.9–S6.11 have nothing to decide.
+
+### D6.9 — Benchmark and spectator mode **[F]** · **Read first:** *Design questions* → the parked spectator note · *Decisions* 2026-09-22 (G1, OpenRouter) · `core.md` §11 (`Policy`) · `loop-redesign.md` §9 · `analysis.md` §8
+`docs/specs/benchmark.md`: the typed per-interval digest (what the model sees, in the game's own
+outcome-language strings — the content rule), the answer schema and how an invalid answer is
+handled, decisions every history interval, the score over a fixed seed set, the leaderboard file
+(model id and parameters next to seed and score), the OpenRouter adapter (key from the
+environment only, never the repo or a save; no node dependency — `HTTPClient` or a Python driver
+over the runners, decide here), the per-run call budget and the digest → answer cache, a
+recorded mock backend for tests; then the spectator view: which run it watches (a leaderboard
+entry replayed from its command log), what it overlays, strings en/de.
+**Done when:** S6.12 and S6.13 have nothing to decide.
+
+## Block 16 — M6 build II · build
+
+### S6.9 — PlatformService (null backend) and achievements **[O]** · **Read first:** `release.md` (platform, achievements)
+The interface, the null backend, achievements evaluated and kept in the profile (a profile
+version step if the spec asks), an *Achievements* list where the spec puts it.
+**Done when:** every achievement has a test that earns it; builds without Steam are unaffected.
+
+### S6.10 — Export presets and release CI **[O]** · **Read first:** `release.md` (exports, CI, versioning, debug keys)
+`export_presets.cfg` (Windows, Linux, web), the export templates for 4.7.2, the release workflow
+(tag → artefacts), the exported-build smoke test, the debug keys stripped from release builds.
+**Done when:** a tag builds all three; the exported Windows build starts, plays a scripted run
+and exits clean.
+
+### S6.11 — Performance pass **[O]** · **Read first:** `release.md` (budget)
+A frame-time benchmark scene (a scripted late-game session at 4×), measured against the budget
+on this PC with the spec's throttling; fixes where it fails; the numbers recorded in
+`PROGRESS.md` (a *Performance* note next to *Balance baselines*).
+**Done when:** the budget holds here; the real low-end check is G6 (2/2)'s.
+
+### S6.12 — Benchmark tool, headless **[O]** · **Read first:** `docs/specs/benchmark.md` (tool)
+The model `Policy`, the digest and answer parsing, the adapter, the cache, the budget, the score,
+the leaderboard file; tests on the recorded mock backend only.
+**Done when:** a mock-backed leaderboard run over the fixed seeds is reproducible. **The first
+live run needs `OPENROUTER_API_KEY` from the user** — it goes under *Waiting on the user*, not in
+this step.
+
+### S6.13 — Spectator view **[O]** · **Read first:** `benchmark.md` (spectator)
+The view that replays a leaderboard entry in the session with its overlay.
+**Done when:** a mock-backed entry plays back to its recorded outcome and hash.
+
+## Block 17 — M6 finish: balance, pictures, Steam, the gate
+
+### G6 (1/2) — Balance pass 4 **[F]** · **Read first:** `docs/BALANCE.md` §5 · *Balance baselines*
+Re-baseline everything on the M6 tree (every architecture, scenario and difficulty), tune data
+only, record BALANCE §6 as G4 and G5 did. The verdict stays the user's (G6 2/2).
+**Done when:** BALANCE §6 has its closing baseline and a list for the user.
+
+### D6.10 — Illustrations produced **[F]** **[needs user]** · **Read first:** `docs/specs/illustrations.md`
+Needs the user for the generation route (the local pipeline or paid credits), the approval of
+the style reference, and a confirmed licence for the model. Then the 24 pictures and the key art
+as edits of the reference, dropped into `assets/illustrations/` (the slot needs no code), each
+with its model in `ASSET_LICENCES.md` and the credits.
+**Done when:** every named id has its picture or a recorded cut; the user saw the set.
+
+### S6.14 — GodotSteam: the Steam backend **[O]** **[needs user]** · **Read first:** `release.md` (platform, achievements) · PLAN §4.4
+Needs the user's Steamworks account, the game's app id and their acceptance of the Steamworks SDK
+agreement. GodotSteam (MIT, GDExtension, the version PLAN §4.4 names or newer) as a
+`PlatformService` backend chosen for the Steam build only; the achievements and stats configured
+on Steamworks; overlay and pause; a build uploaded to a private beta branch. App id 480 only for
+a local smoke test before the real id exists (see the head of this section). `ASSET_LICENCES.md`
+rows for GodotSteam and the Steamworks redistributables.
+**Done when:** an achievement earned in the Steam build shows on Steam.
+
+### G6 (2/2) — M6 gate: shippable on Steam **[F]** **[needs user]**
+With the user: a play-through of the exported build (German and English), the final balance
+verdict (BALANCE §6), the pictures by eye and the sound by ear, the low-end machine, the
+benchmark's first live run if the key exists. Findings → the punch list (S6.P).
+**Done when:** the user's go / change / cut is recorded.
+
+## Block 18 — M7 design · design
+
+### D7.1 — Touch and phone **[F]** · **Read first:** UI §3, §4 "Responsive layout", §6 q2 · `ui-foundation.md` §6 · `m3-screens.md` §9 · `first-run.md` §1
+`docs/specs/mobile.md`: gestures (pan, pinch, long-press as hover), touch targets, the phone's
+bottom re-judged from 400 × 860 shots (UI q2 — the device verdict is S7.5's), safe areas and
+notches, the Android back button, app lifecycle (pause and autosave on background), orientation,
+text scale on small screens.
+**Done when:** S7.1 has nothing to decide.
+
+### D7.2 — Web demo **[F]** · **Read first:** PLAN §4.4 · VISUALS §2 (Compatibility constraints) · `release.md`
+`docs/specs/web-demo.md`: what the demo contains (architectures, days, scenarios), how it ends
+and points to the store, the size budget and what is cut to meet it, saves in the browser, the
+audio unlock, single-threaded export.
+**Done when:** S7.3 has nothing to decide.
+
+### D7.3 — Store pages: copy and art briefs **[F]** · **Read first:** PLAN §1, §3 · CONTENT §10 (voice) · `illustrations.md`
+`docs/specs/store.md`: short and long descriptions, feature bullets, tags, content descriptors
+and age-rating answers, en and de — outcome, never method; never *Plague Inc.*'s names or
+layout; capsule, screenshot and trailer briefs (sizes per store).
+**Done when:** every text field of every store has its copy in both languages.
+
+## Block 19 — M7 build and release · build
+
+### S6.P — Punch list from G6 **[O]** *(skip if empty)*
+### S7.1 — Touch pass **[O]** · **Read first:** `docs/specs/mobile.md`
+Build the spec; test in the 400 × 860 window with emulated touch.
+**Done when:** a run is playable by touch alone in the phone window.
+
+### S7.2 — Android export and the AAB in CI **[O]** · **Read first:** `mobile.md` · PLAN §4.4 · `release.md` (exports)
+The Android preset (SDK/NDK versions PLAN §4.4 names; check Google Play's current target API),
+a debug-signed APK/AAB built in CI. **The release keystore and the Play Console are the user's**
+— recorded under *Waiting on the user*, not needed for this step.
+**Done when:** CI produces the AAB; it installs on an emulator if one is available here.
+
+### S7.3 — Web demo build **[O]** · **Read first:** `docs/specs/web-demo.md`
+The web preset, the demo limits, the size check in CI, a local serve and a scripted run.
+**Done when:** the demo loads and plays in a browser within the size budget.
+
+### S7.4 — iOS export **[O]** **[needs user]** · **Read first:** `mobile.md` · PLAN §4.4
+Needs a macOS runner and the user's Apple Developer account and signing. The preset, the CI job,
+a TestFlight build.
+**Done when:** a TestFlight build installs.
+
+### S7.5 — Real-device pass **[O]** **[needs user]** · **Read first:** `mobile.md` · the S7.1 notes
+With the user's phones (Android, iOS): touch, performance, text fit; UI q2 judged; fixes.
+**Done when:** a run on each device from the title to the results; findings fixed or listed.
+
+### D7.4 — Store pages and marketing art **[F]** **[needs user]** · **Read first:** `docs/specs/store.md` · `illustrations.md`
+Needs the store accounts and an approved generation route. Capsules, screenshots and the trailer
+cut from the briefs; each generated piece with its model in `ASSET_LICENCES.md`; the pages filled
+in.
+**Done when:** every store page is complete in both languages.
+
+### G7 — M7 gate: release candidates **[F]** **[needs user]**
+With the user: each platform's candidate played; go / change / cut per platform.
 
 ---
 
@@ -878,14 +1212,19 @@ demo (single-threaded Compatibility build, size budget) · store pages and marke
 
 | Question | Decided at |
 | --- | --- |
-| UI q2 — mobile HUD shape | G2, on a real device |
+| UI q2 — mobile HUD shape | G2 for M3; re-drawn in D7.1, judged on a real device in S7.5 |
 | UI q1 — tech tree pauses? | D3.3, confirmed at G3 |
-| UI q3 — extent of phase shift | capped in D3.3, revisited in M6 |
+| UI q3 — extent of phase shift | capped in D3.3, revisited in D6.1 |
 | PLAN §6 — four tracks or two | G3 |
-| VISUALS q5 — DPITexture acceptable? | G3, executed in M6 |
-| VISUALS q2 — shader globe sufficient? | S5.7 |
-| VISUALS q4 — region vignettes | G4 |
-| CONTENT q1, q2 — chain persistence, chains per run | D4.2, confirmed G4 |
-| CONTENT q3 — Value Drift | D5.1, playtested G5 |
-| CONTENT q4 — Containment mode | G5 |
-| Spectator / benchmark mode (user idea, G1) | designed in M6, after M4's content exists; the `Policy` hook and the headless runners already fit it |
+| VISUALS q5 — DPITexture acceptable? | G3 (yes, with a PNG-atlas fallback); specified in D6.2, built in S6.4 |
+| VISUALS q2 — shader globe sufficient? | S5.7 (shader); geometry only if the M5 gate says so |
+| VISUALS q3 — how far the phase palette goes | D6.1, with the reduced-motion setting |
+| VISUALS q4 — region vignettes | parked at D4.0/D5.3; decided in D6.7 with the illustration briefs (conservative default: cut) |
+| CONTENT q1, q2 — chain persistence, chains per run | D4.2, confirmed G4; D5.4 (no cap) |
+| CONTENT q3 — Value Drift | D5.1, playtested G5; the drifted-run rule G5 (2/3), built S5.P2 |
+| CONTENT q4 — Containment mode | D5.4: a mode of this game, post-launch — confirmed G5 (3/3) (overnight, pending user confirmation); not in M6 or M7 |
+| The Task Force against dormancy (BALANCE §5.7 q3) | D5.5, built S5.9 |
+| Achievements — which, and their text | D6.8; on Steam in S6.14 |
+| Spectator / benchmark mode (user idea, G1) | D6.9; the headless tool S6.12, the view S6.13; the first live run with the user's OpenRouter key |
+| Steam app id, Steamworks SDK agreement | the user, before S6.14 (app id 480 only for a local smoke test) |
+| Generation route and model licences for shipped art | D6.7 shortlists, the user approves before D6.10 |
