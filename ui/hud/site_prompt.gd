@@ -30,6 +30,16 @@ const PLACEHOLDER_REASON: String = "reason"
 const MAX_WIDTH: float = 900.0
 const MIN_WIDTH: float = 640.0
 
+## The width the strip may take in the full layout: the HUD's, less an open
+## side panel's (D6.8). Zero until the HUD has measured it — then the view's.
+var room: float = 0.0:
+	set(value):
+		if is_equal_approx(value, room):
+			return
+		room = value
+		if is_node_ready():
+			_apply_shape()
+
 ## Folded to its title and the way back out; a new request opens unfolded.
 var collapsed: bool = false:
 	set(value):
@@ -70,11 +80,12 @@ func _notification(what: int) -> void:
 		refresh()
 
 
-## Full layout: one row, centred. Compact: the whole width, the detail on a row
-## of its own under the title.
+## Full layout: one row, centred in the room its row leaves it. Compact: the
+## whole width, the detail on a row of its own under the title.
 func set_compact(compact: bool) -> void:
 	_compact = compact
-	size_flags_horizontal = Control.SIZE_EXPAND_FILL if compact else Control.SIZE_SHRINK_CENTER
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL if compact \
+		else Control.SIZE_EXPAND | Control.SIZE_SHRINK_CENTER
 	if not is_node_ready():
 		return
 	_apply_shape()
@@ -145,8 +156,11 @@ func _apply_shape() -> void:
 	if _compact:
 		custom_minimum_size.x = 0.0
 	else:
-		custom_minimum_size.x = 0.0 if collapsed else minf(MAX_WIDTH, maxf(MIN_WIDTH,
-			get_viewport_rect().size.x * 0.5))
+		var width: float = room if room > 0.0 else get_viewport_rect().size.x
+		# Beside an open panel the room can be narrower than the strip's usual
+		# minimum: then it takes the room, less a gutter each side.
+		custom_minimum_size.x = 0.0 if collapsed else minf(minf(MAX_WIDTH, maxf(MIN_WIDTH,
+			width * 0.5)), maxf(width - float(UiTokens.GUTTER) * 2.0, 0.0))
 
 
 func _on_run_started(_seed_value: int) -> void:

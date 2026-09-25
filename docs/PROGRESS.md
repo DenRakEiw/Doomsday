@@ -14,18 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.P1 — Punch list from D6.8** [O] (Block 16): the eight items from D6.8's answers (*Punch list for Opus*). Then S6.9–S6.13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.9 — PlatformService (null backend) and achievements** [O] (Block 16): `release.md` (platform, achievements). Then S6.10–S6.13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.9 PlatformService and achievements, S6.10 exports and release CI, S6.11 performance, S6.12 benchmark tool, S6.13 spectator view. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | D6.9 — Benchmark and spectator mode: `docs/specs/benchmark.md` (model `Policy`, brief + digest from the game's strings, ids-only answers, 10-day rhythm, `HTTPClient` tool never shipped, cache, score, suites, leaderboard, mock backends; the replay spectator and the title's *Benchmark* list), `data/benchmark.json`, 135 strings en/de (2026-09-25). |
-| **Before that** | D6.8 — Release engineering: `docs/specs/release.md` (PlatformService, 34 achievements, versioning, presets, `--smoke`, release CI, the low-end budget); nine design questions answered, punch list for S6.P1 (2026-09-25). |
-| **Earlier** | S6.8c — Accessibility III: names and readouts, the §6.3 colour fixes, text-scaled widths, the checklist at 150 % (2026-09-25). |
+| **After it** | S6.10 exports and release CI, S6.11 performance, S6.12 benchmark tool, S6.13 spectator view. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | S6.P1 — Punch list from D6.8: covered zones out of the `Tab` ring, the site prompt beside the region panel, focus after a vanished control, site select leaves the Society view, `synth.py` ranges, the coach at the top on a phone over a modal, silent holds (2026-09-25). |
+| **Before that** | D6.9 — Benchmark and spectator mode: `docs/specs/benchmark.md`, `data/benchmark.json`, 135 strings en/de (2026-09-25). |
+| **Earlier** | D6.8 — Release engineering: `docs/specs/release.md`; nine design questions answered, punch list for S6.P1 (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 282 scripts compile (125 judged by the suite), then `tools/check_strings.gd` (2338 rows), 1935 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 282 scripts compile (127 judged by the suite), then `tools/check_strings.gd` (2338 rows), 1950 tests, **all green since S4.9**. The same command is all of CI. |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
 | **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. **The sound set:** `uv run --project tools/audio python tools/audio/synth.py [--only <id>] [--check]` (≈30 s; environment `uv sync --project tools/audio`) rewrites `assets/audio/**`; after a new file run `--import` and set its `.import` per audio.md §10.3 (`compress/mode=0` / `loop=true`). |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
@@ -173,7 +173,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] D6.9 [F] Benchmark and spectator mode *(`docs/specs/benchmark.md`, `data/benchmark.json`)*
 
 **Block 16 — M6 build II**
-- [ ] S6.P1 [O] Punch list from D6.8 (the build's design questions)
+- [x] S6.P1 [O] Punch list from D6.8 (the build's design questions)
 - [ ] S6.9 [O] PlatformService (null backend) and achievements
 - [ ] S6.10 [O] Export presets and release CI
 - [ ] S6.11 [O] Performance pass
@@ -1335,28 +1335,7 @@ without new information.
 
 ## Punch list for Opus
 
-**For S6.P1 (from D6.8's answers; Decisions 2026-09-25):**
-1. **`Tab` skips a covered zone:** the session focus ring leaves out a HUD zone whose rect an open
-   `SlidePanel` covers by more than half (the overlay picker under the region panel on desktop).
-   Test: region panel open → `Tab` never lands on the picker.
-2. **Site prompt beside the side panel:** while the region panel is open in the wide layout, the
-   site prompt centres in the width right of the panel (`panel right edge … viewport right`),
-   never under it. Test at 150 %: the prompt's rect does not intersect the panel's.
-3. **Focus after a vanished button:** when the focused control in a `SlidePanel` is hidden or
-   freed, focus goes to that panel's `primary_focus()` (the region panel after *Collect*). Test.
-4. **Site select on the Society view:** `MapView` on `site_select_changed(true)` with the Society
-   overlay up switches to the penetration view and restores Society on `false`. Test both ways.
-5. **Audio ranges:** `tools/audio/synth.py` `target_range` — interface low −12, alert low −11
-   (audio.md §10.1 amended); `--check` prints no note for `ui_open`, `ui_close`, `ev_expired`.
-6. **Coach card on a phone over a modal:** in the compact layout with a modal up the card sits at
-   the top edge (under the safe area, `GUTTER`), back at its place when the modal closes. The two
-   `# DESIGN?` comments in `ui/hud/coach.gd` become plain comments citing D6.8. Test.
-7. **Tech node icon:** the `# DESIGN?` in `TechNode._fit_icon` becomes a plain comment citing D6.8
-   (the rule stays).
-8. **Silent holds:** `Game.is_hold_change() -> bool`, true only while `hold`/`release` force the
-   speed (set around the two `_force_speed` calls); `Audio` adds `"hold"` to `speed_changed`'s
-   trigger data (audio.md §5.1). Test: opening and closing the pause menu plays `ui_open`/`ui_close`
-   only; `Space` still plays `ui_pause`.
+*(empty — S6.P1 cleared D6.8's eight items.)*
 
 ## Deviations from the plan or a spec
 
@@ -2619,6 +2598,14 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.P1 Punch list from D6.8 [O]
+- `FocusRing.is_covered` + `SlidePanel.covered_rect()`: the session ring drops a HUD zone an open panel covers >50 %; the site
+  prompt sits in `%PromptRow` with a spacer, centred right of the region panel; `SlidePanel` refocuses `primary_focus()` when
+  the focused control hides or is freed; `MapView` parks Society during site select; `synth.py` ranges −12/−11; coach top edge on
+  a phone over a modal (`safe_top` from the session); `Game.is_hold_change()` + `hold` in `speed_changed`'s audio fields.
+- Three `# DESIGN?` retired. Looked at (de, 1920 + 150 %, 400 × 860): prompt right of the region panel, coach at the
+  top over the pause menu and back after. +15 tests (2 new files), 1950 green.
 
 ### 2026-09-25 — D6.9 Benchmark and spectator mode [F]
 - No open design questions. `docs/specs/benchmark.md` (S6.12 tool, S6.13 spectator); `data/benchmark.json`;

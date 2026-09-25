@@ -123,9 +123,13 @@ func test_the_prompt_strip_sits_below_the_map() -> void:
 	var prompt: Control = _session.get_node("%Hud").get_node("%SitePrompt") as Control
 	var stat_row: Control = _session.get_node("%Hud").get_node("%StatRow") as Control
 	assert_true(prompt.visible)
-	assert_gt(prompt.get_index(), _session.get_node("%Hud").get_node("Layout/Middle").get_index(),
+	# S6.P1: the strip sits in a row of its own (a spacer keeps it beside an open
+	# side panel); the row is what takes the place in the column.
+	var row: Control = _session.get_node("%Hud").get_node("%PromptRow") as Control
+	assert_eq(prompt.get_parent(), row)
+	assert_gt(row.get_index(), _session.get_node("%Hud").get_node("Layout/Middle").get_index(),
 		"after the map area in the HUD's column")
-	assert_lt(prompt.get_index(), stat_row.get_index())
+	assert_lt(row.get_index(), stat_row.get_index())
 
 
 func test_folding_the_strip_keeps_the_choice_open() -> void:

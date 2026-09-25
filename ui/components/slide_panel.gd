@@ -70,12 +70,16 @@ var _state: State = State.CLOSED
 var _tween: Tween = null
 ## Whatever had the focus when a keyboard open took it.
 var _focus_before: Control = null
+## The control inside the panel that has the focus, watched so that its
+## disappearing hands the focus on (D6.8).
+var _watched: Control = null
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	_adopt_child()
+	get_viewport().gui_focus_changed.connect(_on_viewport_gui_focus_changed)
 
 
 ## A panel may arrive after `_ready` — m3-screens §3.6 moves the tech detail into
@@ -161,6 +165,58 @@ func _give_focus_back() -> void:
 	elif focus_fallback != null and is_instance_valid(focus_fallback) \
 			and focus_fallback.is_visible_in_tree():
 		focus_fallback.grab_focus()
+
+
+## D6.8: when the focused control in an open panel is hidden or freed (the
+## region panel's *Collect* once the anomaly is taken), the focus goes to the
+## panel's `primary_focus()` instead of dropping out of the ring.
+func _on_viewport_gui_focus_changed(node: Control) -> void:
+	_watch(node if node != null and is_ancestor_of(node) else null)
+
+
+func _watch(control: Control) -> void:
+	if control == _watched:
+		return
+	if _watched != null and is_instance_valid(_watched):
+		_watched.visibility_changed.disconnect(_on_watched_changed)
+		_watched.tree_exiting.disconnect(_on_watched_gone)
+	_watched = control
+	if control != null:
+		control.visibility_changed.connect(_on_watched_changed)
+		control.tree_exiting.connect(_on_watched_gone)
+
+
+func _on_watched_changed() -> void:
+	if _watched != null and is_instance_valid(_watched) and _watched.is_visible_in_tree():
+		return
+	_on_watched_gone()
+
+
+func _on_watched_gone() -> void:
+	_watch(null)
+	if is_open:
+		# Deferred: the engine releases the focus of a hidden control in the same
+		# notification, and a freed one is still in the tree at this point.
+		_refocus.call_deferred()
+
+
+func _refocus() -> void:
+	if not is_open or not is_inside_tree():
+		return
+	if get_viewport().gui_get_focus_owner() != null:
+		return
+	var target: Control = primary_focus()
+	if target != null and target.is_visible_in_tree():
+		target.grab_focus()
+
+
+## The screen rectangle the panel takes once open — where it slides to, so a
+## panel still moving counts in full — and an empty one while it is closed or
+## closing. The session's focus ring leaves out a zone it covers (D6.8).
+func covered_rect() -> Rect2:
+	if _panel == null or not is_open:
+		return Rect2()
+	return Rect2(global_position + _open_position(), _panel.size)
 
 
 ## A side panel's width on a view `view_width` wide: 30 % between the bounds,

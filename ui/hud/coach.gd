@@ -77,6 +77,9 @@ var ring: CoachRing = null
 var hud: Control = null
 ## The session's modal host: with a modal up the card moves out of its way.
 var modals: ModalHost = null
+## The safe area's top margin in logical pixels, which the session keeps up to
+## date: on a phone with a modal up the card sits just under it.
+var safe_top: float = 0.0
 
 var _step: String = ""
 var _done: Dictionary[String, bool] = {}
@@ -137,10 +140,10 @@ func _process(_delta: float) -> void:
 		elif _is_finished(_step):
 			_finish(_step)
 	_offer_next()
-	# DESIGN? §6.4 leaves the card up while *More*'s page is open, but the card
-	# sits on the layer above the modals and covered most of the page (at 150 %
-	# text nearly all of it). Until decided, it steps aside while the Codex is
-	# open — not ended, not recorded — and is back when the Codex closes.
+	# §6.4 leaves the card up while *More*'s page is open, but the card sits on
+	# the layer above the modals and covered most of the page (at 150 % text
+	# nearly all of it). D6.8 kept S6.7's answer: it steps aside while the Codex
+	# is open — not ended, not recorded — and is back when the Codex closes.
 	var covered: bool = _is_open(CoachRing.TARGET_HELP)
 	visible = not _step.is_empty() and not covered
 	_place()
@@ -481,10 +484,16 @@ func _place() -> void:
 	custom_minimum_size.x = width
 	size = Vector2(width, get_combined_minimum_size().y)
 	var left: float = floorf((view.x - width) * 0.5)
-	# DESIGN? At the bottom centre the card covered a wire card's answers (a
-	# hint about that very card, §6.2). With a modal up on a wide screen it goes
-	# to the bottom left, clear of the centred modal; a phone has no room aside.
-	if modals != null and modals.is_open() and view.x >= float(UiTokens.COMPACT_WIDTH):
+	# At the bottom centre the card covered a wire card's answers (a hint about
+	# that very card, §6.2). D6.8: with a modal up on a wide screen it goes to
+	# the bottom left, clear of the centred modal; a phone has no room aside, so
+	# there it goes to the top edge, under the safe area.
+	var modal_up: bool = modals != null and modals.is_open()
+	var phone: bool = view.x < float(UiTokens.COMPACT_WIDTH)
+	if modal_up and phone:
+		position = Vector2(left, safe_top + float(UiTokens.GUTTER))
+		return
+	if modal_up:
 		left = float(UiTokens.GUTTER)
 	# A long hint at 150 % text on a phone is taller than the room above the
 	# strip: then it keeps its top on screen and runs down over the strip.

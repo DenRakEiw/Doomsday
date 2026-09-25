@@ -92,6 +92,11 @@ var overlay_mode: Overlay = Overlay.PENETRATION:
 		overlay_mode = value
 		_set_param(PARAM_OVERLAY, int(overlay_mode))
 
+## D6.8: the cold `ACCENT` outline of site select sits too close to the society
+## view's lavender, so a site select started on that view shows the penetration
+## view until it ends, then goes back. True while the society view waits.
+var _society_waiting: bool = false
+
 var _shader: ShaderMaterial = null
 var _data_image: Image = null
 var _data_texture: ImageTexture = null
@@ -233,7 +238,13 @@ func _recompute_eligible() -> void:
 			_eligible[i] = true
 
 
-func _on_site_select_changed(_active: bool) -> void:
+func _on_site_select_changed(active: bool) -> void:
+	if active and overlay_mode == Overlay.SOCIETY:
+		_society_waiting = true
+		overlay_mode = Overlay.PENETRATION
+	elif not active and _society_waiting:
+		_society_waiting = false
+		overlay_mode = Overlay.SOCIETY
 	_recompute_eligible()
 	refresh()
 
@@ -263,7 +274,10 @@ func _on_command_applied(_command: Command, result: CommandResult) -> void:
 
 
 func _on_overlay_changed(mode: int) -> void:
-	overlay_mode = _overlay_from_int(mode)
+	var wanted: Overlay = _overlay_from_int(mode)
+	# The society view picked during a site select waits for its end too.
+	_society_waiting = wanted == Overlay.SOCIETY and Game.site_request != null
+	overlay_mode = Overlay.PENETRATION if _society_waiting else wanted
 
 
 ## The selection is the bus's, not the map's: `try_tap` announces one, the region

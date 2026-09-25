@@ -105,8 +105,9 @@ def target_range(recipe_id: str, kind: str) -> tuple[str, float, float]:
     if recipe_id.startswith("prep_"):
         return ("prep", -14.0, -14.0)
     if recipe_id.startswith("ui_") or recipe_id.startswith("boot_"):
-        return ("interface", -11.0, -6.0)
-    return ("alert", -10.0, -5.0)
+        # D6.8 widened both by 1 dB (audio.md §10.1): ui_open/ui_close at -12, ev_expired at -11.
+        return ("interface", -12.0, -6.0)
+    return ("alert", -11.0, -5.0)
 
 
 # ---------------------------------------------------------------- the data
@@ -550,7 +551,8 @@ def check_file(recipe: dict, relative: str, rendered: Rendered, data: bytes, mea
     want_channels = 2 if kind == "loop" or recipe_id.startswith("end_") else 1
     if measured.channels != want_channels or int(recipe["channels"]) != want_channels:
         problems.append(f"{recipe_id}: {measured.channels} channels, want {want_channels}")
-    if kind == "loop" and measured.seam_db is not None and measured.step_db is not None             and measured.seam_db > measured.step_db:
+    if kind == "loop" and measured.seam_db is not None and measured.step_db is not None \
+            and measured.seam_db > measured.step_db:
         problems.append(f"{recipe_id}: the join is a step of {measured.seam_db:.1f} dBFS, "
                         f"above any inside ({measured.step_db:.1f})")
     if measured.peak_db > PEAK_CEILING_DB:

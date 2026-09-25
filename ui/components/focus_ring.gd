@@ -8,6 +8,10 @@ extends RefCounted
 ##
 ## Pure: it reads the tree it is given and changes nothing.
 
+## D6.8: a zone an open panel covers by more than this share of its area is
+## left out of the ring.
+const COVERED_SHARE: float = 0.5
+
 
 ## The controls `Tab` walks, in order: every descendant of each root, in tree
 ## order, that is visible in the tree, has `focus_mode` `FOCUS_ALL` and is not a
@@ -31,6 +35,17 @@ static func next(chain: Array[Control], current: Control, backwards: bool) -> Co
 		return chain.back() if backwards else chain.front()
 	var step: int = -1 if backwards else 1
 	return chain[posmod(at + step, chain.size())]
+
+
+## Whether one of `covers` takes more than `COVERED_SHARE` of `zone`'s area.
+static func is_covered(zone: Rect2, covers: Array[Rect2]) -> bool:
+	var area: float = zone.get_area()
+	if area <= 0.0:
+		return false
+	for cover: Rect2 in covers:
+		if zone.intersection(cover).get_area() > area * COVERED_SHARE:
+			return true
+	return false
 
 
 ## Whether `control` takes a `Tab` stop.

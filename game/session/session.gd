@@ -126,6 +126,7 @@ func _ready() -> void:
 	_coach.set(&"ring", _coach_ring)
 	_coach.set(&"hud", _hud)
 	_coach.set(&"modals", _modals)
+	_hud.set(&"side_panel", _region_panel)
 	_build_map_focus()
 	# accessibility.md §4.4 item 3: a hint about the open tree can be read and
 	# put away without leaving it.
@@ -318,12 +319,28 @@ func _step_focus(event: InputEvent) -> bool:
 
 ## §4.3's zones, in order: the top bar; the left column and the coach; the dock
 ## or the status strip; the map; the site prompt; the region panel; the open one
-## of containment, analysis and the menu sheet. A hidden zone adds nothing.
+## of containment, analysis and the menu sheet. A hidden zone adds nothing, and
+## neither does a HUD zone an open panel covers by more than half (D6.8: the
+## overlay picker under the region panel).
 func focus_chain() -> Array[Control]:
 	var zones: Array[Control] = _hud.call(&"focus_zones")
-	var roots: Array[Control] = [zones[0], zones[1], _coach, zones[2], zones[3], map_focus,
-		_hud.call(&"site_prompt") as Control, _region_panel, _containment, _analysis,
-		_menu_sheet]
+	var prompt: Control = _hud.call(&"site_prompt") as Control
+	var covers: Array[Rect2] = []
+	for panel: SlidePanel in [_region_panel, _containment, _menu_sheet, _analysis]:
+		if panel.is_open:
+			covers.append(panel.covered_rect())
+	var hud_zones: Array[Control] = zones.duplicate()
+	hud_zones.append(prompt)
+	var covered: Array[Control] = []
+	for zone: Control in hud_zones:
+		if zone != null and zone.is_visible_in_tree() \
+				and FocusRing.is_covered(zone.get_global_rect(), covers):
+			covered.append(zone)
+	var roots: Array[Control] = []
+	for root: Control in [zones[0], zones[1], _coach, zones[2], zones[3], map_focus, prompt,
+			_region_panel, _containment, _analysis, _menu_sheet]:
+		if not covered.has(root):
+			roots.append(root)
 	return FocusRing.collect(roots)
 
 
@@ -804,6 +821,8 @@ func _apply_safe_area() -> void:
 	var values: Array[int] = [margins.x, margins.y, margins.z, margins.w]
 	for i: int in MARGIN_CONSTANTS.size():
 		_safe_area.add_theme_constant_override(MARGIN_CONSTANTS[i], values[i])
+	# The coach sits on its own layer, outside the margin container (D6.8).
+	_coach.set(&"safe_top", float(margins.y))
 
 
 ## Left, top, right, bottom in logical pixels. Desktop has none: UI.md warns that

@@ -37,6 +37,8 @@ const PREVIEW_CUES: Dictionary[StringName, StringName] = {
 ## §5.1: the fields each source matches on.
 const FIELD_REASON: String = "reason"
 const FIELD_SPEED: String = "speed"
+## §5.1 (D6.8): true when the speed change is a hold starting or ending.
+const FIELD_HOLD: String = "hold"
 const FIELD_INDEX: String = "index"
 const FIELD_SCREEN: String = "screen"
 const FIELD_TO: String = "to"
@@ -634,7 +636,8 @@ func _on_command_applied(_command: Command, result: CommandResult) -> void:
 func _on_speed_changed(speed: int) -> void:
 	_speed = speed
 	_dirty = true
-	dispatch(AudioTriggerDef.ON_BUS, AudioTriggerDef.SIGNAL_SPEED_CHANGED, {FIELD_SPEED: speed})
+	dispatch(AudioTriggerDef.ON_BUS, AudioTriggerDef.SIGNAL_SPEED_CHANGED,
+		{FIELD_SPEED: speed, FIELD_HOLD: Game.is_hold_change()})
 
 
 func _on_region_selected(index: int) -> void:

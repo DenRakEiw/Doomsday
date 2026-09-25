@@ -29,7 +29,7 @@ func before_each() -> void:
 	Game.debug_log = false
 	_session = SESSION.instantiate()
 	add_child_autofree(_session)
-	_prompt = _session.get_node("HudLayer/SafeArea/Hud/Layout/SitePrompt")
+	_prompt = _session.get_node("%Hud").get_node("%SitePrompt")
 	_panel = _session.get_node("PanelLayer/RegionPanel")
 	_map = _session.get_node("MapLayer/MapView")
 	_tree = _session.get_node("ModalLayer/ModalHost/TechTree")
@@ -189,3 +189,43 @@ func test_a_scenario_sets_the_scene_in_the_origin_prompt() -> void:
 	await wait_process_frames(2)
 	assert_eq(Game.site_request.kind, SiteRequest.KIND_ORIGIN)
 	assert_eq(detail.text, tr("SCENARIO_INHERITANCE_INTRO"))
+
+
+## D6.8: the site outline is too close to the society view's lavender, so a site
+## select started on that view shows penetration until it ends, then goes back.
+func _deploy_request() -> SiteRequest:
+	var request: SiteRequest = SiteRequest.new()
+	request.eligible = func(_index: int) -> String: return ""
+	request.build = func(region_id: String) -> Command: return ChooseOriginCommand.new(region_id)
+	return request
+
+
+func _on_the_society_view() -> void:
+	Game.start_run(SEED)
+	Game.site_confirm(ORIGIN)
+	Game.set_speed(0)
+	EventBus.overlay_changed.emit(int(MapView.Overlay.SOCIETY))
+	assert_eq(_map.overlay_mode, MapView.Overlay.SOCIETY)
+
+
+func test_site_select_on_the_society_view_shows_penetration() -> void:
+	_on_the_society_view()
+	Game.site_select(_deploy_request())
+	assert_eq(_map.overlay_mode, MapView.Overlay.PENETRATION)
+
+
+func test_the_society_view_comes_back_when_site_select_ends() -> void:
+	_on_the_society_view()
+	Game.site_select(_deploy_request())
+	Game.site_cancel()
+	assert_eq(_map.overlay_mode, MapView.Overlay.SOCIETY)
+
+
+func test_site_select_on_another_view_leaves_it_alone() -> void:
+	Game.start_run(SEED)
+	Game.site_confirm(ORIGIN)
+	EventBus.overlay_changed.emit(int(MapView.Overlay.CONTROL))
+	Game.site_select(_deploy_request())
+	assert_eq(_map.overlay_mode, MapView.Overlay.CONTROL)
+	Game.site_cancel()
+	assert_eq(_map.overlay_mode, MapView.Overlay.CONTROL)

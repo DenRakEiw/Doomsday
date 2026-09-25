@@ -62,6 +62,9 @@ var _last_outcome: World.Outcome = World.Outcome.NONE
 ## last reason goes (m3-screens §10.2).
 var _holds: Dictionary[StringName, bool] = {}
 var _speed_before_hold: int = 0
+## True only while `hold`/`release` force the speed, so that what hears
+## `speed_changed` can tell a hold from a player's choice (D6.8, audio.md §5.1).
+var _is_hold_change: bool = false
 
 
 ## The seed a new run gets (m3-screens §7.2). Presentation may draw from the
@@ -221,7 +224,9 @@ func hold(reason: StringName) -> void:
 		return
 	if _holds.is_empty():
 		_speed_before_hold = speed
+		_is_hold_change = true
 		_force_speed(0)
+		_is_hold_change = false
 	_holds[reason] = true
 	EventBus.hold_changed.emit(true)
 
@@ -231,11 +236,19 @@ func release(reason: StringName) -> void:
 		return
 	EventBus.hold_changed.emit(false)
 	if sim != null and sim.world.outcome == World.Outcome.NONE:
+		_is_hold_change = true
 		_force_speed(_speed_before_hold)
+		_is_hold_change = false
 
 
 func is_held() -> bool:
 	return not _holds.is_empty()
+
+
+## Whether the `speed_changed` being heard now comes from a hold starting or
+## ending rather than from the player (D6.8: a hold is silent).
+func is_hold_change() -> bool:
+	return _is_hold_change
 
 
 ## The speed the run goes back to once nothing holds it any more.

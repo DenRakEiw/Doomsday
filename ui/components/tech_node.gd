@@ -203,15 +203,16 @@ func shows_icon() -> bool:
 ## the footer; at 160 px a locked node with a footprint and the external glyph
 ## needs 152 of the 136 px there are. The text carries the meaning (§6), so the
 ## icon is what gives way.
-# DESIGN? The icon steps aside when the footer would overflow its cell (S6.4
-# placeholder, PROGRESS "Design questions for Fable").
+# D6.8 kept this as the rule: the icon steps aside when the footer would
+# overflow its cell — the detail pane always shows it.
 func _fit_icon() -> void:
 	if not is_node_ready():
 		return
 	_icon.visible = not Icons.path_for(Icons.KIND_TECH, node_id).is_empty()
 	if not _icon.visible or size.x <= 0.0:
 		return
-	var room: float = size.x - float(_content.get_theme_constant(MARGIN_LEFT)) 		- float(_content.get_theme_constant(MARGIN_RIGHT))
+	var room: float = size.x - float(_content.get_theme_constant(MARGIN_LEFT)) \
+		- float(_content.get_theme_constant(MARGIN_RIGHT))
 	_icon.visible = _footer.get_combined_minimum_size().x <= room
 
 

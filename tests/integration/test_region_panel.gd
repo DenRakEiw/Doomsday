@@ -197,15 +197,18 @@ func test_a_link_row_counts_the_links_of_its_kind() -> void:
 	assert_eq(land.text, "Land: %d" % expected)
 
 
-func test_an_anomaly_can_be_collected_from_the_panel() -> void:
+## Runs until an anomaly exists somewhere and answers its region (0: none).
+func _run_to_an_anomaly() -> int:
 	_start(1)
-	# Run until an anomaly exists somewhere, then select that region.
-	var index: int = 0
 	for i: int in 400:
 		Game.advance(1)
 		if not Game.sim.world.anomalies.is_empty():
-			index = Game.sim.world.anomalies[0].region
-			break
+			return Game.sim.world.anomalies[0].region
+	return 0
+
+
+func test_an_anomaly_can_be_collected_from_the_panel() -> void:
+	var index: int = _run_to_an_anomaly()
 	assert_gt(index, 0, "no anomaly spawned in 400 days")
 	var before: float = Game.sim.world.agent.compute
 	var value: float = Game.sim.world.anomaly_in_region(index).value
@@ -215,6 +218,50 @@ func test_an_anomaly_can_be_collected_from_the_panel() -> void:
 	assert_almost_eq(Game.sim.world.agent.compute, before + value, 0.001)
 	assert_null(Game.sim.world.anomaly_in_region(index), "the anomaly was taken")
 	assert_false((_node("AnomalyBox") as Control).visible, "and the offer is gone")
+
+
+## D6.8: a focused button that disappears hands the focus to the panel's
+## `primary_focus()` — *Collect* once the anomaly is taken.
+func test_after_collect_the_focus_goes_to_the_panel_s_first_control() -> void:
+	var index: int = _run_to_an_anomaly()
+	assert_gt(index, 0, "no anomaly spawned in 400 days")
+	EventBus.region_selected.emit(index)
+	var collect: Button = _node("CollectButton") as Button
+	collect.grab_focus()
+	assert_eq(get_viewport().gui_get_focus_owner(), collect)
+	collect.emit_signal("pressed")
+	assert_false(collect.is_visible_in_tree(), "the offer is gone")
+	await wait_process_frames(2)
+	var owner: Control = get_viewport().gui_get_focus_owner()
+	assert_not_null(owner)
+	assert_eq(owner, _panel.primary_focus())
+
+
+func test_a_freed_focused_control_hands_the_focus_on_too() -> void:
+	_start()
+	_select(REGION_USA)
+	var primary: Control = _panel.primary_focus()
+	assert_not_null(primary)
+	var extra: Button = Button.new()
+	extra.focus_mode = Control.FOCUS_ALL
+	primary.get_parent().add_child(extra)
+	extra.grab_focus()
+	assert_eq(get_viewport().gui_get_focus_owner(), extra)
+	extra.queue_free()
+	await wait_process_frames(2)
+	assert_eq(get_viewport().gui_get_focus_owner(), primary)
+
+
+func test_a_closed_panel_takes_no_focus_back() -> void:
+	_start()
+	_select(REGION_USA)
+	var primary: Control = _panel.primary_focus()
+	primary.grab_focus()
+	EventBus.region_selected.emit(0)
+	await wait_process_frames(2)
+	var owner: Control = get_viewport().gui_get_focus_owner()
+	assert_true(owner == null or not _panel.is_ancestor_of(owner),
+		"closing is `_give_focus_back`'s business, not the watcher's")
 
 
 # ----------------------------------------------- m3-screens §8.1 dormancy

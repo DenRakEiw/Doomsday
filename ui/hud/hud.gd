@@ -36,6 +36,8 @@ const ANNOUNCE_GAP_MS: int = 1500
 @onready var _stat_row: PanelContainer = %StatRow
 @onready var _ticker: PanelContainer = %Ticker
 @onready var _site_prompt: PanelContainer = %SitePrompt
+@onready var _prompt_row: HBoxContainer = %PromptRow
+@onready var _prompt_spacer: Control = %PromptSpacer
 @onready var _status_strip: PanelContainer = %StatusStrip
 @onready var _console_line: Label = %ConsoleLine
 
@@ -51,6 +53,10 @@ var _announce_live: LiveRegion = null
 var _announce_queue: LiveQueue = LiveQueue.new(ANNOUNCE_GAP_MS)
 ## A test sets the clock the pacing reads; below zero, the real one.
 var clock_override_ms: int = -1
+## The side panel the site prompt keeps clear of (the region panel; the session
+## sets it). D6.8: in the full layout the prompt centres in the width the open
+## panel leaves free, never under it.
+var side_panel: SlidePanel = null
 
 
 func _ready() -> void:
@@ -71,6 +77,28 @@ func _process(_delta: float) -> void:
 	var line: String = _announce_queue.pop_due(_now())
 	if not line.is_empty():
 		_announce_live.say(line)
+	_fit_prompt_row()
+
+
+## The prompt's row shows exactly while the prompt does (a visible empty row
+## would still take a separation). Beside an open left-edge panel a spacer as
+## wide as the panel reaches pushes it over, and the prompt is told how much
+## room is left. Setters that get the value they hold do nothing, so asking
+## every frame costs no layout.
+func _fit_prompt_row() -> void:
+	_prompt_row.visible = _site_prompt.visible
+	if not _prompt_row.visible:
+		return
+	var separation: float = float(_prompt_row.get_theme_constant(&"separation"))
+	var inset: float = 0.0
+	if not _compact and side_panel != null and side_panel.is_open \
+			and side_panel.edge == SlidePanel.Edge.LEFT:
+		inset = side_panel.covered_rect().end.x - _prompt_row.get_global_rect().position.x \
+			- separation
+	_prompt_spacer.visible = inset > 0.0
+	_prompt_spacer.custom_minimum_size.x = maxf(inset, 0.0)
+	var used: float = inset + separation if inset > 0.0 else 0.0
+	_site_prompt.set(&"room", maxf(_prompt_row.size.x - used, 0.0))
 
 
 ## accessibility.md §3.4: the three spoken lines of the HUD live on its root, a

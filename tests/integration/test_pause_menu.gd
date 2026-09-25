@@ -5,6 +5,10 @@ extends GutTest
 const SESSION: PackedScene = preload("res://game/session/session.tscn")
 const PauseMenu: GDScript = preload("res://ui/modals/pause_menu.gd")
 const SEED: int = 1
+## The audio clock for the silent-hold tests (ms), far enough apart that no
+## cooldown of the sheet counts.
+const AUDIO_CLOCK_START_MS: int = 1000000
+const AUDIO_CLOCK_STEP_MS: int = 10000
 
 var _session: Control = null
 var _menu: PauseMenu = null
@@ -184,3 +188,65 @@ func test_the_hints_row_toggles_the_setting() -> void:
 	button.emit_signal("pressed")
 	assert_ne(Settings.hints, before)
 	Settings.set_hints(before)
+
+
+## D6.8: the ear for the two tests below — the clock injected so no cooldown of
+## the sheet counts between two sounds.
+func _listen() -> void:
+	Audio.set_unlocked(true)
+	Audio.clock_override_ms = AUDIO_CLOCK_START_MS
+	Audio.reset_ledger()
+	Audio.reset_history()
+
+
+func _later() -> void:
+	Audio.clock_override_ms += AUDIO_CLOCK_STEP_MS
+	Audio.reset_ledger()
+
+
+func _stop_listening() -> void:
+	Audio.clock_override_ms = -1
+	Audio.reset_ledger()
+	Audio.reset_history()
+
+
+func test_the_menu_s_hold_is_silent() -> void:
+	_start()
+	Game.set_speed(2)
+	_listen()
+	_press_escape()
+	assert_eq(Game.speed, 0, "the menu holds the clock")
+	_later()
+	_menu.on_escape()
+	assert_eq(Game.speed, 2, "and gives it back")
+	assert_eq(Audio.history, [&"ui_open", &"ui_close"] as Array[StringName],
+		"a hold plays neither the pause nor the speed cue")
+	_stop_listening()
+
+
+func test_space_still_sounds_the_pause() -> void:
+	_start()
+	Game.set_speed(2)
+	_listen()
+	var key: InputEventKey = InputEventKey.new()
+	key.keycode = KEY_SPACE
+	key.physical_keycode = KEY_SPACE
+	key.pressed = true
+	_session.call("_input", key)
+	assert_eq(Game.speed, 0)
+	assert_eq(Audio.history, [&"ui_pause"] as Array[StringName])
+	_stop_listening()
+
+
+func test_is_hold_change_is_true_only_inside_a_hold_s_speed_change() -> void:
+	_start()
+	Game.set_speed(1)
+	var heard: Array[bool] = []
+	var listener: Callable = func(_speed: int) -> void: heard.append(Game.is_hold_change())
+	EventBus.speed_changed.connect(listener)
+	Game.hold(&"test")
+	Game.release(&"test")
+	Game.set_speed(2)
+	EventBus.speed_changed.disconnect(listener)
+	assert_eq(heard, [true, true, false] as Array[bool])
+	assert_false(Game.is_hold_change(), "false outside the signal")
