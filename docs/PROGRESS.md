@@ -1424,11 +1424,7 @@ without new information.
 
 **From the user's play-through (2026-09-25, build ca7a25c, Windows at 150 % display scaling,
 2560×1440 primary + a portrait 1200×1920 monitor to its left) — before G6:**
-1. **Blocker — clicks don't reach the map in the session.** Some anomaly circles can be clicked,
-   others can't; over the failing ones not even the hover tooltip appears (South America works).
-   An event card ("Aktion" popup) then took no clicks at all. Title and setup take clicks fine.
-   Being debugged on a branch (regression test over many anomaly positions); the fix lands as
-   S6.P2.
+1. ~~Clicks don't reach the map~~ — fixed in S6.P2 (below).
 2. **The tech tree (*Fähigkeiten*) is taller than the display** — the user wants a compact
    layout in which the whole tree fits without scrolling at 1920×1080 and on their 2560×1440.
 3. **Event cards don't say what an option does** (en and de): the user could not tell what
@@ -2864,6 +2860,13 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.P2 Map clicks dead over part of the screen [O]
+- User report: some anomalies could not be clicked or hovered. `Main` (the root Control of
+  `game/main.tscn`, default MOUSE_FILTER_STOP) sits on the root canvas, which the map camera
+  moves and scales (`follow_viewport_enabled`), so its rect swallowed pointer events over a
+  camera-shaped block of the map since S3.4. Now IGNORE. Regression test
+  `test_anomaly_click.gd` probes every region through the real main scene. 2292 green.
 
 ### 2026-09-25 — S6.13 Spectator view and the online list [O]
 - `ReplayPolicy`, `BenchLibrary`, `GlobalBoard`/`Row`/`Run`, `GlobalBoardClient`; `Game`/`ScreenRouter.start_spectating`, strip, console/ticker/results/pause,
