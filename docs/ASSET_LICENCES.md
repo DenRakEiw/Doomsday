@@ -48,6 +48,12 @@ discover after a commercial release.
 | `font_jetbrains_mono` | `assets/fonts/JetBrainsMono-Regular.ttf`, `-Medium.ttf`, `-Bold.ttf` | github.com/JetBrains/JetBrainsMono, release `v2.304` (2026-09-22) | **OFL 1.1**, licence text at `assets/fonts/OFL-JetBrainsMono.txt` | Body, data and label type (VISUALS §3.5). **No Reserved Font Name**, so a subset needs no renaming. The notice ships in the credits |
 | `font_space_grotesk` | `assets/fonts/SpaceGrotesk-Variable.ttf` | github.com/floriankarsten/space-grotesk, release `2.0.0` (2026-09-22) | **OFL 1.1**, licence text at `assets/fonts/OFL-SpaceGrotesk.txt` | Display and heading type. The **variable** file, because release 2.0.0 ships no static SemiBold; `ThemeBuilder` cuts weight 500 and 600 from it. No Reserved Font Name |
 
+## Icons (shipped)
+
+| Id | Asset | Source | Licence | Notes |
+| --- | --- | --- | --- | --- |
+| `icons_custom` | `assets/icons/custom/*.svg` (24 illustrative, `viewBox 0 0 512 512`), `assets/icons/custom/chrome/*.svg` (3 chrome, `0 0 256 256`) | Drawn for this game in D6.3 (2026-09-25) to the briefs of `docs/specs/icons.md` §9; the geometry is `tools/icons/draw_silhouettes.py`, which reproduces the files byte for byte | **Own work** — no third-party material, not credited (rule 6) | `tech_voluntary_pause.svg` is not drawn (it failed the 24 px read); its stand-in `game-icons/lorc/hourglass.svg` ships under `icons_game_icons` (S6.4) |
+
 ## Planned — approved, not yet integrated
 
 Verified during research; recorded here so the decision is not re-litigated later.

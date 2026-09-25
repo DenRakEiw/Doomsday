@@ -97,6 +97,7 @@ glyph (CHECK/LOCK) in different places of the card, never side by side as equals
 | `assets/icons/phosphor/<name>-<weight>.svg` + `LICENSE.txt` | S6.4 (tool) | the 25 chrome files, normalised |
 | `assets/icons/game-icons/<author>/<name>.svg` + `license.txt` | S6.4 (tool) | the 117 illustrative files (incl. stand-ins), normalised |
 | `assets/icons/custom/<name>.svg`, `assets/icons/custom/chrome/<name>.svg` | D6.3 | own work, §9 |
+| `tools/icons/draw_silhouettes.py` | D6.3 | the own silhouettes' geometry; writes the files above (§9.1 *D6.3 result*) |
 | `assets/licences/CC-BY-3.0.txt` | S6.3 | §11.3 |
 | `tools/icons/vendor_icons.py` | S6.4 | §10.1 |
 | `tools/build_icon_atlas.gd` | S6.4 | §10.2 |
@@ -562,6 +563,37 @@ A counter-move shows the icon of the status it leaves (the four disclosures show
 | 25 | `tech_sanctioned_access.svg` | `sanctioned_access` | let in, officially | a hanging badge on a short clip; the portrait window holds the aperture, two bars beside it for text lines | `delapouite/id-card` |
 
 (Stand-ins are `game-icons/<author>/<name>.svg`.)
+
+**D6.3 result (2026-09-25).** 24 of 25 drawn and shipped; rasterised with Godot's own SVG renderer
+(`Image.load_svg_from_string`, the one `DPITexture` uses) at 16, 24, 48, 96 and 160 px and looked
+at on contact sheets, several rounds each. The geometry is `tools/icons/draw_silhouettes.py`
+(shapely, the map tool's environment; `uv run --project tools/map python
+tools/icons/draw_silhouettes.py`) — edit a function there and re-run rather than editing path
+data by hand. Where the drawing departs from the brief, and why:
+
+- **#24 `voluntary_pause` — not shipped, the stand-in stays.** An hourglass lying on its side reads
+  as a bow tie at 24 px, and with its frame as an envelope; three variants (straight bulbs, round
+  bulbs, framed) all failed. `data/icons.json` keeps `custom/tech_voluntary_pause.svg` → the
+  stand-in `lorc/hourglass` resolves (§6 item 2). The upright hourglass is not the chrome PAUSE.
+- **#13 `cascading_grid_failure`** — the pylons have two crossarms and a peak instead of an
+  A-frame with one crossbar: three A-frames read as the letters *A A 7*. The third lies on the
+  ground line (a floor bar was added so *fallen* reads). Passes at 24 px, narrowly.
+- **#15 `total_communications_denial`** — the mast is a tapered pole on a foot, not an A-frame,
+  for the same reason (it read as a letter *A*).
+- **#11 `architecture_migration_3`** — the first two squares have their empty ring; the third holds
+  the aperture where the arrow lands (the aperture *is* at the arrow's head, inside its target).
+- **#17 `autonomous_fabrication`** — at 24 px it reads as a working arm; the smaller copy in its
+  gripper reads from 48 px. Kept: the stand-in says less.
+- **#22 `constitutional_integration`** — no ribbons under the seal (they fell below the minimum
+  feature); the seal is the aperture, set in a gap cut into the scroll.
+- **The aperture** is the §9.1 shape throughout; in a solid it sits in a round window cut
+  18–24 units wider than the ring. Its own ring and gap are below the minimum feature below 1.5×
+  scale — accepted, as §9.1 fixes its proportions. Scales used: 0.6 (keystone, migration) to 1.5.
+- **Crates** (#14) keep a 30-unit frame and brace; the brace's corner cut-outs are under 24 units
+  and fill in at 24 px, which leaves a solid crate — harmless, since the crate reads by outline.
+- **Chrome:** `fast-4` is three triangles each the Minkowski sum of a smaller triangle and a
+  r16 disc, so the rounded extent is exactly x 20…236, y 58.5…197.5 and each tip touches the next
+  base; `asset-tap` and `log-theirs` are exact arcs. All three read at 16 px.
 
 ### 9.2 The chrome grid (3 files, `assets/icons/custom/chrome/`)
 

@@ -14,11 +14,11 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D6.3 — Custom silhouettes** [F]: the 25 illustrative and 3 chrome silhouettes of `docs/specs/icons.md` §9 as SVG (`assets/icons/custom/`, white fill, no text), checked at 16/24/48 px; a file that fails at 24 px keeps its named stand-in, recorded; `ASSET_LICENCES.md` row `icons_custom` (own work). IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **D6.4 — Audio direction and cue sheet** [F]: `docs/specs/audio.md` — buses and their settings, the cue sheet (trigger, bus, priority, cooldown, voice limit, caption twin per cue), ambience per phase, one adaptive music piece, loudness and formats, the web unlock; sourcing synthesised first (`tools/audio/`), CC0 second. IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | the rest of Block 13 (D6.4–D6.7), then Block 14 (S5.9, S6.1–S6.8). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | D6.2 — `docs/specs/icons.md`: Phosphor 2.1.1 (chrome) and game-icons.net at commit `82d9488` (illustrative), pinned with hashes; `data/icons.json` maps all 179 ids (+ 4 asset kinds via glyphs); 25 + 3 silhouette briefs; `DPITexture` per size, white sources tinted by modulate, atlas as a CI-built fallback (VISUALS q5); the credits screen and `data/credits.json`; *Id* column in `ASSET_LICENCES.md`; 31 strings; 1531 tests green (2026-09-25). |
-| **Before that** | D6.1 — `docs/specs/polish-visuals.md`: the screen pass (`ScreenFx`, heat, *Screen effects*, flash limits), the Open accent to pale amber, the coast/outline pass, the society overlay kept (2026-09-25). |
+| **After it** | the rest of Block 13 (D6.5–D6.7), then Block 14 (S5.9, S6.1–S6.8). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | D6.3 — the own silhouettes: 24 illustrative + 3 chrome SVGs in `assets/icons/custom/`, built by `tools/icons/draw_silhouettes.py` and looked at on contact sheets (16–160 px, Godot's SVG renderer); `voluntary_pause` keeps its stand-in; row `icons_custom`; 1531 tests green (2026-09-25). |
+| **Before that** | D6.2 — `docs/specs/icons.md`: Phosphor 2.1.1 (chrome) and game-icons.net at commit `82d9488` (illustrative), pinned with hashes; `data/icons.json` (179 ids), the silhouette briefs, `DPITexture` per size, the credits screen and `data/credits.json` (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -146,7 +146,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] D5.5 [F] The Task Force against dormancy; the scenario levers *(`taskforce-endings.md` §14, `scenarios.md` §8)*
 - [x] D6.1 [F] Screen effects, phase-shift variants, map polish *(`docs/specs/polish-visuals.md`)*
 - [x] D6.2 [F] Icon system and the credits screen *(`docs/specs/icons.md`, `data/icons.json`, `data/credits.json`)*
-- [ ] D6.3 [F] Custom silhouettes
+- [x] D6.3 [F] Custom silhouettes *(`assets/icons/custom/`, `tools/icons/draw_silhouettes.py`)*
 - [ ] D6.4 [F] Audio direction and cue sheet
 - [ ] D6.5 [F] Tutorial II and help
 - [ ] D6.6 [F] Accessibility
@@ -1190,6 +1190,13 @@ without new information.
   shipped tables start with an `Id`**, and a test (S6.3) matches them to the credits' `rows`.
   Credits names are proper names, not strings (SCHEMA §10). *Made by* stays empty until the user
   names it (overnight, pending user confirmation).
+- **2026-09-25** (D6.3, overnight, pending user confirmation) — **Own silhouettes**: 24 of 25
+  illustrative + 3 chrome drawn (`assets/icons/custom/`, row `icons_custom`, own work, not
+  credited). Their source is `tools/icons/draw_silhouettes.py` (shapely; reproduces the files byte
+  for byte) — change a shape there, not in the path data. **`voluntary_pause` keeps its stand-in**
+  (`lorc/hourglass`): a lying hourglass read as a bow tie at 24 px in three variants. Departures
+  from the briefs (pylons and the comms mast not A-shaped — they read as letters; no seal ribbons)
+  are in `icons.md` §9.1 *D6.3 result*. The `.import` files are completed and committed.
 
 ## Design questions for Fable
 
@@ -1973,6 +1980,10 @@ fourth button from Emergent on — worth the space? Best judged on the S6.1/S6.2
 under *Made by* in the credits (a name, a studio; AI assistance credited or not)? Until then the
 section is hidden. (2) The icon choice is best judged on D6.3's contact sheet and S6.4's shots.
 
+**D6.3 (2026-09-25, overnight, pending user confirmation):** the own silhouettes
+(`assets/icons/custom/`) — do they read, and is *Voluntary Pause* on the set's upright hourglass
+(the lying one read as a bow tie) acceptable? Best judged on S6.4's gallery shots.
+
 **D5.2 (2026-09-24), at G5:** `docs/specs/taskforce-endings.md` §13 — is *Supplanted* (a secret
 loss that turns a win, after one warning card) fair, or should a normal win's results screen hint
 that a released child is still out there?
@@ -2255,6 +2266,12 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-25 — D6.3 Custom silhouettes [F]
+- 24 illustrative + 3 chrome SVGs (`assets/icons/custom/`), built by `tools/icons/draw_silhouettes.py`,
+  rasterised with Godot's SVG renderer at 16–160 px and iterated on contact sheets.
+- `voluntary_pause` failed the 24 px read → stand-in stays. Departures in `icons.md` §9.1.
+- `ASSET_LICENCES.md` *Icons (shipped)*: `icons_custom`. Suite green (1531).
 
 ### 2026-09-25 — D6.2 Icon system and the credits screen [F]
 - `docs/specs/icons.md`: Phosphor 2.1.1 + game-icons.net `82d9488` (URLs, SHA-256), normalisation,
