@@ -1053,9 +1053,10 @@ dispatch from `EventBus`, cooldowns and voice limits, captions; silent placehold
 **Done when:** every cue fires in a scripted run (a test counts them); settings persist.
 
 ### S6.6 — Audio II: the sound set **[O]** · **Read first:** `docs/specs/audio.md` (sourcing, loudness)
-`tools/audio/` synthesises the cues and drones; the CC0 files the sheet names are fetched; the
-ambience layers per phase and the drone bed in place of music; peak and loudness measured by the
-tool. Every file has its `ASSET_LICENCES.md` row and its credits line.
+`tools/audio/` synthesises all 64 files from `tools/audio/recipes.json` (cues, the ambience
+layers per phase, the four music stems — the synthesised stems are the music); peak and loudness
+measured by the tool. No CC0 file is fetched: D6.4 names Kenney's *Interface Sounds* only as the
+fallback if G6's ear check rejects an interface cue (`audio.md` §9.5). Every file has its `ASSET_LICENCES.md` row and its credits line.
 **Done when:** every cue has a sound within the loudness targets; the ear check is G6's.
 
 ### S6.7 — Tutorial II **[O]** · **Read first:** `first-run.md` §6 (D6.5)

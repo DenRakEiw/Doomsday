@@ -65,6 +65,7 @@ Verified during research; recorded here so the decision is not re-litigated late
 | Tabler Icons | MIT | Not required | Gap-filler — **not used** (D6.2 left no gap) |
 | Lucide | ISC | Not required | Alternative to Phosphor — **not used** |
 | Material Symbols | Apache-2.0 | Appreciated, not required | No NOTICE file exists — **not used** |
+| Kenney *Interface Sounds* 1.0 | **CC0 1.0** (`License.txt` in the archive, read 2026-09-25) | Not required (appreciated) | **Fallback only** (D6.4, `docs/specs/audio.md` §9.5): https://kenney.nl/assets/interface-sounds, `kenney_interface-sounds.zip` SHA-256 `f2193d07…c81232`. Ships only if G6's ear check rejects a synthesised interface cue; then row + credits line in the same commit |
 | Game-icons.net | **CC BY 3.0** (per-author; a few are CC0) | **Required** | **Chosen** for the illustrative tier (D6.2): commit `82d948812bfe3f269ef8f731dcdb07b08160edc4` (2026-04-23), archive SHA-256 `2b6f10a3…579f01`; seven authors used, none of them CC0. Ship `license.txt`, the CC BY 3.0 legal code and "Icons made by {author}" in the credits. Vendored in S6.4 → row `icons_game_icons` |
 | JetBrains Mono | OFL 1.1 | Notice required | **No Reserved Font Name** — subsetting is permitted without renaming. **Integrated since S2.4**, see *Fonts* |
 | Space Grotesk | OFL 1.1 | Notice required | **No Reserved Font Name**. **Integrated since S2.4**, see *Fonts* |
@@ -90,7 +91,8 @@ Verified during research; recorded here so the decision is not re-litigated late
 
 ## Audio
 
-*(none yet)*
+*(none yet — D6.4 decided the set is synthesised, own work: S6.6 adds the row `audio_synth` for
+`assets/audio/**`, rendered by `tools/audio/synth.py` from `tools/audio/recipes.json`)*
 
 | Id | Asset | Source | Licence |
 | --- | --- | --- | --- |

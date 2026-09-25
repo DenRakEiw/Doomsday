@@ -759,15 +759,16 @@ strings and nothing displays them.
 
 ## 10. Presentation data (not loaded by the core)
 
-Two files under `data/` belong to the interface, not to the simulation: `ContentLoader` and
+Three files under `data/` belong to the interface, not to the simulation: `ContentLoader` and
 `SchemaValidator` never read them, and a content root (or a test fixture) does not need them.
 Each is read and validated by its own interface class, which reports a bad file instead of
-crashing. Both carry `"version": 1`, are tab-indented, and ignore keys starting with `_`.
+crashing. All three carry `"version": 1`, are tab-indented, and ignore keys starting with `_`.
 
 | File | Read by | Format |
 | --- | --- | --- |
 | `icons.json` | `Icons` (`ui/components/icons.gd`, S6.4) | `docs/specs/icons.md` §8 — sections `glyphs` (keyed by `Glyphs.Glyph` name), `tech`, `abilities`, `statuses`, `factions`, `architectures`, `counter_moves` (keyed by content id), `stand_ins`; every value a path under `res://assets/icons/` |
 | `credits.json` | `CreditsData` (`ui/modals/credits_data.gd`, S6.3) | `docs/specs/icons.md` §11.3 |
+| `audio.json` | `AudioSheet` (`ui/audio/audio_sheet.gd`, S6.5) | `docs/specs/audio.md` §4 — `buses`, `mix`, `cues`, `triggers` (with the `match` vocabulary of §4.5 and `{field}` templates), `ambience.layers`, `music.stems`, `screens`; every `file` a path under `res://assets/audio/` |
 
 **The one exception to §1's "no player-visible text":** `credits.json` holds proper names —
 works, people, handles, organisations — and URLs. They are shown as written in every language;

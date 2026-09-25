@@ -367,6 +367,9 @@ subpixel positioning to cure irregular letter spacing.
 - **Music:** one adaptive piece, not a playlist.
 
 Sourced CC0 or generated, with the same licence discipline as §3.4.
+*Specified at D6.4 (2026-09-25): `docs/specs/audio.md` — five buses, a 56-cue sheet in
+`data/audio.json`, captions for every world sound, the music's tension is the screen pass's heat;
+the whole set is synthesised in-house (`tools/audio/`), CC0 only as a named fallback.*
 
 ---
 

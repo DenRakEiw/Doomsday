@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D6.4 — Audio direction and cue sheet** [F]: `docs/specs/audio.md` — buses and their settings, the cue sheet (trigger, bus, priority, cooldown, voice limit, caption twin per cue), ambience per phase, one adaptive music piece, loudness and formats, the web unlock; sourcing synthesised first (`tools/audio/`), CC0 second. IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **D6.5 — Tutorial II and help** [F]: amend `docs/specs/first-run.md` (a new §6) — coach steps for the first counter-move, the Task Force, an ability, a chain card, the Open phase, Value Drift (trigger, target, text en/de); a *How to play* part of the Codex; a *?* on panels if it earns its place. IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | the rest of Block 13 (D6.5–D6.7), then Block 14 (S5.9, S6.1–S6.8). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | D6.3 — the own silhouettes: 24 illustrative + 3 chrome SVGs in `assets/icons/custom/`, built by `tools/icons/draw_silhouettes.py` and looked at on contact sheets (16–160 px, Godot's SVG renderer); `voluntary_pause` keeps its stand-in; row `icons_custom`; 1531 tests green (2026-09-25). |
-| **Before that** | D6.2 — `docs/specs/icons.md`: Phosphor 2.1.1 (chrome) and game-icons.net at commit `82d9488` (illustrative), pinned with hashes; `data/icons.json` (179 ids), the silhouette briefs, `DPITexture` per size, the credits screen and `data/credits.json` (2026-09-25). |
+| **After it** | the rest of Block 13 (D6.6–D6.7), then Block 14 (S5.9, S6.1–S6.8). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | D6.4 — `docs/specs/audio.md`: five buses from data, `data/audio.json` (56 cues, 50 triggers, 4 ambience layers, 4 music stems; tension = the screen pass's heat), captions for every world sound, all 64 files synthesised from `tools/audio/recipes.json` (S6.6 writes the tool); Kenney *Interface Sounds* (CC0, verified) named as fallback only; 32 strings; 1531 tests green (2026-09-25). |
+| **Before that** | D6.3 — the own silhouettes: 24 illustrative + 3 chrome SVGs in `assets/icons/custom/`, built by `tools/icons/draw_silhouettes.py`; `voluntary_pause` keeps its stand-in; row `icons_custom` (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (1952 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (1984 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -147,7 +147,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] D6.1 [F] Screen effects, phase-shift variants, map polish *(`docs/specs/polish-visuals.md`)*
 - [x] D6.2 [F] Icon system and the credits screen *(`docs/specs/icons.md`, `data/icons.json`, `data/credits.json`)*
 - [x] D6.3 [F] Custom silhouettes *(`assets/icons/custom/`, `tools/icons/draw_silhouettes.py`)*
-- [ ] D6.4 [F] Audio direction and cue sheet
+- [x] D6.4 [F] Audio direction and cue sheet *(`docs/specs/audio.md`, `data/audio.json`, `tools/audio/recipes.json`)*
 - [ ] D6.5 [F] Tutorial II and help
 - [ ] D6.6 [F] Accessibility
 - [ ] D6.7 [F] Illustration style and briefs *(no pictures yet)*
@@ -1198,6 +1198,18 @@ without new information.
   from the briefs (pylons and the comms mast not A-shaped — they read as letters; no seal ribbons)
   are in `icons.md` §9.1 *D6.3 result*. The `.import` files are completed and committed.
 
+- **2026-09-25** (D6.4, overnight, pending user confirmation) — **Audio** (`docs/specs/audio.md`):
+  five buses (`master`, `music`, `ambience`, `interface`, `alerts`) built from `data/audio.json`,
+  each a volume setting in five steps; no bus effect is load-bearing (the web plays samples), so
+  ducking and the pause dip move the loop players. **One event, one cue, first matching trigger
+  wins**; frequent or derivative events are silent. Each faction has a sting and a distant
+  *prepare* version; the Task Force a low tritone. Ambience adds one layer per phase; the music is
+  four synchronised stems gated by **tension = the screen pass's heat**. **Captions** (setting,
+  default off) in brackets at the bottom of the map's left column, shown whatever the volume.
+  **The whole set is synthesised** (`tools/audio/synth.py`, S6.6) — Kenney *Interface Sounds*
+  (CC0) named only as a fallback for interface cues; no generated music until a licence is
+  verified. Hover and focus sounds, positional audio and headline sounds are out.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
@@ -1984,6 +1996,11 @@ section is hidden. (2) The icon choice is best judged on D6.3's contact sheet an
 (`assets/icons/custom/`) — do they read, and is *Voluntary Pause* on the set's upright hourglass
 (the lying one read as a bow tie) acceptable? Best judged on S6.4's gallery shots.
 
+**D6.4 (2026-09-25, overnight, pending user confirmation):** `docs/specs/audio.md` — (1) a fully
+synthesised sound set (own work, no licence risk) as the start — right? (2) The music: stay with
+the synthesised stems, or later a commissioned or generated piece (a verified licence needed)?
+The ear check itself is G6's.
+
 **D5.2 (2026-09-24), at G5:** `docs/specs/taskforce-endings.md` §13 — is *Supplanted* (a secret
 loss that turns a win, after one warning card) fair, or should a normal win's results screen hint
 that a released child is still out there?
@@ -2266,6 +2283,12 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-25 — D6.4 Audio direction and cue sheet [F]
+- `docs/specs/audio.md`: buses from data, settings rows, trigger/match vocabulary, admission and
+  voice stealing, ducking on players (web-safe), ambience per phase, four stems on tension = heat.
+- `data/audio.json` (56 cues, 50 triggers), `tools/audio/recipes.json` (64 synth recipes), 32 strings
+  en/de, SCHEMA §10, ASSET_LICENCES (Kenney CC0 fallback verified). Suite green (1531).
 
 ### 2026-09-25 — D6.3 Custom silhouettes [F]
 - 24 illustrative + 3 chrome SVGs (`assets/icons/custom/`), built by `tools/icons/draw_silhouettes.py`,

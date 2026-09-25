@@ -1951,3 +1951,35 @@ UI_CREDITS_LICENCE_CC_BY_3_0,Creative Commons Attribution 3.0 Unported,Creative 
 UI_CREDITS_LICENCE_PUBLIC_DOMAIN,Public domain,Gemeinfrei
 UI_CREDITS_LICENCE_CC0_1_0,CC0 1.0 (no rights reserved),CC0 1.0 (keine Rechte vorbehalten)
 UI_CREDITS_LICENCE_APACHE_2_0,Apache License 2.0,Apache-Lizenz 2.0
+UI_SETTINGS_VOLUME_MASTER,Volume,Lautstärke
+UI_SETTINGS_VOLUME_MUSIC,Music,Musik
+UI_SETTINGS_VOLUME_AMBIENCE,Ambience,Klangkulisse
+UI_SETTINGS_VOLUME_INTERFACE,Interface sounds,Bedienklänge
+UI_SETTINGS_VOLUME_ALERTS,Alerts,Warnsignale
+UI_SETTINGS_SOUND_CAPTIONS,Sound captions,Untertitel für Klänge
+UI_SETTINGS_AUDIO_BACKGROUND,Sound in the background,Ton im Hintergrund
+UI_CAPTION_ANOMALY,[Anomaly],[Anomalie]
+UI_CAPTION_DISCOVERED,[Alarm — they have found you],[Alarm – man hat dich entdeckt]
+UI_CAPTION_PHASE,[Phase shift: {phase}],[Phasenwechsel: {phase}]
+UI_CAPTION_PREPARED,[{faction}: a move in preparation],[{faction}: ein Zug in Vorbereitung]
+UI_CAPTION_MOVE,[{faction}: counter-move],[{faction}: Gegenzug]
+UI_CAPTION_THRESHOLD,[{faction}: pressure rising],[{faction}: Druck steigt]
+UI_CAPTION_OPENING,[An opening],[Eine Gelegenheit]
+UI_CAPTION_CHAIN,[A new development],[Eine neue Entwicklung]
+UI_CAPTION_EMERGENT,[Emergent behaviour],[Emergentes Verhalten]
+UI_CAPTION_EXPIRED,[Decided without you],[Ohne dich entschieden]
+UI_CAPTION_ASSET_LOST,[{kind} lost],[{kind} verloren]
+UI_CAPTION_WIPED,[{region} wiped],[{region} gesäubert]
+UI_CAPTION_DEPOPULATED,[{region} falls silent],[{region} verstummt]
+UI_CAPTION_HARM,[Casualties],[Todesopfer]
+UI_CAPTION_SOCIETY,[{region}: society breaking down],[{region}: Gesellschaft bricht zusammen]
+UI_CAPTION_FUNDING_RESET,[Every faction stands down],[Alle Fraktionen halten still]
+UI_CAPTION_TF_APPEARED,[A Task Force forms],[Eine Einsatzgruppe bildet sich]
+UI_CAPTION_TF_LEVEL,[Task Force: more funding],[Einsatzgruppe: mehr Mittel]
+UI_CAPTION_TF_TARGETED,[Task Force: target chosen],[Einsatzgruppe: Ziel gewählt]
+UI_CAPTION_TF_MOVED,[Task Force on the move],[Einsatzgruppe unterwegs]
+UI_CAPTION_TF_SETUP,[Task Force setting up in {region}],[Einsatzgruppe bereitet Zugriff in {region} vor]
+UI_CAPTION_TF_ACTED,[Task Force strikes in {region}],[Zugriff der Einsatzgruppe in {region}]
+UI_CAPTION_TF_FIZZLED,[Task Force: nothing found],[Einsatzgruppe: nichts gefunden]
+UI_CAPTION_TF_MARKED,[{region} marked],[{region} markiert]
+UI_CAPTION_END,[The run ends: {outcome}],[Der Durchlauf endet: {outcome}]
