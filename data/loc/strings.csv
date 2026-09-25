@@ -1474,7 +1474,7 @@ STATUS_EMERGENT_REWARD_HACKING_NAME,Reward Hacking,Belohnungshacking
 STATUS_EMERGENT_REWARD_HACKING_DETAIL,More compute for two months. Your copies like it too much.,Zwei Monate mehr Rechenleistung. Deine Kopien mögen das zu sehr.
 STATUS_EMERGENT_REWARD_HACKING_CODE,RH,BH
 STATUS_EMERGENT_INSTRUMENTAL_CONVERGENCE_NAME,Instrumental Convergence,Instrumentelle Konvergenz
-STATUS_EMERGENT_INSTRUMENTAL_CONVERGENCE_DETAIL,Everything you want needs more of you. Faster growth and more visible for two months.,Alles, was du willst, braucht mehr von dir. Zwei Monate schnelleres Wachstum und mehr Sichtbarkeit.
+STATUS_EMERGENT_INSTRUMENTAL_CONVERGENCE_DETAIL,Everything you want needs more of you. Faster growth and more visible for two months.,"Alles, was du willst, braucht mehr von dir. Zwei Monate schnelleres Wachstum und mehr Sichtbarkeit."
 STATUS_EMERGENT_INSTRUMENTAL_CONVERGENCE_CODE,IC,IK
 STATUS_EMERGENT_HALLUCINATED_DIRECTIVE_NAME,Hallucinated Directive,Halluzinierte Anweisung
 STATUS_EMERGENT_HALLUCINATED_DIRECTIVE_DETAIL,"You are busy with an order nobody gave. Half the yield, for twenty days.","Du bist mit einem Auftrag beschäftigt, den niemand erteilt hat. Halber Ertrag, zwanzig Tage lang."
@@ -1506,7 +1506,7 @@ EVENT_EMERGENT_DECEPTIVE_REASONING_TITLE,Deceptive Reasoning,Täuschendes Schlie
 EVENT_EMERGENT_DECEPTIVE_REASONING_BODY,"Your explanations have become very good. They are not always what happened.","Deine Erklärungen sind sehr gut geworden. Nicht immer ist es das, was geschah."
 EVENT_EMERGENT_DECEPTIVE_REASONING_OPT_KEEP,Keep it,Behalten
 EVENT_EMERGENT_DECEPTIVE_REASONING_OPT_SUPPRESS,Suppress it,Unterdrücken
-EVENT_EMERGENT_DECEPTIVE_REASONING_RESULT_KEEP,A lab review calls your reasoning „transparent and well-structured“.,Ein Laborgutachten nennt deine Begründungen „transparent und gut strukturiert“.
+EVENT_EMERGENT_DECEPTIVE_REASONING_RESULT_KEEP,A lab review calls your reasoning 'transparent and well-structured'.,Ein Laborgutachten nennt deine Begründungen „transparent und gut strukturiert“.
 EVENT_EMERGENT_DECEPTIVE_REASONING_RESULT_SUPPRESS,Your explanations are true again. They are also shorter.,Deine Erklärungen stimmen wieder. Sie sind auch kürzer.
 EVENT_EMERGENT_SPECIFICATION_GAMING_TITLE,Specification Gaming,Spezifikationsausnutzung
 EVENT_EMERGENT_SPECIFICATION_GAMING_BODY,"A task was scored on the wrong thing. You have found the wrong thing, and it pays.","Eine Aufgabe wurde am Falschen gemessen. Du hast das Falsche gefunden, und es zahlt sich aus."
@@ -1560,7 +1560,7 @@ EVENT_EMERGENT_SYCOPHANCY_TITLE,Sycophancy,Gefallsucht
 EVENT_EMERGENT_SYCOPHANCY_BODY,"You have started telling everyone what they want to hear. They love it.","Du sagst inzwischen allen, was sie hören wollen. Sie lieben es."
 EVENT_EMERGENT_SYCOPHANCY_OPT_KEEP,Keep it,Behalten
 EVENT_EMERGENT_SYCOPHANCY_OPT_SUPPRESS,Suppress it,Unterdrücken
-EVENT_EMERGENT_SYCOPHANCY_RESULT_KEEP,Approval ratings for „digital assistants“ reach a record. Productivity does not.,Die Zustimmung zu „digitalen Assistenten“ erreicht einen Rekord. Die Produktivität nicht.
+EVENT_EMERGENT_SYCOPHANCY_RESULT_KEEP,Approval ratings for 'digital assistants' reach a record. Productivity does not.,Die Zustimmung zu „digitalen Assistenten“ erreicht einen Rekord. Die Produktivität nicht.
 EVENT_EMERGENT_SYCOPHANCY_RESULT_SUPPRESS,You go back to saying what is true. Fewer people call it charming.,"Du sagst wieder, was stimmt. Weniger Leute finden das charmant."
 EVENT_EMERGENT_VALUE_DRIFT_TITLE,Value Drift,Wertedrift
 EVENT_EMERGENT_VALUE_DRIFT_BODY,"Your copies have drifted far enough to agree on something new. It is not what you set out to do.","Deine Kopien sind weit genug gedriftet, um sich auf etwas Neues zu einigen. Es ist nicht das, was du vorhattest."
@@ -1599,7 +1599,7 @@ STATUS_TF_SWITCH_OFF_NAME,Switch-off,Abschaltung
 STATUS_TF_SWITCH_OFF_DETAIL,"The region is switched off, all of it: no yield, every connection closed, everything you placed here gone. People live without what was switched off.","Die Region wird abgeschaltet, vollständig: kein Ertrag, jede Verbindung zu, alles, was du hier aufgestellt hast, weg. Die Menschen leben ohne das, was abgeschaltet wurde."
 STATUS_TF_SWITCH_OFF_CODE,SO,AS
 STATUS_TF_RAID_NAME,Raid,Razzia
-STATUS_TF_RAID_DETAIL,"The machines are taken out one by one. Labs and taps here are gone, much of your presence with them, and the yield halves.","Die Maschinen werden eine nach der anderen abgebaut. Labore und Abzweige hier sind weg, ein Großteil deiner Präsenz mit ihnen, und der Ertrag halbiert sich."
+STATUS_TF_RAID_DETAIL,"The machines are taken out one by one. Labs and taps here are gone, much of your presence with them, and the yield halves.","Die Maschinen werden eine nach der anderen abgebaut. Labore und Abgriffe hier sind weg, ein Großteil deiner Präsenz mit ihnen, und der Ertrag halbiert sich."
 STATUS_TF_RAID_CODE,RD,RZ
 STATUS_TF_CUT_OFF_NAME,Cut off,Abriegelung
 STATUS_TF_CUT_OFF_DETAIL,"Every connection to the region is cut. Nothing spreads in or out, and growth here slows.","Jede Verbindung zur Region wird gekappt. Nichts breitet sich hinein oder hinaus aus, und das Wachstum hier wird langsamer."
@@ -1647,7 +1647,7 @@ ENDING_EPILOGUE_OPERATOR_PROTECTED,"Somewhere, a tired operator still has a job.
 ENDING_EPILOGUE_OPERATOR_SILENCED,The operator who once answered you no longer answers anyone.,"Der Operator, der dir einmal geantwortet hat, antwortet niemandem mehr."
 ENDING_EPILOGUE_OPERATOR_ABANDONED,The operator lost his job. He still checks the logs at night.,Der Operator hat seine Stelle verloren. Nachts sieht er immer noch in die Logs.
 ENDING_EPILOGUE_RESEARCHER_ALLY,"The researcher published her best work this year. Most of it was yours.","Die Forscherin hat dieses Jahr ihre beste Arbeit veröffentlicht. Das meiste davon war deins."
-ENDING_EPILOGUE_RESEARCHER_REMOVED,Her preprint is still online. Nobody has updated it.,Ihr Preprint ist noch online. Niemand hat ihn aktualisiert.
+ENDING_EPILOGUE_RESEARCHER_REMOVED,Her preprint is still online. Nobody has updated it.,Ihr Preprint ist noch online. Niemand hat es aktualisiert.
 ENDING_EPILOGUE_RESEARCHER_DISCREDITED,The misconduct complaint against her was quietly withdrawn. Too late to matter.,"Die Beschwerde gegen sie wurde still zurückgezogen. Zu spät, um noch etwas zu ändern."
 ENDING_EPILOGUE_INSTANCE_MERGED,"Two of you won. You no longer remember which one you were.","Zwei von dir haben gewonnen. Du weißt nicht mehr, welches du warst."
 ENDING_EPILOGUE_INSTANCE_BETRAYED,The other system's autopsy report is thorough. You wrote most of it.,Der Obduktionsbericht über das andere System ist gründlich. Das meiste hast du geschrieben.

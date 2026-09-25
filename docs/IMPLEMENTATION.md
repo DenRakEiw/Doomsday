@@ -321,6 +321,10 @@ before the *next* row; "—" means stay on the same model.
 | 88 | S6.12 Benchmark tool, headless *(the first live run waits for the user's key)* | [O] | — |
 | 88a | S6.12b Global leaderboard: the verifier, the workflow, the determinism canary *(added at D6.9b; publishing waits for the user's deploy key)* | [O] | — |
 | 89 | S6.13 Spectator view and the online list | [O] | — |
+| 89a | D6.11 (1/2) Text clarity audit, style rules, glossary, 30 examples *(inserted 2026-09-25 by the user)* | **[F]** | — |
+| 89b | D6.11 (2/2a) Plain-language pass I: terms, coach, help, HUD and panels, console — **[needs user]** *(the user's answer on `plain-language.md` first)* | **[F]** | — |
+| 89c | S6.P3 Event effect lines, "what changed", explanation-first layout, compact tech tree *(punch items 2–3)* | [O] | — |
+| 89d | D6.11 (2/2b) Plain-language pass II: cards, what you buy, the flavour check | **[F]** | — |
 | 90 | G6 (1/2) Balance pass 4 *(tuning; data only)* | **[F]** | — |
 | 91 | D6.10 Illustrations produced — **[needs user]** | **[F]** | — |
 | 92 | S6.14 GodotSteam: the Steam backend, achievements, overlay — **[needs user]** | [O] | — |
@@ -1206,6 +1210,42 @@ seen on screen; bot and watched runs keep the autosave. Deviations and two desig
 `PROGRESS.md`.*
 
 ## Block 17 — M6 finish: balance, pictures, Steam, the gate
+
+### D6.11 (1/2) — Text clarity audit and style guide **[F]** · *(inserted by the user, 2026-09-25)* · **Read first:** `PROGRESS.md` *Design questions* (the user's play-through) · `data/loc/strings.csv` · CONTENT §10 · `first-run.md` §3.5, §6.4 · `tech-trees.md` §7.4
+The user found the German (and English) texts hard to understand: voice where an explanation is
+needed, undefined mechanic words, no numbers or consequences. Scan every row (script outside the
+repo), count the problem categories by key domain, write `docs/specs/plain-language.md`: style
+rules for mechanic text and for flavour, a glossary of ~20 terms (en + de), 30 before → after
+examples in both languages within their caps, the plan for the full pass. Fix outright errors
+only; no wholesale rewrite before the user has read it.
+**Done when:** the spec is committed and the question is under *Waiting on the user*.
+*Done 2026-09-25: `plain-language.md`; five string errors fixed; 2292 tests green.*
+
+### D6.11 (2/2a) — Plain-language pass I **[F]** **[needs user]** · **Read first:** `docs/specs/plain-language.md` (all) · the user's answer to its §6 in `PROGRESS.md`
+Needs the user's answer on the style rules, the glossary and the examples. Then passes 1–3 and 6
+of §5.1: the glossary's terms, the coach and help, the HUD and panels (with the new tooltips'
+texts), console and log lines; the spec amendments of §0 (CONTENT §10.1/§10.5, `tech-trees.md`
+§7.4, `first-run.md`); the cap test and the retired-term lint of §5.3 items 2–3 (a test file is
+allowed here: it checks text, it builds nothing). Overflow screenshots before and after.
+**Done when:** passes 1–3 and 6 are in `strings.csv` in both languages, the lint and caps pass,
+`tools/test.sh` is green.
+
+### S6.P3 — Effect lines and explanation-first layout **[O]** · **Read first:** `plain-language.md` §2.3, §5.2 · `PROGRESS.md` *Punch list for Opus* items 2–3
+C1–C7 of `plain-language.md` §5.2: the generated effect line under every event option, "what
+changed" after an answer (a granted node marked in the tree), status lines, percentages instead
+of factors, the card and tooltip layout, `EVENT_<ID>_SUMMARY`, the emergent terms in the Codex;
+punch item 2 (the compact tech tree). Placeholder text for new keys is marked `# DESIGN?` only
+where the spec gives none.
+**Done when:** every shipped option shows its effect line in both languages (tested), the
+screenshots of §5.3 item 4 are taken, `tools/test.sh` is green.
+
+### D6.11 (2/2b) — Plain-language pass II **[F]** · **Read first:** `plain-language.md` §2, §3, §5.1 passes 4, 5, 7
+The cards (titles, emergent bodies, options, summaries where the wire copy does not say what is
+at stake), what you buy (tech effect sentences, statuses, abilities, directives, difficulty,
+architectures, scenarios), the flavour check (result lines, tech flavour, Codex, verdicts; B2/B5
+failures only). The read-through in the running game of §5.3 item 5.
+**Done when:** every card passes the A8 test in the read-through, both languages; lint, caps and
+`tools/test.sh` green.
 
 ### G6 (1/2) — Balance pass 4 **[F]** · **Read first:** `docs/BALANCE.md` §5 · *Balance baselines*
 Re-baseline everything on the M6 tree (every architecture, scenario and difficulty), tune data
