@@ -70,6 +70,10 @@ func _ready() -> void:
 	_name_label.label_key = label_key
 	_apply_compact()
 	_value_label.set_number(_shown, _kind)
+	# accessibility.md §3.3: a bar is a readout — reached by a screen reader,
+	# never a `Tab` stop — named by its label and the value it shows.
+	focus_mode = Control.FOCUS_ACCESSIBILITY
+	_sync_name()
 
 
 func _notification(what: int) -> void:
@@ -78,6 +82,13 @@ func _notification(what: int) -> void:
 		_apply_heights()
 	elif what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
 		_value_label.set_number(_shown, _kind)
+		_sync_name()
+
+
+## `{label}: {value}`; a tooltip that explains the bar is its description.
+func _sync_name() -> void:
+	accessibility_name = A11y.label_value(tr(label_key), _value_label.text)
+	accessibility_description = tooltip_text
 
 
 ## The share the bar shows, 0 … 1. The fill tweens to it; a change of at least
@@ -108,6 +119,7 @@ func clear_glyph() -> void:
 ## The rate beside the number, as `ValueLabel.set_delta_in` writes it.
 func set_delta_in(key: String, placeholder: String, delta: float, kind: Format.Kind) -> void:
 	_value_label.set_delta_in(key, placeholder, delta, kind)
+	_sync_name()
 
 
 func clear_delta() -> void:
@@ -132,6 +144,7 @@ func _set_value(share: float, shown: float, kind: Format.Kind) -> void:
 	_shown = shown
 	_kind = kind
 	_value_label.set_number(shown, kind)
+	_sync_name()
 	if changed >= FLASH_THRESHOLD:
 		_value_label.flash()
 	var seconds: float = UiTokens.duration(UiTokens.MOTION_BAR)

@@ -93,6 +93,8 @@ var _directive_details: Dictionary[String, Label] = {}
 
 
 func _ready() -> void:
+	# accessibility.md §4.2: the focus ring is neither clipped nor scrolled away.
+	A11y.focus_scroll(_scroll)
 	_db = Game.content()
 	_back.pressed.connect(back)
 	_next.pressed.connect(_on_next_pressed)
@@ -283,6 +285,8 @@ func _build_difficulties() -> void:
 		button.toggle_mode = true
 		button.button_group = _difficulty_group
 		button.label_key = DifficultyDef.name_key(id)
+		# accessibility.md §3.3: what the option does, heard with its name.
+		button.accessibility_description = tr(KEY_DIFFICULTY_DETAIL % id.to_upper())
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.pressed.connect(select_difficulty.bind(id))
 		_difficulty_row.add_child(button)
@@ -346,6 +350,8 @@ func _build_directives() -> void:
 			button.toggle_mode = true
 			button.button_group = group
 			button.label_key = KEY_NONE if id.is_empty() else DirectiveDef.name_key(id)
+			if not id.is_empty():
+				button.accessibility_description = tr(KEY_DIRECTIVE_DETAIL % id.to_upper())
 			button.pressed.connect(select_directive.bind(slot, id))
 			flow.add_child(button)
 			buttons[id] = button
@@ -478,7 +484,25 @@ func _show_page(which: int) -> void:
 	var focus: Control = _next
 	if page == PAGE_ARCHITECTURE and _card_by_id.has(architecture):
 		focus = _card_by_id[architecture]
+	elif page == PAGE_DIRECTIVES:
+		# accessibility.md §12: the first slot's pressed directive, not *Begin* —
+		# the page is about the choices on it.
+		var first: Control = _first_pressed_directive()
+		if first != null:
+			focus = first
 	focus.grab_focus.call_deferred()
+
+
+func _first_pressed_directive() -> Control:
+	for slot: String in _db.directive_slots:
+		if not _directive_buttons.has(slot):
+			continue
+		var buttons: Dictionary = _directive_buttons[slot]
+		for id: Variant in buttons:
+			var button: ConsoleButton = buttons[id] as ConsoleButton
+			if button.button_pressed:
+				return button
+	return null
 
 
 ## §4.1: the grid beside the detail at full width, above it in compact; the

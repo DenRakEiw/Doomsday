@@ -32,6 +32,8 @@ const PREFIX_OUTCOME: String = "UI_OUTCOME_"
 const DASH: String = "—"
 ## §6.2's by-architecture table: name, runs, wins, fastest win.
 const ARCH_COLUMNS: int = 4
+## accessibility.md §8.2: the name column against each header column.
+const NAME_STRETCH: float = 2.0
 
 @onready var _panel: PanelContainer = %StatsPanel
 @onready var _title: Label = %StatsTitle
@@ -42,6 +44,8 @@ var _db: ContentDB = null
 
 
 func _ready() -> void:
+	# accessibility.md §4.2: the focus ring is neither clipped nor scrolled away.
+	A11y.focus_scroll(get_node("Centre/StatsPanel/Body/Scroll") as ScrollContainer)
 	_close.pressed.connect(closed.emit)
 	get_viewport().size_changed.connect(_fit)
 	_fit()
@@ -112,8 +116,11 @@ func _build_architectures() -> void:
 	_section(KEY_BY_ARCH)
 	var grid: GridContainer = _grid(ARCH_COLUMNS)
 	_value_cell(grid, "")
+	# accessibility.md §8.2: at 150 % in German the three caps headers squeezed
+	# the names until they broke inside the word. The headers wrap; the name does
+	# not, and takes twice their share of the spare width.
 	for key: String in [KEY_COL_RUNS, KEY_COL_WINS, KEY_FASTEST]:
-		_caps_cell(grid, key, false)
+		_caps_cell(grid, key, true)
 	for def: ArchitectureDef in _db.architectures:
 		if not ProfileManager.is_unlocked(def):
 			continue
@@ -121,7 +128,8 @@ func _build_architectures() -> void:
 		var best: int = int(row.get(ProfileManager.ARCH_BEST_DAYS, 0))
 		var name_label: Label = _value_cell(grid, tr(ArchitectureDef.name_key(def.id)))
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		name_label.size_flags_stretch_ratio = NAME_STRETCH
+		name_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 		_value_cell(grid, Format.number(float(row.get(ProfileManager.ARCH_RUNS, 0)),
 			Format.Kind.DAYS))
 		_value_cell(grid, Format.number(float(row.get(ProfileManager.ARCH_WINS, 0)),

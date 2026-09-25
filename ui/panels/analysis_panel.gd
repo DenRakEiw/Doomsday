@@ -197,6 +197,8 @@ func _build() -> void:
 	_body.theme_type_variation = &"Stack"
 	_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_scroll.add_child(_body)
+	# accessibility.md §4.2: the focus ring is neither clipped nor scrolled away.
+	A11y.focus_scroll(_scroll)
 	for kind: AnalysisTab.Kind in [AnalysisTab.Kind.RUN, AnalysisTab.Kind.OPPOSITION,
 			AnalysisTab.Kind.WORLD]:
 		var one: AnalysisTab = AnalysisTab.create(kind)
@@ -457,7 +459,8 @@ func _log_row(entry: RunLogEntry, world: World) -> Control:
 	row.add_child(glyph)
 	var text: Label = Label.new()
 	# analysis.md §8 (G5 1/3): the record ends on the ending's verdict.
-	var verdict: String = RunLogText.verdict_of(world, Game.db) 		if entry.type == SimEvent.OUTCOME_REACHED else ""
+	var verdict: String = RunLogText.verdict_of(world, Game.db) \
+		if entry.type == SimEvent.OUTCOME_REACHED else ""
 	text.text = RunLogText.text(entry, Game.db, verdict)
 	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -469,6 +472,9 @@ func _log_row(entry: RunLogEntry, world: World) -> Control:
 	# §5.6: a line about a region is a way to it.
 	var button: ConsoleButton = ConsoleButton.new()
 	button.list_row = true
+	# accessibility.md §4.6: the row's words are the button's name — it has no
+	# text of its own.
+	button.accessibility_name = text.text
 	button.pressed.connect(_on_log_region_pressed.bind(region))
 	row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	button.add_child(row)

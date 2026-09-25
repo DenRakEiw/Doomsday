@@ -20,6 +20,7 @@ extends Label
 ##
 ## Scene-specific, so no `class_name`.
 
+const KEY_A11Y_NAME: String = "UI_A11Y_CONSOLE"
 const KEY_PASSIVE: String = "UI_CONSOLE_PASSIVE"
 const KEY_PASSIVE_GLOBAL: String = "UI_CONSOLE_PASSIVE_GLOBAL"
 const KEY_PURCHASE: String = "UI_CONSOLE_PURCHASE"
@@ -85,6 +86,9 @@ var live: LiveRegion = null
 
 
 func _ready() -> void:
+	# accessibility.md §3.3: the line is spoken through its live region; the
+	# label itself is the console.
+	accessibility_name = tr(KEY_A11Y_NAME)
 	modulate.a = 0.0
 	visible = false
 	set_process(false)
@@ -93,6 +97,11 @@ func _ready() -> void:
 	EventBus.run_started.connect(_on_run_started)
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.console_pushed.connect(push)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		accessibility_name = tr(KEY_A11Y_NAME)
 
 
 ## Queues a line. Anything may push one — the picker, a panel, the table below.

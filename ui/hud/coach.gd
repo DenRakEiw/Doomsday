@@ -67,6 +67,9 @@ const NO_EVENT: int = 0
 ## The card's width in the full layout, and the gap it keeps above the HUD.
 const MAX_WIDTH: float = 440.0
 const GAP: float = 12.0
+## accessibility.md §8.2: on a phone the card takes at most this share of the
+## view's height; a longer body scrolls inside it.
+const COACH_MAX_HEIGHT_SHARE: float = 0.4
 
 ## The ring the card moves; the session gives it one on its own layer.
 var ring: CoachRing = null
@@ -88,6 +91,7 @@ var _cooldowns_at_show: Dictionary[String, int] = {}
 var _counter: Label = null
 var _title: Label = null
 var _body: Label = null
+var _body_scroll: ScrollContainer = null
 var _next: ConsoleButton = null
 var _more: ConsoleButton = null
 var _skip: ConsoleButton = null
@@ -392,9 +396,13 @@ func _build() -> void:
 	_title.theme_type_variation = &"LabelHeading"
 	_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(_title)
+	_body_scroll = ScrollContainer.new()
+	_body_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	column.add_child(_body_scroll)
 	_body = Label.new()
 	_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	column.add_child(_body)
+	_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_body_scroll.add_child(_body)
 	# Three buttons wrap on a phone (§6.4).
 	var row: HFlowContainer = HFlowContainer.new()
 	row.theme_type_variation = &"FlowSnug"
@@ -433,6 +441,9 @@ func _render() -> void:
 	_title.text = tr(key + "_TITLE")
 	# accessibility.md §5.3: a body that names a key names the player's key.
 	_body.text = KeyNames.format(tr(key + "_BODY"))
+	# accessibility.md §3.3: the card is named by its title, its body describes it.
+	accessibility_name = _title.text
+	accessibility_description = _body.text
 
 
 ## The card as it reads now, for the tests: the caps line, and whether each of
@@ -459,7 +470,8 @@ func _place() -> void:
 	if not visible:
 		return
 	var view: Vector2 = get_viewport_rect().size
-	var width: float = minf(MAX_WIDTH, view.x - float(UiTokens.GUTTER) * 2.0)
+	var width: float = minf(UiTokens.text_width(MAX_WIDTH), view.x - float(UiTokens.GUTTER) * 2.0)
+	_fit_body(view)
 	var bottom: float = GAP
 	if hud != null:
 		bottom += float(hud.call(&"bottom_inset"))
@@ -477,6 +489,22 @@ func _place() -> void:
 	# A long hint at 150 % text on a phone is taller than the room above the
 	# strip: then it keeps its top on screen and runs down over the strip.
 	position = Vector2(left, maxf(GAP, view.y - bottom - size.y))
+
+
+## §8.2: the body is as tall as its text — except on a phone, where the card
+## stops at `COACH_MAX_HEIGHT_SHARE` of the view and the body scrolls.
+func _fit_body(view: Vector2) -> void:
+	var natural: float = _body.get_combined_minimum_size().y
+	var height: float = natural
+	if view.x < float(UiTokens.COMPACT_WIDTH):
+		var rest: float = get_combined_minimum_size().y - _body_scroll.custom_minimum_size.y
+		height = clampf(view.y * COACH_MAX_HEIGHT_SHARE - rest, 0.0, natural)
+	_body_scroll.custom_minimum_size.y = height
+
+
+## The body's scroll, for the tests.
+func body_scroll() -> ScrollContainer:
+	return _body_scroll
 
 
 func _on_next_pressed() -> void:

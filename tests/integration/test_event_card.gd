@@ -15,6 +15,9 @@ const OPENING: String = "opening_unattended_cluster"
 const LOCKED_OPENING: String = "opening_ministry_demo"
 ## A global chain step that asks for the wire card.
 const GLOBAL_EVENT: String = "gb_bill"
+## S6.8: a counter-move and the faction that makes it.
+const COUNTER_MOVE: String = "cm_lockdown"
+const FACTION: String = "governments"
 
 var _session: Control = null
 var _layer: Node2D = null
@@ -141,6 +144,18 @@ func test_the_options_show_their_price_their_lock_and_the_default() -> void:
 	assert_string_contains(options.caption_of("decline").text,
 		tr(EventView.KEY_DEFAULT_MARK))
 	assert_false(options.caption_of("accept").visible, "nothing to say about accept")
+
+
+func test_a_counter_move_s_dateline_names_its_faction() -> void:
+	# S6.8 (accessibility.md §6.3 item 4): the border's colour is not alone.
+	EventSystem.schedule(Game.sim.world, COUNTER_MOVE, _index(ORIGIN), FACTION,
+		Game.sim.world.day + 1, 1)
+	Game.advance(1)
+	EventBus.region_selected.emit(_index(ORIGIN))
+	assert_true(_card().visible)
+	assert_eq(_card().dateline_label().accessibility_name,
+		tr("UI_EVENT_DATELINE_FACTION").format({"kind": tr("UI_EVENT_KIND_COUNTER_MOVE"),
+			"faction": tr("FACTION_" + FACTION.to_upper())}))
 
 
 func test_the_deadline_turns_alert_in_its_last_three_days() -> void:

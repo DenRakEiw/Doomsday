@@ -38,6 +38,8 @@ const KEY_DEPLOYS: String = "UI_TREE_DEPLOYS"
 const KEY_DEPLOYS_ROW: String = "UI_TREE_DEPLOYS_ROW"
 const KEY_GRANTS: String = "UI_TREE_GRANTS"
 const KEY_REQUIRES_ASSETS: String = "UI_TREE_REQUIRES_ASSETS"
+## accessibility.md §6.3 item 3: a missing row says so in words, not in red alone.
+const KEY_REQUIRES_ASSETS_MISSING: String = "UI_TREE_REQUIRES_ASSETS_MISSING"
 const KEY_EXCLUDES: String = "UI_TREE_EXCLUDES"
 const KEY_GROUP: String = "UI_TREE_GROUP"
 const KEY_BUY_PLACE: String = "UI_TREE_BUY_PLACE"
@@ -96,6 +98,8 @@ var _node_id: String = ""
 
 
 func _ready() -> void:
+	# accessibility.md §4.2: the focus ring is neither clipped nor scrolled away.
+	A11y.focus_scroll(get_node("Scroll") as ScrollContainer)
 	_buy.pressed.connect(_on_buy_pressed)
 	_close_button.pressed.connect(close_requested.emit)
 	set_compact(false)
@@ -256,10 +260,11 @@ func _fill_v3(definition: TechNodeDef, sim: Simulation) -> void:
 		var missing: Dictionary[String, int] = sim.missing_assets(definition)
 		for kind: String in definition.requires_assets:
 			var count: int = definition.requires_assets[kind]
-			var line: Label = _add_row(tr(KEY_REQUIRES_ASSETS).format({
-				"count": count,
-				"kind": TechText.asset_name(kind, count),
-			}))
+			var line: Label = _add_row(tr(KEY_REQUIRES_ASSETS_MISSING if missing.has(kind)
+				else KEY_REQUIRES_ASSETS).format({
+					"count": count,
+					"kind": TechText.asset_name(kind, count),
+				}))
 			if missing.has(kind):
 				line.theme_type_variation = VARIATION_ALERT
 	if not definition.excludes.is_empty():
@@ -325,8 +330,10 @@ func _fill_buy(definition: TechNodeDef, sim: Simulation, state: TechNode.State, 
 	# §16.6: on a deploying node the button opens site select instead of buying,
 	# so it is enabled when everything but the site is fine.
 	var key: String = KEY_BUY_PLACE if definition.deploys() else KEY_BUY
-	_buy.text = Format.caps(tr(key).format(
-		{"cost": Format.number(cost, Format.Kind.COMPUTE)}))
+	var buy_text: String = tr(key).format({"cost": Format.number(cost, Format.Kind.COMPUTE)})
+	_buy.text = Format.caps(buy_text)
+	# accessibility.md §3.2 item 7: the name is not the uppercased copy.
+	_buy.accessibility_name = buy_text
 	var reason: String = sim.can_apply(PurchaseNodeCommand.new(definition.id))
 	_buy.disabled = not (reason.is_empty()
 		or (definition.deploys() and reason == Command.FAIL_SITE_REQUIRED))

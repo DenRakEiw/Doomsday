@@ -140,6 +140,8 @@ var _controls: ConsoleButton = null
 
 
 func _ready() -> void:
+	# accessibility.md §4.2: the focus ring is neither clipped nor scrolled away.
+	A11y.focus_scroll(_scroll)
 	_resume.pressed.connect(_on_resume_pressed)
 	_help.pressed.connect(_on_help_pressed)
 	_quit.pressed.connect(_on_quit_pressed)
@@ -201,6 +203,10 @@ func refresh() -> void:
 			else tr(KEY_SLOT_DAY).format({PLACEHOLDER_DAY:
 				Format.number(float(day), Format.Kind.DAYS)})
 		_load_buttons[i].disabled = day < 0
+		# accessibility.md §3.3: `{slot}: {caption}` — the slot's day is part of it.
+		var slot: String = tr(KEY_SLOT).format({PLACEHOLDER_SLOT: i + 1})
+		_save_buttons[i].accessibility_name = A11y.label_value(slot, _slot_captions[i].text)
+		_load_buttons[i].accessibility_name = A11y.label_value(slot, _slot_captions[i].text)
 	_refresh_settings()
 
 
@@ -472,5 +478,6 @@ func _fit_scroll() -> void:
 	for button: ConsoleButton in _save_buttons + _load_buttons:
 		button.compact = narrow
 	var available: float = get_viewport_rect().size.y - float(UiTokens.SPACE_6) * 2.0
-	_scroll.custom_minimum_size.y = minf(_body.get_combined_minimum_size().y,
+	_scroll.custom_minimum_size.y = minf(_body.get_combined_minimum_size().y
+		+ float(UiTokens.FOCUS_OUTSET) * 2.0,
 		maxf(available, 0.0))

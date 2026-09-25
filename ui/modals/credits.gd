@@ -51,6 +51,9 @@ var _licence_buttons: Dictionary[String, ConsoleButton] = {}
 
 
 func _ready() -> void:
+	# accessibility.md §4.2: the focus ring is neither clipped nor scrolled away.
+	A11y.focus_scroll(_credits_scroll)
+	A11y.focus_scroll(_licence_scroll)
 	_close.pressed.connect(closed.emit)
 	_back.pressed.connect(show_credits)
 	get_viewport().size_changed.connect(_fit)

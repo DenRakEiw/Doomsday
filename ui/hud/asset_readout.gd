@@ -25,6 +25,9 @@ const SUFFIX_NAME: String = "_NAME"
 const KEY_STATUS_DAYS: String = "UI_REGION_STATUS_DAYS"
 const KEY_STATUS_STANDING: String = "UI_REGION_STATUS_STANDING"
 const PLACEHOLDER_DAYS: String = "days"
+## §3.3: `{count} × {kind}`, joined, as the region's spoken line has them.
+const KEY_A11Y_ITEM: String = "UI_A11Y_ASSET_ITEM"
+const SEPARATOR_A11Y: String = ", "
 const TOOLTIP_JOIN: String = " · "
 
 ## Kind → the number beside its glyph.
@@ -72,6 +75,7 @@ func refresh() -> void:
 	if not enabled:
 		visible = false
 	var any: bool = false
+	var items: Array[String] = []
 	for kind: String in AssetDef.KINDS:
 		var total: int = world.asset_total(kind)
 		any = any or total > 0
@@ -79,6 +83,10 @@ func refresh() -> void:
 		_icons[kind].visible = total > 0
 		if total > 0:
 			_values[kind].set_number(float(total), Format.Kind.PLAIN)
+			items.append(tr(KEY_A11Y_ITEM).format({"count": total,
+				"kind": TechText.asset_name(kind, total)}))
+	# accessibility.md §3.3: the glyphs say the kind to the eye only.
+	A11y.readout(self, A11y.words(_caption), SEPARATOR_A11Y.join(items))
 	_refresh_statuses(world)
 	_revealed = _revealed or any
 	# A global status alone is worth the row: it is the one place it shows.

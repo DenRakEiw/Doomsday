@@ -20,6 +20,8 @@ const DOT_R: float = 2.0
 const JOIN: String = " · "
 const HAIRLINE: float = 1.0
 const TIP_GAP: float = 4.0
+## accessibility.md §4.6.
+const KEY_A11Y_NAME: String = "UI_A11Y_TIMELINE"
 
 var _day_max: int = UiTokens.MIN_SPAN_DAYS
 var _marks: Array[Dictionary] = []
@@ -32,9 +34,16 @@ func _ready() -> void:
 	custom_minimum_size.y = float(UiTokens.STRIP_H)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	focus_mode = Control.FOCUS_ALL
+	# accessibility.md §4.6: it could be focused but had no name.
+	accessibility_name = tr(KEY_A11Y_NAME)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_exited.connect(_on_mouse_exited)
 	EventBus.theme_variant_changed.connect(_on_theme_variant_changed)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		accessibility_name = tr(KEY_A11Y_NAME)
 
 
 func set_domain(day_max: int) -> void:

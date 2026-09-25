@@ -115,7 +115,8 @@ func _fit(line: Label) -> void:
 	var font_size: int = line.get_theme_font_size(&"font_size")
 	var natural: float = font.get_string_size(line.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0,
 		font_size).x if font != null else CAPTION_MAX_WIDTH
-	line.custom_minimum_size.x = minf(ceilf(natural), CAPTION_MAX_WIDTH)
+	# accessibility.md §8.1: the cap grows with the text size.
+	line.custom_minimum_size.x = minf(ceilf(natural), UiTokens.text_width(CAPTION_MAX_WIDTH))
 
 
 ## §8.2: out over the quick fade (a cut with reduced motion), then gone.

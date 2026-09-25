@@ -174,7 +174,7 @@ func _fit_containment_button() -> void:
 	if compact:
 		return
 	var button: ConsoleButton = _buttons[DESTINATION_CONTAINMENT]
-	var width: float = float(UiTokens.DOCK_BUTTON_WIDTH)
+	var width: float = UiTokens.text_width(float(UiTokens.DOCK_BUTTON_WIDTH))
 	if _containment_chip.visible:
 		var font: Font = button.get_theme_font(&"font")
 		var font_size: int = button.get_theme_font_size(&"font_size")
@@ -207,7 +207,9 @@ func _apply_compact() -> void:
 		# A bar of three shares the width, so no button insists on 200 of it —
 		# and at 400 px the three German labels only fit with the tighter
 		# padding of `ConsoleButtonCompact`.
-		button.custom_minimum_size.x = 0.0 if compact else float(UiTokens.DOCK_BUTTON_WIDTH)
+		# accessibility.md §8.1: the width grows with the text size.
+		button.custom_minimum_size.x = 0.0 if compact \
+				else UiTokens.text_width(float(UiTokens.DOCK_BUTTON_WIDTH))
 		button.compact = compact
 		# S4.9: at 150 % no padding is tight enough, so on the bar a label that
 		# does not fit its third ends in an ellipsis rather than pushing the bar

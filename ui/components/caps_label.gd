@@ -44,3 +44,6 @@ func _refresh_strings() -> void:
 	if not _args.is_empty():
 		translated = translated.format(_args)
 	text = Format.caps(translated)
+	# accessibility.md §3.2 item 7: uppercase is visual only — a reader hears
+	# the word as the string table spells it.
+	accessibility_name = translated

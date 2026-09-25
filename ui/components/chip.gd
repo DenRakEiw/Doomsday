@@ -44,6 +44,16 @@ var _label: CapsLabel = null
 func _ready() -> void:
 	_build_label()
 	_apply_variation()
+	# accessibility.md §3.3: a chip carries state, so a reader reaches it — but it
+	# is no `Tab` stop.
+	if focus_mode == Control.FOCUS_NONE:
+		focus_mode = Control.FOCUS_ACCESSIBILITY
+	_sync_name()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED and _label != null:
+		_sync_name.call_deferred()
 
 
 ## A running status's chip: the variation of the colour `UiTokens.status_token`
@@ -63,6 +73,7 @@ func set_label(key: String, args: Dictionary = {}) -> void:
 	_build_label()
 	label_key = key
 	_label.set_key(key, args)
+	_sync_name()
 
 
 ## A chip whose text is a formatted number and has no key of its own
@@ -73,6 +84,8 @@ func set_text(text: String) -> void:
 	label_key = ""
 	_label.label_key = ""
 	_label.text = Format.caps(text)
+	_label.accessibility_name = text
+	_sync_name()
 
 
 func _build_label() -> void:
@@ -97,6 +110,13 @@ static func faction_suffix(faction_id: String) -> String:
 	for part: String in faction_id.split("_", false):
 		out += part.substr(0, 1).to_upper() + part.substr(1)
 	return out
+
+
+## §3.3: the chip's name is its text, in the table's case.
+func _sync_name() -> void:
+	if _label != null:
+		accessibility_name = A11y.words(_label)
+		accessibility_description = tooltip_text
 
 
 func _apply_variation() -> void:

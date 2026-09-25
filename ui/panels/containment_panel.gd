@@ -61,6 +61,8 @@ var _drift_mark: float = DriftChip.NO_MARK
 
 func _ready() -> void:
 	super()
+	# accessibility.md §4.2: the focus ring is neither clipped nor scrolled away.
+	A11y.focus_scroll(get_node("Panel/Scroll") as ScrollContainer)
 	add_to_group(CoachRing.group(CoachRing.TARGET_CONTAINMENT_PANEL))
 	_build_risk_rows()
 	_bind_drift()

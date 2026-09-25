@@ -63,6 +63,10 @@ var _illustration: IllustrationSlot = null
 
 
 func _ready() -> void:
+	# accessibility.md §4.2: the focus ring is neither clipped nor scrolled away.
+	# The results fill a phone's width at 150 % already (S4.9): room above and
+	# below only.
+	A11y.focus_scroll(_scroll, false)
 	_build_rows()
 	_title_button.pressed.connect(title_requested.emit)
 	_again.pressed.connect(again_requested.emit)
@@ -166,7 +170,8 @@ func _fit_scroll() -> void:
 	for button: Node in _again.get_parent().get_children():
 		(button as ConsoleButton).compact = narrow
 	var available: float = get_viewport_rect().size.y - float(UiTokens.SPACE_6) * 2.0
-	_scroll.custom_minimum_size.y = minf(_body.get_combined_minimum_size().y,
+	_scroll.custom_minimum_size.y = minf(_body.get_combined_minimum_size().y
+		+ float(UiTokens.FOCUS_OUTSET) * 2.0,
 		maxf(available, 0.0))
 
 

@@ -46,8 +46,10 @@ const PREFIX_TREE_TAB: String = "UI_TREE_TAB_"
 @onready var _back: ConsoleButton = %BackButton
 @onready var _entry: VBoxContainer = %Entry
 
-## The tab row wraps rather than scrolls (§6.1 asks for a scroll in compact):
-## seven tabs do not fit a 560 px modal either, and a wrapped row hides none.
+## The tab row wraps on a desktop: seven tabs do not fit a 560 px modal, and a
+## wrapped row hides none. On a phone it is one row that scrolls sideways
+## (accessibility.md §8.2 — at 150 % the wrapped rows took a quarter of the
+## screen), the current tab scrolled into view.
 
 ## The tab on show and the entry open in it ("" = none).
 var tab: String = CodexEntries.TAB_HELP
@@ -60,9 +62,15 @@ var _db: ContentDB = null
 var _tab_group: ButtonGroup = ButtonGroup.new()
 var _tab_buttons: Dictionary[String, ConsoleButton] = {}
 var _compact: bool = false
+## §8.2: the phone's one-row strip of tabs.
+var _tab_scroll: ScrollContainer = null
+var _tab_row: HBoxContainer = null
 
 
 func _ready() -> void:
+	# accessibility.md §4.2: the focus ring is neither clipped nor scrolled away.
+	A11y.focus_scroll(_list_scroll)
+	A11y.focus_scroll(_entry_scroll)
 	_close.pressed.connect(closed.emit)
 	_back.pressed.connect(_show_list)
 	for id: String in CodexEntries.TABS:
@@ -74,6 +82,7 @@ func _ready() -> void:
 		button.pressed.connect(show_tab.bind(id))
 		_tabs.add_child(button)
 		_tab_buttons[id] = button
+	_build_tab_scroll()
 	get_viewport().size_changed.connect(_fit)
 	_fit()
 
@@ -109,6 +118,8 @@ func show_tab(id: String) -> void:
 		return
 	tab = id
 	_tab_buttons[id].set_pressed_no_signal(true)
+	if _compact and _tab_scroll != null:
+		_tab_scroll.ensure_control_visible.call_deferred(_tab_buttons[id])
 	var ids: Array[String] = CodexEntries.ids(tab, _db)
 	# §6.6: the pages are not collected, so there is nothing to count.
 	_progress.visible = tab != CodexEntries.TAB_HELP
@@ -400,6 +411,42 @@ static func _clear(box: Control) -> void:
 # ------------------------------------------------------------- layout
 
 
+## The strip the tabs move into on a phone: no scroll bar, the focus followed,
+## a margin for the focus ring.
+func _build_tab_scroll() -> void:
+	_tab_scroll = ScrollContainer.new()
+	_tab_scroll.name = "TabScroll"
+	_tab_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_tab_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+	_tab_scroll.follow_focus = true
+	_tab_scroll.visible = false
+	var margin: MarginContainer = MarginContainer.new()
+	margin.theme_type_variation = &"FocusMargin"
+	_tab_scroll.add_child(margin)
+	_tab_row = HBoxContainer.new()
+	_tab_row.theme_type_variation = &"RowSnug"
+	margin.add_child(_tab_row)
+	var parent: Node = _tabs.get_parent()
+	parent.add_child(_tab_scroll)
+	parent.move_child(_tab_scroll, _tabs.get_index() + 1)
+
+
+## §8.2: the tabs live in the wrapping row on a desktop and in the strip on a
+## phone; the current one is scrolled into view.
+func _place_tabs() -> void:
+	if _tab_scroll == null:
+		return
+	var home: Container = _tab_row if _compact else _tabs
+	for id: String in CodexEntries.TABS:
+		var button: ConsoleButton = _tab_buttons[id]
+		if button.get_parent() != home:
+			button.reparent(home, false)
+	_tabs.visible = not _compact
+	_tab_scroll.visible = _compact
+	if _compact and _tab_buttons.has(tab):
+		_tab_scroll.ensure_control_visible.call_deferred(_tab_buttons[tab])
+
+
 ## §6.1: the list beside the entry; in compact the list is a page of its own
 ## and an entry has *Back*.
 func _show_list() -> void:
@@ -414,5 +461,6 @@ func _fit() -> void:
 	var was_compact: bool = _compact
 	_compact = view.x < float(UiTokens.COMPACT_WIDTH)
 	_panel.custom_minimum_size.y = maxf(view.y - float(UiTokens.SPACE_6) * 2.0, 0.0)
+	_place_tabs()
 	if was_compact != _compact and _db != null:
 		show_tab(tab)

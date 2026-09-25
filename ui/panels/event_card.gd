@@ -15,6 +15,9 @@ extends PanelContainer
 const VARIATION_PANEL: StringName = &"ConsolePanel"
 const VARIATION_CAPTION: StringName = &"LabelCaption"
 const VARIATION_CAPTION_ALERT: StringName = &"LabelCaptionAlert"
+## accessibility.md §6.3 item 4.
+const KEY_DATELINE_FACTION: String = "UI_EVENT_DATELINE_FACTION"
+const PREFIX_FACTION: String = "FACTION_"
 
 var _dateline: CapsLabel = null
 var _title: Label = null
@@ -69,6 +72,10 @@ func deadline_label() -> Label:
 	return _deadline
 
 
+func dateline_label() -> CapsLabel:
+	return _dateline
+
+
 func result_label() -> Label:
 	return _result
 
@@ -83,7 +90,13 @@ func _show(event: OpenEvent, sim: Simulation) -> void:
 	theme_type_variation = VARIATION_PANEL
 	if def.kind == EventDef.KIND_COUNTER_MOVE and not event.faction.is_empty():
 		theme_type_variation = StringName(VARIATION_PANEL + Chip.faction_suffix(event.faction))
-	_dateline.label_key = EventDef.kind_key(def.kind)
+	# accessibility.md §6.3 item 4: the border's colour is not the only thing
+	# that says whose move it is — the dateline names the faction too.
+	if event.faction.is_empty():
+		_dateline.set_key(EventDef.kind_key(def.kind))
+	else:
+		_dateline.set_key(KEY_DATELINE_FACTION, {"kind": tr(EventDef.kind_key(def.kind)),
+			"faction": tr(PREFIX_FACTION + event.faction.to_upper())})
 	_title.text = EventView.title(def.id, sim.world, event.region)
 	_body.text = EventView.body(def.id, sim.world, event.region)
 	_body.visible = true

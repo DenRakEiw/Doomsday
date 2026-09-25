@@ -18,6 +18,9 @@ enum State { CLOSED, OPENING, OPEN, CLOSING }
 const WIDTH_SHARE: float = 0.3
 const WIDTH_MIN: float = 360.0
 const WIDTH_MAX: float = 480.0
+## accessibility.md §8.1: the bounds grow with the text, but a side panel never
+## takes more than this share of the view.
+const WIDTH_SHARE_MAX: float = 0.45
 ## A bottom sheet takes half the height. m3-screens §6.3 gives the tech detail
 ## and the menu sheet a little more, so the share is a property with this
 ## default rather than a number the caller cannot reach.
@@ -160,6 +163,14 @@ func _give_focus_back() -> void:
 		focus_fallback.grab_focus()
 
 
+## A side panel's width on a view `view_width` wide: 30 % between the bounds,
+## the bounds scaled with the text, never over `WIDTH_SHARE_MAX` of the view.
+static func side_width(view_width: float) -> float:
+	var width: float = clampf(view_width * WIDTH_SHARE, UiTokens.text_width(WIDTH_MIN),
+		UiTokens.text_width(WIDTH_MAX))
+	return minf(width, view_width * WIDTH_SHARE_MAX)
+
+
 ## The screen rectangle an open panel leaves free, for whatever has to stay
 ## visible beside it (§5.6: the map pans the selected region out from behind the
 ## panel). While the panel is closed that is the whole screen.
@@ -191,7 +202,7 @@ func _layout() -> void:
 	if edge == Edge.BOTTOM:
 		_panel.size = Vector2(view.x, floorf(view.y * height_share))
 	else:
-		var width: float = clampf(view.x * WIDTH_SHARE, WIDTH_MIN, WIDTH_MAX)
+		var width: float = side_width(view.x)
 		_panel.size = Vector2(floorf(width), maxf(view.y - top_inset - bottom_inset, 0.0))
 	# A resize while the panel is moving leaves the tween to finish the job.
 	if _state == State.OPEN:

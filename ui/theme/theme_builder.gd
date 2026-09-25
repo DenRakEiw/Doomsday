@@ -117,6 +117,7 @@ const VARIATIONS: Dictionary[String, String] = {
 	"PanelContent": "VBoxContainer",
 	"Gutter": "MarginContainer",
 	"FocusMargin": "MarginContainer",
+	"FocusMarginVertical": "MarginContainer",
 	"GutterTight": "MarginContainer",
 	"Stack": "VBoxContainer",
 	"StackTight": "VBoxContainer",
@@ -444,6 +445,8 @@ static func _panels() -> Theme:
 		# accessibility.md §4.2: inside a scroll container, room for the focus
 		# ring drawn outside a control, so it is never clipped.
 		theme.set_constant(side, "FocusMargin", UiTokens.FOCUS_OUTSET)
+	theme.set_constant("margin_top", "FocusMarginVertical", UiTokens.FOCUS_OUTSET)
+	theme.set_constant("margin_bottom", "FocusMarginVertical", UiTokens.FOCUS_OUTSET)
 	theme.set_constant(CONST_SEPARATION, "Stack", UiTokens.SPACE_5)
 	theme.set_constant(CONST_SEPARATION, "Row", UiTokens.SPACE_3)
 	# §5 asks for three more gaps than §3.8 named: between the cells of the top

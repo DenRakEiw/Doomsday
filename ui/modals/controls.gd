@@ -184,7 +184,9 @@ func _refresh() -> void:
 		if action == capturing:
 			continue
 		var key: String = KeyNames.label(action)
-		_buttons[action].text = Format.caps(key)
+		# One character is shown as the keycap prints it: uppercasing `ß` would
+		# make it `SS`.
+		_buttons[action].text = key if key.length() == 1 else Format.caps(key)
 		_buttons[action].accessibility_name = tr(KEY_LABEL_VALUE).format({"label": name_text,
 			"value": key})
 

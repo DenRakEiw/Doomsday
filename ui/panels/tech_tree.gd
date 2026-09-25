@@ -28,6 +28,11 @@ const KEY_TITLE: String = "UI_TREE_TITLE"
 const KEY_SITE_PROMPT_DEPLOY: String = "UI_SITE_PROMPT_DEPLOY"
 const KEY_TECH_NAME: String = "TECH_%s_NAME"
 const KEY_TAB_COUNT: String = "UI_TREE_TAB_COUNT"
+## accessibility.md §6.3 item 2: *something affordable* is told by a mark, not
+## by the chip's colour alone; §3.3: and by the tab's name.
+const KEY_TAB_COUNT_AFFORDABLE: String = "UI_TREE_TAB_COUNT_AFFORDABLE"
+const KEY_A11Y_TAB: String = "UI_A11Y_TREE_TAB"
+const KEY_A11Y_TAB_AFFORDABLE: String = "UI_A11Y_TREE_TAB_AFFORDABLE"
 const KEY_COMPUTE_RATE: String = "UI_HUD_COMPUTE_RATE"
 const TABS: Array[String] = ["infiltration", "capabilities", "evasion"]
 const TAB_KEY: Array[String] = ["UI_TREE_TAB_INFILTRATION", "UI_TREE_TAB_CAPABILITIES",
@@ -103,8 +108,7 @@ func _apply_detail_width() -> void:
 		# The sheet is as wide as the screen; the panel inside it fills it.
 		_detail.custom_minimum_size.x = 0.0
 		return
-	_detail.custom_minimum_size.x = clampf(size.x * SlidePanel.WIDTH_SHARE,
-		SlidePanel.WIDTH_MIN, SlidePanel.WIDTH_MAX)
+	_detail.custom_minimum_size.x = SlidePanel.side_width(size.x)
 
 
 ## Shows the tree, and holds the clock if the setting says so (§3.1).
@@ -176,7 +180,8 @@ func set_compact(compact: bool) -> void:
 	_detail.size_flags_horizontal = Control.SIZE_FILL
 	# The header's compute cell keeps a fixed width on a desktop so the number
 	# does not shuffle the row; on a phone that width is a quarter of the screen.
-	_compute_cell.custom_minimum_size.x = 0.0 if compact else float(UiTokens.CELL_MIN_WIDTH)
+	_compute_cell.custom_minimum_size.x = 0.0 if compact \
+		else UiTokens.text_width(float(UiTokens.CELL_MIN_WIDTH))
 	# A phone's header has no room for the wide gaps of a desktop title row.
 	_header.theme_type_variation = &"RowSnug" if compact else &"RowWide"
 	# S4.9 screenshots: the display title, the large figure and the close button
@@ -308,8 +313,12 @@ func _refresh_tab_chips() -> void:
 				owned += 1
 			elif state == TechNode.State.AFFORDABLE:
 				affordable = true
-		_tab_chips[i].set_label(KEY_TAB_COUNT, {"owned": owned, "total": total})
+		var counts: Dictionary = {"owned": owned, "total": total}
+		_tab_chips[i].set_label(KEY_TAB_COUNT_AFFORDABLE if affordable else KEY_TAB_COUNT, counts)
 		_tab_chips[i].kind = Chip.Kind.ACCENT if affordable else Chip.Kind.DEFAULT
+		counts["tab"] = tr(TAB_KEY[i])
+		_tab_buttons[i].accessibility_name = tr(KEY_A11Y_TAB_AFFORDABLE if affordable
+			else KEY_A11Y_TAB).format(counts)
 	# The count is part of the tab's width: `9 / 43` is wider than `0 / 43`.
 	_size_tabs()
 

@@ -114,7 +114,7 @@ func _apply_layout() -> void:
 	var width: float = get_viewport_rect().size.x
 	set_compact(width < COMPACT_WIDTH)
 	# At most `WIRE_MAX_WIDTH`, and never wider than the screen less its gutters.
-	_panel.custom_minimum_size.x = minf(float(UiTokens.WIRE_MAX_WIDTH),
+	_panel.custom_minimum_size.x = minf(UiTokens.text_width(float(UiTokens.WIRE_MAX_WIDTH)),
 		width - float(UiTokens.SPACE_4) * 2.0)
 
 
@@ -158,6 +158,8 @@ func _build() -> void:
 	centre.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	centre.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	scroll.add_child(centre)
+	# accessibility.md §4.2: the focus ring is neither clipped nor scrolled away.
+	A11y.focus_scroll(scroll)
 	_panel = PanelContainer.new()
 	_panel.theme_type_variation = VARIATION_PANEL
 	_panel.custom_minimum_size.x = float(UiTokens.WIRE_MAX_WIDTH)

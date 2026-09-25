@@ -1088,7 +1088,7 @@ pad-only run from the boot to the results; the Narrator check recorded.
 - **S6.8b — Accessibility II** *(done)*: §4.3–§4.6 in use (session ring, modal trap and companions, the
   confirm, `SlidePanel` focus, `MapFocus` + cursor, `ChipButton`), §3.4's speech wiring and §7.2's
   announced cues, §5.3's *Controls* modal and the settings rows; their tests.
-- **S6.8c — Accessibility III**: §3.3's names, §6.3 items 2–5, §8's widths and fixes, the
+- **S6.8c — Accessibility III** *(done)*: §3.3's names, §6.3 items 2–5, §8's widths and fixes, the
   scroll containers' `follow_focus`; `test_a11y_names.gd`; then §12, §13 (the runs, the
   screenshots). The Narrator check waits for the user.
 

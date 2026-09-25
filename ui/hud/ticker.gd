@@ -20,6 +20,7 @@ const SEPARATOR_EMERGENCY: String = "   ///   "
 const KEY_IDLE: String = "UI_TICKER_IDLE"
 const KEY_IDLE_EMERGENCY: String = "UI_TICKER_IDLE_OPEN"
 const KEY_BOT_RUN: String = "UI_DEBUG_BOT_RUN"
+const KEY_A11Y_NAME: String = "UI_A11Y_TICKER"
 
 const REGISTER_INSTITUTIONAL: StringName = &"institutional"
 const REGISTER_EMERGENCY: StringName = &"emergency"
@@ -71,12 +72,15 @@ func _ready() -> void:
 	EventBus.reduced_motion_changed.connect(_on_reduced_motion_changed)
 	EventBus.locale_changed.connect(_on_locale_changed)
 	_clip.resized.connect(_on_clip_resized)
+	accessibility_name = tr(KEY_A11Y_NAME)
 	_apply_mode()
 	_reset()
 
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
+		# accessibility.md §3.3.
+		accessibility_name = tr(KEY_A11Y_NAME)
 		_re_render()
 
 

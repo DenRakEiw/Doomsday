@@ -10,6 +10,10 @@ extends Button
 const VARIATION: StringName = &"ArchitectureCard"
 const KEY_TAGLINE: String = "ARCH_%s_TAGLINE"
 const KEY_NEW: String = "UI_SETUP_NEW"
+const KEY_A11Y_LOCKED: String = "UI_A11Y_LOCKED"
+## accessibility.md §6.3 item 5: the tagline's caption, and the brighter one of the rule.
+const VARIATION_TAGLINE: StringName = &"LabelCaption"
+const VARIATION_RULE: StringName = &"LabelCaptionHint"
 
 ## The content id this card stands for.
 var architecture_id: String = ""
@@ -79,7 +83,13 @@ func _refresh_strings() -> void:
 	_name.text = name_text
 	_glyph.text = name_text.left(1).to_upper()
 	_tagline.text = _rule_text if locked else tr(KEY_TAGLINE % architecture_id.to_upper())
-	accessibility_name = "%s. %s" % [name_text, _tagline.text]
+	# accessibility.md §6.3 item 5: the unlock rule is essential text, so it reads
+	# at `TEXT_1` (the hint caption), never the labelling caption's `TEXT_2`.
+	_tagline.theme_type_variation = VARIATION_RULE if locked else VARIATION_TAGLINE
+	if locked:
+		accessibility_name = tr(KEY_A11Y_LOCKED).format({"name": name_text, "rule": _rule_text})
+	else:
+		accessibility_name = "%s. %s" % [name_text, _tagline.text]
 
 
 func _build() -> void:

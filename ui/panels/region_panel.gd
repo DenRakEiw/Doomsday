@@ -188,6 +188,8 @@ var _society_cuts: Label = null
 
 func _ready() -> void:
 	super()
+	# accessibility.md §4.2: the focus ring is neither clipped nor scrolled away.
+	A11y.focus_scroll(get_node("Panel/Scroll") as ScrollContainer)
 	# first-run.md §3.3: the introduction points at the one button of site select.
 	_origin_button.add_to_group(CoachRing.group(CoachRing.TARGET_ORIGIN_BUTTON))
 	_build_presence()
@@ -245,6 +247,8 @@ func refresh() -> void:
 		return
 	var region: Region = world.regions[_index]
 	_name_label.text = tr(KEY_REGION + region.def.id.to_upper())
+	# accessibility.md §3.3: the panel is named by its region.
+	accessibility_name = _name_label.text
 	_continent.text = tr(KEY_CONTINENT + region.def.continent.to_upper())
 	_refresh_chips(region)
 	_refresh_site(region, world)
@@ -514,7 +518,7 @@ func scroll_to_event() -> void:
 	await get_tree().process_frame
 	if not is_inside_tree():
 		return
-	var scroll: ScrollContainer = _event_card.get_parent().get_parent() as ScrollContainer
+	var scroll: ScrollContainer = get_node("Panel/Scroll") as ScrollContainer
 	if scroll != null:
 		scroll.ensure_control_visible(_event_card)
 

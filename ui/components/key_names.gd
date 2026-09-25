@@ -33,6 +33,10 @@ const ARGS: Dictionary[String, StringName] = {
 	"key_zoom_out": &"game_zoom_out",
 	"key_focus_region": &"game_focus_region",
 }
+## Keycodes above the space and below `KEY_SPECIAL` are characters; ASCII ones
+## (the letters) are shown upper case, the rest as the layout gives them.
+const PRINTABLE_FIRST: int = 32
+const ASCII_END: int = 128
 ## The headless display server has no keyboard layout to ask.
 const HEADLESS: String = "headless"
 
@@ -53,6 +57,11 @@ static func key_label(physical: Key) -> String:
 		var mapped: Key = DisplayServer.keyboard_get_label_from_physical(physical)
 		if mapped != KEY_NONE:
 			shown = mapped
+	# A printable key is named by its character — `=`, `ß`, `Ö` — not by the
+	# engine's English word for it (`Equal`); letters as the keycap prints them.
+	var code: int = int(shown)
+	if code > PRINTABLE_FIRST and code < int(KEY_SPECIAL):
+		return String.chr(code).to_upper() if code < ASCII_END else String.chr(code)
 	return OS.get_keycode_string(shown)
 
 

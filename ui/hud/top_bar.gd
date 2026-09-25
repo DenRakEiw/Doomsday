@@ -147,10 +147,23 @@ func refresh() -> void:
 	_day_value.set_number_in(KEY_DAY, PLACEHOLDER_DAY, float(world.day), Format.Kind.DAYS)
 	_set_phase(world.phase)
 	_refresh_pending(world)
+	_refresh_readouts()
 	StarvingChip.apply(_starving, Game.sim)
 	DriftChip.apply(_drift, Game.sim, _drift_mark)
 	if compact:
 		_drift.visible = false
+
+
+## accessibility.md §3.3: the three cells are readouts, named `{label}: {value}`;
+## the compute cell's value carries the rate as it is shown.
+func _refresh_readouts() -> void:
+	A11y.readout(_compute_cell, _caption_of(_compute_cell), _compute_value.text)
+	A11y.readout(_phase_cell, _caption_of(_phase_cell), _phase_chip.accessibility_name)
+	A11y.readout(_day_cell, _caption_of(_day_cell), _day_value.text)
+
+
+static func _caption_of(cell: Control) -> String:
+	return A11y.words(cell.get_child(0) as Label)
 
 
 ## The global events standing open — only a person answers them, so a bot run
@@ -238,7 +251,9 @@ func _apply_compact() -> void:
 	# up the 200 it keeps in the wide layout, the gap between them shrinks, and
 	# the compute readout drops from `TYPE_DATA_LG` to `TYPE_DATA` — a row of 48
 	# has no room for the big figure and its caption.
-	_compute_cell.custom_minimum_size.x = 0.0 if compact else float(UiTokens.CELL_MIN_WIDTH)
+	# accessibility.md §8.1: the cell's width grows with the text.
+	_compute_cell.custom_minimum_size.x = 0.0 if compact \
+		else UiTokens.text_width(float(UiTokens.CELL_MIN_WIDTH))
 	_row_main.theme_type_variation = VARIATION_ROW if compact else VARIATION_ROW_WIDE
 	_compute_value.large = not compact
 	# A rate with a decimal (`13,6 ▲ +0,1 / Tag`) is 250 px of the phone's 400

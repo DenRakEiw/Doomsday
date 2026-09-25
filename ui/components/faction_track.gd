@@ -50,6 +50,8 @@ const TERMS_SHOWN: int = 2
 const TICK_END: float = 1.0
 ## A brake below this reads as good news.
 const BRAKES_NEUTRAL: float = 1.0
+## accessibility.md §3.3.
+const KEY_A11Y_TRACK: String = "UI_A11Y_TRACK"
 
 @onready var _glyph: GlyphIcon = %TrackGlyph
 @onready var _name_label: CapsLabel = %TrackName
@@ -87,6 +89,10 @@ func bind(name_key: String, value: float, rate: float, thresholds: Array[float])
 	var band: Band = band_of(value, thresholds)
 	_band.set_label(BAND_KEY[band])
 	_band.kind = BAND_KIND[band]
+	# accessibility.md §3.3: `{faction}: {value}, {band}`, reached by a reader.
+	focus_mode = Control.FOCUS_ACCESSIBILITY
+	accessibility_name = tr(KEY_A11Y_TRACK).format({"faction": tr(name_key),
+		"value": _value.text, "band": tr(BAND_KEY[band])})
 
 
 ## The faction's glyph before its name (§9.2), in its own colour.

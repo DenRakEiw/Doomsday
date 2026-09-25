@@ -95,6 +95,7 @@ func refresh() -> void:
 	else:
 		_prompt.text = tr(request.title_key).format({PLACEHOLDER_NAME: tr(request.name_key)})
 	_detail.text = _detail_text(request)
+	_name_for_reader()
 	_apply_shape()
 
 
@@ -113,6 +114,13 @@ func _detail_text(request: SiteRequest) -> String:
 	# scenarios.md §5: a scenario sets the scene in the origin prompt's place.
 	var scenario: String = Game.sim.world.setup.scenario if Game.sim != null else ""
 	return tr(KEY_ORIGIN_DETAIL if scenario.is_empty() else ScenarioDef.intro_key(scenario))
+
+
+## accessibility.md §3.3: the strip is named by its title; the line under it
+## (the hovered region, or what to do) describes it.
+func _name_for_reader() -> void:
+	accessibility_name = _prompt.text
+	accessibility_description = _detail.text
 
 
 func _apply_shape() -> void:
@@ -158,6 +166,7 @@ func _on_region_hovered(index: int) -> void:
 	_hovered = index
 	if visible and Game.site_request != null:
 		_detail.text = _detail_text(Game.site_request)
+		_name_for_reader()
 
 
 func _on_keyboard_mode_changed(keyboard: bool) -> void:

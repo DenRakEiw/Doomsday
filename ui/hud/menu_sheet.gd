@@ -51,6 +51,8 @@ func primary_focus() -> Control:
 
 func _ready() -> void:
 	super()
+	# accessibility.md §4.2: the focus ring is neither clipped nor scrolled away.
+	A11y.focus_scroll(get_node("Panel/Scroll") as ScrollContainer)
 	height_share = UiTokens.SHEET_HEIGHT_RATIO
 	edge = SlidePanel.Edge.BOTTOM
 	_build_destinations()
