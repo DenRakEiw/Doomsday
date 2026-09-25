@@ -17,7 +17,6 @@ const KEY_TIER: String = "UI_TREE_TIER"
 const KEY_BUY: String = "UI_TREE_BUY"
 const KEY_OWNED: String = "UI_TREE_OWNED"
 const KEY_OWNED_DAY: String = "UI_TREE_OWNED_DAY"
-const KEY_LOCKED_HINT: String = "UI_TREE_LOCKED_HINT"
 const KEY_IN_TAB: String = "UI_TREE_IN_TAB"
 const KEY_WATCHED_NONE: String = "UI_TREE_WATCHED_NONE"
 const KEY_REQUIRES_ANY_HINT: String = "UI_TREE_REQUIRES_ANY_HINT"
@@ -43,11 +42,7 @@ const KEY_REQUIRES_ASSETS_MISSING: String = "UI_TREE_REQUIRES_ASSETS_MISSING"
 const KEY_EXCLUDES: String = "UI_TREE_EXCLUDES"
 const KEY_GROUP: String = "UI_TREE_GROUP"
 const KEY_BUY_PLACE: String = "UI_TREE_BUY_PLACE"
-const PREFIX_ELIGIBLE_NEEDS: String = "UI_ELIGIBLE_NEEDS_"
-const PREFIX_ATTR: String = "UI_ATTR_"
-const PREFIX_STATUS: String = "STATUS_"
 const PREFIX_GROUP: String = "GROUP_"
-const PREFIX_CONTINENT: String = "CONTINENT_"
 const PREFIX_ABILITY: String = "ABILITY_"
 const SUFFIX_NAME: String = "_NAME"
 const VARIATION_CAPS: StringName = &"LabelCaps"
@@ -244,10 +239,8 @@ func _fill_v3(definition: TechNodeDef, sim: Simulation) -> void:
 			"count": definition.deploy_count,
 			"kind": TechText.asset_name(definition.deploy_kind, definition.deploy_count),
 		}))
-		if definition.deploy_eligible != null:
-			for row: Array in definition.deploy_eligible.requirements():
-				_add_caption(_v3_rows, tr(PREFIX_ELIGIBLE_NEEDS + str(row[0]).to_upper())
-					.format(_requirement_args(row[1])))
+		for line: String in NodeLockText.needs(definition):
+			_add_caption(_v3_rows, line)
 	if definition.grants_ability():
 		# One key, not a heading and a row: `UI_TREE_GRANTS` is the whole
 		# sentence (§16.6). The heading it used to get printed its own
@@ -272,23 +265,6 @@ func _fill_v3(definition: TechNodeDef, sim: Simulation) -> void:
 		for other: String in definition.excludes:
 			var line: Label = _add_row(TechText.node_name(other))
 			line.theme_type_variation = VARIATION_ALERT
-
-
-## An `Eligibility` requirement's arguments, with every id turned into a name.
-func _requirement_args(raw: Variant) -> Dictionary:
-	var source: Dictionary = raw
-	var args: Dictionary = source.duplicate()
-	if source.has("attr"):
-		args["attr"] = tr(PREFIX_ATTR + str(source["attr"]).to_upper())
-	if source.has("kind"):
-		args["kind"] = TechText.asset_name(str(source["kind"]), int(source.get("count", 1)))
-	if source.has("status"):
-		args["status"] = tr(PREFIX_STATUS + str(source["status"]).to_upper() + SUFFIX_NAME)
-	if source.has("value"):
-		args["value"] = Format.percent(float(source["value"]))
-	if source.has("continent"):
-		args["continent"] = tr(PREFIX_CONTINENT + str(source["continent"]).to_upper())
-	return args
 
 
 func _add_heading(key: String) -> void:
@@ -321,8 +297,11 @@ func _fill_buy(definition: TechNodeDef, sim: Simulation, state: TechNode.State, 
 	var owned: bool = state == TechNode.State.OWNED
 	_buy.visible = not owned
 	_owned_chip.visible = owned
-	_locked_hint.visible = not owned and state == TechNode.State.LOCKED
-	_locked_hint.text = tr(KEY_LOCKED_HINT)
+	# Punch item 4 (S6.P3b): not "requirements not met" but which, and every
+	# other reason the purchase would be refused for, one line each.
+	var reasons: PackedStringArray = NodeLockText.reasons(definition, sim)
+	_locked_hint.visible = not owned and not reasons.is_empty()
+	_locked_hint.text = "\n".join(reasons)
 	if owned:
 		_owned_chip.set_label(KEY_OWNED if purchase_day < 0 else KEY_OWNED_DAY,
 			{"day": Format.number(float(purchase_day), Format.Kind.DAYS)})

@@ -495,6 +495,8 @@ func _place() -> void:
 		return
 	if modal_up:
 		left = float(UiTokens.GUTTER)
+		if modals.current() != null and modals.current().is_in_group(CoachRing.GROUP_SIDE_RIGHT):
+			left = view.x - width - float(UiTokens.GUTTER)
 	# A long hint at 150 % text on a phone is taller than the room above the
 	# strip: then it keeps its top on screen and runs down over the strip.
 	position = Vector2(left, maxf(GAP, view.y - bottom - size.y))

@@ -73,6 +73,9 @@ var compact: bool = false:
 @onready var _paused: Chip = %PausedChip
 @onready var _speed_group: HBoxContainer = %SpeedGroup
 @onready var _menu_button: IconButton = %MenuButton
+## S6.P3b: all sound off and on, beside the menu button — a desktop control like
+## it; the phone's strip carries its own.
+@onready var _mute_button: MuteButton = %MuteButton
 
 var _speed_buttons: Array[IconButton] = []
 ## `loop-mechanics.md` §16.7: the global events put away with `Escape`, waiting —
@@ -241,6 +244,7 @@ func _apply_compact() -> void:
 	# routes to the menu, so the bar's button is a desktop control
 	# (PROGRESS.md, *Deviations*).
 	_menu_button.visible = not compact
+	_mute_button.visible = not compact
 	# §16.9: on a phone the readout is the status strip's second row, so the bar
 	# gives it up rather than squeezing a fifth cell into 400 px.
 	_assets.enabled = not compact

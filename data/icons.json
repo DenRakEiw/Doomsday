@@ -31,7 +31,9 @@
 		"OUTCOME": "phosphor/square-fill.svg",
 		"LOG_YOURS": "phosphor/caret-right-bold.svg",
 		"LOG_THEIRS": "custom/chrome/log-theirs.svg",
-		"HELP": "phosphor/question-mark-bold.svg"
+		"HELP": "phosphor/question-mark-bold.svg",
+		"SOUND_ON": "phosphor/speaker-high-bold.svg",
+		"SOUND_OFF": "phosphor/speaker-slash-bold.svg"
 	},
 	"tech": {
 		"cloud_federation": "game-icons/delapouite/cloud-upload.svg",

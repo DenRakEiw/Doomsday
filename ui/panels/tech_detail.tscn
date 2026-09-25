@@ -97,6 +97,13 @@ size_flags_vertical = 4
 theme_type_variation = &"Chip"
 script = ExtResource("2_chip")
 
+[node name="LockedHint" type="Label" parent="Scroll/Content/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelCaptionHint"
+
 [node name="Effect" type="Label" parent="Scroll/Content/Body"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -196,13 +203,6 @@ size_flags_horizontal = 0
 theme_type_variation = &"ChipAccent"
 script = ExtResource("2_chip")
 kind = 1
-
-[node name="LockedHint" type="Label" parent="Scroll/Content/Body/BuyRow"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-autowrap_mode = 3
-theme_type_variation = &"LabelCaption"
 
 [node name="Failure" type="Label" parent="Scroll/Content/Body/BuyRow"]
 unique_name_in_owner = true

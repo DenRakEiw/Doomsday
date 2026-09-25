@@ -1252,7 +1252,7 @@ compute shortfall), strings added where a reason has none. Item 5: the mute butt
 menu button. A real-click test through the main scene: select a locked node (its reason
 shows), buy from the compact tree; the tree screenshots of §5.3 item 4.
 **Done when:** the three tabs fit at 1920×1080 in both languages (tested by geometry), the
-reasons show and are tested, `tools/test.sh` is green.
+reasons show and are tested, `tools/test.sh` is green. *Done 2026-09-25.*
 
 ### D6.11 (2/2b) — Plain-language pass II **[F]** · **Read first:** `plain-language.md` §2, §3, §5.1 passes 4, 5, 7
 The cards (titles, emergent bodies, options, summaries where the wire copy does not say what is

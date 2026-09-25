@@ -42,6 +42,8 @@ const KEY_VOLUME_PREFIX: String = "volume_"
 ## The volumes `values_from` read, bus id → value (not a key of the file).
 const KEY_VOLUMES: String = "volumes"
 const KEY_SOUND_CAPTIONS: String = "sound_captions"
+## S6.P3b: every sound off, apart from the volumes, so unmuting restores them.
+const KEY_MUTED: String = "muted"
 const KEY_AUDIO_BACKGROUND: String = "audio_background"
 ## accessibility.md §3.4: headlines spoken to a screen reader.
 const KEY_ANNOUNCE_HEADLINES: String = "announce_headlines"
@@ -73,6 +75,8 @@ var screen_effects: float = UiTokens.FX_INTENSITY_DESKTOP
 var volumes: Dictionary[String, float] = {}
 ## audio.md §8: the caption stack on the map's left.
 var sound_captions: bool = false
+## S6.P3b: the master mute of the button beside the menu button.
+var muted: bool = false
 ## audio.md §5.7: false mutes the game while its window has no focus (desktop).
 var audio_background: bool = true
 ## accessibility.md §3.4: the ticker speaks its headlines to a screen reader.
@@ -105,6 +109,7 @@ func _ready() -> void:
 	for bus: Variant in stored_volumes:
 		volumes[str(bus)] = float(stored_volumes[bus])
 	sound_captions = bool(values[KEY_SOUND_CAPTIONS])
+	muted = bool(values[KEY_MUTED])
 	audio_background = bool(values[KEY_AUDIO_BACKGROUND])
 	announce_headlines = bool(values[KEY_ANNOUNCE_HEADLINES])
 	var stored_keys: Dictionary = values[KEY_KEYS]
@@ -164,6 +169,7 @@ static func values_from(raw: Variant, fallback_locale: String,
 		KEY_SCREEN_EFFECTS: default_screen_effects(),
 		KEY_VOLUMES: {},
 		KEY_SOUND_CAPTIONS: false,
+		KEY_MUTED: false,
 		KEY_AUDIO_BACKGROUND: true,
 		KEY_ANNOUNCE_HEADLINES: true,
 		KEY_KEYS: {},
@@ -203,6 +209,8 @@ static func values_from(raw: Variant, fallback_locale: String,
 	values[KEY_VOLUMES] = read_volumes
 	if typeof(stored.get(KEY_SOUND_CAPTIONS)) == TYPE_BOOL:
 		values[KEY_SOUND_CAPTIONS] = bool(stored[KEY_SOUND_CAPTIONS])
+	if typeof(stored.get(KEY_MUTED)) == TYPE_BOOL:
+		values[KEY_MUTED] = bool(stored[KEY_MUTED])
 	if typeof(stored.get(KEY_AUDIO_BACKGROUND)) == TYPE_BOOL:
 		values[KEY_AUDIO_BACKGROUND] = bool(stored[KEY_AUDIO_BACKGROUND])
 	if typeof(stored.get(KEY_ANNOUNCE_HEADLINES)) == TYPE_BOOL:
@@ -295,6 +303,15 @@ func set_volume(bus: String, value: float) -> void:
 	volumes[bus] = clamped
 	write()
 	EventBus.volume_changed.emit(StringName(bus), clamped)
+
+
+## S6.P3b: all sound off or on; the volumes stay what they are.
+func set_muted(enabled: bool) -> void:
+	if enabled == muted:
+		return
+	muted = enabled
+	write()
+	EventBus.mute_changed.emit(enabled)
 
 
 func set_sound_captions(enabled: bool) -> void:
@@ -400,6 +417,7 @@ func to_dict() -> Dictionary:
 		KEY_BOOT_ALWAYS: boot_always,
 		KEY_SCREEN_EFFECTS: screen_effects,
 		KEY_SOUND_CAPTIONS: sound_captions,
+		KEY_MUTED: muted,
 		KEY_AUDIO_BACKGROUND: audio_background,
 		KEY_ANNOUNCE_HEADLINES: announce_headlines,
 		KEY_KEYS: keys.duplicate(),

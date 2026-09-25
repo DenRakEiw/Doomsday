@@ -23,6 +23,10 @@ const TARGET_ABILITIES: String = "abilities"
 const TARGET_DRIFT: String = "drift"
 const TARGET_STARVING: String = "starving"
 # Not rings: the two screens the introduction asks about ("is it open?").
+## A modal in this group asks the coach card to its bottom right rather than its
+## bottom left: the tech tree, whose board fills the screen from the left since
+## S6.P3b and could no longer be scrolled out from under the card.
+const GROUP_SIDE_RIGHT: StringName = &"coach_side_right"
 const TARGET_TREE: String = "tree"
 const TARGET_CONTAINMENT_PANEL: String = "containment_panel"
 const TARGET_HELP: String = "help"

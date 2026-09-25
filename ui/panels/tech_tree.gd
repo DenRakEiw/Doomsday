@@ -52,6 +52,9 @@ const PLACEHOLDER_RATE: String = "rate"
 @onready var _sheet: SlidePanel = %DetailSheet
 ## The detail pane's home in the wide layout; in the compact one it is the sheet.
 @onready var _body: HBoxContainer = %Body
+@onready var _readouts: FlowContainer = %Readouts
+## The column under the header: on a phone the tabs are a row of it.
+@onready var _layout: VBoxContainer = $Safe/Panel/Layout
 
 ## One toggle per tab, and its count chip, in the order of `TABS`.
 var _tab_buttons: Array[ConsoleButton] = []
@@ -74,6 +77,9 @@ var _compact: bool = false
 
 func _ready() -> void:
 	add_to_group(CoachRing.group(CoachRing.TARGET_TREE))
+	# S6.P3b: the whole board is on screen now; a coach card goes over the
+	# detail pane's side instead of over the board's first columns.
+	add_to_group(CoachRing.GROUP_SIDE_RIGHT)
 	_build_tabs()
 	_close_button.pressed.connect(close)
 	# first-run.md §6.7: the page for this screen, before the close button.
@@ -88,6 +94,8 @@ func _ready() -> void:
 	EventBus.hold_changed.connect(_on_hold_changed)
 	EventBus.run_started.connect(_on_run_started)
 	resized.connect(_apply_detail_width)
+	# Punch item 2 (S6.P3b): the board sizes its cells to the room it has.
+	_scroll.resized.connect(_fit_board)
 	_refresh_strings()
 	_apply_detail_width()
 	visible = false
@@ -202,12 +210,32 @@ func set_compact(compact: bool) -> void:
 	_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS if compact \
 		else TextServer.OVERRUN_NO_TRIMMING
 	_compute.large = not compact
-	# The expanding title does the gap's work, and a second expander would take
-	# half of the room the title needs.
-	(_header.get_node(^"Gap") as Control).visible = not compact
+	# S6.P3b: on a desktop the tabs share the title's row, which gives the board
+	# the height of a row back; a phone has no room beside its title for them.
+	var tabs_home: Node = _layout if compact else _header
+	if _tabs.get_parent() != tabs_home:
+		_tabs.get_parent().remove_child(_tabs)
+		tabs_home.add_child(_tabs)
+		(tabs_home as Node).move_child(_tabs, 1)
+	# The readouts take the rest of a desktop row and sit at its end; on a phone
+	# the expanding title does that, and a second expander would halve its room.
+	_readouts.size_flags_horizontal = int(Control.SIZE_FILL) if compact \
+		else int(Control.SIZE_EXPAND_FILL)
+	# A flow row wraps at its minimum width: beside the title it takes its share
+	# of the row, so the three tabs stay one line.
+	_tabs.size_flags_horizontal = int(Control.SIZE_FILL) if compact \
+		else int(Control.SIZE_EXPAND_FILL)
 	if compact:
 		_sheet.close()
 	_apply_detail_width()
+	_fit_board()
+
+
+## Punch item 2 (S6.P3b): on a desktop the whole tab fits the board without
+## scrolling — the cells shrink to the room there is, down to
+## `TECH_CELL_DENSE_MIN`. A phone keeps its compact cell and scrolls.
+func _fit_board() -> void:
+	_board.set_room(Vector2.ZERO if _compact else _scroll.size)
 
 
 func _close_sheet() -> void:

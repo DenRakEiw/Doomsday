@@ -47,15 +47,20 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_type_variation = &"LabelDisplay"
 
-[node name="Gap" type="Control" parent="Safe/Panel/Layout/Header"]
+[node name="Tabs" type="HFlowContainer" parent="Safe/Panel/Layout/Header"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-mouse_filter = 2
-
-[node name="Readouts" type="HFlowContainer" parent="Safe/Panel/Layout/Header"]
-layout_mode = 2
 size_flags_vertical = 4
 theme_type_variation = &"FlowSnug"
+
+[node name="Readouts" type="HFlowContainer" parent="Safe/Panel/Layout/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"FlowSnug"
+alignment = 2
 
 [node name="ComputeCell" type="VBoxContainer" parent="Safe/Panel/Layout/Header/Readouts"]
 unique_name_in_owner = true
@@ -95,11 +100,6 @@ theme_type_variation = &"IconButton"
 script = ExtResource("8_icon_button")
 glyph = 4
 tooltip_key = "UI_COMMON_CLOSE"
-
-[node name="Tabs" type="HFlowContainer" parent="Safe/Panel/Layout"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"FlowSnug"
 
 [node name="Body" type="HBoxContainer" parent="Safe/Panel/Layout"]
 unique_name_in_owner = true

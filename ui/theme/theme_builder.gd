@@ -181,6 +181,8 @@ const VARIATIONS: Dictionary[String, String] = {
 	"ConsoleButtonFlat": BUTTON,
 	"TechGrid": "GridContainer",
 	"TechGridCompact": "GridContainer",
+	"TechGridDense": "GridContainer",
+	"TechNodeGutterDense": "MarginContainer",
 	"TechNode": BUTTON,
 	"TechNodeLocked": TECH_NODE,
 	"TechNodeAffordable": TECH_NODE,
@@ -478,6 +480,15 @@ static func _panels() -> Theme:
 	for axis: String in ["h_separation", "v_separation"]:
 		theme.set_constant(axis, "TechGrid", UiTokens.SPACE_3)
 		theme.set_constant(axis, "TechGridCompact", UiTokens.SPACE_2)
+	# S6.P3b: the dense desktop tree keeps the width's gap for the lines between
+	# columns and gives up height between rows.
+	theme.set_constant("h_separation", "TechGridDense", UiTokens.SPACE_3)
+	theme.set_constant("v_separation", "TechGridDense", UiTokens.SPACE_2)
+	# The dense card sits closer to its border above and below than beside.
+	theme.set_constant("margin_left", "TechNodeGutterDense", UiTokens.SPACE_2)
+	theme.set_constant("margin_right", "TechNodeGutterDense", UiTokens.SPACE_2)
+	theme.set_constant("margin_top", "TechNodeGutterDense", UiTokens.SPACE_1)
+	theme.set_constant("margin_bottom", "TechNodeGutterDense", UiTokens.SPACE_1)
 	_scroll_bars(theme)
 	return theme
 

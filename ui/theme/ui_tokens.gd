@@ -324,6 +324,10 @@ const HARM_BAR_MAX: float = 8.0
 ## m3-screens §3.2: one cell of a tree grid, in the wide and the compact layout.
 const TECH_CELL: Vector2 = Vector2(200, 96)
 const TECH_CELL_COMPACT: Vector2 = Vector2(160, 88)
+## S6.P3b (punch item 2): the smallest cell the desktop tree shrinks to so that a
+## whole tab fits the screen — two lines of name and the footer, at 100 % text.
+## Below it the board scrolls, as it does at larger text.
+const TECH_CELL_DENSE_MIN: Vector2 = Vector2(168, 64)
 ## §3.5: the width of a prerequisite line, and of the selected node's own.
 const TECH_LINE: float = 2.0
 const TECH_LINE_SELECTED: float = 3.0

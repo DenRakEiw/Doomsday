@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://ui/hud/status_strip.gd" id="1_status_strip"]
 [ext_resource type="Script" path="res://ui/components/icon_button.gd" id="3_icon_button"]
+[ext_resource type="Script" path="res://ui/components/mute_button.gd" id="4_mute_button"]
 
 [node name="StatusStrip" type="PanelContainer"]
 custom_minimum_size = Vector2(0, 56)
@@ -22,6 +23,15 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"RowSnug"
+
+[node name="StripMute" type="Button" parent="StripRows/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"IconButton"
+script = ExtResource("4_mute_button")
+glyph = 30
+tooltip_key = "UI_HUD_MUTE"
 
 [node name="StripMenu" type="Button" parent="StripRows/Body"]
 unique_name_in_owner = true

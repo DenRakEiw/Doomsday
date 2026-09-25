@@ -53,6 +53,9 @@ signal wire_requested(event_id: int)
 signal help_requested(page: String)
 ## audio.md §3.2: a bus's volume setting changed (0…1); `Audio` applies it.
 signal volume_changed(bus: StringName, value: float)
+## The master mute beside the menu button (S6.P3b): all sound off or back on,
+## the volumes untouched.
+signal mute_changed(muted: bool)
 ## audio.md §8: the *Sound captions* setting.
 signal sound_captions_changed(enabled: bool)
 ## audio.md §5.3: an admitted cue with a caption — whatever the volume, the mute

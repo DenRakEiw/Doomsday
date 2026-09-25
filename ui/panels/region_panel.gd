@@ -393,11 +393,13 @@ func _build_society() -> void:
 	row.theme_type_variation = &"FlowSnug"
 	_society_chip = Chip.new()
 	row.add_child(_society_chip)
+	_society_block.add_child(row)
+	# S6.P3: the cuts read as percentages now (`+0 %` where `×1` stood) and no
+	# longer fit beside the chip on a 400 px phone — a line of their own, wrapped.
 	_society_cuts = Label.new()
 	_society_cuts.theme_type_variation = VARIATION_CAPTION
-	_society_cuts.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(_society_cuts)
-	_society_block.add_child(row)
+	_society_cuts.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_society_block.add_child(_society_cuts)
 	var body: Node = _status_block.get_parent()
 	body.add_child(_society_block)
 	body.move_child(_society_block, _status_block.get_index() + 1)

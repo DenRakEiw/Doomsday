@@ -14,6 +14,8 @@ signal buy_requested(node_id: String)
 const TECH_NODE: PackedScene = preload("res://ui/components/tech_node.tscn")
 const VARIATION_GRID: StringName = &"TechGrid"
 const VARIATION_GRID_COMPACT: StringName = &"TechGridCompact"
+## S6.P3b: the desktop grid once its cells had to give up height.
+const VARIATION_GRID_DENSE: StringName = &"TechGridDense"
 const SEPARATION_H: StringName = &"h_separation"
 const SEPARATION_V: StringName = &"v_separation"
 
@@ -33,6 +35,9 @@ var _nodes: Dictionary[String, TechNode] = {}
 var _tree: String = ""
 var _selected: String = ""
 var _compact: bool = false
+## The room the board may fill without scrolling (S6.P3b); zero = none given,
+## and the cells keep their full size.
+var _room: Vector2 = Vector2.ZERO
 ## Columns and rows of the tree that is shown.
 var _span: Vector2i = Vector2i.ONE
 ## The run the board last read. It never writes to it.
@@ -56,6 +61,8 @@ func show_tree(tree: String, db: ContentDB, sim: Simulation) -> void:
 	_span = span_of(definitions)
 	_grid.columns = _span.x
 	_fill(definitions, _span)
+	# The span decides the fit: a tab of twelve rows is denser than one of five.
+	_resize_cells()
 	_apply_geometry()
 	refresh(sim)
 
@@ -136,11 +143,38 @@ func set_compact(compact: bool) -> void:
 	_resize_cells()
 
 
+## Punch item 2 (S6.P3b): the room the whole tab should fit in. The cells shrink
+## to it — never below `TECH_CELL_DENSE_MIN`, never above their full size — and
+## a card that had to give up height lays itself out densely.
+func set_room(room: Vector2) -> void:
+	var rounded: Vector2 = room.floor()
+	if rounded == _room:
+		return
+	_room = rounded
+	_resize_cells()
+
+
+## Whether the cells are smaller than their full height, so the cards are dense.
+func is_dense() -> bool:
+	return not _compact and cell_size().y < _full_cell().y
+
+
+## The grid's size at the current cell size — what must fit the room.
+func grid_size() -> Vector2:
+	var step: Vector2 = cell_size() + gap()
+	return Vector2(float(_span.x), float(_span.y)) * step - gap()
+
+
 ## Every cell of the grid — cards and the empty fillers between them — takes the
 ## current cell size, and the board and its lines follow.
 func _resize_cells() -> void:
+	var cell: Vector2 = cell_size()
+	var dense: bool = is_dense()
 	for child: Node in _grid.get_children():
-		(child as Control).custom_minimum_size = cell_size()
+		(child as Control).custom_minimum_size = cell
+		var node: TechNode = child as TechNode
+		if node != null:
+			node.set_dense(dense)
 	if not _tree.is_empty():
 		_apply_geometry()
 
@@ -216,6 +250,7 @@ func _add_node(definition: TechNodeDef) -> void:
 	var node: TechNode = TECH_NODE.instantiate()
 	node.custom_minimum_size = cell_size()
 	_grid.add_child(node)
+	node.set_dense(is_dense())
 	node.selected.connect(_on_node_selected)
 	node.buy_requested.connect(_on_node_buy_requested)
 	_nodes[definition.id] = node
@@ -230,20 +265,59 @@ func _empty_cell() -> Control:
 
 ## A card grows with the type it carries: at 150 % the names ran into each other
 ## and an owned card pushed its footer out (S4.9). The gap stays.
+##
+## S6.P3b: on a desktop given a room, the cell shrinks until the whole tab fits
+## it, down to `TECH_CELL_DENSE_MIN` (scaled like the rest); a tab that would
+## need less keeps the full cell and scrolls, as every tab did before.
 func cell_size() -> Vector2:
+	var full: Vector2 = _full_cell()
+	if _compact or _room.x <= 0.0 or _room.y <= 0.0:
+		return full
+	var least: Vector2 = (UiTokens.TECH_CELL_DENSE_MIN * Settings.text_scale).round()
+	var fitted: Vector2 = _fitted(_room, _gap_of(VARIATION_GRID_DENSE))
+	# A tab that cannot fit even at the smallest cell — larger text — keeps the
+	# full cell and scrolls: a squeezed card that still scrolls helps nobody.
+	if fitted.x < minf(least.x, full.x) or fitted.y < minf(least.y, full.y):
+		return full
+	var cell: Vector2 = Vector2(minf(fitted.x, full.x), minf(fitted.y, full.y))
+	# A tab that fits at the full height keeps the full grid's gap as well.
+	if cell.y >= full.y:
+		var wide: Vector2 = _fitted(_room, _gap_of(VARIATION_GRID))
+		cell.x = clampf(wide.x, minf(least.x, full.x), full.x)
+	return cell
+
+
+func gap() -> Vector2:
+	return _gap_of(_variation())
+
+
+func _full_cell() -> Vector2:
 	var base: Vector2 = UiTokens.TECH_CELL_COMPACT if _compact else UiTokens.TECH_CELL
 	return (base * Settings.text_scale).round()
 
 
-func gap() -> Vector2:
-	var variation: StringName = VARIATION_GRID_COMPACT if _compact else VARIATION_GRID
+## The largest cell with which `_span` cells and their gaps fill `room`.
+func _fitted(room: Vector2, between: Vector2) -> Vector2:
+	var columns: float = float(maxi(_span.x, 1))
+	var rows: float = float(maxi(_span.y, 1))
+	return Vector2(floorf((room.x + between.x) / columns - between.x),
+		floorf((room.y + between.y) / rows - between.y))
+
+
+func _gap_of(variation: StringName) -> Vector2:
 	return Vector2(
 		float(_grid.get_theme_constant(SEPARATION_H, variation)),
 		float(_grid.get_theme_constant(SEPARATION_V, variation)))
 
 
+func _variation() -> StringName:
+	if _compact:
+		return VARIATION_GRID_COMPACT
+	return VARIATION_GRID_DENSE if is_dense() else VARIATION_GRID
+
+
 func _apply_geometry() -> void:
-	_grid.theme_type_variation = VARIATION_GRID_COMPACT if _compact else VARIATION_GRID
+	_grid.theme_type_variation = _variation()
 	var cell: Vector2 = cell_size()
 	var step: Vector2 = cell + gap()
 	var full: Vector2 = Vector2(float(_span.x), float(_span.y)) * step - gap()

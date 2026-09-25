@@ -45,6 +45,12 @@ const TARGET_FOOTPRINT: String = "footprint"
 ## The name never becomes an ellipsis: two lines are enough in both languages,
 ## and `tests/unit/test_tech_node.gd` is what keeps that true.
 const NAME_LINES: int = 2
+## S6.P3b: the dense card of a tab that had to shrink to fit the screen — closer
+## to its border, a tighter stack, the footer's boxes an icon row high.
+const VARIATION_GUTTER: StringName = &"GutterTight"
+const VARIATION_GUTTER_DENSE: StringName = &"TechNodeGutterDense"
+const VARIATION_STACK: StringName = &"StackTight"
+const VARIATION_STACK_DENSE: StringName = &"StackLines"
 
 ## The content id this node stands for.
 @export var node_id: String = ""
@@ -60,6 +66,7 @@ var has_external_prerequisite: bool = false
 @onready var _icon: IconRect = %NodeIcon
 @onready var _content: MarginContainer = $Content
 @onready var _footer: HBoxContainer = $Content/Column/Footer
+@onready var _column: VBoxContainer = $Content/Column
 
 var _cell: Vector2i = Vector2i.ZERO
 var _is_selected: bool = false
@@ -67,6 +74,8 @@ var _is_selected: bool = false
 var _is_marked: bool = false
 ## The node's own footprint, for the footer — worded or bare (see `_fit_icon`).
 var _footprint_value: float = 0.0
+## Laid out densely (S6.P3b).
+var _dense: bool = false
 var _flash_alpha: float = 0.0
 var _flash_tween: Tween = null
 ## Kept so that the accessible name can be rebuilt on a locale change.
@@ -81,8 +90,7 @@ var _bound: bool = false
 
 func _ready() -> void:
 	_name.max_lines_visible = NAME_LINES
-	_glyph_box.custom_minimum_size = Vector2(float(UiTokens.GLYPH_BOX),
-		float(UiTokens.GLYPH_BOX))
+	_apply_density()
 	for state_signal: Signal in [mouse_entered, mouse_exited, focus_entered, focus_exited]:
 		state_signal.connect(queue_redraw)
 	# The glyph is drawn into the footer's box, and the first `_draw` happens
@@ -129,6 +137,29 @@ func bind(definition: TechNodeDef, cost: float, node_state: State, external: boo
 	_footprint.visible = not is_zero_approx(_footprint_value)
 	_footprint.text = _footprint_text(true)
 	_apply_state()
+
+
+## S6.P3b: the board shrank its cells to fit the screen; the card follows.
+func set_dense(value: bool) -> void:
+	if value == _dense:
+		return
+	_dense = value
+	if is_node_ready():
+		_apply_density()
+
+
+func is_dense() -> bool:
+	return _dense
+
+
+func _apply_density() -> void:
+	_content.theme_type_variation = VARIATION_GUTTER_DENSE if _dense else VARIATION_GUTTER
+	_column.theme_type_variation = VARIATION_STACK_DENSE if _dense else VARIATION_STACK
+	var box: float = float(UiTokens.ICON_ROW if _dense else UiTokens.GLYPH_BOX)
+	_glyph_box.custom_minimum_size = Vector2(box, box)
+	_icon.box_size = box
+	_fit_icon()
+	queue_redraw()
 
 
 func set_selected(value: bool) -> void:
@@ -303,6 +334,21 @@ func _gui_input(event: InputEvent) -> void:
 
 func _on_pressed() -> void:
 	selected.emit(node_id)
+
+
+## Punch item 4 (S6.P3b): resting on a card that cannot be bought says why — read
+## when asked, not on every tick the board refreshes.
+func _get_tooltip(_at_position: Vector2) -> String:
+	if Game.sim == null or node_id.is_empty():
+		return ""
+	return "\n".join(lock_reasons())
+
+
+## Why this node cannot be bought now; empty when it can or is owned.
+func lock_reasons() -> PackedStringArray:
+	if Game.sim == null:
+		return PackedStringArray()
+	return NodeLockText.reasons(Game.sim.db.tech(node_id), Game.sim)
 
 
 func _apply_state() -> void:

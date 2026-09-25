@@ -14,18 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.P3b — The compact tech tree, why a node is locked, the mute button** [O]: *In progress* (the hand-over) · *Punch list for Opus* items 2, 4, 5 — IMPLEMENTATION §4 row 89c′, §5 Block 17. Then D6.11 (2/2b) (cards, what you buy, the flavour check; row 89d). |
+| **Next step** | **D6.11 (2/2b) — Plain-language pass II** [F]: `plain-language.md` §2, §3, §5.1 passes 4, 5, 7 (cards, what you buy, the flavour check; add passes 4–5 to `REWRITTEN` in `test_plain_language.gd`) — IMPLEMENTATION §4 row 89d. First answer the S6.P3a/b entries under *Design questions for Fable* (the generated rows are placeholders to word). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | **D6.11 (2/2b) — Plain-language pass II** [F] (`plain-language.md` §2, §3, §5.1 passes 4, 5, 7; add passes 4–5 to `REWRITTEN` in `test_plain_language.gd`), then **G6 (1/2) — Balance pass 4** [F]: `docs/BALANCE.md` §5 · *Balance baselines*; **whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). D6.10, S6.14 and G6 (2/2) are **[needs user]**; then Block 18 (D7.1). |
-| **Last completed** | S6.P3a — Effect lines under every option, "what changed" after an answer, explanation-first cards, status lines, % instead of ×, the ten tooltips, the Codex term line (2026-09-25). |
-| **Before that** | D6.11 (2/2a) — Plain-language pass I: terms, coach, help, HUD and panels, console (2026-09-25). |
-| **Earlier** | D6.11 (1/2) — Text clarity audit: `docs/specs/plain-language.md` (2026-09-25). |
+| **After it** | **G6 (1/2) — Balance pass 4** [F]: `docs/BALANCE.md` §5 · *Balance baselines*; **whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). D6.10, S6.14 and G6 (2/2) are **[needs user]**; then Block 18 (D7.1). |
+| **Last completed** | S6.P3b — The whole tech tree on one screen (1920×1080 and 2560×1440), why a node is locked (detail pane and card tooltip), the mute button (2026-09-25). |
+| **Before that** | S6.P3a — Effect lines, "what changed", explanation-first cards, status lines, % instead of ×, the ten tooltips (2026-09-25). |
+| **Earlier** | D6.11 (2/2a) — Plain-language pass I (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 352 scripts compile (143 judged by the suite), then `tools/check_strings.gd` (2414 rows), 2332 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 353 scripts compile (146 judged by the suite), then `tools/check_strings.gd` (2420 rows), 2340 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
 | **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
 | **Benchmark** | `"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --model=<id> [--suite=quick] [--seeds=a..b] [--dry-run] [--max-cost=<usd>] [--yes]` (OpenRouter; the key from `OPENROUTER_API_KEY` only) · `--backend=mock:cheapest` (or `wait`, `invalid`, `mixed`; free, no key) · `--bots [--if-missing] [--no-rebuild]` (reference rows, ≈3 min for the standard suite) · `--rebuild` · `--determinism-fixture`. Writes `benchmark/runs/*.json`, `benchmark/leaderboard.json`, `LEADERBOARD.md` (`--out=<dir>` elsewhere; tests use `user://test_bench/`); cache `benchmark/cache/` (ignored). The tool works in `_initialize`, not `_init`: TLS is not ready before the main loop. **Global board (S6.12b):** `"$GODOT" --headless --path . -s tools/bench/verify_runs.gd -- --board=<leaderboard checkout> --game-commit=<40-hex> [--limit=n] [--today=YYYY-MM-DD] [--message=<file>]` (exit 0/1/2/3; a full board of 81 runs ≈80 s); `.github/workflows/leaderboard.yml` (daily + dispatch; no key → gate / read-only dry run). **Whoever changes `data/` regenerates the canary on Windows in the same commit:** `bench_run.gd -- --determinism-fixture` (`test_bench_determinism` fails with that line otherwise). **In the game (S6.13):** title → *Benchmark* (shown when a recorded run exists, the *Online leaderboard* setting is on, or a board on disk has a row): the global board (fetched only when the list opens, ≤ once per 300 s; cache `user://benchmark/online/`, shipped copy `benchmark/global/leaderboard.json`), then the recorded runs (`res://benchmark/showcase/`, `user://benchmark/runs/`, debug builds also `res://benchmark/runs/`); *Watch* replays in the session at 4×. Debug switches: `-- --spectate=<entry.json>`, `-- --global-board=<board.json>` (runs next to it under `runs/`). From godot-mcp: set `local_board_path` on `…/TitleHost/Slot/Benchmark/BoardClient` and call `forget_fetch`; `Game.advance [n]` jumps a watched run ahead. The suite reads `user://test_bench_library/` and `user://test_bench_online/` (`pre_run.gd`). |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
@@ -43,16 +43,8 @@ next step.
 
 ## In progress
 
-**S6.P3 split (2026-09-25).** *Finished (S6.P3a):* C1–C7 of `plain-language.md` §5.2 and the ten
-tooltips of §8 — `OptionText`, `StatusText`, `ChangeText` (all `ui/components/`), `Format.change`,
-the explanation-first event and wire cards, the tree's mark on a granted node
-(`tech_tree.gd` `_marked`), `test_event_option_click.gd`. *Left (S6.P3b):* punch items 2, 4, 5.
-*Learned:* a real-click test must take `%WireCard`/`%TechTree` before anything opens (the modal
-host reparents them); at most `events_max_open` = 3 events stand at once; the card keeps an
-answer's result for `CONSOLE_LINE_MS` (4 s) before it shows the next event; `-gselect=<file>`
-runs one test file; the docs are CRLF in the working copy. Screenshots: a throw-away driver
-scene run as `godot --path . --audio-driver Dummy res://.shots/shot_driver.tscn -- --out=<dir>`
-with `APPDATA` pointed at a scratch folder (the dot folder is never imported; not committed).
+*(empty — if a session stops mid-step, the handover goes here: what is finished, what is left,
+which file was being edited, and anything learned that the files do not show)*
 
 ---
 
@@ -196,7 +188,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] D6.11 (1/2) [F] Text clarity audit, style rules, glossary, 30 examples *(inserted by the user 2026-09-25; `docs/specs/plain-language.md`)*
 - [x] D6.11 (2/2a) [F] Plain-language pass I: terms, coach, help, HUD and panels, console *(`plain-language.md` §8)*
 - [x] S6.P3a [O] Event effect lines, "what changed", explanation-first layout, status lines, tooltips *(punch item 3; split at §1.6)*
-- [ ] S6.P3b [O] The compact tech tree, why a node is locked, the mute button *(punch items 2, 4, 5)*
+- [x] S6.P3b [O] The compact tech tree, why a node is locked, the mute button *(punch items 2, 4, 5)*
 - [ ] D6.11 (2/2b) [F] Plain-language pass II: cards, what you buy, the flavour check
 - [ ] G6 (1/2) [F] Balance pass 4 *(tuning; data only)*
 - [ ] D6.10 [F] Illustrations produced — **[needs user]**
@@ -1385,6 +1377,11 @@ without new information.
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
+- **S6.P3b — a key for the mute button?** `M` is the reduced-motion debug key; no free letter
+  reads as *mute*, so the action has no key (the button and the pause menu's volumes remain).
+  Give it one (and move the debug key), or leave it pointer-only?
+- **S6.P3b — the new lock-reason and mute rows are Opus's placeholders**: `UI_TREE_LOCK_NEEDS_ALL`,
+  `_NEEDS_ONE`, `_ASSETS`, `_NO_SITE`, `UI_HUD_MUTE`, `UI_HUD_UNMUTE` (en + de).
 - **S6.P3a — a roll the player cannot read.** Seven option rolls only set a story flag or route
   the chain (`next`); the effect line leaves them out rather than say *Risk 30 %: …* with nothing
   after it (`# DESIGN?` in `option_text.gd`). Say the story may turn, or leave it hidden?
@@ -1471,8 +1468,8 @@ without new information.
 **From the user's play-through (2026-09-25, build ca7a25c, Windows at 150 % display scaling,
 2560×1440 primary + a portrait 1200×1920 monitor to its left) — before G6:**
 1. ~~Clicks don't reach the map~~ — fixed in S6.P2 (below).
-2. **The tech tree (*Fähigkeiten*) is taller than the display** — the user wants a compact
-   layout in which the whole tree fits without scrolling at 1920×1080 and on their 2560×1440.
+2. ~~The tech tree is taller than the display~~ — **done in S6.P3b** (the board fits its cells
+   to the room; the tabs share the title's row).
 3. **Event cards don't say what an option does** (en and de): the user could not tell what
    *Täuschendes Schließen* (keep/suppress) or *Zielverallgemeinerung* meant, and paid for a
    Suppress that bought nothing. Every option shows a generated effect line (cost, what changes,
@@ -1484,14 +1481,25 @@ without new information.
    simulation: missing prerequisites named (all of vs one of), excluded by which owned node,
    phase or architecture, missing assets with counts, no eligible site and why, the compute
    shortfall; strings added where a reason has none, within the caps. In the real-click test.
-   → **S6.P3b.**
+   → **done in S6.P3b** (`NodeLockText`; no node is gated by phase or architecture today).
 5. **(User, 2026-09-25) A mute button beside the menu button** (desktop top bar and the phone
    strip): toggles all sound (a master mute in `Settings`, persisted, independent of the volume
    sliders), speaker / speaker-off icons from the pinned Phosphor archive via
    `tools/icons/vendor_icons.py` and `data/icons.json`, tooltip and accessible name en + de, a
-   remappable key action if a sensible free key exists (not `M`, a debug key). → **S6.P3b**.
+   remappable key action if a sensible free key exists (not `M`, a debug key). → **done in
+   S6.P3b**, without a key: every free letter would be a guess (*Design questions*).
 
 ## Deviations from the plan or a spec
+
+- **2026-09-25** (S6.P3b) — **Punch items 2, 4, 5 as built:** (1) the desktop tree fits a tab by
+  shrinking its cells (never below `TECH_CELL_DENSE_MIN` 168 × 64) and laying the cards out
+  densely; a tab that would need less — larger text — keeps the full cell and scrolls as before;
+  the phone keeps its compact cell and scrolls. (2) The tabs moved into the title row on a
+  desktop. (3) Over the tree the coach card sits bottom right (it covered the board's first
+  columns, which can no longer be scrolled away). (4) The card's footprint word gives way before
+  its icon. (5) The lock reasons stand under the state chip; the old *Requirements not met* row
+  is unused. (6) The mute button has no key. (7) The region panel's society cuts took a line of
+  their own: as percentages they no longer fit beside the chip on a 400 px phone.
 
 - **2026-09-25** (S6.P3a) — **Against `plain-language.md` §5.2 / §8:** (1) the counter-move's
   generated status line is part of the explanation's text (a second line), not its own label;
@@ -2260,6 +2268,9 @@ without new information.
 
 ## Known issues and carry-overs
 
+- **S6.P3b → D7.1/S7:** on a 400 px phone the tech detail sheet runs off the right edge for a node
+  whose prerequisite lives in another tab — the row (name, state chip, *in {tab}*) is wider than
+  the screen (seen on *Distributed Synthesis*; before S6.P3 too). The phone layout's step.
 - **D6.9b → S7.2:** the Android preset needs the `INTERNET` permission for the benchmark list's
   download (`benchmark.md` §16.6); without it the list shows its cached or shipped copy.
 
@@ -2941,6 +2952,15 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.P3b The whole tree on one screen, lock reasons, mute [O]
+- Board fits cells to its room (dense cards, `TechGridDense`), tabs in the title row, coach bottom right over the tree;
+  `NodeLockText` (every reason, named) in the detail and the card's tooltip; `MuteButton` + `Settings.muted` + 2 Phosphor icons.
+- Looked at (en, de, de 150 %, de 400 px): all three tabs fit at 1920; 150 % scrolls with full cards as before. Found: CI red since
+  2/2a (English footer overflow, locale-dependent test) — fixed first (`e00a3b7`); the coach card hid tree cards — moved.
+- +8 tests (`test_tech_tree_fit` real clicks and geometry, `test_mute_button`). 2340 green. Phone detail sheet overflow noted.
+- Learned: headless tests lay out 1920×1080 logical px at any window size; `-gselect=<file>` runs one test file; screenshots
+  came from a throw-away `.shots/` driver scene run windowed with `APPDATA` on a scratch folder (never the player's).
 
 ### 2026-09-25 — S6.P3a Effect lines, what changed, explanation first [O]
 - `OptionText` (the line under all 172 options), `StatusText` (card, region tooltip, map chip, Codex), `ChangeText` (what changed,

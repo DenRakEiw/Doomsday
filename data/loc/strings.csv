@@ -2413,3 +2413,9 @@ UI_CODEX_STATUS_LEVEL,Level {level}: {line},Level {level}: {line}
 EFFECT_CONTAINMENT_ADD_ALL,Every faction's containment {value},Eindämmung aller Fraktionen {value}
 STAT_TASK_FORCE_PACE,Task Force speed,Tempo der Einsatzgruppe
 STAT_CLOSED_CROSS,Spread over closed connections,Ausbreitung über geschlossene Verbindungen
+UI_TREE_LOCK_NEEDS_ALL,Needs {nodes} first.,Braucht zuerst {nodes}.
+UI_TREE_LOCK_NEEDS_ONE,Needs one of these first: {nodes}.,Braucht zuerst eines davon: {nodes}.
+UI_TREE_LOCK_ASSETS,Needs {count} × {kind} on the map (you have {have}).,Braucht {count} × {kind} auf der Karte (du hast {have}).
+UI_TREE_LOCK_NO_SITE,No region can take it yet. It needs: {needs}.,Noch kann keine Region es aufnehmen. Nötig: {needs}.
+UI_HUD_MUTE,Mute all sound,Ton aus
+UI_HUD_UNMUTE,Sound back on,Ton wieder an

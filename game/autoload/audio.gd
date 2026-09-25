@@ -113,6 +113,7 @@ func _ready() -> void:
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.hold_changed.connect(_on_hold_changed)
 	EventBus.volume_changed.connect(_on_volume_changed)
+	EventBus.mute_changed.connect(_on_mute_changed)
 	ScreenRouter.screen_changed.connect(_on_screen_changed)
 	_request_cue_streams()
 
@@ -584,13 +585,15 @@ func _run_heat() -> float:
 	return ScreenFxRules.heat(world.phase, ScreenFxRules.endgame(world, Game.db))
 
 
-## §3.2: 0 mutes the bus, anything else sets it in decibels.
+## §3.2: 0 mutes the bus, anything else sets it in decibels. The master bus is
+## also muted by the button beside the menu (S6.P3b), whatever its volume.
 func _apply_volume(bus: StringName) -> void:
 	var index: int = bus_index(bus)
 	if index < 0:
 		return
 	var value: float = volume(bus)
-	AudioServer.set_bus_mute(index, value <= 0.0)
+	var silenced: bool = bus == AudioSheet.BUS_MASTER and Settings.muted
+	AudioServer.set_bus_mute(index, value <= 0.0 or silenced)
 	if value > 0.0:
 		AudioServer.set_bus_volume_db(index, linear_to_db(value))
 
@@ -701,3 +704,7 @@ func _on_screen_changed(screen: int) -> void:
 
 func _on_volume_changed(bus: StringName, _value: float) -> void:
 	_apply_volume(bus)
+
+
+func _on_mute_changed(_muted: bool) -> void:
+	_apply_volume(AudioSheet.BUS_MASTER)
