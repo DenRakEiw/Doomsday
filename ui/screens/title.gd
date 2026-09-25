@@ -9,6 +9,8 @@ const KEY_TAGLINE: String = "UI_TITLE_TAGLINE"
 const KEY_CONTINUE_DAY: String = "UI_TITLE_CONTINUE_DAY"
 const KEY_LOAD_FAILED: String = "UI_TITLE_LOAD_FAILED"
 const KEY_VERSION: String = "UI_TITLE_VERSION"
+## release.md §4: a debug export is never mistaken for a release.
+const KEY_VERSION_DEBUG: String = "UI_TITLE_VERSION_DEBUG"
 ## accessibility.md §5.1: `F1` and the pad's Back.
 const ACTION_HELP: StringName = &"game_help"
 ## accessibility.md §5.3: the key list, over the settings.
@@ -149,7 +151,7 @@ func primary_button() -> ConsoleButton:
 func _refresh_strings() -> void:
 	_name_label.text = tr(KEY_NAME)
 	_tagline.text = tr(KEY_TAGLINE)
-	_version.text = tr(KEY_VERSION).format(
+	_version.text = tr(KEY_VERSION_DEBUG if OS.is_debug_build() else KEY_VERSION).format(
 		{PLACEHOLDER_VERSION: str(ProjectSettings.get_setting(SETTING_VERSION, ""))})
 
 

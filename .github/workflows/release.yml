@@ -1,0 +1,161 @@
+name: Release
+
+# docs/specs/release.md §9.2. A `v*` tag exports Windows, Linux and Web,
+# smoke-tests the two desktop builds and attaches the three zips to a **draft**
+# GitHub release — publishing it is the user's. A manual dispatch builds and
+# smoke-tests without a release.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Headless tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: barichello/godot-ci:4.7.2
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Import, check every script, run the test suite
+        run: tools/test.sh
+
+  export:
+    name: Export and smoke test (Linux)
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: barichello/godot-ci:4.7.2
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Export templates where Godot looks for them
+        run: |
+          mkdir -p ~/.local/share/godot/export_templates
+          mv /root/.local/share/godot/export_templates/4.7.2.stable ~/.local/share/godot/export_templates/
+
+      - name: The version, and on a tag the check that the tag is it
+        # release.md §4: `v<config/version>` must equal the tag.
+        id: version
+        shell: bash
+        run: |
+          version="$(sed -n 's/^config\/version="\(.*\)"$/\1/p' project.godot)"
+          echo "version: $version"
+          if [ "$GITHUB_REF_TYPE" = "tag" ] && [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "the tag $GITHUB_REF_NAME is not v$version (project.godot's config/version)"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Import
+        run: godot --headless --path . --import
+
+      - name: Export all three
+        shell: bash
+        run: |
+          mkdir -p build/windows build/linux build/web
+          godot --headless --path . --export-release "Windows" build/windows/Doomsday.exe
+          godot --headless --path . --export-release "Linux" build/linux/Doomsday.x86_64
+          godot --headless --path . --export-release "Web" build/web/index.html
+
+      - name: The exported Linux build plays the reference run
+        shell: bash
+        run: |
+          tools/ci/smoke_check.sh build/linux/Doomsday.x86_64
+          cp "$HOME/.local/share/Doomsday/smoke/result.json" smoke-linux.json
+
+      - name: Zip each build
+        shell: bash
+        run: |
+          command -v zip >/dev/null || (apt-get update && apt-get install -y --no-install-recommends zip)
+          version="${{ steps.version.outputs.version }}"
+          mkdir -p dist
+          for platform in windows linux web; do
+            (cd "build/$platform" && zip -r -q "../../dist/Doomsday-$version-$platform.zip" .)
+          done
+          ls -l dist
+
+      - name: Upload the zips
+        uses: actions/upload-artifact@v4
+        with:
+          name: doomsday-builds
+          path: dist/*.zip
+          if-no-files-found: error
+
+      - name: Upload the Linux smoke result
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-linux
+          path: smoke-linux.json
+
+  smoke-windows:
+    name: Smoke test (Windows)
+    needs: export
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Download the builds
+        uses: actions/download-artifact@v4
+        with:
+          name: doomsday-builds
+          path: dist
+
+      - name: Download the Linux smoke result
+        uses: actions/download-artifact@v4
+        with:
+          name: smoke-linux
+          path: .
+
+      - name: The exported Windows build plays the run
+        # Exit 0, no errors, and the Linux build's outcome — the same platform
+        # family is not promised, so no hash (release.md §9.2).
+        shell: pwsh
+        run: |
+          $version = '${{ needs.export.outputs.version }}'
+          Expand-Archive -Path "dist/Doomsday-$version-windows.zip" -DestinationPath windows
+          $process = Start-Process windows\Doomsday.exe -ArgumentList '--headless','--','--smoke' -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "smoke exited with $($process.ExitCode)" }
+          $result = Get-Content "$env:APPDATA\Doomsday\smoke\result.json" -Raw | ConvertFrom-Json
+          $linux = Get-Content smoke-linux.json -Raw | ConvertFrom-Json
+          Write-Host "windows: outcome=$($result.outcome) day=$($result.day) errors=$($result.errors)"
+          Write-Host "linux:   outcome=$($linux.outcome) day=$($linux.day)"
+          if ($result.errors -ne 0) { throw "the Windows smoke logged $($result.errors) errors" }
+          if ($result.outcome -ne $linux.outcome) { throw "Windows and Linux ended differently" }
+
+  release:
+    name: Draft release
+    needs: [export, smoke-windows]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Download the builds
+        uses: actions/download-artifact@v4
+        with:
+          name: doomsday-builds
+          path: dist
+
+      - name: Create the draft
+        # Draft only: the user publishes (release.md §9.2).
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft \
+            --generate-notes --title "Doomsday ${{ needs.export.outputs.version }}" dist/*.zip

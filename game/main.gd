@@ -5,6 +5,9 @@ extends Control
 ##
 ## Scene-specific, so no `class_name`.
 
+## release.md §8: `-- --smoke` plays a bot run in place of the boot.
+const SmokeRun: GDScript = preload("res://game/smoke_run.gd")
+
 @onready var _slot: Control = %ScreenSlot
 
 
@@ -16,7 +19,10 @@ func _ready() -> void:
 	# §6.1: every screen lays out in logical pixels, not only the session.
 	get_window().size_changed.connect(_on_window_size_changed)
 	LogicalScale.apply(get_window())
-	ScreenRouter.boot()
+	if OS.get_cmdline_user_args().has(SmokeRun.ARG):
+		add_child(SmokeRun.new() as Node)
+	else:
+		ScreenRouter.boot()
 	EventBus.text_scale_changed.connect(_on_text_scale_changed)
 
 

@@ -66,6 +66,10 @@ const VOLUME_ROWS: Dictionary[String, StringName] = {
 }
 const KEY_RESET_PROFILE: String = "UI_SETTINGS_RESET_PROFILE"
 const KEY_RESET_CONFIRM: String = "UI_SETTINGS_RESET_CONFIRM"
+## release.md §10: where a player finds the log and the saves — the title's
+## settings only, and only where there is a folder to open.
+const KEY_DATA_FOLDER: String = "UI_SETTINGS_DATA_FOLDER"
+const USER_DIR: String = "user://"
 ## The rows in the order they are built. polish-visuals.md §5.1 put *Screen
 ## effects* directly after *Reduced motion*; screens-full.md §6.3's boot row is
 ## the title's only.
@@ -135,6 +139,7 @@ var _setting_buttons: Array[ConsoleButton] = []
 ## screens-full.md §6.3: the boot row and *Reset progress*, on the title only.
 var _title_rows: Array[Control] = []
 var _reset: ConsoleButton = null
+var _data_folder: ConsoleButton = null
 ## accessibility.md §5.3: *Change* on the *Controls* row.
 var _controls: ConsoleButton = null
 
@@ -219,6 +224,7 @@ func _apply_mode() -> void:
 	_quit.visible = not settings_only
 	for row: Control in _title_rows:
 		row.visible = settings_only
+	_data_folder.visible = settings_only and has_data_folder()
 	# From the title the modal is titled Settings already; the section caption
 	# under it said the same word again (S4.9).
 	_settings_title.visible = not settings_only
@@ -290,6 +296,11 @@ func _build_settings() -> void:
 		if key == KEY_AUDIO_BACKGROUND:
 			row.visible = not (OS.has_feature(FEATURE_WEB) or OS.has_feature(FEATURE_MOBILE))
 	_build_controls_row()
+	_data_folder = ConsoleButton.new()
+	_data_folder.label_key = KEY_DATA_FOLDER
+	_data_folder.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_data_folder.pressed.connect(_on_data_folder_pressed)
+	_settings_rows.add_child(_data_folder)
 	# §6.3: progress is not a run — the autosave and the slots stay.
 	_reset = ConsoleButton.new()
 	_reset.label_key = KEY_RESET_PROFILE
@@ -451,6 +462,20 @@ func _on_setting_pressed(index: int) -> void:
 		_:
 			Settings.set_boot_always(not Settings.boot_always)
 	_refresh_settings()
+
+
+## release.md §10: a phone and a browser have no folder a player could open.
+static func has_data_folder() -> bool:
+	return not (OS.has_feature(FEATURE_WEB) or OS.has_feature(FEATURE_MOBILE))
+
+
+## The *Open data folder* button, for the tests.
+func data_folder_button() -> ConsoleButton:
+	return _data_folder
+
+
+func _on_data_folder_pressed() -> void:
+	OS.shell_open(ProjectSettings.globalize_path(USER_DIR))
 
 
 func _on_reset_pressed() -> void:

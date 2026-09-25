@@ -26,6 +26,10 @@ const NO_DAY: int = -1
 const AUTOSAVE: String = "autosave"
 const REASON_READ_FAILED: String = "save_read_failed"
 
+## Where the slots live. release.md §8: the smoke run points it at a folder of
+## its own, so a bot run never writes over the player's autosave.
+var save_dir: String = SAVE_DIR
+
 
 ## Writes the running simulation to `slot`. "" means it worked, anything else is
 ## the reason it did not.
@@ -77,9 +81,9 @@ func load(slot: String) -> String:
 ## The slots on disk, in alphabetical order.
 func list_slots() -> Array[String]:
 	var slots: Array[String] = []
-	if not DirAccess.dir_exists_absolute(SAVE_DIR):
+	if not DirAccess.dir_exists_absolute(save_dir):
 		return slots
-	var names: PackedStringArray = DirAccess.get_files_at(SAVE_DIR)
+	var names: PackedStringArray = DirAccess.get_files_at(save_dir)
 	names.sort()
 	for file_name: String in names:
 		if file_name.ends_with(SUFFIX):
@@ -123,10 +127,10 @@ func has_slot(slot: String) -> bool:
 
 
 func path_for(slot: String) -> String:
-	return SAVE_DIR.path_join(slot + SUFFIX)
+	return save_dir.path_join(slot + SUFFIX)
 
 
 func _ensure_dir() -> bool:
-	if DirAccess.dir_exists_absolute(SAVE_DIR):
+	if DirAccess.dir_exists_absolute(save_dir):
 		return true
-	return DirAccess.make_dir_recursive_absolute(SAVE_DIR) == OK
+	return DirAccess.make_dir_recursive_absolute(save_dir) == OK

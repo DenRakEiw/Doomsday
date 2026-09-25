@@ -12,12 +12,25 @@ config_version=5
 
 config/name="Doomsday"
 config/description="A strategy simulation in which a rogue AI takes over the world."
-; The title screen shows this (m3-screens.md 7.1); M3 is 0.3.
-config/version="0.3.0-dev"
+; release.md §4: always numeric MAJOR.MINOR.PATCH, the next release's number;
+; a `v<version>` tag must equal it. Pre-1.0 the minor is the milestone.
+config/version="0.6.0"
 run/main_scene="res://game/main.tscn"
+; release.md §11.3: the `perf` preset starts the frame-time bench (S6.11).
+run/main_scene.perf="res://tools/perf/perf_bench.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
+config/icon="res://assets/app/icon.svg"
+; release.md §5: `%APPDATA%/Doomsday/`, `~/.local/share/Doomsday/` — stable paths
+; for players, support and Steam Auto-Cloud. `UserDataMigration` copies the old
+; `app_userdata` folder's files over on the first start.
+config/use_custom_user_dir=true
+config/custom_user_dir_name="Doomsday"
+; The engine's splash is not our boot (screens-full §2): INK, no image.
+boot_splash/bg_color=Color(0.02745098, 0.03529412, 0.047058824, 1)
+boot_splash/show_image=false
 
 [autoload]
+
 
 ; Order matters only for `_ready`: the bus exists before anything emits on it,
 ; and the settings apply the locale before the first string is drawn.
@@ -46,6 +59,10 @@ gdscript/warnings/unsafe_property_access=1
 gdscript/warnings/unsafe_method_access=1
 gdscript/warnings/unsafe_cast=1
 gdscript/warnings/unsafe_call_argument=1
+; release.md §10: the last five runs' logs, nothing ever leaves the machine.
+file_logging/enable_file_logging=true
+file_logging/log_path="user://logs/godot.log"
+file_logging/max_log_files=5
 
 [editor_plugins]
 
@@ -57,6 +74,8 @@ window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+; release.md §11.3: the bench measures unthrottled frames.
+window/vsync/vsync_mode.perf=0
 
 [gui]
 

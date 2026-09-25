@@ -66,3 +66,34 @@ jobs:
             echo "  $second"
             exit 1
           fi
+
+  export-smoke:
+    name: Export and smoke test (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: barichello/godot-ci:4.7.2
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Export templates where Godot looks for them
+        # The image keeps them under /root; the container's HOME is /github/home
+        # (release.md §9.1).
+        run: |
+          mkdir -p ~/.local/share/godot/export_templates
+          mv /root/.local/share/godot/export_templates/4.7.2.stable ~/.local/share/godot/export_templates/
+
+      - name: Import
+        run: godot --headless --path . --import
+
+      - name: Export the Linux build
+        run: |
+          mkdir -p build/linux
+          godot --headless --path . --export-release "Linux" build/linux/Doomsday.x86_64
+
+      - name: The exported build plays the reference run
+        # release.md §8: a bot run in the real session, exit 0, the same outcome,
+        # day and hash as tools/sim_run.gd.
+        shell: bash
+        run: tools/ci/smoke_check.sh build/linux/Doomsday.x86_64

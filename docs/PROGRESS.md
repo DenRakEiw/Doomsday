@@ -14,18 +14,19 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.10 — Export presets and release CI** [O] (Block 16): `release.md` (exports, CI, versioning, debug keys). **Carry the user's data folder over** (*Known issues*, S6.10). Then S6.11–S6.13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.11 — Performance pass** [O] (Block 16): `release.md` §11 (budget; the `perf` preset and `run/main_scene.perf` → `tools/perf/perf_bench.tscn` exist since S6.10, the scene does not). Then S6.12–S6.13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.11 performance, S6.12 benchmark tool, S6.13 spectator view. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | S6.9 — PlatformService (null backend) and achievements: `PlatformBackend`/`NullPlatformBackend`, the `PlatformService` autoload, `AchievementBook` (34 defs), achievements in the profile (kept by *Reset progress*), Statistics section 4, results chips (2026-09-25). |
-| **Before that** | S6.P1 — Punch list from D6.8 (2026-09-25). |
-| **Earlier** | D6.9 — Benchmark and spectator mode: `docs/specs/benchmark.md` (2026-09-25). |
+| **After it** | S6.12 benchmark tool, S6.13 spectator view. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | S6.10 — Export presets and release CI: `export_presets.cfg` (Windows, Linux, Web, Perf), `release.yml` + CI `export-smoke`, `--smoke`, `Game.debug_allowed`, version `0.6.0`, the app icon, the user folder `%APPDATA%/Doomsday/` with the one-time copy from `app_userdata` (2026-09-25). |
+| **Before that** | S6.9 — PlatformService (null backend) and achievements (2026-09-25). |
+| **Earlier** | S6.P1 — Punch list from D6.8 (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 287 scripts compile (132 judged by the suite), then `tools/check_strings.gd` (2338 rows), 2037 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 290 scripts compile (135 judged by the suite), then `tools/check_strings.gd` (2338 rows), 2073 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
 | **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. **The sound set:** `uv run --project tools/audio python tools/audio/synth.py [--only <id>] [--check]` (≈30 s; environment `uv sync --project tools/audio`) rewrites `assets/audio/**`; after a new file run `--import` and set its `.import` per audio.md §10.3 (`compress/mode=0` / `loop=true`). |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
@@ -175,7 +176,7 @@ it and take the next row (IMPLEMENTATION §4).*
 **Block 16 — M6 build II**
 - [x] S6.P1 [O] Punch list from D6.8 (the build's design questions)
 - [x] S6.9 [O] PlatformService (null backend) and achievements
-- [ ] S6.10 [O] Export presets and release CI
+- [x] S6.10 [O] Export presets and release CI
 - [ ] S6.11 [O] Performance pass
 - [ ] S6.12 [O] Benchmark tool, headless *(the first live run needs the user's key)*
 - [ ] S6.13 [O] Spectator view
@@ -1339,6 +1340,23 @@ without new information.
 
 ## Deviations from the plan or a spec
 
+- **2026-09-25** (S6.10) — **Against `release.md` §5, §6, §9:** (1) **the user folder is copied**
+  (user instruction; §5 said nothing migrates): `UserDataMigration` (`game/platform/`), run first in
+  `Settings._ready`, copies `profile.json`, `saves/*.json` and `settings.json` (last — it is the
+  marker) from Godot's `app_userdata/Doomsday/` when the new folder has no `settings.json`; never
+  moves, deletes or overwrites; not on web or mobile. (2) The include filter adds
+  `assets/icons/*.txt` — the two vendored icon licences the credits read, missing from §6.2's list.
+  (3) Godot's filter `*` crosses `/` and an exclude cannot be re-included, so the `Perf (local)`
+  preset excludes `tools/` entry by entry (`tools/sim_*`, `tools/map/*`, …) — **S6.11 adds any new
+  top-level tool there**. (4) The suite's saves moved to `user://test_saves/` (`pre_run.gd`): the
+  run-flow tests wrote and deleted the player's autosave (the S6.9 stray came from there).
+  (5) The release zips hold the build's files at their root. (6) The smoke is command-identical to
+  `sim_run`: seed 1 greedy → `lose_contained`, day 404, hash `f7dd5970…`, so CI compares outcome,
+  day and hash (Windows: outcome only, §9.2). (7) The templates were already installed (no `.tpz`
+  on disk, so §9.3's SHA-512 check could not be made). (8) No own 16-px icon frame: the Windows
+  export makes the `.ico` sizes from the SVG; at 16 px the eye blurs to a ring, the bubble reads.
+  (9) §9.2's `workflow_dispatch` proof was not run — the unattended run may not trigger workflows
+  (*Waiting on the user*); all three presets were exported locally instead.
 - **2026-09-25** (S6.9) — **Against `release.md` §1.3, §2.2, §2.4:** (1) the overlay reaches the
   session through a new `EventBus.platform_overlay_opened` (the service forwards `overlay_toggled(true)`;
   the session checks the run is live and uses `_open_pause_menu`, which already refuses under a modal).
@@ -2021,11 +2039,11 @@ without new information.
 
 ## Known issues and carry-overs
 
-- **S6.10 must carry the user's data over (user instruction, 2026-09-25 run).** `release.md` §5 sets
-  `custom_user_dir_name = "Doomsday"` and says nothing migrates; the user's profile, settings and
-  saves live in `%APPDATA%/Godot/app_userdata/Doomsday/`. S6.10 copies (never moves or deletes)
-  `profile.json`, `settings.json` and `saves/*.json` from the old folder into the new one on first
-  start when the new folder lacks them, with a test; a deviation from §5 to record there.
+- **S6.10: the release export's title looked larger than the editor's** in two window captures
+  (PrintWindow, 12 s after start, 1066 × 600 and a maximised 2560 × 1369): the menu reached the
+  bottom edge and the version caption was out of view, while the editor at 1920 × 1080 shows it
+  all (`Build 0.6.0 · Debug`). Not investigated (possibly the capture's DPI) — S6.11 or G6 should
+  look at the release build's title at a few window sizes.
 - **S6.9: Statistics on a phone is wider than the window** (older than S6.9, measured then): a
   *Recent runs* block's foot row (days, seed, *Play this seed again*) has a 424 px minimum at 400 px
   wide, so the panel clips on the right. The achievement rows are ≤ 250 px and drop their state
@@ -2048,10 +2066,6 @@ without new information.
 - **An owned tech node with a footprint overflows its compact cell** (seen in S6.4, older than
   it): *Erworben* + *Sig. ▲ +2* + ✓ is ~155 px in the 136 px the 160-px cell leaves, so the
   footer pushes past the node's left padding. Belongs with the S6.4 design question on the footer.
-- **Licence texts are `.txt` files** (S6.3): `assets/fonts/OFL-*.txt`,
-  `assets/licences/CC-BY-3.0.txt`, S6.4's vendored `LICENSE.txt`/`license.txt`. Godot exports only
-  resources by default, so **S6.10's presets must include `*.txt`** (non-resource filter), or those
-  credits entries disappear from the build (hidden when `requires` is missing) and the pages go empty.
 - **The pass at a 400-px *desktop* window** (S6.1): `px_scale` = 400 / 1080, so the scanline
   pitch sits at its floor of 2 px and reads denser than at 1920. A phone's physical width is
   ~1080 px, so it is a desktop-review artefact; S6.11 looks at it on a device.
@@ -2182,10 +2196,17 @@ without new information.
 
 ## Waiting on the user
 
-**S6.9 (2026-09-25, overnight):** an interrupted test run left
-`%APPDATA%/Godot/app_userdata/Doomsday/saves/autosave.json` (a day-0 run; the title offers
-*Continue*). Deleting it was not permitted to the session — delete it, or just start a new run.
-Your `profile.json`, `settings.json` and `saves/debug.json` are unchanged (checked by hash).
+**S6.9/S6.10 (2026-09-25, overnight):** the game's data now lives in `%APPDATA%/Doomsday/`.
+S6.10 copied your `profile.json`, `settings.json`, `saves/debug.json` and the stray
+`saves/autosave.json` (a day-0 run from a test; the title offers *Continue*) there — all four
+byte-identical by SHA-256; the old `%APPDATA%/Godot/app_userdata/Doomsday/` is untouched and can
+be deleted by you when you are happy. Delete the stray autosave in the new folder too, or just
+start a new run. The test suite no longer touches your saves.
+
+**S6.10 (2026-09-25, overnight):** (1) run the release workflow once without a tag — `gh workflow
+run release.yml` (or Actions → *Release* → *Run workflow*) — the unattended run was not allowed to
+trigger it; it should end green with the `doomsday-builds` artefact (three zips). (2) Then, when
+you want one: tag `v0.6.0` and publish the draft (D6.8 question 6).
 
 **D4.0 (2026-09-23): read `docs/specs/loop-redesign.md`** — its §12 names the five things to
 judge (the phase fantasies and the fleet as the body, the busy Cyber branch, the vector cap of
@@ -2627,6 +2648,12 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.10 Export presets and release CI [O]
+- `export_presets.cfg` (4), `release.yml`, CI `export-smoke`, `tools/ci/smoke_check.sh`; `--smoke` (`game/smoke_run.gd`);
+  `Game.debug_allowed`; `Settings.persist`, `SaveManager.save_dir`; version 0.6.0; `assets/app/icon.svg`; *Open data folder*.
+- User folder `%APPDATA%/Doomsday/`; `UserDataMigration` copied the user's 4 files (hash-identical), old folder untouched.
+- Exported all three locally; Windows release smoke headless and windowed: exit 0, hash = `sim_run`'s. +36 tests, 2073 green.
 
 ### 2026-09-25 — S6.9 PlatformService (null backend) and achievements [O]
 - `game/platform/` (`PlatformBackend`, `NullPlatformBackend`, `AchievementDef`, `AchievementBook`), autoload

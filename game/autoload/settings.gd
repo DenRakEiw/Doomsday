@@ -78,9 +78,15 @@ var announce_headlines: bool = true
 var keys: Dictionary[String, int] = {}
 ## The overflow check of UI.md §4. A development switch, never written to the file.
 var pseudo_locale: bool = false
+## release.md §8: false keeps every change in memory — the smoke run's switch, so
+## a bot run never touches the player's file.
+var persist: bool = true
 
 
 func _ready() -> void:
+	# release.md §5: the first start in the game's own user folder brings the old
+	# one's files along before anything reads them (S6.10).
+	UserDataMigration.run()
 	var values: Dictionary = values_from(_read(), system_locale(), os_reduced_motion())
 	locale = str(values[KEY_LOCALE])
 	reduced_motion = bool(values[KEY_REDUCED_MOTION])
@@ -101,7 +107,13 @@ func _ready() -> void:
 		keys[str(action)] = int(stored_keys[action])
 	TranslationServer.set_locale(locale)
 	write()
-	if OS.get_cmdline_user_args().has(ARG_PSEUDO):
+	apply_args(OS.get_cmdline_user_args())
+
+
+## The command line's development switch (UI.md §4). release.md §7: a release
+## build ignores it — `Game.debug_allowed` is the one gate.
+func apply_args(args: PackedStringArray) -> void:
+	if Game.debug_allowed and args.has(ARG_PSEUDO):
 		set_pseudo_locale(true)
 
 
@@ -382,6 +394,8 @@ func to_dict() -> Dictionary:
 
 
 func write() -> void:
+	if not persist:
+		return
 	var file: FileAccess = FileAccess.open(PATH, FileAccess.WRITE)
 	if file == null:
 		# A read-only user directory is the player's problem, not a crash of ours.

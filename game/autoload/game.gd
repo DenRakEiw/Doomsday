@@ -53,6 +53,9 @@ var policy: Policy = null
 var next_setup: RunSetup = RunSetup.new()
 ## Set by the debug keys: prints every tick and every event to the console.
 var debug_log: bool = false
+## release.md §7: the one gate for the debug keys and the development switches —
+## the editor and debug exports have them, a release export has none. Tests set it.
+var debug_allowed: bool = OS.is_debug_build()
 ## The question the map is being asked, or null (`loop-mechanics.md` §16.1).
 var site_request: SiteRequest = null
 
@@ -388,10 +391,11 @@ func _day_line() -> String:
 ## cyber / robotics / weapons (the second generation of S4.10) — L and M toggle the two settings
 ## (Shift+L the pseudo-locale of S4.9), K steps the text scale, F9 and F10 save
 ## and load, F11 picks the next run's architecture (S5.1). All of this goes away
-## in M6, when the real screens exist.
+## in M6, when the real screens exist. release.md §7: a release build has none of
+## them, and the key goes on unhandled.
 func _unhandled_key_input(event: InputEvent) -> void:
 	var key: InputEventKey = event as InputEventKey
-	if key == null or not key.pressed or key.echo:
+	if not debug_allowed or key == null or not key.pressed or key.echo:
 		return
 	var strategy: bool = key.shift_pressed
 	match key.keycode:

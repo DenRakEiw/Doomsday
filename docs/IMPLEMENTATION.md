@@ -1143,6 +1143,9 @@ profile, Statistics section 4 and the results chips; deviations in `PROGRESS.md`
 (tag → artefacts), the exported-build smoke test, the debug keys stripped from release builds.
 **Done when:** a tag builds all three; the exported Windows build starts, plays a scripted run
 and exits clean.
+*Done 2026-09-25: presets, `release.yml`, `--smoke`, the debug gate, the user folder and its
+copy; all three exported locally, the Windows smoke matches `sim_run`'s hash. The first
+workflow run is the user's (not triggered by the run); deviations in `PROGRESS.md`.*
 
 ### S6.11 — Performance pass **[O]** · **Read first:** `release.md` (budget)
 A frame-time benchmark scene (a scripted late-game session at 4×), measured against the budget

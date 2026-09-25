@@ -228,9 +228,10 @@ func _input(event: InputEvent) -> void:
 			_pause_menu.call(&"on_escape")
 		else:
 			_open_pause_menu()
-	elif event is InputEventKey and (event as InputEventKey).keycode == KEY_V:
+	elif Game.debug_allowed and event is InputEventKey \
+			and (event as InputEventKey).keycode == KEY_V:
 		# polish-visuals.md §5.1: Off → Subtle → Full, for review. A debug key,
-		# not an action (accessibility.md §5.1).
+		# not an action (accessibility.md §5.1); none in a release build (release.md §7).
 		Settings.cycle_screen_effects()
 		print("screen effects: %s" % Settings.screen_effects)
 	elif event.is_action_pressed(ACTION_CANCEL):
@@ -585,6 +586,11 @@ func _on_run_ended(_outcome: String) -> void:
 	_modals.open(_results)
 
 
+## Whether the results are the modal on top — the smoke run's end (release.md §8).
+func results_open() -> bool:
+	return _modals.current() == _results
+
+
 ## §7 beat 2a: where the run ended — the region of the newest run-log entry
 ## that names one (the last wipe, the team's last action, the last region
 ## taken), or the origin when none does.
@@ -775,7 +781,9 @@ func _text_has_focus() -> bool:
 ## and the day it was taken on.
 func _unhandled_key_input(event: InputEvent) -> void:
 	var key: InputEventKey = event as InputEventKey
-	if key == null or not key.pressed or key.echo or key.keycode != KEY_F12:
+	# release.md §7: a debug key; in a release build F12 stays Steam's.
+	if not Game.debug_allowed or key == null or not key.pressed or key.echo \
+			or key.keycode != KEY_F12:
 		return
 	var image: Image = get_viewport().get_texture().get_image()
 	var day: int = Game.sim.world.day if Game.sim != null else 0
