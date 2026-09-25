@@ -3,6 +3,13 @@ extends Control
 ## that is always there, and the slot the router puts each screen in. A launch
 ## starts on the boot sequence.
 ##
+## The root takes no pointer (`mouse_filter` ignore in `main.tscn`). It sits on
+## the root canvas, which the session's map camera moves and scales, so a root
+## that stopped the mouse caught every click and hover over the part of the
+## screen its camera-transformed rectangle happened to cover — the map's taps
+## never reached `MapCamera` there, and anomaly markers could not be collected
+## (S6.P2).
+##
 ## Scene-specific, so no `class_name`.
 
 ## release.md §8: `-- --smoke` plays a bot run in place of the boot.
