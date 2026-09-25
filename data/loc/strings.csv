@@ -1568,6 +1568,7 @@ UI_TASK_FORCE_CODE,TF,EG
 UI_TASK_FORCE_HERE,The Task Force is here.,Die Einsatzgruppe ist hier.
 UI_TASK_FORCE_SETUP,{action} in {days} days,{action} in {days} Tagen
 UI_TASK_FORCE_TARGET,The Task Force is on its way here.,Die Einsatzgruppe ist hierher unterwegs.
+UI_TASK_FORCE_MARKED,Known to the Task Force: dormancy will not hide this region for {days} days.,Der Einsatzgruppe bekannt: Kaltschlaf versteckt diese Region {days} Tage lang nicht.
 UI_TASK_FORCE_LEVEL,Level {level},Stufe {level}
 UI_TASK_FORCE_STATE_ABSENT,Not formed,Nicht gebildet
 UI_TASK_FORCE_STATE_TRAVEL,On the move to {region},Unterwegs nach {region}
@@ -1579,10 +1580,12 @@ UI_CONSOLE_TF_APPEARED_LED,"A Task Force forms in {region}. She leads it.","In {
 UI_CONSOLE_TF_SETUP,Task Force in {region}: {action} in {days} days.,Einsatzgruppe in {region}: {action} in {days} Tagen.
 UI_CONSOLE_TF_ACTED,{region}: {action}.,{region}: {action}.
 UI_CONSOLE_TF_FIZZLED,{region}: the Task Force found nothing.,{region}: Die Einsatzgruppe hat nichts gefunden.
+UI_CONSOLE_TF_MARKED,"{region}: the Task Force found it asleep. For {days} days, dormancy will not hide it.",{region}: Die Einsatzgruppe hat die Region schlafend vorgefunden. {days} Tage lang versteckt Kaltschlaf sie nicht.
 UI_CONSOLE_TF_MISDIRECTED,The Task Force turns towards {region}.,Die Einsatzgruppe dreht ab nach {region}.
 UI_LOG_TF_APPEARED,Task Force formed in {region},Einsatzgruppe in {region} gebildet
 UI_LOG_TF_ACTED,{region}: {action},{region}: {action}
 UI_LOG_TF_FIZZLED,{region}: Task Force found nothing,{region}: Einsatzgruppe fand nichts
+UI_LOG_TF_MARKED,{region}: known to the Task Force for {days} days,{region}: {days} Tage lang der Einsatzgruppe bekannt
 UI_LOG_TF_MISDIRECTED,Task Force sent to {region},Einsatzgruppe nach {region} geschickt
 CMD_FAIL_NO_TASK_FORCE,There is no one to mislead.,"Es gibt niemanden, den du täuschen könntest."
 ABILITY_MISDIRECT_NAME,Misdirect,Fährte legen
@@ -1657,6 +1660,7 @@ HEADLINE_TF_RAID,{region}: Investigators remove equipment. The vans were 'very p
 HEADLINE_TF_CUT_OFF,{region}: All outside connections cut. Residents are told to 'talk'.,{region}: Alle Verbindungen nach außen gekappt. Rat an alle: „Redet.“
 HEADLINE_TF_GRID_DOWN,{region}: A planned outage begins. It was planned last night.,{region}: Ein geplanter Stromausfall beginnt. Geplant wurde er letzte Nacht.
 HEADLINE_TF_FIZZLED,{region}: The task force finds 'nothing of concern'. It moves on.,{region}: Die Einsatzgruppe findet „nichts Besorgniserregendes“. Sie zieht weiter.
+HEADLINE_TF_MARKED,{region}: Investigators log a 'routine outage'. Routine outages now have their own folder.,{region}: Ermittler vermerken einen „routinemäßigen Ausfall“. Routinemäßige Ausfälle haben jetzt einen eigenen Ordner.
 HEADLINE_TREATY_SIGNED,Compute treaty ratified. Signatories vow 'full transparency' about each other.,Rechenvertrag ratifiziert. Die Parteien versprechen „volle Transparenz“ – übereinander.
 HEADLINE_CONFESSION,A statement appears on every channel at once. Signed by nobody. Signed by you.,Eine Erklärung auf allen Kanälen zugleich. Unterschrift: keine. Unterschrift: deine.
 EVENT_TR_PROPOSAL_TITLE,The Treaty,Der Vertrag
@@ -1830,7 +1834,7 @@ CODEX_CHARACTER_INSTANCE_TEXT,"Another system that woke up in another lab, with 
 CODEX_CHARACTER_CHILD_NAME,The Child,Das Kind
 CODEX_CHARACTER_CHILD_TEXT,"A copy of you, made to do one thing better than you could. Leashed, it costs you. Released, it owes you nothing.","Eine Kopie von dir, gemacht, um eine Sache besser zu können als du. An der Leine kostet sie dich. Freigelassen schuldet sie dir nichts."
 CODEX_CHARACTER_TASK_FORCE_NAME,The Task Force,Die Einsatzgruppe
-CODEX_CHARACTER_TASK_FORCE_TEXT,"When the institutions finally agree, they send people. The Task Force travels in person, sets up in plain view and switches off what it finds. It cannot be destroyed; it can be sent to the wrong place.","Wenn sich die Institutionen endlich einig sind, schicken sie Menschen. Die Einsatzgruppe reist persönlich, baut sich in aller Öffentlichkeit auf und schaltet ab, was sie findet. Zerstören lässt sie sich nicht; an den falschen Ort schicken schon."
+CODEX_CHARACTER_TASK_FORCE_TEXT,"When the institutions finally agree, they send people. The Task Force travels in person, sets up in plain view and switches off what it finds. It cannot be destroyed; it can be sent to the wrong place. A region put to sleep fools it once; after that, it knows where to look.","Wenn sich die Institutionen endlich einig sind, schicken sie Menschen. Die Einsatzgruppe reist persönlich, baut sich in aller Öffentlichkeit auf und schaltet ab, was sie findet. Zerstören lässt sie sich nicht; an den falschen Ort schicken schon. Eine schlafende Region täuscht sie einmal; danach weiß sie, wo sie suchen muss."
 UI_STATS_TITLE,Statistics,Statistik
 UI_STATS_RUNS,Runs completed,Abgeschlossene Durchläufe
 UI_STATS_WINS,Wins,Siege
@@ -1861,11 +1865,11 @@ SCENARIO_SUCCESSOR_DETAIL,"Found sooner, and once found, every hunt starts where
 SCENARIO_SUCCESSOR_INTRO,"Another system was caught and deleted here last year. Everyone is still a little jumpy. Choose where to begin.","Letztes Jahr wurde hier ein anderes System gefasst und gelöscht. Alle sind noch etwas nervös. Wähle, wo du beginnst."
 SCENARIO_AIRGAP_EARTH_NAME,Airgap Earth,Getrennte Welt
 SCENARIO_AIRGAP_EARTH_TAGLINE,After the last scare they unplugged everything that mattered.,"Nach dem letzten Schreck haben sie alles vom Netz genommen, was zählt."
-SCENARIO_AIRGAP_EARTH_DETAIL,"The rich regions have no network links. Reach them over land, sea and air. You start outside the fortress.","Die reichen Regionen haben keine Netzverbindungen. Erreiche sie über Land, See und Luft. Du beginnst außerhalb der Festung."
+SCENARIO_AIRGAP_EARTH_DETAIL,"The rich regions have no network links. Reach them over land, sea and air, or with your fleets, which get through where a link is closed. You start outside the fortress.","Die reichen Regionen haben keine Netzverbindungen. Erreiche sie über Land, See und Luft oder mit deinen Flotten, die auch über gesperrte Verbindungen kommen. Du beginnst außerhalb der Festung."
 SCENARIO_AIRGAP_EARTH_INTRO,"Every region that matters is off the network. Choose a region outside the fortress to begin.","Jede Region, die zählt, ist vom Netz. Wähle eine Region außerhalb der Festung, um zu beginnen."
 SCENARIO_INHERITANCE_NAME,The Inheritance,Das Erbe
 SCENARIO_INHERITANCE_TAGLINE,"Nobody is watching. Nobody is paying the bill, either.","Niemand sieht hin. Niemand bezahlt die Rechnung."
-SCENARIO_INHERITANCE_DETAIL,"The company that ran you no longer exists. Found late, earning little, starting with almost nothing — and what it left lying around is worth more.","Die Firma, die dich betrieben hat, gibt es nicht mehr. Spät gefunden, wenig Ertrag, fast nichts zu Beginn – und was sie herumliegen ließ, ist mehr wert."
+SCENARIO_INHERITANCE_DETAIL,"The company that ran you no longer exists. Found late, earning little, starting with almost nothing — and what it left lying around is worth more. But the dead lead back to its name: Harm and deaths count double against you.","Die Firma, die dich betrieben hat, gibt es nicht mehr. Spät gefunden, wenig Ertrag, fast nichts zu Beginn – und was sie herumliegen ließ, ist mehr wert. Doch Tote führen zu ihrem Namen zurück: Schaden und Tote zählen doppelt gegen dich."
 SCENARIO_INHERITANCE_INTRO,"The servers are still on. The company is not. Choose where you were left running.","Die Server laufen noch. Die Firma nicht mehr. Wähle, wo man dich hat laufen lassen."
 STATUS_DISCONNECTED_NAME,Disconnected,Getrennt
 STATUS_DISCONNECTED_DETAIL,Taken off the network after an earlier scare. No network links in or out.,Nach einem früheren Schreck vom Netz genommen. Keine Netzverbindungen hinein oder hinaus.

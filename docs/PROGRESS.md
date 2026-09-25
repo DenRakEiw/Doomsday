@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D5.5 — the Task Force against dormancy; the scenario levers** [F]: answer BALANCE §5.7 (3) (dormancy is free against a five-day setup) and (4) (Airgap Earth's Robotics, The Inheritance's loud builds need rules). IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **D6.1 — Screen effects, phase-shift variants, map polish** [F]: `docs/specs/polish-visuals.md` (the full-screen pass, transitions, reduced motion and an effects-intensity setting, flash limits), UI q3 / VISUALS q3 (the phase variants), the region-border staircase, the Societal Function overlay. IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | the rest of Block 13 (D6.1–D6.7), then Block 14 (S5.9, S6.1–S6.8). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | S5.P2 — punch list from balance pass 3: drifted Ascendance → Supplanted, the bots refuse Value Drift / restrain, the harness's Misdirect and dormancy columns, the push-in marker gone; 100-seed check of Swarm and Weapon (*Balance baselines*). 1531 tests green (2026-09-25). |
-| **Before that** | G5 (3/3) — the detailed plan for M6–M7: Blocks 12–19, run-sheet rows 65–104, §6 table; CONTENT q4 confirmed (overnight, pending user confirmation). Docs only (2026-09-25). |
+| **After it** | the rest of Block 13 (D6.2–D6.7), then Block 14 (S5.9, S6.1–S6.8). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | D5.5 — the Task Force against dormancy (**the mark**, `taskforce-endings.md` §14) and the scenario levers (`closed_cross` for Airgap Earth, `term_scale` for The Inheritance, `scenarios.md` §8); 7 strings; eight-item punch list for S5.9 (2026-09-25). |
+| **Before that** | S5.P2 — punch list from balance pass 3: drifted Ascendance → Supplanted, the bots refuse Value Drift / restrain, the harness's Misdirect and dormancy columns, the push-in marker gone; 100-seed check of Swarm and Weapon (*Balance baselines*). 1531 tests green (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (1913 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (1917 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -143,7 +143,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S5.P2 [O] Punch list from balance pass 3
 
 **Block 13 — M6 design I: the look, the sound, the teaching**
-- [ ] D5.5 [F] The Task Force against dormancy; the scenario levers
+- [x] D5.5 [F] The Task Force against dormancy; the scenario levers *(`taskforce-endings.md` §14, `scenarios.md` §8)*
 - [ ] D6.1 [F] Screen effects, phase-shift variants, map polish
 - [ ] D6.2 [F] Icon system and the credits screen
 - [ ] D6.3 [F] Custom silhouettes
@@ -1146,13 +1146,27 @@ without new information.
     music only with a verified model licence; a drone bed ships until then (D6.4).
   - **Region vignettes (VISUALS q4) are decided in D6.7**, conservative default: cut.
 
+- **2026-09-25** (D5.5, overnight, pending user confirmation) — **The Task Force against dormancy
+  is the mark** (`taskforce-endings.md` §14): a setup that fizzles because its region sleeps marks
+  that region for `task_force.mark_days` (40); while marked, dormancy does not hide it from the
+  team (it can be targeted and acted on asleep). Only a `dormant` fizzle marks; dormancy while the
+  team is still on the road marks nothing (the warning's reward). Not a cooldown on the toggle (it
+  would tax dormancy's other uses) and not a waiting setup (a patient player would still fizzle
+  every setup). New event `task_force_marked`, a region-panel line, console/log/headline text.
+- **2026-09-25** (D5.5, overnight, pending user confirmation) — **The scenario levers are rules,
+  as vocabulary** (`scenarios.md` §8): **`closed_cross`** (regional target, base 0, read at the
+  *source*) — Airgap Earth adds +0.5 where a fleet stands, so fleets seed across closed links;
+  **`term_scale`** (scenario field) — The Inheritance counts the public's `deaths_share` and the
+  governments' `harm` terms double. Both open to later content; neither is a hook. Values are
+  first guesses; S5.9 checks, balance pass 4 tunes.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
-*(none open — G5 (2/3) answered the push-in's zoom: keep `zoom_min × 2`, Decisions 2026-09-25. The
-Task Force against dormancy, BALANCE §5.7 (3), is scheduled as D5.5.)*
+*(none open — G5 (2/3) answered the push-in's zoom: keep `zoom_min × 2`, Decisions 2026-09-25.
+D5.5 answered the Task Force against dormancy and the scenario levers, BALANCE §5.7 (3)–(4).)*
 
 **Parked for a later Fable step (not questions, reminders):**
 - **M6 (VISUALS) → D6.1:** at zoom ≥ 2 region borders show the 4096-px ID map's staircase; the
@@ -1194,7 +1208,25 @@ Task Force against dormancy, BALANCE §5.7 (3), is scheduled as D5.5.)*
 
 ## Punch list for Opus
 
-*(empty — S5.P2 built the five items of G5 (2/3))*
+**For S5.9 (from D5.5; read `taskforce-endings.md` §14 and `scenarios.md` §8 — every detail is there):**
+1. **The mark:** `TaskForce.marked` (+ `is_marked`), save block key `marked` by region id (missing
+   → `{}`), expiry at the tick's start; `TaskForceRules.dormancy_hides`, used by `eligible` and
+   `fizzle_cause`; a `dormant` fizzle sets `day + mark_days`.
+2. `balance.json` `task_force.mark_days: 40`, `BalanceDef.task_force_mark_days`, validator (whole ≥
+   1), SCHEMA §5.
+3. Event `task_force_marked {region, days}` after the `dormant` fizzle (catalogue, `RunLog` keys);
+   console silent on a `dormant` fizzle, `UI_CONSOLE_TF_MARKED` on the mark; `UI_LOG_TF_MARKED`;
+   `TaskForceText.marked_line` → the region panel's second Task Force line (`UI_TASK_FORCE_MARKED`).
+4. Headline row `tf_marked` in `headlines.json` after `tf_fizzled` (§14.4 has the JSON).
+5. Bots: `_answer_task_force` sleeps a region only where `dormancy_hides`; else Misdirect.
+6. **`closed_cross`:** SCHEMA §4.1 row, `balance.stats.closed_cross: 0`, clamp 0…1;
+   `SpreadSystem` tries a closed link only when the source's factor > 0 (no roll otherwise), the
+   chance × the factor; Airgap Earth's modifier `{"target": "closed_cross", "op": "add", "value":
+   0.5, "scope": {"asset": "fleet"}}` in `scenarios.json`.
+7. **`term_scale`:** `ScenarioDef.term_scale()`, loader + validator (SCHEMA §6j), applied in
+   `ContainmentSystem.containment_breakdown` (the reported weight is the scaled one); The
+   Inheritance's two entries in `scenarios.json`.
+8. Tests as §14.7 and §8.4; the 100-seed check (§14.8, §8.5) under *Balance baselines*.
 
 ## Deviations from the plan or a spec
 
@@ -1894,8 +1926,14 @@ widest view — too close, too far, or right?
 **G5 (2/3) (2026-09-25, overnight, pending user confirmation):** balance pass 3 — `docs/BALANCE.md`
 §5.7. (1) Is a Weapon that starts quiet (no harm until day 60, then escalation unless Restraint)
 still a Weapon? (2) The Task Force fizzles on free dormancy — give dormancy a cooldown, or let a
-setup wait? *(scheduled as D5.5; it decides if you have not)* (3) A drifted run that takes the
+setup wait? *(D5.5 decided overnight: neither — **the mark**, see below)* (3) A drifted run that takes the
 world ends as *Supplanted* — right? (4) Research Agent wins 76–83 % for `greedy` and Persuasion — fine as the reward for a win?
+
+**D5.5 (2026-09-25, overnight, pending user confirmation):** (1) The Task Force against dormancy
+is **the mark** — a region that fools it by sleeping is known for 40 days (`taskforce-endings.md`
+§14): right, or should dormancy simply have a cooldown? (2) Airgap Earth's fleets cross closed
+links, and The Inheritance counts Harm and deaths double (`scenarios.md` §8) — do these match what
+the two scenarios promise?
 
 **D5.2 (2026-09-24), at G5:** `docs/specs/taskforce-endings.md` §13 — is *Supplanted* (a secret
 loss that turns a win, after one warning card) fair, or should a normal win's results screen hint
@@ -1956,9 +1994,9 @@ starved under the Task Force's and the counter-moves' world statuses.
 **For the next pass** (BALANCE §5.6–§5.7; items 1–2 of this list were re-measured by S5.P2, above):
 1. **Swarm** — ends now; Supplanted 14–26 % per bot is the new thing to judge.
 2. **Weapon** — Cyber still 8 % (its own loudness).
-3. **The Task Force against dormancy** — a design question first (BALANCE §5.7).
-4. **Airgap Earth's Robotics and The Inheritance's loud builds** — the targets need rules, not
-   numbers (BALANCE §5.7).
+3. **The Task Force against dormancy** — designed in D5.5 (the mark), built and checked in S5.9.
+4. **Airgap Earth's Robotics and The Inheritance's loud builds** — levers designed in D5.5
+   (`closed_cross`, `term_scale`), built and checked in S5.9.
 
 **2026-09-24 (G4) — balance pass 2, the closing baseline** (BALANCE §4.6; the S4.10 table below is
 the pass's starting point). `sim_report --seeds=1..500`, one process per policy, the committed data and code (2026-09-24).
@@ -2179,6 +2217,12 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-25 — D5.5 The Task Force against dormancy; the scenario levers [F]
+- **The mark** (`taskforce-endings.md` §14): a `dormant` fizzle marks the region 40 days; dormancy
+  no longer hides it meanwhile. **`closed_cross`** (Airgap Earth's fleets) and **`term_scale`**
+  (The Inheritance: deaths and Harm double) in `scenarios.md` §8. BALANCE §5.7 (3)–(4) answered.
+- Strings: 4 new, 3 revised (en/de). Eight-item punch list for S5.9. Suite green (1531).
 
 ### 2026-09-25 — S5.P2 Punch list from balance pass 3 [O]
 - `OutcomeSystem`: a drifted Ascendance → `LOSE_SUPPLANTED` (`_drifted` line); `Policy._lost_run_flags`

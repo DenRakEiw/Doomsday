@@ -1,6 +1,7 @@
 # Response Task Force, endings, chains third batch (D5.2)
 
-**Status:** design, 2026-09-24. Build steps: **S5.5** (Task Force), **S5.6** (endings, the six
+**Status:** design, 2026-09-24; **§14 added by D5.5 (2026-09-25): a sleeping region fools the team
+once — the mark**, built by S5.9. Build steps: **S5.5** (Task Force), **S5.6** (endings, the six
 chains, the outcome changes). **Read with:** PLAN §3.7, §3.10 · CONTENT §6.4, §6.8, §6.9, §8 ·
 `loop-redesign.md` §5.5 · `opposition.md` §6 (the counter-move schedule the Task Force sits
 beside) · `chains.md` §6 (the story flags this spec reads) · `replayability.md` (D5.1 — the
@@ -103,7 +104,8 @@ In order:
    eligible (§2.1) → apply the action's status (§3) with source `"task_force"`, `actions_done +=
    1`, event `task_force_acted {region, action}`; else **fizzle**: `fizzled += 1`, event
    `task_force_fizzled {region, action, cause}` with cause `dormant` · `hidden` · `clean` (no
-   longer infected) · `dark`. Either way `state = "rest"`, `progress = 0`, `target = 0`,
+   longer infected) · `dark`. **D5.5:** a `dormant` fizzle *marks* the region (§14) — while
+   marked, dormancy no longer hides it. Either way `state = "rest"`, `progress = 0`, `target = 0`,
    `action = ""`.
 
 The team never leaves a region while it sets up; Misdirect (§4) is the one thing that interrupts a
@@ -115,7 +117,7 @@ setup.
 
 ### 2.1 Eligible
 
-A region is eligible when it is **infected, not dark, not dormant, not hidden** — hidden means its
+A region is eligible when it is **infected, not dark, not dormant (unless marked, §14), not hidden** — hidden means its
 `containment_capacity` stat is 0 (Silence and Blackout already do this; the team cannot see what
 nobody reports) — and **runs no `tf_*` status** (the team does not return to a region it is still
 holding).
@@ -186,7 +188,8 @@ which it abandons (`task_force_fizzled {cause: "redirected"}`, no rest) — `sta
 ability is refused with `CMD_FAIL_NO_TASK_FORCE` (a new failure reason — "there is no one to
 mislead"). The region panel's *Actions* row offers it only while the team is present.
 
-Misdirect is the counter that costs something; dormancy, Silence and Blackout are the ones that
+*(D5.5: dormancy is no longer free — it fools the team once per region, then the region is marked
+for `mark_days`, §14.)* Misdirect is the counter that costs something; dormancy, Silence and Blackout are the ones that
 were already paid for. Nothing kills the team: it is the institution, and institutions are
 reconvened, not destroyed.
 
@@ -401,6 +404,7 @@ says "space" or "rocket": a payload slot, a launch window, and then nobody left 
 | `setup_days` · `ally_warning_days` | 5 · 3 | |
 | `rest_days` | 8 | |
 | `distance_penalty` | 0.25 | |
+| `mark_days` | 40 | D5.5 (§14): how long a region that fooled the team with dormancy stays marked; whole, ≥ 1 |
 
 Stats: `task_force_pace` base 1. `results.ashes_share` is removed (§6.3). First values for G5.
 
@@ -423,7 +427,7 @@ four to eight actions; `switch_off` only after containment 0.8. A player who ans
 - **Console** (`UI_CONSOLE_TF_*`) and **log** (`UI_LOG_TF_*`): appeared, set up, acted, fizzled,
   misdirected. Headlines staged in `headlines_d5_2.json`.
 - **Results:** §6.3.
-- **Bots (S5.5):** `Policy` answers a setup in a region it holds by dormancy when it can, else
+- **Bots (S5.5; D5.5 amends, §14.5 — dormancy only where it still hides):** `Policy` answers a setup in a region it holds by dormancy when it can, else
   Misdirect to the lowest-value region when owned, else nothing — through the weight vocabulary
   of S4.10, never an id check.
 
@@ -496,3 +500,147 @@ fixed only by reclaiming; Escape stays hidden until first reached.
 
 For the user (at G5): is Supplanted — a secret loss that turns a win — fair enough with one
 warning card, or should the results screen of a normal win hint that a child is still out there?
+
+---
+
+## 14. D5.5 — a sleeping region fools the team once: the mark (S5.9)
+
+*Added 2026-09-25 (D5.5), answering BALANCE §5.7 (3). Build step: **S5.9**. Everything S5.9 needs
+is in this section; §1.4, §2.1, §4, §8 and §9 carry one-line pointers here.*
+
+### 14.1 The problem
+
+Dormancy costs nothing against a five-day setup: put the region to sleep when the setup shows,
+wake it the day after. The bots do exactly that (§9) and fizzle 70–100 % of setups; the team acts
+0–8 times a run (BALANCE §5.2 item 6, *Balance baselines* S5.P2). §8 wanted a player who answers
+every setup to see **about half** fizzle.
+
+### 14.2 The rule
+
+**When a setup ends and fizzles with cause `dormant`, the region is *marked* for
+`b.task_force.mark_days` (40) days. While a region is marked, dormancy does not hide it from the
+team** — nothing else about dormancy changes: it still freezes growth, yield and deaths, still
+leaves the infected share, still hides the region from the factions' counter-moves.
+
+- **Eligible (§2.1):** a dormant region is ineligible **unless marked**. A marked, dormant region
+  can be targeted, set up on and acted on; the action's status lands on the sleeping region, its
+  `on_start` included (`destroy_assets` and `wipe` already reach a dormant region — a purge does,
+  `EffectRunner`).
+- **Fizzle (§1.4 step 3):** the cause `dormant` is given only for an unmarked region; a marked
+  dormant region that is otherwise eligible is acted on.
+- **Only a `dormant` fizzle marks.** `hidden` (Silence, Blackout — paid abilities with their own
+  cooldowns), `clean`, `dark` and `redirected` mark nothing.
+- **Dormancy while the team is still on the road** makes it choose again (§1.4 step 2, as now) and
+  marks nothing: the player who sees where it is going (the Researcher as ally, the watcher's node,
+  §2.3) keeps the free dodge. That is what the warning is worth.
+- **A misled team** (§4) that reaches a dormant, infected decoy fizzles `dormant` and marks it, like
+  any setup.
+- **Length:** `until = day + mark_days`, set on the fizzle's day; the region is marked while
+  `day < until`. It cannot be marked twice at once (a marked region never fizzles `dormant`); after
+  it runs out, the next `dormant` fizzle marks it anew. Nothing ends a mark early — not waking the
+  region, not Misdirect, not a rollback.
+- **Housekeeping:** at the top of `TaskForceSystem.tick` (after the origin/outcome guard, before
+  anything else) every entry with `until <= day` is removed, so the save and the hash carry only
+  live marks.
+
+**Why a mark, and not the two options BALANCE §5.7 named.** A cooldown on the dormancy toggle
+itself would tax every other use of dormancy (the discovery breadth, the counter-moves, the Open
+check) to fix the Task Force alone. A setup that *waits* on a dormant region (with a cap) still
+fizzles every setup a patient player sleeps through — only later — so §8's "about half" is not
+reached, and a waiting team pins itself where the player chose. The mark is a cooldown on
+dormancy's cover **against the team only**: the first setup in a region can be slept through, the
+next one there cannot.
+
+**Why 40 days.** At one region the team's cycle is rest 8 + setup 5 = 13 days; one hop away,
+8 + 6 + 5 = 19; alternating between two neighbours, about 38 at level 1 (34 at level 3). Forty
+covers the team's return to the same region and a two-region alternation, so a region fools it
+about once per act; after an act the region is ineligible for 25–60 days anyway (its `tf_*`
+status, §2.1). Tuning is balance pass 4's (G6 1/2), not S5.9's.
+
+### 14.3 Model, rules, save
+
+```gdscript
+# TaskForce (core/model/task_force.gd)
+## D5.5 (§14): region index → the first day it is no longer marked.
+var marked: Dictionary[int, int] = {}
+## Whether a `dormant` fizzle there is still remembered on `day`.
+func is_marked(index: int, day: int) -> bool
+
+# TaskForceRules (core/systems/task_force_rules.gd)
+## §14: whether a dormant region is hidden from the team — false while it is marked.
+## The one place the rule is asked: `eligible`, `fizzle_cause` and the bots use it.
+static func dormancy_hides(world: World, index: int) -> bool
+```
+
+- `eligible`: `region.dormant and dormancy_hides(world, index)` → false (the rest of §2.1 as now).
+- `fizzle_cause`: `CAUSE_DORMANT` only when `region.dormant and dormancy_hides(world, index)`.
+- `TaskForceSystem._setup` on a `dormant` fizzle: `team.marked[index] = day + mark_days`, then the
+  event of §14.4, after `task_force_fizzled`.
+- **Save:** the team's block gains `"marked": {"<region id>": <until day>, …}` (ids, not indices,
+  like `region` and `target`). `to_dict` writes it always (`{}` when empty); `from_dict` reads a
+  missing key as `{}` (a v3 save written before D5.5 — v3 changes in place, it has not shipped)
+  and returns null for a non-dictionary, an unknown region id or a non-numeric day. The state hash
+  covers it through `to_dict`.
+- **Balance:** `balance.json` → `task_force.mark_days: 40`; `BalanceDef.task_force_mark_days: int`;
+  the validator lists it with the block's whole numbers (≥ 1). SCHEMA §5 row. There is no "off"
+  value; a sweep that wants the old behaviour sets 1.
+
+### 14.4 Events and what the player sees
+
+- **Event `task_force_marked {region, days}`** (`SimEvent.TASK_FORCE_MARKED`; `days` =
+  `mark_days`), emitted on the same tick right after `task_force_fizzled {cause: "dormant"}`.
+  core.md §6.4 catalogue row; `RunLog` keeps `["region", "days"]`.
+- **Console:** a `dormant` fizzle has no line of its own (as `redirected`); `task_force_marked`
+  says `UI_CONSOLE_TF_MARKED` {region} {days}. `TaskForceText.console_line` handles both.
+- **Log:** the fizzle row stays (`UI_LOG_TF_FIZZLED`); the mark adds `UI_LOG_TF_MARKED` {region}
+  {days} (the `UI_LOG_TF_` prefix rule of `RunLogText`).
+- **Region panel:** under the Task Force row (§9), a second line **whenever the region is marked**,
+  whatever the team is doing and whether the region sleeps or not — the player needs it before
+  choosing dormancy: `UI_TASK_FORCE_MARKED` {days}, days = `until − day` (≥ 1). New
+  `TaskForceText.marked_line(world: World, db: ContentDB, region_index: int) -> String`, `""` when
+  not marked; the row's text colour as §9, no leading glyph.
+- **Headline** (S5.9 adds the row to `headlines.json` with the event; the validator knows the
+  event then): `{"id": "tf_marked", "stream": "reaction", "register": "any", "on": {"event":
+  "task_force_marked"}, "cooldown_days": 30}` → `HEADLINE_TF_MARKED` {region}. Placed directly after
+  `tf_fizzled`.
+- **Map:** nothing new. **Codex:** `CODEX_CHARACTER_TASK_FORCE_TEXT` gained a sentence (written).
+
+### 14.5 Bots
+
+`Policy._answer_task_force` (§9) tries dormancy only where `TaskForceRules.dormancy_hides` is true
+for the setup's region; a marked region goes straight to Misdirect, else nothing. The wake loop is
+unchanged (waking a marked region keeps its mark). No id checks — the rule is the one function.
+
+### 14.6 Strings (in `data/loc/strings.csv`, en and de)
+
+New: `UI_TASK_FORCE_MARKED`, `UI_CONSOLE_TF_MARKED`, `UI_LOG_TF_MARKED`, `HEADLINE_TF_MARKED`.
+Revised: `CODEX_CHARACTER_TASK_FORCE_TEXT` (the mark in one sentence).
+
+### 14.7 Tests (S5.9)
+
+- `test_task_force_system.gd`: a `dormant` fizzle marks the region until `day + mark_days`; a
+  marked dormant region is eligible and its setup acts (the status and its `on_start` land); the
+  mark runs out on `until` and dormancy hides again; `hidden`, `clean`, `dark` and `redirected`
+  fizzles mark nothing; dormancy during travel retargets and marks nothing; expired marks are
+  dropped at the tick's start; a misled team fizzling `dormant` on a decoy marks it; same seed,
+  same hash.
+- `test_task_force.gd` (or the save test that covers the block): `marked` round-trips by region
+  id; a block without `marked` loads with none; an unknown region id or a non-number is refused.
+- `test_task_force_rules.gd` (or where `eligible` is tested): `dormancy_hides` false while marked,
+  true after.
+- The bots' test: a setup in an unmarked region is answered by dormancy, in a marked one by
+  Misdirect (when owned), else nothing.
+- `test_task_force_text.gd`: `marked_line` with the days left, `""` unmarked; the console is silent
+  on a `dormant` fizzle and speaks on the mark.
+- Content: `mark_days` required, whole, ≥ 1; the `tf_marked` headline validates.
+
+### 14.8 Acceptance
+
+Suite green; a hand-played run shows the region-panel line after a slept-through setup and the
+team acting on the sleeping region the next time. **The 100-seed check** (S5.9, recorded under
+PROGRESS *Balance baselines*, a check, not a pass): `sim_report --seeds=1..100` per bot on the
+Language Model and on the three scenarios — the share of setups that fizzle (`task_force_fizzled`
+/ (`acted` + `fizzled`)), actions per run, win share against pass 3. Expected: the bots' fizzle
+share falls from 70–100 % towards about half, and the team acts several times more often; the win
+shares fall. If a bot's fizzle share stays above 80 %, the check says why (Misdirect, Silence) —
+tuning waits for balance pass 4.

@@ -712,11 +712,19 @@ After 1–3 the Swarm and Weapon rows are re-measured (a 100-seed check, not a p
    a setup costs nothing; the bots fizzle 70–100 % of setups this way. Proposal for a design step:
    dormancy has a cooldown per region, or a setup that finds a dormant region waits instead of
    fizzling. The appearance itself (`appear_at`) is not the problem.
+   *D5.5 (2026-09-25): neither — **the mark**: a region whose dormancy made a setup fizzle is
+   marked for `task_force.mark_days` (40), and dormancy does not hide it from the team meanwhile
+   (`taskforce-endings.md` §14). Built S5.9; its 100-seed check goes under PROGRESS, Balance
+   baselines.*
 4. **Airgap Earth does not make Robotics the strongest** (6 → 16 %; `weapons` 45, `greedy` 41) —
    the scenario's claim needs content (fleets that cross closed links, say), not a number.
    **The Inheritance's loud builds** still win as early as elsewhere (`weapons` 76 % on day ~634):
    "late or not at all" needs a lever that reads loudness — e.g. the labs' slowness ending at
    discovery — which is a rule, not a number.
+   *D5.5 (2026-09-25): two levers (`scenarios.md` §8) — Airgap Earth: `closed_cross` +0.5 where a
+   fleet stands (fleets seed across closed links); The Inheritance: `term_scale` — the public's
+   `deaths_share` and the governments' `harm` terms count double. Built and checked in S5.9;
+   tuned, if needed, in balance pass 4.*
 5. **Research Agent is the strongest architecture for `greedy` (76 %), Cyber (26 %) and
    Persuasion (83 %)** — it is the reward for a win; worth a look at the gate if it feels free.
 
