@@ -326,26 +326,43 @@ before the *next* row; "—" means stay on the same model.
 | 89c | S6.P3a Event effect lines, "what changed", explanation-first layout, status lines, tooltips *(punch item 3; C1–C7)* | [O] | — |
 | 89c′ | S6.P3b The compact tech tree, why a node is locked, the mute button *(punch item 2 + the user's requests of 2026-09-25)* | [O] | — |
 | 89d | D6.11 (2/2b) Plain-language pass II: cards, what you buy, the flavour check | **[F]** | — |
+| 89e | S6.P4 Punch list from D6.11 (2/2b) *(skip if empty)* | [O] | — |
+| 89f | D6.9c Decision-model backend (TypeSafe Jev) *(user, 2026-09-25; amends `benchmark.md`)* | **[F]** | — |
+| 89g | S6.12c The Jev backend, mock only *(the first live run waits for the user's `TYPESAFE_API_KEY`)* | [O] | — |
 | 90 | G6 (1/2) Balance pass 4 *(tuning; data only)* | **[F]** | — |
 | 91 | D6.10 Illustrations produced — **[needs user]** | **[F]** | — |
-| 92 | S6.14 GodotSteam: the Steam backend, achievements, overlay — **[needs user]** | [O] | — |
-| 93 | G6 (2/2) M6 gate: shippable on Steam — **[needs user]** | **[F]** | — |
-| 94 | D7.1 Touch and phone | **[F]** | — |
-| 95 | D7.2 Web demo | **[F]** | — |
-| 96 | D7.3 Store pages: copy and art briefs | **[F]** | — |
-| 97 | S6.P Punch list from G6 *(skip if empty)* | [O] | — |
-| 98 | S7.1 Touch pass | [O] | — |
-| 99 | S7.2 Android export and the AAB in CI *(release signing key: user)* | [O] | — |
-| 100 | S7.3 Web demo build | [O] | — |
-| 101 | S7.4 iOS export — **[needs user]** | [O] | — |
-| 102 | S7.5 Real-device pass — **[needs user]** | [O] | — |
-| 103 | D7.4 Store pages and marketing art — **[needs user]** | **[F]** | — |
-| 104 | G7 M7 gate: release candidates on every platform — **[needs user]** | **[F]** | — |
+| 92 | G6 (2/2) M6 gate: the release candidate (browser and desktop) — **[needs user]** | **[F]** | — |
+| 93 | D7.2 The Web build — the main version *(was: web demo)* | **[F]** | — |
+| 94 | D7.I itch.io page: copy en/de, cover and screenshot briefs, AI disclosure, privacy sentence | **[F]** | — |
+| 95 | S6.P Punch list from G6 *(skip if empty)* | [O] | — |
+| 96 | S7.3 Web build | [O] | — |
+| 97 | S7.I itch.io upload: butler job in `release.yml`, size check, itch web settings *(the itch project and `BUTLER_API_KEY`: user)* | [O] | — |
+| 98 | G7.I The itch.io release: played on the restricted page, go, public — **[needs user]** | **[F]** | — |
+| 99 | S7.F1 FLUX: contract, actuator, capture, clock | [O] | — |
+| 100 | S7.F2 FLUX: puppeteer, recorder, replay checks | [O] | — |
+| 101 | S7.F3 FLUX: converter, dataset stats, trainer plug, configs | [O] | — |
+| 102 | S7.F4 FLUX: control bridge, driver, mock policies | [O] | — |
+| 103 | S7.F5 FLUX: the leaderboard category (trained agents) | [O] | — |
+| 104 | U7.F1 Record the 42-run plan, convert — **[needs user]** *(WSL2)* | user | — |
+| 105 | U7.F2 Local smoke and heads-only training on the 5090 — **[needs user]** | user | — |
+| 106 | U7.F3 Rented recipe — **[needs user]** *(the user's go and budget)* | user | — |
+| 107 | U7.F4 Evaluation and submission — **[needs user]** | user | — |
+| 108 | D7.1 Touch and phone | **[F]** | — |
+| 109 | D7.3 Store pages: copy and art briefs *(Steam, Play, App Store)* | **[F]** | — |
+| 110 | S7.1 Touch pass | [O] | — |
+| 111 | S7.2 Android export and the AAB in CI *(release signing key: user)* | [O] | — |
+| 112 | S6.14 GodotSteam: the Steam backend, achievements, overlay — **[needs user]** *(only if the itch release finds players; name/trademark check first)* | [O] | — |
+| 113 | S7.4 iOS export — **[needs user]** | [O] | — |
+| 114 | S7.5 Real-device pass — **[needs user]** | [O] | — |
+| 115 | D7.4 Store pages and marketing art — **[needs user]** | **[F]** | — |
+| 116 | G7 M7 gate: release candidates on every remaining platform — **[needs user]** | **[F]** | — |
 
-**Rows 65–104 (G5 3/3):** everything an AI can finish alone comes first; a row marked
-**[needs user]** needs the user's hands, taste or an account (Steamworks, OpenRouter key, image
-credits, devices, Apple, store consoles) and is never started in an unattended run — skip it,
-note it under *Waiting on the user*, and take the next row that does not need them. The M5 gate
+**Rows 65–116 (G5 3/3; re-ordered 2026-09-25 for the itch-first release):** everything an AI can
+finish alone comes first; a row marked **[needs user]** needs the user's hands, taste or an
+account (Steamworks, itch.io, OpenRouter or TypeSafe key, image credits, devices, Apple, store
+consoles, the GPU) and is never started in an unattended run — skip it, note it under *Waiting on
+the user*, and take the next row that does not need them. `U7.F…` rows are the user's own work
+(`flux-action.md` §9, §11.6); a session may help but never runs them unattended. The M5 gate
 verdict (the ten runs) and the G4 verdict stay the user's and block nothing below.
 
 Design runs a block ahead of the build on purpose. The cost is that a spec can be overtaken by what
@@ -934,6 +951,16 @@ achievements cannot be tested with it. Vendoring GodotSteam means shipping Steam
 redistributables under Valve's SDK agreement, which the user accepts — so nothing Steam-side
 happens before S6.14.
 
+**Amended 2026-09-25 (user decisions, `PROGRESS.md` *Decisions*):** the first public release is
+**itch.io in the browser** — the single-threaded Web build is the main version, Windows/Linux
+downloads optional — so M6's gate judges a release candidate, not a Steam build, and Block 18 is
+the itch release (the web spec and build are release work now, plus the itch page and the butler
+upload). **Steam comes later, only if people play it:** S6.14 and the store pages move to Block
+20 with the phones, after a name and trademark check. The game's licence stays *all rights
+reserved*. Two tracks were added: **D6.9c/S6.12c**, a decision-model backend (TypeSafe Jev) on the
+same leaderboard, before G6; and **Block 19, the FLUX 3 Action track** (`flux-action.md`), after
+the itch release.
+
 ## Block 12 — M5 close · build
 
 ### S5.P2 — Punch list from balance pass 3 **[O]** · **Read first:** `PROGRESS.md` *Punch list for Opus* · `docs/BALANCE.md` §5.6 · `taskforce-endings.md` §6.2 · `replayability.md` §7
@@ -1210,7 +1237,7 @@ verified line (de 1920, en 400); the public board (empty), disabled, offline and
 seen on screen; bot and watched runs keep the autosave. Deviations and two design questions in
 `PROGRESS.md`.*
 
-## Block 17 — M6 finish: balance, pictures, Steam, the gate
+## Block 17 — M6 finish: text, the Jev backend, balance, pictures, the gate
 
 ### D6.11 (1/2) — Text clarity audit and style guide **[F]** · *(inserted by the user, 2026-09-25)* · **Read first:** `PROGRESS.md` *Design questions* (the user's play-through) · `data/loc/strings.csv` · CONTENT §10 · `first-run.md` §3.5, §6.4 · `tech-trees.md` §7.4
 The user found the German (and English) texts hard to understand: voice where an explanation is
@@ -1262,6 +1289,35 @@ failures only). The read-through in the running game of §5.3 item 5.
 **Done when:** every card passes the A8 test in the read-through, both languages; lint, caps and
 `tools/test.sh` green.
 
+### S6.P4 — Punch list from D6.11 (2/2b) **[O]** *(skip if empty)* · **Read first:** `PROGRESS.md` *Punch list for Opus*
+Whatever the read-through of 2/2b found that is code, not text.
+**Done when:** each item has its test; `tools/test.sh` green.
+
+### D6.9c — Decision-model backend (TypeSafe Jev) **[F]** · *(user, 2026-09-25)* · **Read first:** `PROGRESS.md` *Decisions* 2026-09-25 (Jev) · `benchmark.md` §4, §6.1, §7.3, §8, §9, §10.2–§10.3, §11.5, §16.3–§16.4 · TypeSafe's API documentation, read on the day
+Amend `benchmark.md` (a new section; §8's interface changed only as far as needed) for a second
+backend kind: `POST https://api.typesafe.ai/v1/systemone`, `Authorization: Bearer <key>` from
+`TYPESAFE_API_KEY` only, model `jev-latest`; the request is `state` + a `questions` map of
+`choice` questions (≤ 255 options each), the reply per question `choice`, `probabilities`,
+`confidence`. Decide: what `state` carries (the typed digest, in the game's outcome words — the
+content rule holds); how one decision becomes choice questions over the **legal** actions only
+(stance; which node or none; which anomaly or none; each open event's option; an ability and its
+target; the origin) so an invalid answer cannot occur; what happens past 255 options; how the
+answers become commands and in which order; what `probabilities`/`confidence` are kept for (the
+entry, the spectator overlay, nothing); the cache key, the budget and cost reading (price unknown
+→ the cap's rule of §8.3), failures and retries; the entry and leaderboard fields (`model`
+`typesafe/jev-latest`, a `backend` or `kind` key, params) so it ranks on the same board and the
+verifier and the public `validate.py` accept it; a mock mode for the tests; strings en/de if any.
+What the documentation leaves open goes to the user, not into a guess.
+**Done when:** S6.12c has nothing to decide.
+
+### S6.12c — The Jev backend, mock only **[O]** · **Read first:** D6.9c's section of `benchmark.md`
+The backend in `tools/bench/` (never exported), the question builder and the answer mapper, the
+tool's flag or model prefix, the entry fields, the verifier's and the list's acceptance, a mock
+for the decision kind; tests on the mock only — never a live request.
+**Done when:** a mock-backed Jev suite run is reproducible, its entries verify and rank beside the
+chat-model and bot rows; `tools/test.sh` green. **The first live run needs `TYPESAFE_API_KEY` from
+the user** — it goes under *Waiting on the user*.
+
 ### G6 (1/2) — Balance pass 4 **[F]** · **Read first:** `docs/BALANCE.md` §5 · *Balance baselines*
 Re-baseline everything on the M6 tree (every architecture, scenario and difficulty), tune data
 only, record BALANCE §6 as G4 and G5 did. The verdict stays the user's (G6 2/2).
@@ -1275,22 +1331,78 @@ as edits of the reference, dropped into `assets/illustrations/` (the slot needs 
 with its model in `ASSET_LICENCES.md` and the credits.
 **Done when:** every named id has its picture or a recorded cut; the user saw the set.
 
-### S6.14 — GodotSteam: the Steam backend **[O]** **[needs user]** · **Read first:** `release.md` (platform, achievements) · PLAN §4.4
-Needs the user's Steamworks account, the game's app id and their acceptance of the Steamworks SDK
-agreement. GodotSteam (MIT, GDExtension, the version PLAN §4.4 names or newer) as a
-`PlatformService` backend chosen for the Steam build only; the achievements and stats configured
-on Steamworks; overlay and pause; a build uploaded to a private beta branch. App id 480 only for
-a local smoke test before the real id exists (see the head of this section). `ASSET_LICENCES.md`
-rows for GodotSteam and the Steamworks redistributables.
-**Done when:** an achievement earned in the Steam build shows on Steam.
-
-### G6 (2/2) — M6 gate: shippable on Steam **[F]** **[needs user]**
-With the user: a play-through of the exported build (German and English), the final balance
-verdict (BALANCE §6), the pictures by eye and the sound by ear, the low-end machine, the
-benchmark's first live run if the key exists. Findings → the punch list (S6.P).
+### G6 (2/2) — M6 gate: the release candidate **[F]** **[needs user]**
+With the user: a play-through of the exported build (German and English; the browser build once
+S7.3 exists is G7.I's), the final balance verdict (BALANCE §6), the pictures by eye and the sound
+by ear, the low-end machine, the benchmark's first live run if the key exists. Findings → the
+punch list (S6.P). *(Was "shippable on Steam" until 2026-09-25: itch.io comes first.)*
 **Done when:** the user's go / change / cut is recorded.
 
-## Block 18 — M7 design · design
+## Block 18 — M7 I: the itch.io release *(user, 2026-09-25)*
+
+### D7.2 — The Web build, the main version **[F]** · **Read first:** `PROGRESS.md` *Decisions* 2026-09-25 (itch) and the user's itch answers under *Waiting on the user* · PLAN §4.4 · VISUALS §2 (Compatibility constraints) · `release.md` · `benchmark.md` §16.6 (the online fetch)
+`docs/specs/web.md` *(was `web-demo.md`; no demo limits — the whole game)*: the single-threaded
+export and what it costs, the size budget and what is cut or compressed to meet it (itch.io's
+current limits, read on the day), saves and the profile in the browser (and what a cleared
+browser loses), the audio unlock, the online leaderboard fetch from the browser (CORS, the
+setting), which browsers and whether phones are supported at release (touch is D7.1's, later),
+the loading screen, the Windows/Linux downloads if the user wants them, the version shown.
+**Done when:** S7.3 has nothing to decide.
+
+### D7.I — itch.io page **[F]** · **Read first:** PLAN §1, §3 · CONTENT §10 (voice) · `illustrations.md` · `ASSET_LICENCES.md` · `benchmark.md` §16.6 · the user's itch answers
+`docs/specs/itch.md`: the page copy en/de (title line, short text, long description, feature
+bullets, tags, genre, content notes) — outcome, never method; never *Plague Inc.*'s names or
+layout; the cover and screenshot briefs (itch's sizes, read on the day); **the generative-AI
+disclosure** (honest: what was generated or AI-assisted — code, text, sound, pictures — as
+`ASSET_LICENCES.md` and the credits say); **the privacy sentence** (the online leaderboard fetch
+sends the player's IP address to GitHub; the setting turns it off); the price model and the
+downloads as the user decided; the embed settings S7.I needs (viewport, fullscreen button,
+mobile-friendly or not).
+**Done when:** every field of the itch page has its text in both languages and S7.I has nothing
+to decide.
+
+### S6.P — Punch list from G6 **[O]** *(skip if empty)*
+
+### S7.3 — Web build **[O]** · **Read first:** `docs/specs/web.md`
+The web preset per the spec (single-threaded), browser saves, the audio unlock, a local serve and
+a scripted run in a browser.
+**Done when:** the full game loads and plays in a browser within the size budget.
+
+### S7.I — itch.io upload **[O]** · **Read first:** `docs/specs/itch.md` (embed settings) · `docs/specs/web.md` (size) · `release.md` (CI) · `.github/workflows/release.yml`
+A butler job in `release.yml` pushing the web zip (and the downloads, if the user wants them) to
+the itch project's channels with the Actions secret `BUTLER_API_KEY`; without the secret the job
+is skipped with a clear line, never failed. The web build size check in CI against the spec's
+budget and itch's limits; the itch-specific web export settings. **The itch project and the key
+are the user's** (*Waiting on the user*); no push from an unattended run.
+**Done when:** a dispatch without the key builds, size-checks and skips the upload cleanly; the
+first real upload (to a restricted page) is the user's.
+
+### G7.I — The itch.io release **[F]** **[needs user]**
+With the user: the restricted itch page played in two browsers (German and English), the page
+text, the AI disclosure and the privacy sentence read; go → tag `v1.0.0` (D6.8: `1.0.0` at the
+first public release), the page public. Findings → a punch list.
+**Done when:** the page is public, or the user's change / cut is recorded.
+
+## Block 19 — FLUX 3 Action track *(research, after the itch release; `docs/specs/flux-action.md`)*
+
+One session per build step; each **Read first:** `flux-action.md` §0, §2–§3 and the sections its
+§11 entry names, plus §12 (the rules). Scope, tests and acceptance are the spec's §11.1–§11.5.
+
+### D7.F — Data contract, recorder, control bridge, training plan **[F]** *(done 2026-09-25, `dfbd607`)*
+### S7.F1 — Contract, actuator, capture, clock **[O]** · spec §3, §4, §11.1
+### S7.F2 — Puppeteer, recorder, replay checks **[O]** · spec §5, §6, §11.2
+### S7.F3 — Converter, dataset stats, trainer plug, configs **[O]** · spec §7, §11.3
+### S7.F4 — Control bridge, driver, mock policies **[O]** · spec §8, §10.1, §11.4
+### S7.F5 — The leaderboard category **[O]** · spec §10, §11.5
+
+**User steps** (spec §9, §11.6) — **[needs user]**; they need WSL2 (installed 2026-09-25, reboot
+pending) and the answers to the spec's §13 questions:
+- **U7.F1** — record the §6.2 plan (42 runs), then `convert`; numbers into `PROGRESS.md`.
+- **U7.F2** — local smoke and heads-only training on the 5090 (§9.2–§9.3).
+- **U7.F3** — the rented recipe (§9.4), after the user's go and budget.
+- **U7.F4** — evaluation and submission (§9.5).
+
+## Block 20 — M7 II: Steam and phones *(Steam only if the itch release finds players — the user's call)*
 
 ### D7.1 — Touch and phone **[F]** · **Read first:** UI §3, §4 "Responsive layout", §6 q2 · `ui-foundation.md` §6 · `m3-screens.md` §9 · `first-run.md` §1
 `docs/specs/mobile.md`: gestures (pan, pinch, long-press as hover), touch targets, the phone's
@@ -1299,21 +1411,13 @@ notches, the Android back button, app lifecycle (pause and autosave on backgroun
 text scale on small screens.
 **Done when:** S7.1 has nothing to decide.
 
-### D7.2 — Web demo **[F]** · **Read first:** PLAN §4.4 · VISUALS §2 (Compatibility constraints) · `release.md`
-`docs/specs/web-demo.md`: what the demo contains (architectures, days, scenarios), how it ends
-and points to the store, the size budget and what is cut to meet it, saves in the browser, the
-audio unlock, single-threaded export.
-**Done when:** S7.3 has nothing to decide.
-
-### D7.3 — Store pages: copy and art briefs **[F]** · **Read first:** PLAN §1, §3 · CONTENT §10 (voice) · `illustrations.md`
+### D7.3 — Store pages: copy and art briefs **[F]** · **Read first:** PLAN §1, §3 · CONTENT §10 (voice) · `illustrations.md` · `docs/specs/itch.md`
 `docs/specs/store.md`: short and long descriptions, feature bullets, tags, content descriptors
 and age-rating answers, en and de — outcome, never method; never *Plague Inc.*'s names or
-layout; capsule, screenshot and trailer briefs (sizes per store).
+layout; capsule, screenshot and trailer briefs (sizes per store); the Steam AI disclosure. Start
+from the itch page's copy.
 **Done when:** every text field of every store has its copy in both languages.
 
-## Block 19 — M7 build and release · build
-
-### S6.P — Punch list from G6 **[O]** *(skip if empty)*
 ### S7.1 — Touch pass **[O]** · **Read first:** `docs/specs/mobile.md`
 Build the spec; test in the 400 × 860 window with emulated touch.
 **Done when:** a run is playable by touch alone in the phone window.
@@ -1324,9 +1428,16 @@ a debug-signed APK/AAB built in CI. **The release keystore and the Play Console 
 — recorded under *Waiting on the user*, not needed for this step.
 **Done when:** CI produces the AAB; it installs on an emulator if one is available here.
 
-### S7.3 — Web demo build **[O]** · **Read first:** `docs/specs/web-demo.md`
-The web preset, the demo limits, the size check in CI, a local serve and a scripted run.
-**Done when:** the demo loads and plays in a browser within the size budget.
+### S6.14 — GodotSteam: the Steam backend **[O]** **[needs user]** · **Read first:** `release.md` (platform, achievements) · PLAN §4.4
+*(Moved here 2026-09-25: Steam only if the itch release finds players.)* Needs the user's go for
+Steam, a **name and trademark check for "Doomsday"**, the user's Steamworks account, the game's
+app id and their acceptance of the Steamworks SDK agreement. GodotSteam (MIT, GDExtension, the
+version PLAN §4.4 names or newer) as a `PlatformService` backend chosen for the Steam build only;
+the achievements and stats configured on Steamworks; overlay and pause; a build uploaded to a
+private beta branch. App id 480 only for a local smoke test before the real id exists (see the
+head of this section). `ASSET_LICENCES.md` rows for GodotSteam and the Steamworks
+redistributables.
+**Done when:** an achievement earned in the Steam build shows on Steam.
 
 ### S7.4 — iOS export **[O]** **[needs user]** · **Read first:** `mobile.md` · PLAN §4.4
 Needs a macOS runner and the user's Apple Developer account and signing. The preset, the CI job,
@@ -1366,5 +1477,9 @@ With the user: each platform's candidate played; go / change / cut per platform.
 | The Task Force against dormancy (BALANCE §5.7 q3) | D5.5, built S5.9 |
 | Achievements — which, and their text | D6.8; on Steam in S6.14 |
 | Spectator / benchmark mode (user idea, G1) | D6.9; the headless tool S6.12, the view S6.13; the first live run with the user's OpenRouter key; the global leaderboard (user, 2026-09-25) D6.9b → S6.12b, S6.13, publishing with the user's deploy key |
-| Steam app id, Steamworks SDK agreement | the user, before S6.14 (app id 480 only for a local smoke test) |
+| Steam app id, Steamworks SDK agreement | the user, before S6.14 (app id 480 only for a local smoke test); Steam at all only if the itch release finds players, after a name and trademark check (user, 2026-09-25) |
+| Where the first release goes | the user, 2026-09-25: itch.io in the browser (D7.2, D7.I → S7.3, S7.I, G7.I); price model, downloads and the itch account are the user's answers before D7.I |
+| The game's own licence | the user, 2026-09-25: all rights reserved until the user decides otherwise |
+| Decision models on the benchmark (TypeSafe Jev) | the user, 2026-09-25; D6.9c → S6.12c; the first live run with the user's `TYPESAFE_API_KEY` |
+| FLUX 3 Action (a trained agent plays) | D7.F (`flux-action.md`) → S7.F1–S7.F5; U7.F1–U7.F4 the user's; its §13 questions the user's |
 | Generation route and model licences for shipped art | D6.7 shortlisted (`illustrations.md` §6.1); the user approves before D6.10 |

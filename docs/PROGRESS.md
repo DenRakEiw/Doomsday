@@ -16,7 +16,7 @@ rather than struck through.
 | --- | --- |
 | **Next step** | **D6.11 (2/2b) — Plain-language pass II** [F]: `plain-language.md` §2, §3, §5.1 passes 4, 5, 7 (cards, what you buy, the flavour check; add passes 4–5 to `REWRITTEN` in `test_plain_language.gd`) — IMPLEMENTATION §4 row 89d. First answer the S6.P3a/b entries under *Design questions for Fable* (the generated rows are placeholders to word). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | **G6 (1/2) — Balance pass 4** [F]: `docs/BALANCE.md` §5 · *Balance baselines*; **whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). D6.10, S6.14 and G6 (2/2) are **[needs user]**; then Block 18 (D7.1). |
+| **After it** | S6.P4 (punch list from 2/2b, skip if empty) → **D6.9c — Decision-model backend (TypeSafe Jev)** [F] → S6.12c (mock only) → **G6 (1/2) — Balance pass 4** [F]: `docs/BALANCE.md` §5 · *Balance baselines*; **whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2, D7.I → S7.3, S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
 | **Last completed** | S6.P3b — The whole tech tree on one screen (1920×1080 and 2560×1440), why a node is locked (detail pane and card tooltip), the mute button (2026-09-25). |
 | **Before that** | S6.P3a — Effect lines, "what changed", explanation-first cards, status lines, % instead of ×, the ten tooltips (2026-09-25). |
 | **Earlier** | D6.11 (2/2a) — Plain-language pass I (2026-09-25). |
@@ -184,27 +184,45 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S6.12b [O] Global leaderboard: the verifier, the workflow, the determinism canary *(publishing needs the user's deploy key)*
 - [x] S6.13 [O] Spectator view and the online list
 
-**Block 17 — M6 finish: balance, pictures, Steam, the gate**
+**Block 17 — M6 finish: text, the Jev backend, balance, pictures, the gate**
 - [x] D6.11 (1/2) [F] Text clarity audit, style rules, glossary, 30 examples *(inserted by the user 2026-09-25; `docs/specs/plain-language.md`)*
 - [x] D6.11 (2/2a) [F] Plain-language pass I: terms, coach, help, HUD and panels, console *(`plain-language.md` §8)*
 - [x] S6.P3a [O] Event effect lines, "what changed", explanation-first layout, status lines, tooltips *(punch item 3; split at §1.6)*
 - [x] S6.P3b [O] The compact tech tree, why a node is locked, the mute button *(punch items 2, 4, 5)*
 - [ ] D6.11 (2/2b) [F] Plain-language pass II: cards, what you buy, the flavour check
+- [ ] S6.P4 [O] Punch list from D6.11 (2/2b) *(skip if empty)*
+- [ ] D6.9c [F] Decision-model backend (TypeSafe Jev) *(user 2026-09-25; amends `benchmark.md`)*
+- [ ] S6.12c [O] The Jev backend, mock only *(the first live run needs the user's `TYPESAFE_API_KEY`)*
 - [ ] G6 (1/2) [F] Balance pass 4 *(tuning; data only)*
 - [ ] D6.10 [F] Illustrations produced — **[needs user]**
-- [ ] S6.14 [O] GodotSteam: the Steam backend, achievements, overlay — **[needs user]**
-- [ ] G6 (2/2) [F] M6 gate: shippable on Steam — **[needs user]**
+- [ ] G6 (2/2) [F] M6 gate: the release candidate (browser and desktop) — **[needs user]**
 
-**Block 18 — M7 design**
-- [ ] D7.1 [F] Touch and phone
-- [ ] D7.2 [F] Web demo
-- [ ] D7.3 [F] Store pages: copy and art briefs
-
-**Block 19 — M7 build and release**
+**Block 18 — M7 I: the itch.io release** *(user 2026-09-25: itch first, the browser build is the main version)*
+- [ ] D7.2 [F] The Web build — the main version *(was: web demo)*
+- [ ] D7.I [F] itch.io page: copy en/de, cover and screenshot briefs, AI disclosure, privacy sentence
 - [ ] S6.P [O] Punch list from G6 *(skip if empty)*
+- [ ] S7.3 [O] Web build
+- [ ] S7.I [O] itch.io upload: butler job, size check, itch web settings *(the itch project and `BUTLER_API_KEY`: user)*
+- [ ] G7.I [F] The itch.io release: played on the restricted page, go, public — **[needs user]**
+
+**Block 19 — FLUX 3 Action track (research, after the itch release)** *(`docs/specs/flux-action.md` §11)*
+- [x] D7.F [F] Data contract, recorder, control bridge, training plan *(2026-09-25, `dfbd607`)*
+- [ ] S7.F1 [O] Contract, actuator, capture, clock
+- [ ] S7.F2 [O] Puppeteer, recorder, replay checks
+- [ ] S7.F3 [O] Converter, dataset stats, trainer plug, configs
+- [ ] S7.F4 [O] Control bridge, driver, mock policies
+- [ ] S7.F5 [O] The leaderboard category *(trained agents)*
+- [ ] U7.F1 Record the 42-run plan, convert — **[needs user]** *(WSL2 after the reboot)*
+- [ ] U7.F2 Local smoke and heads-only training on the 5090 — **[needs user]**
+- [ ] U7.F3 Rented recipe — **[needs user]** *(the user's go and budget)*
+- [ ] U7.F4 Evaluation and submission — **[needs user]**
+
+**Block 20 — M7 II: Steam and phones** *(Steam only if the itch release finds players — the user's call)*
+- [ ] D7.1 [F] Touch and phone
+- [ ] D7.3 [F] Store pages: copy and art briefs *(Steam, Play, App Store)*
 - [ ] S7.1 [O] Touch pass
 - [ ] S7.2 [O] Android export and the AAB in CI *(release keystore: user)*
-- [ ] S7.3 [O] Web demo build
+- [ ] S6.14 [O] GodotSteam: the Steam backend, achievements, overlay — **[needs user]** *(name/trademark check first)*
 - [ ] S7.4 [O] iOS export — **[needs user]**
 - [ ] S7.5 [O] Real-device pass — **[needs user]**
 - [ ] D7.4 [F] Store pages and marketing art — **[needs user]**
@@ -216,6 +234,34 @@ it and take the next row (IMPLEMENTATION §4).*
 
 Dated, one line each, with the reason. A decision recorded here is not re-argued in a later session
 without new information.
+
+- **2026-09-25** (user) — **First public release: itch.io, in the browser.** The single-threaded Web
+  build is the main version (Windows/Linux downloads optional), no longer a demo: D7.2/S7.3 are
+  release work, followed by D7.I/S7.I/G7.I; **Steam only later, if people play it** — S6.14 moves
+  behind the itch release (Block 20). Reason: the cheapest way to find out whether anyone plays it.
+  The itch page carries an honest generative-AI disclosure and a sentence that the online
+  leaderboard fetch sends the player's IP to GitHub. This overrides "Windows/Steam first" in
+  CLAUDE.md and PLAN §4.4 (not edited in this planning update).
+- **2026-09-25** (user) — **The game's own licence stays "all rights reserved"** (no open licence)
+  until the user decides otherwise — keeps every option open; every third-party asset in
+  `ASSET_LICENCES.md` already allows a closed commercial release. **Before Steam:** a name and
+  trademark check for "Doomsday".
+- **2026-09-25** (user) — **Decision models play too: TypeSafe Jev** as a second benchmark backend
+  kind — `POST https://api.typesafe.ai/v1/systemone`, `Authorization: Bearer`, model `jev-latest`;
+  `state` + a `questions` map of `choice` questions (≤ 255 options each), answered with `choice`,
+  `probabilities`, `confidence`; key from `TYPESAFE_API_KEY` only. Each decision is decomposed into
+  choice questions over the legal actions (stance; which node or none; which anomaly; each open
+  event's option; ability target), so an invalid answer is impossible; entries
+  `typesafe/jev-latest` rank on the same leaderboard. Planned as D6.9c (design, amends
+  `benchmark.md`) + S6.12c (build, mock backend only), before G6. Reason: a different kind of
+  model on the same board.
+- **2026-09-25** (user) — **FLUX 3 Action track** (`docs/specs/flux-action.md`, D7.F `dfbd607`) is
+  a research track **after the itch release**: Block 19, build steps S7.F1–S7.F5 and user steps
+  U7.F1–U7.F4 (**[needs user]**); its decisions are the spec's §13. Supersedes D6.9's "FLUX-3 Action
+  cannot drive the game" (that was the chat-model route). WSL2 is installed (2026-09-25), the
+  reboot is pending (2026-09-26) — the U7.F steps need it.
+- **2026-09-25** (user) — `plain-language.md` §6 Q1–Q6 are answered (below); **Q7 stays open** —
+  *Zugang*, *Anzapfung* or *Zugangspunkt* for *Abgriff*; *Zugang* stays on screen until then.
 
 - **2026-09-25** (user, answering `plain-language.md` §6) — **Q1 yes** (all term changes), **Q2 yes**
   (Drehkreuz, Finanzdruck, Funkstille), **Q3 no: the emergent behaviours keep their AI-safety names**
@@ -2433,7 +2479,18 @@ without new information.
 
 ## Waiting on the user
 
-**D6.11 (2/2a) (2026-09-25): *Zugang* for *Abgriff* (Q7) — your final word.** It is on screen
+**itch.io release (2026-09-25, before D7.I/S7.I):** an itch.io account? Free, pay-what-you-want
+or a fixed price? Which platforms besides the browser (Windows, Linux downloads)? Then, for S7.I:
+the itch project and a butler API key as the Actions secret `BUTLER_API_KEY`. **Before Steam:** a
+name and trademark check for "Doomsday".
+
+**D7.F (2026-09-25): the FLUX 3 Action track's six questions** — `docs/specs/flux-action.md` §13
+(GPU provider and budget, the FLUX licence and *Qualifying User*, what goes public, WSL2 with
+mirrored networking, ≈200 GB disk on F:, plans in the caption). WSL2 is installed; **the reboot is
+pending (2026-09-26)** — U7.F1–U7.F4 need it.
+
+**D6.11 (2/2a) (2026-09-25): *Zugang*, *Anzapfung* or *Zugangspunkt* for *Abgriff* (Q7) — your
+final word** (still open; §6's other answers are under *Decisions*). *Zugang* is on screen
 now (en *Access*, plural *Accesses* — the English plural reads stiffly; *access point(s)* is the
 alternative). Two things to weigh: three node names already use the word in another sense
 (*Automatisierter Laborzugang*, *Genehmigter Zugang*, *Frühwarnsystem-Zugang*), and example 4
@@ -2569,7 +2626,8 @@ outside Steam — signing needs your certificate; (6) after S6.10: tag `v0.6.0` 
 draft release when you want one.
 
 **D6.9 (2026-09-25, overnight, pending user confirmation):** `docs/specs/benchmark.md` §15 —
-(1) **FLUX-3 Action cannot drive the game**: its Hugging Face collection is a robot-control
+(1) **FLUX-3 Action cannot drive the game** *(as a chat model; superseded by the FLUX track, D7.F —
+Decisions 2026-09-25)*: its Hugging Face collection is a robot-control
 policy (video/text encoders → arm actions), not a chat model; the adapter takes any
 OpenAI-compatible chat model (OpenRouter or a local `--base-url`). Which models first?
 (2) the score (a win 50–100 by speed, else 0; Extinction counts as a win), the 10-seed suite at
@@ -2952,6 +3010,12 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — Plan: itch first, Jev, FLUX track
+- User decisions recorded: itch.io browser release first (Steam later, if played), licence all rights reserved, TypeSafe Jev
+  as a second benchmark backend, the FLUX 3 Action track after the itch release, Q7 still open.
+- Run sheet: S6.P4, D6.9c, S6.12c before G6; Block 18 the itch release (D7.2, D7.I, S6.P, S7.3, S7.I, G7.I); Block 19 FLUX
+  (S7.F1–F5, U7.F1–F4); Block 20 Steam and phones (S6.14 moved there). Docs only.
 
 ### 2026-09-25 — S6.P3b The whole tree on one screen, lock reasons, mute [O]
 - Board fits cells to its room (dense cards, `TechGridDense`), tabs in the title row, coach bottom right over the tree;
