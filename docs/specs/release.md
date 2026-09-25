@@ -370,6 +370,8 @@ at 16, 32 and 256 px; if the eye closes up at 16 px the ring goes at that size o
   `tests/*, tools/*, addons/gut/*, ui/dev/*, docs/*, *.md, steam_appid.txt, .github/*`
 - **`include_filter`** (the non-resource files the game reads with `FileAccess` at run time):
   `data/*.json, assets/licences/*.txt, assets/fonts/*.txt`
+  — and, from S6.13, `benchmark/showcase/*.json` (the watchable benchmark runs that ship;
+  `benchmark.md` §12.1).
 - The editor plugin list (`[editor_plugins]`, GUT) is ignored by exports; GUT's scripts are
   excluded above. `data/loc/strings.csv` ships as its imported `.translation` files; the CSV
   itself is not needed (the pseudo-locale is debug-only, §7).

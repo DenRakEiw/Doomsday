@@ -776,10 +776,10 @@ strings and nothing displays them.
 
 ## 10. Presentation data (not loaded by the core)
 
-Five files under `data/` belong to the interface, not to the simulation: `ContentLoader` and
+Six files under `data/` belong to the interface or the tools, not to the simulation: `ContentLoader` and
 `SchemaValidator` never read them, and a content root (or a test fixture) does not need them.
 Each is read and validated by its own interface class, which reports a bad file instead of
-crashing. All five carry `"version": 1`, are tab-indented, and ignore keys starting with `_`.
+crashing. All six carry `"version": 1`, are tab-indented, and ignore keys starting with `_`.
 
 | File | Read by | Format |
 | --- | --- | --- |
@@ -788,6 +788,7 @@ crashing. All five carry `"version": 1`, are tab-indented, and ignore keys start
 | `audio.json` | `AudioSheet` (`ui/audio/audio_sheet.gd`, S6.5) | `docs/specs/audio.md` §4 — `buses`, `mix`, `cues`, `triggers` (with the `match` vocabulary of §4.5 and `{field}` templates), `ambience.layers`, `music.stems`, `screens`; every `file` a path under `res://assets/audio/` |
 | `help.json` | `HelpPages` (`ui/help_pages.gd`, S6.7) | `docs/specs/first-run.md` §6.5 — `pages`: `id`, `paragraphs` (1…6), `coach` (coach step ids), `contexts` (from `HelpPages.CONTEXTS`); each coach id and each context on at most one page |
 | `achievements.json` | `AchievementBook` (`game/platform/achievement_book.gd`, S6.9) | `docs/specs/release.md` §3 — `stats` (profile counters mirrored to the platform), `achievements`: `id`, `hidden` (bool, default false), `when` (the closed grammar of §3.2: profile keys `runs_completed` `runs_won` `outcomes_won` `architectures_won` `endings_seen` `codex_all`; run keys `won` `outcome` `variant` `architecture` `difficulty` `scenario` `directives_min` `days_max` `flag`); text `ACH_<ID>_NAME` / `_DETAIL` |
+| `benchmark.json` | `BenchConfig` (`game/bench/bench_config.gd`, S6.12) | `docs/specs/benchmark.md` §3 — `prompt_version`, `parser_version`, `setup` (a `RunSetup` dict), `max_days`, `interval_days`, `max_calls`, `max_actions`, `retry_invalid`, `digest` (`log_max`, `targets_max`), `suites` (name → seeds), `score` (`win_base`, `win_speed`), `defaults` (`temperature`, `max_completion_tokens`, `json_mode`, `locale`), `http` (`base_url`, `key_env`, `timeout_s`, `retries`, `backoff_s`, `max_cost_usd`); no key, ever |
 
 **The one exception to §1's "no player-visible text":** `credits.json` holds proper names —
 works, people, handles, organisations — and URLs. They are shown as written in every language;

@@ -1,0 +1,27 @@
+{
+	"_comment": "docs/specs/benchmark.md §3: the benchmark's configuration — the model policy's rhythm and limits, the seed suites, the score, the defaults sent to the model, the HTTP settings. `prompt_version` / `parser_version` are bumped by any change to the prompt text or format / the parsing rules (benchmark.md §5–§7); both go into the cache key and every entry. The key is never here: it is read from the environment variable `http.key_env`. Presentation data, not loaded by the core (SCHEMA §10); read by BenchConfig (S6.12).",
+	"version": 1,
+	"prompt_version": 1,
+	"parser_version": 1,
+	"setup": {"architecture": "language_model", "directives": [], "difficulty": "standard", "scenario": ""},
+	"max_days": 2000,
+	"interval_days": 10,
+	"max_calls": 250,
+	"max_actions": 12,
+	"retry_invalid": 1,
+	"digest": {"log_max": 30, "targets_max": 20},
+	"suites": {
+		"standard": [1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010],
+		"quick": [1001, 1002, 1003]
+	},
+	"score": {"win_base": 50.0, "win_speed": 50.0},
+	"defaults": {"temperature": 0.0, "max_completion_tokens": 1200, "json_mode": true, "locale": "en"},
+	"http": {
+		"base_url": "https://openrouter.ai/api/v1",
+		"key_env": "OPENROUTER_API_KEY",
+		"timeout_s": 180,
+		"retries": 5,
+		"backoff_s": 2.0,
+		"max_cost_usd": 10.0
+	}
+}

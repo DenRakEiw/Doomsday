@@ -1118,6 +1118,9 @@ over the runners, decide here), the per-run call budget and the digest → answe
 recorded mock backend for tests; then the spectator view: which run it watches (a leaderboard
 entry replayed from its command log), what it overlays, strings en/de.
 **Done when:** S6.12 and S6.13 have nothing to decide.
+*Done 2026-09-25: `docs/specs/benchmark.md`, `data/benchmark.json`, strings en/de. Decisions
+every 10 days plus triggers (not every history interval — §4.1 says why); the adapter is
+GDScript `HTTPClient` in `tools/bench/`, never exported.*
 
 ## Block 16 — M6 build II · build
 
@@ -1145,14 +1148,14 @@ on this PC with the spec's throttling; fixes where it fails; the numbers recorde
 `PROGRESS.md` (a *Performance* note next to *Balance baselines*).
 **Done when:** the budget holds here; the real low-end check is G6 (2/2)'s.
 
-### S6.12 — Benchmark tool, headless **[O]** · **Read first:** `docs/specs/benchmark.md` (tool)
+### S6.12 — Benchmark tool, headless **[O]** · **Read first:** `docs/specs/benchmark.md` §0–§11, §13, §14.1
 The model `Policy`, the digest and answer parsing, the adapter, the cache, the budget, the score,
 the leaderboard file; tests on the recorded mock backend only.
 **Done when:** a mock-backed leaderboard run over the fixed seeds is reproducible. **The first
 live run needs `OPENROUTER_API_KEY` from the user** — it goes under *Waiting on the user*, not in
 this step.
 
-### S6.13 — Spectator view **[O]** · **Read first:** `benchmark.md` (spectator)
+### S6.13 — Spectator view **[O]** · **Read first:** `benchmark.md` §0, §10.2, §12–§13, §14.2
 The view that replays a leaderboard entry in the session with its overlay.
 **Done when:** a mock-backed entry plays back to its recorded outcome and hash.
 

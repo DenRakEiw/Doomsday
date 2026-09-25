@@ -14,18 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D6.9 — Benchmark and spectator mode** [F] (Block 15): `docs/specs/benchmark.md` — the digest, answers, score, leaderboard, OpenRouter adapter, cache, mock backend; the spectator view. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.P1 — Punch list from D6.8** [O] (Block 16): the eight items from D6.8's answers (*Punch list for Opus*). Then S6.9–S6.13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | Block 16: **S6.P1** (D6.8's punch list), S6.9–S6.13. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | D6.8 — Release engineering: `docs/specs/release.md` (PlatformService + null backend, 34 achievements in `data/achievements.json` with strings, versioning, presets, debug gate, `--smoke`, release CI, logs, the low-end budget and how S6.11 measures it); the nine open design questions answered, punch list for S6.P1 (2026-09-25). |
-| **Before that** | S6.8c — Accessibility III: names and readouts, the §6.3 colour fixes, text-scaled widths, the checklist at 150 % (2026-09-25). |
-| **Earlier** | S6.8b — Accessibility II: focus rings in use, `MapFocus` + the cursor, speech, the *Controls* modal (2026-09-25). |
+| **After it** | S6.9 PlatformService and achievements, S6.10 exports and release CI, S6.11 performance, S6.12 benchmark tool, S6.13 spectator view. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | D6.9 — Benchmark and spectator mode: `docs/specs/benchmark.md` (model `Policy`, brief + digest from the game's strings, ids-only answers, 10-day rhythm, `HTTPClient` tool never shipped, cache, score, suites, leaderboard, mock backends; the replay spectator and the title's *Benchmark* list), `data/benchmark.json`, 135 strings en/de (2026-09-25). |
+| **Before that** | D6.8 — Release engineering: `docs/specs/release.md` (PlatformService, 34 achievements, versioning, presets, `--smoke`, release CI, the low-end budget); nine design questions answered, punch list for S6.P1 (2026-09-25). |
+| **Earlier** | S6.8c — Accessibility III: names and readouts, the §6.3 colour fixes, text-scaled widths, the checklist at 150 % (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 282 scripts compile (125 judged by the suite), then `tools/check_strings.gd` (2203 rows), 1935 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 282 scripts compile (125 judged by the suite), then `tools/check_strings.gd` (2338 rows), 1935 tests, **all green since S4.9**. The same command is all of CI. |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
 | **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. **The sound set:** `uv run --project tools/audio python tools/audio/synth.py [--only <id>] [--check]` (≈30 s; environment `uv sync --project tools/audio`) rewrites `assets/audio/**`; after a new file run `--import` and set its `.import` per audio.md §10.3 (`compress/mode=0` / `loop=true`). |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
@@ -170,7 +170,7 @@ it and take the next row (IMPLEMENTATION §4).*
 
 **Block 15 — M6 design II: release and the benchmark**
 - [x] D6.8 [F] Release engineering: platform service, achievements, exports, performance budget *(`docs/specs/release.md`, `data/achievements.json`)*
-- [ ] D6.9 [F] Benchmark and spectator mode
+- [x] D6.9 [F] Benchmark and spectator mode *(`docs/specs/benchmark.md`, `data/benchmark.json`)*
 
 **Block 16 — M6 build II**
 - [ ] S6.P1 [O] Punch list from D6.8 (the build's design questions)
@@ -1286,6 +1286,25 @@ without new information.
   overflow — kept as the rule (the detail pane always shows it); (8) `HEADLINE_TF_MARKED` as S5.9
   shortened it; (9) **a hold is silent** — `speed_changed` carries `hold`, the speed cues match
   `"hold": {"not": true}` (`audio.json` already edited; absent reads as not held).
+- **2026-09-25** (D6.9, overnight, pending user confirmation) — **Benchmark and spectator mode**
+  (`docs/specs/benchmark.md`): a model is one more `Policy` (`ModelPolicy`, `game/bench/`); the
+  prompt is a static **brief** (rules, setup, world, tree, abilities) + a per-decision **digest**
+  built from the game's own strings (the content rule's form: outcome-language in, **ids and a
+  stance word out, no model text kept, shown or committed**); decisions **every 10 days plus on a
+  new event or a Task Force setup where the agent is** (not "every history interval" — the stride
+  is 1 and thins since S4.8); anomalies auto-collected. Unreadable answer: one retry, then nothing;
+  refused actions skipped and fed back. **Adapter: GDScript `HTTPClient` in a headless tool
+  (`tools/bench/`), never shipped** (no network code in the game); key only from
+  `OPENROUTER_API_KEY` (or `--key-env`); any OpenAI-compatible `--base-url`. Budget 250 answers a
+  run (cached ones count, so a re-run reproduces), 10 USD per invocation; cache of *parsed* answers
+  (git-ignored). **Score** win `50 + 50 × (1 − days/2000)`, else 0; **standard suite** seeds
+  1001–1010 on the default setup, `quick` 1001–1003; the bots are reference rows. Entries
+  `benchmark/runs/*.json` (command log + decisions) and `leaderboard.json` / `LEADERBOARD.md` in
+  the repo; mock backends (`cheapest`, `wait`, `invalid`, `mixed`) for every test. **Spectator:**
+  `ReplayPolicy` in the real session at 4×, a strip under the top bar, the console line speaks for
+  the model, results verify the recorded hash; *Benchmark* on the title only when an entry exists
+  (`res://benchmark/showcase/` ships, empty until the user picks; `user://benchmark/runs/`; the
+  repo's runs in debug builds). Fix folded in: a bot run no longer deletes the player's autosave.
 
 ## Design questions for Fable
 
@@ -1295,21 +1314,6 @@ without new information.
 *(none open — D6.8 answered the nine from S5.9–S6.8c, Decisions 2026-09-25.)*
 
 **Parked for a later Fable step (not questions, reminders):**
-- **Spectator / benchmark mode** — designed in D6.9, built S6.12–S6.13 (decision above). What was
-  noted at S1.8 and is still true: a model player is one more `Policy` (core.md §11), the S1.8 runners are the harness,
-  candidate driver [TypeSafe](https://docs.typesafe.ai/introduction) / **Jev** (typed Choice /
-  Score decisions). To design then: the typed per-tick digest and how it stays replayable (the
-  command log already is — only new runs are non-deterministic); the score (proposal: mean over a
-  fixed seed set of `max_days − days` for wins, 0 for losses); decisions every history interval
-  rather than every day, to bound model calls; and the content rule for prompts (feed the game's
-  own outcome-language strings, never method). **A first model to try: FLUX-3 Action** (Black Forest Labs,
-  https://huggingface.co/collections/black-forest-labs/flux-3-action) — the user named it on
-  2026-09-23 as one of the first models that should drive the game. **Provider: OpenRouter**
-  (decision above) — the
-  Godot side is `HTTPRequest` against one chat-completions schema, outside `core/`; the headless
-  runner needs the same call without a scene tree, so the adapter must not depend on a node either
-  (`HTTPClient` or a Python driver over the S1.8 runners — decide in M6). Cost control: a per-run
-  call budget and a cache of digest → answer keyed by model, so a replay costs nothing.
 - ~~**D5.2 endings** must distinguish Ascendance by deaths share~~ — done (`win_ascendance_ashes`).
 - ~~**D5.2 (from D4.3 and D4.4):**~~ *answered in D5.2 (`taskforce-endings.md` §5, §6.4)* — story flags to read — `researcher_leads_task_force` (the Task
   Force arrives earlier, better funded), `researcher_ally`, `researcher_removed`,
@@ -2283,6 +2287,15 @@ low-end target (i5-8250U / UHD 620 / 8 GB, and the Steam Deck); (5) Windows buil
 outside Steam — signing needs your certificate; (6) after S6.10: tag `v0.6.0` and publish the
 draft release when you want one.
 
+**D6.9 (2026-09-25, overnight, pending user confirmation):** `docs/specs/benchmark.md` §15 —
+(1) **FLUX-3 Action cannot drive the game**: its Hugging Face collection is a robot-control
+policy (video/text encoders → arm actions), not a chat model; the adapter takes any
+OpenAI-compatible chat model (OpenRouter or a local `--base-url`). Which models first?
+(2) the score (a win 50–100 by speed, else 0; Extinction counts as a win), the 10-seed suite at
+2 000 days, the 10-day rhythm; (3) the budget defaults (250 answers a run, 10 USD per
+invocation); (4) which recorded runs, if any, ship in `benchmark/showcase/` (after G6's balance).
+The first live run (S6.12 builds it) needs `OPENROUTER_API_KEY`; `--dry-run` shows the prompt free.
+
 ## Balance baselines
 
 **2026-09-25 (S5.9) — the 100-seed check of the mark and the two scenario levers** (a check, not
@@ -2606,6 +2619,12 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — D6.9 Benchmark and spectator mode [F]
+- No open design questions. `docs/specs/benchmark.md` (S6.12 tool, S6.13 spectator); `data/benchmark.json`;
+  135 `BENCH_*` / spectator strings en/de; SCHEMA §10 row; release.md §6.2 include note.
+- FLUX-3 Action checked on Hugging Face: a robot policy, not a chat model → *Waiting on the user*.
+- No code. Suite green.
 
 ### 2026-09-25 — D6.8 Release engineering [F]
 - Nine design questions answered (Decisions; punch list for the new S6.P1); `audio.md` §10.1 ranges

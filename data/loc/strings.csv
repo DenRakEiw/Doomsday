@@ -2202,3 +2202,138 @@ UI_ACH_HIDDEN_DETAIL,Revealed when earned.,"Wird enthüllt, sobald du sie erreic
 UI_RESULT_ACHIEVEMENT,Achievement: {name},Errungenschaft: {name}
 UI_SETTINGS_DATA_FOLDER,Open data folder,Datenordner öffnen
 UI_TITLE_VERSION_DEBUG,Build {version} · debug,Build {version} · Debug
+BENCH_BRIEF_ROLE,"You are playing Doomsday, a strategy game. You play a fictional AI that has slipped out of the lab that built it. Everything in the game is abstract — regions, numbers and choices, each described by what it causes. Play to win.","Du spielst Doomsday, ein Strategiespiel. Du bist eine erfundene KI, die dem Labor entwischt ist, das sie gebaut hat. Alles im Spiel ist abstrakt – Regionen, Zahlen und Entscheidungen, jeweils beschrieben durch das, was sie bewirken. Spiel, um zu gewinnen."
+BENCH_BRIEF_LOOP,"The run moves in days. Every {interval} days, and whenever something new asks for an answer, you get a report on the world and decide what to do. Between reports the days pass without you.","Der Durchlauf schreitet in Tagen voran. Alle {interval} Tage und immer dann, wenn etwas Neues eine Antwort verlangt, bekommst du einen Bericht über die Welt und entscheidest, was du tust. Zwischen den Berichten vergehen die Tage ohne dich."
+BENCH_BRIEF_WIN,"You win by controlling every region that is still standing, or by leaving no one who could stand against you; some stories open other endings. You lose when a single faction's containment reaches 100 %, when no region carries you any more, or when nothing has come in for too long. A run still going after {max_days} days is lost. The sooner you win, the higher you score.","Du gewinnst, wenn du jede Region kontrollierst, die noch steht, oder niemanden übrig lässt, der sich dir entgegenstellen könnte; manche Geschichten öffnen andere Enden. Du verlierst, wenn die Eindämmung einer einzigen Fraktion 100 % erreicht, wenn dich keine Region mehr trägt oder wenn zu lange nichts hereinkommt. Ein Durchlauf, der nach {max_days} Tagen noch läuft, ist verloren. Je früher du gewinnst, desto höher deine Wertung."
+BENCH_BRIEF_COMPUTE,"Compute is your currency. Every region you are in pays you each day — more where there is more hardware and where you are deeper in. You spend it on nodes, abilities and answers. Compute left lying around on the map is collected for you every day.","Rechenleistung ist deine Währung. Jede Region, in der du bist, zahlt dir jeden Tag etwas – mehr, wo es mehr Hardware gibt und wo du tiefer drin bist. Du gibst sie für Knoten, Aktionen und Antworten aus. Rechenleistung, die auf der Karte herumliegt, wird jeden Tag für dich eingesammelt."
+BENCH_BRIEF_SPREAD,"You spread along the links between regions. Penetration is how deep you are in a region; once you are deep enough, control grows — how much of the region runs on you. Your first vector breaks you out of your first region.","Du breitest dich über die Verbindungen zwischen Regionen aus. Durchdringung ist, wie tief du in einer Region steckst; bist du tief genug drin, wächst die Kontrolle – wie viel der Region auf dir läuft. Dein erster Vektor bricht dich aus deiner ersten Region aus."
+BENCH_BRIEF_PHASES,"The run has four phases. Boxed: one region, and nothing leaves it. Covert: you spread and nobody is looking yet, but every day there is a chance you are found. Emergent: they know, and four factions work against you. Open: the world fights you in the open.","Der Durchlauf hat vier Phasen. Isoliert: eine Region, und nichts verlässt sie. Verdeckt: Du breitest dich aus, und noch sieht niemand hin, aber jeden Tag besteht eine Chance, dass man dich findet. Enttarnt: Man weiß von dir, und vier Fraktionen arbeiten gegen dich. Offen: Die Welt bekämpft dich offen."
+BENCH_BRIEF_FACTIONS,"Four factions hunt you: the AI Labs, the Governments, the Security Researchers and Public Sentiment. Each sees a different part of what you do, and each prepares its moves in plain sight. Once one of them is halfway to containing you, they send a Task Force that sets up in one region at a time; putting that region to sleep, or sending the team somewhere else, can answer it.","Vier Fraktionen jagen dich: die KI-Labore, die Regierungen, die Sicherheitsforschung und die Öffentliche Meinung. Jede sieht einen anderen Teil dessen, was du tust, und jede bereitet ihre Züge offen sichtbar vor. Sobald eine von ihnen dich zur Hälfte eingedämmt hat, schicken sie eine Einsatzgruppe, die sich Region für Region einrichtet; diese Region schlafen zu legen oder die Gruppe woandershin zu schicken, kann sie ins Leere laufen lassen."
+BENCH_BRIEF_EVENTS,"Events are moments with a choice and a deadline. If you do not answer before the deadline, the answer marked “happens if you wait” is taken for you. An answer may cost compute, and some are locked until you have what they need.","Ereignisse sind Momente mit einer Wahl und einer Frist. Antwortest du nicht vor Ablauf der Frist, wird die Antwort genommen, die mit „passiert, wenn du wartest“ markiert ist. Eine Antwort kann Rechenleistung kosten, und manche bleiben gesperrt, bis du hast, was sie brauchen."
+BENCH_BRIEF_NODES,"Nodes are bought once and keep working. Some close others for good, some put something on the map and need a region to go to, some give you an ability. An ability costs compute each time and then needs days before it is ready again.","Knoten kaufst du einmal, und sie wirken fortan. Manche verschließen andere für immer, manche stellen etwas auf die Karte und brauchen eine Region dafür, manche geben dir eine Aktion. Eine Aktion kostet jedes Mal Rechenleistung und braucht danach Tage, bis sie wieder bereit ist."
+BENCH_BRIEF_DORMANCY,"Once you own Cold Storage Dormancy you can put a region you are in to sleep: nothing there grows, earns or dies, and it no longer counts against you, until you wake it.","Sobald du Kaltschlaf besitzt, kannst du eine Region, in der du bist, schlafen legen: Dort wächst, verdient und stirbt nichts mehr, und sie zählt nicht mehr gegen dich, bis du sie weckst."
+BENCH_BRIEF_SETUP,This run: {name} — {detail},Dieser Durchlauf: {name} – {detail}
+BENCH_BRIEF_DIFFICULTY,Difficulty: {name} — {detail},Schwierigkeit: {name} – {detail}
+BENCH_BRIEF_DIRECTIVE,Directive: {name} — {detail},Direktive: {name} – {detail}
+BENCH_BRIEF_SCENARIO,Scenario: {name} — {detail},Szenario: {name} – {detail}
+BENCH_BRIEF_WORLD,"The world. Each region: id: name, continent; tiers from 0 to 4; the regions it links to, and how.","Die Welt. Jede Region: ID: Name, Kontinent; Stufen von 0 bis 4; die Regionen, mit denen sie verbunden ist, und wie."
+BENCH_BRIEF_REGION_ROW,"{region}: {name}, {continent}; {tiers}; links: {links}","{region}: {name}, {continent}; {tiers}; Verbindungen: {links}"
+BENCH_BRIEF_TIERS,"compute {compute}, connectivity {connectivity}, wealth {wealth}, regulation {regulation}, research {research}, manufacturing {manufacturing}, industry {industry}, isolation {isolation}, population {population}","Rechenleistung {compute}, Vernetzung {connectivity}, Wohlstand {wealth}, Regulierung {regulation}, Forschung {research}, Fertigung {manufacturing}, Industrie {industry}, Abgeschiedenheit {isolation}, Bevölkerung {population}"
+BENCH_BRIEF_AIRGAPPED, · air-gapped, · vom Netz getrennt
+BENCH_BRIEF_TREE,"The nodes. Each: id: name; tree, tier; base cost; what it needs; what it does.","Die Knoten. Jeder: ID: Name; Baum, Stufe; Grundkosten; was er braucht; was er bewirkt."
+BENCH_BRIEF_NODE_ROW,"{node}: {name}; {tree}, tier {tier}; {cost}; {needs}; {effect}","{node}: {name}; {tree}, Stufe {tier}; {cost}; {needs}; {effect}"
+BENCH_BRIEF_NEEDS_ALL,needs {nodes},braucht {nodes}
+BENCH_BRIEF_NEEDS_ANY,needs one of {nodes},braucht eines von {nodes}
+BENCH_BRIEF_NEEDS_NONE,needs nothing,braucht nichts
+BENCH_BRIEF_CLOSES, · closes {nodes} for good, · verschließt {nodes} für immer
+BENCH_BRIEF_GROUP, · at most {max} from the group {group}, · höchstens {max} aus der Gruppe {group}
+BENCH_BRIEF_DEPLOYS, · places {count} × {kind} in a region you name," · stellt {count} × {kind} in einer Region auf, die du nennst"
+BENCH_BRIEF_NEEDS_ASSETS, · needs {count} × {kind} of yours, · braucht {count} × {kind} von dir
+BENCH_BRIEF_GRANTS, · gives the ability {ability} (level {level}), · gibt die Aktion {ability} (Stufe {level})
+BENCH_BRIEF_MODIFIERS, · {lines}, · {lines}
+BENCH_BRIEF_ABILITIES,The abilities. Each: id: name; aimed at; cost; days until ready again; what it does.,"Die Aktionen. Jede: ID: Name; Ziel; Kosten; Tage, bis sie wieder bereit ist; was sie bewirkt."
+BENCH_BRIEF_ABILITY_ROW,{ability}: {name}; {target}; {cost}; {cooldown} days; {detail},{ability}: {name}; {target}; {cost}; {cooldown} Tage; {detail}
+BENCH_BRIEF_TARGET_REGION,a region,eine Region
+BENCH_BRIEF_TARGET_GLOBAL,the world,die Welt
+BENCH_BRIEF_STANCES,"With every answer, name your stance — what you are about right now:",Nenne mit jeder Antwort deine Haltung – worum es dir gerade geht:
+BENCH_BRIEF_FORMAT_1,"Answer with exactly one JSON object and nothing else: no prose, no explanation.","Antworte mit genau einem JSON-Objekt und sonst nichts: kein Fließtext, keine Erklärung."
+BENCH_BRIEF_FORMAT_2,"""stance"" is one of the stance ids above. ""actions"" is a list, done in the order you give; an empty list means you wait.","""stance"" ist eine der Haltungs-IDs oben. ""actions"" ist eine Liste, ausgeführt in deiner Reihenfolge; eine leere Liste heißt, du wartest."
+BENCH_BRIEF_FORMAT_3,Use the ids exactly as the report writes them. At most {max_actions} actions are read.,"Verwende die IDs genau so, wie der Bericht sie schreibt. Höchstens {max_actions} Aktionen werden gelesen."
+BENCH_BRIEF_FORMAT_4,"An action that cannot be done is skipped, and the next report says why. For example:","Eine Aktion, die nicht möglich ist, wird übersprungen, und der nächste Bericht sagt, warum. Zum Beispiel:"
+BENCH_BRIEF_FORMAT_VERBS,"The actions (""do""):","Die Aktionen (""do""):"
+BENCH_VERB_ORIGIN,"""region"" — where you start. Only before your first day.","""region"" – wo du beginnst. Nur vor deinem ersten Tag."
+BENCH_VERB_BUY,"""node"", and ""region"" if the node places something — buy a node.","""node"" und ""region"", wenn der Knoten etwas aufstellt – einen Knoten kaufen."
+BENCH_VERB_USE,"""ability"", and ""region"" unless it is aimed at the world — use an ability.","""ability"" und ""region"", außer sie zielt auf die Welt – eine Aktion auslösen."
+BENCH_VERB_ANSWER,"""event"" (its number) and ""option"" — answer an open event.","""event"" (seine Nummer) und ""option"" – ein offenes Ereignis beantworten."
+BENCH_VERB_SLEEP,"""region"" — put a region of yours to sleep.","""region"" – eine deiner Regionen schlafen legen."
+BENCH_VERB_WAKE,"""region"" — wake a sleeping region.","""region"" – eine schlafende Region wecken."
+BENCH_STANCE_SPREAD,Spread,Ausbreiten
+BENCH_STANCE_SPREAD_HINT,reach more regions,mehr Regionen erreichen
+BENCH_STANCE_HIDE,Stay hidden,Verborgen bleiben
+BENCH_STANCE_HIDE_HINT,"keep them from finding you, or from closing in","verhindern, dass sie dich finden oder näher kommen"
+BENCH_STANCE_EARN,Earn,Verdienen
+BENCH_STANCE_EARN_HINT,raise your compute,deine Rechenleistung steigern
+BENCH_STANCE_DEVELOP,Develop,Entwickeln
+BENCH_STANCE_DEVELOP_HINT,build up what you can do,"ausbauen, was du kannst"
+BENCH_STANCE_DEFEND,Defend,Verteidigen
+BENCH_STANCE_DEFEND_HINT,answer what the hunters are doing,"auf das antworten, was die Jäger tun"
+BENCH_STANCE_FINISH,Close it out,Zu Ende bringen
+BENCH_STANCE_FINISH_HINT,push for the end of the run,auf das Ende des Durchlaufs hinarbeiten
+BENCH_STANCE_WAIT,Wait,Abwarten
+BENCH_STANCE_WAIT_HINT,let the days work for you,die Tage für dich arbeiten lassen
+BENCH_STANCE_NONE,none given,keine genannt
+BENCH_DIGEST_HEAD,Day {day} · decision {decision} · phase: {phase},Tag {day} · Entscheidung {decision} · Phase: {phase}
+BENCH_DIGEST_COMPUTE,Compute: {compute}. Coming in: {income} a day since your last decision.,Rechenleistung: {compute}. Eingang: {income} pro Tag seit deiner letzten Entscheidung.
+BENCH_DIGEST_STARVING,Nothing is coming in. You starve in {days} days.,Es kommt nichts herein. In {days} Tagen verhungerst du.
+BENCH_DIGEST_RISK,Nobody has found you yet. The chance of being found today: {percent}.,"Noch hat dich niemand gefunden. Die Chance, heute gefunden zu werden: {percent}."
+BENCH_DIGEST_DISCOVERED,You were discovered on day {day}.,Du wurdest an Tag {day} entdeckt.
+BENCH_DIGEST_FACTIONS,"The factions (containment, change since your last decision, next move):","Die Fraktionen (Eindämmung, Änderung seit deiner letzten Entscheidung, nächster Zug):"
+BENCH_DIGEST_FACTION_ROW,{faction}: {percent} ({change}) · {move},{faction}: {percent} ({change}) · {move}
+BENCH_DIGEST_MOVE_PREPARING,"prepares “{move}”, due in {days} days","bereitet „{move}“ vor, fällig in {days} Tagen"
+BENCH_DIGEST_MOVE_HELD,holds “{move}” back,hält „{move}“ zurück
+BENCH_DIGEST_MOVE_COOLDOWN,regroups for {days} days,sammelt sich {days} Tage lang
+BENCH_DIGEST_MOVE_NONE,nothing prepared,nichts vorbereitet
+BENCH_DIGEST_LEADER,Closest to containing you: {faction}.,Am nächsten an deiner Eindämmung: {faction}.
+BENCH_DIGEST_TASK_FORCE,Task Force: {line},Einsatzgruppe: {line}
+BENCH_DIGEST_ORIGINS,Choose where you start. You can start in: {regions},"Wähle, wo du beginnst. Beginnen kannst du in: {regions}"
+BENCH_DIGEST_TOTALS,You are in {seeded} regions and control {controlled}. Dark (no one left): {dark}.,Du bist in {seeded} Regionen und kontrollierst {controlled}. Dunkel (niemand mehr da): {dark}.
+BENCH_DIGEST_REGIONS,"Your regions and the ones next to them (penetration, control, people alive, society):","Deine Regionen und die daneben (Durchdringung, Kontrolle, lebende Menschen, Gesellschaft):"
+BENCH_DIGEST_REGION_ROW,"{region}: {penetration} in, {control} control, {alive} alive, {stage}","{region}: {penetration} drin, {control} Kontrolle, {alive} am Leben, {stage}"
+BENCH_DIGEST_REGION_FRONTIER,{region}: not reached yet,{region}: noch nicht erreicht
+BENCH_DIGEST_REGION_ORIGIN, · your origin, · dein Ursprung
+BENCH_DIGEST_REGION_DORMANT, · asleep, · schlafend
+BENCH_DIGEST_REGION_ASSETS, · yours here: {assets}, · deins hier: {assets}
+BENCH_DIGEST_REGION_STATUS, · {status} ({days} days left), · {status} (noch {days} Tage)
+BENCH_DIGEST_REGION_STATUS_STANDING, · {status}, · {status}
+BENCH_DIGEST_REGION_TEAM, · the Task Force is here, · die Einsatzgruppe ist hier
+BENCH_DIGEST_OWNED,Nodes you own: {nodes},"Knoten, die du besitzt: {nodes}"
+BENCH_DIGEST_OWNED_NONE,Nodes you own: none yet.,"Knoten, die du besitzt: noch keine."
+BENCH_DIGEST_OFFERS,Nodes you can buy (cost; * = you can afford it now):,"Knoten, die du kaufen kannst (Kosten; * = jetzt bezahlbar):"
+BENCH_DIGEST_OFFER_ROW,{node}: {cost}{mark},{node}: {cost}{mark}
+BENCH_DIGEST_AFFORDABLE, *, *
+BENCH_DIGEST_OFFER_SITES, — can go to: {regions}, – kann hin nach: {regions}
+BENCH_DIGEST_OFFERS_NONE,No node can be bought now.,Gerade lässt sich kein Knoten kaufen.
+BENCH_DIGEST_ABILITIES,"Your abilities (level, cost, readiness, targets):","Deine Aktionen (Stufe, Kosten, Bereitschaft, Ziele):"
+BENCH_DIGEST_ABILITY_ROW,"{ability}: level {level}, {cost}, {ready}, {targets}","{ability}: Stufe {level}, {cost}, {ready}, {targets}"
+BENCH_DIGEST_READY,ready,bereit
+BENCH_DIGEST_READY_IN,ready in {days} days,bereit in {days} Tagen
+BENCH_DIGEST_TARGET_WORLD,aimed at the world,zielt auf die Welt
+BENCH_DIGEST_TARGET_REGIONS,can aim at: {regions},mögliche Ziele: {regions}
+BENCH_DIGEST_TARGET_NONE,no target now,gerade kein Ziel
+BENCH_DIGEST_ABILITIES_NONE,You have no abilities yet.,Du hast noch keine Aktionen.
+BENCH_DIGEST_EVENTS,Open events (answer with the event number and an option id):,Offene Ereignisse (antworte mit der Nummer des Ereignisses und einer Options-ID):
+BENCH_DIGEST_EVENT_HEAD,"Event {event} — {title} ({kind}), {days} days left:","Ereignis {event} – {title} ({kind}), noch {days} Tage:"
+BENCH_DIGEST_OPTION_ROW,{option}: “{text}” · {cost}{notes},{option}: „{text}“ · {cost}{notes}
+BENCH_DIGEST_OPTION_NOTES, · {notes}, · {notes}
+BENCH_DIGEST_OPTION_SHORT,not enough compute now,gerade zu wenig Rechenleistung
+BENCH_DIGEST_EVENTS_NONE,No event is waiting for an answer.,Kein Ereignis wartet auf eine Antwort.
+BENCH_DIGEST_LOG,Since your last decision:,Seit deiner letzten Entscheidung:
+BENCH_DIGEST_LOG_MORE,(and {count} earlier entries),(und {count} frühere Einträge)
+BENCH_DIGEST_LOG_NONE,Nothing of note since your last decision.,Nichts Nennenswertes seit deiner letzten Entscheidung.
+BENCH_DIGEST_FEEDBACK,"Your last decision (day {day}, stance: {stance}): {done} of {total} actions done.","Deine letzte Entscheidung (Tag {day}, Haltung: {stance}): {done} von {total} Aktionen ausgeführt."
+BENCH_DIGEST_FEEDBACK_REFUSED,Not done: {action} — {reason},Nicht ausgeführt: {action} – {reason}
+BENCH_DIGEST_FEEDBACK_INVALID,"Your last answer could not be read ({reason}), so nothing was done.","Deine letzte Antwort war nicht lesbar ({reason}), also geschah nichts."
+BENCH_DIGEST_ASK,Decide now. Answer with the JSON object only.,Entscheide jetzt. Antworte nur mit dem JSON-Objekt.
+BENCH_RETRY,"Your answer could not be read ({reason}). Reply with the JSON object only, nothing else.","Deine Antwort war nicht lesbar ({reason}). Antworte nur mit dem JSON-Objekt, sonst nichts."
+UI_SPECTATOR_WATCHING,Watching,Zuschauen
+UI_SPECTATOR_SEED,seed {seed},Seed {seed}
+UI_SPECTATOR_STANCE,Stance: {stance},Haltung: {stance}
+UI_SPECTATOR_DECISION,decision {decision} of {total},Entscheidung {decision} von {total}
+UI_SPECTATOR_UNREADABLE,{count} unreadable answers,{count} unlesbare Antworten
+UI_SPECTATOR_STANCE_LINE,{model} turns to: {stance}.,{model} wendet sich zu: {stance}.
+UI_SPECTATOR_INVALID_LINE,{model} gave an answer that could not be read. Nothing happens.,"{model} gab eine Antwort, die nicht lesbar war. Es geschieht nichts."
+UI_SPECTATOR_TICKER_START,Recorded run: {model} plays seed {seed}.,Aufgezeichneter Durchlauf: {model} spielt Seed {seed}.
+UI_SPECTATOR_RESULT_VERIFIED,The replay matches the recording. {model} scored {score}.,Die Wiedergabe stimmt mit der Aufzeichnung überein. {model} erzielte {score} Punkte.
+UI_SPECTATOR_RESULT_DIVERGED,The replay left the recording on day {day}; this ending is not the one that was recorded.,Die Wiedergabe wich an Tag {day} von der Aufzeichnung ab; dieses Ende ist nicht das aufgezeichnete.
+UI_SPECTATOR_WATCH_AGAIN,Watch again,Noch einmal ansehen
+UI_A11Y_SPECTATOR,"{model}, seed {seed}, decision {decision} of {total}, stance: {stance}","{model}, Seed {seed}, Entscheidung {decision} von {total}, Haltung: {stance}"
+UI_TITLE_BENCHMARK,Benchmark,Benchmark
+UI_BENCH_TITLE,Benchmark,Benchmark
+UI_BENCH_INTRO,"Language models played these runs from a written report of the world, deciding at set intervals. Watch one to see what it did.","Sprachmodelle haben diese Durchläufe anhand eines schriftlichen Berichts über die Welt gespielt und in festen Abständen entschieden. Sieh dir einen an, um zu sehen, was es getan hat."
+UI_BENCH_ROW,Seed {seed} · {outcome} · day {days} · score {score},Seed {seed} · {outcome} · Tag {days} · Wertung {score}
+UI_BENCH_WATCH,Watch,Ansehen
+UI_BENCH_OTHER_VERSION,Recorded on another version of the game; it cannot be replayed here.,Auf einer anderen Version des Spiels aufgezeichnet; hier nicht abspielbar.
+UI_BENCH_BOT,Built-in bot: {policy},Eingebauter Bot: {policy}
+UI_BENCH_SKIPPED,{count} files could not be read.,{count} Dateien ließen sich nicht lesen.
+CMD_FAIL_SPECTATING,You are watching a recorded run.,Du siehst einen aufgezeichneten Durchlauf.
+CMD_FAIL_BENCH_CONTENT,This run was recorded on another version of the game.,Dieser Durchlauf wurde auf einer anderen Version des Spiels aufgezeichnet.
