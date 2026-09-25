@@ -560,7 +560,10 @@ func _on_quit_requested() -> void:
 ## first), so what it unlocked is the difference to the run's start.
 func _on_run_ended(_outcome: String) -> void:
 	Game.hold(HOLD_RESULTS)
-	SaveManager.delete(SaveManager.AUTOSAVE)
+	# benchmark.md §12.4: only the player's own run ends their autosave — a bot
+	# run (the debug keys) or a watched one leaves it where it was.
+	if Game.policy == null:
+		SaveManager.delete(SaveManager.AUTOSAVE)
 	var codex_new: int = 0 if Game.policy != null else _codex_tracker.new_count()
 	_codex_tracker.merge()
 	var architectures: Array[String] = _new_architectures()
@@ -583,7 +586,18 @@ func _on_run_ended(_outcome: String) -> void:
 	_results.show_result(Game.sim)
 	_results.show_unlocks(architectures, slots, codex_new,
 		ProfileManager.last_run_achievements)
+	if Game.is_spectating():
+		_show_spectator_result()
 	_modals.open(_results)
+
+
+## §12.6: whether the replay reached the recording — the same end hash and no
+## command refused or missed on the way.
+func _show_spectator_result() -> void:
+	var replay: ReplayPolicy = Game.spectator()
+	var verified: bool = replay.diverged_day < 0 \
+		and Game.sim.state_hash() == replay.entry.state_hash
+	_results.show_spectator(replay.entry, verified, replay.diverged_day)
 
 
 ## Whether the results are the modal on top — the smoke run's end (release.md §8).
@@ -632,8 +646,12 @@ func _unlocked_architectures() -> Array[String]:
 	return out
 
 
+## §12.4: *Watch again* replays the same entry; otherwise *Again* is a new run.
 func _on_again_requested() -> void:
 	_modals.close()
+	if Game.is_spectating():
+		ScreenRouter.start_spectating(Game.spectator().entry)
+		return
 	ScreenRouter.start_new_run()
 
 

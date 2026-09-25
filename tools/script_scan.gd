@@ -14,6 +14,7 @@ extends RefCounted
 ## Third-party code, exempt from our warning levels (`exclude_addons` in project.godot).
 const SKIPPED_DIRS: PackedStringArray = ["res://addons"]
 const SCRIPT_SUFFIX: String = ".gd"
+const HIDDEN_PREFIX: String = "."
 
 
 static func collect(dir_path: String = "res://") -> PackedStringArray:
@@ -28,7 +29,9 @@ static func collect(dir_path: String = "res://") -> PackedStringArray:
 	while entry != "":
 		var path: String = dir_path.path_join(entry)
 		if dir.current_is_dir():
-			if not SKIPPED_DIRS.has(path):
+			# A dot folder is never the game's: on Windows `.claude/` (an agent's
+			# worktree, a whole second checkout) is not hidden to `DirAccess`.
+			if not SKIPPED_DIRS.has(path) and not entry.begins_with(HIDDEN_PREFIX):
 				found.append_array(collect(path))
 		elif entry.ends_with(SCRIPT_SUFFIX):
 			found.append(path)

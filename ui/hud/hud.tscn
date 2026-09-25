@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://ui/hud/hud.gd" id="1_hud"]
 [ext_resource type="PackedScene" path="res://ui/hud/top_bar.tscn" id="2_top_bar"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" path="res://ui/hud/status_strip.tscn" id="8_status_strip"]
 [ext_resource type="PackedScene" path="res://ui/hud/console_line.tscn" id="9_console_line"]
 [ext_resource type="PackedScene" path="res://ui/hud/caption_stack.tscn" id="10_caption_stack"]
+[ext_resource type="PackedScene" path="res://ui/hud/spectator_strip.tscn" id="11_spectator_strip"]
 
 [node name="Hud" type="Control"]
 layout_mode = 3
@@ -32,6 +33,10 @@ mouse_filter = 2
 theme_type_variation = &"Flush"
 
 [node name="TopBar" parent="Layout" instance=ExtResource("2_top_bar")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="SpectatorStrip" parent="Layout" instance=ExtResource("11_spectator_strip")]
 unique_name_in_owner = true
 layout_mode = 2
 

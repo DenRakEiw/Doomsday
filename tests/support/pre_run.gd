@@ -14,12 +14,21 @@ const TEST_PROFILE: String = "user://test_profile.json"
 ## The saves likewise (S6.10): the run-flow tests write and delete the autosave,
 ## which used to be the player's own — a stray day-0 run on the title was one.
 const TEST_SAVES: String = "user://test_saves/"
+## The benchmark list's folders likewise (S6.13): the player's recorded runs and
+## their online cache are never read or written by a test. The shipped showcase
+## stays where it is (the build's own, empty until G6).
+const TEST_BENCH_RUNS: String = "user://test_bench_library/runs/"
+const TEST_BENCH_DEV: String = "user://test_bench_library/dev/"
+const TEST_BENCH_ONLINE: String = "user://test_bench_online/"
 
 
 func run() -> void:
 	Settings.text_scale = Settings.DEFAULT_TEXT_SCALE
 	ProfileManager.use_path(TEST_PROFILE)
 	SaveManager.save_dir = TEST_SAVES
+	BenchLibrary.user_dir = TEST_BENCH_RUNS
+	BenchLibrary.dev_dir = TEST_BENCH_DEV
+	GlobalBoardClient.default_cache_dir = TEST_BENCH_ONLINE
 	# *Reset progress* keeps the achievements (release.md §2.2); the suite's
 	# profile starts without them all the same.
 	ProfileManager.achievements.clear()

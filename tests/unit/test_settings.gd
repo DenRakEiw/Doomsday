@@ -189,3 +189,17 @@ func test_a_first_launch_takes_reduced_motion_from_the_os() -> void:
 		SettingsScript.LOCALE_EN, true)
 	assert_false(bool(older[SettingsScript.KEY_REDUCED_MOTION]),
 		"a file without the key is not a first launch")
+
+
+func test_the_online_leaderboard_defaults_on_and_persists() -> void:
+	# S6.13 (benchmark.md §16.6).
+	assert_true(bool(_values(null)[SettingsScript.KEY_BENCH_ONLINE]))
+	assert_false(bool(_values({"bench_online": false})[SettingsScript.KEY_BENCH_ONLINE]))
+	assert_true(bool(_values({"bench_online": "no"})[SettingsScript.KEY_BENCH_ONLINE]),
+		"a wrong type falls back to on")
+	var before: bool = Settings.bench_online
+	Settings.bench_online = false
+	assert_false(bool(Settings.to_dict()[SettingsScript.KEY_BENCH_ONLINE]), "the file holds it")
+	var read_back: Dictionary = _values(JSON.parse_string(JSON.stringify(Settings.to_dict())))
+	assert_false(bool(read_back[SettingsScript.KEY_BENCH_ONLINE]), "and reads it back")
+	Settings.bench_online = before

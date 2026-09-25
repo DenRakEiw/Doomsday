@@ -44,6 +44,7 @@ const GLOBE_COMPACT_HEIGHT_SHARE: float = 0.45
 @onready var _continue_day: Label = %ContinueDay
 @onready var _codex_button: ConsoleButton = %CodexButton
 @onready var _statistics_button: ConsoleButton = %StatisticsButton
+@onready var _benchmark_button: ConsoleButton = %BenchmarkButton
 @onready var _settings: ConsoleButton = %SettingsButton
 @onready var _credits_button: ConsoleButton = %CreditsButton
 @onready var _quit: ConsoleButton = %QuitButton
@@ -57,6 +58,7 @@ const GLOBE_COMPACT_HEIGHT_SHARE: float = 0.45
 @onready var _codex: Control = %Codex
 @onready var _statistics: Control = %Statistics
 @onready var _credits: Control = %Credits
+@onready var _benchmark: Control = %Benchmark
 @onready var _host: ModalHost = $TitleHost
 
 ## accessibility.md §3.3: the title says its name and tagline once per launch.
@@ -77,14 +79,20 @@ func _ready() -> void:
 	_continue.pressed.connect(ScreenRouter.continue_run)
 	_codex_button.pressed.connect(_open_modal.bind(_codex))
 	_statistics_button.pressed.connect(_open_modal.bind(_statistics))
+	# benchmark.md §12.7, §16.6: after Statistics, shown when the list has
+	# something to show — decided from files, never the network.
+	_benchmark_button.pressed.connect(_open_modal.bind(_benchmark))
+	_refresh_benchmark()
 	_settings.pressed.connect(_on_settings_pressed)
 	# icons.md §11.1: after Settings, before Quit; not in the pause menu.
 	_credits_button.pressed.connect(_open_modal.bind(_credits))
 	_quit.pressed.connect(_on_quit_pressed)
 	ScreenRouter.load_failed.connect(_on_load_failed)
-	for modal: Control in [_settings_menu, _codex, _statistics, _credits]:
+	for modal: Control in [_settings_menu, _codex, _statistics, _credits, _benchmark]:
 		modal.connect(&"closed", _host.close)
 	_statistics.connect(&"replay_requested", _on_replay_requested)
+	# The online setting is one of the button's reasons to show.
+	_settings_menu.connect(&"closed", _refresh_benchmark)
 	_controls = CONTROLS_SCENE.instantiate() as Control
 	_host.add_child(_controls)
 	_controls.connect(&"closed", _host.close)
@@ -215,6 +223,15 @@ func _place_version(compact: bool) -> void:
 	_version.size_flags_horizontal = Control.SIZE_SHRINK_END if compact \
 			else Control.SIZE_FILL
 	_version.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+
+
+func _refresh_benchmark() -> void:
+	_benchmark_button.visible = bool(_benchmark.call(&"has_anything"))
+
+
+## The *Benchmark* button, for the tests.
+func benchmark_button() -> ConsoleButton:
+	return _benchmark_button
 
 
 ## The version caption, for the tests.

@@ -88,3 +88,18 @@ func test_workflow_commands_are_stopped_around_the_verifier() -> void:
 	var resume: int = _text.find(RESUME)
 	assert_true(stop >= 0 and run >= 0 and resume >= 0)
 	assert_true(stop < run and run < resume, "stop, verify, resume")
+
+
+## S6.13 (benchmark.md §16.6, release.md §9.2): the release export refreshes the
+## shipped copy of the global leaderboard before it exports, and keeps the
+## committed one when the download fails.
+func test_the_release_export_refreshes_the_shipped_board_first() -> void:
+	var release: String = FileAccess.get_file_as_string("res://.github/workflows/release.yml")
+	var refresh: int = release.find("The shipped copy of the global leaderboard")
+	var export: int = release.find("--export-release \"Windows\"")
+	assert_gt(refresh, 0, "the refresh step exists")
+	assert_lt(refresh, export, "and runs before the export")
+	assert_string_contains(release, "mv /tmp/leaderboard.json benchmark/global/leaderboard.json")
+	var step: String = release.substr(refresh, release.find("- name:", refresh) - refresh)
+	assert_string_contains(step, "if curl -fsSL --max-time 30",
+		"a failed download is not a failed build")

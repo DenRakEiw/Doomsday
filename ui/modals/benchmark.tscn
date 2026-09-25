@@ -1,0 +1,70 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://ui/modals/benchmark.gd" id="1_benchmark"]
+[ext_resource type="Script" path="res://ui/components/icon_button.gd" id="2_icon_button"]
+[ext_resource type="Script" path="res://game/bench/global_board_client.gd" id="3_board_client"]
+[ext_resource type="Script" path="res://ui/components/modal_panel.gd" id="9_modal_panel"]
+
+[node name="Benchmark" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_benchmark")
+
+[node name="Centre" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BenchPanel" type="PanelContainer" parent="Centre"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsolePanelRaised"
+script = ExtResource("9_modal_panel")
+
+[node name="Body" type="VBoxContainer" parent="Centre/BenchPanel"]
+layout_mode = 2
+theme_type_variation = &"PanelContent"
+
+[node name="Header" type="HBoxContainer" parent="Centre/BenchPanel/Body"]
+layout_mode = 2
+theme_type_variation = &"Row"
+
+[node name="BenchTitle" type="Label" parent="Centre/BenchPanel/Body/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
+theme_type_variation = &"LabelDisplay"
+
+[node name="CloseButton" type="Button" parent="Centre/BenchPanel/Body/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"IconButton"
+script = ExtResource("2_icon_button")
+glyph = 4
+tooltip_key = "UI_COMMON_CLOSE"
+
+[node name="BenchScroll" type="ScrollContainer" parent="Centre/BenchPanel/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="BenchList" type="VBoxContainer" parent="Centre/BenchPanel/Body/BenchScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StackSections"
+
+[node name="BoardClient" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_board_client")

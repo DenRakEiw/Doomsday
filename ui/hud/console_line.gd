@@ -12,7 +12,9 @@ extends Label
 ## the last thing that happened is the one worth saying.
 ##
 ## A bot run says nothing at all (`Game.policy != null`): the line is the
-## player's own voice, and a bot has none.
+## player's own voice, and a bot has none. A watched benchmark run is the
+## exception (benchmark.md §12.4): the line speaks for the model, and says when
+## its stance changed or an answer could not be read.
 ##
 ## It fills the row and centres its text rather than shrinking to fit: a clipped
 ## label has a minimum width of 0, so a centred *box* would be one pixel wide and
@@ -64,6 +66,11 @@ const PLACEHOLDER_NAME: String = "name"
 const PLACEHOLDER_KIND: String = "kind"
 const PLACEHOLDER_COUNT: String = "count"
 const PLACEHOLDER_REGION: String = "region"
+const PLACEHOLDER_MODEL: String = "model"
+const PLACEHOLDER_STANCE: String = "stance"
+## benchmark.md §12.4: a watched model's decisions.
+const KEY_SPECTATOR_STANCE: String = "UI_SPECTATOR_STANCE_LINE"
+const KEY_SPECTATOR_INVALID: String = "UI_SPECTATOR_INVALID_LINE"
 const PLACEHOLDER_ABILITY: String = "ability"
 const PLACEHOLDER_LEVEL: String = "level"
 const PLACEHOLDER_STATUS: String = "status"
@@ -83,6 +90,10 @@ var _left: float = 0.0
 var _tween: Tween = null
 ## accessibility.md §3.4: every line is spoken when it is shown (the HUD sets it).
 var live: LiveRegion = null
+## A watched run: how many of the entry's decisions have been told, and the
+## stance the last one that named one took.
+var _decisions_told: int = 0
+var _stance: String = ""
 
 
 func _ready() -> void:
@@ -194,7 +205,7 @@ func _clock_holds() -> bool:
 
 
 func _is_bot_run() -> bool:
-	return Game.policy != null
+	return Game.policy != null and not Game.is_spectating()
 
 
 # ------------------------------------------------- what an event is worth saying
@@ -285,9 +296,11 @@ func _society_changed(event: SimEvent) -> void:
 
 
 ## §9.5: the first day of starving, then every ten days after it.
-func _on_tick_advanced(_day: int) -> void:
+func _on_tick_advanced(day: int) -> void:
 	if Game.sim == null or _is_bot_run():
 		return
+	if Game.is_spectating():
+		_tell_decisions(day)
 	var starving: int = Game.sim.world.starving_days
 	if starving <= 0 or (starving - 1) % STARVING_EVERY != 0:
 		return
@@ -457,5 +470,29 @@ func _faction(faction_id: String) -> String:
 	return tr(PREFIX_FACTION + faction_id.to_upper())
 
 
+## benchmark.md §12.4: every decision the replay has passed that the line has
+## not told yet — the stance when it changed, the unreadable answer when there
+## was one. A decision is made before the day's tick, so it is told on the tick
+## after it.
+func _tell_decisions(day: int) -> void:
+	var replay: ReplayPolicy = Game.spectator()
+	var reached: int = replay.decision_index(day)
+	while _decisions_told < reached:
+		var decision: BenchDecision = replay.entry.decisions[_decisions_told]
+		_decisions_told += 1
+		if not decision.invalid.is_empty():
+			push(tr(KEY_SPECTATOR_INVALID).format({PLACEHOLDER_MODEL: replay.entry.model}))
+			continue
+		if decision.stance.is_empty() or decision.stance == _stance:
+			continue
+		_stance = decision.stance
+		push(tr(KEY_SPECTATOR_STANCE).format({
+			PLACEHOLDER_MODEL: replay.entry.model,
+			PLACEHOLDER_STANCE: BenchPrompt.stance_name(decision.stance),
+		}))
+
+
 func _on_run_started(_seed_value: int) -> void:
 	clear()
+	_decisions_told = 0
+	_stance = ""

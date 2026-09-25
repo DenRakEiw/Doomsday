@@ -1,0 +1,52 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://ui/hud/spectator_strip.gd" id="1_spectator_strip"]
+[ext_resource type="Script" path="res://ui/components/caps_label.gd" id="2_caps_label"]
+[ext_resource type="Script" path="res://ui/components/chip.gd" id="3_chip"]
+
+[node name="SpectatorStrip" type="PanelContainer"]
+visible = false
+theme_type_variation = &"ConsolePanelRaised"
+script = ExtResource("1_spectator_strip")
+
+[node name="SpectatorFlow" type="HFlowContainer" parent="."]
+layout_mode = 2
+theme_type_variation = &"FlowSnug"
+
+[node name="SpectatorWatching" type="Label" parent="SpectatorFlow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"ChipLabelAccent"
+script = ExtResource("2_caps_label")
+label_key = "UI_SPECTATOR_WATCHING"
+
+[node name="SpectatorModel" type="Label" parent="SpectatorFlow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="SpectatorSeed" type="Label" parent="SpectatorFlow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"LabelCaption"
+
+[node name="SpectatorStance" type="PanelContainer" parent="SpectatorFlow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"Chip"
+script = ExtResource("3_chip")
+
+[node name="SpectatorDecision" type="Label" parent="SpectatorFlow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"LabelCaption"
+
+[node name="SpectatorUnreadable" type="Label" parent="SpectatorFlow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"LabelCaption"

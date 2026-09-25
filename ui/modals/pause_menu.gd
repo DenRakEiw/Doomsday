@@ -69,6 +69,9 @@ const KEY_RESET_CONFIRM: String = "UI_SETTINGS_RESET_CONFIRM"
 ## release.md §10: where a player finds the log and the saves — the title's
 ## settings only, and only where there is a folder to open.
 const KEY_DATA_FOLDER: String = "UI_SETTINGS_DATA_FOLDER"
+## benchmark.md §16.6: the online leaderboard's switch — the title's settings
+## only, after *Open data folder*, on every platform.
+const KEY_BENCH_ONLINE: String = "UI_SETTINGS_BENCH_ONLINE"
 const USER_DIR: String = "user://"
 ## The rows in the order they are built. polish-visuals.md §5.1 put *Screen
 ## effects* directly after *Reduced motion*; screens-full.md §6.3's boot row is
@@ -140,6 +143,7 @@ var _setting_buttons: Array[ConsoleButton] = []
 var _title_rows: Array[Control] = []
 var _reset: ConsoleButton = null
 var _data_folder: ConsoleButton = null
+var _bench_online: ConsoleButton = null
 ## accessibility.md §5.3: *Change* on the *Controls* row.
 var _controls: ConsoleButton = null
 
@@ -219,8 +223,10 @@ func _apply_mode() -> void:
 	_caption.visible = not settings_only
 	_resume.visible = not settings_only
 	_help.visible = not settings_only
-	_save_block.visible = not settings_only
-	_load_block.visible = not settings_only
+	# benchmark.md §12.4: a watched run has nothing to save, and a load would
+	# drop the replay — *Quit to title* is the way out.
+	_save_block.visible = not settings_only and not Game.is_spectating()
+	_load_block.visible = not settings_only and not Game.is_spectating()
 	_quit.visible = not settings_only
 	for row: Control in _title_rows:
 		row.visible = settings_only
@@ -301,6 +307,7 @@ func _build_settings() -> void:
 	_data_folder.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_data_folder.pressed.connect(_on_data_folder_pressed)
 	_settings_rows.add_child(_data_folder)
+	_build_bench_online_row()
 	# §6.3: progress is not a run — the autosave and the slots stay.
 	_reset = ConsoleButton.new()
 	_reset.label_key = KEY_RESET_PROFILE
@@ -327,6 +334,11 @@ func _refresh_settings() -> void:
 	if _controls != null:
 		_controls.accessibility_name = tr(KEY_A11Y_LABEL_VALUE).format({
 			"label": tr(KEY_CONTROLS), "value": tr(KEY_CONTROLS_OPEN)})
+	if _bench_online != null:
+		var online: String = _on_off(Settings.bench_online)
+		_bench_online.text = Format.caps(online)
+		_bench_online.accessibility_name = tr(KEY_A11Y_LABEL_VALUE).format({
+			"label": tr(KEY_BENCH_ONLINE), "value": online})
 
 
 ## The words a settings button shows for row `index`, before they are uppercased.
@@ -383,6 +395,35 @@ func _build_controls_row() -> void:
 	row.add_child(_controls)
 	row.visible = not OS.has_feature(FEATURE_MOBILE)
 	_settings_rows.add_child(row)
+
+
+## A label and an On/Off button, like the rows above it; a title row.
+func _build_bench_online_row() -> void:
+	var row: HBoxContainer = HBoxContainer.new()
+	row.theme_type_variation = &"Row"
+	row.name = "BenchOnlineRow"
+	var label: Label = Label.new()
+	label.theme_type_variation = &"LabelCaption"
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.text = tr(KEY_BENCH_ONLINE)
+	label.set_meta(&"key", KEY_BENCH_ONLINE)
+	row.add_child(label)
+	_bench_online = ConsoleButton.new()
+	_bench_online.pressed.connect(_on_bench_online_pressed)
+	row.add_child(_bench_online)
+	_settings_rows.add_child(row)
+	_title_rows.append(row)
+
+
+## The *Online leaderboard* button, for the tests.
+func bench_online_button() -> ConsoleButton:
+	return _bench_online
+
+
+func _on_bench_online_pressed() -> void:
+	Settings.set_bench_online(not Settings.bench_online)
+	_refresh_settings()
 
 
 ## The *Change* button, for the tests and for the focus to come back to.

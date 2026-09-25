@@ -20,6 +20,8 @@ const SEPARATOR_EMERGENCY: String = "   ///   "
 const KEY_IDLE: String = "UI_TICKER_IDLE"
 const KEY_IDLE_EMERGENCY: String = "UI_TICKER_IDLE_OPEN"
 const KEY_BOT_RUN: String = "UI_DEBUG_BOT_RUN"
+## benchmark.md §12.4: a watched run is announced by its model and seed.
+const KEY_SPECTATOR_START: String = "UI_SPECTATOR_TICKER_START"
 const KEY_A11Y_NAME: String = "UI_A11Y_TICKER"
 
 const REGISTER_INSTITUTIONAL: StringName = &"institutional"
@@ -351,6 +353,9 @@ func _on_run_started(seed_value: int) -> void:
 	clear()
 	_register_from_state()
 	if Game.policy == null:
+		return
+	if Game.is_spectating():
+		push_key(KEY_SPECTATOR_START, {"model": Game.spectator().entry.model, "seed": seed_value})
 		return
 	push_key(KEY_BOT_RUN, {"policy": Game.policy.policy_id(), "seed": seed_value})
 

@@ -76,6 +76,17 @@ func start_new_run(setup: RunSetup = null, seed_value: int = 0) -> void:
 	Game.start_run(seed_value if seed_value > 0 else Game.new_run_seed(), "", Game.next_setup)
 
 
+## benchmark.md §12.3: a recorded run watched in the session. The blocker is
+## asked first — a reason is returned and the screen stays; else the session,
+## then the replay (the session has to hear `run_started`, as for a new run).
+func start_spectating(entry: BenchEntry) -> String:
+	var reason: String = Game.spectate_blocker(entry)
+	if not reason.is_empty():
+		return reason
+	_show(Screen.SESSION)
+	return Game.start_spectating(entry)
+
+
 ## Picks the autosave up. The screen only changes when the load worked.
 func continue_run() -> void:
 	_show(Screen.SESSION)

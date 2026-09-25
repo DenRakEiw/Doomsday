@@ -14,20 +14,20 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.13 — Spectator view and the online list** [O] (Block 16): `benchmark.md` §0, §10.2, §12–§13, §14.2, §16.6, §16.7, §16.9's S6.13 part · `release.md` §6.2, §9.2. A downloaded run is read with `BenchEntry.from_bytes` (UTF-8 checked first, S6.12b). If the session runs short, split the online list off as S6.13b. Then Block 17. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **G6 (1/2) — Balance pass 4** [F] (Block 17): `docs/BALANCE.md` §5 · *Balance baselines*. Re-baseline on the M6 tree, tune data only; **whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*). **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | Block 17 (G6 1/2, balance pass 4). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | S6.12b — Global leaderboard: `tools/bench/verify_runs.gd` + `bench_verifier.gd` + `verify_record.gd`, the Windows-recorded canary `tests/fixtures/bench/determinism_entry.json` and its test, `.github/workflows/leaderboard.yml` (not run; publishing waits for the user's deploy key) (2026-09-25). |
-| **Before that** | S6.12 — Benchmark tool, headless (2026-09-25). |
-| **Earlier** | D6.9b — The global leaderboard and the cost cap (2026-09-25). |
+| **After it** | D6.10, S6.14 and G6 (2/2) are **[needs user]**; unattended runs go on with Block 18 (D7.1). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | S6.13 — Spectator view and the online list: `ReplayPolicy`, `BenchLibrary`, `Game.start_spectating`/`ScreenRouter.start_spectating`, the strip, the results' line, the *Benchmark* list with `GlobalBoard*`/`GlobalBoardClient`, the *Online leaderboard* setting, `benchmark/global/leaderboard.json` + the release refresh; the autosave bug fixed (2026-09-25). |
+| **Before that** | S6.12b — Global leaderboard: verifier, workflow, canary (2026-09-25). |
+| **Earlier** | S6.12 — Benchmark tool, headless (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 336 scripts compile (136 judged by the suite), then `tools/check_strings.gd` (2359 rows), 2224 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 346 scripts compile (140 judged by the suite), then `tools/check_strings.gd` (2360 rows), 2290 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
 | **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
-| **Benchmark** | `"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --model=<id> [--suite=quick] [--seeds=a..b] [--dry-run] [--max-cost=<usd>] [--yes]` (OpenRouter; the key from `OPENROUTER_API_KEY` only) · `--backend=mock:cheapest` (or `wait`, `invalid`, `mixed`; free, no key) · `--bots [--if-missing] [--no-rebuild]` (reference rows, ≈3 min for the standard suite) · `--rebuild` · `--determinism-fixture`. Writes `benchmark/runs/*.json`, `benchmark/leaderboard.json`, `LEADERBOARD.md` (`--out=<dir>` elsewhere; tests use `user://test_bench/`); cache `benchmark/cache/` (ignored). The tool works in `_initialize`, not `_init`: TLS is not ready before the main loop. **Global board (S6.12b):** `"$GODOT" --headless --path . -s tools/bench/verify_runs.gd -- --board=<leaderboard checkout> --game-commit=<40-hex> [--limit=n] [--today=YYYY-MM-DD] [--message=<file>]` (exit 0/1/2/3; a full board of 81 runs ≈80 s); `.github/workflows/leaderboard.yml` (daily + dispatch; no key → gate / read-only dry run). **Whoever changes `data/` regenerates the canary on Windows in the same commit:** `bench_run.gd -- --determinism-fixture` (`test_bench_determinism` fails with that line otherwise). |
+| **Benchmark** | `"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --model=<id> [--suite=quick] [--seeds=a..b] [--dry-run] [--max-cost=<usd>] [--yes]` (OpenRouter; the key from `OPENROUTER_API_KEY` only) · `--backend=mock:cheapest` (or `wait`, `invalid`, `mixed`; free, no key) · `--bots [--if-missing] [--no-rebuild]` (reference rows, ≈3 min for the standard suite) · `--rebuild` · `--determinism-fixture`. Writes `benchmark/runs/*.json`, `benchmark/leaderboard.json`, `LEADERBOARD.md` (`--out=<dir>` elsewhere; tests use `user://test_bench/`); cache `benchmark/cache/` (ignored). The tool works in `_initialize`, not `_init`: TLS is not ready before the main loop. **Global board (S6.12b):** `"$GODOT" --headless --path . -s tools/bench/verify_runs.gd -- --board=<leaderboard checkout> --game-commit=<40-hex> [--limit=n] [--today=YYYY-MM-DD] [--message=<file>]` (exit 0/1/2/3; a full board of 81 runs ≈80 s); `.github/workflows/leaderboard.yml` (daily + dispatch; no key → gate / read-only dry run). **Whoever changes `data/` regenerates the canary on Windows in the same commit:** `bench_run.gd -- --determinism-fixture` (`test_bench_determinism` fails with that line otherwise). **In the game (S6.13):** title → *Benchmark* (shown when a recorded run exists, the *Online leaderboard* setting is on, or a board on disk has a row): the global board (fetched only when the list opens, ≤ once per 300 s; cache `user://benchmark/online/`, shipped copy `benchmark/global/leaderboard.json`), then the recorded runs (`res://benchmark/showcase/`, `user://benchmark/runs/`, debug builds also `res://benchmark/runs/`); *Watch* replays in the session at 4×. Debug switches: `-- --spectate=<entry.json>`, `-- --global-board=<board.json>` (runs next to it under `runs/`). From godot-mcp: set `local_board_path` on `…/TitleHost/Slot/Benchmark/BoardClient` and call `forget_fetch`; `Game.advance [n]` jumps a watched run ahead. The suite reads `user://test_bench_library/` and `user://test_bench_online/` (`pre_run.gd`). |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
 | **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. **The sound set:** `uv run --project tools/audio python tools/audio/synth.py [--only <id>] [--check]` (≈30 s; environment `uv sync --project tools/audio`) rewrites `assets/audio/**`; after a new file run `--import` and set its `.import` per audio.md §10.3 (`compress/mode=0` / `loop=true`). |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
@@ -182,7 +182,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] D6.9b [F] The global leaderboard and the cost cap *(inserted by the user 2026-09-25; `benchmark.md` §16, §11.5)*
 - [x] S6.12 [O] Benchmark tool, headless *(the first live run needs the user's key)*
 - [x] S6.12b [O] Global leaderboard: the verifier, the workflow, the determinism canary *(publishing needs the user's deploy key)*
-- [ ] S6.13 [O] Spectator view and the online list
+- [x] S6.13 [O] Spectator view and the online list
 
 **Block 17 — M6 finish: balance, pictures, Steam, the gate**
 - [ ] G6 (1/2) [F] Balance pass 4 *(tuning; data only)*
@@ -1355,6 +1355,16 @@ without new information.
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
+- **S6.13 — a watched run that ends without an outcome** (a recording still going at `max_days`,
+  e.g. every 300-day mock entry): `benchmark.md` §12 does not say how it ends. It ends on the
+  entry's `end_day` like a run — `run_ended("timeout")`, the results over the stopped map with the
+  kicker *Run over*, no verdict or epilogue, and the verified/diverged line (`# DESIGN?` in
+  `game.gd` `_check_replay_end`). The outcome word is a new placeholder `UI_OUTCOME_TIMEOUT`
+  (en *Out of time*, de *Zeit abgelaufen*), also used by the list's rows. Keep, or word it?
+- **S6.13 — `{date}` when the public board says none:** the public `leaderboard.json` has
+  `generated: ""` until the verifier first publishes; the status line shows an em dash
+  (*As of —*, `# DESIGN?` in `ui/modals/benchmark.gd`, `DATE_UNKNOWN`). A line of its own?
+
 - **S6.12 — `UI_ATTR_POPULATION` was missing** from `strings.csv`: every "where Population is at
   least N" scope line (the tree's detail, and now the benchmark brief) showed the raw key. Added
   as a placeholder, en *Population*, de *Bevölkerung* (as `UI_TERM_POPULATION`) — confirm the wording.
@@ -1407,6 +1417,19 @@ without new information.
 
 ## Deviations from the plan or a spec
 
+- **2026-09-25** (S6.13) — **Against `benchmark.md` §12.1, §16.6:** (1) `BenchLibrary`'s three
+  folders are `static var`s over the spec's constants, and `GlobalBoardClient.default_cache_dir`
+  likewise, so the suite reads `user://test_bench_library/` and `user://test_bench_online/`, never
+  the player's runs or cache. (2) The client's debug stand-in (`local_board_path`, the
+  `--global-board` switch) answers synchronously and counts in `requests_made`; the board's real
+  GET starts at the end of the frame — the list is opened before its host moves it into its slot,
+  and an `HTTPRequest` leaving the tree drops its request silently (seen on screen: *loading* for
+  ever). (3) A watched replay also stops on the entry's `end_day` without an outcome (*Design
+  questions*). (4) A bot entry's model shows as `bot:greedy` in the strip, the ticker and the
+  results' line (the list reads *Built-in bot: greedy*, §12.7). (5) `GlobalBoard.parse` accepts
+  lower-case hex only for `sha256` (the writer's form). (6) Outside the spec: `tools/script_scan.gd`
+  and `string_scan.gd` skip dot folders — an agent's git worktree under `.claude/worktrees/` is
+  not hidden on Windows and put 238 foreign scripts into `check_scripts`.
 - **2026-09-25** (S6.12b) — **Against `benchmark.md` §16.3–§16.5:** (1) UTF-8 is checked before
   decoding (`BenchEntry.from_bytes`/`is_utf8`, used by the verifier and the writer): Godot's decoder
   reports broken bytes as an engine error, which fails the suite and would print a line not
@@ -2818,6 +2841,13 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.13 Spectator view and the online list [O]
+- `ReplayPolicy`, `BenchLibrary`, `GlobalBoard`/`Row`/`Run`, `GlobalBoardClient`; `Game`/`ScreenRouter.start_spectating`, strip, console/ticker/results/pause,
+  `ui/modals/benchmark.tscn`, *Online leaderboard* (title settings), `--spectate`/`--global-board`; autosave no longer deleted by bot/watched runs.
+- Looked at (de 1920, en 400): public board (*Stand: —*, empty), disabled, offline, a served board with runs; mock and `bot:greedy` watched
+  to the verified line; *Watch again*; pause menu without save/load. Found and fixed: the board request dropped by the modal's reparent.
+- +66 tests (7 files new/extended). User data: settings.json restored (only `bench_online` added by my launches); autosave/profile changed by the user's own play.
 
 ### 2026-09-25 — S6.12b Global leaderboard: verifier, workflow, canary [O]
 - `tools/bench/verify_runs.gd`, `bench_verifier.gd`, `verify_record.gd`; `BenchEntry.from_bytes`; canary recorded on Windows

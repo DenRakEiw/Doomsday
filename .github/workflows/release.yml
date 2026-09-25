@@ -62,6 +62,19 @@ jobs:
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
+      - name: The shipped copy of the global leaderboard, as of this build
+        # benchmark.md §16.6: the public file replaces the committed copy only
+        # when the download worked; a failure keeps the committed one.
+        shell: bash
+        run: |
+          url="$(sed -n 's/.*"leaderboard_url": "\([^"]*\)".*/\1/p' data/benchmark.json)"
+          if curl -fsSL --max-time 30 "$url" -o /tmp/leaderboard.json; then
+            mv /tmp/leaderboard.json benchmark/global/leaderboard.json
+            echo "refreshed from $url"
+          else
+            echo "kept the committed copy: $url did not answer"
+          fi
+
       - name: Import
         run: godot --headless --path . --import
 

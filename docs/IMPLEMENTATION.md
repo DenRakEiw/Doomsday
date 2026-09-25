@@ -1200,6 +1200,10 @@ refresh in `release.yml`. If the session runs short, the online list is the part
 S6.13b (record it in `PROGRESS.md`).
 **Done when:** a mock-backed entry plays back to its recorded outcome and hash; the list shows the
 public board, falls back offline, and **the title makes no request**.
+*Done 2026-09-25 in one session (no S6.13b): a mock and a `bot:greedy` entry watched to the
+verified line (de 1920, en 400); the public board (empty), disabled, offline and a served board
+seen on screen; bot and watched runs keep the autosave. Deviations and two design questions in
+`PROGRESS.md`.*
 
 ## Block 17 — M6 finish: balance, pictures, Steam, the gate
 

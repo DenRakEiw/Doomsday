@@ -22,9 +22,10 @@ const PERF: String = "Perf (local)"
 ## §6.2: every shipped preset excludes these.
 const EXCLUDES: Array[String] = ["tests/*", "tools/*", "addons/gut/*", "ui/dev/*", "docs/*",
 	"*.md", "steam_appid.txt", ".github/*"]
-## §6.2 plus the vendored icon licences (S6.10, *Deviations*).
+## §6.2 plus the vendored icon licences (S6.10, *Deviations*); from S6.13 the
+## shipped benchmark runs and the shipped copy of the global leaderboard.
 const INCLUDES: Array[String] = ["data/*.json", "assets/licences/*.txt", "assets/fonts/*.txt",
-	"assets/icons/*.txt"]
+	"assets/icons/*.txt", "benchmark/showcase/*.json", "benchmark/global/*.json"]
 ## The non-resource files the game reads at run time. The content root's files
 ## (`Game.CONTENT_ROOT`) are all JSON under `data/`.
 const RUNTIME_READS: Array[String] = [
@@ -38,6 +39,8 @@ const RUNTIME_READS: Array[String] = [
 	"res://data/icons.json",
 	# S6.12: `BenchConfig`; the game's benchmark list reads it from S6.13 on.
 	"res://data/benchmark.json",
+	# S6.13: the shipped copy of the global leaderboard (`GlobalBoardClient`).
+	"res://benchmark/global/leaderboard.json",
 	"res://assets/licences/CC-BY-3.0.txt",
 	"res://assets/icons/game-icons/license.txt",
 	"res://assets/icons/phosphor/LICENSE.txt",

@@ -47,6 +47,9 @@ const KEY_AUDIO_BACKGROUND: String = "audio_background"
 const KEY_ANNOUNCE_HEADLINES: String = "announce_headlines"
 ## accessibility.md §5.2: action → physical keycode, only the player's overrides.
 const KEY_KEYS: String = "keys"
+## benchmark.md §16.6: the online leaderboard may be fetched when the benchmark
+## list opens. Off, the game never touches the network.
+const KEY_BENCH_ONLINE: String = "bench_online"
 ## The key table's own rules decide which stored overrides a build can apply.
 const KeyBindingsScript: GDScript = preload("res://game/autoload/key_bindings.gd")
 ## `DisplayServer.accessibility_should_reduce_animation()` answers this for yes.
@@ -76,6 +79,8 @@ var audio_background: bool = true
 var announce_headlines: bool = true
 ## accessibility.md §5.2: the overrides `KeyBindings` applies over the defaults.
 var keys: Dictionary[String, int] = {}
+## benchmark.md §16.6: the benchmark list may download the global leaderboard.
+var bench_online: bool = true
 ## The overflow check of UI.md §4. A development switch, never written to the file.
 var pseudo_locale: bool = false
 ## release.md §8: false keeps every change in memory — the smoke run's switch, so
@@ -105,6 +110,7 @@ func _ready() -> void:
 	var stored_keys: Dictionary = values[KEY_KEYS]
 	for action: Variant in stored_keys:
 		keys[str(action)] = int(stored_keys[action])
+	bench_online = bool(values[KEY_BENCH_ONLINE])
 	TranslationServer.set_locale(locale)
 	write()
 	apply_args(OS.get_cmdline_user_args())
@@ -161,6 +167,7 @@ static func values_from(raw: Variant, fallback_locale: String,
 		KEY_AUDIO_BACKGROUND: true,
 		KEY_ANNOUNCE_HEADLINES: true,
 		KEY_KEYS: {},
+		KEY_BENCH_ONLINE: true,
 	}
 	if typeof(raw) != TYPE_DICTIONARY:
 		return values
@@ -201,6 +208,8 @@ static func values_from(raw: Variant, fallback_locale: String,
 	if typeof(stored.get(KEY_ANNOUNCE_HEADLINES)) == TYPE_BOOL:
 		values[KEY_ANNOUNCE_HEADLINES] = bool(stored[KEY_ANNOUNCE_HEADLINES])
 	values[KEY_KEYS] = _keys_from(stored.get(KEY_KEYS))
+	if typeof(stored.get(KEY_BENCH_ONLINE)) == TYPE_BOOL:
+		values[KEY_BENCH_ONLINE] = bool(stored[KEY_BENCH_ONLINE])
 	return values
 
 
@@ -372,6 +381,13 @@ func set_boot_always(enabled: bool) -> void:
 	write()
 
 
+func set_bench_online(enabled: bool) -> void:
+	if enabled == bench_online:
+		return
+	bench_online = enabled
+	write()
+
+
 func to_dict() -> Dictionary:
 	var out: Dictionary = {
 		KEY_VERSION: VERSION,
@@ -387,6 +403,7 @@ func to_dict() -> Dictionary:
 		KEY_AUDIO_BACKGROUND: audio_background,
 		KEY_ANNOUNCE_HEADLINES: announce_headlines,
 		KEY_KEYS: keys.duplicate(),
+		KEY_BENCH_ONLINE: bench_online,
 	}
 	for bus: String in volumes:
 		out[KEY_VOLUME_PREFIX + bus] = volumes[bus]

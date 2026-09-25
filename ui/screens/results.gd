@@ -32,6 +32,16 @@ const KEY_CODEX_NEW: String = "UI_RESULT_CODEX_NEW"
 ## release.md §2.4: one chip per achievement the run earned.
 const KEY_ACHIEVEMENT: String = "UI_RESULT_ACHIEVEMENT"
 const PLACEHOLDER_NAME: String = "name"
+## benchmark.md §12.6: a watched run's line, and the button that watches it again.
+const KEY_AGAIN: String = "UI_RESULT_AGAIN"
+const KEY_SPECTATOR_VERIFIED: String = "UI_SPECTATOR_RESULT_VERIFIED"
+const KEY_SPECTATOR_DIVERGED: String = "UI_SPECTATOR_RESULT_DIVERGED"
+const KEY_WATCH_AGAIN: String = "UI_SPECTATOR_WATCH_AGAIN"
+## A watched recording that ended without an outcome (`BenchEntry.OUTCOME_TIMEOUT`).
+const KEY_OUTCOME_TIMEOUT: String = "UI_OUTCOME_TIMEOUT"
+const PLACEHOLDER_MODEL: String = "model"
+const PLACEHOLDER_SCORE: String = "score"
+const PLACEHOLDER_DAY: String = "day"
 
 ## illustrations.md §8.3: the ending's picture, wider than a card's.
 const ILLUSTRATION_WIDTH: float = 420.0
@@ -63,6 +73,8 @@ var illustration_root: String = IllustrationSlot.ROOT
 
 var _values: Array[Label] = []
 var _illustration: IllustrationSlot = null
+## §12.6: under the verdict, shown for a watched run only.
+var _spectator_line: Label = null
 
 
 func _ready() -> void:
@@ -85,6 +97,13 @@ func _ready() -> void:
 	_illustration.visible = false
 	_body.add_child(_illustration)
 	_body.move_child(_illustration, _kicker.get_index())
+	_spectator_line = Label.new()
+	_spectator_line.name = "ResultSpectator"
+	_spectator_line.theme_type_variation = &"LabelCaption"
+	_spectator_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_spectator_line.visible = false
+	_body.add_child(_spectator_line)
+	_body.move_child(_spectator_line, _verdict.get_index() + 1)
 	# The height is content-driven and the content wraps, so it is recomputed
 	# whenever the body or the window changes rather than once.
 	_body.minimum_size_changed.connect(_fit_scroll)
@@ -102,11 +121,21 @@ func show_result(sim: Simulation) -> void:
 	var world: World = sim.world
 	var won: bool = World.WIN_OUTCOMES.has(world.outcome)
 	_kicker.text = tr(_kicker_key(world.outcome))
-	_outcome.text = tr(PREFIX_OUTCOME + World.OUTCOME_IDS[world.outcome].to_upper())
+	# Only a watched recording that ran out of days ends without an outcome.
+	var ended: bool = world.outcome != World.Outcome.NONE
+	_outcome.text = tr(PREFIX_OUTCOME + World.OUTCOME_IDS[world.outcome].to_upper()) if ended \
+		else tr(KEY_OUTCOME_TIMEOUT)
 	_outcome.theme_type_variation = &"LabelDisplayXLWin" if won else &"LabelDisplayXL"
 	var ending: Dictionary = EndingResolver.resolve(world, sim.db)
-	_verdict.text = tr(EndingLineDef.verdict_key(str(ending[EndingResolver.KEY_VARIANT])))
-	_fill_epilogue(ending[EndingResolver.KEY_EPILOGUE])
+	_verdict.text = tr(EndingLineDef.verdict_key(str(ending[EndingResolver.KEY_VARIANT]))) \
+		if ended else ""
+	_verdict.visible = ended
+	var epilogue: Array[String] = []
+	if ended:
+		epilogue = ending[EndingResolver.KEY_EPILOGUE]
+	_fill_epilogue(epilogue)
+	_spectator_line.visible = false
+	_again.label_key = KEY_AGAIN
 	_show_illustration(world, sim.db)
 	_seed_label.text = tr(KEY_SEED).format({PLACEHOLDER_SEED: Game.run_seed()})
 	_unlocked.visible = false
@@ -117,6 +146,34 @@ func show_result(sim: Simulation) -> void:
 	# the fit is taken again after the layout pass this filling caused.
 	_fit_scroll.call_deferred()
 	_again.grab_focus.call_deferred()
+
+
+## benchmark.md §12.6: a watched run says whether the replay reached the
+## recording — the model's score when it did, the day it left it when not (the
+## end day when only the final state differs). Called after `show_result`.
+func show_spectator(entry: BenchEntry, verified: bool, diverged_day: int) -> void:
+	if verified:
+		_spectator_line.text = tr(KEY_SPECTATOR_VERIFIED).format({
+			PLACEHOLDER_MODEL: entry.model,
+			PLACEHOLDER_SCORE: Format.decimal(entry.score, 1),
+		})
+	else:
+		var day: int = diverged_day if diverged_day >= 0 else Game.sim.world.day
+		_spectator_line.text = tr(KEY_SPECTATOR_DIVERGED).format({
+			PLACEHOLDER_DAY: Format.number(float(day), Format.Kind.DAYS)})
+	_spectator_line.visible = true
+	_again.label_key = KEY_WATCH_AGAIN
+	_fit_scroll.call_deferred()
+
+
+## The watched run's line, for the tests.
+func spectator_line() -> Label:
+	return _spectator_line
+
+
+## The again button, for the tests.
+func again_button() -> ConsoleButton:
+	return _again
 
 
 ## The picture slot, for the tests; hidden when the ending has no picture.

@@ -95,7 +95,9 @@ static func _collect(dir_path: String) -> PackedStringArray:
 	while entry != "":
 		var path: String = dir_path.path_join(entry)
 		if dir.current_is_dir():
-			found.append_array(_collect(path))
+			# As `script_scan.gd`: a dot folder is never the game's.
+			if not entry.begins_with("."):
+				found.append_array(_collect(path))
 		else:
 			for suffix: String in SUFFIXES:
 				if entry.ends_with(suffix):

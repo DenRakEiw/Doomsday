@@ -2358,3 +2358,4 @@ UI_BENCH_LOCAL_TITLE,Recorded runs,Aufgezeichnete Durchläufe
 UI_SETTINGS_BENCH_ONLINE,Online leaderboard,Online-Bestenliste
 CMD_FAIL_SPECTATING,You are watching a recorded run.,Du siehst einen aufgezeichneten Durchlauf.
 CMD_FAIL_BENCH_CONTENT,This run was recorded on another version of the game.,Dieser Durchlauf wurde auf einer anderen Version des Spiels aufgezeichnet.
+UI_OUTCOME_TIMEOUT,Out of time,Zeit abgelaufen

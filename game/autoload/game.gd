@@ -26,6 +26,12 @@ const TICK_EPSILON: float = 1e-9
 
 ## Why `apply` refused without ever reaching the simulation.
 const FAIL_NO_RUN: String = "no_run"
+## benchmark.md §12.3: a watched run takes no command from the interface, and an
+## entry recorded on other content cannot be watched.
+const FAIL_SPECTATING: String = "spectating"
+const FAIL_BENCH_CONTENT: String = "bench_content"
+## §12.3: a watched run starts at 4×.
+const SPECTATOR_SPEED: int = 4
 
 ## A seed is never 0: a player reporting "seed 0" would be reporting "no seed".
 const MIN_SEED: int = 1
@@ -64,6 +70,9 @@ var last_tick_usec: int = 0
 
 var _accumulator: float = 0.0
 var _last_outcome: World.Outcome = World.Outcome.NONE
+## A watched run that reached its entry's last day without an outcome: the
+## recording has nothing after it, so the replay stops there.
+var _replay_over: bool = false
 ## Why the interface is holding the clock, and the speed to give back when the
 ## last reason goes (m3-screens §10.2).
 var _holds: Dictionary[StringName, bool] = {}
@@ -147,6 +156,7 @@ func stop_run() -> void:
 	compute_rate = 0.0
 	_accumulator = 0.0
 	_last_outcome = World.Outcome.NONE
+	_replay_over = false
 
 
 ## Continues a simulation that came from a save (`SaveManager`). The policy is
@@ -158,11 +168,56 @@ func adopt_loaded(loaded: Simulation) -> void:
 	_force_speed(0)
 
 
+## benchmark.md §12.3: "" when `entry` can be watched on the content loaded,
+## else the reason (`bench_content`, `setup_invalid`).
+func spectate_blocker(entry: BenchEntry) -> String:
+	if not _ensure_content() or entry.content_hash != db.content_hash:
+		return FAIL_BENCH_CONTENT
+	if entry.setup == null:
+		return Command.FAIL_SETUP_INVALID
+	return entry.setup.validate(db)
+
+
+## Replays a recorded benchmark run in the session (§12.3): the entry's own seed
+## and setup, its commands fed by a `ReplayPolicy`, the clock at 4×. "" when it
+## started, else the blocker's reason and nothing changed.
+func start_spectating(entry: BenchEntry) -> String:
+	var reason: String = spectate_blocker(entry)
+	if not reason.is_empty():
+		return reason
+	policy = ReplayPolicy.new(entry)
+	policy.setup(db, Policy.seed_for(entry.seed_value))
+	clear_holds()
+	_adopt(Simulation.create(db, entry.seed_value, entry.setup.duplicate_setup()),
+		entry.seed_value)
+	_force_speed(SPECTATOR_SPEED)
+	return ""
+
+
+## Whether the run on show is a recorded benchmark run being watched.
+func is_spectating() -> bool:
+	return policy is ReplayPolicy
+
+
+## The replay being watched, or null.
+func spectator() -> ReplayPolicy:
+	return policy as ReplayPolicy
+
+
 ## Sends a command to the simulation and reports what it caused. The one door
-## between the interface and the state.
+## between the interface and the state. A watched run refuses every command the
+## interface sends: the recording is the only player.
 func apply(command: Command) -> CommandResult:
 	if sim == null:
 		return CommandResult.rejected(FAIL_NO_RUN)
+	if is_spectating():
+		return CommandResult.rejected(FAIL_SPECTATING)
+	return _apply_now(command)
+
+
+## `apply` past the door: the bot's commands come through here, so they reach
+## the simulation and are reported exactly like a player's.
+func _apply_now(command: Command) -> CommandResult:
 	var result: CommandResult = sim.apply(command)
 	EventBus.command_applied.emit(command, result)
 	for event: SimEvent in result.events:
@@ -294,7 +349,7 @@ func set_speed(value: int) -> void:
 ## debug keys go through here, and so does a test that wants a run at a day.
 func advance(count: int) -> void:
 	for i: int in count:
-		if sim == null or sim.world.outcome != World.Outcome.NONE:
+		if sim == null or sim.world.outcome != World.Outcome.NONE or _replay_over:
 			return
 		_run_policy()
 		var compute_before: float = sim.world.agent.compute
@@ -311,6 +366,7 @@ func advance(count: int) -> void:
 		if debug_log:
 			print(_day_line())
 		_check_outcome()
+		_check_replay_end()
 
 
 ## The content, loaded on first use. False means it is unusable and there is no
@@ -351,6 +407,7 @@ func _adopt(new_sim: Simulation, seed_value: int) -> void:
 	containment_rates.clear()
 	_accumulator = 0.0
 	_last_outcome = sim.world.outcome
+	_replay_over = false
 	EventBus.run_started.emit(seed_value)
 
 
@@ -362,7 +419,7 @@ func _run_policy() -> void:
 		var command: Command = policy.next_command(sim)
 		if command == null:
 			return
-		apply(command)
+		_apply_now(command)
 
 
 func _report(event: SimEvent) -> void:
@@ -379,6 +436,26 @@ func _check_outcome() -> void:
 		return
 	_force_speed(0)
 	EventBus.run_ended.emit(World.OUTCOME_IDS[_last_outcome])
+
+
+## A watched run whose recording ends without an outcome (a run still going at
+## `max_days`) ends on the recording's last day: one more day would leave it.
+# DESIGN? benchmark.md §12 does not say how a watched timeout ends; it ends like
+# a run, with `run_ended("timeout")` and the results over the stopped map.
+func _check_replay_end() -> void:
+	if not is_spectating() or sim.world.outcome != World.Outcome.NONE:
+		return
+	if sim.world.day < spectator().entry.end_day:
+		return
+	_replay_over = true
+	_force_speed(0)
+	EventBus.run_ended.emit(BenchEntry.OUTCOME_TIMEOUT)
+
+
+## Whether the run on show has ended — by an outcome, or a watched recording
+## that reached its last day.
+func is_run_over() -> bool:
+	return sim != null and (sim.world.outcome != World.Outcome.NONE or _replay_over)
 
 
 func _day_line() -> String:
