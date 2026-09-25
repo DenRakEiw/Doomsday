@@ -145,9 +145,12 @@ func _measure(cell: Vector2, locale: String, too_long: Array[String]) -> void:
 ## icons.md §7: the footer holds the icon, the cost, the footprint and the state
 ## glyph without overflowing the cell. At the full cell everything fits, and in
 ## the compact cell a node without a footprint; with one (Cloud Federation's
-## +2) the compact footer has no room, and the icon — never the text — gives
-## way (S6.4, DESIGN?).
+## +2) the compact footer has no room, and the icon — never the number — gives
+## way (S6.4, DESIGN?). Since D6.11 (2/2a) the footprint is a word, which goes
+## before the icon does (S6.P3). English is the wider, and the locale is set:
+## the suite's order must not decide what is measured (CI failed on it).
 func test_compact_footer_fits_icon() -> void:
+	TranslationServer.set_locale("en")
 	for cell: Vector2 in [UiTokens.TECH_CELL, UiTokens.TECH_CELL_COMPACT]:
 		for id: String in ["supply_chain_firmware", "cloud_federation"]:
 			var node: TechNode = TECH_NODE.instantiate()

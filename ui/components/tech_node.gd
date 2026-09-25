@@ -65,6 +65,8 @@ var _cell: Vector2i = Vector2i.ZERO
 var _is_selected: bool = false
 ## Handed over by an event's answer (plain-language.md §5.2 C2).
 var _is_marked: bool = false
+## The node's own footprint, for the footer — worded or bare (see `_fit_icon`).
+var _footprint_value: float = 0.0
 var _flash_alpha: float = 0.0
 var _flash_tween: Tween = null
 ## Kept so that the accessible name can be rebuilt on a locale change.
@@ -123,10 +125,9 @@ func bind(definition: TechNodeDef, cost: float, node_state: State, external: boo
 	has_external_prerequisite = external
 	_cost_value = cost
 	_name.label_key = KEY_NAME % definition.id.to_upper()
-	var footprint: float = _footprint_of(definition)
-	_footprint.visible = not is_zero_approx(footprint)
-	if _footprint.visible:
-		_footprint.text = tr(KEY_FOOTPRINT).format({"fp": _signed(footprint)})
+	_footprint_value = _footprint_of(definition)
+	_footprint.visible = not is_zero_approx(_footprint_value)
+	_footprint.text = _footprint_text(true)
 	_apply_state()
 
 
@@ -229,15 +230,32 @@ func shows_icon() -> bool:
 ## icon is what gives way.
 # D6.8 kept this as the rule: the icon steps aside when the footer would
 # overflow its cell — the detail pane always shows it.
+# S6.P3: since D6.11 (2/2a) the footprint is a word (*Footprint +2*); where the
+# footer has no room for it the word goes first — the number stays, and its
+# tooltip says what it is — and only then the icon.
 func _fit_icon() -> void:
 	if not is_node_ready():
 		return
+	_footprint.text = _footprint_text(true)
 	_icon.visible = not Icons.path_for(Icons.KIND_TECH, node_id).is_empty()
-	if not _icon.visible or size.x <= 0.0:
+	if size.x <= 0.0:
 		return
 	var room: float = size.x - float(_content.get_theme_constant(MARGIN_LEFT)) \
 		- float(_content.get_theme_constant(MARGIN_RIGHT))
-	_icon.visible = _footer.get_combined_minimum_size().x <= room
+	if _footer.get_combined_minimum_size().x <= room:
+		return
+	_footprint.text = _footprint_text(false)
+	if _icon.visible:
+		_icon.visible = _footer.get_combined_minimum_size().x <= room
+
+
+## The footer's footprint: *Footprint ▲ +2*, or bare *▲ +2* where the word does
+## not fit (`_fit_icon`).
+func _footprint_text(worded: bool) -> String:
+	if is_zero_approx(_footprint_value):
+		return ""
+	var number: String = _signed(_footprint_value)
+	return tr(KEY_FOOTPRINT).format({"fp": number}) if worded else number
 
 
 func _draw() -> void:
