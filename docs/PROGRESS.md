@@ -14,19 +14,20 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.12 — Benchmark tool, headless** [O] (Block 16): `docs/specs/benchmark.md` §0–§11 (**§11.5, the pre-flight estimate, new in D6.9b**), §13, §14.1, §16.9's S6.12 part; mock backends only — the first live run needs the user's `OPENROUTER_API_KEY` (*Waiting on the user*). Then S6.12b, S6.13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.12b — Global leaderboard: the verifier, the workflow, the determinism canary** [O] (Block 16): `benchmark.md` §10.2–§10.4, §16.1–§16.5, §16.8, §16.9 · `release.md` §9 · the public repo's `README.md` and `tools/validate.py` (clone to a temp dir, never push). `leaderboard_writer.gd` already takes a records map (`rebuild(dir, config, hash, records, true)`); `bench_run.gd -- --determinism-fixture` writes the canary. Then S6.13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.12b the global leaderboard's verifier and workflow (`benchmark.md` §16; publishing waits for the user's deploy key), then S6.13 spectator view and the online list. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | D6.9b — The global leaderboard and the cost cap (inserted by the user): `benchmark.md` §16 (public repo `DenRakEiw/doomsday-leaderboard`, replay verifier + private scheduled workflow with a deploy key, the game's on-open fetch with cache/shipped fallback, the Windows-recorded determinism canary) and §11.5 (pre-flight estimate, cap 2 USD, `--yes`, exit 7); `benchmark.json` `estimate`/`global`; 20 strings (2026-09-25). |
-| **Before that** | S6.11 — Performance pass (2026-09-25). |
-| **Earlier** | S6.10 — Export presets and release CI (2026-09-25). |
+| **After it** | S6.13 spectator view and the online list, then Block 17 (G6 1/2, balance pass 4). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | S6.12 — Benchmark tool, headless: `game/bench/` (config, digest + rows, prompt, answer/action, decision, backends, `ModelPolicy`, score, entry), `tools/bench/` (`bench_run.gd`, OpenRouter backend, cache, pre-flight estimate, leaderboard writer); mock-backed only — the first live run needs the user's key (2026-09-25). |
+| **Before that** | D6.9b — The global leaderboard and the cost cap (2026-09-25). |
+| **Earlier** | S6.11 — Performance pass (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 293 scripts compile (136 judged by the suite), then `tools/check_strings.gd` (2358 rows), 2088 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 328 scripts compile (136 judged by the suite), then `tools/check_strings.gd` (2359 rows), 2185 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
 | **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
+| **Benchmark** | `"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --model=<id> [--suite=quick] [--seeds=a..b] [--dry-run] [--max-cost=<usd>] [--yes]` (OpenRouter; the key from `OPENROUTER_API_KEY` only) · `--backend=mock:cheapest` (or `wait`, `invalid`, `mixed`; free, no key) · `--bots [--if-missing] [--no-rebuild]` (reference rows, ≈3 min for the standard suite) · `--rebuild` · `--determinism-fixture`. Writes `benchmark/runs/*.json`, `benchmark/leaderboard.json`, `LEADERBOARD.md` (`--out=<dir>` elsewhere; tests use `user://test_bench/`); cache `benchmark/cache/` (ignored). The tool works in `_initialize`, not `_init`: TLS is not ready before the main loop. |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
 | **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. **The sound set:** `uv run --project tools/audio python tools/audio/synth.py [--only <id>] [--check]` (≈30 s; environment `uv sync --project tools/audio`) rewrites `assets/audio/**`; after a new file run `--import` and set its `.import` per audio.md §10.3 (`compress/mode=0` / `loop=true`). |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
@@ -179,7 +180,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S6.10 [O] Export presets and release CI
 - [x] S6.11 [O] Performance pass
 - [x] D6.9b [F] The global leaderboard and the cost cap *(inserted by the user 2026-09-25; `benchmark.md` §16, §11.5)*
-- [ ] S6.12 [O] Benchmark tool, headless *(the first live run needs the user's key)*
+- [x] S6.12 [O] Benchmark tool, headless *(the first live run needs the user's key)*
 - [ ] S6.12b [O] Global leaderboard: the verifier, the workflow, the determinism canary *(publishing needs the user's deploy key)*
 - [ ] S6.13 [O] Spectator view and the online list
 
@@ -1339,10 +1340,30 @@ without new information.
   estimate from the dry-run measure × calls × OpenRouter's public price (unknown price never
   blocks), exit 7 above the cap unless `--yes` (which never lifts the cap). S6.12b added.
 
+- **2026-09-25** (S6.12) — **How the benchmark tool is built** (`benchmark.md` §1–§11): the
+  cache reaches `ModelPolicy` as two `Callable` hooks (`cache_read`/`cache_write`), so `game/bench/`
+  needs no tool code; a mock backend is made afresh per seed (a shard plays what the suite would),
+  the OpenRouter backend once per invocation (its spend is what the cap guards); `params_id` hashes
+  every number as a float, so it reads the same from a file; a run still going at `max_days` is
+  written `outcome: "timeout"`, `variant: ""`; `days` without an origin is `world.day`; the writer's
+  records map is `file name → {sha256, verified}` (a record's dictionary) behind a `use_records`
+  flag, so "no records yet" counts nothing. Bot reference rows are not committed (re-run after a
+  balance change; the tool reminds).
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
+
+- **S6.12 — `UI_ATTR_POPULATION` was missing** from `strings.csv`: every "where Population is at
+  least N" scope line (the tree's detail, and now the benchmark brief) showed the raw key. Added
+  as a placeholder, en *Population*, de *Bevölkerung* (as `UI_TERM_POPULATION`) — confirm the wording.
+- **S6.12 — a dropped action's feedback form** (`benchmark.md` §7.4 item 3): a malformed action
+  has no `compact()` form; the next digest names it `actions[<index>] — malformed_action`
+  (`# DESIGN?` in `model_policy.gd`, `DROPPED_FORM`). Keep, or word it?
+- **S6.12 — a node with both `requires` and `requires_any`** (§5 item 7 treats the three *needs*
+  strings as alternatives): the brief writes both phrases, comma-joined — `needs a, b, needs one
+  of c, d` (`# DESIGN?` in `bench_prompt.gd`, `_needs`). A joined string of its own?
 
 - **S6.11 — the tick-frame p99 on `cpu_4t` is 13–16 ms against 13** (Performance notes). What is
   left is per-tick interface work: with the analysis sheet open its four charts and the strip are
@@ -1385,6 +1406,18 @@ without new information.
 *(empty — S6.P1 cleared D6.8's eight items.)*
 
 ## Deviations from the plan or a spec
+
+- **2026-09-25** (S6.12) — **Against `benchmark.md` §1/§6.2/§10.3:** (1) the digest cannot call
+  `TechNode.state_for`: `TechNode` is a control that names `EventBus`, and the headless tool (no
+  autoload identifiers at compile time) fails on it. `BenchDigest.offer_state` states the same
+  rule again, and `test_bench_digest` holds the two to one answer for every fixture node.
+  (2) A cooling ability's targets are the regions whose `can_apply` is `""`, cooldown or short of
+  compute **and** that pass the ability's own region rule — the command checks the cooldown before
+  the region, so `can_apply` alone would list every region. (3) `BenchScore.rows` takes the
+  current content hash as a third argument (`current` needs it). (4) `bench_run.gd` does its work
+  in `_initialize()`, not `_init()`: HTTPS fails ("SSL module failed to initialize") before the
+  main loop starts. (5) The determinism fixture itself is S6.12b's to record and test; the flag
+  that writes it was run once here and its output removed.
 
 - **2026-09-25** (S6.11) — **Against `release.md` §11.3:** (1) seed 1 `greedy` ends on day 404,
   so the timed days are 300–404 and the late save is day 374; the 120-s script then outlives the
@@ -2261,6 +2294,14 @@ without new information.
 
 ## Waiting on the user
 
+**S6.12 (2026-09-25): the first live benchmark run** needs `OPENROUTER_API_KEY` in the
+environment (never an argument or a file). A cheap first try — one seed of `openai/gpt-4o-mini`,
+estimated ≈0.15 USD, the 2 USD cap guarding it — in PowerShell from `F:\Doomsday`:
+`$env:OPENROUTER_API_KEY = "<key>"; & $env:GODOT --headless --path . -s tools/bench/bench_run.gd -- --model=openai/gpt-4o-mini --suite=quick --seeds=1001`
+(`--dry-run` first shows the prompt and the estimate for free). It writes `benchmark/runs/…json`
+and rebuilds `benchmark/leaderboard.json` / `LEADERBOARD.md`; add the bot rows once
+(`… -- --bots`, ≈3 min) to rank against. Commit the files you want to keep.
+
 **S6.9/S6.10 (2026-09-25, overnight):** the game's data now lives in `%APPDATA%/Doomsday/`.
 S6.10 copied your `profile.json`, `settings.json`, `saves/debug.json` and the stray
 `saves/autosave.json` (a day-0 run from a test; the title offers *Continue*) there — all four
@@ -2764,6 +2805,12 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.12 Benchmark tool, headless [O]
+- `game/bench/` (config, digest + 6 rows, prompt, action/answer, decision, reply/backend/mock, `ModelPolicy`, score, entry);
+  `tools/bench/` (`bench_run.gd`, `open_router_backend.gd`, `bench_cache.gd`, `bench_estimate.gd`, `leaderboard_writer.gd`); `/benchmark/cache/` ignored.
+- Mock standard suite twice: entries identical but `recorded`, rows equal; `--bots` 70 runs ≈3 min; brief ≈11 k tokens; the public price
+  list read (gpt-4o-mini quick ≈0.46 USD). No model called. `UI_ATTR_POPULATION` added (placeholder). +97 tests (12 files), 2185 green.
 
 ### 2026-09-25 — D6.9b The global leaderboard and the cost cap [F]
 - Inserted by the user. `benchmark.md` §16 (two repos, records, `verify_runs.gd`, `leaderboard.yml`, online list, canary,

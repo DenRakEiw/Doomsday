@@ -1175,6 +1175,9 @@ on the recorded mock backend only.
 **Done when:** a mock-backed leaderboard run over the fixed seeds is reproducible; the estimate's
 worked example is a test. **The first live run needs `OPENROUTER_API_KEY` from the user** — it
 goes under *Waiting on the user*, not in this step.
+*Done 2026-09-25: `game/bench/` and `tools/bench/`; the mock standard suite reproduces (entries
+identical but `recorded`), `--bots` writes the seven rows, the estimate's worked example is a
+test; the tool runs in `_initialize` (TLS). Deviations and three design questions in `PROGRESS.md`.*
 
 ### S6.12b — Global leaderboard: the verifier, the workflow, the determinism canary **[O]** · **Read first:** `benchmark.md` §10.2–§10.4, §16.1–§16.5, §16.8, §16.9 · `release.md` §9 · the public repository's `README.md` and `tools/validate.py` (clone `https://github.com/DenRakEiw/doomsday-leaderboard` to a temp directory; do not push to it)
 `tools/bench/verify_runs.gd` with `bench_verifier.gd` and `verify_record.gd`; the canary fixture

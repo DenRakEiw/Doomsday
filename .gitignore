@@ -39,3 +39,6 @@ Thumbs.db
 # atlas, a build product switched on per export (docs/specs/icons.md §10).
 tools/icons/.cache/
 /assets/icons/atlas/
+
+# The benchmark's answer cache (docs/specs/benchmark.md §9): local, never committed.
+/benchmark/cache/

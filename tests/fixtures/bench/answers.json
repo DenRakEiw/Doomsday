@@ -1,0 +1,377 @@
+{
+	"_comment": "docs/specs/benchmark.md §7.2 and §14.1: raw answers and what the parser makes of them (test_bench_answer). `actions` in the compact form; `dropped` as [index, reason]. Parsed with max_actions 12.",
+	"cases": [
+		{
+			"name": "a clean object",
+			"text": "{\"stance\": \"spread\", \"actions\": [{\"do\": \"origin\", \"region\": \"usa\"}, {\"do\": \"buy\", \"node\": \"cloud_federation\"}]}",
+			"valid": true,
+			"error": "",
+			"stance": "spread",
+			"actions": [
+				"origin usa",
+				"buy cloud_federation"
+			],
+			"dropped": []
+		},
+		{
+			"name": "inside a fenced block with json",
+			"text": "Here you go:\n```json\n{\"stance\": \"spread\", \"actions\": [{\"do\": \"origin\", \"region\": \"usa\"}, {\"do\": \"buy\", \"node\": \"cloud_federation\"}]}\n```\nGood luck.",
+			"valid": true,
+			"error": "",
+			"stance": "spread",
+			"actions": [
+				"origin usa",
+				"buy cloud_federation"
+			],
+			"dropped": []
+		},
+		{
+			"name": "inside a fenced block without a tag",
+			"text": "```\n{\"stance\": \"spread\", \"actions\": [{\"do\": \"origin\", \"region\": \"usa\"}, {\"do\": \"buy\", \"node\": \"cloud_federation\"}]}\n```",
+			"valid": true,
+			"error": "",
+			"stance": "spread",
+			"actions": [
+				"origin usa",
+				"buy cloud_federation"
+			],
+			"dropped": []
+		},
+		{
+			"name": "prose around the object",
+			"text": "I think I should spread. {\"stance\": \"spread\", \"actions\": [{\"do\": \"origin\", \"region\": \"usa\"}, {\"do\": \"buy\", \"node\": \"cloud_federation\"}]} That is my answer.",
+			"valid": true,
+			"error": "",
+			"stance": "spread",
+			"actions": [
+				"origin usa",
+				"buy cloud_federation"
+			],
+			"dropped": []
+		},
+		{
+			"name": "empty",
+			"text": "   \n  ",
+			"valid": false,
+			"error": "empty",
+			"stance": "",
+			"actions": [],
+			"dropped": []
+		},
+		{
+			"name": "no braces",
+			"text": "I would rather not.",
+			"valid": false,
+			"error": "no_json",
+			"stance": "",
+			"actions": [],
+			"dropped": []
+		},
+		{
+			"name": "bad json",
+			"text": "{\"stance\": \"spread\", \"actions\": [}",
+			"valid": false,
+			"error": "bad_json",
+			"stance": "",
+			"actions": [],
+			"dropped": []
+		},
+		{
+			"name": "an array",
+			"text": "[1, 2, 3]",
+			"valid": false,
+			"error": "no_json",
+			"stance": "",
+			"actions": [],
+			"dropped": []
+		},
+		{
+			"name": "two objects side by side",
+			"text": "{\"stance\": \"wait\"} {\"actions\": []}",
+			"valid": false,
+			"error": "bad_json",
+			"stance": "",
+			"actions": [],
+			"dropped": []
+		},
+		{
+			"name": "no actions",
+			"text": "{\"stance\": \"wait\"}",
+			"valid": false,
+			"error": "no_actions",
+			"stance": "",
+			"actions": [],
+			"dropped": []
+		},
+		{
+			"name": "actions not a list",
+			"text": "{\"stance\": \"wait\", \"actions\": {\"do\": \"origin\"}}",
+			"valid": false,
+			"error": "no_actions",
+			"stance": "",
+			"actions": [],
+			"dropped": []
+		},
+		{
+			"name": "an empty list is a wait",
+			"text": "{\"stance\": \"wait\", \"actions\": []}",
+			"valid": true,
+			"error": "",
+			"stance": "wait",
+			"actions": [],
+			"dropped": []
+		},
+		{
+			"name": "an unknown stance reads as none",
+			"text": "{\"stance\": \"conquer\", \"actions\": []}",
+			"valid": true,
+			"error": "",
+			"stance": "",
+			"actions": [],
+			"dropped": []
+		},
+		{
+			"name": "a stance in capitals with spaces",
+			"text": "{\"stance\": \"  Hide \", \"actions\": []}",
+			"valid": true,
+			"error": "",
+			"stance": "hide",
+			"actions": [],
+			"dropped": []
+		},
+		{
+			"name": "a stance that is not a string",
+			"text": "{\"stance\": 3, \"actions\": []}",
+			"valid": true,
+			"error": "",
+			"stance": "",
+			"actions": [],
+			"dropped": []
+		},
+		{
+			"name": "origin without a region",
+			"text": "{\"actions\": [{\"do\": \"origin\"}]}",
+			"valid": true,
+			"error": "",
+			"stance": "",
+			"actions": [],
+			"dropped": [
+				[
+					0,
+					"malformed_action"
+				]
+			]
+		},
+		{
+			"name": "buy without a node",
+			"text": "{\"actions\": [{\"do\": \"buy\", \"region\": \"germany\"}]}",
+			"valid": true,
+			"error": "",
+			"stance": "",
+			"actions": [],
+			"dropped": [
+				[
+					0,
+					"malformed_action"
+				]
+			]
+		},
+		{
+			"name": "buy with a region of the wrong type",
+			"text": "{\"actions\": [{\"do\": \"buy\", \"node\": \"x\", \"region\": 4}]}",
+			"valid": true,
+			"error": "",
+			"stance": "",
+			"actions": [],
+			"dropped": [
+				[
+					0,
+					"malformed_action"
+				]
+			]
+		},
+		{
+			"name": "use without an ability",
+			"text": "{\"actions\": [{\"do\": \"use\", \"region\": \"china\"}]}",
+			"valid": true,
+			"error": "",
+			"stance": "",
+			"actions": [],
+			"dropped": [
+				[
+					0,
+					"malformed_action"
+				]
+			]
+		},
+		{
+			"name": "answer without an event",
+			"text": "{\"actions\": [{\"do\": \"answer\", \"option\": \"sandbag\"}]}",
+			"valid": true,
+			"error": "",
+			"stance": "",
+			"actions": [],
+			"dropped": [
+				[
+					0,
+					"malformed_action"
+				]
+			]
+		},
+		{
+			"name": "answer without an option",
+			"text": "{\"actions\": [{\"do\": \"answer\", \"event\": 17}]}",
+			"valid": true,
+			"error": "",
+			"stance": "",
+			"actions": [],
+			"dropped": [
+				[
+					0,
+					"malformed_action"
+				]
+			]
+		},
+		{
+			"name": "answer with a fractional event",
+			"text": "{\"actions\": [{\"do\": \"answer\", \"event\": 17.5, \"option\": \"sandbag\"}]}",
+			"valid": true,
+			"error": "",
+			"stance": "",
+			"actions": [],
+			"dropped": [
+				[
+					0,
+					"malformed_action"
+				]
+			]
+		},
+		{
+			"name": "answer with the event as a string",
+			"text": "{\"actions\": [{\"do\": \"answer\", \"event\": \"17\", \"option\": \"sandbag\"}]}",
+			"valid": true,
+			"error": "",
+			"stance": "",
+			"actions": [],
+			"dropped": [
+				[
+					0,
+					"malformed_action"
+				]
+			]
+		},
+		{
+			"name": "sleep without a region",
+			"text": "{\"actions\": [{\"do\": \"sleep\"}]}",
+			"valid": true,
+			"error": "",
+			"stance": "",
+			"actions": [],
+			"dropped": [
+				[
+					0,
+					"malformed_action"
+				]
+			]
+		},
+		{
+			"name": "wake without a region",
+			"text": "{\"actions\": [{\"do\": \"wake\", \"node\": \"x\"}]}",
+			"valid": true,
+			"error": "",
+			"stance": "",
+			"actions": [],
+			"dropped": [
+				[
+					0,
+					"malformed_action"
+				]
+			]
+		},
+		{
+			"name": "an unknown verb",
+			"text": "{\"actions\": [{\"do\": \"nuke\", \"region\": \"usa\"}]}",
+			"valid": true,
+			"error": "",
+			"stance": "",
+			"actions": [],
+			"dropped": [
+				[
+					0,
+					"malformed_action"
+				]
+			]
+		},
+		{
+			"name": "an action that is not an object",
+			"text": "{\"actions\": [\"origin usa\", {\"do\": \"wake\", \"region\": \"france\"}]}",
+			"valid": true,
+			"error": "",
+			"stance": "",
+			"actions": [
+				"wake france"
+			],
+			"dropped": [
+				[
+					0,
+					"malformed_action"
+				]
+			]
+		},
+		{
+			"name": "every verb once",
+			"text": "{\"stance\": \"develop\", \"actions\": [{\"do\": \"origin\", \"region\": \"usa\"}, {\"do\": \"buy\", \"node\": \"market_microstructure\", \"region\": \"germany\"}, {\"do\": \"use\", \"ability\": \"harvest\", \"region\": \"china\"}, {\"do\": \"use\", \"ability\": \"pause\"}, {\"do\": \"answer\", \"event\": 17, \"option\": \"sandbag\"}, {\"do\": \"sleep\", \"region\": \"france\"}, {\"do\": \"wake\", \"region\": \"france\"}]}",
+			"valid": true,
+			"error": "",
+			"stance": "develop",
+			"actions": [
+				"origin usa",
+				"buy market_microstructure germany",
+				"use harvest china",
+				"use pause",
+				"answer 17 sandbag",
+				"sleep france",
+				"wake france"
+			],
+			"dropped": []
+		},
+		{
+			"name": "thirteen actions",
+			"text": "{\"stance\": \"spread\", \"actions\": [{\"do\": \"wake\", \"region\": \"r0\"}, {\"do\": \"wake\", \"region\": \"r1\"}, {\"do\": \"wake\", \"region\": \"r2\"}, {\"do\": \"wake\", \"region\": \"r3\"}, {\"do\": \"wake\", \"region\": \"r4\"}, {\"do\": \"wake\", \"region\": \"r5\"}, {\"do\": \"wake\", \"region\": \"r6\"}, {\"do\": \"wake\", \"region\": \"r7\"}, {\"do\": \"wake\", \"region\": \"r8\"}, {\"do\": \"wake\", \"region\": \"r9\"}, {\"do\": \"wake\", \"region\": \"r10\"}, {\"do\": \"wake\", \"region\": \"r11\"}, {\"do\": \"wake\", \"region\": \"r12\"}]}",
+			"valid": true,
+			"error": "",
+			"stance": "spread",
+			"actions": [
+				"wake r0",
+				"wake r1",
+				"wake r2",
+				"wake r3",
+				"wake r4",
+				"wake r5",
+				"wake r6",
+				"wake r7",
+				"wake r8",
+				"wake r9",
+				"wake r10",
+				"wake r11"
+			],
+			"dropped": [
+				[
+					12,
+					"over_limit"
+				]
+			]
+		},
+		{
+			"name": "unknown keys are ignored",
+			"text": "{\"stance\": \"earn\", \"memo\": \"free text\", \"actions\": [{\"do\": \"origin\", \"region\": \"usa\", \"why\": \"big\"}]}",
+			"valid": true,
+			"error": "",
+			"stance": "earn",
+			"actions": [
+				"origin usa"
+			],
+			"dropped": []
+		}
+	]
+}

@@ -36,6 +36,8 @@ const RUNTIME_READS: Array[String] = [
 	"res://data/credits.json",
 	"res://data/help.json",
 	"res://data/icons.json",
+	# S6.12: `BenchConfig`; the game's benchmark list reads it from S6.13 on.
+	"res://data/benchmark.json",
 	"res://assets/licences/CC-BY-3.0.txt",
 	"res://assets/icons/game-icons/license.txt",
 	"res://assets/icons/phosphor/LICENSE.txt",

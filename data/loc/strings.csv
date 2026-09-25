@@ -110,6 +110,7 @@ UI_ATTR_RESEARCH,Research,Forschung
 UI_ATTR_MANUFACTURING,Manufacturing,Fertigung
 UI_ATTR_INDUSTRY,Industry,Industrie
 UI_ATTR_ISOLATION,Isolation,Abgeschiedenheit
+UI_ATTR_POPULATION,Population,Bevölkerung
 UI_ATTR_TIER,Tier {tier} of 4,Stufe {tier} von 4
 UI_REGION_LINKS,Connections,Verbindungen
 UI_LINK_LAND,Land,Land
