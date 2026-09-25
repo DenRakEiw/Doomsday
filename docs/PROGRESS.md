@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D6.7 — Illustration style and briefs** [F] *(no pictures yet)*: `docs/specs/illustrations.md` — the style bound to the palette and the dither pass, the style reference, a brief for each of the 24 named ids plus title key art (outcome, never method), size and import, the production method, a model shortlist with every licence read and linked; VISUALS q4 (region vignettes, default: cut). IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S5.9 — The Task Force against dormancy; the scenario levers** [O]: build D5.5's mark and the two scenario levers from the punch list (*For S5.9*), `taskforce-endings.md` §14, `scenarios.md` §8; the 100-seed check under *Balance baselines*. IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | Block 14 (S5.9, S6.1–S6.8), then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | D6.6 — `docs/specs/accessibility.md`: screen-reader names and `LiveRegion` speech (console, headlines, modals, map cursor, seven `announce` cues), the keyboard/pad map (`MapFocus`, cursor, step, jump), one session focus ring, modal-trap fixes, the outer focus ring, keyboard remapping (twelve actions, *Controls* modal), colour audit + four fixes, 150 % rules and fixes, reading time; 56 strings, 10 revisions for S6.8; per-screen checklist; 1531 tests green (2026-09-25). |
-| **Before that** | D6.5 — `first-run.md` §6: ten once-per-profile hints, *How to play* (14 pages), `F1`/**?**, `open_over`; 84 strings (2026-09-25). |
+| **After it** | S6.1–S6.8 (S6.3 now also carries the illustration hooks, `illustrations.md` §8), then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | D6.7 — `docs/specs/illustrations.md`: the style (*the network's eye*: flat screen-print, six cold steps, one cyan accent = you, phase-neutral), `fc_street`/`cm_lockdown` as the reference pair, 25 briefs + key art, 1120 × 840 lossless with mipmaps, checks and provenance, model shortlist with licences read (Qwen-Image-2512/-Edit-2511 Apache-2.0 first, FLUX.2 [klein] 4B second), region vignettes cut; S6.3's hooks specified; 1 string; 1531 tests green (2026-09-25). |
+| **Before that** | D6.6 — `docs/specs/accessibility.md`: screen reader, keyboard/pad map, remapping, colour audit; 56 strings (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (2124 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -150,13 +150,13 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] D6.4 [F] Audio direction and cue sheet *(`docs/specs/audio.md`, `data/audio.json`, `tools/audio/recipes.json`)*
 - [x] D6.5 [F] Tutorial II and help *(`docs/specs/first-run.md` §6, `data/help.json`)*
 - [x] D6.6 [F] Accessibility *(`docs/specs/accessibility.md`)*
-- [ ] D6.7 [F] Illustration style and briefs *(no pictures yet)*
+- [x] D6.7 [F] Illustration style and briefs *(`docs/specs/illustrations.md`; no pictures yet)*
 
 **Block 14 — M6 build I**
 - [ ] S5.9 [O] The Task Force against dormancy; the scenario levers
 - [ ] S6.1 [O] Post-processing pass
 - [ ] S6.2 [O] Phase-shift variants and map polish
-- [ ] S6.3 [O] Credits and licences screen
+- [ ] S6.3 [O] Credits and licences screen; the illustration hooks
 - [ ] S6.4 [O] Icon pipeline
 - [ ] S6.5 [O] Audio I: service, buses, cues, captions
 - [ ] S6.6 [O] Audio II: the sound set
@@ -1237,6 +1237,18 @@ without new information.
   `●`, *missing* asset rows, the counter-move dateline names its faction. Text-bearing widths
   scale with the text size; console lines stand 40 ms per character longer and hold while paused;
   reduced motion's first default follows the OS. No high-contrast theme, no colour-blind mode.
+- **2026-09-25** (D6.7, overnight, pending user confirmation) — **Illustrations**
+  (`docs/specs/illustrations.md`): 25 in-game pictures (20 event ids, `discovery`, the four wins'
+  endings) + one store key art master (not shown in the game). Style *the network's eye*: high,
+  still, machine viewpoints; flat screen-print, six cold token values, no own texture (the pass
+  adds it); **one cyan accent that is always the player's presence**, capped by kind (3/6/15/20 %);
+  no red, no faction hues, no faces, text, places or symbols. **Phase-neutral** — one file per id,
+  cold in both palettes. Reference `fc_street`, check `cm_lockdown`, everything else an edit of
+  them (≤ 6 attempts, then cut in a fixed order). Source 1120 × 840, lossless + mipmaps. Models:
+  **Qwen-Image-2512 + Qwen-Image-Edit-2511 (Apache-2.0)** first, FLUX.2 [klein] 4B second; FLUX
+  non-commercial models, Qwen-Image 2.1 (research-only) and HunyuanImage 3.0 (no EU licence)
+  rejected; paid APIs unverified. **Region vignettes cut** (VISUALS q4). Endings name their
+  picture in `endings.json`; results screen and Codex show it only when the file exists.
 
 ## Design questions for Fable
 
@@ -1303,6 +1315,16 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
    `ContainmentSystem.containment_breakdown` (the reported weight is the scaled one); The
    Inheritance's two entries in `scenarios.json`.
 8. Tests as §14.7 and §8.4; the 100-seed check (§14.8, §8.5) under *Balance baselines*.
+
+**For S6.3 (from D6.7; read `illustrations.md` §8 — every detail is there):**
+1. `IllustrationSlot`: mipmap filter on the `TextureRect`; compact height = width × ¾ on resize;
+   `width` property (default 280).
+2. `endings.json` optional `illustration` per outcome (`EndingDef`, validator, SCHEMA §6i row); the
+   four wins → `end_extinction` · `end_ascendance` · `end_merge` · `end_escape`.
+3. Results screen (slot 420, above the kicker) and Codex Endings entry (280): slot only when the
+   ending names a picture **and** the file exists — no glyph otherwise.
+4. Tests §8.4, incl. `tests/integration/test_illustrations.gd` (known ids = the 25 briefed,
+   1120 × 840, `.import` lossless + mipmaps, a *Generated assets* row per file).
 
 ## Deviations from the plan or a spec
 
@@ -2049,6 +2071,12 @@ style reference and model licence. (4) For S6.12's first live run: `OPENROUTER_A
 M7: the Android release keystore and Play Console, an Apple Developer account and a Mac runner,
 real phones.
 
+**D6.7 (2026-09-25, overnight, pending user confirmation):** `docs/specs/illustrations.md` —
+(1) the style (flat screen-print, cold, one cyan accent for *you*; phase-neutral) and the briefs
+(§10) — right? (2) Before D6.10: the route (local ComfyUI with Qwen-Image-2512/-Edit-2511, or
+Comfy Cloud, or a paid API whose terms you accept) and the pick of the `fc_street` reference.
+(3) The credits say the pictures are generated; the Steam AI disclosure will too — fine?
+
 ## Balance baselines
 
 **2026-09-25 (S5.P2) — the 100-seed check of Swarm and Weapon after the punch list** (a check,
@@ -2319,6 +2347,12 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-25 — D6.7 Illustration style and briefs [F]
+- `docs/specs/illustrations.md`: style, reference pair, 25 briefs + key art, size/import, checks,
+  provenance, licence rows/credits, S6.3's hooks (slot, endings field, results/Codex, tests).
+- Licences read at source: Qwen-Image-2512/-Edit-2511 and FLUX.2 [klein] 4B Apache-2.0; five
+  models rejected. VISUALS q4: vignettes cut. 1 string. No image generated. Suite green (1531).
 
 ### 2026-09-25 — D6.6 Accessibility [F]
 - `docs/specs/accessibility.md`: AccessKit names, `LiveRegion`/`LiveQueue` speech, keyboard/pad map

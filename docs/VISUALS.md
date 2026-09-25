@@ -331,6 +331,14 @@ transformation of it, rather than prompting each piece independently and hoping.
 > to do now and extremely expensive to discover after a Steam release. Treat any model whose licence
 > is unverified as unusable for shipping art.
 
+*Specified at D6.7 (2026-09-25): `docs/specs/illustrations.md` — 25 in-game pictures (the wire
+card's 20 ids, the discovery modal, four endings) and one store key art master, in one style (the
+network's eye: flat screen-print, six cold value steps, one cyan accent that is always *you*),
+every picture an edit of the approved `fc_street`/`cm_lockdown` pair. Shortlist with licences read:
+Qwen-Image-2512 and Qwen-Image-Edit-2511 (Apache-2.0) first, FLUX.2 [klein] 4B (Apache-2.0) second;
+FLUX.2 [dev], FLUX.2 [klein] 9B, Qwen-Image 2.1 and HunyuanImage 3.0 unusable. Region vignettes,
+scenario key art and Codex pictures beyond the endings are cut.*
+
 ### 3.5 Fonts
 
 **Pick: JetBrains Mono for data and body, Space Grotesk for display.** Both are OFL 1.1, both cover
@@ -381,7 +389,7 @@ the whole set is synthesised in-house (`tools/audio/`), CC0 only as a named fall
 | Map | 2 images + data | Scripted | Pipeline time |
 | Shaders | ~10 | Hand-written | Low |
 | Icons | ~140 | Open sets + ~25 custom | **Highest bespoke cost** |
-| Illustration | ~30 | Generated locally | **Licence and consistency** |
+| Illustration | 25 + key art (D6.7) | Generated locally | **Licence and consistency** |
 | Fonts | 2 | Open licence | None |
 | Audio | ~40 | CC0 / generated | Low |
 
@@ -409,6 +417,10 @@ cheap to control now and expensive to fix later.
    (it moves controls away from where they are hit).*
 4. Do region vignettes justify their cost, or is the map plus the ticker enough? Decide at M4.
    *(D4.0: the wire card takes the story-picture role first; vignettes are judged after it exists.)*
+   *Decided at D6.7 (2026-09-25): **cut.** A real region's picture is a landmark or a national
+   cliché (both forbidden: no recognisable places) or generic (pointless); sixty regions against a
+   ~30-picture budget; the map is the region's picture and the wire card carries the story
+   (`illustrations.md` §9).*
 5. Is `DPITexture`'s experimental status acceptable for ~140 shipped icons, or do we keep a PNG
    atlas fallback permanently in the build? Decide at M3, once the icon set is real. *Decided at
    G3, specified at D6.2 (2026-09-25): `DPITexture` for every icon, one copy per drawn size; the

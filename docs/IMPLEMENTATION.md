@@ -305,7 +305,7 @@ before the *next* row; "—" means stay on the same model.
 | 74 | S5.9 The Task Force against dormancy; the scenario levers | [O] | — |
 | 75 | S6.1 Post-processing pass | [O] | — |
 | 76 | S6.2 Phase-shift variants and map polish | [O] | — |
-| 77 | S6.3 Credits and licences screen | [O] | — |
+| 77 | S6.3 Credits and licences screen; the illustration hooks | [O] | — |
 | 78 | S6.4 Icon pipeline | [O] | — |
 | 79 | S6.5 Audio I: service, buses, cues, captions | [O] | — |
 | 80 | S6.6 Audio II: the sound set | [O] | — |
@@ -1034,11 +1034,15 @@ The corrected Open accent through `UiTokens`/`ThemeBuilder` (rebuild the theme),
 and outline pass, the Societal Function overlay (D6.1 kept it).
 **Done when:** the spec's acceptance; contrast floors hold in every variant.
 
-### S6.3 — Credits and licences screen **[O]** · **Read first:** `docs/specs/icons.md` (credits screen)
+### S6.3 — Credits and licences screen; the illustration hooks **[O]** · **Read first:** `docs/specs/icons.md` (credits screen) · `docs/specs/illustrations.md` §8
 `data/credits.json`, its loader and validator, the modal on the title, the licence texts. From
-here on every new shipped asset adds its credits row with its `ASSET_LICENCES.md` row.
+here on every new shipped asset adds its credits row with its `ASSET_LICENCES.md` row. **Then
+the illustration hooks (D6.7):** `IllustrationSlot` samples mipmaps, keeps 4 : 3 in compact and
+takes a `width`; `endings.json` names the four wins' pictures (`EndingDef.illustration`); the
+results screen and the Codex's Endings entry show the slot when the file exists; the
+illustrations test — so D6.10 only drops files in.
 **Done when:** every row of `ASSET_LICENCES.md` that ships has its credits line; a test compares
-the two.
+the two; `illustrations.md` §8.5 holds.
 
 ### S6.4 — Icon pipeline **[O]** · **Read first:** `docs/specs/icons.md`
 The sets vendored at their pinned releases (only the icons used), `DPITexture` import with
@@ -1139,7 +1143,8 @@ only, record BALANCE §6 as G4 and G5 did. The verdict stays the user's (G6 2/2)
 
 ### D6.10 — Illustrations produced **[F]** **[needs user]** · **Read first:** `docs/specs/illustrations.md`
 Needs the user for the generation route (the local pipeline or paid credits), the approval of
-the style reference, and a confirmed licence for the model. Then the 24 pictures and the key art
+the style reference, and a confirmed licence for the model (D6.7 shortlisted Qwen-Image-2512 +
+Qwen-Image-Edit-2511, Apache-2.0; re-read on the day, `illustrations.md` §6.1). Then the 24 pictures and the key art
 as edits of the reference, dropped into `assets/illustrations/` (the slot needs no code), each
 with its model in `ASSET_LICENCES.md` and the credits.
 **Done when:** every named id has its picture or a recorded cut; the user saw the set.
@@ -1228,7 +1233,7 @@ With the user: each platform's candidate played; go / change / cut per platform.
 | VISUALS q5 — DPITexture acceptable? | G3 (yes, with a PNG-atlas fallback); specified in D6.2, built in S6.4 |
 | VISUALS q2 — shader globe sufficient? | S5.7 (shader); geometry only if the M5 gate says so |
 | VISUALS q3 — how far the phase palette goes | D6.1: one step, then heat (`polish-visuals.md` §8) |
-| VISUALS q4 — region vignettes | parked at D4.0/D5.3; decided in D6.7 with the illustration briefs (conservative default: cut) |
+| VISUALS q4 — region vignettes | parked at D4.0/D5.3; **D6.7: cut** (`illustrations.md` §9) |
 | CONTENT q1, q2 — chain persistence, chains per run | D4.2, confirmed G4; D5.4 (no cap) |
 | CONTENT q3 — Value Drift | D5.1, playtested G5; the drifted-run rule G5 (2/3), built S5.P2 |
 | CONTENT q4 — Containment mode | D5.4: a mode of this game, post-launch — confirmed G5 (3/3) (overnight, pending user confirmation); not in M6 or M7 |
@@ -1236,4 +1241,4 @@ With the user: each platform's candidate played; go / change / cut per platform.
 | Achievements — which, and their text | D6.8; on Steam in S6.14 |
 | Spectator / benchmark mode (user idea, G1) | D6.9; the headless tool S6.12, the view S6.13; the first live run with the user's OpenRouter key |
 | Steam app id, Steamworks SDK agreement | the user, before S6.14 (app id 480 only for a local smoke test) |
-| Generation route and model licences for shipped art | D6.7 shortlists, the user approves before D6.10 |
+| Generation route and model licences for shipped art | D6.7 shortlisted (`illustrations.md` §6.1); the user approves before D6.10 |

@@ -69,6 +69,9 @@ Verified during research; recorded here so the decision is not re-litigated late
 | Game-icons.net | **CC BY 3.0** (per-author; a few are CC0) | **Required** | **Chosen** for the illustrative tier (D6.2): commit `82d948812bfe3f269ef8f731dcdb07b08160edc4` (2026-04-23), archive SHA-256 `2b6f10a3…579f01`; seven authors used, none of them CC0. Ship `license.txt`, the CC BY 3.0 legal code and "Icons made by {author}" in the credits. Vendored in S6.4 → row `icons_game_icons` |
 | JetBrains Mono | OFL 1.1 | Notice required | **No Reserved Font Name** — subsetting is permitted without renaming. **Integrated since S2.4**, see *Fonts* |
 | Space Grotesk | OFL 1.1 | Notice required | **No Reserved Font Name**. **Integrated since S2.4**, see *Fonts* |
+| Qwen-Image-2512 (image model) | **Apache-2.0** (model card `license: apache-2.0`; text https://huggingface.co/Qwen/Qwen-Image/blob/main/LICENSE; read 2026-09-25) | Not required for outputs; credited (`illustrations.md` §7.5) | **First choice** for the illustration reference and key art (D6.7). D6.10 re-reads the licence and records the revision → row `art_qwen_image` under *Generated assets* |
+| Qwen-Image-Edit-2511 (image model) | **Apache-2.0** (https://huggingface.co/Qwen/Qwen-Image-Edit-2511, read 2026-09-25) | Not required for outputs; credited | **First choice** for every picture after the reference (edits). → row `art_qwen_image_edit` |
+| FLUX.2 [klein] 4B (image model) | **Apache-2.0** (https://huggingface.co/black-forest-labs/FLUX.2-klein-4B, read 2026-09-25) | Not required for outputs; credited | **Second choice** — generation and editing in one checkpoint |
 
 ## Rejected
 
@@ -77,6 +80,9 @@ Verified during research; recorded here so the decision is not re-litigated late
 | **Remix Icon** | Left Apache-2.0 in January 2026 for a custom licence that forbids use as a logo or app icon — which would rule out the Steam capsule. |
 | **Orbitron** | Incomplete German coverage: no capital ẞ, no German quotation marks. Reserved Font Name. |
 | **Roboto Mono** | No capital ẞ; breaks uppercased German text. |
+| **FLUX.2 [dev], FLUX.2 [klein] 9B, FLUX.1 [dev] / Kontext [dev]** | FLUX Non-Commercial License: using the model is limited to non-commercial purposes, which exclude revenue-generating activity (read 2026-09-25, `illustrations.md` §6.1). Usable only with a paid BFL licence. |
+| **Qwen-Image 2.1** | Qwen Research License, "for non-commercial purposes only" (2026-09-20 release; read 2026-09-25). |
+| **HunyuanImage 3.0** | Tencent Hunyuan Community License does not apply in the EU, UK or South Korea — no licence where we are. |
 | **IBM Plex, Source Code Pro** | Not rejected on merit — both are good — but they carry Reserved Font Names, so any subset must be renamed. Only revisit if the chosen pair fails. |
 
 ## Generated assets

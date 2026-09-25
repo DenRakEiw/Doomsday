@@ -1935,6 +1935,7 @@ UI_CREDITS_ROLE_FONT_DISPLAY,Titles and headings,Titel und Überschriften
 UI_CREDITS_ROLE_MAP,Country shapes of the world map,Ländergrenzen der Weltkarte
 UI_CREDITS_ROLE_ICONS_CHROME,Interface icons,Icons der Oberfläche
 UI_CREDITS_ROLE_ICONS_ILLUSTRATIVE,"Icons for technologies, abilities and statuses","Icons für Technologien, Aktionen und Zustände"
+UI_CREDITS_ROLE_ILLUSTRATIONS,"Illustrations, generated from the game's own briefs","Illustrationen, generiert nach den Vorgaben des Spiels"
 UI_CREDITS_BY,by {name},von {name}
 UI_CREDITS_VIEW_LICENCE,Licence,Lizenz
 UI_CREDITS_A11Y_LICENCE,Licence of {name},Lizenz von {name}
