@@ -110,6 +110,9 @@ const VARIATIONS: Dictionary[String, String] = {
 	"GutterTight": "MarginContainer",
 	"Stack": "VBoxContainer",
 	"StackTight": "VBoxContainer",
+	"StackSections": "VBoxContainer",
+	"StackLines": "VBoxContainer",
+	"CaptionSelectable": "RichTextLabel",
 	"Flush": "VBoxContainer",
 	"Row": "HBoxContainer",
 	"RowWide": "HBoxContainer",
@@ -259,6 +262,10 @@ static func _colours() -> Theme:
 	# §7.7: the tooltip is a caption on a chip-shaped box, but it is read over a
 	# moving map — so `TEXT_0`, not the caption's `TEXT_2`.
 	theme.set_color(COLOR_FONT, "MapTooltipLabel", UiTokens.color(&"TEXT_0"))
+	# icons.md §11.2: a credits URL is a caption the player can select and copy,
+	# never a link — so a `RichTextLabel` dressed as `LabelCaption`.
+	theme.set_color("default_color", "CaptionSelectable", UiTokens.color(&"TEXT_2"))
+	theme.set_color("selection_color", "CaptionSelectable", UiTokens.color(&"LINE_1"))
 
 	# m3-screens §3.4's table: a tech node colours its name and its cost by the
 	# state it is in, and a `Label` has one colour — so each is its own variation.
@@ -333,6 +340,11 @@ static func _typography() -> Theme:
 		_type(theme, cost, mono_medium, UiTokens.TYPE_DATA, UiTokens.LINE_DATA)
 	for caption: String in ["TechNodeTag", "TechNodeFootprint"]:
 		_type(theme, caption, mono_regular, UiTokens.TYPE_CAPTION, UiTokens.LINE_CAPTION)
+	var selectable: int = _scaled(UiTokens.TYPE_CAPTION)
+	theme.set_font("normal_font", "CaptionSelectable", mono_regular)
+	theme.set_font_size("normal_font_size", "CaptionSelectable", selectable)
+	theme.set_constant("line_separation", "CaptionSelectable",
+		roundi(float(selectable) * (UiTokens.LINE_CAPTION - 1.0)))
 	# §3.6 item 6: a row that reads as a line of text, not as a shouted label.
 	theme.set_font(ITEM_FONT, "ConsoleButtonFlat", mono_regular)
 	theme.set_font_size(ITEM_FONT_SIZE, "ConsoleButtonFlat", _scaled(UiTokens.TYPE_BODY))
@@ -432,6 +444,10 @@ static func _panels() -> Theme:
 	for axis: String in ["h_separation", "v_separation"]:
 		theme.set_constant(axis, "FlowSnug", UiTokens.SPACE_2)
 	theme.set_constant(CONST_SEPARATION, "StackTight", UiTokens.SPACE_2)
+	# icons.md §11.2: the credits' sections stand `SPACE_4` apart, and the lines
+	# of one entry `SPACE_1`.
+	theme.set_constant(CONST_SEPARATION, "StackSections", UiTokens.SPACE_4)
+	theme.set_constant(CONST_SEPARATION, "StackLines", UiTokens.SPACE_1)
 	# §5.7's strips touch: a gap between the stat row and the ticker would be a
 	# stripe of map between two panels.
 	theme.set_constant(CONST_SEPARATION, "Flush", 0)

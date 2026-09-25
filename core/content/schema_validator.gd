@@ -3084,8 +3084,8 @@ static func validate_task_force(file: String, raw: Variant, statuses_raw: Varian
 
 ## `endings.json` (`taskforce-endings.md` §6.3). Optional. With it: every outcome
 ## but `none` exactly once, each with variants whose last `when` is empty and no
-## earlier one is; epilogue ids unique, their `outcomes` real outcome ids; every
-## line's string in the table.
+## earlier one is; an `illustration`, when given, an id; epilogue ids unique,
+## their `outcomes` real outcome ids; every line's string in the table.
 static func validate_endings(file: String, raw: Variant, tech_raws: Array,
 		statuses: Dictionary[String, int], abilities: Dictionary[String, bool],
 		strings: Dictionary[String, bool], strings_known: bool,
@@ -3123,6 +3123,8 @@ static func validate_endings(file: String, raw: Variant, tech_raws: Array,
 			elif seen.has(outcome):
 				_add(errors, file, _join(path, "outcome"), "duplicate outcome \"%s\"" % outcome)
 			seen[outcome] = true
+			if e.has("illustration"):
+				_id(e, "illustration", file, path, errors)
 			_ending_variants(e, file, path, known, strings, strings_known, errors)
 		for outcome: String in outcomes:
 			if not seen.has(outcome):

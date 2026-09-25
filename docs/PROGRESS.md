@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.3 — Credits and licences screen; the illustration hooks** [O]: `docs/specs/icons.md` (credits screen) · `docs/specs/illustrations.md` §8 — `data/credits.json` loader/validator, the modal on the title, the licence texts, a test comparing credits with `ASSET_LICENCES.md`; then `IllustrationSlot`, `EndingDef.illustration`, the results/Codex slots, the illustrations test. IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.4 — Icon pipeline** [O]: `docs/specs/icons.md` — the Phosphor and game-icons sets vendored at their pinned releases (only the icons used), `DPITexture` import, `Icons`, the atlas-fallback tool, `Glyphs`/`IconButton` on icon files with the procedural glyph as fallback, the D6.3 silhouettes; the rows `icons_phosphor`/`icons_game_icons` go in with the files (their credits entries already exist, hidden until the `requires` file ships). IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.4–S6.8, then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | S6.2 — the Open accent is pale amber (`#FFD08A` family, theme rebuilt), the map's coast pass and mask-built outlines from zoom 2, the Societal Function view (row 2 of `RegionData`, lavender, stepped, four views from Emergent), the §8.3 colour-floor test (`tests/support/colour_audit.gd`); 1614 tests green (2026-09-25). |
-| **Before that** | S6.1 — the full-screen pass (`ScreenFx`, 8 stages, heat, impulses, dissolve, *Screen effects*) (2026-09-25). |
+| **After it** | S6.5–S6.8, then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | S6.3 — the credits and licences modal on the title (`CreditsData`, `credits.tscn`, engine/file/game-icons licence pages, the CC BY 3.0 legal code vendored), the credits-vs-`ASSET_LICENCES.md` test; the illustration hooks (`IllustrationSlot` mipmaps, 4 : 3 in compact, `width`; `EndingDef.illustration`; results and Codex slots; `test_illustrations.gd`); 1655 tests green (2026-09-25). |
+| **Before that** | S6.2 — pale-amber Open accent, coast pass, mask-built outlines, the society view (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 245 scripts compile (100 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1614 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 251 scripts compile (102 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1655 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -156,7 +156,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S5.9 [O] The Task Force against dormancy; the scenario levers
 - [x] S6.1 [O] Post-processing pass
 - [x] S6.2 [O] Phase-shift variants and map polish
-- [ ] S6.3 [O] Credits and licences screen; the illustration hooks
+- [x] S6.3 [O] Credits and licences screen; the illustration hooks
 - [ ] S6.4 [O] Icon pipeline
 - [ ] S6.5 [O] Audio I: service, buses, cues, captions
 - [ ] S6.6 [O] Audio II: the sound set
@@ -1314,6 +1314,18 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
 
 ## Deviations from the plan or a spec
 
+- **2026-09-25** (S6.3) — **The coverage test compares the *visible* entries** (`requires` file
+  ships) with the shipped rows: D6.2's Phosphor and game-icons entries name rows S6.4 adds, so
+  comparing every entry would fail until then (an entry that shows without its row still fails).
+  **The authors line reads the game-icons folder** (`CreditsData.used_icon_paths`,
+  `ResourceLoader.list_directory`) because `Icons.all_paths()` is S6.4's; S6.4 may switch it.
+  **Three theme variations**: `StackSections` (`SPACE_4`), `StackLines` (`SPACE_1`),
+  `CaptionSelectable` (a `RichTextLabel` dressed as `LabelCaption`, for §11.2's selectable URL).
+  The licence page keeps the modal's title and close button above *Back*. **`IllustrationSlot`'s
+  full layout shrinks horizontally** (`SIZE_SHRINK_BEGIN`, was `FILL`) so it keeps its width in a
+  column (results, Codex); beside a card's text nothing changes. The Codex slot is checked by its
+  test only (looking at it needs an ending in the player's profile).
+
 - **2026-09-25** (S6.2) — **The society view's divisor is a uniform** (`society_stage_max`, the
   balance's threshold count, sent by `MapView.refresh`) instead of §10.2's literal `5.0`, so the
   shader keeps no balance number. **`MapCamera.is_outline_smooth(zoom)`** is a static rule the
@@ -1879,6 +1891,10 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
 
 ## Known issues and carry-overs
 
+- **Licence texts are `.txt` files** (S6.3): `assets/fonts/OFL-*.txt`,
+  `assets/licences/CC-BY-3.0.txt`, S6.4's vendored `LICENSE.txt`/`license.txt`. Godot exports only
+  resources by default, so **S6.10's presets must include `*.txt`** (non-resource filter), or those
+  credits entries disappear from the build (hidden when `requires` is missing) and the pages go empty.
 - **The pass at a 400-px *desktop* window** (S6.1): `px_scale` = 400 / 1080, so the scanline
   pitch sits at its floor of 2 px and reads denser than at 1920. A phone's physical width is
   ~1080 px, so it is a desktop-review artefact; S6.11 looks at it on a device.
@@ -2418,6 +2434,14 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.3 Credits and licences screen; the illustration hooks [O]
+- `CreditsData` (load/validate `credits.json`, visibility, authors), `ui/modals/credits.tscn` on the
+  title after Settings; engine/file/game-icons pages; `assets/licences/CC-BY-3.0.txt` (SHA-256 as §11.3).
+- `IllustrationSlot` mipmap filter, compact 4 : 3, `width`; the four wins name their pictures
+  (`EndingDef.illustration`, validator, SCHEMA); results (420) and Codex slots; four test files.
+- Looked at: credits + engine page 1920/400 (de, en 150 %), results win/loss, discovery and wire card
+  full/400 with a temporary 1120 × 840 picture (removed). +41 tests, 1655 green.
 
 ### 2026-09-25 — S6.2 Phase-shift variants and map polish [O]
 - Open accent → `#FFD08A` family (`UiTokens.OPEN`), theme rebuilt; `MAP_SOCIETY`, `MAP_SMOOTH_OUTLINE_ZOOM`, `MAP_OUTLINE_MASK`.

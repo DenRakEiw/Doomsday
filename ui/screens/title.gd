@@ -39,6 +39,7 @@ const GLOBE_COMPACT_HEIGHT_SHARE: float = 0.45
 @onready var _codex_button: ConsoleButton = %CodexButton
 @onready var _statistics_button: ConsoleButton = %StatisticsButton
 @onready var _settings: ConsoleButton = %SettingsButton
+@onready var _credits_button: ConsoleButton = %CreditsButton
 @onready var _quit: ConsoleButton = %QuitButton
 @onready var _failure: Label = %TitleFailure
 @onready var _globe_box: Control = %GlobeBox
@@ -49,6 +50,7 @@ const GLOBE_COMPACT_HEIGHT_SHARE: float = 0.45
 @onready var _settings_menu: Control = %TitleSettings
 @onready var _codex: Control = %Codex
 @onready var _statistics: Control = %Statistics
+@onready var _credits: Control = %Credits
 @onready var _host: ModalHost = $TitleHost
 
 
@@ -65,9 +67,11 @@ func _ready() -> void:
 	_codex_button.pressed.connect(_open_modal.bind(_codex))
 	_statistics_button.pressed.connect(_open_modal.bind(_statistics))
 	_settings.pressed.connect(_on_settings_pressed)
+	# icons.md §11.1: after Settings, before Quit; not in the pause menu.
+	_credits_button.pressed.connect(_open_modal.bind(_credits))
 	_quit.pressed.connect(_on_quit_pressed)
 	ScreenRouter.load_failed.connect(_on_load_failed)
-	for modal: Control in [_settings_menu, _codex, _statistics]:
+	for modal: Control in [_settings_menu, _codex, _statistics, _credits]:
 		modal.connect(&"closed", _host.close)
 	_statistics.connect(&"replay_requested", _on_replay_requested)
 	_quit.visible = not (OS.has_feature(FEATURE_MOBILE) or OS.has_feature(FEATURE_WEB))

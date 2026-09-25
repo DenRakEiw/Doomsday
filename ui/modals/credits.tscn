@@ -1,0 +1,106 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://ui/modals/credits.gd" id="1_credits"]
+[ext_resource type="Script" path="res://ui/components/icon_button.gd" id="2_icon_button"]
+[ext_resource type="Script" path="res://ui/components/console_button.gd" id="3_console_button"]
+[ext_resource type="Script" path="res://ui/components/modal_panel.gd" id="9_modal_panel"]
+
+[node name="Credits" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_credits")
+
+[node name="Centre" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CreditsPanel" type="PanelContainer" parent="Centre"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsolePanelRaised"
+script = ExtResource("9_modal_panel")
+
+[node name="Body" type="VBoxContainer" parent="Centre/CreditsPanel"]
+layout_mode = 2
+theme_type_variation = &"PanelContent"
+
+[node name="Header" type="HBoxContainer" parent="Centre/CreditsPanel/Body"]
+layout_mode = 2
+theme_type_variation = &"Row"
+
+[node name="CreditsTitle" type="Label" parent="Centre/CreditsPanel/Body/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
+theme_type_variation = &"LabelDisplay"
+
+[node name="CloseButton" type="Button" parent="Centre/CreditsPanel/Body/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"IconButton"
+script = ExtResource("2_icon_button")
+glyph = 4
+tooltip_key = "UI_COMMON_CLOSE"
+
+[node name="CreditsScroll" type="ScrollContainer" parent="Centre/CreditsPanel/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="CreditsList" type="VBoxContainer" parent="Centre/CreditsPanel/Body/CreditsScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StackSections"
+
+[node name="LicencePage" type="VBoxContainer" parent="Centre/CreditsPanel/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"StackTight"
+
+[node name="BackButton" type="Button" parent="Centre/CreditsPanel/Body/LicencePage"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+theme_type_variation = &"ConsoleButton"
+script = ExtResource("3_console_button")
+label_key = "UI_CREDITS_BACK"
+compact = true
+
+[node name="LicenceName" type="Label" parent="Centre/CreditsPanel/Body/LicencePage"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelHeading"
+
+[node name="LicenceNote" type="Label" parent="Centre/CreditsPanel/Body/LicencePage"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"LabelCaption"
+
+[node name="LicenceScroll" type="ScrollContainer" parent="Centre/CreditsPanel/Body/LicencePage"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="LicenceBlocks" type="VBoxContainer" parent="Centre/CreditsPanel/Body/LicencePage/LicenceScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StackTight"

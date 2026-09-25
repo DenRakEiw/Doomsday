@@ -277,3 +277,25 @@ func test_every_line_needs_its_string() -> void:
 	assert_eq(errors.size(), 24 + 12, str(errors.slice(0, 3)))
 	assert_string_contains(str(errors), "UI_RESULT_LINE_WIN_ESCAPE_BROOD")
 	assert_string_contains(str(errors), "ENDING_EPILOGUE_GRID_OWN_GENERATION")
+
+
+# ------------------------------------------------ the picture (S6.3)
+
+
+func test_illustration_is_read_when_present() -> void:
+	assert_eq(_db.endings["win_extinction"].illustration, "end_extinction")
+	assert_eq(_db.endings["win_ascendance"].illustration, "end_ascendance")
+	assert_eq(_db.endings["win_merge"].illustration, "end_merge")
+	assert_eq(_db.endings["win_escape"].illustration, "end_escape")
+
+
+func test_illustration_defaults_to_empty() -> void:
+	assert_eq(_db.endings["lose_contained"].illustration, "", "losses carry none")
+
+
+func test_bad_illustration_id_is_rejected() -> void:
+	var raw: Dictionary = _raw()
+	(_endings(raw)[0] as Dictionary)["illustration"] = "End Picture"
+	var errors: Array[String] = _errors(raw)
+	assert_eq(errors.size(), 1, str(errors))
+	assert_string_contains(errors[0], "endings[0].illustration")

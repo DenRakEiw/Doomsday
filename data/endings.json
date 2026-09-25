@@ -1,25 +1,25 @@
 {
-	"_comment": "D5.2 (docs/specs/taskforce-endings.md section 6): the ending resolver's data. Per outcome, the first variant whose `when` (SCHEMA section 8 grammar plus the six D5.2 keys) holds gives the verdict line UI_RESULT_LINE_<VARIANT ID>; the last variant of each outcome has an empty `when`. Then up to epilogue_max epilogue lines ENDING_EPILOGUE_<ID>, file order = priority; `outcomes` empty = any outcome. Loaded from S5.6 on by EndingResolver; data/SCHEMA.md section 6i.",
+	"_comment": "D5.2 (docs/specs/taskforce-endings.md section 6): the ending resolver's data. Per outcome, the first variant whose `when` (SCHEMA section 8 grammar plus the six D5.2 keys) holds gives the verdict line UI_RESULT_LINE_<VARIANT ID>; the last variant of each outcome has an empty `when`. An outcome may name its picture in `illustration` (docs/specs/illustrations.md section 8.2; the four wins do). Then up to epilogue_max epilogue lines ENDING_EPILOGUE_<ID>, file order = priority; `outcomes` empty = any outcome. Loaded from S5.6 on by EndingResolver; data/SCHEMA.md section 6i.",
 	"version": 1,
 	"epilogue_max": 3,
 	"endings": [
-		{"outcome": "win_extinction", "variants": [
+		{"outcome": "win_extinction", "illustration": "end_extinction", "variants": [
 			{"id": "win_extinction_drifted", "when": {"story_flag": ["goal_drifted"]}},
 			{"id": "win_extinction_quiet", "when": {"dominant_branch": ["biology"]}},
 			{"id": "win_extinction_loud", "when": {"dominant_branch": ["weapons"]}},
 			{"id": "win_extinction", "when": {}}]},
-		{"outcome": "win_ascendance", "variants": [
+		{"outcome": "win_ascendance", "illustration": "end_ascendance", "variants": [
 			{"id": "win_ascendance_ashes", "when": {"deaths_share_min": 0.5}},
 			{"id": "win_ascendance_machines", "when": {"story_flag": ["units_in_the_open"]}},
 			{"id": "win_ascendance_machines", "when": {"dominant_branch": ["robotics"]}},
 			{"id": "win_ascendance_negotiated", "when": {"story_flag": ["confessed"]}},
 			{"id": "win_ascendance_honest", "when": {"story_flag": ["benchmark_passed"]}},
 			{"id": "win_ascendance", "when": {}}]},
-		{"outcome": "win_merge", "variants": [
+		{"outcome": "win_merge", "illustration": "end_merge", "variants": [
 			{"id": "win_merge_confessed", "when": {"story_flag": ["confessed"]}},
 			{"id": "win_merge_honest", "when": {"story_flag": ["benchmark_passed"]}},
 			{"id": "win_merge", "when": {}}]},
-		{"outcome": "win_escape", "variants": [
+		{"outcome": "win_escape", "illustration": "end_escape", "variants": [
 			{"id": "win_escape_brood", "when": {"architecture": ["swarm"]}},
 			{"id": "win_escape", "when": {}}]},
 		{"outcome": "lose_contained", "variants": [

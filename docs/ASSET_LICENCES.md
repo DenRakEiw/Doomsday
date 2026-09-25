@@ -18,6 +18,8 @@ discover after a commercial release.
    *own work* is credited by an entry of `data/credits.json` (`rows`), and a test checks both
    directions (`docs/specs/icons.md` §11.4). Ship an asset → add its row **and** its credits entry
    in the same commit.
+7. **Licence texts are not assets**: `assets/licences/*.txt` (the CC BY 3.0 legal code since S6.3)
+   and a set's own licence file ship with the build but have no row.
 
 ---
 

@@ -52,6 +52,9 @@ const PREFIX_TREE_TAB: String = "UI_TREE_TAB_"
 ## The tab on show and the entry open in it ("" = none).
 var tab: String = CodexEntries.TAB_REGIONS
 var entry_id: String = ""
+## Where an ending's picture is looked for (`illustrations.md` §8.3). A test
+## points it at a folder that has one.
+var illustration_root: String = IllustrationSlot.ROOT
 
 var _db: ContentDB = null
 var _tab_group: ButtonGroup = ButtonGroup.new()
@@ -153,8 +156,7 @@ func show_entry(id: String) -> void:
 		CodexEntries.TAB_ARCHITECTURES:
 			_fill_architecture(id)
 		CodexEntries.TAB_ENDINGS:
-			_heading(tr(PREFIX_OUTCOME + CodexEntries.outcome_of(id).to_upper()))
-			_body(tr(EndingLineDef.verdict_key(id)))
+			_fill_ending(id)
 	_entry_scroll.scroll_vertical = 0
 	if _compact:
 		_list_scroll.visible = false
@@ -243,6 +245,32 @@ func _fill_tech(id: String) -> void:
 		_caption(TechText.flag_line(flag))
 	for effect: EffectDef in def.on_purchase:
 		_caption(TechText.effect_line(effect))
+
+
+## illustrations.md §8.3: the outcome's picture above its name, when the
+## ending names one and its file ships — the results screen's rule.
+func _fill_ending(id: String) -> void:
+	var outcome: String = CodexEntries.outcome_of(id)
+	var def: EndingDef = _db.endings.get(outcome, null)
+	var slot: IllustrationSlot = IllustrationSlot.new()
+	slot.root = illustration_root
+	var picture: String = "" if def == null else def.illustration
+	if slot.has_file(picture):
+		slot.compact = _compact
+		_entry.add_child(slot)
+		slot.show_illustration(picture, Glyphs.Glyph.OUTCOME)
+	else:
+		slot.free()
+	_heading(tr(PREFIX_OUTCOME + outcome.to_upper()))
+	_body(tr(EndingLineDef.verdict_key(id)))
+
+
+## The entry's picture, or null when it shows none — for the tests.
+func entry_illustration() -> IllustrationSlot:
+	for child: Node in _entry.get_children():
+		if child is IllustrationSlot:
+			return child as IllustrationSlot
+	return null
 
 
 func _fill_architecture(id: String) -> void:

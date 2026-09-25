@@ -382,6 +382,7 @@ static func _build_endings(db: ContentDB, raw: Variant) -> void:
 		var e: Dictionary = entry
 		var def: EndingDef = EndingDef.new()
 		def.outcome = str(e["outcome"])
+		def.illustration = str(e.get("illustration", ""))
 		for variant: Variant in e["variants"]:
 			def.variants.append(_ending_line(variant))
 		db.endings[def.outcome] = def

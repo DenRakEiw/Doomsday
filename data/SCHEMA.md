@@ -622,12 +622,16 @@ The action's name is its status's (`STATUS_TF_<ACTION>_NAME`); the team's own st
 
 How a run's end reads (`docs/specs/taskforce-endings.md` §6.3). **Optional**: a root without it
 shows every outcome's default line and no epilogue. `{"version": 1, "epilogue_max": int ≥ 0,
-"endings": [{"outcome", "variants": [{"id", "when"}]}], "epilogue": [{"id", "when", "outcomes"}]}`.
+"endings": [{"outcome", "illustration", "variants": [{"id", "when"}]}], "epilogue": [{"id", "when",
+"outcomes"}]}`.
 
 - `endings`: one entry per outcome of `World.OUTCOME_IDS` but `none` — **every one**, none twice.
   Variants are tried in order and the first whose `when` (§8) holds is the line
   `UI_RESULT_LINE_<VARIANT ID>`; the **last variant's `when` is empty**, so one always holds. A
   variant id may stand twice within one outcome: that is how an *or* across two keys is written.
+- `illustration` (optional, id; S6.3, `docs/specs/illustrations.md` §8.2): the picture the results
+  screen and the Codex's Endings entry show, `assets/illustrations/<id>.png`, only when the file
+  exists. The four wins name theirs; losses carry none.
 - `epilogue`: file order is priority; ids unique; `outcomes` lists the outcome ids a line may
   follow, empty = every outcome. The first `epilogue_max` that hold are shown, each
   `ENDING_EPILOGUE_<ID>`.

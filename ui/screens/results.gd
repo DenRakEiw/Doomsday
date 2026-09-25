@@ -30,6 +30,9 @@ const KEY_UNLOCKED: String = "UI_RESULT_UNLOCKED"
 const KEY_UNLOCKED_SLOT: String = "UI_RESULT_UNLOCKED_SLOT"
 const KEY_CODEX_NEW: String = "UI_RESULT_CODEX_NEW"
 
+## illustrations.md §8.3: the ending's picture, wider than a card's.
+const ILLUSTRATION_WIDTH: float = 420.0
+
 ## The summary grid, in the order §7.4 item 4 lists it.
 const ROW_KEYS: Array[String] = ["UI_RESULT_DAYS", "UI_RESULT_DISCOVERED", "UI_RESULT_REGIONS",
 	"UI_RESULT_DARK", "UI_RESULT_DEATHS", "UI_RESULT_CONTAINMENT_PEAK",
@@ -51,7 +54,12 @@ const ROW_KEYS: Array[String] = ["UI_RESULT_DAYS", "UI_RESULT_DISCOVERED", "UI_R
 @onready var _title_button: ConsoleButton = %ResultTitleButton
 @onready var _again: ConsoleButton = %ResultAgainButton
 
+## Where the ending's picture is looked for. A test points it at a folder that
+## has one.
+var illustration_root: String = IllustrationSlot.ROOT
+
 var _values: Array[Label] = []
+var _illustration: IllustrationSlot = null
 
 
 func _ready() -> void:
@@ -64,6 +72,12 @@ func _ready() -> void:
 	review.pressed.connect(review_requested.emit)
 	_again.get_parent().add_child(review)
 	_again.get_parent().move_child(review, 0)
+	_illustration = IllustrationSlot.new()
+	_illustration.name = "ResultIllustration"
+	_illustration.width = ILLUSTRATION_WIDTH
+	_illustration.visible = false
+	_body.add_child(_illustration)
+	_body.move_child(_illustration, _kicker.get_index())
 	# The height is content-driven and the content wraps, so it is recomputed
 	# whenever the body or the window changes rather than once.
 	_body.minimum_size_changed.connect(_fit_scroll)
@@ -81,6 +95,7 @@ func show_result(sim: Simulation) -> void:
 	var ending: Dictionary = EndingResolver.resolve(world, sim.db)
 	_verdict.text = tr(EndingLineDef.verdict_key(str(ending[EndingResolver.KEY_VARIANT])))
 	_fill_epilogue(ending[EndingResolver.KEY_EPILOGUE])
+	_show_illustration(world, sim.db)
 	_seed_label.text = tr(KEY_SEED).format({PLACEHOLDER_SEED: Game.run_seed()})
 	_unlocked.visible = false
 	_fill_rows(sim)
@@ -90,6 +105,24 @@ func show_result(sim: Simulation) -> void:
 	# the fit is taken again after the layout pass this filling caused.
 	_fit_scroll.call_deferred()
 	_again.grab_focus.call_deferred()
+
+
+## The picture slot, for the tests; hidden when the ending has no picture.
+func illustration() -> IllustrationSlot:
+	return _illustration
+
+
+## illustrations.md §8.3: the outcome's ending names a picture and its file
+## ships — otherwise no slot at all, not the glyph: a mark above the kicker would
+## say nothing the kicker does not.
+func _show_illustration(world: World, db: ContentDB) -> void:
+	var def: EndingDef = db.endings.get(World.OUTCOME_IDS[world.outcome], null)
+	var id: String = "" if def == null else def.illustration
+	_illustration.root = illustration_root
+	_illustration.compact = get_viewport_rect().size.x < float(UiTokens.COMPACT_WIDTH)
+	_illustration.visible = _illustration.has_file(id)
+	if _illustration.visible:
+		_illustration.show_illustration(id, Glyphs.Glyph.OUTCOME)
 
 
 ## §7 item 4a: one chip per unlock — an architecture, a directive slot, the
