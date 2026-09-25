@@ -277,6 +277,11 @@ illustrative tier is another; they are allowed to differ from each other but nev
 **Custom:** the ~25 headline nodes — the ones a player will remember and screenshot — get bespoke
 silhouettes drawn to a shared grid.
 
+*D6.2 (2026-09-25) picked and pinned: **Phosphor 2.1.1** (bold + fill) for chrome,
+**game-icons.net** at a pinned commit for the illustrative tier, 25 own silhouettes (the six
+architectures and 19 headline technologies) plus three chrome shapes; Tabler, Lucide and Material
+unused. Every id's file: `docs/specs/icons.md` §8.*
+
 **Consistency beats quality.** One hundred and twenty icons that share a stroke weight and grid look
 professional. Twenty beautiful icons among a hundred mismatched ones look broken.
 
@@ -402,4 +407,8 @@ cheap to control now and expensive to fix later.
 4. Do region vignettes justify their cost, or is the map plus the ticker enough? Decide at M4.
    *(D4.0: the wire card takes the story-picture role first; vignettes are judged after it exists.)*
 5. Is `DPITexture`'s experimental status acceptable for ~140 shipped icons, or do we keep a PNG
-   atlas fallback permanently in the build? Decide at M3, once the icon set is real.
+   atlas fallback permanently in the build? Decide at M3, once the icon set is real. *Decided at
+   G3, specified at D6.2 (2026-09-25): `DPITexture` for every icon, one copy per drawn size; the
+   atlas is a permanent build tool run in CI and switched on by one project setting, not shipped
+   by default. Colour by `modulate` on white sources — `color_map` stays empty
+   (`docs/specs/icons.md` §4–§5, §10.2).*

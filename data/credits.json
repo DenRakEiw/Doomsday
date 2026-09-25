@@ -1,0 +1,137 @@
+{
+	"_comment": "docs/specs/icons.md §11: the credits and licences screen. Presentation data, not loaded by the core (SCHEMA §10). Names are proper names and are not translated; every key string is in strings.csv. An entry shows only when its `requires` file exists; `rows` are the ASSET_LICENCES.md ids it credits.",
+	"version": 1,
+	"made_by": [],
+	"sections": [
+		{
+			"id": "engine",
+			"entries": [
+				{
+					"id": "godot",
+					"name": "Godot Engine",
+					"by": "Godot Engine contributors",
+					"role": "UI_CREDITS_ROLE_ENGINE",
+					"licence": "mit",
+					"url": "https://godotengine.org",
+					"requires": "",
+					"text": "engine",
+					"line": "",
+					"rows": ["godot"]
+				}
+			]
+		},
+		{
+			"id": "fonts",
+			"entries": [
+				{
+					"id": "jetbrains_mono",
+					"name": "JetBrains Mono",
+					"by": "JetBrains",
+					"role": "UI_CREDITS_ROLE_FONT_BODY",
+					"licence": "ofl_1_1",
+					"url": "https://github.com/JetBrains/JetBrainsMono",
+					"requires": "res://assets/fonts/OFL-JetBrainsMono.txt",
+					"text": "res://assets/fonts/OFL-JetBrainsMono.txt",
+					"line": "",
+					"rows": ["font_jetbrains_mono"]
+				},
+				{
+					"id": "space_grotesk",
+					"name": "Space Grotesk",
+					"by": "Florian Karsten",
+					"role": "UI_CREDITS_ROLE_FONT_DISPLAY",
+					"licence": "ofl_1_1",
+					"url": "https://github.com/floriankarsten/space-grotesk",
+					"requires": "res://assets/fonts/OFL-SpaceGrotesk.txt",
+					"text": "res://assets/fonts/OFL-SpaceGrotesk.txt",
+					"line": "",
+					"rows": ["font_space_grotesk"]
+				}
+			]
+		},
+		{
+			"id": "map",
+			"entries": [
+				{
+					"id": "natural_earth",
+					"name": "Natural Earth",
+					"by": "",
+					"role": "UI_CREDITS_ROLE_MAP",
+					"licence": "public_domain",
+					"url": "https://www.naturalearthdata.com",
+					"requires": "res://assets/map/id_map.png",
+					"text": "",
+					"line": "UI_CREDITS_NATURAL_EARTH_LINE",
+					"rows": ["map_regions", "map_globe"]
+				}
+			]
+		},
+		{
+			"id": "icons",
+			"entries": [
+				{
+					"id": "phosphor",
+					"name": "Phosphor Icons",
+					"by": "",
+					"role": "UI_CREDITS_ROLE_ICONS_CHROME",
+					"licence": "mit",
+					"url": "https://phosphoricons.com",
+					"requires": "res://assets/icons/phosphor/LICENSE.txt",
+					"text": "res://assets/icons/phosphor/LICENSE.txt",
+					"line": "",
+					"rows": ["icons_phosphor"]
+				},
+				{
+					"id": "game_icons",
+					"name": "game-icons.net",
+					"by": "",
+					"role": "UI_CREDITS_ROLE_ICONS_ILLUSTRATIVE",
+					"licence": "cc_by_3_0",
+					"url": "https://game-icons.net",
+					"requires": "res://assets/icons/game-icons/license.txt",
+					"text": "game_icons",
+					"line": "UI_CREDITS_GAME_ICONS_LINE",
+					"rows": ["icons_game_icons"]
+				}
+			]
+		},
+		{
+			"id": "audio",
+			"entries": []
+		},
+		{
+			"id": "art",
+			"entries": []
+		}
+	],
+	"authors": {
+		"delapouite": {
+			"name": "Delapouite",
+			"url": "http://delapouite.com"
+		},
+		"lord-berandas": {
+			"name": "Lord Berandas",
+			"url": "http://berandas.deviantart.com"
+		},
+		"lorc": {
+			"name": "Lorc",
+			"url": "http://lorcblog.blogspot.com"
+		},
+		"priorblue": {
+			"name": "PriorBlue",
+			"url": ""
+		},
+		"sbed": {
+			"name": "Sbed",
+			"url": "http://opengameart.org/content/95-game-icons"
+		},
+		"seregacthtuf": {
+			"name": "SeregaCthtuf",
+			"url": ""
+		},
+		"skoll": {
+			"name": "Skoll",
+			"url": ""
+		}
+	}
+}

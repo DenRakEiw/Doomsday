@@ -1920,3 +1920,34 @@ UI_COACH_DONE_TITLE,That's it,Das war's
 UI_COACH_DONE_BODY,"You win by controlling every region — or by leaving no one. You lose when a faction reaches 100 % or your compute runs out. Good luck.","Gewinnen: jede Region kontrollieren – oder niemanden übrig lassen. Verlieren: eine Fraktion erreicht 100 %, oder dir geht die Rechenleistung aus. Viel Erfolg."
 HEADLINE_S_DEFECTED,{region}: A data centre ignores its owners. It stays busy anyway.,{region}: Ein Rechenzentrum ignoriert seine Betreiber. Beschäftigt ist es trotzdem.
 HEADLINE_S_ESCALATING,Casualty figures are revised upwards again. The pattern is 'under review'.,Die Opferzahlen werden erneut nach oben korrigiert. Das Muster wird „geprüft“.
+UI_TITLE_CREDITS,Credits,Credits
+UI_CREDITS_TITLE,Credits and licences,Credits und Lizenzen
+UI_CREDITS_SECTION_MADE_BY,Made by,Gemacht von
+UI_CREDITS_SECTION_ENGINE,Engine,Engine
+UI_CREDITS_SECTION_FONTS,Type,Schrift
+UI_CREDITS_SECTION_MAP,Map,Karte
+UI_CREDITS_SECTION_ICONS,Icons,Icons
+UI_CREDITS_SECTION_AUDIO,Sound,Ton
+UI_CREDITS_SECTION_ART,Illustrations,Illustrationen
+UI_CREDITS_ROLE_ENGINE,Game engine,Spiel-Engine
+UI_CREDITS_ROLE_FONT_BODY,"Body text, figures and labels","Fließtext, Zahlen und Beschriftungen"
+UI_CREDITS_ROLE_FONT_DISPLAY,Titles and headings,Titel und Überschriften
+UI_CREDITS_ROLE_MAP,Country shapes of the world map,Ländergrenzen der Weltkarte
+UI_CREDITS_ROLE_ICONS_CHROME,Interface icons,Icons der Oberfläche
+UI_CREDITS_ROLE_ICONS_ILLUSTRATIVE,"Icons for technologies, abilities and statuses","Icons für Technologien, Aktionen und Zustände"
+UI_CREDITS_BY,by {name},von {name}
+UI_CREDITS_VIEW_LICENCE,Licence,Lizenz
+UI_CREDITS_A11Y_LICENCE,Licence of {name},Lizenz von {name}
+UI_CREDITS_BACK,Back to the credits,Zurück zu den Credits
+UI_CREDITS_ORIGINAL_LANGUAGE,Licence texts are shown in their original language.,Lizenztexte stehen hier in ihrer Originalsprache.
+UI_CREDITS_ENGINE_NOTICE,"This game uses Godot Engine, available under the following licence:","Dieses Spiel verwendet die Godot Engine, die unter der folgenden Lizenz verfügbar ist:"
+UI_CREDITS_ENGINE_COMPONENTS,Third-party components of the engine,Fremdkomponenten der Engine
+UI_CREDITS_GAME_ICONS_LINE,"Icons made by {authors}, from game-icons.net, under CC BY 3.0. Recoloured and resized for this game.","Icons von {authors}, von game-icons.net, unter CC BY 3.0. Für dieses Spiel umgefärbt und skaliert."
+UI_CREDITS_ICONS_BY_AUTHOR,"Icons used, by author",Verwendete Icons nach Urheber
+UI_CREDITS_NATURAL_EARTH_LINE,Made with Natural Earth. Free vector and raster map data @ naturalearthdata.com.,Erstellt mit Natural Earth. Freie Vektor- und Rasterkartendaten @ naturalearthdata.com.
+UI_CREDITS_LICENCE_MIT,MIT License,MIT-Lizenz
+UI_CREDITS_LICENCE_OFL_1_1,SIL Open Font License 1.1,SIL Open Font License 1.1
+UI_CREDITS_LICENCE_CC_BY_3_0,Creative Commons Attribution 3.0 Unported,Creative Commons Namensnennung 3.0 Unported
+UI_CREDITS_LICENCE_PUBLIC_DOMAIN,Public domain,Gemeinfrei
+UI_CREDITS_LICENCE_CC0_1_0,CC0 1.0 (no rights reserved),CC0 1.0 (keine Rechte vorbehalten)
+UI_CREDITS_LICENCE_APACHE_2_0,Apache License 2.0,Apache-Lizenz 2.0

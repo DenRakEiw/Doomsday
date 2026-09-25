@@ -209,7 +209,7 @@ set from script). Popups from `Window` render at 1024 and stay below post-proces
 ### 3.6 Icons
 
 M2 ships no icon assets. Every glyph M2 needs is drawn procedurally by `IconButton` (§4.3). The
-icon pipeline is M6.
+icon pipeline is M6. *(D6.2: `docs/specs/icons.md` — the procedural glyphs become the fallback of icon files.)*
 
 ### 3.7 Theme variants
 

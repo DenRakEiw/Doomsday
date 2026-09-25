@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D6.2 — Icon system and the credits screen** [F]: `docs/specs/icons.md` (one set per tier with pinned releases, every id mapped, ~25 custom-silhouette briefs, `DPITexture` import and the atlas fallback) and the credits and licences screen (`data/credits.json`, strings). IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **D6.3 — Custom silhouettes** [F]: the 25 illustrative and 3 chrome silhouettes of `docs/specs/icons.md` §9 as SVG (`assets/icons/custom/`, white fill, no text), checked at 16/24/48 px; a file that fails at 24 px keeps its named stand-in, recorded; `ASSET_LICENCES.md` row `icons_custom` (own work). IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | the rest of Block 13 (D6.3–D6.7), then Block 14 (S5.9, S6.1–S6.8). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | D6.1 — `docs/specs/polish-visuals.md`: the screen pass (autoload `ScreenFx`, one shader, heat, *Screen effects* setting, flash limits), UI q3 / VISUALS q3 answered (two palettes; the Open accent corrected to pale amber), the coast/outline border pass, the Societal Function overlay kept; 4 strings; 1531 tests green (2026-09-25). |
-| **Before that** | D5.5 — the Task Force against dormancy (**the mark**, `taskforce-endings.md` §14) and the scenario levers (`closed_cross`, `term_scale`, `scenarios.md` §8); 7 strings; eight-item punch list for S5.9 (2026-09-25). |
+| **After it** | the rest of Block 13 (D6.4–D6.7), then Block 14 (S5.9, S6.1–S6.8). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | D6.2 — `docs/specs/icons.md`: Phosphor 2.1.1 (chrome) and game-icons.net at commit `82d9488` (illustrative), pinned with hashes; `data/icons.json` maps all 179 ids (+ 4 asset kinds via glyphs); 25 + 3 silhouette briefs; `DPITexture` per size, white sources tinted by modulate, atlas as a CI-built fallback (VISUALS q5); the credits screen and `data/credits.json`; *Id* column in `ASSET_LICENCES.md`; 31 strings; 1531 tests green (2026-09-25). |
+| **Before that** | D6.1 — `docs/specs/polish-visuals.md`: the screen pass (`ScreenFx`, heat, *Screen effects*, flash limits), the Open accent to pale amber, the coast/outline pass, the society overlay kept (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (1921 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (1952 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -145,7 +145,7 @@ it and take the next row (IMPLEMENTATION §4).*
 **Block 13 — M6 design I: the look, the sound, the teaching**
 - [x] D5.5 [F] The Task Force against dormancy; the scenario levers *(`taskforce-endings.md` §14, `scenarios.md` §8)*
 - [x] D6.1 [F] Screen effects, phase-shift variants, map polish *(`docs/specs/polish-visuals.md`)*
-- [ ] D6.2 [F] Icon system and the credits screen
+- [x] D6.2 [F] Icon system and the credits screen *(`docs/specs/icons.md`, `data/icons.json`, `data/credits.json`)*
 - [ ] D6.3 [F] Custom silhouettes
 - [ ] D6.4 [F] Audio direction and cue sheet
 - [ ] D6.5 [F] Tutorial II and help
@@ -1175,6 +1175,21 @@ without new information.
     zoom ≥ 2). The 2× ID map is rejected (128 MiB of video memory).
   - **The Societal Function overlay is built** (S6.2): a fourth view, stepped by stage, lavender
     `#C9B8FF`, from Emergent on.
+- **2026-09-25** (D6.2) — **Icons** (`icons.md`): chrome = **Phosphor 2.1.1** (bold + fill only;
+  the 29 `Glyphs` ids and the four factions), illustrative = **game-icons.net at commit `82d9488`**
+  plus **25 own silhouettes** (6 architectures, 19 headline nodes) and 3 own chrome shapes;
+  Tabler/Lucide/Material unused. One concept, one icon (an ability and its status, a counter-move
+  and its status, numbered nodes). Sources white, tinted by `modulate`; `color_map` unused. Every
+  icon a `DPITexture`, one copy per drawn size; the PNG atlas a CI-built tool behind
+  `doomsday/icons/use_atlas`, not shipped (VISUALS q5). The procedural glyphs are the fallback.
+  Illustrative icons never below 20 px; map status rings keep their codes. The mapping is data
+  (`data/icons.json`); the recurring **aperture** motif marks *you* in the own silhouettes.
+- **2026-09-25** (D6.2) — **Credits**: a title modal from `data/credits.json`; an entry shows only
+  when its `requires` file ships; licence texts in the original language; engine notices from
+  `Engine.get_*`; CC BY attribution computed from the used author folders. **`ASSET_LICENCES.md`
+  shipped tables start with an `Id`**, and a test (S6.3) matches them to the credits' `rows`.
+  Credits names are proper names, not strings (SCHEMA §10). *Made by* stays empty until the user
+  names it (overnight, pending user confirmation).
 
 ## Design questions for Fable
 
@@ -1954,6 +1969,10 @@ the two scenarios promise?
 Governments' colour — right? (2) CRT curvature is cut — fine? (3) the society view in lavender, a
 fourth button from Emergent on — worth the space? Best judged on the S6.1/S6.2 screenshots.
 
+**D6.2 (2026-09-25, overnight, pending user confirmation):** `docs/specs/icons.md` — (1) what goes
+under *Made by* in the credits (a name, a studio; AI assistance credited or not)? Until then the
+section is hidden. (2) The icon choice is best judged on D6.3's contact sheet and S6.4's shots.
+
 **D5.2 (2026-09-24), at G5:** `docs/specs/taskforce-endings.md` §13 — is *Supplanted* (a secret
 loss that turns a win, after one warning card) fair, or should a normal win's results screen hint
 that a released child is still out there?
@@ -2236,6 +2255,12 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-25 — D6.2 Icon system and the credits screen [F]
+- `docs/specs/icons.md`: Phosphor 2.1.1 + game-icons.net `82d9488` (URLs, SHA-256), normalisation,
+  `DPITexture` per size, `Icons`/`IconRect` API, placements, atlas tool, vendoring tool, tests.
+- `data/icons.json` (179 ids, looked at on contact sheets), 25 + 3 silhouette briefs, `data/credits.json`,
+  31 strings, SCHEMA §10, `ASSET_LICENCES.md` *Id* column. VISUALS q5 answered. 1531 green.
 
 ### 2026-09-25 — D6.1 Screen effects, phase-shift variants, map polish [F]
 - `docs/specs/polish-visuals.md`: `ScreenFx` pass (8 stages, heat, costs, tokens), triggers

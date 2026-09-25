@@ -975,8 +975,8 @@ model), the full licence texts it shows, strings en/de.
 **Done when:** every id mapped; every custom brief written; the credits data format fixed.
 
 ### D6.3 — Custom silhouettes **[F]** · **Read first:** `docs/specs/icons.md` (the briefs and the grid)
-Draw the ~25 custom silhouettes as SVG on the shared grid (`assets/icons/custom/`, text as paths,
-no filters); check them at 16, 24 and 48 px with a throwaway rasteriser in the scratch directory;
+Draw the 25 illustrative and 3 chrome silhouettes of `icons.md` §9 as SVG on their grids
+(`assets/icons/custom/`, `custom/chrome/`; white fill, no text, no filters); check them at 16, 24 and 48 px with a throwaway rasteriser in the scratch directory;
 a silhouette that does not read at 24 px gets the set icon the spec names as its stand-in,
 recorded. `ASSET_LICENCES.md`: one row, *own work*.
 **Done when:** every brief has a file or a recorded stand-in; the contact sheet was looked at.
