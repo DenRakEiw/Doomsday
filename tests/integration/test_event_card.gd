@@ -186,7 +186,7 @@ func test_escape_puts_the_card_away_without_answering() -> void:
 	assert_false(Game.is_held())
 	assert_not_null(Game.sim.world.event_by_id(event.id), "still open, still on its clock")
 	var top_bar: Node = _session.get_node("%Hud").get_node("%TopBar")
-	var chip: Chip = top_bar.call(&"pending_chip") as Chip
+	var chip: Button = top_bar.call(&"pending_chip") as Button
 	assert_true(chip.visible, "the top bar brings it back")
 	EventBus.wire_requested.emit(event.id)
 	assert_true(_wire.visible)

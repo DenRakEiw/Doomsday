@@ -25,6 +25,9 @@ signal phase_reached(phase: World.Phase)
 signal sheet_requested(with_bars: bool)
 signal menu_requested
 
+## accessibility.md §3.4: announced cues are spoken at most this often.
+const ANNOUNCE_GAP_MS: int = 1500
+
 @onready var _top_bar: PanelContainer = %TopBar
 @onready var _overlay_picker: PanelContainer = %OverlayPicker
 @onready var _dock: PanelContainer = %Dock
@@ -34,6 +37,7 @@ signal menu_requested
 @onready var _ticker: PanelContainer = %Ticker
 @onready var _site_prompt: PanelContainer = %SitePrompt
 @onready var _status_strip: PanelContainer = %StatusStrip
+@onready var _console_line: Label = %ConsoleLine
 
 var _compact: bool = false
 ## The phase the HUD last laid itself out for.
@@ -42,6 +46,11 @@ var _phase: World.Phase = World.Phase.BOXED
 var _sheet: Node = null
 ## False until the first layout pass, so that the first one always applies.
 var _has_layout: bool = false
+## §3.4: the spoken alerts of §7.2, paced.
+var _announce_live: LiveRegion = null
+var _announce_queue: LiveQueue = LiveQueue.new(ANNOUNCE_GAP_MS)
+## A test sets the clock the pacing reads; below zero, the real one.
+var clock_override_ms: int = -1
 
 
 func _ready() -> void:
@@ -52,8 +61,57 @@ func _ready() -> void:
 	_status_strip.connect(&"bars_requested", _on_strip_bars_requested)
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.run_started.connect(_on_run_started)
+	EventBus.caption_announced.connect(_on_caption_announced)
+	_build_live_regions()
 	_apply_layout()
 	apply_reveal()
+
+
+func _process(_delta: float) -> void:
+	var line: String = _announce_queue.pop_due(_now())
+	if not line.is_empty():
+		_announce_live.say(line)
+
+
+## accessibility.md §3.4: the three spoken lines of the HUD live on its root, a
+## plain `Control` that is never hidden — a live region inside the caption stack
+## or a hidden strip would be dropped from the accessibility tree.
+func _build_live_regions() -> void:
+	_announce_live = _live_region("AnnounceLive")
+	_console_line.set(&"live", _live_region("ConsoleLive"))
+	_ticker.set(&"live", _live_region("TickerLive"))
+
+
+func _live_region(node_name: String) -> LiveRegion:
+	var region: LiveRegion = LiveRegion.new()
+	region.name = node_name
+	add_child(region)
+	return region
+
+
+## The live region of the announced cues, for the tests.
+func announce_live() -> LiveRegion:
+	return _announce_live
+
+
+## §7.2: spoken whether or not *Sound captions* is on.
+func _on_caption_announced(key: String, args: Dictionary) -> void:
+	_announce_queue.push(CaptionText.render(key, args), _now())
+
+
+func _now() -> int:
+	return clock_override_ms if clock_override_ms >= 0 else Time.get_ticks_msec()
+
+
+## accessibility.md §4.3: the HUD's parts of the session's focus ring, by zone —
+## the top bar; the left column; the dock or, on a phone, the status strip.
+func focus_zones() -> Array[Control]:
+	return [_top_bar, _overlay_picker, _dock, _status_strip]
+
+
+## Zone 5 of the ring (§4.3).
+func site_prompt() -> Control:
+	return _site_prompt
 
 
 ## m3-screens §6.1: what the interface shows is a function of the state, not of

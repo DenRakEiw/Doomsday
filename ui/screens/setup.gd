@@ -490,7 +490,8 @@ func _fit() -> void:
 	if compact:
 		_cards.columns = 1
 	else:
-		_cards.columns = CARD_COLUMNS_NARROW if width * GRID_SHARE < NARROW_WIDTH 			else CARD_COLUMNS
+		_cards.columns = CARD_COLUMNS_NARROW if width * GRID_SHARE < NARROW_WIDTH \
+				else CARD_COLUMNS
 	_difficulty_row.vertical = width < DIFFICULTY_STACK_WIDTH
 	for button: Node in _difficulty_row.get_children():
 		(button as ConsoleButton).compact = compact

@@ -14,17 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.8b — Accessibility II** [O] (S6.8 split in three, IMPLEMENTATION Block 14): the session focus ring, the modal/panel focus fixes, `MapFocus` and the cursor, the pending `ChipButton`, the speech wiring (console, ticker, announced cues, modals), the *Controls* modal and the two settings rows. Then **S6.8c**. Read *In progress* first. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.8c — Accessibility III** [O] (IMPLEMENTATION Block 14): §3.3's names, the §6.3 colour fixes, §8's widths and 150 % fixes, the scroll containers' focus margins, `test_a11y_names.gd`, then §12's checklist, the keyboard-only and pad-only runs and §13's screenshots. Read *In progress* first. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
 | **After it** | Block 15 (D6.8, D6.9), then Block 16. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | S6.8a — Accessibility I: `[input]` actions + pad events, `KeyBindings`, `KeyNames` and §10.2's strings, `LiveRegion`/`LiveQueue`/`FocusRing`/`MapNav`/`RegionSpeech`, the outer focus ring, `TASK_FORCE_DIM`, `text_width`, the console's reading time (2026-09-25). |
-| **Before that** | S6.7 — Tutorial II: the ten hints (once per profile, `Settings.hints`, `ProfileManager.hints_seen`), step 7 narrowed to openings, *How to play* (`HelpPages`, the Codex's first tab), `F1`, the **?** (`HelpButton`) on four panels, pause-menu and sheet entries, `ModalHost.open_over`, the `HELP` glyph (2026-09-25). |
+| **Last completed** | S6.8b — Accessibility II: the session's and the modal's focus rings, companions, `SlidePanel.open(take_focus)`, `MapFocus` + the cursor, `ChipButton`, spoken console/headlines/alerts/modals, the *Controls* modal and two settings rows (2026-09-25). |
+| **Before that** | S6.8a — Accessibility I: `[input]` actions + pad events, `KeyBindings`, `KeyNames` and §10.2's strings, `LiveRegion`/`LiveQueue`/`FocusRing`/`MapNav`/`RegionSpeech`, the outer focus ring, `TASK_FORCE_DIM`, `text_width`, the console's reading time (2026-09-25). |
+| **Earlier** | S6.7 — Tutorial II: the ten hints (once per profile, `Settings.hints`, `ProfileManager.hints_seen`), step 7 narrowed to openings, *How to play* (`HelpPages`, the Codex's first tab), `F1`, the **?** (`HelpButton`) on four panels, pause-menu and sheet entries, `ModalHost.open_over`, the `HELP` glyph (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 281 scripts compile (116 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1897 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 281 scripts compile (124 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1928 tests, **all green since S4.9**. The same command is all of CI. |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
 | **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. **The sound set:** `uv run --project tools/audio python tools/audio/synth.py [--only <id>] [--check]` (≈30 s; environment `uv sync --project tools/audio`) rewrites `assets/audio/**`; after a new file run `--import` and set its `.import` per audio.md §10.3 (`compress/mode=0` / `loop=true`). |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
@@ -40,7 +41,7 @@ next step.
 
 ## In progress
 
-**S6.8 Accessibility, split into S6.8a (done) · S6.8b · S6.8c** (IMPLEMENTATION Block 14).
+**S6.8 Accessibility, split into S6.8a (done) · S6.8b (done) · S6.8c** (IMPLEMENTATION Block 14).
 - **Done in S6.8a:** every game key is an `InputMap` action (`project.godot` `[input]`, physical
   keycodes; the session, `MapCamera`, the title's `F1`, `ModalHost` and setup's back all ask
   actions — `ModalHost`/title/setup moved to `_unhandled_input` so pad buttons reach them);
@@ -52,7 +53,17 @@ next step.
   (`ThemeBuilder.focus_ring`, `FOCUS_OUTSET`; theme rebuilt); `TASK_FORCE_DIM` `#CC4040`;
   `UiTokens.text_width` (not yet applied); console lines 4 s + 40 ms/char, held while paused;
   `session.keyboard_mode` is tracked but nothing reads it yet. Tests for all of that.
-- **Left for S6.8b:** `FocusRing` in the session (`Tab`/LB/RB over the zones of §4.3) and in
+- **Done in S6.8b** (the list below, all of it): `session.focus_chain()` + `_step_focus`
+  (`Tab`/LB/RB; an arrow with nothing focused focuses the map), `EventBus.keyboard_mode_changed`,
+  `ModalHost` `_input` trap/`companions`/`focus_chain()`/`title_of`/`dialog_line`/`live_region()`
+  (the live region hangs on the host's *parent*), `SlidePanel.focus_primary`/`primary_focus`/
+  `focus_fallback`, `game/map/map_focus.gd` (built by the session, `session.map_focus`), the cursor
+  in `MarkerLayer` (`cursor`, `cursor_visible`, a second tooltip plate), `EventBus.caption_announced`,
+  the HUD's three live regions, `ui/modals/controls.tscn` (built in code), pause menu rows
+  *Bildschirmleser* (index 12; later indices +1) and *Steuerung* (`controls_requested`).
+  Looked at: origin by keyboard (cursor, `Enter` twice, the ring on *Hier beginnen*), `Tab`, pause
+  menu, *Controls* with a swap — German 1920.
+- **Was the S6.8b list:** `FocusRing` in the session (`Tab`/LB/RB over the zones of §4.3) and in
   `ModalHost` (reverse wrap, skip disabled, `companions` = the coach), pause menu's confirm on
   `Escape`, `SlidePanel.open(take_focus)` + `primary_focus()`, `MapFocus` (first child of
   `HudLayer`, group `map_focus` — `MapCamera.arrows_pan()` already checks that group) + the cursor
@@ -67,8 +78,9 @@ next step.
   text), §8.1 widths through `text_width`, `follow_focus` + `FOCUS_OUTSET` margins on the scroll
   containers, §8.2's three 150 % fixes, then §12's checklist, the keyboard-only and pad-only runs,
   §13.5's screenshots. The Narrator check cannot be done unattended (speech is audible) → *Waiting on the user*.
-- **Not looked at yet:** the outer focus ring on screen (theme rebuilt, tests green) — S6.8c's
-  screenshots cover it.
+- **Seen in S6.8b, for S6.8c:** the ring of the pause menu's first button is clipped at the right by
+  its scroll container (the `FocusMargin` variation exists for this — the *Controls* list uses it).
+  The top bar's `Tab` order is tree order: menu button before the speed group.
 
 ---
 
@@ -191,7 +203,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S6.6 [O] Audio II: the sound set
 - [x] S6.7 [O] Tutorial II
 - [x] S6.8a [O] Accessibility I: actions, key bindings, the pure pieces, focus ring style
-- [ ] S6.8b [O] Accessibility II: focus rings in use, the map cursor, speech, the *Controls* modal
+- [x] S6.8b [O] Accessibility II: focus rings in use, the map cursor, speech, the *Controls* modal
 - [ ] S6.8c [O] Accessibility III: names, colour fixes, 150 %, the checklist and the runs
 
 **Block 15 — M6 design II: release and the benchmark**
@@ -1380,6 +1392,16 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
    1120 × 840, `.import` lossless + mipmaps, a *Generated assets* row per file).
 
 ## Deviations from the plan or a spec
+
+- **2026-09-25** (S6.8b) — **Against `accessibility.md` §3.4, §4.3–§4.6, §5.3:** (1) Announced cues
+  reach the HUD through a new `EventBus.caption_announced` (emitted by `Audio` next to
+  `caption_pushed`, which carries no cue id). (2) The console's and the ticker's live regions are
+  children of the HUD root, handed to them — neither sits outside a container. (3) The modal
+  host's live region is a sibling of the host (the host hides). (4) A modal's title is found as its
+  first visible `LabelDisplayXL`/`LabelDisplay`/`LabelHeading`. (5) With nothing focused, the first
+  arrow key focuses the map and places the cursor (no pan); Shift + arrows pan. (6) The *Controls*
+  modal's close is in the header, so `Tab` reaches it first (the first row has the focus on open).
+  (7) `ModalHost`/`SlidePanel` first focus = the first `FocusRing` stop (a disabled button never).
 
 - **2026-09-25** (S6.8a) — **Against `accessibility.md` §4.1, §5.2:** (1) Godot 4.7's
   `ui_left/right/up/down` already carry the D-pad and the left stick, so `[input]` adds pad events
@@ -2592,6 +2614,12 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.8b Accessibility II [O]
+- Focus rings in use (session zones, modal trap + coach companion, panels take and give back focus),
+  `MapFocus` + cursor reticle, `ChipButton`, speech (console, headlines 8 s, announced cues, modal
+  openings, boot, title), *Controls* modal + *Steuerung*/*Bildschirmleser* rows, confirm's `Escape`.
+- Looked at: keyboard-only origin, `Tab`, pause menu, *Controls* swap (de, 1920). +31 tests, 1928 green.
 
 ### 2026-09-25 — S6.8a Accessibility I [O]
 - S6.8 split in three (a/b/c). `[input]` actions + pad on accept/cancel; keys through actions

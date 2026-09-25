@@ -58,3 +58,10 @@ signal sound_captions_changed(enabled: bool)
 ## audio.md §5.3: an admitted cue with a caption — whatever the volume, the mute
 ## or the web lock. The caption stack shows it when the setting is on.
 signal caption_pushed(key: String, args: Dictionary)
+## accessibility.md §7.2: an admitted cue whose caption is also spoken to a
+## screen reader (`"announce": true`), whatever *Sound captions* says. A signal
+## of its own: `caption_pushed` carries the caption, not the cue.
+signal caption_announced(key: String, args: Dictionary)
+## accessibility.md §4.1: the player moved between the pointer and the keyboard
+## or a pad. The map cursor and the site prompt's wording follow it.
+signal keyboard_mode_changed(keyboard: bool)

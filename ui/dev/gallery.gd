@@ -165,7 +165,8 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 
 func _toggle_variant() -> void:
-	var wanted: StringName = UiTokens.VARIANT_COLD if UiTokens.variant == UiTokens.VARIANT_OPEN 		else UiTokens.VARIANT_OPEN
+	var wanted: StringName = UiTokens.VARIANT_COLD if UiTokens.variant == UiTokens.VARIANT_OPEN \
+			else UiTokens.VARIANT_OPEN
 	UiTokens.variant = wanted
 	theme = ThemeBuilder.build(String(wanted))
 	_ground.color = UiTokens.color(&"BG_1")
@@ -253,7 +254,8 @@ func _build_icons() -> void:
 	for kind: StringName in Icons.KINDS:
 		var ids: Array = Icons.section(kind).keys()
 		ids.sort()
-		var small: float = float(UiTokens.ASSET_GLYPH) if kind == Icons.KIND_GLYPH 			else float(UiTokens.ICON_ROW)
+		var small: float = float(UiTokens.ASSET_GLYPH) if kind == Icons.KIND_GLYPH \
+				else float(UiTokens.ICON_ROW)
 		for side: float in [float(UiTokens.ICON_L), small]:
 			var row: HFlowContainer = _section("Icons — %s (%d) at %d px" % [kind, ids.size(),
 				int(side)])

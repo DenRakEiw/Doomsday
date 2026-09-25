@@ -92,6 +92,11 @@ func layout() -> BoxContainer:
 
 
 ## §16.7: `Escape` closes the card and answers nothing.
+## accessibility.md §3.4: what is spoken when the modal opens.
+func a11y_summary() -> String:
+	return ModalHost.dialog_line(_title.text, _body.text)
+
+
 func on_escape() -> void:
 	_put_away()
 

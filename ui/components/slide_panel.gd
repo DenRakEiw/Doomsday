@@ -58,9 +58,15 @@ var bottom_inset: float = 0.0:
 ## Whether the panel is open or on its way there.
 var is_open: bool = false
 
+## accessibility.md §4.4: where the focus goes back to when a panel that took it
+## closes and its opener is gone — the session sets the map (`MapFocus`).
+var focus_fallback: Control = null
+
 var _panel: Control = null
 var _state: State = State.CLOSED
 var _tween: Tween = null
+## Whatever had the focus when a keyboard open took it.
+var _focus_before: Control = null
 
 
 func _ready() -> void:
@@ -90,14 +96,41 @@ func _adopt_child() -> void:
 	_layout()
 
 
-## Slides the panel in. A second call while it is opening does nothing.
-func open() -> void:
-	if _panel == null or _state == State.OPENING or _state == State.OPEN:
+## Slides the panel in. A second call while it is opening does nothing. With
+## `take_focus` (the player is on the keyboard or a pad, accessibility.md §4.4)
+## the panel's `primary_focus()` takes the focus, and gets it back on `close`.
+func open(take_focus: bool = false) -> void:
+	if _panel == null:
+		return
+	if _state == State.OPENING or _state == State.OPEN:
+		if take_focus:
+			focus_primary()
 		return
 	is_open = true
 	_panel.visible = true
 	_layout()
 	_slide(State.OPENING, State.OPEN, _open_position())
+	if take_focus:
+		focus_primary()
+
+
+## Gives the focus to `primary_focus()`, remembering where it was.
+func focus_primary() -> void:
+	var target: Control = primary_focus()
+	if target == null or not target.is_inside_tree():
+		return
+	var owner: Control = get_viewport().gui_get_focus_owner()
+	if owner != null and not is_ancestor_of(owner):
+		_focus_before = owner
+	target.grab_focus()
+
+
+## The control a keyboard open focuses. A panel script overrides it; the default
+## is the first control `Tab` would reach.
+func primary_focus() -> Control:
+	var roots: Array[Control] = [self]
+	var chain: Array[Control] = FocusRing.collect(roots)
+	return chain.front() if not chain.is_empty() else null
 
 
 ## Slides the panel out — from wherever it currently is, so a close during an
@@ -106,7 +139,25 @@ func close() -> void:
 	if _panel == null or _state == State.CLOSED or _state == State.CLOSING:
 		return
 	is_open = false
+	_give_focus_back()
 	_slide(State.CLOSING, State.CLOSED, _closed_position())
+
+
+## §4.4: when the focus was inside, it goes back to the control that had it,
+## or to the fallback when that one is gone.
+func _give_focus_back() -> void:
+	var viewport: Viewport = get_viewport()
+	var owner: Control = viewport.gui_get_focus_owner() if viewport != null else null
+	var before: Control = _focus_before
+	_focus_before = null
+	if owner == null or not is_ancestor_of(owner):
+		return
+	owner.release_focus()
+	if before != null and is_instance_valid(before) and before.is_visible_in_tree():
+		before.grab_focus()
+	elif focus_fallback != null and is_instance_valid(focus_fallback) \
+			and focus_fallback.is_visible_in_tree():
+		focus_fallback.grab_focus()
 
 
 ## The screen rectangle an open panel leaves free, for whatever has to stay

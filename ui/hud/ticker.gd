@@ -28,6 +28,8 @@ const VARIATION_LINE: StringName = &"Ticker"
 const VARIATION_LINE_COMPACT: StringName = &"LabelCaption"
 const ITEM_FONT: StringName = &"font"
 const ITEM_FONT_SIZE: StringName = &"font_size"
+## accessibility.md §3.4: at most one headline spoken in this many ms.
+const TICKER_LIVE_GAP_MS: int = 8000
 
 ## Set by the HUD when the layout switches (§5.7): a slower line on a phone, and
 ## the caption face when one has to stand in two rows.
@@ -53,6 +55,12 @@ var _width: float = 0.0
 ## signal both arrive on a locale change, and once is enough.
 var _rendered_frame: int = -1
 
+## accessibility.md §3.4: headlines are spoken here (the HUD sets it).
+var live: LiveRegion = null
+## A test sets the clock the pacing reads; below zero, the real one.
+var clock_override_ms: int = -1
+var _live_queue: LiveQueue = LiveQueue.new(TICKER_LIVE_GAP_MS)
+
 @onready var _clip: Control = %Clip
 @onready var _label: Label = %Line
 
@@ -73,6 +81,7 @@ func _notification(what: int) -> void:
 
 
 func _process(delta: float) -> void:
+	_speak_due()
 	if UiTokens.reduced_motion():
 		_advance_static(delta)
 		return
@@ -194,7 +203,9 @@ func _advance_static(delta: float) -> void:
 	if _shown.is_empty():
 		_show_next_static()
 		return
-	_standing += delta
+	# accessibility.md §9 item 2: the standing line holds while the game stands.
+	if not _clock_holds():
+		_standing += delta
 	if _standing < _standing_time():
 		return
 	if _queue.is_empty():
@@ -308,7 +319,26 @@ func _on_sim_event(event: SimEvent) -> void:
 	var phase_to: String = str(event.data.get("to", ""))
 	if event.type == SimEvent.PHASE_CHANGED and phase_to == World.PHASE_IDS[World.Phase.OPEN]:
 		set_register(REGISTER_EMERGENCY)
-	push(HeadlineText.item_for(event))
+	var item: TickerItem = HeadlineText.item_for(event)
+	push(item)
+	# §3.4: a headline is spoken when it is queued — never the idle line or the
+	# bot banner, and only while the setting says so.
+	if item != null and not item.key.is_empty() and Settings.announce_headlines:
+		_live_queue.push(item.render(), _now())
+
+
+func _speak_due() -> void:
+	var line: String = _live_queue.pop_due(_now())
+	if not line.is_empty() and live != null:
+		live.say(line)
+
+
+func _now() -> int:
+	return clock_override_ms if clock_override_ms >= 0 else Time.get_ticks_msec()
+
+
+func _clock_holds() -> bool:
+	return Game.sim != null and (Game.speed == 0 or Game.is_held())
 
 
 ## §10.2: the ticker announces a bot run, which is the only way a run starts

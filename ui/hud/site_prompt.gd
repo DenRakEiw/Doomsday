@@ -17,6 +17,8 @@ const KEY_ORIGIN_DETAIL: String = "UI_ORIGIN_PROMPT_DETAIL"
 const KEY_DETAIL: String = "UI_SITE_PROMPT_DETAIL"
 const KEY_CANCEL: String = "UI_SITE_CANCEL"
 const KEY_HOVER_OK: String = "UI_SITE_HOVER_OK"
+## accessibility.md §4.5: the same line for the keyboard and the pad — *press Enter*.
+const KEY_HOVER_OK_KEY: String = "UI_SITE_HOVER_OK_KEY"
 const KEY_HOVER_CLOSED: String = "UI_SITE_HOVER_CLOSED"
 const KEY_COLLAPSE: String = "UI_SITE_COLLAPSE"
 const KEY_EXPAND: String = "UI_SITE_EXPAND"
@@ -43,6 +45,8 @@ var collapsed: bool = false:
 @onready var _cancel: ConsoleButton = %SiteCancel
 
 var _compact: bool = false
+## §4.1: whether the player is on the keyboard or a pad.
+var _keyboard: bool = false
 var _hovered: int = 0
 ## The request the strip last showed, so that a new one opens unfolded.
 var _shown: SiteRequest = null
@@ -57,6 +61,7 @@ func _ready() -> void:
 	EventBus.command_applied.connect(_on_command_applied)
 	EventBus.site_select_changed.connect(_on_site_select_changed)
 	EventBus.region_hovered.connect(_on_region_hovered)
+	EventBus.keyboard_mode_changed.connect(_on_keyboard_mode_changed)
 	refresh()
 
 
@@ -99,7 +104,8 @@ func _detail_text(request: SiteRequest) -> String:
 		var region: String = tr(PREFIX_REGION + Game.db.regions[_hovered].id.to_upper())
 		var reason: String = request.reason_text(_hovered)
 		if reason.is_empty():
-			return tr(KEY_HOVER_OK).format({PLACEHOLDER_REGION: region})
+			return tr(KEY_HOVER_OK_KEY if _keyboard else KEY_HOVER_OK).format({
+				PLACEHOLDER_REGION: region})
 		return tr(KEY_HOVER_CLOSED).format({PLACEHOLDER_REGION: region,
 			PLACEHOLDER_REASON: reason})
 	if request.kind != SiteRequest.KIND_ORIGIN:
@@ -150,6 +156,12 @@ func _on_site_select_changed(_active: bool) -> void:
 
 func _on_region_hovered(index: int) -> void:
 	_hovered = index
+	if visible and Game.site_request != null:
+		_detail.text = _detail_text(Game.site_request)
+
+
+func _on_keyboard_mode_changed(keyboard: bool) -> void:
+	_keyboard = keyboard
 	if visible and Game.site_request != null:
 		_detail.text = _detail_text(Game.site_request)
 

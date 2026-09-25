@@ -80,6 +80,8 @@ var _queue: Array[String] = []
 ## Seconds the line on show still has, or 0 when none is showing.
 var _left: float = 0.0
 var _tween: Tween = null
+## accessibility.md §3.4: every line is spoken when it is shown (the HUD sets it).
+var live: LiveRegion = null
 
 
 func _ready() -> void:
@@ -146,6 +148,8 @@ func _show_next() -> void:
 	visible = true
 	_left = standing_seconds(text)
 	set_process(true)
+	if live != null:
+		live.say(text)
 	_fade(1.0)
 
 

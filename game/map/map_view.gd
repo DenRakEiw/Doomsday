@@ -150,7 +150,8 @@ func _ready() -> void:
 ## not a pass over the land.
 func _unhandled_input(event: InputEvent) -> void:
 	# The ending sequence locks the map; its hover is the sequence's (§7).
-	if _camera == null or OS.has_feature("mobile") or _camera.is_panning() 			or _camera.input_locked:
+	if _camera == null or OS.has_feature("mobile") or _camera.is_panning() \
+			or _camera.input_locked:
 		return
 	var motion: InputEventMouseMotion = event as InputEventMouseMotion
 	if motion == null:

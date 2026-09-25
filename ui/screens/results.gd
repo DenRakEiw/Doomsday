@@ -86,6 +86,11 @@ func _ready() -> void:
 
 
 ## Fills the screen from the world that just ended.
+## accessibility.md §3.4: what is spoken when the modal opens.
+func a11y_summary() -> String:
+	return ModalHost.dialog_line(_outcome.text, _verdict.text)
+
+
 func show_result(sim: Simulation) -> void:
 	var world: World = sim.world
 	var won: bool = World.WIN_OUTCOMES.has(world.outcome)

@@ -80,7 +80,8 @@ func _draw_ticks(trough_rect: Rect2) -> void:
 	for share: float in ticks:
 		var x: float = trough_rect.position.x + trough_rect.size.x * clampf(share, 0.0, 1.0)
 		x = minf(x, trough_rect.end.x - TICK_WIDTH)
-		var colour: Color = UiTokens.color(&"ALERT") if is_equal_approx(share, TICK_END) 			else UiTokens.color(&"LINE_2")
+		var colour: Color = UiTokens.color(&"ALERT") if is_equal_approx(share, TICK_END) \
+				else UiTokens.color(&"LINE_2")
 		draw_rect(Rect2(Vector2(x, trough_rect.position.y - TICK_OVERHANG),
 			Vector2(TICK_WIDTH, trough_rect.size.y + TICK_OVERHANG * 2.0)), colour)
 

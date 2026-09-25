@@ -10,6 +10,8 @@ extends Control
 signal closed
 ## Quit was confirmed: the router takes it from here.
 signal quit_requested
+## accessibility.md §5.3: the *Controls* modal, over this one.
+signal controls_requested
 
 const KEY_TITLE: String = "UI_PAUSE_TITLE"
 const KEY_SEED: String = "UI_PAUSE_SEED"
@@ -47,6 +49,13 @@ const KEY_VOLUME_INTERFACE: String = "UI_SETTINGS_VOLUME_INTERFACE"
 const KEY_VOLUME_ALERTS: String = "UI_SETTINGS_VOLUME_ALERTS"
 const KEY_SOUND_CAPTIONS: String = "UI_SETTINGS_SOUND_CAPTIONS"
 const KEY_AUDIO_BACKGROUND: String = "UI_SETTINGS_AUDIO_BACKGROUND"
+## accessibility.md §3.4: directly after *Background audio*.
+const KEY_READ_HEADLINES: String = "UI_SETTINGS_READ_HEADLINES"
+## accessibility.md §5.3: the last row before *Reset progress*, not on a phone.
+const KEY_CONTROLS: String = "UI_SETTINGS_CONTROLS"
+const KEY_CONTROLS_OPEN: String = "UI_SETTINGS_CONTROLS_OPEN"
+## §3.2: a settings button is named by its row and its value.
+const KEY_A11Y_LABEL_VALUE: String = "UI_A11Y_LABEL_VALUE"
 ## Row label → the bus its button cycles.
 const VOLUME_ROWS: Dictionary[String, StringName] = {
 	KEY_VOLUME_MASTER: &"master",
@@ -72,14 +81,15 @@ const INDEX_VOLUME_INTERFACE: int = 8
 const INDEX_VOLUME_ALERTS: int = 9
 const INDEX_SOUND_CAPTIONS: int = 10
 const INDEX_AUDIO_BACKGROUND: int = 11
-const INDEX_TUTORIAL: int = 12
-const INDEX_HINTS: int = 13
-const INDEX_BOOT: int = 14
+const INDEX_READ_HEADLINES: int = 12
+const INDEX_TUTORIAL: int = 13
+const INDEX_HINTS: int = 14
+const INDEX_BOOT: int = 15
 ## The rows' labels in the order of the indices above.
 const SETTING_KEYS: Array[String] = [KEY_LOCALE, KEY_REDUCED_MOTION, KEY_SCREEN_EFFECTS,
 	KEY_TREE_PAUSES, KEY_TEXT_SCALE, KEY_VOLUME_MASTER, KEY_VOLUME_MUSIC, KEY_VOLUME_AMBIENCE,
 	KEY_VOLUME_INTERFACE, KEY_VOLUME_ALERTS, KEY_SOUND_CAPTIONS, KEY_AUDIO_BACKGROUND,
-	KEY_TUTORIAL, KEY_HINTS, KEY_BOOT]
+	KEY_READ_HEADLINES, KEY_TUTORIAL, KEY_HINTS, KEY_BOOT]
 ## A volume button plays no click: `Audio` previews the bus instead (§3.3).
 const META_AUDIO_CUE: StringName = &"audio_cue"
 const FEATURE_WEB: String = "web"
@@ -125,6 +135,8 @@ var _setting_buttons: Array[ConsoleButton] = []
 ## screens-full.md §6.3: the boot row and *Reset progress*, on the title only.
 var _title_rows: Array[Control] = []
 var _reset: ConsoleButton = null
+## accessibility.md §5.3: *Change* on the *Controls* row.
+var _controls: ConsoleButton = null
 
 
 func _ready() -> void:
@@ -165,7 +177,12 @@ func open_settings_only() -> void:
 	_setting_buttons[0].grab_focus.call_deferred()
 
 
+## accessibility.md §4.4 item 5: `Escape` in a confirm answers *Cancel* and
+## leaves the menu open; only otherwise does it close the menu.
 func on_escape() -> void:
+	if _confirm.visible:
+		_confirm.on_escape()
+		return
 	closed.emit()
 
 
@@ -266,6 +283,7 @@ func _build_settings() -> void:
 		# §3.3: a browser or a phone has no window to lose focus to.
 		if key == KEY_AUDIO_BACKGROUND:
 			row.visible = not (OS.has_feature(FEATURE_WEB) or OS.has_feature(FEATURE_MOBILE))
+	_build_controls_row()
 	# §6.3: progress is not a run — the autosave and the slots stay.
 	_reset = ConsoleButton.new()
 	_reset.label_key = KEY_RESET_PROFILE
@@ -282,34 +300,77 @@ func _refresh_settings() -> void:
 			continue
 		var label: Label = (row as Container).get_child(0) as Label
 		label.text = tr(str(label.get_meta(&"key")))
-	_setting_buttons[INDEX_LOCALE].text = Format.caps(tr(
-		KEY_LOCALE_DE if Settings.locale == "de" else KEY_LOCALE_EN))
-	_setting_buttons[INDEX_REDUCED_MOTION].text = Format.caps(tr(
-		KEY_ON if Settings.reduced_motion else KEY_OFF))
-	_setting_buttons[INDEX_SCREEN_EFFECTS].text = Format.caps(tr(
-		screen_effects_key(Settings.screen_effects)))
-	_setting_buttons[INDEX_TREE_PAUSES].text = Format.caps(tr(
-		KEY_ON if Settings.tree_pauses else KEY_OFF))
-	_setting_buttons[INDEX_TEXT_SCALE].text = Format.number(Settings.text_scale,
-		Format.Kind.PERCENT)
-	for i: int in range(INDEX_VOLUME_MASTER, INDEX_VOLUME_ALERTS + 1):
-		_setting_buttons[i].text = volume_text(Audio.volume(VOLUME_ROWS[SETTING_KEYS[i]]))
-	_setting_buttons[INDEX_SOUND_CAPTIONS].text = Format.caps(tr(
-		KEY_ON if Settings.sound_captions else KEY_OFF))
-	_setting_buttons[INDEX_AUDIO_BACKGROUND].text = Format.caps(tr(
-		KEY_ON if Settings.audio_background else KEY_OFF))
-	_setting_buttons[INDEX_TUTORIAL].text = Format.caps(tr(
-		KEY_ON if Settings.tutorial else KEY_OFF))
-	_setting_buttons[INDEX_HINTS].text = Format.caps(tr(
-		KEY_ON if Settings.hints else KEY_OFF))
-	_setting_buttons[INDEX_BOOT].text = Format.caps(tr(KEY_BOOT_ALWAYS if Settings.boot_always 		else KEY_BOOT_FIRST))
+	for i: int in _setting_buttons.size():
+		var value: String = setting_value(i)
+		_setting_buttons[i].text = Format.caps(value)
+		# accessibility.md §3.2 item 1: *On* alone says nothing; the row's label
+		# does, and the name is not shouted.
+		_setting_buttons[i].accessibility_name = tr(KEY_A11Y_LABEL_VALUE).format({
+			"label": tr(SETTING_KEYS[i]), "value": value})
+	if _controls != null:
+		_controls.accessibility_name = tr(KEY_A11Y_LABEL_VALUE).format({
+			"label": tr(KEY_CONTROLS), "value": tr(KEY_CONTROLS_OPEN)})
 
 
-## audio.md §3.3: a volume as a percentage, or *Off* at 0.
-func volume_text(value: float) -> String:
-	if value <= 0.0:
-		return Format.caps(tr(KEY_OFF))
-	return Format.number(value, Format.Kind.PERCENT)
+## The words a settings button shows for row `index`, before they are uppercased.
+func setting_value(index: int) -> String:
+	var key: String = SETTING_KEYS[index]
+	if VOLUME_ROWS.has(key):
+		# audio.md §3.3: a volume as a percentage, or *Off* at 0.
+		var volume: float = Audio.volume(VOLUME_ROWS[key])
+		return tr(KEY_OFF) if volume <= 0.0 else Format.number(volume, Format.Kind.PERCENT)
+	match index:
+		INDEX_LOCALE:
+			return tr(KEY_LOCALE_DE if Settings.locale == "de" else KEY_LOCALE_EN)
+		INDEX_REDUCED_MOTION:
+			return _on_off(Settings.reduced_motion)
+		INDEX_SCREEN_EFFECTS:
+			return tr(screen_effects_key(Settings.screen_effects))
+		INDEX_TREE_PAUSES:
+			return _on_off(Settings.tree_pauses)
+		INDEX_TEXT_SCALE:
+			return Format.number(Settings.text_scale, Format.Kind.PERCENT)
+		INDEX_SOUND_CAPTIONS:
+			return _on_off(Settings.sound_captions)
+		INDEX_AUDIO_BACKGROUND:
+			return _on_off(Settings.audio_background)
+		INDEX_READ_HEADLINES:
+			return _on_off(Settings.announce_headlines)
+		INDEX_TUTORIAL:
+			return _on_off(Settings.tutorial)
+		INDEX_HINTS:
+			return _on_off(Settings.hints)
+	return tr(KEY_BOOT_ALWAYS if Settings.boot_always else KEY_BOOT_FIRST)
+
+
+func _on_off(value: bool) -> String:
+	return tr(KEY_ON if value else KEY_OFF)
+
+
+## §5.3: a label and *Change*, which asks for the *Controls* modal. A phone has
+## no keys to change.
+func _build_controls_row() -> void:
+	var row: HBoxContainer = HBoxContainer.new()
+	row.theme_type_variation = &"Row"
+	row.name = "ControlsRow"
+	var label: Label = Label.new()
+	label.theme_type_variation = &"LabelCaption"
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.text = tr(KEY_CONTROLS)
+	label.set_meta(&"key", KEY_CONTROLS)
+	row.add_child(label)
+	_controls = ConsoleButton.new()
+	_controls.label_key = KEY_CONTROLS_OPEN
+	_controls.pressed.connect(controls_requested.emit)
+	row.add_child(_controls)
+	row.visible = not OS.has_feature(FEATURE_MOBILE)
+	_settings_rows.add_child(row)
+
+
+## The *Change* button, for the tests and for the focus to come back to.
+func controls_button() -> ConsoleButton:
+	return _controls
 
 
 ## §5.1: the button's word for an intensity — the nearest of the three steps.
@@ -375,6 +436,8 @@ func _on_setting_pressed(index: int) -> void:
 			Settings.set_sound_captions(not Settings.sound_captions)
 		INDEX_AUDIO_BACKGROUND:
 			Settings.set_audio_background(not Settings.audio_background)
+		INDEX_READ_HEADLINES:
+			Settings.set_announce_headlines(not Settings.announce_headlines)
 		INDEX_TUTORIAL:
 			Settings.set_tutorial(not Settings.tutorial)
 		INDEX_HINTS:

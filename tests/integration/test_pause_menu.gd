@@ -128,7 +128,8 @@ func test_the_boot_row_toggles_the_setting() -> void:
 	var boot: ConsoleButton = (rows.get_child(PauseMenu.INDEX_BOOT) as Container).get_child(1) 		as ConsoleButton
 	boot.emit_signal("pressed")
 	assert_ne(Settings.boot_always, before)
-	assert_eq(boot.text, Format.caps(tr("UI_SETTINGS_BOOT_ALWAYS" if Settings.boot_always 		else "UI_SETTINGS_BOOT_FIRST")))
+	assert_eq(boot.text, Format.caps(tr("UI_SETTINGS_BOOT_ALWAYS" if Settings.boot_always \
+			else "UI_SETTINGS_BOOT_FIRST")))
 	Settings.set_boot_always(before)
 
 

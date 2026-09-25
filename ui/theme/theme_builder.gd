@@ -116,6 +116,7 @@ const VARIATIONS: Dictionary[String, String] = {
 	"PanelRule": H_SEPARATOR,
 	"PanelContent": "VBoxContainer",
 	"Gutter": "MarginContainer",
+	"FocusMargin": "MarginContainer",
 	"GutterTight": "MarginContainer",
 	"Stack": "VBoxContainer",
 	"StackTight": "VBoxContainer",
@@ -192,6 +193,7 @@ const VARIATIONS: Dictionary[String, String] = {
 	"TechNodeFootprint": "LabelCaption",
 	"ArchitectureCard": BUTTON,
 	"ConsoleButtonAlert": BUTTON,
+	"ChipButton": BUTTON,
 }
 
 
@@ -336,7 +338,7 @@ static func _typography() -> Theme:
 	# A button's label is `TYPE_LABEL` (§4.2); the icon buttons carry no text but
 	# inherit the same entry so that nothing falls back to the default font.
 	for button: String in ["ConsoleButton", "ConsoleButtonPrimary", "ConsoleButtonCompact",
-			"ConsoleButtonPrimaryCompact", "IconButton"]:
+			"ConsoleButtonPrimaryCompact", "IconButton", "ChipButton"]:
 		theme.set_font(ITEM_FONT, button, caps)
 		theme.set_font_size(ITEM_FONT_SIZE, button, _scaled(UiTokens.TYPE_LABEL))
 	_type(theme, "Ticker", mono_regular, UiTokens.TYPE_BODY, UiTokens.LINE_BODY)
@@ -439,6 +441,9 @@ static func _panels() -> Theme:
 		# m3-screens §3.4: a tech node's content sits `SPACE_3` inside its cell,
 		# which is what leaves 176 px for the longest German name.
 		theme.set_constant(side, "GutterTight", UiTokens.SPACE_3)
+		# accessibility.md §4.2: inside a scroll container, room for the focus
+		# ring drawn outside a control, so it is never clipped.
+		theme.set_constant(side, "FocusMargin", UiTokens.FOCUS_OUTSET)
 	theme.set_constant(CONST_SEPARATION, "Stack", UiTokens.SPACE_5)
 	theme.set_constant(CONST_SEPARATION, "Row", UiTokens.SPACE_3)
 	# §5 asks for three more gaps than §3.8 named: between the cells of the top
@@ -578,6 +583,17 @@ static func _buttons() -> Theme:
 		UiTokens.accent_wash(), UiTokens.color(&"LINE_1"), UiTokens.color(&"LINE_2"), UiTokens.color(&"ACCENT"))
 	_button_colours(theme, "ArchitectureCard", UiTokens.color(&"TEXT_0"), UiTokens.color(&"TEXT_0"),
 		UiTokens.color(&"TEXT_0"))
+
+	# accessibility.md §4.6: the top bar's pending chip is a button with the
+	# `ChipAlert` look, so the keyboard and a screen reader reach it.
+	var chip_pad: Vector2i = Vector2i(UiTokens.SPACE_2, UiTokens.SPACE_1)
+	_button_styles(theme, "ChipButton", chip_pad, UiTokens.color(&"BG_3"), UiTokens.color(&"BG_4"),
+		UiTokens.accent_wash(), UiTokens.color(&"ALERT"), UiTokens.color(&"ALERT"), UiTokens.color(&"ALERT"))
+	_button_colours(theme, "ChipButton", UiTokens.color(&"ALERT"), UiTokens.color(&"ALERT"),
+		UiTokens.color(&"ALERT"))
+	# §4.5: the frame that says the map has the keys — a focus ring, drawn by
+	# `MapFocus` itself (a plain `Control` draws no focus box of its own).
+	theme.set_stylebox(STYLE_FOCUS, "MapFocus", focus_ring(UiTokens.RADIUS_M))
 
 	# An icon button has no text, so its padding is zero: the glyph is drawn in a
 	# centred box of its own (§4.3).

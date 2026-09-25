@@ -31,6 +31,9 @@ const PauseMenu: GDScript = preload("res://ui/modals/pause_menu.gd")
 const Results: GDScript = preload("res://ui/screens/results.gd")
 const AnalysisPanel: GDScript = preload("res://ui/panels/analysis_panel.gd")
 const CodexModal: GDScript = preload("res://ui/modals/codex.gd")
+## accessibility.md §4.5, §5.3: the focusable map and the key list.
+const MapFocusScript: GDScript = preload("res://game/map/map_focus.gd")
+const CONTROLS_SCENE: PackedScene = preload("res://ui/modals/controls.tscn")
 
 ## The holds of m3-screens §10.2 this screen takes.
 const HOLD_DISCOVERY: StringName = &"discovery"
@@ -58,6 +61,13 @@ const ACTION_ANALYSIS: StringName = &"game_analysis"
 const ACTION_ABILITIES: StringName = &"game_abilities"
 const ACTION_MENU: StringName = &"game_menu"
 const ACTION_CANCEL: StringName = &"ui_cancel"
+## §4.3: the session's own focus ring — `Tab`/`Shift+Tab`, and the bumpers.
+const ACTION_FOCUS_NEXT: StringName = &"ui_focus_next"
+const ACTION_FOCUS_PREV: StringName = &"ui_focus_prev"
+const ACTION_PAD_NEXT: StringName = &"game_focus_next"
+const ACTION_PAD_PREV: StringName = &"game_focus_prev"
+## §4.3: with nothing focused, the first of these puts the focus on the map.
+const ACTIONS_ARROWS: Array[StringName] = [&"ui_left", &"ui_right", &"ui_up", &"ui_down"]
 ## §4.7: Y steps paused → 1× → 2× → 4× → 1×.
 const SPEED_CYCLE: Dictionary[int, int] = {0: 1, 1: 2, 2: 4, 4: 1}
 ## §4.1: a stick counts as the player's hands on the pad past this deflection.
@@ -81,6 +91,12 @@ const PAD_MOTION_THRESHOLD: float = 0.5
 @onready var _menu_sheet: SlidePanel = %MenuSheet
 @onready var _analysis: AnalysisPanel = %AnalysisPanel
 @onready var _codex: CodexModal = %Codex
+@onready var _hud_layer: CanvasLayer = $HudLayer
+@onready var _marker_layer: Node2D = $MapLayer/MarkerLayer
+
+## accessibility.md §4.5: the map as one focusable control.
+var map_focus: MapFocusScript = null
+var _controls: Control = null
 
 ## accessibility.md §4.1: the player is on the keyboard or a pad rather than a
 ## pointer. A key or a pad button sets it, a click or a touch clears it; it
@@ -110,6 +126,14 @@ func _ready() -> void:
 	_coach.set(&"ring", _coach_ring)
 	_coach.set(&"hud", _hud)
 	_coach.set(&"modals", _modals)
+	_build_map_focus()
+	# accessibility.md §4.4 item 3: a hint about the open tree can be read and
+	# put away without leaving it.
+	_modals.companions = [_coach] as Array[Control]
+	_controls = CONTROLS_SCENE.instantiate() as Control
+	_modals.add_child(_controls)
+	_controls.connect(&"closed", _close_controls)
+	_pause_menu.connect(&"controls_requested", _open_controls)
 	_codex_tracker = CodexTracker.new()
 	_codex_tracker.name = "CodexTracker"
 	add_child(_codex_tracker)
@@ -166,6 +190,10 @@ func _input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo() or _text_has_focus():
 		return
 	if is_help_open() and _any_action(event, ACTIONS_BLOCKED_BY_HELP):
+		get_viewport().set_input_as_handled()
+		return
+	# §4.3: the ring is the session's while no modal is up; a modal walks its own.
+	if not _modals.is_open() and _step_focus(event):
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed(ACTION_HELP):
@@ -248,15 +276,82 @@ static func _any_action(event: InputEvent, actions: Array[StringName]) -> bool:
 func _track_input_mode(event: InputEvent) -> void:
 	if event is InputEventMouseButton or event is InputEventScreenTouch:
 		if event.is_pressed():
-			keyboard_mode = false
+			_set_keyboard_mode(false)
 		return
 	if event is InputEventKey or event is InputEventJoypadButton:
 		if event.is_pressed():
-			keyboard_mode = true
+			_set_keyboard_mode(true)
 		return
 	var motion: InputEventJoypadMotion = event as InputEventJoypadMotion
 	if motion != null and absf(motion.axis_value) > PAD_MOTION_THRESHOLD:
-		keyboard_mode = true
+		_set_keyboard_mode(true)
+
+
+func _set_keyboard_mode(value: bool) -> void:
+	if value == keyboard_mode:
+		return
+	keyboard_mode = value
+	EventBus.keyboard_mode_changed.emit(value)
+
+
+## §4.3: `Tab`/`Shift+Tab` (and the bumpers) walk the zones in order; with
+## nothing focused, an arrow key puts the focus on the map. True when taken.
+func _step_focus(event: InputEvent) -> bool:
+	var backwards: bool = event.is_action_pressed(ACTION_FOCUS_PREV, false, true) \
+		or event.is_action_pressed(ACTION_PAD_PREV)
+	var forwards: bool = event.is_action_pressed(ACTION_FOCUS_NEXT, false, true) \
+		or event.is_action_pressed(ACTION_PAD_NEXT)
+	if backwards or forwards:
+		var target: Control = FocusRing.next(focus_chain(),
+			get_viewport().gui_get_focus_owner(), backwards)
+		if target != null:
+			target.grab_focus()
+		return true
+	var key: InputEventKey = event as InputEventKey
+	if get_viewport().gui_get_focus_owner() == null and _any_action(event, ACTIONS_ARROWS) \
+			and not (key != null and key.shift_pressed):
+		map_focus.grab_focus()
+		map_focus.step(Vector2.ZERO)
+		return true
+	return false
+
+
+## §4.3's zones, in order: the top bar; the left column and the coach; the dock
+## or the status strip; the map; the site prompt; the region panel; the open one
+## of containment, analysis and the menu sheet. A hidden zone adds nothing.
+func focus_chain() -> Array[Control]:
+	var zones: Array[Control] = _hud.call(&"focus_zones")
+	var roots: Array[Control] = [zones[0], zones[1], _coach, zones[2], zones[3], map_focus,
+		_hud.call(&"site_prompt") as Control, _region_panel, _containment, _analysis,
+		_menu_sheet]
+	return FocusRing.collect(roots)
+
+
+## accessibility.md §4.5: the focusable map sits behind every HUD control, and a
+## panel closed from the keyboard with its opener gone gives the focus back here.
+func _build_map_focus() -> void:
+	map_focus = MapFocusScript.new()
+	map_focus.name = "MapFocus"
+	_hud_layer.add_child(map_focus)
+	_hud_layer.move_child(map_focus, 0)
+	map_focus.markers = _marker_layer
+	map_focus.camera = _camera
+	map_focus.map_view = _map_view
+	map_focus.region_panel = _region_panel
+	for panel: SlidePanel in [_region_panel, _containment, _menu_sheet, _analysis]:
+		panel.focus_fallback = map_focus
+
+
+## accessibility.md §5.3: over the settings, which it goes back to.
+func _open_controls() -> void:
+	_controls.call(&"open")
+	_modals.open_over(_controls)
+
+
+func _close_controls() -> void:
+	if _modals.current() == _controls:
+		_modals.close()
+	_controls.visible = false
 
 
 ## first-run.md §6.7: the Codex on *How to play*, on `page` ("" = the first),
@@ -351,7 +446,7 @@ func _toggle_containment() -> void:
 		return
 	EventBus.region_selected.emit(0)
 	_analysis.close()
-	_containment.open()
+	_containment.open(keyboard_mode)
 
 
 ## analysis.md §5.1: the sheet over the live map; `G` opens and closes it, and
@@ -365,7 +460,7 @@ func _toggle_analysis() -> void:
 	EventBus.region_selected.emit(0)
 	_containment.close()
 	_menu_sheet.close()
-	_analysis.open()
+	_analysis.open(keyboard_mode)
 
 
 ## §5.9: the results step aside for the sheet, the hold stays.
@@ -385,7 +480,7 @@ func _on_sheet_requested(_with_bars: bool) -> void:
 	EventBus.region_selected.emit(0)
 	_containment.close()
 	_analysis.close()
-	_menu_sheet.open()
+	_menu_sheet.open(keyboard_mode)
 
 
 func _on_region_selected(index: int) -> void:
@@ -597,6 +692,9 @@ func _on_run_started(_seed_value: int) -> void:
 	if Game.sim != null and Game.policy == null and Game.sim.world.agent.origin == 0:
 		Game.hold(HOLD_ORIGIN)
 		Game.site_select(SiteRequest.for_origin())
+		# accessibility.md §4.3: the run's first question is asked on the map.
+		if is_inside_tree():
+			map_focus.grab_focus.call_deferred()
 
 
 ## §7.2 and §7.5: the origin starts the run moving and writes the first

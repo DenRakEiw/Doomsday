@@ -72,6 +72,11 @@ func show_discovery(cause: String, day: int) -> void:
 
 
 ## `Escape` is Continue (§5).
+## accessibility.md §3.4: what is spoken when the modal opens.
+func a11y_summary() -> String:
+	return ModalHost.dialog_line(_title.text, _body.text)
+
+
 func on_escape() -> void:
 	dismissed.emit()
 

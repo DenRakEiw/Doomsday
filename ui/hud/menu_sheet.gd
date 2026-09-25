@@ -40,6 +40,15 @@ var _row_index: int = 0
 var _stat_row: Control = null
 
 
+## accessibility.md §4.4: the sheet's first destination.
+func primary_focus() -> Control:
+	var roots: Array[Control] = [self]
+	for control: Control in FocusRing.collect(roots):
+		if control != _close_button:
+			return control
+	return _close_button
+
+
 func _ready() -> void:
 	super()
 	height_share = UiTokens.SHEET_HEIGHT_RATIO

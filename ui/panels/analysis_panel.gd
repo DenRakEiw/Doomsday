@@ -87,11 +87,19 @@ func _ready() -> void:
 	_select_tab(current_tab)
 
 
-func open() -> void:
-	super()
+func open(take_focus: bool = false) -> void:
+	super(false)
 	refresh()
+	# The current tab takes the focus on every open, as it always has; since S6.8
+	# through `focus_primary`, so a close gives it back (accessibility.md §4.4).
+	if take_focus or current_tab < _tab_buttons.size():
+		focus_primary.call_deferred()
+
+
+func primary_focus() -> Control:
 	if current_tab < _tab_buttons.size():
-		_tab_buttons[current_tab].grab_focus.call_deferred()
+		return _tab_buttons[current_tab]
+	return super()
 
 
 ## §5.9: from the results screen — the back button replaces the way out.

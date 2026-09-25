@@ -45,6 +45,14 @@ const KEY_TASK_FORCE_CODE: String = "UI_TASK_FORCE_CODE"
 const TEAM_LINE_PX: float = 2.0
 const TEAM_DASH_PX: float = 6.0
 const TEAM_LINE_ALPHA: float = 0.7
+## accessibility.md §4.5: the keyboard cursor — four corner brackets around the
+## region's anchor, this far out on screen, this long and this thick, and the
+## region's name on a plate below it.
+const CURSOR_RADIUS: float = 18.0
+const CURSOR_ARM: float = 8.0
+const CURSOR_STROKE: float = 2.0
+const CURSOR_TAG_GAP: float = float(UiTokens.SPACE_2)
+const PREFIX_REGION: String = "REGION_"
 
 ## Anomaly id → its marker. Only markers that are still collectable are in here;
 ## a fading one has been taken out already.
@@ -73,9 +81,27 @@ var _hovered_assets: int = 0
 var _hovered_status: int = 0
 ## The region whose event marker the pointer is over, or 0.
 var _hovered_event: int = 0
+## accessibility.md §4.5: the keyboard cursor's region (0 = none) and whether it
+## shows — `MapFocus` sets both.
+var cursor: int = 0:
+	set(value):
+		cursor = value
+		_refresh_cursor()
+var cursor_visible: bool = false:
+	set(value):
+		cursor_visible = value
+		_refresh_cursor()
+var _cursor_tag: PanelContainer = null
+var _cursor_label: Label = null
 
 
 func _ready() -> void:
+	# The cursor's plate first: `_make_tooltip` also sets `_tooltip_label`, which
+	# must end up the tooltip's own.
+	_cursor_tag = _make_tooltip()
+	_cursor_tag.name = "CursorTag"
+	_cursor_label = _cursor_tag.get_child(0) as Label
+	add_child(_cursor_tag)
 	_tooltip = _make_tooltip()
 	add_child(_tooltip)
 	EventBus.run_started.connect(_on_run_started)
@@ -478,6 +504,59 @@ func _draw() -> void:
 		draw_dashed_line(_team.position + TaskForceMarker.centre() / _zoom,
 			Vector2(Game.sim.world.regions[_team_line_to].def.anchor), colour,
 			TEAM_LINE_PX / _zoom, TEAM_DASH_PX / _zoom)
+	_draw_cursor()
+
+
+## §4.5: four `ACCENT` corner brackets, a constant size on screen.
+func _draw_cursor() -> void:
+	var anchor: Vector2 = cursor_anchor()
+	if not _cursor_shows() or anchor.x < 0.0:
+		return
+	var r: float = CURSOR_RADIUS / _zoom
+	var arm: float = CURSOR_ARM / _zoom
+	var stroke: float = CURSOR_STROKE / _zoom
+	var colour: Color = UiTokens.color(&"ACCENT")
+	for corner: Vector2 in [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]:
+		var tip: Vector2 = anchor + corner * r
+		draw_line(tip, tip - Vector2(corner.x * arm, 0.0), colour, stroke)
+		draw_line(tip, tip - Vector2(0.0, corner.y * arm), colour, stroke)
+
+
+## The cursor region's anchor in map pixels, or (-1, -1) when there is none.
+func cursor_anchor() -> Vector2:
+	if cursor <= 0 or Game.db == null or cursor >= Game.db.regions.size():
+		return Vector2(-1.0, -1.0)
+	return Vector2(Game.db.regions[cursor].anchor)
+
+
+## Whether the reticle and its name are drawn, for the tests.
+func cursor_shown() -> bool:
+	return _cursor_shows() and _cursor_tag.visible
+
+
+func _cursor_shows() -> bool:
+	return cursor_visible and cursor > 0
+
+
+func _refresh_cursor() -> void:
+	if _cursor_tag == null:
+		return
+	var anchor: Vector2 = cursor_anchor()
+	_cursor_tag.visible = _cursor_shows() and anchor.x >= 0.0 and _camera != null
+	if _cursor_tag.visible:
+		_cursor_label.text = tr(PREFIX_REGION + Game.db.regions[cursor].id.to_upper())
+		_place_cursor_tag(anchor)
+	queue_redraw()
+
+
+## The name sits centred under the reticle, kept on the screen.
+func _place_cursor_tag(anchor: Vector2) -> void:
+	_cursor_tag.scale = Vector2.ONE / _zoom
+	_cursor_tag.size = _cursor_tag.get_combined_minimum_size()
+	var to_screen: Transform2D = _camera.canvas_transform()
+	var below: Vector2 = to_screen * anchor + Vector2(-_cursor_tag.size.x * 0.5,
+		CURSOR_RADIUS + CURSOR_TAG_GAP)
+	_cursor_tag.position = to_screen.affine_inverse() * _inside_view(below, _cursor_tag.size)
 
 
 func _on_run_started(_seed_value: int) -> void:
@@ -706,6 +785,8 @@ func _on_camera_view_changed(_center: Vector2, zoom_level: float) -> void:
 		if _team != null:
 			_team.scale = marker_scale
 		queue_redraw()
+	if _cursor_tag != null and _cursor_tag.visible:
+		_place_cursor_tag(cursor_anchor())
 	if _hovered_event != 0 and _events.has(_hovered_event):
 		_place_tooltip_at(_events[_hovered_event].position)
 	elif _hovered_id != 0:

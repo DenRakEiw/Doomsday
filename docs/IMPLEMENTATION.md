@@ -1085,7 +1085,7 @@ pad-only run from the boot to the results; the Narrator check recorded.
   `KeyBindings` and the settings, `KeyNames` and §10.2's strings, the pure pieces (`LiveRegion`,
   `LiveQueue`, `FocusRing`, `MapNav`, `RegionSpeech`), §4.2's ring style, §6.3 item 1,
   `text_width`, §9's reading time; their tests.
-- **S6.8b — Accessibility II**: §4.3–§4.6 in use (session ring, modal trap and companions, the
+- **S6.8b — Accessibility II** *(done)*: §4.3–§4.6 in use (session ring, modal trap and companions, the
   confirm, `SlidePanel` focus, `MapFocus` + cursor, `ChipButton`), §3.4's speech wiring and §7.2's
   announced cues, §5.3's *Controls* modal and the settings rows; their tests.
 - **S6.8c — Accessibility III**: §3.3's names, §6.3 items 2–5, §8's widths and fixes, the

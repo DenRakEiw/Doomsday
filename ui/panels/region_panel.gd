@@ -745,6 +745,18 @@ func _build_links() -> void:
 # ---------------------------------------------------------------- the wiring
 
 
+## accessibility.md §4.4: the site button while a site is being chosen, else the
+## first enabled action, else close.
+func primary_focus() -> Control:
+	if _origin_button.is_visible_in_tree() and not _origin_button.disabled:
+		return _origin_button
+	var roots: Array[Control] = [self]
+	for control: Control in FocusRing.collect(roots):
+		if control != _close_button and not control is HelpButton:
+			return control
+	return _close_button
+
+
 func _show_region(index: int) -> void:
 	_index = index
 	refresh()

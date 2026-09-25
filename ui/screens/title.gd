@@ -11,6 +11,8 @@ const KEY_LOAD_FAILED: String = "UI_TITLE_LOAD_FAILED"
 const KEY_VERSION: String = "UI_TITLE_VERSION"
 ## accessibility.md §5.1: `F1` and the pad's Back.
 const ACTION_HELP: StringName = &"game_help"
+## accessibility.md §5.3: the key list, over the settings.
+const CONTROLS_SCENE: PackedScene = preload("res://ui/modals/controls.tscn")
 const PLACEHOLDER_DAY: String = "day"
 const PLACEHOLDER_VERSION: String = "version"
 const SETTING_VERSION: String = "application/config/version"
@@ -55,6 +57,11 @@ const GLOBE_COMPACT_HEIGHT_SHARE: float = 0.45
 @onready var _credits: Control = %Credits
 @onready var _host: ModalHost = $TitleHost
 
+## accessibility.md §3.3: the title says its name and tagline once per launch.
+static var _introduced: bool = false
+
+var _controls: Control = null
+
 
 func _ready() -> void:
 	# §2: the boot is seen once the title shows.
@@ -76,6 +83,10 @@ func _ready() -> void:
 	for modal: Control in [_settings_menu, _codex, _statistics, _credits]:
 		modal.connect(&"closed", _host.close)
 	_statistics.connect(&"replay_requested", _on_replay_requested)
+	_controls = CONTROLS_SCENE.instantiate() as Control
+	_host.add_child(_controls)
+	_controls.connect(&"closed", _host.close)
+	_settings_menu.connect(&"controls_requested", _open_controls)
 	_quit.visible = not (OS.has_feature(FEATURE_MOBILE) or OS.has_feature(FEATURE_WEB))
 	_spacer.custom_minimum_size.y = float(UiTokens.SPACE_6)
 	_indent.custom_minimum_size.x = float(UiTokens.GUTTER) * INDENT_GUTTERS
@@ -86,6 +97,25 @@ func _ready() -> void:
 	_refresh_continue()
 	_show_last_run()
 	_fit()
+	_introduce()
+
+
+## §3.3: the name and the tagline, spoken once — the title comes back after every
+## run, and a reader need not hear it each time.
+func _introduce() -> void:
+	var live: LiveRegion = LiveRegion.new()
+	live.name = "TitleLive"
+	add_child(live)
+	if _introduced or not LiveRegion.is_reader_active():
+		return
+	_introduced = true
+	live.say(ModalHost.dialog_line(_name_label.text, _tagline.text))
+
+
+## accessibility.md §5.3: over the settings, which it goes back to.
+func _open_controls() -> void:
+	_controls.call(&"open")
+	_host.open_over(_controls)
 
 
 func _notification(what: int) -> void:
@@ -180,7 +210,8 @@ func _place_version(compact: bool) -> void:
 	if _version.get_parent() != home:
 		_version.reparent(home, false)
 	home.move_child(_version, home.get_child_count() - 1)
-	_version.size_flags_horizontal = Control.SIZE_SHRINK_END if compact 		else Control.SIZE_FILL
+	_version.size_flags_horizontal = Control.SIZE_SHRINK_END if compact \
+			else Control.SIZE_FILL
 	_version.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 
 

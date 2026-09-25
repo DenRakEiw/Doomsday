@@ -17,6 +17,8 @@ signal menu_requested
 ## `loop-mechanics.md` §17.3: the chip after the day cell that brings a waiting
 ## global event back.
 const KEY_EVENT_PENDING: String = "UI_HUD_EVENT_PENDING"
+## accessibility.md §4.6: the chip is a button, with the chip's look.
+const VARIATION_CHIP_BUTTON: StringName = &"ChipButton"
 const PLACEHOLDER_COUNT: String = "count"
 
 const KEY_COMPUTE_RATE: String = "UI_HUD_COMPUTE_RATE"
@@ -74,8 +76,9 @@ var compact: bool = false:
 
 var _speed_buttons: Array[IconButton] = []
 ## `loop-mechanics.md` §16.7: the global events put away with `Escape`, waiting —
-## a tap brings the oldest back into the wire card.
-var _pending: Chip = null
+## a tap brings the oldest back into the wire card. A button since S6.8, so the
+## keyboard, a pad and a screen reader reach it (accessibility.md §4.6).
+var _pending: Button = null
 ## §9.4: shown while the agent is starving, `ALERT` in the last days.
 var _starving: Chip = null
 ## `replayability.md` §2.5: the Swarm's drift, after the compute cell. On a
@@ -89,13 +92,14 @@ func _ready() -> void:
 	_compute_cell.add_to_group(CoachRing.group(CoachRing.TARGET_COMPUTE))
 	_row_main.add_child(_assets)
 	_row_main.move_child(_assets, _day_cell.get_index() + 1)
-	_pending = Chip.new()
-	_pending.kind = Chip.Kind.ALERT
+	_pending = Button.new()
+	_pending.name = "PendingButton"
+	_pending.theme_type_variation = VARIATION_CHIP_BUTTON
 	_pending.visible = false
-	_pending.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pending.focus_mode = Control.FOCUS_ALL
 	_pending.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_pending.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_pending.gui_input.connect(_on_pending_input)
+	_pending.pressed.connect(_on_pending_pressed)
 	_row_main.add_child(_pending)
 	_row_main.move_child(_pending, _assets.get_index() + 1)
 	_starving = StarvingChip.create()
@@ -157,7 +161,9 @@ func _refresh_pending(world: World) -> void:
 	# behind the scrim (S4.3's note, S4.P).
 	_pending.visible = not waiting.is_empty() and Game.policy == null and not Game.is_held()
 	if _pending.visible:
-		_pending.set_label(KEY_EVENT_PENDING, {PLACEHOLDER_COUNT: waiting.size()})
+		var label: String = tr(KEY_EVENT_PENDING).format({PLACEHOLDER_COUNT: waiting.size()})
+		_pending.text = Format.caps(label)
+		_pending.accessibility_name = label
 
 
 func _on_hold_changed(_held: bool) -> void:
@@ -176,14 +182,11 @@ func starving_chip() -> Chip:
 
 
 ## The pending chip, for the tests.
-func pending_chip() -> Chip:
+func pending_chip() -> Button:
 	return _pending
 
 
-func _on_pending_input(event: InputEvent) -> void:
-	var press: InputEventMouseButton = event as InputEventMouseButton
-	if press == null or not press.pressed or press.button_index != MOUSE_BUTTON_LEFT:
-		return
+func _on_pending_pressed() -> void:
 	if Game.sim == null:
 		return
 	var waiting: Array[OpenEvent] = Game.sim.world.events_in_region(0)

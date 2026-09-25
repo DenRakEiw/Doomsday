@@ -91,9 +91,15 @@ func refresh() -> void:
 	_apply_drift()
 
 
-func open() -> void:
+func open(take_focus: bool = false) -> void:
 	refresh()
-	super()
+	super(take_focus)
+
+
+## accessibility.md §4.4: the panel is read, not operated — its tracks are
+## reached by a screen reader's own navigation — so the keyboard lands on close.
+func primary_focus() -> Control:
+	return _close_button
 
 
 func _refresh_strings() -> void:

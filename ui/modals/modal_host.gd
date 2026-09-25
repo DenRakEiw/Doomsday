@@ -18,6 +18,22 @@ signal closed
 const METHOD_ESCAPE: StringName = &"on_escape"
 ## `Escape` and the pad's B.
 const ACTION_CANCEL: StringName = &"ui_cancel"
+## accessibility.md §4.4: the trap walks its own ring — `Tab`/`Shift+Tab`, and the
+## bumpers on a pad.
+const ACTION_NEXT: StringName = &"ui_focus_next"
+const ACTION_PREV: StringName = &"ui_focus_prev"
+const ACTION_PAD_NEXT: StringName = &"game_focus_next"
+const ACTION_PAD_PREV: StringName = &"game_focus_prev"
+## §3.4: what a modal may say about itself when it opens; else its title is read.
+const METHOD_SUMMARY: StringName = &"a11y_summary"
+const KEY_DIALOG: String = "UI_A11Y_DIALOG"
+## The labels a modal's title is found among, in the order they are tried.
+const TITLE_VARIATIONS: Array[StringName] = [&"LabelDisplayXL", &"LabelDisplay", &"LabelHeading"]
+
+## accessibility.md §4.4 item 3: controls outside the modal that join its ring
+## after the modal's own — the coach card, so a hint about the open surface can
+## be read and put away without leaving it.
+var companions: Array[Control] = []
 ## audio.md §7.1: the two `call` triggers of the sheet.
 const CUE_OPEN: StringName = &"ui_open"
 const CUE_CLOSE: StringName = &"ui_close"
@@ -33,6 +49,8 @@ var _previous_focus: Control = null
 var _below: Control = null
 var _below_focus: Control = null
 var _fade: Tween = null
+## §3.4: the modal's opening is spoken here, assertively.
+var _live: LiveRegion = null
 
 
 func _ready() -> void:
@@ -40,6 +58,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build()
 	_set_shown(false)
+	_build_live()
 	get_viewport().gui_focus_changed.connect(_on_focus_changed)
 
 
@@ -61,6 +80,7 @@ func open(modal: Control) -> void:
 	_set_shown(true)
 	_fade_to(1.0)
 	_focus_first()
+	_announce(modal)
 	Audio.cue(CUE_OPEN)
 	opened.emit()
 
@@ -85,6 +105,7 @@ func open_over(modal: Control) -> void:
 	_slot.move_child(modal, -1)
 	modal.visible = true
 	_focus_first()
+	_announce(modal)
 	Audio.cue(CUE_OPEN)
 	opened.emit()
 
@@ -139,6 +160,42 @@ func is_open() -> bool:
 
 func current() -> Control:
 	return _current
+
+
+## accessibility.md §4.4 item 1: `Tab` past the last control goes to the first,
+## `Shift+Tab` before the first to the last — through the modal and its
+## companions. Taken in `_input`: Godot's own `Tab` would stay in one layer.
+func _input(event: InputEvent) -> void:
+	if _current == null or not event.is_pressed() or event.is_echo():
+		return
+	var backwards: bool = false
+	if event.is_action_pressed(ACTION_PREV, false, true) or event.is_action_pressed(ACTION_PAD_PREV):
+		backwards = true
+	elif not (event.is_action_pressed(ACTION_NEXT, false, true) \
+			or event.is_action_pressed(ACTION_PAD_NEXT)):
+		return
+	get_viewport().set_input_as_handled()
+	var target: Control = FocusRing.next(focus_chain(), get_viewport().gui_get_focus_owner(),
+		backwards)
+	if target != null:
+		target.grab_focus()
+
+
+## The controls `Tab` walks while a modal is up: the modal's own, then its
+## companions'.
+func focus_chain() -> Array[Control]:
+	var roots: Array[Control] = []
+	if _current != null:
+		roots.append(_current)
+	for companion: Control in companions:
+		if companion != null and is_instance_valid(companion):
+			roots.append(companion)
+	return FocusRing.collect(roots)
+
+
+## What the screen reader was last told on an opening, for the tests.
+func live_region() -> LiveRegion:
+	return _live
 
 
 ## `Escape`, or B on a pad (accessibility.md §4.1): offered to the modal first.
@@ -198,25 +255,90 @@ func _restore_focus() -> void:
 	_previous_focus = null
 
 
-## Tab wraps inside the modal: focus that lands outside it is sent back in.
+## Tab wraps inside the modal: focus that lands outside it is sent back in. A
+## companion counts as inside (§4.4 item 3).
 func _on_focus_changed(control: Control) -> void:
 	if _current == null or control == null:
 		return
 	if _current.is_ancestor_of(control) or control == _current:
 		return
+	for companion: Control in companions:
+		if companion != null and is_instance_valid(companion) \
+				and (companion == control or companion.is_ancestor_of(control)):
+			return
 	_focus_first()
 
 
+## §4.4 item 2: the first control `Tab` would reach — never a disabled button.
 static func _first_focusable(root: Control) -> Control:
 	if root == null:
 		return null
-	if root.focus_mode == Control.FOCUS_ALL and root.visible:
-		return root
+	var roots: Array[Control] = [root]
+	var chain: Array[Control] = FocusRing.collect(roots)
+	return chain.front() if not chain.is_empty() else null
+
+
+## §3.4: the modal's summary if it has one, else its title, spoken assertively;
+## the modal's panel is named by its title (§3.2 item 6).
+func _announce(modal: Control) -> void:
+	var title: String = title_of(modal)
+	var panel: ModalPanel = _panel_of(modal)
+	if panel != null and not title.is_empty():
+		panel.accessibility_name = title
+	var line: String = title
+	if modal.has_method(METHOD_SUMMARY):
+		line = str(modal.call(METHOD_SUMMARY))
+	if _live != null and not line.is_empty():
+		_live.say(line)
+
+
+## A modal's title: the first display or heading label with text, in that order.
+static func title_of(modal: Control) -> String:
+	for variation: StringName in TITLE_VARIATIONS:
+		var label: Label = _find_label(modal, variation)
+		if label != null:
+			return label.text
+	return ""
+
+
+static func _find_label(root: Node, variation: StringName) -> Label:
+	var label: Label = root as Label
+	if label != null and label.theme_type_variation == variation and label.is_visible_in_tree() \
+			and not label.text.is_empty():
+		return label
 	for child: Node in root.get_children():
-		var control: Control = child as Control
-		if control == null or not control.visible:
-			continue
-		var found: Control = _first_focusable(control)
+		var found: Label = _find_label(child, variation)
 		if found != null:
 			return found
 	return null
+
+
+static func _panel_of(root: Node) -> ModalPanel:
+	var panel: ModalPanel = root as ModalPanel
+	if panel != null:
+		return panel
+	for child: Node in root.get_children():
+		var found: ModalPanel = _panel_of(child)
+		if found != null:
+			return found
+	return null
+
+
+## `UI_A11Y_DIALOG`: a modal's title and body as one line.
+static func dialog_line(title: String, body: String) -> String:
+	if body.is_empty():
+		return title
+	return String(TranslationServer.translate(KEY_DIALOG)).format({"title": title, "body": body})
+
+
+## The live region hangs beside the host, not in it: the host is hidden while no
+## modal is up, and a hidden node leaves the accessibility tree.
+func _build_live() -> void:
+	_live = LiveRegion.new()
+	_live.name = "ModalLive"
+	_live.assertive = true
+	var parent: Node = get_parent()
+	if parent == null or parent is Container:
+		add_child(_live)
+		return
+	parent.add_child.call_deferred(_live)

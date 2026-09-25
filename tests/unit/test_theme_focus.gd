@@ -6,7 +6,7 @@ extends GutTest
 const FOCUSABLE: Array[String] = ["ConsoleButton", "ConsoleButtonPrimary",
 	"ConsoleButtonCompact", "ConsoleButtonPrimaryCompact", "ConsoleButtonFlat",
 	"ConsoleButtonAlert", "IconButton", "TechNode", "TechNodeLocked", "TechNodeAffordable",
-	"TechNodeOwned", "ArchitectureCard", "ChartFrame"]
+	"TechNodeOwned", "ArchitectureCard", "ChartFrame", "ChipButton", "MapFocus"]
 
 
 func test_every_focusable_type_has_an_outer_ring() -> void:

@@ -356,6 +356,8 @@ func _play(id: StringName, pitch: float, fields: Dictionary, with_caption: bool)
 	if with_caption and not def.caption.is_empty():
 		# The caption reflects the game, not the speaker (§5.3 step 5).
 		EventBus.caption_pushed.emit(def.caption, fields)
+		if def.announce:
+			EventBus.caption_announced.emit(def.caption, fields)
 	if _unlocked:
 		_start_voice(def, pitch)
 	return true

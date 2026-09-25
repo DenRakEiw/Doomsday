@@ -27,9 +27,18 @@ func _ready() -> void:
 ## modal lives; this only fills it in and listens.
 func ask(question_key: String) -> bool:
 	_question.text = tr(question_key)
+	# accessibility.md §3.4: the question is what a screen reader hears with the
+	# focused *Cancel*, since this one opens inside another modal.
+	_cancel.accessibility_description = _question.text
+	_confirm.accessibility_description = _question.text
 	visible = true
 	_cancel.grab_focus.call_deferred()
 	return await answered
+
+
+## accessibility.md §3.4: what is spoken when the modal opens — the question.
+func a11y_summary() -> String:
+	return _question.text
 
 
 ## `Escape` is Cancel (§7.3).

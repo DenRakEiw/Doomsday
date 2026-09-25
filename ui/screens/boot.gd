@@ -37,6 +37,8 @@ const COLUMN_MAX_WIDTH: float = 720.0
 ## audio.md §7.1: the two `call` triggers of the sheet.
 const CUE_POWER: StringName = &"boot_power"
 const CUE_LINE: StringName = &"boot_line"
+## accessibility.md §3.3: said once when the boot starts.
+const KEY_A11Y_SKIP: String = "UI_A11Y_BOOT_SKIP"
 
 @onready var _ink: ColorRect = %Ink
 @onready var _column: Control = %Column
@@ -64,6 +66,10 @@ func _ready() -> void:
 	_skip.text = tr(KEY_SKIP)
 	_skip.visible = false
 	_render()
+	var live: LiveRegion = LiveRegion.new()
+	live.name = "BootLive"
+	add_child(live)
+	live.say(tr(KEY_A11Y_SKIP))
 
 
 func _process(delta: float) -> void:
