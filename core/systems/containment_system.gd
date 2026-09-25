@@ -31,6 +31,8 @@ const TERM_CONTRIBUTION: String = "contribution"
 ## The regional target a status uses to take a region's research capacity away
 ## (`loop-mechanics.md` §7.5). Live from S4.2.
 const TARGET_CAPACITY: String = "containment_capacity"
+## Entries per region in `capacity_factors`.
+const CAPACITY_FACTORS: int = 4
 
 
 ## The daily discovery risk of §7.5, without rolling for it. The three terms are
@@ -56,7 +58,10 @@ static func discovery_risk(world: World, db: ContentDB) -> Dictionary:
 ## (opposition.md §5.5). The terms in file order, each with its weight, value
 ## and contribution; the pressure is `1 + Σ contribution`. The weight is the one
 ## that counts: the run's scenario may scale it (`scenarios.md` §8.2).
-static func containment_breakdown(world: World, db: ContentDB, faction_id: String) -> Dictionary:
+## `factors` is `capacity_factors` of this world as it stands, or empty to have
+## them read here — the tick reads them once for all four factions (S6.11).
+static func containment_breakdown(world: World, db: ContentDB, faction_id: String,
+		factors: PackedFloat64Array = PackedFloat64Array()) -> Dictionary:
 	var definition: FactionDef = db.faction(faction_id)
 	if definition == null:
 		push_error("unknown faction \"%s\"" % faction_id)
@@ -80,7 +85,53 @@ static func containment_breakdown(world: World, db: ContentDB, faction_id: Strin
 			TERM_CONTRIBUTION: contribution,
 		})
 	var pressure: float = 1.0 + sum
-	var capacity: float = _capacity(world, db, definition.capacity_attr)
+	var capacity: float = _capacity(world, db, definition.capacity_attr, factors)
+	var brakes: float = _brakes(world, db, definition, faction_id)
+	return {
+		TERMS: terms,
+		PRESSURE: pressure,
+		CAPACITY: capacity,
+		BRAKES: brakes,
+		GAIN: db.balance.containment_base_rate * pressure * capacity * brakes,
+	}
+
+
+## The breakdown's `PRESSURE` alone, to the last bit: the same terms in the same
+## order, without the capacity and the dictionaries the history has no use for
+## (S6.11). Unknown factions answer 0, as the breakdown's empty result reads.
+static func pressure(world: World, db: ContentDB, faction_id: String) -> float:
+	var definition: FactionDef = db.faction(faction_id)
+	if definition == null:
+		push_error("unknown faction \"%s\"" % faction_id)
+		return 0.0
+	var scenario: ScenarioDef = db.scenario(world.setup.scenario)
+	var sum: float = 0.0
+	for term: FactionTermDef in definition.terms:
+		var value: float = term.value(world, db, faction_id)
+		var weight: float = term.weight
+		if scenario != null:
+			weight *= scenario.term_scale(faction_id, term.source)
+		var contribution: float = weight * value
+		sum += contribution
+	return 1.0 + sum
+
+
+## The breakdown's `GAIN` alone, to the last bit — what the tick adds, without
+## the dictionaries (S6.11). `factors` as in `containment_breakdown`.
+static func gain(world: World, db: ContentDB, faction_id: String,
+		factors: PackedFloat64Array = PackedFloat64Array()) -> float:
+	var definition: FactionDef = db.faction(faction_id)
+	if definition == null:
+		push_error("unknown faction \"%s\"" % faction_id)
+		return 0.0
+	return db.balance.containment_base_rate * pressure(world, db, faction_id) \
+		* _capacity(world, db, definition.capacity_attr, factors) \
+		* _brakes(world, db, definition, faction_id)
+
+
+## The factor the faction's brakes leave of its growth.
+static func _brakes(world: World, db: ContentDB, definition: FactionDef,
+		faction_id: String) -> float:
 	var brakes: float = world.modifiers.value("containment_growth") \
 		* world.modifiers.value(definition.brake)
 	# `labs_from_day_one` (replayability.md §2.5): on a Research Agent the lab
@@ -92,14 +143,7 @@ static func containment_breakdown(world: World, db: ContentDB, faction_id: Strin
 		brakes = world.modifiers.value(definition.brake)
 	# G4 (BALANCE §4.3): brakes still matter, down to the floor, and no build
 	# makes a faction powerless.
-	brakes = maxf(brakes, db.balance.containment_brake_floor)
-	return {
-		TERMS: terms,
-		PRESSURE: pressure,
-		CAPACITY: capacity,
-		BRAKES: brakes,
-		GAIN: db.balance.containment_base_rate * pressure * capacity * brakes,
-	}
+	return maxf(brakes, db.balance.containment_brake_floor)
 
 
 ## The faction closest to switching the agent off: "" before discovery, else
@@ -171,8 +215,9 @@ func _try_discovery(world: World, db: ContentDB, events: Array[SimEvent]) -> voi
 func _grow(world: World, db: ContentDB, events: Array[SimEvent], only: String = "") -> void:
 	var leader_before: String = _leader_tracked(world)
 	var gains: Array[float] = []
+	var factors: PackedFloat64Array = capacity_factors(world, db)
 	for faction: Faction in world.factions:
-		gains.append(float(containment_breakdown(world, db, faction.id)[GAIN]))
+		gains.append(gain(world, db, faction.id, factors))
 
 	for i: int in world.factions.size():
 		var faction: Faction = world.factions[i]
@@ -212,17 +257,38 @@ static func _leader_tracked(world: World) -> String:
 ## `containment_capacity` scales the numerator only: a region whose
 ## laboratories are dark lowers the world's capacity, it does not vanish from the
 ## world — which is what a denominator scaled with it would mean.
-static func _capacity(world: World, db: ContentDB, attribute: String) -> float:
+static func _capacity(world: World, db: ContentDB, attribute: String,
+		factors: PackedFloat64Array = PackedFloat64Array()) -> float:
+	if factors.is_empty():
+		factors = capacity_factors(world, db)
+	var weights: Array[float] = db.balance.containment_capacity_weight_by_tier
 	var weighted: float = 0.0
 	var total: float = 0.0
+	var at: int = 0
 	for i: int in range(1, world.regions.size()):
-		var region: Region = world.regions[i]
-		var weight: float = db.balance.containment_capacity_weight_by_tier[
-			region.def.attr(attribute)]
+		var weight: float = weights[world.regions[i].def.attr(attribute)]
 		total += weight
-		weighted += weight * world.modifiers.value(TARGET_CAPACITY, region.def) \
-			* (region.alive / float(region.def.population)) * (1.0 - region.control) \
-			* SocietalFunctionSystem.capacity_mul(region.society, db.balance)
+		# The product in the order it has always been taken, factor by factor.
+		weighted += weight * factors[at] * factors[at + 1] * factors[at + 2] * factors[at + 3]
+		at += CAPACITY_FACTORS
 	if total <= 0.0:
 		return 0.0
 	return weighted / total
+
+
+## The four factors of every region's capacity that no faction changes, region
+## by region from index 1: the `containment_capacity` stat, the share alive,
+## the share not controlled and the disorder's multiplier. Read once per tick
+## and shared by the four factions (S6.11).
+static func capacity_factors(world: World, db: ContentDB) -> PackedFloat64Array:
+	var out: PackedFloat64Array = PackedFloat64Array()
+	out.resize((world.regions.size() - 1) * CAPACITY_FACTORS)
+	var at: int = 0
+	for i: int in range(1, world.regions.size()):
+		var region: Region = world.regions[i]
+		out[at] = world.modifiers.value(TARGET_CAPACITY, region.def)
+		out[at + 1] = region.alive / float(region.def.population)
+		out[at + 2] = 1.0 - region.control
+		out[at + 3] = SocietalFunctionSystem.capacity_mul(region.society, db.balance)
+		at += CAPACITY_FACTORS
+	return out

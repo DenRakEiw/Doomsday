@@ -67,6 +67,8 @@ const INERT_FLAGS: Array[String] = ["legal_standing", "merge_path"]
 ## What a faction sees of a source that nobody in particular watches (§5.1).
 const UNWATCHED_WEIGHT: float = 0.25
 const TARGET_FOOTPRINT: String = "footprint"
+## The memo's key for the global stat: no region has a negative index.
+const NO_REGION: int = -1
 
 ## The prefix of a technology source id.
 const SOURCE_TECH: String = "tech"
@@ -102,6 +104,13 @@ var _by_target: Dictionary[String, Array] = {}
 ## source, so `clear()` leaves it alone: `Simulation.rebuild_modifiers` refills
 ## the sources and the counts stay what the world says they are (§6.3).
 var _asset_counts: Dictionary[int, Dictionary] = {}
+## `value` answers, target → region index (`NO_REGION` for the global stat) →
+## the stat (S6.11). A stat depends on the sources, the asset counts and the
+## region's definition only, so every writer of the first two empties it and a
+## repeated question costs one lookup. Same arithmetic, same bits.
+var _values: Dictionary[String, Dictionary] = {}
+## `footprint_for` answers, faction id → the stat, emptied with `_values`.
+var _footprints: Dictionary[String, float] = {}
 
 
 func _init(bases: Dictionary[String, float]) -> void:
@@ -164,6 +173,7 @@ func set_asset_count(region_index: int, kind: String, count: int) -> void:
 		counts.erase(kind)
 	else:
 		counts[kind] = count
+	_forget()
 
 
 ## Adds or replaces a source. Replacing keeps its place in the activation order.
@@ -202,6 +212,7 @@ func clear() -> void:
 	_watched_by.clear()
 	_order.clear()
 	_by_target.clear()
+	_forget()
 
 
 ## The stat for `region`, or the global stat when `region` is null. A null region
@@ -211,9 +222,24 @@ func clear() -> void:
 ## An unknown target is a programming error, not bad data: content is validated
 ## against the same vocabulary at load.
 func value(target: String, region: RegionDef = null) -> float:
+	var key: int = NO_REGION if region == null else region.index
+	if _values.has(target):
+		var known: Dictionary = _values[target]
+		if known.has(key):
+			return known[key]
+		var stat: float = _compute(target, region)
+		known[key] = stat
+		return stat
 	if not CLAMPS.has(target):
 		push_error("unknown modifier target \"%s\"" % target)
 		return 0.0
+	var first: float = _compute(target, region)
+	_values[target] = {key: first}
+	return first
+
+
+## `value` without the memo.
+func _compute(target: String, region: RegionDef) -> float:
 	var total: float = float(_bases.get(target, 0.0))
 	var factor: float = 1.0
 	if _by_target.has(target):
@@ -235,6 +261,15 @@ func value(target: String, region: RegionDef = null) -> float:
 ## otherwise; multipliers scale every faction alike. Unscoped modifiers only,
 ## like the global stat.
 func footprint_for(faction_id: String) -> float:
+	if _footprints.has(faction_id):
+		return _footprints[faction_id]
+	var stat: float = _footprint_for(faction_id)
+	_footprints[faction_id] = stat
+	return stat
+
+
+## `footprint_for` without the memo.
+func _footprint_for(faction_id: String) -> float:
 	var total: float = float(_bases.get(TARGET_FOOTPRINT, 0.0))
 	var factor: float = 1.0
 	for source_id: String in _order:
@@ -271,9 +306,16 @@ func _applies(modifier: ModifierDef, region: RegionDef) -> bool:
 	return asset_count(region.index, modifier.scope_asset) >= modifier.scope_min
 
 
+## Empties the memos: the sources or the asset counts changed.
+func _forget() -> void:
+	_values.clear()
+	_footprints.clear()
+
+
 ## Sources in activation order, modifiers in the order their node declares them.
 func _reindex() -> void:
 	_by_target.clear()
+	_forget()
 	for source_id: String in _order:
 		var modifiers: Array = _sources[source_id]
 		for modifier: ModifierDef in modifiers:

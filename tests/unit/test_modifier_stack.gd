@@ -275,3 +275,41 @@ func test_a_nodes_watchers_reach_the_stack_when_it_is_bought() -> void:
 	Fixtures.buy(sim, ["fx_harm_1"])
 	# fx_harm_1 carries +3 Footprint and no watchers: a quarter each.
 	assert_almost_eq(sim.footprint_for("governments"), 0.75, 1e-12)
+
+
+# ------------------------------------------------ S6.11: the memo of `value`
+
+
+func test_a_remembered_value_follows_a_new_source() -> void:
+	var stack: ModifierStack = _stack()
+	assert_eq(stack.value("harm"), 0.0)
+	_add(stack, "a", [_modifier("harm", ModifierDef.Op.ADD, 2.0)])
+	assert_eq(stack.value("harm"), 2.0, "adding a source forgets the old answer")
+	stack.remove_source("a")
+	assert_eq(stack.value("harm"), 0.0, "removing it forgets it again")
+
+
+func test_a_remembered_regional_value_is_the_region_s_own() -> void:
+	var stack: ModifierStack = _stack()
+	var regions: Array[RegionDef] = db.regions
+	_add(stack, "a", [_scoped("harm", ModifierDef.Op.ADD, 1.0, "compute", 3)])
+	for region: RegionDef in regions.slice(1):
+		var expected: float = 1.0 if region.attr("compute") >= 3 else 0.0
+		assert_eq(stack.value("harm", region), expected, region.id)
+		assert_eq(stack.value("harm", region), expected, "asked twice: %s" % region.id)
+	assert_eq(stack.value("harm"), 0.0, "the global stat is remembered apart")
+
+
+func test_clearing_forgets_every_remembered_value() -> void:
+	var stack: ModifierStack = _stack()
+	_add(stack, "a", [_modifier("harm", ModifierDef.Op.ADD, 2.0)])
+	assert_eq(stack.value("harm"), 2.0)
+	stack.clear()
+	assert_eq(stack.value("harm"), 0.0)
+
+
+func test_a_remembered_footprint_follows_a_new_source() -> void:
+	var stack: ModifierStack = _stack()
+	var before: float = stack.footprint_for(Faction.ID_PUBLIC_SENTIMENT)
+	_watched(stack, "a", 4.0, [Faction.ID_PUBLIC_SENTIMENT] as Array[String])
+	assert_almost_eq(stack.footprint_for(Faction.ID_PUBLIC_SENTIMENT), before + 4.0, 1e-9)

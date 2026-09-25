@@ -94,22 +94,29 @@ func refresh() -> void:
 
 
 ## §16.9: one chip per status on the agent, with its code and, in the tooltip,
-## its name and what is left of it.
+## its name and what is left of it. The chips are kept and written over: this
+## runs every tick, and a new node every tick was a layout pass every tick (S6.11).
 func _refresh_statuses(world: World) -> void:
-	for chip: Chip in _status_chips:
-		remove_child(chip)
-		chip.queue_free()
-	_status_chips.clear()
-	for status: Status in world.statuses_in_region(0):
-		var chip: Chip = Chip.new()
-		chip.kind = Chip.Kind.ACCENT
-		chip.set_label(PREFIX_STATUS + status.id.to_upper() + SUFFIX_CODE)
+	var statuses: Array[Status] = world.statuses_in_region(0)
+	while _status_chips.size() > statuses.size():
+		var gone: Chip = _status_chips.pop_back()
+		remove_child(gone)
+		gone.queue_free()
+	for i: int in statuses.size():
+		var status: Status = statuses[i]
+		if i == _status_chips.size():
+			var fresh: Chip = Chip.new()
+			fresh.kind = Chip.Kind.ACCENT
+			add_child(fresh)
+			_status_chips.append(fresh)
+		var chip: Chip = _status_chips[i]
+		var code: String = PREFIX_STATUS + status.id.to_upper() + SUFFIX_CODE
+		if chip.label_key != code:
+			chip.set_label(code)
 		var days: String = tr(KEY_STATUS_STANDING) if status.is_standing() \
 			else tr(KEY_STATUS_DAYS).format({PLACEHOLDER_DAYS: status.days_left(world.day)})
 		chip.tooltip_text = TOOLTIP_JOIN.join([
 			tr(PREFIX_STATUS + status.id.to_upper() + SUFFIX_NAME), days])
-		add_child(chip)
-		_status_chips.append(chip)
 
 
 ## How many global statuses the readout is showing, for the tests.

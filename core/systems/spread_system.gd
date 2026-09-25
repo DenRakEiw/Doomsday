@@ -29,6 +29,8 @@ func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 ## Logistic growth: fastest in the middle, and it snaps to 1 near the top rather
 ## than approaching it forever.
 func _grow(world: World, db: ContentDB) -> void:
+	var base_growth: float = db.balance.spread_base_growth
+	var snap: float = db.balance.spread_saturation_snap
 	for i: int in range(1, world.regions.size()):
 		var region: Region = world.regions[i]
 		if region.dark or region.dormant or region.penetration <= 0.0:
@@ -46,10 +48,14 @@ func _grow(world: World, db: ContentDB) -> void:
 				# and it can be reached again.
 				region.penetration = 0.0
 				continue
-		var growth: float = db.balance.spread_base_growth \
+		if p == 1.0:
+			# Saturated and untouched by decay: the growth is `p (1 − p)` = 0
+			# exactly, so there is nothing to read or write (S6.11).
+			continue
+		var growth: float = base_growth \
 			* world.modifiers.value("spread_growth", region.def) * p * (1.0 - p)
 		p = minf(1.0, p + growth)
-		if p >= db.balance.spread_saturation_snap:
+		if p >= snap:
 			p = 1.0
 		region.penetration = p
 
@@ -65,9 +71,21 @@ func _seed(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 	# rolled, and that roll is part of the stream. A closed link is tried too:
 	# `closed_cross` at its source may carry the agent across it (§8.1).
 	var seeded: Dictionary[int, Dictionary] = {}
+	# Nothing in the loop changes what a kind carries, so it is asked once a
+	# kind rather than twice a link (S6.11).
+	var carrying: Dictionary[String, bool] = {}
+	for kind: String in LinkDef.KINDS:
+		carrying[kind] = carries(world, db, kind)
 	for link: Link in world.links:
-		_try_pair(world, db, link, link.def.a, link.def.b, seeded)
-		_try_pair(world, db, link, link.def.b, link.def.a, seeded)
+		# A pair seeds only from a region the agent is in into one it is not in:
+		# the one test that ends most pairs, asked before the call (S6.11). It
+		# rolls nothing, so asking it first changes no draw.
+		var a: Region = world.regions[link.def.a]
+		var b: Region = world.regions[link.def.b]
+		if a.penetration > 0.0 and b.penetration == 0.0:
+			_try_pair(world, db, link, link.def.a, link.def.b, seeded, carrying)
+		if b.penetration > 0.0 and a.penetration == 0.0:
+			_try_pair(world, db, link, link.def.b, link.def.a, seeded, carrying)
 
 	for index: int in seeded:
 		var target: Region = world.regions[index]
@@ -95,13 +113,14 @@ static func carries(world: World, db: ContentDB, link_kind: String) -> bool:
 
 
 func _try_pair(world: World, db: ContentDB, link: Link, source_index: int, target_index: int,
-		seeded: Dictionary[int, Dictionary]) -> void:
+		seeded: Dictionary[int, Dictionary], carrying: Dictionary[String, bool]) -> void:
 	var source: Region = world.regions[source_index]
 	var target: Region = world.regions[target_index]
 	if source.dark or target.dark:
 		return
 	# No roll either: a link that cannot carry costs the stream nothing.
-	if not carries(world, db, link.def.kind):
+	var carried: bool = bool(carrying[link.def.kind]) if carrying.has(link.def.kind) 		else carries(world, db, link.def.kind)
+	if not carried:
 		return
 	# A held region relays nothing. As a target the question never arises: it
 	# only becomes dormant once the agent is already in it.
@@ -139,6 +158,8 @@ func _try_pair(world: World, db: ContentDB, link: Link, source_index: int, targe
 ## it rises from nothing at the threshold to full speed at total penetration.
 func _control(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 	var threshold: float = db.balance.control_threshold
+	var rate: float = db.balance.control_rate
+	var complete: float = db.balance.control_complete
 	for i: int in range(1, world.regions.size()):
 		var region: Region = world.regions[i]
 		if region.dark or region.dormant:
@@ -151,9 +172,9 @@ func _control(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 		if region.penetration <= threshold:
 			continue
 		var before: float = region.control
-		var gain: float = db.balance.control_rate * (region.penetration - threshold) \
+		var gain: float = rate * (region.penetration - threshold) \
 			/ (1.0 - threshold) * world.modifiers.value("control_growth", region.def)
 		region.control = minf(1.0, region.control + gain)
-		if before < db.balance.control_complete and region.control >= db.balance.control_complete:
+		if before < complete and region.control >= complete:
 			events.append(SimEvent.new(SimEvent.REGION_CONTROLLED, world.day,
 				{"region": region.def.id}))

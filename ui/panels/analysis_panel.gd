@@ -73,6 +73,11 @@ var _log_empty: Label = null
 ## rebuilt when the cap rotates the oldest out.
 var _log_shown: int = -1
 var _log_first: RunLogEntry = null
+## S6.11: the run log the strip's marks were written from — its length and its
+## first entry. The marks are rebuilt when the log changed, not on every tick;
+## −1 forces the next refresh to write them.
+var _strip_log_size: int = -1
+var _strip_log_first: RunLogEntry = null
 
 
 func _ready() -> void:
@@ -320,21 +325,25 @@ func _refresh_strings() -> void:
 
 ## §7: the marks come from the run log; the domain and the bands are the tab's.
 func _refresh_strip(world: World) -> void:
-	var marks: Array[Dictionary] = []
-	var verdict: String = RunLogText.verdict_of(world, Game.db)
-	for entry: RunLogEntry in world.run_log:
-		var mark: Dictionary = RunLogText.marker(entry)
-		if mark.is_empty():
-			continue
-		mark["day"] = entry.day - world.origin_day
-		mark["text"] = RunLogText.text(entry, Game.db, verdict)
-		marks.append(mark)
+	var first: RunLogEntry = world.run_log[0] if not world.run_log.is_empty() else null
+	if world.run_log.size() != _strip_log_size or first != _strip_log_first:
+		_strip_log_size = world.run_log.size()
+		_strip_log_first = first
+		var marks: Array[Dictionary] = []
+		var verdict: String = RunLogText.verdict_of(world, Game.db)
+		for entry: RunLogEntry in world.run_log:
+			var mark: Dictionary = RunLogText.marker(entry)
+			if mark.is_empty():
+				continue
+			mark["day"] = entry.day - world.origin_day
+			mark["text"] = RunLogText.text(entry, Game.db, verdict)
+			marks.append(mark)
+		_strip.set_marks(marks)
 	var last: int = 0
 	if not world.history.is_empty():
 		last = world.history.back().day - world.origin_day
 	_strip.set_domain(maxi(last, UiTokens.MIN_SPAN_DAYS))
 	_strip.set_bands(AnalysisTab.phase_bands(world))
-	_strip.set_marks(marks)
 
 
 # ---------------------------------------------------------------------- table
@@ -523,9 +532,12 @@ func _on_tick_advanced(_day: int) -> void:
 
 func _on_run_started(_seed_value: int) -> void:
 	in_review = false
+	_strip_log_size = -1
 	if _back_button != null:
 		_back_button.visible = false
-	if is_open:
+	# A session on its way out (a load that swaps the screen, S6.11's bench)
+	# still hears the new run: it has no viewport left to slide out of.
+	if is_open and is_inside_tree():
 		super.close()
 	_log_shown = -1
 
@@ -537,4 +549,5 @@ func _on_run_ended(_outcome: String) -> void:
 func _on_locale_changed(_locale: String) -> void:
 	_refresh_strings()
 	_log_shown = -1
+	_strip_log_size = -1
 	refresh()

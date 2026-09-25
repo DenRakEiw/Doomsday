@@ -14,19 +14,19 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.11 — Performance pass** [O] (Block 16): `release.md` §11 (budget; the `perf` preset and `run/main_scene.perf` → `tools/perf/perf_bench.tscn` exist since S6.10, the scene does not). Then S6.12–S6.13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.12 — Benchmark tool, headless** [O] (Block 16): `docs/specs/benchmark.md` §0–§11, §13, §14.1; mock backends only — the first live run needs the user's `OPENROUTER_API_KEY` (*Waiting on the user*). Then S6.13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.12 benchmark tool, S6.13 spectator view. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | S6.10 — Export presets and release CI: `export_presets.cfg` (Windows, Linux, Web, Perf), `release.yml` + CI `export-smoke`, `--smoke`, `Game.debug_allowed`, version `0.6.0`, the app icon, the user folder `%APPDATA%/Doomsday/` with the one-time copy from `app_userdata` (2026-09-25). |
-| **Before that** | S6.9 — PlatformService (null backend) and achievements (2026-09-25). |
-| **Earlier** | S6.P1 — Punch list from D6.8 (2026-09-25). |
+| **After it** | S6.13 spectator view. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | S6.11 — Performance pass: the bench (`tools/perf/perf_bench.tscn`, `run_perf.ps1`, `tick_profile.gd`), `Game.last_tick_usec`, `first screen <ms>`; the analysis sheet's 0.6-s ticks, the late-game day 4.1 → 1.5 ms (4 threads), the cue loads and the bloom's sines fixed; three rows still fail (Performance notes, Design questions) (2026-09-25). |
+| **Before that** | S6.10 — Export presets and release CI (2026-09-25). |
+| **Earlier** | S6.9 — PlatformService (null backend) and achievements (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 290 scripts compile (135 judged by the suite), then `tools/check_strings.gd` (2338 rows), 2073 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
-| **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 293 scripts compile (136 judged by the suite), then `tools/check_strings.gd` (2338 rows), 2088 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
 | **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. **The sound set:** `uv run --project tools/audio python tools/audio/synth.py [--only <id>] [--check]` (≈30 s; environment `uv sync --project tools/audio`) rewrites `assets/audio/**`; after a new file run `--import` and set its `.import` per audio.md §10.3 (`compress/mode=0` / `loop=true`). |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
@@ -177,7 +177,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S6.P1 [O] Punch list from D6.8 (the build's design questions)
 - [x] S6.9 [O] PlatformService (null backend) and achievements
 - [x] S6.10 [O] Export presets and release CI
-- [ ] S6.11 [O] Performance pass
+- [x] S6.11 [O] Performance pass
 - [ ] S6.12 [O] Benchmark tool, headless *(the first live run needs the user's key)*
 - [ ] S6.13 [O] Spectator view
 
@@ -1312,7 +1312,21 @@ without new information.
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
-*(none open — D6.8 answered the nine from S5.9–S6.8c, Decisions 2026-09-25.)*
+- **S6.11 — the tick-frame p99 on `cpu_4t` is 13–16 ms against 13** (Performance notes). What is
+  left is per-tick interface work: with the analysis sheet open its four charts and the strip are
+  re-read and redrawn from ~400 samples on every tick (≈ 5 ms), and the tree's first tick after
+  opening. Should the sheet at 4× refresh every other tick (or only when the history gained a
+  sample), or is the row judged at G6 (2/2) on the real i5-8250U? No code placeholder.
+- **S6.11 — the peak working set on the integrated GPU is 1.27–1.42 GB against 1.0 GB** (0.39 GB on
+  the RTX; Godot's own video-memory count 0.21 GB). Under ANGLE/D3D11 the driver's shared GPU
+  memory lands in the process's working set. Does the row count it? If it does, the lever is the
+  four lossless 4096 × 2048 map textures (§11.4 item 3: halve or VRAM-compress them) — an art
+  decision. No code placeholder.
+- **S6.11 — occasional GPU-side stalls, one run in three:** 90–200 ms frames while the camera
+  jumps between the widest view and the closest zoom over Europe (video memory rises
+  160 → 275 MB — glyph or texture caches at the new scale), and 45–60 ms when the tree opens or
+  closes on the integrated GPU. Not a process-time cost; worth a look on the real low-end PC at
+  G6 (2/2) before any renderer work. No code placeholder.
 
 **Parked for a later Fable step (not questions, reminders):**
 - ~~**D5.2 endings** must distinguish Ascendance by deaths share~~ — done (`win_ascendance_ashes`).
@@ -1340,6 +1354,20 @@ without new information.
 
 ## Deviations from the plan or a spec
 
+- **2026-09-25** (S6.11) — **Against `release.md` §11.3:** (1) seed 1 `greedy` ends on day 404,
+  so the timed days are 300–404 and the late save is day 374; the 120-s script then outlives the
+  run, so the bench **reloads the save two days before the end** (8 reloads a run) — the reload
+  frame and the 3 after it are a screen change, left out of every percentile and the 50-ms row.
+  (2) The tree is toggled with `tree_pauses` **off** (the phone's default — days keep running
+  under it, the heavier case); tutorial and hints off, locale `en`. (3) The tick row is
+  `Game.last_tick_usec` (new: `sim.tick()` alone, without the bot's turn), measured in step 2 with
+  nothing on screen. (4) `TIME_PROCESS` is the *largest* of the last second, so the per-frame
+  process time is taken from `process_frame` to `frame_pre_draw`. (5) "The median run" = the run
+  with the median p95 frame time. (6) Every launched process logs to `--log-file` in the system
+  temp folder, not `user://logs/` — the player's log is left alone (the user played during the
+  step); the start time is read from there. (7) New tool `tools/perf/tick_profile.gd` (a day split
+  by system, hash printed). Fixes are in *Performance notes*; 59 `sim_run` hashes (7 policies ×
+  5 seeds, 5 architectures and 3 scenarios × 3 seeds) are identical before and after.
 - **2026-09-25** (S6.10) — **Against `release.md` §5, §6, §9:** (1) **the user folder is copied**
   (user instruction; §5 said nothing migrates): `UserDataMigration` (`game/platform/`), run first in
   `Settings._ready`, copies `profile.json`, `saves/*.json` and `settings.json` (last — it is the
@@ -2039,11 +2067,13 @@ without new information.
 
 ## Known issues and carry-overs
 
-- **S6.10: the release export's title looked larger than the editor's** in two window captures
-  (PrintWindow, 12 s after start, 1066 × 600 and a maximised 2560 × 1369): the menu reached the
-  bottom edge and the version caption was out of view, while the editor at 1920 × 1080 shows it
-  all (`Build 0.6.0 · Debug`). Not investigated (possibly the capture's DPI) — S6.11 or G6 should
-  look at the release build's title at a few window sizes.
+- **S6.10's "release title larger than the editor's" (looked at in S6.11):** the release export
+  opens at 1920 × 1080 on this 3840 × 2160 / 150 % screen and its title at 1920 × 1080,
+  1280 × 800 and 2560 × 1369 matches the editor's, `Build 0.6.0` in view. The 1066 × 600 capture
+  was a window below the 1100-px breakpoint: it gets the phone title (one logical pixel per window
+  pixel, §5.7), whose column is taller than 600 px — the menu reaches the bottom edge, the version
+  line and the globe are out of view. By the rule, not a release bug; a short desktop window
+  under 1100 px is G6's to judge.
 - **S6.9: Statistics on a phone is wider than the window** (older than S6.9, measured then): a
   *Recent runs* block's foot row (days, seed, *Play this seed again*) has a 424 px minimum at 400 px
   wide, so the panel clips on the right. The achievement rows are ≤ 250 px and drop their state
@@ -2068,7 +2098,7 @@ without new information.
   footer pushes past the node's left padding. Belongs with the S6.4 design question on the footer.
 - **The pass at a 400-px *desktop* window** (S6.1): `px_scale` = 400 / 1080, so the scanline
   pitch sits at its floor of 2 px and reads denser than at 1920. A phone's physical width is
-  ~1080 px, so it is a desktop-review artefact; S6.11 looks at it on a device.
+  ~1080 px, so it is a desktop-review artefact; no device in S6.11 — G6 (2/2) looks at it.
 - **Bash-tool heredocs mangle a backslash before a newline** (S6.1): a Python edit script sent
   through a heredoc turned GDScript line continuations into tabs or a literal `\n`. Write the
   script to the scratch directory with the Write tool, or use the Edit tool.
@@ -2633,6 +2663,46 @@ takes an OS path, which is worth knowing).
 
 ## Performance notes
 
+**S6.11 (2026-09-25) — the budget of `release.md` §11.2 on this PC** (Ryzen 9 7900X3D, RTX 5090
+and the CPU's integrated Radeon, Windows 11). Build 0.6.0, the S6.11 commit, release exports;
+bench `tools/perf/perf_bench.tscn` via `tools/perf/run_perf.ps1`, three runs per row, the run with
+the median p95 frame counts (the other two in brackets where they differ in verdict). The user's
+own game was open (idle, ≈ 0.1 core) during the final runs. *Before* = the same bench on 9918a77.
+
+| Measure | Budget here | Before `cpu_4t` | `cpu_4t` | `igpu_1080` | `igpu_800` |
+| --- | --- | --- | --- | --- | --- |
+| Adapter | — | RTX 5090 | RTX 5090 | Radeon (ANGLE D3D11) | Radeon (ANGLE D3D11) |
+| Frame p95 / p99 | 16.7 / 25 ms | 1.60 / 2.03 | 1.67 / 2.22 ✓ | 15.60 / 16.90 ✓ (was 17.12 before the shader fix) | 12.03 / 14.12 ✓ |
+| Max frame outside a screen change | 50 ms | 578 | **198.8 ✗** (29.1, 26.9) | 46.0 ✓ | **166.2 ✗** (52.0, 45.2) |
+| `TIME_PROCESS` p95 (process step) | 6.7 ms | 0.27 | 0.26 ✓ | 1.36 | 1.41 |
+| Tick-frame p99 | 13 ms (`cpu_4t`), 33 ms (iGPU) | 574.8 | **15.59 ✗** (13.12, 14.46) | 25.37 ✓ | **38.56 ✗** (27.07, 30.66) |
+| Tick mean / max (days 300–404) | 1.6 / 4.8 ms | 4.10 / 6.19 | 1.54 / 2.96 ✓ | 1.67 / 3.73 | 1.53 / 3.18 |
+| Draw calls max | 1 000 | 336 | 372 ✓ | 338 ✓ | 333 ✓ |
+| Video memory max | 512 MB | 191 | 276 ✓ | 221 ✓ | 206 ✓ |
+| Peak working set | 1.0 GB | 376 MB | 390 MB ✓ | **1 423 MB ✗** | **1 273 MB ✗** |
+| *Continue* → session drawn | 1.2 s | 766 ms | 676 ms ✓ | 1 021 ms ✓ | 967 ms ✓ |
+| Start → first screen (release, median of 3) | 2.0 s | — | 888 ms ✓ | | |
+| Windows executable | 250 MB | | 122 MB ✓ | | |
+
+**Fixed (measured one at a time; `sim_run` hashes identical):** (1) the analysis sheet: every
+chart point re-measured the whole plot (`plot_rect` → tick labels, `y_max` → every sample), so a
+late run's four charts took 0.6 s a tick — the geometry is measured once per `_draw`, points are
+computed inline, the areas are one indexed triangle strip instead of a polygon to triangulate,
+and the strip's marks are rebuilt only when the run log changed; (2) the open tree rebinds only
+cards whose node, cost or state changed (4.7 → 1.5 ms a tick, debug); the global-status chips are
+reused instead of rebuilt every tick; (3) the simulation day, 5.1 → 1.9 ms (debug): a memo in
+`ModifierStack.value`/`footprint_for` (cleared by every source or asset change), the history reads
+the pressure alone, the four factions share one pass of capacity factors and a gain without
+dictionaries, the Task Force's path search builds the adjacency once (it scanned every link per
+region), `Simulation.view` builds no systems, saturated regions skip the growth, hoisted balance
+reads, the continent milestones build each id once; (4) a cue's first play loaded its file on the
+spot (up to 12 ms in a tick) — the cue files load on the loader's threads at start (not on the
+web); (5) the screen pass: the bloom's 32 sines per pixel are a constant table, grain and dissolve
+cost nothing when off — the iGPU frame p50 15.6 → 14.1 ms. Screen effects Off would be 9.8 ms.
+**Still failing** (Design questions for Fable): the tick-frame p99 on `cpu_4t`; occasional
+GPU-side stalls (zoom in/out over Europe with video memory 160 → 275 MB; the tree opening on the
+iGPU, 45–60 ms); the iGPU working set under ANGLE.
+
 S6.1 (polish-visuals.md §3.4), the title at 1920 × 1080, this PC (Windows 11, Compatibility,
 no vsync), godot-mcp `game_performance` after ≥ 600 frames at each setting:
 
@@ -2648,6 +2718,12 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.11 Performance pass [O]
+- Bench + wrapper + `tick_profile.gd`; `Game.last_tick_usec`; `first screen` line. Fixes: chart geometry per draw, strip fill, strip marks
+  cache, tech-card bind skip, status chips reused, `ModifierStack` memo, pressure/gain/capacity factors, TF adjacency, cue preload, bloom table.
+- 4 threads: tick 4.10 → 1.54 ms, analysis tick frames 575 → ~14 ms. Fail: tick-frame p99 15.6 (13), iGPU working set 1.4 GB, rare GPU stalls.
+- 59 `sim_run` hashes identical. Release title checked at 4 sizes (Known issues). User played meanwhile; logs kept out of `user://logs`. +15 tests, 2088 green.
 
 ### 2026-09-25 — S6.10 Export presets and release CI [O]
 - `export_presets.cfg` (4), `release.yml`, CI `export-smoke`, `tools/ci/smoke_check.sh`; `--smoke` (`game/smoke_run.gd`);

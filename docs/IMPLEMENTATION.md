@@ -1152,6 +1152,9 @@ A frame-time benchmark scene (a scripted late-game session at 4×), measured aga
 on this PC with the spec's throttling; fixes where it fails; the numbers recorded in
 `PROGRESS.md` (a *Performance* note next to *Balance baselines*).
 **Done when:** the budget holds here; the real low-end check is G6 (2/2)'s.
+*Done 2026-09-25: the bench, the wrapper and `tick_profile.gd`; the late-game day from 4.1 to
+≈1.6 ms and the analysis sheet's 0.6-s tick frames fixed; numbers, fixes and the rows that still
+fail in `PROGRESS.md` (Performance notes).*
 
 ### S6.12 — Benchmark tool, headless **[O]** · **Read first:** `docs/specs/benchmark.md` §0–§11, §13, §14.1
 The model `Policy`, the digest and answer parsing, the adapter, the cache, the budget, the score,

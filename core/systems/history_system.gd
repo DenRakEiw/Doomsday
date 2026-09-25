@@ -40,8 +40,7 @@ static func sample(world: World, db: ContentDB) -> HistorySample:
 	row.phase = World.PHASE_IDS[world.phase]
 	for faction: Faction in world.factions:
 		row.containment_by_faction[faction.id] = faction.containment
-		row.pressure_by_faction[faction.id] = float(ContainmentSystem.containment_breakdown(
-			world, db, faction.id)[ContainmentSystem.PRESSURE])
+		row.pressure_by_faction[faction.id] = ContainmentSystem.pressure(world, db, faction.id)
 	row.risk = 0.0 if world.discovered \
 		else float(ContainmentSystem.discovery_risk(world, db)[ContainmentSystem.RISK_TOTAL])
 	row.harm = world.max_harm()

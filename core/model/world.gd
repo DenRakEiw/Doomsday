@@ -11,6 +11,8 @@ enum Phase { BOXED, COVERT, EMERGENT, OPEN }
 enum Outcome { NONE, WIN_EXTINCTION, WIN_ASCENDANCE, WIN_MERGE, WIN_ESCAPE, LOSE_CONTAINED,
 	LOSE_NO_COMPUTE, LOSE_AUTOPHAGY, LOSE_SUPPLANTED }
 
+## The attribute whose tier is a region's hardware.
+const ATTR_COMPUTE: String = "compute"
 ## Serialised forms, indexed by the enum value: a phase is never a number in a
 ## file, because the numbers would change the moment a phase is inserted.
 const PHASE_IDS: Array[String] = ["boxed", "covert", "emergent", "open"]
@@ -117,11 +119,12 @@ static func create(db: ContentDB, seed_value: int, p_setup: RunSetup = null) -> 
 func infected_share(db: ContentDB) -> float:
 	var infected: float = 0.0
 	var total: float = 0.0
+	var by_tier: Array[float] = db.balance.compute_hardware_by_tier
 	for i: int in range(1, regions.size()):
 		var region: Region = regions[i]
 		if region.dark:
 			continue
-		var hardware: float = db.balance.compute_hardware_by_tier[region.def.attr("compute")]
+		var hardware: float = by_tier[region.def.attr(ATTR_COMPUTE)]
 		total += hardware
 		if region.dormant:
 			continue

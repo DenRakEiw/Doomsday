@@ -73,6 +73,12 @@ var _bands: Array[Dictionary] = []
 var _moments: Array[Dictionary] = []
 var _references: Array[float] = []
 var _cursor: int = -1
+## S6.11: the plot and the top of the y domain, measured once per `_draw`. Every
+## point asked `plot_rect()`, which measures every tick label, and `y_max()`,
+## which walks every sample — a late run's four charts took 0.6 s per tick.
+var _drawing: bool = false
+var _draw_plot: Rect2 = Rect2()
+var _draw_y_max: float = 1.0
 
 
 func _ready() -> void:
@@ -209,6 +215,8 @@ func y_ticks() -> Array[float]:
 
 ## The top of the y domain: fixed, or `nice(max × 1.1)` floored at `min_span`.
 func y_max() -> float:
+	if _drawing:
+		return _draw_y_max
 	if _y_fixed > 0.0:
 		return _y_fixed
 	var highest: float = 0.0
@@ -227,6 +235,8 @@ func y_max() -> float:
 
 ## The plot inside the frame, after the title, legend, axes and label gutter.
 func plot_rect() -> Rect2:
+	if _drawing:
+		return _draw_plot
 	var top: float = _title_h() + _legend_h()
 	var axis_w: float = _axis_w()
 	return Rect2(axis_w, top,
@@ -342,6 +352,14 @@ func _move_cursor(day: int) -> void:
 
 
 func _draw() -> void:
+	_draw_y_max = y_max()
+	_draw_plot = plot_rect()
+	_drawing = true
+	_draw_chart()
+	_drawing = false
+
+
+func _draw_chart() -> void:
 	var frame: StyleBox = get_theme_stylebox(STYLE_PANEL, TYPE_FRAME)
 	draw_style_box(frame, Rect2(Vector2.ZERO, size))
 	_draw_title()
@@ -452,6 +470,10 @@ func _draw_series() -> void:
 	var plot: Rect2 = plot_rect()
 	var base: Dictionary[int, float] = {}
 	var single: bool = _series.size() == 1
+	# `day_to_x` and `value_to_y` written out: a call per sample was most of the
+	# loop (S6.11). Same arithmetic, same pixels.
+	var day_max: float = float(_day_max)
+	var top: float = y_max()
 	for one: ChartSeries in _series:
 		var points: PackedVector2Array = PackedVector2Array()
 		var floor_points: PackedVector2Array = PackedVector2Array()
@@ -460,30 +482,44 @@ func _draw_series() -> void:
 			if is_nan(value):
 				continue
 			var below: float = float(base.get(one.days[i], 0.0)) if one.stacked else 0.0
-			var x: float = day_to_x(float(one.days[i]))
-			points.append(Vector2(x, value_to_y(below + value)))
-			floor_points.append(Vector2(x, value_to_y(below)))
+			var x: float = plot.position.x + float(one.days[i]) / day_max * plot.size.x
+			points.append(Vector2(x, plot.end.y - (below + value) / top * plot.size.y))
+			# The wash's floor is the plot's bottom edge, a stack's the series below.
+			floor_points.append(Vector2(x, plot.end.y - below / top * plot.size.y \
+				if one.stacked else plot.end.y))
 			if one.stacked:
 				base[one.days[i]] = below + value
 		if points.size() < 2:
 			continue
 		if one.stacked:
-			var polygon: PackedVector2Array = points.duplicate()
-			floor_points.reverse()
-			polygon.append_array(floor_points)
 			var fill: Color = one.color
 			fill.a = UiTokens.CHART_STACK_ALPHA
-			draw_colored_polygon(polygon, fill)
+			_fill_between(points, floor_points, fill)
 			draw_polyline(points, UiTokens.color(&"BG_2"), UiTokens.CHART_RING_W, true)
 			continue
 		if single and area:
-			var wash: PackedVector2Array = points.duplicate()
-			wash.append(Vector2(points[points.size() - 1].x, plot.end.y))
-			wash.append(Vector2(points[0].x, plot.end.y))
 			var tint: Color = one.color
 			tint.a = UiTokens.CHART_AREA_ALPHA
-			draw_colored_polygon(wash, tint)
+			_fill_between(points, floor_points, tint)
 		draw_polyline(points, one.color, UiTokens.CHART_LINE_W, true)
+
+
+## The area between two lines over the same days, as the triangles of one
+## strip (S6.11). It was a polygon, which the engine triangulates on every draw
+## — for the ~400 samples of a late run, most of a chart's cost.
+func _fill_between(top: PackedVector2Array, bottom: PackedVector2Array, colour: Color) -> void:
+	var points: PackedVector2Array = PackedVector2Array()
+	var indices: PackedInt32Array = PackedInt32Array()
+	for i: int in top.size():
+		points.append(top[i])
+		points.append(bottom[i])
+		if i == 0:
+			continue
+		var at: int = i * 2
+		# The quad between sample i − 1 and sample i: two triangles.
+		indices.append_array(PackedInt32Array([at - 2, at - 1, at, at, at - 1, at + 1]))
+	RenderingServer.canvas_item_add_triangle_array(get_canvas_item(), indices, points,
+		PackedColorArray([colour]))
 
 
 ## S4.P: the legend wraps. On a phone *Eindämmung je Fraktion* named two of its

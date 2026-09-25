@@ -73,3 +73,33 @@ func test_the_queries_draw_nothing_from_the_world_s_generator() -> void:
 		_sim.containment_breakdown(faction.id)
 	_sim.threat_leader()
 	assert_eq(_sim.world.rng.state_string(), before)
+
+
+## S6.11: the history reads the pressure alone; it must be the breakdown's to
+## the last bit, or the analysis charts would disagree with the panel.
+func test_the_pressure_alone_is_the_breakdown_s_exactly() -> void:
+	_sim.world.discovered = true
+	_sim.world.discovery_day = 1
+	_sim.world.regions[1].penetration = 0.7
+	Fixtures.buy(_sim, ["fx_harm_1"])
+	for faction: Faction in _sim.world.factions:
+		assert_eq(ContainmentSystem.pressure(_sim.world, _sim.db, faction.id),
+			float(_sim.containment_breakdown(faction.id)[ContainmentSystem.PRESSURE]), faction.id)
+
+
+## S6.11: the tick reads the capacity factors once for all four factions; the
+## breakdown with them is the breakdown without them, to the last bit.
+func test_shared_capacity_factors_change_no_bit() -> void:
+	_sim.world.regions[1].penetration = 1.0
+	_sim.world.regions[1].control = 0.4
+	_sim.world.regions[2].alive *= 0.5
+	var factors: PackedFloat64Array = ContainmentSystem.capacity_factors(_sim.world, _sim.db)
+	for faction: Faction in _sim.world.factions:
+		var plain: Dictionary = ContainmentSystem.containment_breakdown(_sim.world, _sim.db,
+			faction.id)
+		var shared: Dictionary = ContainmentSystem.containment_breakdown(_sim.world, _sim.db,
+			faction.id, factors)
+		assert_eq(float(shared[ContainmentSystem.CAPACITY]),
+			float(plain[ContainmentSystem.CAPACITY]), faction.id)
+		assert_eq(float(shared[ContainmentSystem.GAIN]), float(plain[ContainmentSystem.GAIN]),
+			faction.id)

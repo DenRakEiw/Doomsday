@@ -21,7 +21,11 @@ var outbox: Array[SimEvent] = []
 var command_log: Array[Command] = []
 
 
-func _init() -> void:
+## `with_systems` false is a `view`: it is never ticked, so it builds none
+## (S6.11: the systems ask for a view several times a tick).
+func _init(with_systems: bool = true) -> void:
+	if not with_systems:
+		return
 	# The fixed system order. It is part of the determinism contract: a system
 	# that moves changes every run. The comments are the slots M4 fills, so that
 	# a later step inserts rather than reorders.
@@ -49,7 +53,7 @@ func _init() -> void:
 ## points at the same `World`, so an effect applied through it changes the run
 ## it came from. Never ticked, never given a command.
 static func view(db: ContentDB, world: World) -> Simulation:
-	var sim: Simulation = Simulation.new()
+	var sim: Simulation = Simulation.new(false)
 	sim.db = db
 	sim.world = world
 	return sim

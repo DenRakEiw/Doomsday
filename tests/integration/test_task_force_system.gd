@@ -105,6 +105,16 @@ func test_the_next_hop_is_on_a_shortest_path() -> void:
 	assert_eq(TaskForceRules.distances(sim.world, next)[far], hops[far] - 1)
 
 
+## S6.11: the search reads every region's neighbours from one pass over the
+## links; the lists must be `neighbours`' own, order included.
+func test_the_search_s_adjacency_is_every_region_s_neighbours() -> void:
+	var sim: Simulation = _sim()
+	var adjacency: Array[Array] = TaskForceRules._adjacency(sim.world)
+	for i: int in range(1, sim.world.regions.size()):
+		var expected: Array[int] = TaskForceRules.neighbours(sim.world, i)
+		assert_eq(adjacency[i], expected, sim.world.regions[i].def.id)
+
+
 func test_a_setup_acts_and_puts_its_status_up() -> void:
 	var sim: Simulation = _hunted(0.5)
 	_team_tick(sim)

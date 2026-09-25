@@ -31,12 +31,14 @@ func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 ## income is kept on the world for `OutcomeSystem`'s starving count.
 func _income(world: World, db: ContentDB) -> void:
 	var income: float = 0.0
+	var balance: BalanceDef = db.balance
+	var by_tier: Array[float] = balance.compute_hardware_by_tier
 	for i: int in range(1, world.regions.size()):
 		var region: Region = world.regions[i]
 		if region.dark or region.dormant:
 			continue
-		var humans: float = db.balance.compute_hardware_by_tier[region.def.attr("compute")] \
-			* SocietalFunctionSystem.yield_mul(region.society, db.balance)
+		var humans: float = by_tier[region.def.attr(World.ATTR_COMPUTE)] \
+			* SocietalFunctionSystem.yield_mul(region.society, balance)
 		income += (humans + world.modifiers.value("hardware", region.def)) \
 			* region.penetration * world.modifiers.value("yield", region.def)
 	income *= db.balance.compute_yield_scale
@@ -140,10 +142,15 @@ func _milestones(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 func _continent_milestone(world: World, db: ContentDB, milestone: MilestoneDef,
 		events: Array[SimEvent]) -> void:
 	var home: String = world.regions[world.agent.origin].def.continent
+	# A continent is settled by its first seeded region: fired then or before.
+	# The rest are skipped without building the id again (S6.11).
+	var settled: Dictionary[String, bool] = {}
 	for i: int in range(1, world.regions.size()):
 		var region: Region = world.regions[i]
-		if region.seeded_day < 0 or region.def.continent == home:
+		if region.seeded_day < 0 or region.def.continent == home \
+				or settled.has(region.def.continent):
 			continue
+		settled[region.def.continent] = true
 		var fired_id: String = "%s_%s" % [milestone.id, region.def.continent]
 		if world.milestones_fired.has(fired_id):
 			continue

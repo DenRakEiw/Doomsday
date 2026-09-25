@@ -58,6 +58,9 @@ var debug_log: bool = false
 var debug_allowed: bool = OS.is_debug_build()
 ## The question the map is being asked, or null (`loop-mechanics.md` §16.1).
 var site_request: SiteRequest = null
+## How long the last `sim.tick()` took, in microseconds: the bench's tick row
+## (release.md §11.3), without the bot's turn or the events' fan-out.
+var last_tick_usec: int = 0
 
 var _accumulator: float = 0.0
 var _last_outcome: World.Outcome = World.Outcome.NONE
@@ -296,8 +299,10 @@ func advance(count: int) -> void:
 		_run_policy()
 		var compute_before: float = sim.world.agent.compute
 		var containment_before: Dictionary[String, float] = _containment_now()
+		var tick_started: int = Time.get_ticks_usec()
 		if not sim.tick():
 			return
+		last_tick_usec = Time.get_ticks_usec() - tick_started
 		compute_rate = sim.world.agent.compute - compute_before
 		_measure_containment(containment_before)
 		EventBus.tick_advanced.emit(sim.world.day)

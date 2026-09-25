@@ -7,6 +7,11 @@ extends Control
 
 ## release.md §8: `-- --smoke` plays a bot run in place of the boot.
 const SmokeRun: GDScript = preload("res://game/smoke_run.gd")
+## release.md §11.3: the start time, once per process, in every build — the perf
+## wrapper reads it from the log.
+const FIRST_SCREEN_LINE: String = "first screen %d"
+
+static var _first_screen_logged: bool = false
 
 @onready var _slot: Control = %ScreenSlot
 
@@ -23,7 +28,15 @@ func _ready() -> void:
 		add_child(SmokeRun.new() as Node)
 	else:
 		ScreenRouter.boot()
+	if not _first_screen_logged:
+		_first_screen_logged = true
+		RenderingServer.frame_post_draw.connect(_on_first_screen_drawn, CONNECT_ONE_SHOT)
 	EventBus.text_scale_changed.connect(_on_text_scale_changed)
+
+
+## Milliseconds from the process's start to the first routed screen on screen.
+func _on_first_screen_drawn() -> void:
+	print(FIRST_SCREEN_LINE % Time.get_ticks_msec())
 
 
 ## UI.md §5: the settings the title opens can change the scale under it.

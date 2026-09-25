@@ -61,6 +61,9 @@ var _stem_players: Array[AudioStreamPlayer] = []
 ## Path → stream; null for a file that is not there (warned once).
 var _streams: Dictionary[String, AudioStream] = {}
 var _warned: Dictionary[String, bool] = {}
+## S6.11: the cue files asked of the loader's threads at start. A cue's first
+## play loaded its file on the spot, which held a late-game tick up to 12 ms.
+var _requested: Dictionary[String, bool] = {}
 var _unlocked: bool = true
 
 ## §6: every moving value — where it is, where it goes, how fast (per second).
@@ -111,6 +114,7 @@ func _ready() -> void:
 	EventBus.hold_changed.connect(_on_hold_changed)
 	EventBus.volume_changed.connect(_on_volume_changed)
 	ScreenRouter.screen_changed.connect(_on_screen_changed)
+	_request_cue_streams()
 
 
 func _process(delta: float) -> void:
@@ -409,12 +413,28 @@ func _stream(path: String) -> AudioStream:
 	if _streams.has(path):
 		return _streams[path]
 	var stream: AudioStream = null
-	if ResourceLoader.exists(path):
+	if _requested.has(path):
+		# Waits for the thread only if the file is still on its way.
+		stream = ResourceLoader.load_threaded_get(path) as AudioStream
+	elif ResourceLoader.exists(path):
 		stream = load(path) as AudioStream
 	if stream == null:
 		_warn_once(path, "audio: %s is missing" % path)
 	_streams[path] = stream
 	return stream
+
+
+## Every cue's file, loaded off the main thread while the boot and the title
+## run. Not on the web, whose single-threaded build would load them all here.
+func _request_cue_streams() -> void:
+	if OS.has_feature(FEATURE_WEB):
+		return
+	for id: StringName in sheet.cues:
+		var path: String = sheet.cues[id].path()
+		if _requested.has(path) or not ResourceLoader.exists(path):
+			continue
+		if ResourceLoader.load_threaded_request(path) == OK:
+			_requested[path] = true
 
 
 func _warn_once(key: String, message: String) -> void:

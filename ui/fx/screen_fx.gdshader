@@ -5,7 +5,8 @@
 // Web-safe by construction: one canvas_item fragment pass over the screen
 // texture, no compute, no second pass, no environment. Every value arrives as a
 // uniform set by `ScreenFx` from `UiTokens`; the only numbers written here are
-// the two Bayer matrices (textbook values) and the hash's mixing constants.
+// the two Bayer matrices (textbook values), the hash's mixing constants and the
+// sines and cosines of the bloom's sixteen directions.
 shader_type canvas_item;
 render_mode unshaded;
 
@@ -46,6 +47,20 @@ const float BAYER8[64] = float[64](
 	15.0, 47.0, 7.0, 39.0, 13.0, 45.0, 5.0, 37.0,
 	63.0, 31.0, 55.0, 23.0, 61.0, 29.0, 53.0, 21.0);
 
+// The bloom's tap directions: eight on the inner ring at k eighths of a turn,
+// eight on the outer one turned by half a step. Written out, so that no pixel
+// computes a sine (S6.11: 32 per pixel were a third of the frame on an
+// integrated GPU).
+const vec2 BLOOM_DIRS[16] = vec2[16](
+	vec2(1.0, 0.0), vec2(0.70710678, 0.70710678),
+	vec2(0.0, 1.0), vec2(-0.70710678, 0.70710678),
+	vec2(-1.0, 0.0), vec2(-0.70710678, -0.70710678),
+	vec2(0.0, -1.0), vec2(0.70710678, -0.70710678),
+	vec2(0.92387953, 0.38268343), vec2(0.38268343, 0.92387953),
+	vec2(-0.38268343, 0.92387953), vec2(-0.92387953, 0.38268343),
+	vec2(-0.92387953, -0.38268343), vec2(-0.38268343, -0.92387953),
+	vec2(0.38268343, -0.92387953), vec2(0.92387953, -0.38268343));
+
 // In [0, 1).
 float bayer4(vec2 p) {
 	ivec2 q = ivec2(mod(p, 4.0));
@@ -75,12 +90,10 @@ float hash(vec2 p, float frame) {
 
 vec3 bloom(vec2 uv, vec2 px) {
 	vec3 sum = vec3(0.0);
+	vec2 inner = bloom_radii.x * px_scale * px;
+	vec2 outer = bloom_radii.y * px_scale * px;
 	for (int i = 0; i < bloom_taps; i++) {
-		// Eight taps on the inner ring, eight on the outer one turned by half a step.
-		int ring = i / 8;
-		float angle = (float(i % 8) + 0.5 * float(ring)) * (TAU / 8.0);
-		float radius = (ring == 0 ? bloom_radii.x : bloom_radii.y) * px_scale;
-		vec3 tap = texture(screen, uv + vec2(cos(angle), sin(angle)) * radius * px).rgb;
+		vec3 tap = texture(screen, uv + BLOOM_DIRS[i] * (i < 8 ? inner : outer)).rgb;
 		float high = max(tap.r, max(tap.g, tap.b));
 		float chroma = high - min(tap.r, min(tap.g, tap.b));
 		// Keyed on chroma, not luminance: near-grey text never glows.
@@ -122,16 +135,19 @@ void fragment() {
 		c *= 1.0 - scan_depth;
 	}
 
-	// 6. Grain, the same on every channel.
-	float n = hash(floor(p), floor(TIME * grain_fps));
-	c += (n - 0.5) * 2.0 * grain_amp;
+	// 6. Grain, the same on every channel. None asked for, no hash spent.
+	if (grain_amp > 0.0) {
+		float n = hash(floor(p), floor(TIME * grain_fps));
+		c += (n - 0.5) * 2.0 * grain_amp;
+	}
 
 	// 7. Ordered dither: mean-preserving, so it changes no contrast.
 	float steps = dither_levels - 1.0;
 	c = floor(c * steps + bayer4(p)) / steps;
 
 	// 8. Dissolve: the frame is ground where the cell's threshold is under it.
-	if (bayer8(floor(p / dissolve_cell)) < dissolve) {
+	// A threshold is never under 0: with no dissolve the matrix is not read.
+	if (dissolve > 0.0 && bayer8(floor(p / dissolve_cell)) < dissolve) {
 		c = ground.rgb;
 	}
 

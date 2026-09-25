@@ -100,10 +100,13 @@ static func distances(world: World, origin: int) -> PackedInt32Array:
 	if origin <= 0 or origin >= world.regions.size():
 		return out
 	out[origin] = 0
+	# Every region's `neighbours` in one pass over the links rather than one pass
+	# per region reached (S6.11): the same sorted lists, so the same search.
+	var adjacency: Array[Array] = _adjacency(world)
 	var queue: Array[int] = [origin]
 	while not queue.is_empty():
 		var at: int = queue.pop_front()
-		for neighbour: int in neighbours(world, at):
+		for neighbour: int in adjacency[at]:
 			if out[neighbour] >= 0:
 				continue
 			out[neighbour] = out[at] + 1
@@ -127,6 +130,24 @@ static func neighbours(world: World, index: int) -> Array[int]:
 
 
 ## §3: the first action whose level and rule hold for the target, or null.
+## `neighbours(world, i)` for every region index at once.
+static func _adjacency(world: World) -> Array[Array]:
+	var lists: Array[Array] = []
+	for i: int in world.regions.size():
+		var empty: Array[int] = []
+		lists.append(empty)
+	for link: Link in world.links:
+		var a: int = link.def.a
+		var b: int = link.def.b
+		if b > 0 and a >= 0 and a < lists.size() and not lists[a].has(b):
+			lists[a].append(b)
+		if a > 0 and b >= 0 and b < lists.size() and not lists[b].has(a):
+			lists[b].append(a)
+	for list: Array in lists:
+		list.sort()
+	return lists
+
+
 static func action_for(world: World, db: ContentDB, index: int) -> TaskForceActionDef:
 	for action: TaskForceActionDef in db.task_force_actions:
 		if world.task_force.level < action.level_min:

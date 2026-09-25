@@ -73,6 +73,34 @@ func test_the_footer_shows_the_node_s_own_footprint() -> void:
 		"a node without one says nothing")
 
 
+## S6.11: the open tree binds every card every tick, and a card whose inputs
+## did not change skips the work — but never a change.
+func test_a_second_bind_with_a_new_state_or_cost_shows_it() -> void:
+	var definition: TechNodeDef = _db.tech("cloud_federation")
+	var node: TechNode = _node(definition, TechNode.State.AVAILABLE, 5.0)
+	var cost: Label = node.get_node("%NodeCost") as Label
+	var shown: String = cost.text
+	node.bind(definition, 5.0, TechNode.State.AVAILABLE, false)
+	assert_eq(cost.text, shown, "the same inputs show the same")
+	node.bind(definition, 17.0, TechNode.State.AVAILABLE, false)
+	assert_ne(cost.text, shown, "a new cost is shown")
+	node.bind(definition, 17.0, TechNode.State.AFFORDABLE, false)
+	assert_eq(String(node.theme_type_variation), VARIATIONS[TechNode.State.AFFORDABLE])
+
+
+func test_a_bind_after_a_locale_change_writes_the_footer_again() -> void:
+	var definition: TechNodeDef = _db.tech("cloud_federation")
+	TranslationServer.set_locale("en")
+	var node: TechNode = _node(definition, TechNode.State.AVAILABLE)
+	var footprint: Label = node.get_node("%Footprint") as Label
+	var english: String = footprint.text
+	TranslationServer.set_locale("de")
+	await get_tree().process_frame
+	node.bind(definition, 5.0, TechNode.State.AVAILABLE, false)
+	assert_eq(footprint.text, tr(TechNode.KEY_FOOTPRINT).format({"fp": TechNode._signed(2.0)}))
+	assert_ne(footprint.text, english, "the footer speaks German now")
+
+
 ## §3.4 promises two lines and no ellipsis. It holds for every name in both
 ## languages at both cell sizes since G3 shortened the seven English ones that
 ## did not. The list is asserted exactly, so a name that overflows fails this

@@ -69,6 +69,10 @@ var _flash_tween: Tween = null
 var _cost_value: float = 0.0
 ## The placeholders the state's string takes; empty for a state without any.
 var _state_args: Dictionary = {}
+## S6.11: `bind` has run with the arguments above since the last translation
+## change. The open tree binds every card on every tick; a card whose node,
+## cost and state stayed the same keeps what it shows.
+var _bound: bool = false
 
 
 func _ready() -> void:
@@ -95,6 +99,8 @@ func _on_theme_variant_changed(_variant: StringName) -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		# The footer's footprint is formatted in `bind`: the next one writes it anew.
+		_bound = false
 		_refresh_strings()
 	elif what == NOTIFICATION_THEME_CHANGED:
 		queue_redraw()
@@ -103,6 +109,10 @@ func _notification(what: int) -> void:
 ## Everything the node shows, in one call from the modal.
 func bind(definition: TechNodeDef, cost: float, node_state: State, external: bool,
 		state_arguments: Dictionary = {}) -> void:
+	if _bound and node_id == definition.id and state == node_state and _cost_value == cost \
+			and has_external_prerequisite == external and _state_args == state_arguments:
+		return
+	_bound = is_node_ready()
 	node_id = definition.id
 	_icon.show_icon(Icons.KIND_TECH, definition.id)
 	_state_args = state_arguments
