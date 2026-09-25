@@ -172,6 +172,16 @@ func test_a_plain_button_clicks() -> void:
 	assert_eq(Audio.history, [&"ui_click"] as Array[StringName])
 
 
+## §5.5: a duck holds for its cue's file length (S6.6 ships the files), or
+## `MISSING_LENGTH_MS` while the file is missing.
+func _hold_ms(cue_id: StringName) -> int:
+	var path: String = AudioSheet.ASSET_ROOT + Audio.sheet.cue(cue_id).file
+	if not ResourceLoader.exists(path):
+		return Audio.MISSING_LENGTH_MS
+	var stream: AudioStream = load(path) as AudioStream
+	return roundi(stream.get_length() * UiTokens.MS_PER_SECOND)
+
+
 func test_duck_lowers_loop_players_and_releases() -> void:
 	Game.start_run(SEED)
 	Audio.step(1.0)
@@ -181,7 +191,7 @@ func test_duck_lowers_loop_players_and_releases() -> void:
 	assert_almost_eq(Audio.duck_db(), Audio.sheet.duck_db, 1e-4)
 	assert_almost_eq(Audio.layer_player(0).volume_db, before + Audio.sheet.duck_db, 1e-3)
 	assert_lt(Audio.stem_player(0).volume_db, 0.0)
-	_clock += Audio.MISSING_LENGTH_MS + 1
+	_clock += _hold_ms(&"alert_discovered") + 1
 	Audio.clock_override_ms = _clock
 	Audio.step(1.0)
 	assert_almost_eq(Audio.duck_db(), 0.0, 1e-4, "released after the hold")

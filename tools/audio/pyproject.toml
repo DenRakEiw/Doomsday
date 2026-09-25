@@ -1,0 +1,21 @@
+[project]
+name = "doomsday-audio"
+version = "1.0.0"
+description = "Synthesises the game's sound set from recipes.json: cues, ambience, music stems."
+requires-python = ">=3.12"
+
+# The latest versions at S6.6, pinned to the minor version here and exactly by
+# the uv.lock committed next to this file. The OGG files are only byte-identical
+# for one libsndfile/libvorbis, and that comes inside the soundfile wheel.
+dependencies = [
+    "numpy~=2.5.3",
+    "scipy~=1.18.1",
+    "soundfile~=0.14.0",
+    "pyloudnorm~=0.2.0",
+]
+
+[dependency-groups]
+dev = []
+
+[tool.uv]
+package = false

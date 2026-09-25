@@ -99,11 +99,9 @@ Verified during research; recorded here so the decision is not re-litigated late
 
 ## Audio
 
-*(none yet — D6.4 decided the set is synthesised, own work: S6.6 adds the row `audio_synth` for
-`assets/audio/**`, rendered by `tools/audio/synth.py` from `tools/audio/recipes.json`)*
-
 | Id | Asset | Source | Licence |
 | --- | --- | --- | --- |
+| `audio_synth` | `assets/audio/**` — 56 cues (`ui/`, `alerts/`, WAV) and 8 loops (`ambience/`, `music/`, OGG Vorbis), with their `.import` files | Rendered by `tools/audio/synth.py` from `tools/audio/recipes.json` (S6.6, 2026-09-25); `--check` reproduces every file byte for byte. No samples, no third-party material; the tool's libraries (numpy, scipy, soundfile/libsndfile, pyloudnorm) do not ship | **Own work** — not credited (rule 6) |
 
 ## Shaders
 

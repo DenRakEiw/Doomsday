@@ -14,19 +14,19 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.6 — Audio II: the sound set** [O]: `docs/specs/audio.md` §9–§10, §12.2, §13.2 — `tools/audio/synth.py` renders all 64 files from `tools/audio/recipes.json`, measures peak and loudness (`--check`), the `.import` files, the `audio_synth` licence row. S6.5 built everything against missing files, so S6.6 only adds files. IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.7 — Tutorial II** [O]: `docs/specs/first-run.md` §6 (D6.5) — the ten hints (once per profile, `Settings.hints`, `ProfileManager.hints_seen`), the narrowed step 7, the *How to play* tab (`data/help.json` → `HelpPages`), help from `F1`, the **?** on four panels, `ModalHost.open_over`, the `HELP` glyph. IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.7–S6.8, then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | S6.5 — Audio I: the `Audio` autoload (buses from `data/audio.json`, pools, dispatch from `EventBus`/router/buttons, `VoiceLedger` admission, ducking, hold dip, ambience per phase and screen, four stems on tension = heat, web unlock, focus), `AudioSheet` + records, `AudioRules`, `CaptionText`, the caption stack in the HUD, seven settings rows, the `call` cues in `ModalHost`/boot; files still missing (warned once each); 1768 tests green (2026-09-25). |
-| **Before that** | S6.4 — the icon pipeline (2026-09-25). |
+| **After it** | S6.8, then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | S6.6 — Audio II: `tools/audio/synth.py` renders all 64 files of the sheet from `recipes.json` (WAV cues, OGG loops, `.import` per §10.3), `--check` green (byte-identical, peaks, LUFS, loop joins); `test_audio_files.gd`; licence row `audio_synth` (2026-09-25). |
+| **Before that** | S6.5 — Audio I: the `Audio` autoload, sheet, dispatch, captions (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 268 scripts compile (108 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1768 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 269 scripts compile (108 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1776 tests, **all green since S4.9**. The same command is all of CI. |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
-| **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. |
+| **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. **The sound set:** `uv run --project tools/audio python tools/audio/synth.py [--only <id>] [--check]` (≈30 s; environment `uv sync --project tools/audio`) rewrites `assets/audio/**`; after a new file run `--import` and set its `.import` per audio.md §10.3 (`compress/mode=0` / `loop=true`). |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -161,7 +161,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S6.3 [O] Credits and licences screen; the illustration hooks
 - [x] S6.4 [O] Icon pipeline
 - [x] S6.5 [O] Audio I: service, buses, cues, captions
-- [ ] S6.6 [O] Audio II: the sound set
+- [x] S6.6 [O] Audio II: the sound set
 - [ ] S6.7 [O] Tutorial II
 - [ ] S6.8 [O] Accessibility
 
@@ -1257,7 +1257,12 @@ without new information.
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
-*(none open — G5 (2/3) answered the push-in's zoom: keep `zoom_min × 2`, Decisions 2026-09-25.
+- **S6.6 — three recipes sit 1 dB outside §10.1's group ranges:** `ui_open` and `ui_close`
+  (`peak_db` −12, "other interface cues" −6…−11) and `ev_expired` (−11, "stings and alerts"
+  −5…−10). Shipped as the recipes say (§10.1: the recipe's `post` is exact); `synth.py --check`
+  prints a note. Move the recipes or widen the ranges?
+
+*(otherwise none open — G5 (2/3) answered the push-in's zoom: keep `zoom_min × 2`, Decisions 2026-09-25.
 D5.5 answered the Task Force against dormancy and the scenario levers, BALANCE §5.7 (3)–(4).
 D6.1 answered the parked border note: `polish-visuals.md` §9.)*
 
@@ -1331,6 +1336,21 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
    1120 × 840, `.import` lossless + mipmaps, a *Generated assets* row per file).
 
 ## Deviations from the plan or a spec
+
+- **2026-09-25** (S6.6) — **The sound set, against `audio.md` §9–§10:** (1) The tool rewrites each
+  Ogg page's stream serial (libsndfile picks a random one) to a fixed value, so the OGGs are
+  byte-identical too; libsndfile's Vorbis writer is fed in 4096-frame blocks (one large write
+  overflowed the stack). (2) **The four ambience loops are rotated** to start on a near-zero frame
+  in their quietest 1 %: Vorbis codes a file's two edges apart, and `amb_emergent` (which began on
+  its sub-bass swell) had a join 10 dB above any step inside it — a click. The stems are not
+  rotated (they stay in step); `--check` now fails a loop whose join is a larger step than any
+  inside it (all eight pass, 10–70 dB under). (3) §10.1's group ranges are reported, not failed
+  ("the exact value is the recipe's post"): `ui_open`/`ui_close` −12 and `ev_expired` −11 lie
+  1 dB outside theirs (Design questions). (4) White noise is uniform in ±1; a release is the
+  −60 dB exponential offset to end at exactly 0; a loop voice without `t`/`d` has no envelope and
+  its phase is scaled to a whole number of cycles (holds under `vib`/`detune`). (5) 9.7 MB, not
+  §10.4's ≈ 8 (the two stereo endings are 1.6 MB of WAV). (6) No credits line: own work (rule 6,
+  §11), as the spec says — IMPLEMENTATION's "and its credits line" does not apply.
 
 - **2026-09-25** (S6.5) — **Audio, against `audio.md`:** (1) `AudioTriggerDef.conditions` holds
   the sheet's `match` (`match` is a GDScript keyword). (2) §8.2's `MOTION_FAST` does not exist;
@@ -2148,6 +2168,10 @@ Codex opening on *How to play* — worth it? (3) the 14 help pages' text (`HELP_
 (1) controller remapping left to Steam Input (keyboard keys are remappable in the game) — fine?
 (2) headlines spoken to a screen reader by default, 8 s apart — on by default right?
 
+**S6.6 (2026-09-25, overnight):** the sound set is rendered and measured, **not listened to** —
+the builder's ear check of §13.2 (3) is still owed: a desktop run for clicks, clipping or a
+missing sound (loop joins and peaks are within targets by measurement; G6 judges the taste).
+
 **D5.2 (2026-09-24), at G5:** `docs/specs/taskforce-endings.md` §13 — is *Supplanted* (a secret
 loss that turns a win, after one warning card) fair, or should a normal win's results screen hint
 that a released child is still out there?
@@ -2489,6 +2513,13 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.6 Audio II: the sound set [O]
+- `tools/audio/` (uv env: numpy, scipy, soundfile, pyloudnorm; `.gdignore`), `synth.py`: additive
+  band-limited voices, circular loops, post, WAV/OGG (fixed Ogg serial), measure, `--check`.
+- 64 files in `assets/audio/` + `.import` (PCM, loop); ambience rotated for clean joins; `--check` ok twice.
+- Looked at by measurement (peaks, LUFS, joins, spectrogram sheets); not listened to (Waiting on the
+  user). `test_audio_files.gd`; row `audio_synth`. +8 tests, 1776 green.
 
 ### 2026-09-25 — S6.5 Audio I: service, buses, cues, captions [O]
 - `Audio` autoload (after `ProfileManager`), `AudioSheet` + five records, `AudioRules`, `VoiceLedger`/
