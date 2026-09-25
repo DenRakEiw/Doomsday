@@ -1,7 +1,8 @@
 # Doomsday
 
 A *Plague Inc.*-style strategy simulation in which the player is a rogue AI. Godot 4.7.2, typed
-GDScript, Compatibility renderer. Windows/Steam first, then mobile and web. English and German.
+GDScript, Compatibility renderer. itch.io in the browser first (Web build), Steam only if people play it,
+then mobile (user decision 2026-09-25, `PROGRESS.md`). English and German.
 
 ## Every session starts here
 
