@@ -30,7 +30,8 @@
 		"FACTION_PUBLIC": "phosphor/users-three-bold.svg",
 		"OUTCOME": "phosphor/square-fill.svg",
 		"LOG_YOURS": "phosphor/caret-right-bold.svg",
-		"LOG_THEIRS": "custom/chrome/log-theirs.svg"
+		"LOG_THEIRS": "custom/chrome/log-theirs.svg",
+		"HELP": "phosphor/question-mark-bold.svg"
 	},
 	"tech": {
 		"cloud_federation": "game-icons/delapouite/cloud-upload.svg",

@@ -5,7 +5,8 @@ extends Control
 ##
 ## At most one modal is open. A second `open` while one is showing queues it —
 ## the discovery modal arriving while the tech tree is up waits for the tree to
-## close rather than stacking on it.
+## close rather than stacking on it. The one exception is `open_over`
+## (`first-run.md` §6.8): one level of stacking, for help over whatever is up.
 ##
 ## The host owns no content: a modal is any `Control`, and `Escape` is offered to
 ## it (`on_escape`) before the host closes it.
@@ -25,6 +26,10 @@ var _current: Control = null
 var _queued: Array[Control] = []
 ## Whatever had focus before the modal took it.
 var _previous_focus: Control = null
+## The modal under the current one (`open_over`), still showing, and what had
+## the focus in it.
+var _below: Control = null
+var _below_focus: Control = null
 var _fade: Tween = null
 
 
@@ -58,15 +63,58 @@ func open(modal: Control) -> void:
 	opened.emit()
 
 
+## Shows `modal` on top of the one that is up, which stays visible and becomes
+## current again when `modal` closes (§6.8). With nothing up it is `open`; with
+## two up already it queues like `open`.
+func open_over(modal: Control) -> void:
+	if modal == null or modal == _current or _queued.has(modal):
+		return
+	if _current == null or _below != null:
+		open(modal)
+		return
+	_below = _current
+	_below_focus = get_viewport().gui_get_focus_owner()
+	_current = modal
+	if modal.get_parent() != _slot:
+		if modal.get_parent() != null:
+			modal.get_parent().remove_child(modal)
+		_slot.add_child(modal)
+	# Drawn last, so above the one it covers.
+	_slot.move_child(modal, -1)
+	modal.visible = true
+	_focus_first()
+	Audio.cue(CUE_OPEN)
+	opened.emit()
+
+
+## The modal under the current one, or null.
+func below() -> Control:
+	return _below
+
+
 ## Closes the modal that is up, and shows whatever was waiting behind it.
 func close() -> void:
 	if _current == null:
 		return
 	var closing: Control = _current
-	_current = null
 	# The modal stays in the slot, hidden: taking it out of the tree would strip
 	# the `%` names of everything inside it and orphan the node.
 	closing.visible = false
+	if _below != null:
+		# §6.8: the one below is current again; the queue waits until nothing is.
+		_current = _below
+		_below = null
+		var focus: Control = _below_focus
+		_below_focus = null
+		var valid: bool = focus != null and is_instance_valid(focus)
+		if valid and focus.is_inside_tree() and _current.is_ancestor_of(focus):
+			focus.grab_focus()
+		else:
+			_focus_first()
+		Audio.cue(CUE_CLOSE)
+		closed.emit()
+		return
+	_current = null
 	_set_shown(false)
 	_restore_focus()
 	Audio.cue(CUE_CLOSE)

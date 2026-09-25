@@ -30,6 +30,8 @@ const KEY_TEXT_SCALE: String = "text_scale"
 const KEY_TREE_PAUSES: String = "tree_pauses"
 ## first-run.md §3.1: the guided first run is on until it is finished or skipped.
 const KEY_TUTORIAL: String = "tutorial"
+## first-run.md §6.1: the hints of Tutorial II, each once per profile.
+const KEY_HINTS: String = "hints"
 ## screens-full.md §6.3: the boot sequence in full on every launch, not only the first.
 const KEY_BOOT_ALWAYS: String = "boot_always"
 ## polish-visuals.md §5.1: the intensity of the full-screen pass, 0…1.
@@ -51,6 +53,7 @@ var reduced_motion: bool = DEFAULT_REDUCED_MOTION
 var text_scale: float = DEFAULT_TEXT_SCALE
 var tree_pauses: bool = true
 var tutorial: bool = true
+var hints: bool = true
 var boot_always: bool = false
 ## One of `UiTokens.FX_INTENSITIES`; a stored value between the steps is kept.
 var screen_effects: float = UiTokens.FX_INTENSITY_DESKTOP
@@ -72,6 +75,7 @@ func _ready() -> void:
 	text_scale = float(values[KEY_TEXT_SCALE])
 	tree_pauses = bool(values[KEY_TREE_PAUSES])
 	tutorial = bool(values[KEY_TUTORIAL])
+	hints = bool(values[KEY_HINTS])
 	boot_always = bool(values[KEY_BOOT_ALWAYS])
 	screen_effects = float(values[KEY_SCREEN_EFFECTS])
 	var stored_volumes: Dictionary = values[KEY_VOLUMES]
@@ -112,6 +116,7 @@ static func values_from(raw: Variant, fallback_locale: String) -> Dictionary:
 		KEY_TEXT_SCALE: DEFAULT_TEXT_SCALE,
 		KEY_TREE_PAUSES: default_tree_pauses(),
 		KEY_TUTORIAL: true,
+		KEY_HINTS: true,
 		KEY_BOOT_ALWAYS: false,
 		KEY_SCREEN_EFFECTS: default_screen_effects(),
 		KEY_VOLUMES: {},
@@ -134,6 +139,8 @@ static func values_from(raw: Variant, fallback_locale: String) -> Dictionary:
 		values[KEY_TREE_PAUSES] = bool(stored[KEY_TREE_PAUSES])
 	if typeof(stored.get(KEY_TUTORIAL)) == TYPE_BOOL:
 		values[KEY_TUTORIAL] = bool(stored[KEY_TUTORIAL])
+	if typeof(stored.get(KEY_HINTS)) == TYPE_BOOL:
+		values[KEY_HINTS] = bool(stored[KEY_HINTS])
 	if typeof(stored.get(KEY_BOOT_ALWAYS)) == TYPE_BOOL:
 		values[KEY_BOOT_ALWAYS] = bool(stored[KEY_BOOT_ALWAYS])
 	var effects_type: int = typeof(stored.get(KEY_SCREEN_EFFECTS))
@@ -275,6 +282,17 @@ func set_tutorial(enabled: bool) -> void:
 	write()
 
 
+## first-run.md §6.1: switching the hints back on shows every one of them once
+## more, the way the introduction's row starts it from step 1 again.
+func set_hints(enabled: bool) -> void:
+	if enabled == hints:
+		return
+	hints = enabled
+	write()
+	if enabled:
+		ProfileManager.clear_hints_seen()
+
+
 func set_boot_always(enabled: bool) -> void:
 	if enabled == boot_always:
 		return
@@ -290,6 +308,7 @@ func to_dict() -> Dictionary:
 		KEY_TEXT_SCALE: text_scale,
 		KEY_TREE_PAUSES: tree_pauses,
 		KEY_TUTORIAL: tutorial,
+		KEY_HINTS: hints,
 		KEY_BOOT_ALWAYS: boot_always,
 		KEY_SCREEN_EFFECTS: screen_effects,
 		KEY_SOUND_CAPTIONS: sound_captions,

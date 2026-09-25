@@ -30,6 +30,7 @@ const DiscoveryModal: GDScript = preload("res://ui/modals/discovery_modal.gd")
 const PauseMenu: GDScript = preload("res://ui/modals/pause_menu.gd")
 const Results: GDScript = preload("res://ui/screens/results.gd")
 const AnalysisPanel: GDScript = preload("res://ui/panels/analysis_panel.gd")
+const CodexModal: GDScript = preload("res://ui/modals/codex.gd")
 
 ## The holds of m3-screens §10.2 this screen takes.
 const HOLD_DISCOVERY: StringName = &"discovery"
@@ -38,6 +39,11 @@ const HOLD_RESULTS: StringName = &"results"
 const HOLD_ORIGIN: StringName = &"origin"
 ## `loop-mechanics.md` §16.7: the wire card holds the clock while it is up.
 const HOLD_EVENT: StringName = &"event"
+## first-run.md §6.7: *How to play* holds the clock while it is read.
+const HOLD_HELP: StringName = &"help"
+## The keys that open a surface do nothing while the Codex is over it: `T` would
+## close the tree under the page instead of the page.
+const KEYS_BLOCKED_BY_HELP: Array[Key] = [KEY_T, KEY_C, KEY_G, KEY_A]
 
 @onready var _safe_area: MarginContainer = %SafeArea
 @onready var _hud: Control = %Hud
@@ -56,6 +62,7 @@ const HOLD_EVENT: StringName = &"event"
 @onready var _map_view: MapView = $MapLayer/MapView
 @onready var _menu_sheet: SlidePanel = %MenuSheet
 @onready var _analysis: AnalysisPanel = %AnalysisPanel
+@onready var _codex: CodexModal = %Codex
 
 ## The speed `Space` toggles against; the last one the player ran at.
 var _last_speed: int = SPEED_DEFAULT
@@ -79,6 +86,7 @@ func _ready() -> void:
 	# first-run.md §3: the introduction sits above everything and moves the ring.
 	_coach.set(&"ring", _coach_ring)
 	_coach.set(&"hud", _hud)
+	_coach.set(&"modals", _modals)
 	_codex_tracker = CodexTracker.new()
 	_codex_tracker.name = "CodexTracker"
 	add_child(_codex_tracker)
@@ -113,6 +121,10 @@ func _ready() -> void:
 	_results.title_requested.connect(_on_results_title_requested)
 	_results.review_requested.connect(_on_results_review_requested)
 	_analysis.back_requested.connect(_on_analysis_back)
+	_codex.closed.connect(close_help)
+	# The coach asks whether help is up (first-run.md §6.7).
+	_codex.add_to_group(CoachRing.group(CoachRing.TARGET_HELP))
+	EventBus.help_requested.connect(open_help)
 	EventBus.speed_changed.connect(_on_speed_changed)
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.text_scale_changed.connect(_on_text_scale_changed)
@@ -128,7 +140,16 @@ func _input(event: InputEvent) -> void:
 	var key: InputEventKey = event as InputEventKey
 	if key == null or not key.pressed or key.echo or _text_has_focus():
 		return
+	if is_help_open() and KEYS_BLOCKED_BY_HELP.has(key.keycode):
+		get_viewport().set_input_as_handled()
+		return
 	match key.keycode:
+		KEY_F1:
+			# first-run.md §6.7: the page for what is on top; again, and it closes.
+			if is_help_open():
+				close_help()
+			else:
+				open_help(HelpPages.page_for_context(help_context()))
 		KEY_SPACE:
 			Game.set_speed(0 if Game.speed > 0 else _last_speed)
 		KEY_1:
@@ -184,6 +205,48 @@ func _input(event: InputEvent) -> void:
 		_:
 			return
 	get_viewport().set_input_as_handled()
+
+
+## first-run.md §6.7: the Codex on *How to play*, on `page` ("" = the first),
+## over whatever modal is up — it comes back when the Codex closes. It holds the
+## clock. Already up, it only turns to `page`.
+func open_help(page: String = "") -> void:
+	if Game.sim == null:
+		return
+	_codex.open(CodexEntries.TAB_HELP, page)
+	if is_help_open():
+		return
+	Game.hold(HOLD_HELP)
+	_modals.open_over(_codex)
+
+
+func close_help() -> void:
+	if _modals.current() == _codex:
+		_modals.close()
+	_codex.visible = false
+	Game.release(HOLD_HELP)
+
+
+func is_help_open() -> bool:
+	return _modals.current() == _codex
+
+
+## §6.7: the surface `F1` asks about — the modal on top when it has a page of
+## its own, else the panel that is open, else the session's page.
+func help_context() -> String:
+	if _modals.is_open():
+		if _modals.current() == _tech_tree:
+			return HelpPages.CONTEXT_TREE
+		if _modals.current() == _ability_picker:
+			return HelpPages.CONTEXT_ABILITIES
+		return HelpPages.CONTEXT_SESSION
+	if _containment.is_open:
+		return HelpPages.CONTEXT_CONTAINMENT
+	if _analysis.is_open:
+		return HelpPages.CONTEXT_ANALYSIS
+	if _region_panel.is_open:
+		return HelpPages.CONTEXT_REGION
+	return HelpPages.CONTEXT_SESSION
 
 
 ## §3.1: `T` opens the tree and `T` closes it again. While it is open the modal

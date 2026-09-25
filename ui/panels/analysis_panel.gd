@@ -234,6 +234,8 @@ func _build_header() -> Control:
 	_close_button.tooltip_key = KEY_CLOSE
 	_close_button.pressed.connect(close)
 	header.add_child(_close_button)
+	# first-run.md §6.7: the page for this screen, before the close button.
+	HelpButton.before(_close_button, HelpPages.CONTEXT_ANALYSIS)
 	return header
 
 

@@ -1,11 +1,15 @@
 extends GutTest
 ## S5.7 — the title's Codex and Statistics (spec screens-full.md §6.1, §6.2):
 ## locked entries, the hidden endings, the totals and *Play this seed again*.
+## S6.7 — the Codex's *How to play* tab (first-run.md §6.6).
 
 const CODEX: PackedScene = preload("res://ui/modals/codex.tscn")
 const STATISTICS: PackedScene = preload("res://ui/modals/statistics.tscn")
 const Codex: GDScript = preload("res://ui/modals/codex.gd")
 const Statistics: GDScript = preload("res://ui/modals/statistics.gd")
+## A phone's logical window (ui-foundation §5.7).
+const PHONE_WIDTH: int = 400
+const PHONE_HEIGHT: int = 860
 
 
 func before_each() -> void:
@@ -16,10 +20,12 @@ func after_each() -> void:
 	ProfileManager.reset()
 
 
-func _codex() -> Codex:
+## The Codex on `tab` — Regions for the S5.7 tests, which were written before
+## *How to play* became the first tab.
+func _codex(tab: String = CodexEntries.TAB_REGIONS) -> Codex:
 	var codex: Codex = CODEX.instantiate() as Codex
 	add_child_autofree(codex)
-	codex.open()
+	codex.open(tab)
 	return codex
 
 
@@ -148,3 +154,64 @@ func test_a_run_without_a_scenario_is_named_by_its_architecture_alone() -> void:
 	for label: Node in _statistics().find_children("*", "Label", true, false):
 		texts.append((label as Label).text)
 	assert_has(texts, tr("ARCH_SWARM_NAME"))
+
+
+func test_the_codex_opens_on_how_to_play() -> void:
+	var codex: Codex = CODEX.instantiate() as Codex
+	add_child_autofree(codex)
+	codex.open()
+	assert_eq(codex.tab, CodexEntries.TAB_HELP)
+	assert_eq(CodexEntries.TABS[0], CodexEntries.TAB_HELP, "the first of eight tabs")
+	assert_eq(codex.entry_id, HelpPages.ids()[0], "the first page opens at full width")
+
+
+func test_every_help_page_opens() -> void:
+	var codex: Codex = _codex(CodexEntries.TAB_HELP)
+	for id: String in HelpPages.ids():
+		var row: ConsoleButton = codex.row_for(id)
+		assert_not_null(row, id)
+		assert_false(row.disabled, "a page is never locked: %s" % id)
+		codex.show_entry(id)
+		assert_eq(codex.entry_id, id)
+
+
+func test_the_progress_caption_hides_on_how_to_play_only() -> void:
+	var codex: Codex = _codex(CodexEntries.TAB_HELP)
+	var progress: Control = codex.get_node("%Progress") as Control
+	assert_false(progress.visible, "pages are not collected")
+	codex.show_tab(CodexEntries.TAB_REGIONS)
+	assert_true(progress.visible)
+
+
+func test_a_page_can_be_opened_by_name() -> void:
+	var codex: Codex = CODEX.instantiate() as Codex
+	add_child_autofree(codex)
+	codex.open(CodexEntries.TAB_HELP, "tree")
+	assert_eq(codex.entry_id, "tree")
+	var entry: Control = codex.get_node("%Entry") as Control
+	var texts: Array[String] = []
+	for label: Node in entry.find_children("*", "Label", true, false):
+		texts.append((label as Label).text)
+	assert_has(texts, tr("HELP_TREE_TITLE"))
+	assert_has(texts, tr("HELP_TREE_P1"))
+	assert_has(texts, tr("HELP_TREE_P%d" % HelpPages.paragraphs("tree")))
+
+
+func test_a_page_opened_by_name_on_a_phone_goes_straight_to_it() -> void:
+	var viewport: SubViewport = SubViewport.new()
+	viewport.size = Vector2i(PHONE_WIDTH, PHONE_HEIGHT)
+	add_child_autofree(viewport)
+	var codex: Codex = CODEX.instantiate() as Codex
+	viewport.add_child(codex)
+	codex.open(CodexEntries.TAB_HELP, "tree")
+	assert_eq(codex.entry_id, "tree")
+	assert_false((codex.get_node("%ListScroll") as Control).visible, "the entry is a page")
+	assert_true((codex.get_node("%EntryScroll") as Control).visible)
+	assert_true((codex.get_node("%BackButton") as Control).visible)
+
+
+func test_an_unknown_page_falls_back_to_the_first() -> void:
+	var codex: Codex = CODEX.instantiate() as Codex
+	add_child_autofree(codex)
+	codex.open(CodexEntries.TAB_HELP, "no_such_page")
+	assert_eq(codex.entry_id, HelpPages.ids()[0])

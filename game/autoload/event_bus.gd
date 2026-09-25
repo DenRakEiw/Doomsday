@@ -47,6 +47,10 @@ signal event_card_requested(region_index: int)
 ## The wire card is asked to show an open event again (§16.7): the top bar's
 ## pending chip, for a global event that was put away with `Escape`.
 signal wire_requested(event_id: int)
+## first-run.md §6.7: the Codex's *How to play* is asked for, on `page` ("" =
+## the first) — by a panel's **?**, the pause menu, the phone's sheet or the
+## coach's *More*. The session opens it over whatever is up.
+signal help_requested(page: String)
 ## audio.md §3.2: a bus's volume setting changed (0…1); `Audio` applies it.
 signal volume_changed(bus: StringName, value: float)
 ## audio.md §8: the *Sound captions* setting.

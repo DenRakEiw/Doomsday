@@ -9,7 +9,7 @@ extends GutTest
 ## The nine glyphs of ui-foundation §4.3, the five of m3-screens §3.4.1, and the
 ## four asset shapes and the three event marks of loop-mechanics §16.3.2, and
 ## the emergent spark of replayability.md §3.1 (G5 1/3).
-const GLYPH_COUNT: int = 29
+const GLYPH_COUNT: int = 30
 
 const STAT_BAR: PackedScene = preload("res://ui/components/stat_bar.tscn")
 

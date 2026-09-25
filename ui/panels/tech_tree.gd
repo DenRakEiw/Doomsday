@@ -65,6 +65,8 @@ func _ready() -> void:
 	add_to_group(CoachRing.group(CoachRing.TARGET_TREE))
 	_build_tabs()
 	_close_button.pressed.connect(close)
+	# first-run.md §6.7: the page for this screen, before the close button.
+	HelpButton.before(_close_button, HelpPages.CONTEXT_TREE)
 	_board.node_selected.connect(_on_node_selected)
 	_board.buy_requested.connect(_on_buy_requested)
 	_detail.buy_requested.connect(_on_buy_requested)

@@ -195,6 +195,10 @@ func _ready() -> void:
 	_build_links()
 	_build_society()
 	_close_button.pressed.connect(_on_close_pressed)
+	# first-run.md §6.7: the page for this screen, before the close button.
+	HelpButton.before(_close_button, HelpPages.CONTEXT_REGION)
+	# §6.3: the ability hint's ring goes round the actions.
+	_actions_block.add_to_group(CoachRing.group(CoachRing.TARGET_ACTIONS))
 	_collect_button.pressed.connect(_on_collect_pressed)
 	_dormancy_button.pressed.connect(_on_dormancy_pressed)
 	_origin_button.pressed.connect(_on_origin_pressed)

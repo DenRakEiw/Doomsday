@@ -65,6 +65,8 @@ func _ready() -> void:
 	_build_risk_rows()
 	_bind_drift()
 	_close_button.pressed.connect(close)
+	# first-run.md §6.7: the page for this screen, before the close button.
+	HelpButton.before(_close_button, HelpPages.CONTEXT_CONTAINMENT)
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.run_started.connect(_on_run_started)
 	EventBus.sim_event.connect(_on_sim_event)

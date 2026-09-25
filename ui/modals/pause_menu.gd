@@ -33,6 +33,8 @@ const KEY_FX_SUBTLE: String = "UI_SETTINGS_FX_SUBTLE"
 const KEY_FX_FULL: String = "UI_SETTINGS_FX_FULL"
 const KEY_TREE_PAUSES: String = "UI_SETTINGS_TREE_PAUSES"
 const KEY_TUTORIAL: String = "UI_SETTINGS_TUTORIAL"
+## first-run.md §6.1: directly after *Introduction*.
+const KEY_HINTS: String = "UI_SETTINGS_HINTS"
 const KEY_TEXT_SCALE: String = "UI_SETTINGS_TEXT_SCALE"
 const KEY_BOOT: String = "UI_SETTINGS_BOOT"
 const KEY_BOOT_FIRST: String = "UI_SETTINGS_BOOT_FIRST"
@@ -71,12 +73,13 @@ const INDEX_VOLUME_ALERTS: int = 9
 const INDEX_SOUND_CAPTIONS: int = 10
 const INDEX_AUDIO_BACKGROUND: int = 11
 const INDEX_TUTORIAL: int = 12
-const INDEX_BOOT: int = 13
+const INDEX_HINTS: int = 13
+const INDEX_BOOT: int = 14
 ## The rows' labels in the order of the indices above.
 const SETTING_KEYS: Array[String] = [KEY_LOCALE, KEY_REDUCED_MOTION, KEY_SCREEN_EFFECTS,
 	KEY_TREE_PAUSES, KEY_TEXT_SCALE, KEY_VOLUME_MASTER, KEY_VOLUME_MUSIC, KEY_VOLUME_AMBIENCE,
 	KEY_VOLUME_INTERFACE, KEY_VOLUME_ALERTS, KEY_SOUND_CAPTIONS, KEY_AUDIO_BACKGROUND,
-	KEY_TUTORIAL, KEY_BOOT]
+	KEY_TUTORIAL, KEY_HINTS, KEY_BOOT]
 ## A volume button plays no click: `Audio` previews the bus instead (§3.3).
 const META_AUDIO_CUE: StringName = &"audio_cue"
 const FEATURE_WEB: String = "web"
@@ -98,6 +101,7 @@ const SLOTS: Array[String] = ["slot_1", "slot_2", "slot_3"]
 @onready var _title: Label = %PauseTitle
 @onready var _caption: Label = %PauseCaption
 @onready var _resume: ConsoleButton = %ResumeButton
+@onready var _help: ConsoleButton = %HelpButton
 @onready var _save_block: Control = %SaveBlock
 @onready var _save_title: CapsLabel = %SaveTitle
 @onready var _save_row: Container = %SaveRow
@@ -125,6 +129,7 @@ var _reset: ConsoleButton = null
 
 func _ready() -> void:
 	_resume.pressed.connect(_on_resume_pressed)
+	_help.pressed.connect(_on_help_pressed)
 	_quit.pressed.connect(_on_quit_pressed)
 	_build_slots()
 	_build_settings()
@@ -185,6 +190,7 @@ func refresh() -> void:
 func _apply_mode() -> void:
 	_caption.visible = not settings_only
 	_resume.visible = not settings_only
+	_help.visible = not settings_only
 	_save_block.visible = not settings_only
 	_load_block.visible = not settings_only
 	_quit.visible = not settings_only
@@ -294,6 +300,8 @@ func _refresh_settings() -> void:
 		KEY_ON if Settings.audio_background else KEY_OFF))
 	_setting_buttons[INDEX_TUTORIAL].text = Format.caps(tr(
 		KEY_ON if Settings.tutorial else KEY_OFF))
+	_setting_buttons[INDEX_HINTS].text = Format.caps(tr(
+		KEY_ON if Settings.hints else KEY_OFF))
 	_setting_buttons[INDEX_BOOT].text = Format.caps(tr(KEY_BOOT_ALWAYS if Settings.boot_always 		else KEY_BOOT_FIRST))
 
 
@@ -318,6 +326,11 @@ static func screen_effects_key(intensity: float) -> String:
 
 func _on_resume_pressed() -> void:
 	closed.emit()
+
+
+## first-run.md §6.7: the session's page, over the menu; closing it comes back here.
+func _on_help_pressed() -> void:
+	EventBus.help_requested.emit(HelpPages.page_for_context(HelpPages.CONTEXT_SESSION))
 
 
 func _on_save_pressed(index: int) -> void:
@@ -364,6 +377,8 @@ func _on_setting_pressed(index: int) -> void:
 			Settings.set_audio_background(not Settings.audio_background)
 		INDEX_TUTORIAL:
 			Settings.set_tutorial(not Settings.tutorial)
+		INDEX_HINTS:
+			Settings.set_hints(not Settings.hints)
 		_:
 			Settings.set_boot_always(not Settings.boot_always)
 	_refresh_settings()

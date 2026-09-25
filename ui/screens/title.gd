@@ -97,6 +97,18 @@ func on_escape() -> void:
 	pass
 
 
+## first-run.md §6.7: `F1` opens the Codex on *How to play*, and closes it again.
+func _unhandled_key_input(event: InputEvent) -> void:
+	var key: InputEventKey = event as InputEventKey
+	if key == null or not key.pressed or key.echo or key.keycode != KEY_F1:
+		return
+	get_viewport().set_input_as_handled()
+	if _host.current() == _codex:
+		_host.close()
+	elif not _host.is_open():
+		_open_modal(_codex)
+
+
 ## The primary button, which is where focus starts (§3).
 func primary_button() -> ConsoleButton:
 	return _continue if _continue.visible else _new_run

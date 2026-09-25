@@ -17,6 +17,7 @@ signal abilities_requested
 const DOCK: GDScript = preload("res://ui/hud/dock.gd")
 const KEY_PAUSE: String = "UI_MENU_PAUSE"
 const KEY_ABILITIES: String = "UI_SHEET_ABILITIES"
+const KEY_HELP: String = "UI_SHEET_HELP"
 const KEY_TITLE: String = "UI_MENU_TITLE"
 const KEY_NOT_YET: String = "UI_DOCK_NOT_YET"
 
@@ -26,6 +27,7 @@ const KEY_NOT_YET: String = "UI_DOCK_NOT_YET"
 @onready var _destinations: VBoxContainer = %Destinations
 @onready var _pause_entry: ConsoleButton = %PauseEntry
 @onready var _abilities_entry: ConsoleButton = %AbilitiesEntry
+@onready var _help_entry: ConsoleButton = %HelpEntry
 
 var _buttons: Array[ConsoleButton] = []
 ## Where the stat row came from, so it can go home — and who owned it, because
@@ -46,6 +48,7 @@ func _ready() -> void:
 	_close_button.pressed.connect(close)
 	_pause_entry.pressed.connect(_on_pause_pressed)
 	_abilities_entry.pressed.connect(_on_abilities_pressed)
+	_help_entry.pressed.connect(_on_help_pressed)
 	_refresh_strings()
 
 
@@ -110,6 +113,7 @@ func _refresh_strings() -> void:
 	_title.text = tr(KEY_TITLE)
 	_pause_entry.label_key = KEY_PAUSE
 	_abilities_entry.label_key = KEY_ABILITIES
+	_help_entry.label_key = KEY_HELP
 
 
 func _on_destination_pressed(index: int) -> void:
@@ -126,6 +130,12 @@ func _on_pause_pressed() -> void:
 func _on_abilities_pressed() -> void:
 	close()
 	abilities_requested.emit()
+
+
+## first-run.md §6.7: *How to play*, on the session's page; the sheet closes first.
+func _on_help_pressed() -> void:
+	close()
+	EventBus.help_requested.emit(HelpPages.page_for_context(HelpPages.CONTEXT_SESSION))
 
 
 ## The entry is there once any ability is unlocked (§16.8).

@@ -105,6 +105,9 @@ func _ready() -> void:
 	_row_main.add_child(_drift)
 	_row_main.move_child(_drift, _compute_cell.get_index() + 1)
 	_drift_mark = DriftChip.mark(Game.db)
+	# first-run.md §6.3: the chips the drift and starving hints point at.
+	_drift.add_to_group(CoachRing.group(CoachRing.TARGET_DRIFT))
+	_starving.add_to_group(CoachRing.group(CoachRing.TARGET_STARVING))
 	_build_speed_buttons()
 	_menu_button.pressed.connect(menu_requested.emit)
 	_apply_compact()

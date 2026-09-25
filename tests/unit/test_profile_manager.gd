@@ -130,3 +130,32 @@ func test_the_history_names_the_scenario_and_three_runs_unlock_them() -> void:
 	assert_true(bool(_profile.call(&"scenarios_unlocked", db)))
 	var entry: Dictionary = (_profile.get(&"history") as Array)[0]
 	assert_eq(str(entry["scenario"]), "successor")
+
+
+func test_a_hint_seen_is_kept_once_and_survives_a_reload() -> void:
+	# S6.7 (first-run.md §6.1).
+	_profile.call(&"mark_hint_seen", "starving")
+	_profile.call(&"mark_hint_seen", "starving")
+	assert_eq(_profile.get(&"hints_seen"), ["starving"] as Array[String])
+	_profile.call(&"use_path", FILE)
+	assert_true(bool(_profile.call(&"has_seen_hint", "starving")))
+	assert_false(bool(_profile.call(&"has_seen_hint", "open")))
+
+
+func test_hints_seen_of_the_wrong_type_read_as_empty() -> void:
+	_write('{"hints_seen": 5}')
+	_profile.call(&"use_path", FILE)
+	assert_eq((_profile.get(&"hints_seen") as Array).size(), 0)
+	_write('{"hints_seen": ["drift", 3, "drift"]}')
+	_profile.call(&"use_path", FILE)
+	assert_eq(_profile.get(&"hints_seen"), ["drift"] as Array[String],
+		"a non-string entry is dropped, a repeat kept once")
+
+
+func test_clearing_and_resetting_forget_the_hints_seen() -> void:
+	_profile.call(&"mark_hint_seen", "open")
+	_profile.call(&"clear_hints_seen")
+	assert_false(bool(_profile.call(&"has_seen_hint", "open")))
+	_profile.call(&"mark_hint_seen", "open")
+	_profile.call(&"reset")
+	assert_false(bool(_profile.call(&"has_seen_hint", "open")))

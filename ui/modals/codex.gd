@@ -1,7 +1,7 @@
 extends Control
-## The Codex (spec `screens-full.md` §6.1): seven tabs that fill as you play,
-## written from strings that already exist, plus four factions and five
-## characters of prose of their own.
+## The Codex (spec `screens-full.md` §6.1): *How to play* first (`first-run.md`
+## §6.6), then seven tabs that fill as you play, written from strings that
+## already exist, plus four factions and five characters of prose of their own.
 ##
 ## A locked entry is listed as *Not yet encountered* and cannot be opened —
 ## except in Endings, where a locked variant is not listed at all, so the hidden
@@ -50,7 +50,7 @@ const PREFIX_TREE_TAB: String = "UI_TREE_TAB_"
 ## seven tabs do not fit a 560 px modal either, and a wrapped row hides none.
 
 ## The tab on show and the entry open in it ("" = none).
-var tab: String = CodexEntries.TAB_REGIONS
+var tab: String = CodexEntries.TAB_HELP
 var entry_id: String = ""
 ## Where an ending's picture is looked for (`illustrations.md` §8.3). A test
 ## points it at a folder that has one.
@@ -80,16 +80,24 @@ func _ready() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready() and _db != null:
+		# The entry on show stays: the host moving the Codex into its slot sends
+		# this too, and a page opened by name (first-run.md §6.7) must survive it.
+		var keep: String = entry_id if _entry_scroll.visible else ""
 		show_tab(tab)
+		if not keep.is_empty() and CodexEntries.ids(tab, _db).has(keep):
+			show_entry(keep)
 
 
-## Opens on the first tab, read fresh from the profile.
-func open() -> void:
+## Opens on `tab_id`, read fresh from the profile, and on `entry` when it is
+## given and can be opened — else on the tab's first entry (first-run.md §6.6).
+func open(tab_id: String = CodexEntries.TAB_HELP, entry: String = "") -> void:
 	_db = Game.content()
 	_title.text = tr(KEY_TITLE)
 	visible = true
-	show_tab(CodexEntries.TAB_REGIONS)
 	_fit()
+	show_tab(tab_id)
+	if not entry.is_empty() and CodexEntries.ids(tab, _db).has(entry):
+		show_entry(entry)
 
 
 func on_escape() -> void:
@@ -102,6 +110,8 @@ func show_tab(id: String) -> void:
 	tab = id
 	_tab_buttons[id].set_pressed_no_signal(true)
 	var ids: Array[String] = CodexEntries.ids(tab, _db)
+	# §6.6: the pages are not collected, so there is nothing to count.
+	_progress.visible = tab != CodexEntries.TAB_HELP
 	_progress.text = tr(KEY_PROGRESS).format({"seen": CodexEntries.seen_count(tab, _db),
 		"total": ids.size()})
 	_clear(_list)
@@ -140,6 +150,8 @@ func show_entry(id: String) -> void:
 		(row as Button).set_pressed_no_signal(str(row.get_meta(&"id")) == id)
 	_clear(_entry)
 	match tab:
+		CodexEntries.TAB_HELP:
+			_fill_help(id)
 		CodexEntries.TAB_REGIONS:
 			_fill_region(id)
 		CodexEntries.TAB_FACTIONS:
@@ -168,6 +180,8 @@ func show_entry(id: String) -> void:
 ## The name an entry is listed under.
 func entry_name(which: String, id: String) -> String:
 	match which:
+		CodexEntries.TAB_HELP:
+			return tr(HelpPages.title_key(id))
 		CodexEntries.TAB_REGIONS:
 			return tr(PREFIX_REGION + id.to_upper())
 		CodexEntries.TAB_FACTIONS:
@@ -195,6 +209,19 @@ func row_for(id: String) -> ConsoleButton:
 
 
 # ------------------------------------------------------------ the entries
+
+
+## first-run.md §6.6: the title, then the paragraphs `SPACE_3` apart. No icons.
+func _fill_help(id: String) -> void:
+	_heading(tr(HelpPages.title_key(id)))
+	var column: VBoxContainer = VBoxContainer.new()
+	column.theme_type_variation = &"PanelContent"
+	_entry.add_child(column)
+	for n: int in range(1, HelpPages.paragraphs(id) + 1):
+		var label: Label = Label.new()
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.text = tr(HelpPages.paragraph_key(id, n))
+		column.add_child(label)
 
 
 func _fill_region(id: String) -> void:

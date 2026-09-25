@@ -6,6 +6,8 @@ extends RefCounted
 ##
 ## Never instantiated; a namespace of static functions.
 
+## first-run.md §6.6: *How to play*, the first tab — always open, never locked.
+const TAB_HELP: String = "help"
 const TAB_REGIONS: String = "regions"
 const TAB_FACTIONS: String = "factions"
 const TAB_TECH: String = "tech"
@@ -13,8 +15,8 @@ const TAB_CHARACTERS: String = "characters"
 const TAB_STATUSES: String = "statuses"
 const TAB_ARCHITECTURES: String = "architectures"
 const TAB_ENDINGS: String = "endings"
-## §6.1: seven tabs, in this order.
-const TABS: Array[String] = [TAB_REGIONS, TAB_FACTIONS, TAB_TECH, TAB_CHARACTERS,
+## §6.1: seven tabs, in this order, after *How to play* (first-run.md §6.6).
+const TABS: Array[String] = [TAB_HELP, TAB_REGIONS, TAB_FACTIONS, TAB_TECH, TAB_CHARACTERS,
 	TAB_STATUSES, TAB_ARCHITECTURES, TAB_ENDINGS]
 
 ## The trees in the order the tech tree shows its tabs.
@@ -29,6 +31,8 @@ const SUFFIX_NAME: String = "_NAME"
 ## Every id of `tab`, in list order.
 static func ids(tab: String, db: ContentDB) -> Array[String]:
 	match tab:
+		TAB_HELP:
+			return HelpPages.ids()
 		TAB_REGIONS:
 			return _regions(db)
 		TAB_FACTIONS:
@@ -53,6 +57,8 @@ static func ids(tab: String, db: ContentDB) -> Array[String]:
 ## run fills, the unlock rule for architectures, `endings_seen` for endings.
 static func is_seen(tab: String, id: String, db: ContentDB) -> bool:
 	match tab:
+		TAB_HELP:
+			return true
 		TAB_ARCHITECTURES:
 			var def: ArchitectureDef = db.architecture(id)
 			return def != null and ProfileManager.is_unlocked(def)

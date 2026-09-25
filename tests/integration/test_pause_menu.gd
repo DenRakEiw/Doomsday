@@ -147,3 +147,39 @@ func test_the_menu_is_as_tall_as_what_it_shows() -> void:
 	assert_almost_eq(scroll.custom_minimum_size.y,
 		minf(body.get_combined_minimum_size().y,
 			_menu.get_viewport_rect().size.y - float(UiTokens.SPACE_6) * 2.0), 1.0)
+
+
+## S6.7 (first-run.md §6.7): *How to play* opens over the menu, holds the clock
+## with it, and closing it comes back to the menu.
+func test_the_help_row_opens_the_codex_over_the_menu_and_returns_to_it() -> void:
+	_start()
+	Game.set_speed(2)
+	_press_escape()
+	(_menu.get_node("%HelpButton") as ConsoleButton).emit_signal("pressed")
+	var codex: Control = _session.get(&"_codex") as Control
+	assert_eq(_modals.current(), codex)
+	assert_eq(_modals.below(), _menu)
+	assert_eq(str(codex.get(&"entry_id")), HelpPages.page_for_context(HelpPages.CONTEXT_SESSION))
+	codex.emit_signal("closed")
+	assert_eq(_modals.current(), _menu, "back to the menu")
+	assert_eq(Game.speed, 0, "the menu still holds the clock")
+	(_menu.get_node("%ResumeButton") as ConsoleButton).emit_signal("pressed")
+	assert_eq(Game.speed, 2)
+
+
+func test_the_help_row_is_not_on_the_title() -> void:
+	_menu.open_settings_only()
+	assert_false((_menu.get_node("%HelpButton") as Control).visible)
+
+
+func test_the_hints_row_toggles_the_setting() -> void:
+	var before: bool = Settings.hints
+	_menu.open_settings_only()
+	var rows: VBoxContainer = _menu.get_node("%SettingsRows") as VBoxContainer
+	var row: Container = rows.get_child(PauseMenu.INDEX_HINTS) as Container
+	assert_eq((row.get_child(0) as Label).text, tr("UI_SETTINGS_HINTS"),
+		"directly after the introduction's row")
+	var button: ConsoleButton = row.get_child(1) as ConsoleButton
+	button.emit_signal("pressed")
+	assert_ne(Settings.hints, before)
+	Settings.set_hints(before)

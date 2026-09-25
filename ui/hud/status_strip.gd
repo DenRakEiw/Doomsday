@@ -56,6 +56,10 @@ func _ready() -> void:
 	# On a phone the way to the tree and to containment is the menu.
 	_menu.add_to_group(CoachRing.group(CoachRing.TARGET_CAPABILITIES))
 	_menu.add_to_group(CoachRing.group(CoachRing.TARGET_CONTAINMENT))
+	# first-run.md §6.3: and to the abilities; the two chips are the hints' too.
+	_menu.add_to_group(CoachRing.group(CoachRing.TARGET_ABILITIES))
+	_drift.add_to_group(CoachRing.group(CoachRing.TARGET_DRIFT))
+	_starving.add_to_group(CoachRing.group(CoachRing.TARGET_STARVING))
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.run_started.connect(_on_run_started)
 	refresh()

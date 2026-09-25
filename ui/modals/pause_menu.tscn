@@ -59,6 +59,13 @@ script = ExtResource("2_console_button")
 label_key = "UI_PAUSE_RESUME"
 primary = true
 
+[node name="HelpButton" type="Button" parent="Centre/PausePanel/Scroll/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ConsoleButton"
+script = ExtResource("2_console_button")
+label_key = "UI_PAUSE_HELP"
+
 [node name="SaveBlock" type="VBoxContainer" parent="Centre/PausePanel/Scroll/Body"]
 unique_name_in_owner = true
 layout_mode = 2

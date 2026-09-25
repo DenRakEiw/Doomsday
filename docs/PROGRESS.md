@@ -14,23 +14,23 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.7 — Tutorial II** [O]: `docs/specs/first-run.md` §6 (D6.5) — the ten hints (once per profile, `Settings.hints`, `ProfileManager.hints_seen`), the narrowed step 7, the *How to play* tab (`data/help.json` → `HelpPages`), help from `F1`, the **?** on four panels, `ModalHost.open_over`, the `HELP` glyph. IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.8 — Accessibility** [O]: `docs/specs/accessibility.md` (D6.6) — accessible names and `LiveRegion` speech, the focus rings and traps, the keyboard/pad map (`MapFocus`), input actions, `KeyBindings` and the *Controls* modal (its `ModalHost.open_over` is S6.7's), the colour fixes, text-scaled widths, the console's reading time. IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.8, then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | S6.6 — Audio II: `tools/audio/synth.py` renders all 64 files of the sheet from `recipes.json` (WAV cues, OGG loops, `.import` per §10.3), `--check` green (byte-identical, peaks, LUFS, loop joins); `test_audio_files.gd`; licence row `audio_synth` (2026-09-25). |
-| **Before that** | S6.5 — Audio I: the `Audio` autoload, sheet, dispatch, captions (2026-09-25). |
+| **After it** | Block 15 (D6.8, D6.9), then Block 16. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | S6.7 — Tutorial II: the ten hints (once per profile, `Settings.hints`, `ProfileManager.hints_seen`), step 7 narrowed to openings, *How to play* (`HelpPages`, the Codex's first tab), `F1`, the **?** (`HelpButton`) on four panels, pause-menu and sheet entries, `ModalHost.open_over`, the `HELP` glyph (2026-09-25). |
+| **Before that** | S6.6 — Audio II: `tools/audio/synth.py` renders the 64-file sound set (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 269 scripts compile (108 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1776 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 270 scripts compile (111 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1839 tests, **all green since S4.9**. The same command is all of CI. |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
 | **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. **The sound set:** `uv run --project tools/audio python tools/audio/synth.py [--only <id>] [--check]` (≈30 s; environment `uv sync --project tools/audio`) rewrites `assets/audio/**`; after a new file run `--import` and set its `.import` per audio.md §10.3 (`compress/mode=0` / `loop=true`). |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
-| **Run it** | `run_project` starts at the **boot** (`game/main.tscn`; the full eleven lines on a fresh profile, two lines after; any key skips) → the **title** (globe, Codex, Statistics, Settings); New run → **setup** (architecture + difficulty, then directives once a slot is open) → Begin → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **A** ability picker · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 biology · F7 persuasion (**with Shift**: cyber · robotics · weapons; S4.10) · **F8** puts the first opening on the origin at the next tick, **Shift+F8** the first global event (the wire card); from godot-mcp: `game_call_method /root/Game debug_schedule_event ["<def id>", "<region id or empty>"]`, then `advance [1]` · L locale (Shift+L pseudo-locale) · K text scale · M reduced motion · **V** screen effects Off/Subtle/Full (session and gallery, S6.1) · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
+| **Run it** | `run_project` starts at the **boot** (`game/main.tscn`; the full eleven lines on a fresh profile, two lines after; any key skips) → the **title** (globe, Codex, Statistics, Settings); New run → **setup** (architecture + difficulty, then directives once a slot is open) → Begin → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **A** ability picker · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 biology · F7 persuasion (**with Shift**: cyber · robotics · weapons; S4.10) · **F8** puts the first opening on the origin at the next tick, **Shift+F8** the first global event (the wire card); from godot-mcp: `game_call_method /root/Game debug_schedule_event ["<def id>", "<region id or empty>"]`, then `advance [1]` · L locale (Shift+L pseudo-locale) · K text scale · M reduced motion · **V** screen effects Off/Subtle/Full (session and gallery, S6.1) · **F1** *How to play* for the surface on top (session and title, S6.7) · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
 | **Compact layout** | Below 1100 px the interface switches (§5.7). A desktop window narrower than that lays out one logical pixel per window pixel, **`game_window set_size 400 860` resized correctly in S2.P** — try it first; `game_set_property /root size {"x":400,"y":860}` is the fallback and in S2.P it rendered a blank frame. After any resize at runtime the camera keeps a zoom from the old viewport: write `zoom` and give it one `game_scroll` notch down to settle it at `zoom_min`. |
 | **Look at the map** | `game_click` (**`button: 1`, never `"left"`** — see *Known issues*), `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Main/ScreenSlot/Session/MapLayer/MapView` (the router’s slot is in the path now), `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead — but a property write emits no `view_changed`, so links and markers keep the old zoom until the next real camera movement (**one `game_scroll` notch fixes it**). |
 
@@ -162,7 +162,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S6.4 [O] Icon pipeline
 - [x] S6.5 [O] Audio I: service, buses, cues, captions
 - [x] S6.6 [O] Audio II: the sound set
-- [ ] S6.7 [O] Tutorial II
+- [x] S6.7 [O] Tutorial II
 - [ ] S6.8 [O] Accessibility
 
 **Block 15 — M6 design II: release and the benchmark**
@@ -1262,6 +1262,16 @@ without new information.
   −5…−10). Shipped as the recipes say (§10.1: the recipe's `post` is exact); `synth.py --check`
   prints a note. Move the recipes or widen the ranges?
 
+- **S6.7 — the coach card in front of help and of modals** (`# DESIGN?` in `coach.gd`
+  `_process` and `_place`). first-run.md §6.4 leaves the card up while *More*'s Codex page is
+  open, and the card lives on the layer above the modals: it covered most of the page (at 150 %
+  text nearly all of it), and at the bottom centre it covered a wire card's answers — the very
+  card a hint (§6.2) talks about. Placeholders: **(1)** while the Codex is open the card steps
+  aside (not ended, not recorded) and is back when it closes; **(2)** with any modal up on a
+  wide screen the card sits at the bottom left (`GUTTER`), clear of the centred modal. On a
+  phone (full width) it still covers a wire card's answers until *Verstanden*. Keep these, or
+  place it otherwise (e.g. top of the screen over a modal, or a collapsed card)?
+
 *(otherwise none open — G5 (2/3) answered the push-in's zoom: keep `zoom_min × 2`, Decisions 2026-09-25.
 D5.5 answered the Task Force against dormancy and the scenario levers, BALANCE §5.7 (3)–(4).
 D6.1 answered the parked border note: `polish-visuals.md` §9.)*
@@ -1336,6 +1346,20 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
    1120 × 840, `.import` lossless + mipmaps, a *Generated assets* row per file).
 
 ## Deviations from the plan or a spec
+
+- **2026-09-25** (S6.7) — **Tutorial II, against `first-run.md` §6:** (1) The ways into help all
+  go through one signal, `EventBus.help_requested(page)` (panels' **?**, pause menu, sheet, the
+  coach's *More*); the session opens it with `open_help`/`close_help`. The **?** is a component,
+  `HelpButton` (`ui/components/help_button.gd`), added in code before each close button — no
+  `.tscn` header was edited. (2) While the Codex is up, `T`/`C`/`G`/`A` do nothing (`T` would
+  otherwise close the tree *under* the page). (3) The introduction's own queued steps are not
+  dropped when stale — only hints are (§6.2 says hints); a queued step still shows and ends at once
+  as before. (4) The coach also goes when the run has an outcome (the card no longer shows over
+  the results); that is how "a run that ends with a hint on the card records nothing" is kept.
+  (5) The Codex keeps the page on show through `NOTIFICATION_TRANSLATION_CHANGED` — the host
+  moving it into its slot sends one, which reset a page opened by name to the first. (6) A card
+  taller than the room above the strip (a long hint at 150 % on a phone) keeps its top on screen
+  and runs down over the strip. (7) The two placements in *Design questions* (S6.7).
 
 - **2026-09-25** (S6.6) — **The sound set, against `audio.md` §9–§10:** (1) The tool rewrites each
   Ogg page's stream serial (libsndfile picks a random one) to a fixed value, so the OGGs are
@@ -1963,6 +1987,12 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
 
 ## Known issues and carry-overs
 
+- **The wire card does not re-translate its answer captions on a locale switch** (seen in S6.7,
+  older than it): after `de` → `en` with a card up, the cost chips and the deadline line stayed
+  German until the card reopened.
+- **Hints come back to back** on a loaded mid-run save (S6.7): every moment that already holds
+  queues, so a player's first contact with an old save meets several cards in a row — by §6.2's
+  design (each once per profile); worth a look at G6.
 - **An owned tech node with a footprint overflows its compact cell** (seen in S6.4, older than
   it): *Erworben* + *Sig. ▲ +2* + ✓ is ~155 px in the 136 px the 160-px cell leaves, so the
   footer pushes past the node's left padding. Belongs with the S6.4 design question on the footer.
@@ -2171,6 +2201,11 @@ Codex opening on *How to play* — worth it? (3) the 14 help pages' text (`HELP_
 **S6.6 (2026-09-25, overnight):** the sound set is rendered and measured, **not listened to** —
 the builder's ear check of §13.2 (3) is still owed: a desktop run for clicks, clipping or a
 missing sound (loop joins and peaks are within targets by measurement; G6 judges the taste).
+
+**S6.7 (2026-09-25, overnight, pending user confirmation):** the coach card steps aside while
+the Codex is open, and moves to the bottom left while a modal is up on a wide screen (it covered
+the wire card's answers) — right? (*Design questions*, S6.7.) Shots of the hints, the Codex over
+the tree and on a phone were looked at in the session.
 
 **D5.2 (2026-09-24), at G5:** `docs/specs/taskforce-endings.md` §13 — is *Supplanted* (a secret
 loss that turns a win, after one warning card) fair, or should a normal win's results screen hint
@@ -2513,6 +2548,13 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.7 Tutorial II [O]
+- Coach: ten hints (per profile), one queue, stale drop, step 7 on openings, *Mehr dazu*; `Settings.hints`,
+  `hints_seen`; `HelpPages`, Codex *So spielst du* first, `open(tab, entry)`; `ModalHost.open_over`.
+- `F1` (session/title), `HelpButton` on tree/containment/analysis/region, pause + sheet rows, `HELP` glyph.
+- Looked at: hints de/en 1920/400/150 %, Codex over tree and hint, sheet → help on phone. Two placements
+  as `# DESIGN?`. +63 tests, 1839 green.
 
 ### 2026-09-25 — S6.6 Audio II: the sound set [O]
 - `tools/audio/` (uv env: numpy, scipy, soundfile, pyloudnorm; `.gdignore`), `synth.py`: additive

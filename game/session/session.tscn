@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://game/session/session.gd" id="1_session"]
 [ext_resource type="PackedScene" path="res://game/map/map_view.tscn" id="2_map_view"]
@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" path="res://ui/panels/analysis_panel.tscn" id="17_analysis"]
 [ext_resource type="Script" path="res://ui/hud/coach.gd" id="18_coach"]
 [ext_resource type="Script" path="res://ui/components/coach_ring.gd" id="19_coach_ring"]
+[ext_resource type="PackedScene" path="res://ui/modals/codex.tscn" id="20_codex"]
 
 [node name="Session" type="Control"]
 layout_mode = 3
@@ -115,6 +116,10 @@ unique_name_in_owner = true
 visible = false
 
 [node name="Results" parent="ModalLayer/ModalHost" instance=ExtResource("14_results")]
+unique_name_in_owner = true
+visible = false
+
+[node name="Codex" parent="ModalLayer/ModalHost" instance=ExtResource("20_codex")]
 unique_name_in_owner = true
 visible = false
 

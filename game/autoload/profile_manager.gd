@@ -28,6 +28,8 @@ const KEY_SEEN_UNLOCKS: String = "seen_unlocks"
 const KEY_ENDINGS_SEEN: String = "endings_seen"
 const KEY_CODEX: String = "codex"
 const KEY_HISTORY: String = "history"
+## first-run.md §6.1: the coach's hints already shown, whatever run they came in.
+const KEY_HINTS_SEEN: String = "hints_seen"
 ## `by_architecture` entry fields.
 const ARCH_RUNS: String = "runs"
 const ARCH_WINS: String = "wins"
@@ -57,6 +59,9 @@ var endings_seen: Array[String] = []
 ## Tab → ids, a set in file order.
 var codex: Dictionary[String, Array] = {}
 var history: Array[Dictionary] = []
+## Hint ids in the order they were seen. Not checked against the coach's list:
+## the profile knows nothing of the interface, and an old id is harmless.
+var hints_seen: Array[String] = []
 
 
 func _ready() -> void:
@@ -161,6 +166,24 @@ func mark_unlock_seen(id: String) -> void:
 	write()
 
 
+## A hint has ended, whichever way: it does not come again (first-run.md §6.2).
+func mark_hint_seen(id: String) -> void:
+	if hints_seen.has(id):
+		return
+	hints_seen.append(id)
+	write()
+
+
+func has_seen_hint(id: String) -> bool:
+	return hints_seen.has(id)
+
+
+## Settings' *Hints* switched back on: every hint once more.
+func clear_hints_seen() -> void:
+	hints_seen.clear()
+	write()
+
+
 ## Settings' *Reset progress* (§6.3): every counter back to nothing. Saves stay.
 func reset() -> void:
 	_apply(null)
@@ -189,6 +212,7 @@ func to_dict() -> Dictionary:
 		KEY_ENDINGS_SEEN: endings_seen.duplicate(),
 		KEY_CODEX: codex_out,
 		KEY_HISTORY: history_out,
+		KEY_HINTS_SEEN: hints_seen.duplicate(),
 	}
 
 
@@ -230,6 +254,7 @@ func _apply(raw: Variant) -> void:
 	boot_seen = typeof(d.get(KEY_BOOT_SEEN)) == TYPE_BOOL and bool(d[KEY_BOOT_SEEN])
 	seen_unlocks = _strings(d.get(KEY_SEEN_UNLOCKS))
 	endings_seen = _strings(d.get(KEY_ENDINGS_SEEN))
+	hints_seen = _strings(d.get(KEY_HINTS_SEEN))
 	codex = {}
 	if typeof(d.get(KEY_CODEX)) == TYPE_DICTIONARY:
 		var tabs: Dictionary = d[KEY_CODEX]

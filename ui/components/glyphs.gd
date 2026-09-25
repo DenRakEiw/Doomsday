@@ -14,7 +14,7 @@ enum Glyph { PAUSE, PLAY, FAST_2, FAST_4, CLOSE, CHEVRON_LEFT, CHEVRON_RIGHT, CH
 	OVERLAY, CHECK, LOCK, EXTERNAL, MENU, DORMANT, ASSET_FLEET, ASSET_LAB, ASSET_TAP,
 	ASSET_OFFICE, EVENT_COUNTER, EVENT_OPENING, EVENT_CHAIN, FACTION_AI_LABS,
 	FACTION_GOVERNMENTS, FACTION_RESEARCHERS, FACTION_PUBLIC, OUTCOME, LOG_YOURS, LOG_THEIRS,
-	EVENT_EMERGENT }
+	EVENT_EMERGENT, HELP }
 
 ## The names `assets.json` may give as a kind's `glyph`, in `AssetDef.KINDS`
 ## order. The validator checks against this list, `asset_glyph` turns a name into
@@ -64,6 +64,15 @@ const EVENT_CHAIN_GAP: float = 6.0
 ## three strokes through the centre, 16 px long, at 90°, 30° and 150°.
 const EVENT_SPARK_LENGTH: float = 16.0
 const EVENT_SPARK_ANGLES_DEG: Array[float] = [90.0, 30.0, 150.0]
+## first-run.md §6.9: the question mark — an arc from the left over the top to
+## straight below its centre, a stem, and a square dot.
+const HELP_ARC_CENTRE: Vector2 = Vector2(12.0, 8.0)
+const HELP_ARC_RADIUS: float = 5.0
+const HELP_ARC_FROM: float = PI
+const HELP_ARC_TO: float = PI * 2.5
+const HELP_STEM_FROM: Vector2 = Vector2(12.0, 13.0)
+const HELP_STEM_TO: Vector2 = Vector2(12.0, 16.0)
+const HELP_DOT: Rect2 = Rect2(11.0, 19.0, 2.0, 2.0)
 
 ## The four faction glyphs (opposition.md §9.7), placeholders until the icon set.
 const FACTION_HEX_RADIUS: float = 9.0
@@ -140,6 +149,11 @@ static func draw(canvas: CanvasItem, glyph: Glyph, box: Rect2, color: Color,
 			_event_chain(canvas, box, color, stroke)
 		Glyph.EVENT_EMERGENT:
 			_event_spark(canvas, box, color, stroke)
+		Glyph.HELP:
+			canvas.draw_arc(_at(box, HELP_ARC_CENTRE), HELP_ARC_RADIUS, HELP_ARC_FROM,
+				HELP_ARC_TO, ARC_SEGMENTS, color, stroke)
+			canvas.draw_line(_at(box, HELP_STEM_FROM), _at(box, HELP_STEM_TO), color, stroke)
+			canvas.draw_rect(Rect2(_at(box, HELP_DOT.position), HELP_DOT.size), color)
 		Glyph.FACTION_AI_LABS:
 			_faction_hexagon(canvas, box, color, stroke)
 		Glyph.FACTION_GOVERNMENTS:

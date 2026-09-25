@@ -151,3 +151,96 @@ func test_a_without_a_run_opens_nothing() -> void:
 	var picker: Control = _session.get_node("%AbilityPicker") as Control
 	_press(KEY_A)
 	assert_false(picker.visible)
+
+
+# ------------------------------------------------ S6.7: F1 (first-run.md §6.7)
+
+
+func _codex() -> Control:
+	return _session.get(&"_codex") as Control
+
+
+func _modals() -> ModalHost:
+	return _session.get_node("%ModalHost") as ModalHost
+
+
+func _help_buttons(root: Node) -> Array[HelpButton]:
+	var out: Array[HelpButton] = []
+	for node: Node in root.find_children("*", "", true, false):
+		if node is HelpButton:
+			out.append(node as HelpButton)
+	return out
+
+
+func _help_page() -> String:
+	return str(_codex().get(&"entry_id"))
+
+
+func test_f1_opens_the_session_page_and_holds_the_clock() -> void:
+	_start()
+	Game.set_speed(1)
+	_press(KEY_F1)
+	assert_eq(_modals().current(), _codex())
+	assert_eq(_help_page(), HelpPages.page_for_context(HelpPages.CONTEXT_SESSION))
+	assert_eq(Game.speed, 0, "help holds the clock")
+	_press(KEY_F1)
+	assert_false(_modals().is_open(), "F1 again closes it")
+	assert_eq(Game.speed, 1, "and the clock is as it was")
+
+
+func test_f1_over_the_tech_tree_opens_its_page_and_returns_to_it() -> void:
+	_start()
+	_session.call(&"_toggle_tech_tree")
+	var tree: Control = _session.get(&"_tech_tree") as Control
+	_press(KEY_F1)
+	assert_eq(_help_page(), HelpPages.page_for_context(HelpPages.CONTEXT_TREE))
+	assert_eq(_modals().below(), tree)
+	_press(KEY_T)
+	assert_eq(_modals().current(), _codex(), "T does not close the tree under the page")
+	_press(KEY_F1)
+	assert_eq(_modals().current(), tree, "closing returns to the tree")
+
+
+func test_f1_over_the_ability_picker_opens_its_page() -> void:
+	_start()
+	_press(KEY_A)
+	_press(KEY_F1)
+	assert_eq(_help_page(), HelpPages.page_for_context(HelpPages.CONTEXT_ABILITIES))
+
+
+func test_f1_on_the_containment_panel_opens_its_page() -> void:
+	_start()
+	_press(KEY_C)
+	_press(KEY_F1)
+	assert_eq(_help_page(), HelpPages.page_for_context(HelpPages.CONTEXT_CONTAINMENT))
+
+
+func test_f1_on_the_analysis_panel_opens_its_page() -> void:
+	_start()
+	_press(KEY_G)
+	_press(KEY_F1)
+	assert_eq(_help_page(), HelpPages.page_for_context(HelpPages.CONTEXT_ANALYSIS))
+
+
+func test_f1_on_the_region_panel_opens_its_page() -> void:
+	_start()
+	EventBus.region_selected.emit(Game.db.region_index_by_id["usa"])
+	_press(KEY_F1)
+	assert_eq(_help_page(), HelpPages.page_for_context(HelpPages.CONTEXT_REGION))
+
+
+func test_the_question_mark_in_a_panel_header_opens_its_page() -> void:
+	_start()
+	_session.call(&"_toggle_tech_tree")
+	var tree: Control = _session.get(&"_tech_tree") as Control
+	var buttons: Array[HelpButton] = _help_buttons(tree)
+	assert_eq(buttons.size(), 1, "one ? in the tree's header")
+	buttons[0].emit_signal("pressed")
+	assert_eq(_modals().current(), _codex())
+	assert_eq(_help_page(), HelpPages.page_for_context(HelpPages.CONTEXT_TREE))
+
+
+func test_the_four_dense_panels_each_have_one_question_mark() -> void:
+	for path: String in ["%TechTree", "%ContainmentPanel", "%AnalysisPanel", "%RegionPanel"]:
+		var panel: Node = _session.get_node(path)
+		assert_eq(_help_buttons(panel).size(), 1, path)

@@ -17,9 +17,15 @@ const TARGET_VECTOR: String = "vector"
 const TARGET_OVERLAY: String = "overlay"
 const TARGET_CONTAINMENT: String = "containment"
 const TARGET_SITE_PROMPT: String = "site_prompt"
+# §6.3: the hints' four more.
+const TARGET_ACTIONS: String = "actions"
+const TARGET_ABILITIES: String = "abilities"
+const TARGET_DRIFT: String = "drift"
+const TARGET_STARVING: String = "starving"
 # Not rings: the two screens the introduction asks about ("is it open?").
 const TARGET_TREE: String = "tree"
 const TARGET_CONTAINMENT_PANEL: String = "containment_panel"
+const TARGET_HELP: String = "help"
 ## How far outside the target the ring runs.
 const OUTSET: float = 4.0
 const ALPHA_LOW: float = 0.4

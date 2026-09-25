@@ -141,3 +141,22 @@ func test_sound_captions_default_off() -> void:
 func test_audio_background_defaults_on() -> void:
 	assert_true(bool(_values(null)[SettingsScript.KEY_AUDIO_BACKGROUND]))
 	assert_true((_values(null)[SettingsScript.KEY_VOLUMES] as Dictionary).is_empty())
+
+
+func test_hints_are_on_by_default_and_a_wrong_type_reads_as_on() -> void:
+	# S6.7 (first-run.md §6.1).
+	assert_true(bool(_values(null)[SettingsScript.KEY_HINTS]))
+	assert_false(bool(_values({"hints": false})[SettingsScript.KEY_HINTS]))
+	assert_true(bool(_values({"hints": 0})[SettingsScript.KEY_HINTS]),
+		"a wrong type falls back to on")
+
+
+## §6.1: on again means every hint once more. The autoloads write their files,
+## so the setting is put back the way the player had it.
+func test_switching_hints_back_on_clears_the_hints_seen() -> void:
+	var before: bool = Settings.hints
+	Settings.set_hints(false)
+	ProfileManager.mark_hint_seen("starving")
+	Settings.set_hints(true)
+	assert_false(ProfileManager.has_seen_hint("starving"))
+	Settings.set_hints(before)
