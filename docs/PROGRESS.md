@@ -216,6 +216,12 @@ it and take the next row (IMPLEMENTATION §4).*
 Dated, one line each, with the reason. A decision recorded here is not re-argued in a later session
 without new information.
 
+- **2026-09-25** (user, answering `plain-language.md` §6) — **Q1 yes** (all term changes), **Q2 yes**
+  (Drehkreuz, Finanzdruck, Funkstille), **Q3 no: the emergent behaviours keep their AI-safety names**
+  (explained on the card and in the Codex instead), **Q4 yes** (numbers on every card), **Q5 yes**, **Q6 yes**.
+  **Q7 open:** the user did not know what *Abgriff* means — proposal *Zugang* (en *Access*), pending.
+  On the 30 examples: the user approved examples 1–3; example 4 (the coach's losing condition) is
+  corrected anyway because the old line states the wrong rule (pending the user's confirmation).
 - **2026-09-21** — **Two models.** Design steps (`D`, `G`) run on Fable; build steps (`S`) run on
   Opus. The hand-over is always a spec in `docs/specs/`, never a conversation. Design runs one
   block ahead of the build to keep model switches to ten. (User decision.)
@@ -2881,6 +2887,12 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.P2b Buy-and-place bounced back into the tree [O]
+- User report: buying a deploying node did nothing, the tree stayed open. A tree reopened during a
+  running site select: `_place()` closed the tree before `Game.site_select`, which cancelled the old
+  request, whose `on_cancel` reopened the tree over the new site select. Now site_select first,
+  then close. Regression test `test_deploy_click.gd` (real main scene, 7 cases). 2299 green.
 
 ### 2026-09-25 — D6.11 (1/2) Text clarity audit and style guide [F]
 - User request after two German runs. Scanned all 2 360 rows (script outside the repo): 867 mechanic, 136 card, 546 flavour;
