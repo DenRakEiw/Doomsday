@@ -1,6 +1,7 @@
 extends Control
 ## Statistics (spec `screens-full.md` §6.2): the totals, one row per unlocked
-## architecture, and the recent runs with *Play this seed again*. No charts —
+## architecture, the achievements (release.md §2.4) and the recent runs with
+## *Play this seed again*. No charts —
 ## the numbers are few, and the analysis screen owns the run's charts.
 ##
 ## Scene-specific, so no `class_name`.
@@ -28,6 +29,19 @@ const KEY_PROGRESS: String = "UI_CODEX_PROGRESS"
 ## scenarios.md §1: *architecture · scenario* for a run played in one.
 const KEY_SCENARIO_PAIR: String = "UI_STATS_SCENARIO_PAIR"
 const PREFIX_OUTCOME: String = "UI_OUTCOME_"
+## release.md §2.4: section 4.
+const KEY_ACHIEVEMENTS: String = "UI_STATS_ACHIEVEMENTS"
+const KEY_ACHIEVEMENTS_COUNT: String = "UI_STATS_ACHIEVEMENTS_COUNT"
+const KEY_ACH_EARNED: String = "UI_ACH_EARNED"
+const KEY_ACH_PROGRESS: String = "UI_ACH_PROGRESS"
+const KEY_ACH_LOCKED: String = "UI_ACH_LOCKED"
+const KEY_ACH_HIDDEN_NAME: String = "UI_ACH_HIDDEN_NAME"
+const KEY_ACH_HIDDEN_DETAIL: String = "UI_ACH_HIDDEN_DETAIL"
+## The state's word, by what it says: earned in the accent, progress and
+## locked quieter (release.md §2.4). The word carries it; colour never alone.
+const VARIATION_EARNED: StringName = &"LabelCaptionAccent"
+const VARIATION_PROGRESS: StringName = &"LabelCaptionHint"
+const VARIATION_LOCKED: StringName = &"LabelCaption"
 ## A figure there is none of yet.
 const DASH: String = "—"
 ## §6.2's by-architecture table: name, runs, wins, fastest win.
@@ -41,6 +55,8 @@ const NAME_STRETCH: float = 2.0
 @onready var _content: VBoxContainer = %Content
 
 var _db: ContentDB = null
+## Whether the last build laid the achievements out for a phone.
+var _compact: bool = false
 
 
 func _ready() -> void:
@@ -77,6 +93,7 @@ func refresh() -> void:
 		return
 	_build_totals()
 	_build_architectures()
+	_build_achievements()
 	_build_recent()
 
 
@@ -135,6 +152,75 @@ func _build_architectures() -> void:
 		_value_cell(grid, Format.number(float(row.get(ProfileManager.ARCH_WINS, 0)),
 			Format.Kind.DAYS))
 		_value_cell(grid, DASH if best <= 0 else Format.number(float(best), Format.Kind.DAYS))
+
+
+## release.md §2.4: section 4 — the count, then one row per achievement in
+## file order. Rows are read, not used: none takes focus.
+func _build_achievements() -> void:
+	_section(KEY_ACHIEVEMENTS)
+	var book: AchievementBook = ProfileManager.book
+	var profile: Dictionary = ProfileManager.to_dict()
+	var codex_totals: Dictionary[String, Array] = {
+		CodexEntries.TAB_REGIONS: CodexEntries.ids(CodexEntries.TAB_REGIONS, _db)}
+	var earned: int = 0
+	for def: AchievementDef in book.defs:
+		if ProfileManager.achievements.has(def.id):
+			earned += 1
+	_label(_content, tr(KEY_ACHIEVEMENTS_COUNT).format({"earned": earned,
+		"total": book.defs.size()}), &"LabelCaption")
+	_compact = get_viewport_rect().size.x < float(UiTokens.COMPACT_WIDTH)
+	for def: AchievementDef in book.defs:
+		_content.add_child(_achievement_row(def, book, profile, codex_totals))
+
+
+func _achievement_row(def: AchievementDef, book: AchievementBook, profile: Dictionary,
+		codex_totals: Dictionary[String, Array]) -> Control:
+	var is_earned: bool = ProfileManager.achievements.has(def.id)
+	var classified: bool = def.hidden and not is_earned
+	var name_text: String = tr(KEY_ACH_HIDDEN_NAME) if classified 		else tr(AchievementDef.name_key(def.id))
+	var detail_text: String = tr(KEY_ACH_HIDDEN_DETAIL) if classified 		else tr(AchievementDef.detail_key(def.id)).format(book.detail_values(def))
+	var state_text: String = tr(KEY_ACH_LOCKED)
+	var variation: StringName = VARIATION_LOCKED
+	if is_earned:
+		state_text = tr(KEY_ACH_EARNED)
+		variation = VARIATION_EARNED
+	elif not classified:
+		var progress: Array[int] = book.progress(def, profile, codex_totals)
+		if progress[0] >= 0:
+			state_text = tr(KEY_ACH_PROGRESS).format({"count": progress[0],
+				"needed": progress[1]})
+			variation = VARIATION_PROGRESS
+	var row: HBoxContainer = HBoxContainer.new()
+	row.theme_type_variation = &"Row"
+	var text: VBoxContainer = VBoxContainer.new()
+	text.theme_type_variation = &"StackTight"
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(text)
+	_label(text, name_text, &"")
+	var detail: Label = _label(text, detail_text, &"LabelCaptionHint")
+	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# In compact the state drops under the detail (§2.4).
+	var state: HBoxContainer = HBoxContainer.new()
+	state.theme_type_variation = &"Row"
+	state.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN if _compact 		else Control.SIZE_SHRINK_END
+	state.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	if _compact:
+		text.add_child(state)
+	else:
+		row.add_child(state)
+	if is_earned:
+		var check: GlyphIcon = GlyphIcon.new()
+		check.glyph = Glyphs.Glyph.CHECK
+		check.color_token = &"ACCENT"
+		check.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		state.add_child(check)
+	var state_label: Label = _label(state, state_text, variation)
+	state_label.name = "State"
+	row.name = "Achievement_" + def.id
+	# accessibility.md §3.2: the name as shown; the detail, then the state.
+	row.accessibility_name = name_text
+	row.accessibility_description = A11y.label_value(detail_text, state_text)
+	return row
 
 
 ## §6.2 item 3: newest first. The outcome's name, and the ending's line under it.
@@ -252,7 +338,10 @@ static func _label(into: Control, text: String, variation: StringName) -> Label:
 	return label
 
 
-## As tall as the window allows, like the Codex.
+## As tall as the window allows, like the Codex. Crossing the breakpoint lays
+## the achievements out again.
 func _fit() -> void:
 	_panel.custom_minimum_size.y = maxf(get_viewport_rect().size.y
 		- float(UiTokens.SPACE_6) * 2.0, 0.0)
+	if visible and _db != null 			and (get_viewport_rect().size.x < float(UiTokens.COMPACT_WIDTH)) != _compact:
+		refresh()

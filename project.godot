@@ -29,6 +29,8 @@ Game="*res://game/autoload/game.gd"
 SaveManager="*res://game/autoload/save_manager.gd"
 ScreenRouter="*res://game/autoload/screen_router.gd"
 ProfileManager="*res://game/autoload/profile_manager.gd"
+; release.md §1.1: reads the profile at start, before the sound listens to it.
+PlatformService="*res://game/autoload/platform_service.gd"
 ; audio.md §5: after the profile and the router it listens to, before the pass.
 Audio="*res://game/autoload/audio.gd"
 ; Last: the full-screen pass listens to the router (polish-visuals.md §2).

@@ -1135,6 +1135,8 @@ markers retired, silent holds (`Game.is_hold_change`, `hold` in `speed_changed`'
 The interface, the null backend, achievements evaluated and kept in the profile (a profile
 version step if the spec asks), an *Achievements* list where the spec puts it.
 **Done when:** every achievement has a test that earns it; builds without Steam are unaffected.
+*Done 2026-09-25: `game/platform/`, the `PlatformService` autoload, achievements in the
+profile, Statistics section 4 and the results chips; deviations in `PROGRESS.md`.*
 
 ### S6.10 — Export presets and release CI **[O]** · **Read first:** `release.md` (exports, CI, versioning, debug keys)
 `export_presets.cfg` (Windows, Linux, web), the export templates for 4.7.2, the release workflow

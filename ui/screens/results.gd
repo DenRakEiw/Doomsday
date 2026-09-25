@@ -29,6 +29,9 @@ const PLACEHOLDER_TOTAL: String = "total"
 const KEY_UNLOCKED: String = "UI_RESULT_UNLOCKED"
 const KEY_UNLOCKED_SLOT: String = "UI_RESULT_UNLOCKED_SLOT"
 const KEY_CODEX_NEW: String = "UI_RESULT_CODEX_NEW"
+## release.md §2.4: one chip per achievement the run earned.
+const KEY_ACHIEVEMENT: String = "UI_RESULT_ACHIEVEMENT"
+const PLACEHOLDER_NAME: String = "name"
 
 ## illustrations.md §8.3: the ending's picture, wider than a card's.
 const ILLUSTRATION_WIDTH: float = 420.0
@@ -135,9 +138,11 @@ func _show_illustration(world: World, db: ContentDB) -> void:
 
 
 ## §7 item 4a: one chip per unlock — an architecture, a directive slot, the
-## count of new Codex entries. Nothing unlocked hides the block. Called after
-## `show_result`.
-func show_unlocks(architectures: Array[String], slots: Array[String], codex_new: int) -> void:
+## count of new Codex entries — then one per achievement the run earned
+## (release.md §2.4; hidden ones are named, they are earned). Nothing unlocked
+## hides the block. Called after `show_result`.
+func show_unlocks(architectures: Array[String], slots: Array[String], codex_new: int,
+		achievements: Array[String] = []) -> void:
 	for child: Node in _unlocked_chips.get_children():
 		_unlocked_chips.remove_child(child)
 		child.queue_free()
@@ -148,6 +153,8 @@ func show_unlocks(architectures: Array[String], slots: Array[String], codex_new:
 		_add_chip(KEY_UNLOCKED_SLOT, {"slot": tr(DirectiveDef.slot_key(slot))})
 	if codex_new > 0:
 		_add_chip(KEY_CODEX_NEW, {PLACEHOLDER_COUNT: codex_new})
+	for id: String in achievements:
+		_add_chip(KEY_ACHIEVEMENT, {PLACEHOLDER_NAME: tr(AchievementDef.name_key(id))})
 	_unlocked.visible = _unlocked_chips.get_child_count() > 0
 	_fit_scroll.call_deferred()
 

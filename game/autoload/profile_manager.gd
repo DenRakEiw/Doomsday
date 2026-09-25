@@ -30,14 +30,18 @@ const KEY_CODEX: String = "codex"
 const KEY_HISTORY: String = "history"
 ## first-run.md §6.1: the coach's hints already shown, whatever run they came in.
 const KEY_HINTS_SEEN: String = "hints_seen"
+## release.md §2.2: the achievements earned, in the order earned.
+const KEY_ACHIEVEMENTS: String = AchievementBook.PROFILE_ACHIEVEMENTS
 ## `by_architecture` entry fields.
 const ARCH_RUNS: String = "runs"
 const ARCH_WINS: String = "wins"
 const ARCH_BEST_DAYS: String = "best_days"
+## The Codex tab release.md §3's `codex_regions` asks to be complete.
+const CODEX_REGIONS: String = "regions"
 ## The Codex tabs a run collects into (§5.1); architectures and endings derive.
 ## `moves` is no tab of its own: it is the counter-moves a faction's entry lists
 ## once each has been seen (§6.1).
-const CODEX_TABS: Array[String] = ["regions", "factions", "tech", "characters", "statuses",
+const CODEX_TABS: Array[String] = [CODEX_REGIONS, "factions", "tech", "characters", "statuses",
 	"moves"]
 ## `architectures.json`'s unlock rules (§8.1).
 const UNLOCK_RUNS: String = "runs_completed"
@@ -62,12 +66,30 @@ var history: Array[Dictionary] = []
 ## Hint ids in the order they were seen. Not checked against the coach's list:
 ## the profile knows nothing of the interface, and an old id is harmless.
 var hints_seen: Array[String] = []
+## release.md §2.2: earned achievement ids, a set in the order earned. An id the
+## book does not know stays in the file and is ignored everywhere.
+var achievements: Array[String] = []
+## The ids the last counted run earned, for the results screen. Not stored;
+## cleared when a run starts.
+var last_run_achievements: Array[String] = []
+## The achievement definitions, loaded on first use (a profile node the tests
+## make outside the tree has no `_ready`).
+var book: AchievementBook:
+	get:
+		if _book == null:
+			_book = _load_book()
+		return _book
+
+var _book: AchievementBook = null
 
 
 func _ready() -> void:
 	_apply(_read())
 	EventBus.run_started.connect(_on_run_started)
 	EventBus.run_ended.connect(_on_run_ended)
+	# §2.2 item 1: the profile-only achievements, retroactive for an older
+	# profile. `codex_all` waits for a run's end: no content is loaded yet.
+	earn_at_start()
 
 
 # ------------------------------------------------------------------- unlocks
@@ -131,9 +153,27 @@ func record_run(sim: Simulation, outcome: String, variant: String = "") -> void:
 	if not endings_seen.has(ending):
 		endings_seen.append(ending)
 	history.push_front(_history_entry(sim, outcome, ending, days))
+	# §2.2 item 2: after the counters, the history and the ending — one write.
+	var earned: Array[String] = book.newly_earned(_profile_with_run(sim),
+		_run_facts(sim, history[0]), _codex_totals(sim.db))
+	achievements.append_array(earned)
+	last_run_achievements = earned.duplicate()
 	if history.size() > HISTORY_MAX:
 		history.resize(HISTORY_MAX)
 	write()
+	if not earned.is_empty():
+		EventBus.achievements_earned.emit(earned)
+
+
+## §2.2 item 1: what the profile alone has earned. Run keys and `codex_all`
+## wait for a run's end.
+func earn_at_start() -> void:
+	var earned: Array[String] = book.newly_earned(to_dict(), {}, {})
+	if earned.is_empty():
+		return
+	achievements.append_array(earned)
+	write()
+	EventBus.achievements_earned.emit(earned)
 
 
 ## Adds ids to a Codex tab, each once, in the order they came (§5.1).
@@ -184,9 +224,12 @@ func clear_hints_seen() -> void:
 	write()
 
 
-## Settings' *Reset progress* (§6.3): every counter back to nothing. Saves stay.
+## Settings' *Reset progress* (§6.3): every counter back to nothing. Saves stay,
+## and so do the achievements — a record of what was done (release.md §2.2).
 func reset() -> void:
+	var kept: Array[String] = achievements.duplicate()
 	_apply(null)
+	achievements = kept
 	write()
 
 
@@ -213,6 +256,7 @@ func to_dict() -> Dictionary:
 		KEY_CODEX: codex_out,
 		KEY_HISTORY: history_out,
 		KEY_HINTS_SEEN: hints_seen.duplicate(),
+		KEY_ACHIEVEMENTS: achievements.duplicate(),
 	}
 
 
@@ -255,6 +299,7 @@ func _apply(raw: Variant) -> void:
 	seen_unlocks = _strings(d.get(KEY_SEEN_UNLOCKS))
 	endings_seen = _strings(d.get(KEY_ENDINGS_SEEN))
 	hints_seen = _strings(d.get(KEY_HINTS_SEEN))
+	achievements = _strings(d.get(KEY_ACHIEVEMENTS))
 	codex = {}
 	if typeof(d.get(KEY_CODEX)) == TYPE_DICTIONARY:
 		var tabs: Dictionary = d[KEY_CODEX]
@@ -330,6 +375,61 @@ static func _strings(raw: Variant) -> Array[String]:
 	return out
 
 
+## release.md §2.3: the finished run's facts — the history entry's, whether it
+## was won, and the flags the achievements name that hold at the end.
+func _run_facts(sim: Simulation, entry: Dictionary) -> Dictionary:
+	var flags: Array[String] = []
+	for flag: String in book.flag_ids():
+		if HeadlineConditions.flag_set(sim.world, flag):
+			flags.append(flag)
+	var directives: Array = entry.get(AchievementBook.FACT_DIRECTIVES, [])
+	return {
+		AchievementBook.FACT_OUTCOME: str(entry.get(AchievementBook.FACT_OUTCOME, "")),
+		AchievementBook.FACT_VARIANT: str(entry.get(AchievementBook.FACT_VARIANT, "")),
+		AchievementBook.FACT_ARCHITECTURE: str(entry.get(AchievementBook.FACT_ARCHITECTURE, "")),
+		AchievementBook.FACT_DIFFICULTY: str(entry.get(AchievementBook.FACT_DIFFICULTY, "")),
+		AchievementBook.FACT_SCENARIO: str(entry.get(AchievementBook.FACT_SCENARIO, "")),
+		AchievementBook.FACT_DIRECTIVES: directives.duplicate(),
+		AchievementBook.FACT_DAYS: int(entry.get(AchievementBook.FACT_DAYS, 0)),
+		AchievementBook.FACT_WON: str(entry.get(AchievementBook.FACT_OUTCOME, "")) 			.begins_with(WIN_PREFIX),
+		AchievementBook.FACT_FLAGS: flags,
+	}
+
+
+## The profile as it stands once the session has merged this run's Codex
+## entries — which it does just after the run is counted (`CodexTracker`): the
+## regions tab gains every region the run reached, the regions the tracker
+## collects, so `codex_regions` is earned by the run that completes it.
+func _profile_with_run(sim: Simulation) -> Dictionary:
+	var profile: Dictionary = to_dict()
+	var codex_out: Dictionary = profile[KEY_CODEX]
+	var regions: Array = (codex_out.get(CODEX_REGIONS, []) as Array).duplicate()
+	for i: int in range(1, sim.world.regions.size()):
+		var id: String = sim.world.regions[i].def.id
+		if sim.world.regions[i].seeded_day >= 0 and not regions.has(id):
+			regions.append(id)
+	codex_out[CODEX_REGIONS] = regions
+	return profile
+
+
+## §2.2: the one Codex tab §3 names, complete — every region the content has.
+static func _codex_totals(db: ContentDB) -> Dictionary[String, Array]:
+	var regions: Array = []
+	for def: RegionDef in db.regions:
+		# Index 0 is "no region" and has no definition.
+		if def != null:
+			regions.append(def.id)
+	return {CODEX_REGIONS: regions}
+
+
+## §2.2: a broken file is a programming error — reported, and no achievements.
+static func _load_book() -> AchievementBook:
+	var loaded: AchievementBook = AchievementBook.load_file()
+	for reason: String in loaded.errors:
+		push_error("achievements: %s" % reason)
+	return loaded
+
+
 ## §5: the run as the Statistics and the title's globe read it. `n` is the count
 ## with this run in it.
 func _history_entry(sim: Simulation, outcome: String, ending: String,
@@ -363,6 +463,7 @@ func _history_entry(sim: Simulation, outcome: String, ending: String,
 
 ## The setup of a player's run is what the next *New run* opens on (§4).
 func _on_run_started(_seed_value: int) -> void:
+	last_run_achievements.clear()
 	if Game.sim == null or Game.policy != null:
 		return
 	last_setup = Game.sim.world.setup.duplicate_setup()

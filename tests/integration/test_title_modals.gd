@@ -13,10 +13,13 @@ const PHONE_HEIGHT: int = 860
 
 
 func before_each() -> void:
+	# *Reset progress* keeps the achievements (release.md §2.2).
+	ProfileManager.achievements.clear()
 	ProfileManager.reset()
 
 
 func after_each() -> void:
+	ProfileManager.achievements.clear()
 	ProfileManager.reset()
 
 
@@ -100,6 +103,89 @@ func test_the_totals_read_the_profile() -> void:
 	assert_eq(totals[Statistics.KEY_RUNS], "4")
 	assert_eq(totals[Statistics.KEY_WIN_RATE], Format.percent(0.25))
 	assert_eq(totals[Statistics.KEY_FASTEST], "210")
+
+
+## S6.9: release.md §2.4's rows, one per achievement.
+func _achievement_rows(statistics: Statistics) -> Array[Node]:
+	return statistics.find_children("Achievement_*", "HBoxContainer", true, false)
+
+
+func _row_texts(statistics: Statistics, id: String) -> Array[String]:
+	var texts: Array[String] = []
+	var row: Node = statistics.find_child("Achievement_" + id, true, false)
+	for label: Node in row.find_children("*", "Label", true, false):
+		texts.append((label as Label).text)
+	return texts
+
+
+func test_the_achievements_section_lists_every_achievement() -> void:
+	var statistics: Statistics = _statistics()
+	assert_eq(_achievement_rows(statistics).size(), ProfileManager.book.defs.size())
+	assert_eq(_achievement_rows(statistics).size(), 34)
+	for row: Node in _achievement_rows(statistics):
+		assert_eq((row as Control).focus_mode, Control.FOCUS_NONE, "read, not used")
+
+
+func test_the_achievements_count_caption() -> void:
+	ProfileManager.achievements = ["first_run", "lose_contained"] as Array[String]
+	var statistics: Statistics = _statistics()
+	var caption: String = tr(Statistics.KEY_ACHIEVEMENTS_COUNT).format({"earned": 2,
+		"total": 34})
+	var found: bool = false
+	for label: Node in statistics.find_children("*", "Label", true, false):
+		found = found or (label as Label).text == caption
+	assert_true(found, caption)
+
+
+func test_a_hidden_achievement_not_earned_is_classified() -> void:
+	var statistics: Statistics = _statistics()
+	var texts: Array[String] = _row_texts(statistics, "win_escape")
+	assert_eq(texts, [tr(Statistics.KEY_ACH_HIDDEN_NAME), tr(Statistics.KEY_ACH_HIDDEN_DETAIL),
+		tr(Statistics.KEY_ACH_LOCKED)] as Array[String], "no name, no progress")
+
+
+func test_a_hidden_achievement_earned_is_named() -> void:
+	ProfileManager.achievements = ["win_escape"] as Array[String]
+	var texts: Array[String] = _row_texts(_statistics(), "win_escape")
+	assert_eq(texts[0], tr(AchievementDef.name_key("win_escape")))
+	assert_eq(texts[texts.size() - 1], tr(Statistics.KEY_ACH_EARNED))
+
+
+func test_progress_toward_ten_runs() -> void:
+	ProfileManager.runs_completed = 3
+	var texts: Array[String] = _row_texts(_statistics(), "runs_10")
+	assert_eq(texts[texts.size() - 1],
+		tr(Statistics.KEY_ACH_PROGRESS).format({"count": 3, "needed": 10}))
+	assert_eq(texts[1], tr(AchievementDef.detail_key("runs_10")).format({"count": 10}),
+		"the detail carries the tuned number")
+
+
+func test_an_achievement_without_progress_reads_locked() -> void:
+	var texts: Array[String] = _row_texts(_statistics(), "fast_win")
+	assert_eq(texts[texts.size() - 1], tr(Statistics.KEY_ACH_LOCKED))
+
+
+func test_the_achievement_row_is_named_for_a_reader() -> void:
+	ProfileManager.achievements = ["first_run"] as Array[String]
+	var row: Control = _statistics().find_child("Achievement_first_run", true, false) as Control
+	assert_eq(row.accessibility_name, tr(AchievementDef.name_key("first_run")))
+	assert_eq(row.accessibility_description, A11y.label_value(
+		tr(AchievementDef.detail_key("first_run")), tr(Statistics.KEY_ACH_EARNED)))
+
+
+func test_on_a_phone_the_state_drops_under_the_detail() -> void:
+	var viewport: SubViewport = SubViewport.new()
+	viewport.size = Vector2i(PHONE_WIDTH, PHONE_HEIGHT)
+	add_child_autofree(viewport)
+	var statistics: Statistics = STATISTICS.instantiate() as Statistics
+	viewport.add_child(statistics)
+	statistics.open()
+	var row: Node = statistics.find_child("Achievement_first_run", true, false)
+	var state: Node = row.find_child("State", true, false)
+	assert_true(state.get_parent().get_parent() is VBoxContainer, "under the detail")
+	var wide: Node = _statistics().find_child("Achievement_first_run", true, false)
+	assert_eq(wide.find_child("State", true, false).get_parent().get_parent(), wide,
+		"beside it on a desktop")
 
 
 func test_play_this_seed_again_hands_over_the_run() -> void:

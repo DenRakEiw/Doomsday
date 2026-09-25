@@ -65,3 +65,9 @@ signal caption_announced(key: String, args: Dictionary)
 ## accessibility.md §4.1: the player moved between the pointer and the keyboard
 ## or a pad. The map cursor and the site prompt's wording follow it.
 signal keyboard_mode_changed(keyboard: bool)
+## release.md §2.2: achievements the profile has just earned, in file order —
+## at start (profile-only ones) or when a player's run is counted.
+signal achievements_earned(ids: Array[String])
+## release.md §1.3: the platform's overlay opened over the game. The session
+## answers with its pause menu while a run is live.
+signal platform_overlay_opened

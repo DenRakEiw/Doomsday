@@ -14,18 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.9 — PlatformService (null backend) and achievements** [O] (Block 16): `release.md` (platform, achievements). Then S6.10–S6.13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.10 — Export presets and release CI** [O] (Block 16): `release.md` (exports, CI, versioning, debug keys). **Carry the user's data folder over** (*Known issues*, S6.10). Then S6.11–S6.13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.10 exports and release CI, S6.11 performance, S6.12 benchmark tool, S6.13 spectator view. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | S6.P1 — Punch list from D6.8: covered zones out of the `Tab` ring, the site prompt beside the region panel, focus after a vanished control, site select leaves the Society view, `synth.py` ranges, the coach at the top on a phone over a modal, silent holds (2026-09-25). |
-| **Before that** | D6.9 — Benchmark and spectator mode: `docs/specs/benchmark.md`, `data/benchmark.json`, 135 strings en/de (2026-09-25). |
-| **Earlier** | D6.8 — Release engineering: `docs/specs/release.md`; nine design questions answered, punch list for S6.P1 (2026-09-25). |
+| **After it** | S6.11 performance, S6.12 benchmark tool, S6.13 spectator view. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | S6.9 — PlatformService (null backend) and achievements: `PlatformBackend`/`NullPlatformBackend`, the `PlatformService` autoload, `AchievementBook` (34 defs), achievements in the profile (kept by *Reset progress*), Statistics section 4, results chips (2026-09-25). |
+| **Before that** | S6.P1 — Punch list from D6.8 (2026-09-25). |
+| **Earlier** | D6.9 — Benchmark and spectator mode: `docs/specs/benchmark.md` (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 282 scripts compile (127 judged by the suite), then `tools/check_strings.gd` (2338 rows), 1950 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 287 scripts compile (132 judged by the suite), then `tools/check_strings.gd` (2338 rows), 2037 tests, **all green since S4.9**. The same command is all of CI. |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
 | **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. **The sound set:** `uv run --project tools/audio python tools/audio/synth.py [--only <id>] [--check]` (≈30 s; environment `uv sync --project tools/audio`) rewrites `assets/audio/**`; after a new file run `--import` and set its `.import` per audio.md §10.3 (`compress/mode=0` / `loop=true`). |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
@@ -174,7 +174,7 @@ it and take the next row (IMPLEMENTATION §4).*
 
 **Block 16 — M6 build II**
 - [x] S6.P1 [O] Punch list from D6.8 (the build's design questions)
-- [ ] S6.9 [O] PlatformService (null backend) and achievements
+- [x] S6.9 [O] PlatformService (null backend) and achievements
 - [ ] S6.10 [O] Export presets and release CI
 - [ ] S6.11 [O] Performance pass
 - [ ] S6.12 [O] Benchmark tool, headless *(the first live run needs the user's key)*
@@ -1339,6 +1339,18 @@ without new information.
 
 ## Deviations from the plan or a spec
 
+- **2026-09-25** (S6.9) — **Against `release.md` §1.3, §2.2, §2.4:** (1) the overlay reaches the
+  session through a new `EventBus.platform_overlay_opened` (the service forwards `overlay_toggled(true)`;
+  the session checks the run is live and uses `_open_pause_menu`, which already refuses under a modal).
+  (2) `ProfileManager.book` loads on first use (a getter), not in `_ready` — the tests make profile
+  nodes outside the tree. (3) `codex_regions` is judged against the profile **plus the regions this
+  run reached**: the session merges the run's Codex only after the profile has counted it, so the
+  achievement would otherwise come one run late (the regions tab is exactly the reached regions).
+  (4) `Results.show_unlocks` takes the ids as a fourth argument; the session passes
+  `ProfileManager.last_run_achievements`. (5) The detail line uses `LabelCaptionHint` (caption size,
+  `TEXT_1`), the progress word too; `UI_ACH_LOCKED` is `LabelCaption` (`TEXT_2`). (6) `first_win`
+  and the other one-counter defs show `0 of 1` progress — §3.2's table gives every counter progress.
+
 - **2026-09-25** (S6.8c) — **Against `accessibility.md` §3.3, §4.2, §8:** (1) A helper
   `A11y` (`ui/components/a11y.gd`: `label_value`, `readout`, `words`, `focus_scroll`) carries §3.2's
   rules; every chip is `FOCUS_ACCESSIBILITY` (not only the state chips). (2) Scroll containers get
@@ -2009,6 +2021,18 @@ without new information.
 
 ## Known issues and carry-overs
 
+- **S6.10 must carry the user's data over (user instruction, 2026-09-25 run).** `release.md` §5 sets
+  `custom_user_dir_name = "Doomsday"` and says nothing migrates; the user's profile, settings and
+  saves live in `%APPDATA%/Godot/app_userdata/Doomsday/`. S6.10 copies (never moves or deletes)
+  `profile.json`, `settings.json` and `saves/*.json` from the old folder into the new one on first
+  start when the new folder lacks them, with a test; a deviation from §5 to record there.
+- **S6.9: Statistics on a phone is wider than the window** (older than S6.9, measured then): a
+  *Recent runs* block's foot row (days, seed, *Play this seed again*) has a 424 px minimum at 400 px
+  wide, so the panel clips on the right. The achievement rows are ≤ 250 px and drop their state
+  under the detail as §2.4 says.
+- **S6.9: an achievement chip on the results keeps its name's language** after a locale switch
+  (the name is formatted into the chip, like the directive-slot chip's).
+
 - **S6.8: a dead key has no legend of its own.** On a German layout the physical key of the US
   `=` (zoom in) is the dead `´`; `DisplayServer.keyboard_get_label_from_physical` gives `=` back,
   so *Steuerung* and the help say `=`. The key works; only its name is the US one.
@@ -2157,6 +2181,11 @@ without new information.
   The injected `mcp_interaction_server.gd` is gitignored in case a run crashes.
 
 ## Waiting on the user
+
+**S6.9 (2026-09-25, overnight):** an interrupted test run left
+`%APPDATA%/Godot/app_userdata/Doomsday/saves/autosave.json` (a day-0 run; the title offers
+*Continue*). Deleting it was not permitted to the session — delete it, or just start a new run.
+Your `profile.json`, `settings.json` and `saves/debug.json` are unchanged (checked by hash).
 
 **D4.0 (2026-09-23): read `docs/specs/loop-redesign.md`** — its §12 names the five things to
 judge (the phase fantasies and the fleet as the body, the busy Cyber branch, the vector cap of
@@ -2598,6 +2627,13 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.9 PlatformService (null backend) and achievements [O]
+- `game/platform/` (`PlatformBackend`, `NullPlatformBackend`, `AchievementDef`, `AchievementBook`), autoload
+  `PlatformService` (sync at start and on `achievements_earned`, overlay → pause menu, start line in the log);
+  profile `achievements` (kept by reset), `last_run_achievements`; Statistics section 4; results chips.
+- Looked at: Statistics de/en 1920, de 400 (state under the detail). User data folder unchanged (S6.10 moves it).
+  +87 tests (5 new files), 2037 green.
 
 ### 2026-09-25 — S6.P1 Punch list from D6.8 [O]
 - `FocusRing.is_covered` + `SlidePanel.covered_rect()`: the session ring drops a HUD zone an open panel covers >50 %; the site

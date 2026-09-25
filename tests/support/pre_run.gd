@@ -16,4 +16,7 @@ const TEST_PROFILE: String = "user://test_profile.json"
 func run() -> void:
 	Settings.text_scale = Settings.DEFAULT_TEXT_SCALE
 	ProfileManager.use_path(TEST_PROFILE)
+	# *Reset progress* keeps the achievements (release.md §2.2); the suite's
+	# profile starts without them all the same.
+	ProfileManager.achievements.clear()
 	ProfileManager.reset()

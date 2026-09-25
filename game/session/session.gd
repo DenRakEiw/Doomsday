@@ -173,6 +173,7 @@ func _ready() -> void:
 	# The coach asks whether help is up (first-run.md §6.7).
 	_codex.add_to_group(CoachRing.group(CoachRing.TARGET_HELP))
 	EventBus.help_requested.connect(open_help)
+	EventBus.platform_overlay_opened.connect(_on_platform_overlay_opened)
 	EventBus.speed_changed.connect(_on_speed_changed)
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.text_scale_changed.connect(_on_text_scale_changed)
@@ -530,6 +531,14 @@ func _open_pause_menu() -> void:
 	_modals.open(_pause_menu)
 
 
+## release.md §1.3: the platform's overlay over a live run pauses it exactly as
+## the menu key does. After the outcome, or under a modal, nothing changes.
+func _on_platform_overlay_opened() -> void:
+	if Game.sim == null or Game.sim.world.outcome != World.Outcome.NONE:
+		return
+	_open_pause_menu()
+
+
 func _on_pause_closed() -> void:
 	_modals.close()
 	Game.release(HOLD_PAUSE)
@@ -571,7 +580,8 @@ func _on_run_ended(_outcome: String) -> void:
 		return
 	_camera.input_locked = false
 	_results.show_result(Game.sim)
-	_results.show_unlocks(architectures, slots, codex_new)
+	_results.show_unlocks(architectures, slots, codex_new,
+		ProfileManager.last_run_achievements)
 	_modals.open(_results)
 
 
