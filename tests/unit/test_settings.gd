@@ -71,3 +71,36 @@ func test_the_boot_sequence_is_full_on_the_first_launch_only_by_default() -> voi
 	assert_true(bool(_values({"boot_always": true})[SettingsScript.KEY_BOOT_ALWAYS]))
 	assert_false(bool(_values({"boot_always": 1})[SettingsScript.KEY_BOOT_ALWAYS]),
 		"a wrong type falls back to off")
+
+
+func test_screen_effects_missing_falls_back_to_default() -> void:
+	# S6.1 (polish-visuals.md §5.1): an older file has no key; the platform's
+	# default applies, a desktop's Full here.
+	assert_almost_eq(float(_values(null)[SettingsScript.KEY_SCREEN_EFFECTS]),
+		SettingsScript.default_screen_effects(), 1e-9)
+	assert_almost_eq(SettingsScript.default_screen_effects(), UiTokens.FX_INTENSITY_DESKTOP,
+		1e-9, "the suite runs on a desktop")
+
+
+func test_screen_effects_wrong_type_falls_back() -> void:
+	assert_almost_eq(float(_values({"screen_effects": "full"})[SettingsScript.KEY_SCREEN_EFFECTS]),
+		SettingsScript.default_screen_effects(), 1e-9)
+	assert_almost_eq(float(_values({"screen_effects": 0})[SettingsScript.KEY_SCREEN_EFFECTS]),
+		0.0, 1e-9, "a whole number is a number")
+	assert_almost_eq(float(_values({"screen_effects": 0.5})[SettingsScript.KEY_SCREEN_EFFECTS]),
+		0.5, 1e-9)
+
+
+func test_cycle_screen_effects_wraps() -> void:
+	var before: float = Settings.screen_effects
+	var seen: Array[float] = []
+	Settings.set_screen_effects(UiTokens.FX_INTENSITIES[0])
+	for i: int in UiTokens.FX_INTENSITIES.size():
+		seen.append(Settings.screen_effects)
+		Settings.cycle_screen_effects()
+	assert_eq(seen, UiTokens.FX_INTENSITIES, "every step, smallest first")
+	assert_almost_eq(Settings.screen_effects, UiTokens.FX_INTENSITIES[0], 1e-9,
+		"after the largest the smallest")
+	assert_almost_eq(float(Settings.to_dict()[SettingsScript.KEY_SCREEN_EFFECTS]),
+		Settings.screen_effects, 1e-9, "the file holds it")
+	Settings.set_screen_effects(before)

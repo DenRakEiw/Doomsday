@@ -14,21 +14,21 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.1 — Post-processing pass** [O]: `docs/specs/polish-visuals.md` (the pass) — the `ScreenFx` `CanvasLayer`, effect stack, triggers, settings, transitions; look at 1920 and 400 px, both palettes. IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.2 — Phase-shift variants and map polish** [O]: `docs/specs/polish-visuals.md` §8–§10 (variants, map) — the Open accent through `UiTokens`/`ThemeBuilder` (rebuild the theme), the coast and outline pass, the Societal Function overlay. IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.2–S6.8 (S6.3 now also carries the illustration hooks, `illustrations.md` §8), then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | S5.9 — the Task Force's mark (`TaskForce.marked`, `TaskForceRules.dormancy_hides`, `task_force_marked`, region-panel line, bots) and the scenario levers (`closed_cross`, `term_scale`); the 100-seed check under *Balance baselines*; 1561 tests green (2026-09-25). |
-| **Before that** | D6.7 — `docs/specs/illustrations.md`: style, 25 briefs + key art, model shortlist, vignettes cut (2026-09-25). |
+| **After it** | S6.3–S6.8 (S6.3 now also carries the illustration hooks, `illustrations.md` §8), then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | S6.1 — the full-screen pass: `ScreenFx` autoload (layer 1025, last), `ui/fx/screen_fx.gdshader` (8 stages), `ScreenFxRules`/`ScreenFxParams`/`FlashLimiter`, heat, impulses, the wash moved in, the screen dissolve, *Screen effects* setting (pause menu row, **V**); frame time under *Performance notes*; 1599 tests green (2026-09-25). |
+| **Before that** | S5.9 — the Task Force's mark and the scenario levers `closed_cross`/`term_scale` (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1561 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 244 scripts compile (100 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1599 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
-| **Run it** | `run_project` starts at the **boot** (`game/main.tscn`; the full eleven lines on a fresh profile, two lines after; any key skips) → the **title** (globe, Codex, Statistics, Settings); New run → **setup** (architecture + difficulty, then directives once a slot is open) → Begin → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **A** ability picker · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 biology · F7 persuasion (**with Shift**: cyber · robotics · weapons; S4.10) · **F8** puts the first opening on the origin at the next tick, **Shift+F8** the first global event (the wire card); from godot-mcp: `game_call_method /root/Game debug_schedule_event ["<def id>", "<region id or empty>"]`, then `advance [1]` · L locale (Shift+L pseudo-locale) · K text scale · M reduced motion · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
+| **Run it** | `run_project` starts at the **boot** (`game/main.tscn`; the full eleven lines on a fresh profile, two lines after; any key skips) → the **title** (globe, Codex, Statistics, Settings); New run → **setup** (architecture + difficulty, then directives once a slot is open) → Begin → the origin prompt → tap a region with hardware → *Choose origin* starts the clock at 1×. `scene: res://game/session/session.tscn` still runs the session alone, with the debug keys below. **Escape** = pause menu (save/load slots, settings, quit). → **T** tech tree · **A** ability picker · **C** containment panel (`Escape` closes either) · **F5** greedy · F6 biology · F7 persuasion (**with Shift**: cyber · robotics · weapons; S4.10) · **F8** puts the first opening on the origin at the next tick, **Shift+F8** the first global event (the wire card); from godot-mcp: `game_call_method /root/Game debug_schedule_event ["<def id>", "<region id or empty>"]`, then `advance [1]` · L locale (Shift+L pseudo-locale) · K text scale · M reduced motion · **V** screen effects Off/Subtle/Full (session and gallery, S6.1) · F9/F10 save and load the `debug` slot (F10 also resumes) · **Space** pause ↔ last speed, **1/2/3** 1×/2×/4× · **Escape** closes the region panel · drag/wheel/arrows/`+`/`−` move the map · **F** focuses the selected region · **F12** writes the view to `user://session_<locale>_<width>_day<day>.png` (§7.7's shots for G2 came from it). M2 only. |
 | **Compact layout** | Below 1100 px the interface switches (§5.7). A desktop window narrower than that lays out one logical pixel per window pixel, **`game_window set_size 400 860` resized correctly in S2.P** — try it first; `game_set_property /root size {"x":400,"y":860}` is the fallback and in S2.P it rendered a blank frame. After any resize at runtime the camera keeps a zoom from the old viewport: write `zoom` and give it one `game_scroll` notch down to settle it at `zoom_min`. |
 | **Look at the map** | `game_click` (**`button: 1`, never `"left"`** — see *Known issues*), `game_mouse_move`, `game_scroll`, `game_mouse_drag` drive it; read `hover_index`/`selected_index` off `/root/Main/ScreenSlot/Session/MapLayer/MapView` (the router’s slot is in the path now), `overlay_mode` is still set by hand. `game_call_method` on `MapCamera`: `focus_region(index)` — **it cannot pass a `Vector2`** (`{"x": …}` converts for `game_set_property` only), so set `position`/`zoom` as properties instead — but a property write emits no `view_changed`, so links and markers keep the old zoom until the next real camera movement (**one `game_scroll` notch fixes it**). |
 
@@ -154,7 +154,7 @@ it and take the next row (IMPLEMENTATION §4).*
 
 **Block 14 — M6 build I**
 - [x] S5.9 [O] The Task Force against dormancy; the scenario levers
-- [ ] S6.1 [O] Post-processing pass
+- [x] S6.1 [O] Post-processing pass
 - [ ] S6.2 [O] Phase-shift variants and map polish
 - [ ] S6.3 [O] Credits and licences screen; the illustration hooks
 - [ ] S6.4 [O] Icon pipeline
@@ -1314,6 +1314,14 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
 
 ## Deviations from the plan or a spec
 
+- **2026-09-25** (S6.1) — **`test_looping_periods_…` skips `FX_*` names**: §3.5 names the
+  scanline pitch `FX_SCANLINE_PERIOD` (3 px), which is spatial, not a loop, and would fail §6
+  rule 3's ≥ 500 check. **Frame time** was sampled with godot-mcp's `game_performance` (Engine
+  FPS over ~1 s windows after ≥ 600 frames), not a mean of `TIME_PROCESS` over 600 frames — there
+  is no in-game probe yet (S6.11/S6.12). `test_screen_router.gd` had no fade-in assertions to
+  convert; one dissolve test was added. Impulse strengths (§4.1) are consts on `ScreenFxRules`;
+  `event_opened` falls back on the payload's `kind` when the content does not know the def.
+  The pause menu indexes its rows by named `INDEX_*` constants (Screen effects is row 2).
 - **2026-09-25** (S5.9) — **The mark is set in `TaskForceSystem._fizzle`, not only in `_setup`**
   (§14.3 names `_setup`): §14.2 also has a misled team that *arrives* at a sleeping decoy mark it,
   and that fizzle happens in `_arrive`; both go through `_fizzle`, which marks on cause `dormant`.
@@ -1861,6 +1869,12 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
 
 ## Known issues and carry-overs
 
+- **The pass at a 400-px *desktop* window** (S6.1): `px_scale` = 400 / 1080, so the scanline
+  pitch sits at its floor of 2 px and reads denser than at 1920. A phone's physical width is
+  ~1080 px, so it is a desktop-review artefact; S6.11 looks at it on a device.
+- **Bash-tool heredocs mangle a backslash before a newline** (S6.1): a Python edit script sent
+  through a heredoc turned GDScript line continuations into tabs or a literal `\n`. Write the
+  script to the scratch directory with the Write tool, or use the Edit tool.
 - **`set_pressed_no_signal(true)` does not release the other buttons of a `ButtonGroup`** (seen in
   S5.8): a toggle chosen from code is drawn next to the one before it. The setup's scenario row
   sets every button of the row by hand; the difficulty and directive rows are only ever set from
@@ -2376,7 +2390,29 @@ takes an OS path, which is worth knowing).
 
 ---
 
+## Performance notes
+
+S6.1 (polish-visuals.md §3.4), the title at 1920 × 1080, this PC (Windows 11, Compatibility,
+no vsync), godot-mcp `game_performance` after ≥ 600 frames at each setting:
+
+| Pass | FPS | Frame | Process time | Draw calls |
+| --- | --- | --- | --- | --- |
+| Full (16-tap bloom) | 3278–3450 | ≈ 0.30 ms | 0.64–0.71 ms | 17 |
+| Subtle (8-tap) | 3226 | ≈ 0.31 ms | 0.72 ms | 17 |
+| Off (hidden) | 3226–3485 | ≈ 0.30 ms | 0.72–0.82 ms | 16 |
+
+The differences are inside the sampling noise; the pass costs one draw call. S6.11 judges this
+against D6.8's budget on the target machines.
+
+---
+
 ## Session log
+
+### 2026-09-25 — S6.1 Post-processing pass [O]
+- `ScreenFx` autoload (layer 1025, registered last), `screen_fx.gdshader` (CA, chroma bloom, wash,
+  vignette, scanlines, grain, Bayer dither, dissolve), `ScreenFxRules`/`Params`, `FlashLimiter`, `FX_*` tokens.
+- Wash moved out of `ModalHost`, router fade → dissolve, `Settings.screen_effects` + pause-menu row, **V**.
+- Looked at 1920/400, cold/open, Off/Subtle/Full, reduced motion; web-safe grep clean. +38 tests, 1599 green.
 
 ### 2026-09-25 — S5.9 The Task Force against dormancy; the scenario levers [O]
 - The mark: `TaskForce.marked` (save `marked` by id), `TaskForceRules.dormancy_hides`, `_fizzle`

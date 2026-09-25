@@ -161,3 +161,15 @@ func test_back_on_the_first_page_returns_to_the_title() -> void:
 	ScreenRouter.show_setup()
 	_setup().back()
 	assert_eq(ScreenRouter.current, ScreenRouter.Screen.TITLE)
+
+
+## S6.1 (polish-visuals.md §4.3): the fade-in of §7.0 became the pass's
+## dissolve — the new screen comes out of the ground; reduced motion cuts.
+func test_a_screen_change_dissolves_in() -> void:
+	ProfileManager.boot_seen = true
+	Settings.set_reduced_motion(false)
+	ScreenRouter.boot()
+	assert_almost_eq(ScreenFx.dissolve_value(), 1.0, 1e-6, "the frame starts as ground")
+	Settings.set_reduced_motion(true)
+	ScreenRouter.boot()
+	assert_eq(ScreenFx.dissolve_value(), 0.0, "reduced motion is a cut")

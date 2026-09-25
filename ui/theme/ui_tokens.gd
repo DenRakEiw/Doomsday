@@ -437,6 +437,66 @@ const TICKER_SPEED: float = 80.0
 const TICKER_SPEED_COMPACT: float = 60.0
 
 
+# ------------------------------------------------------------------------- §FX
+
+
+## polish-visuals.md §3.5: the full-screen pass. Above `Window` popups (1024);
+## the inspector caps the field at 128, so `ScreenFx` sets it in script.
+const FX_LAYER: int = 1025
+## The steps of the *Screen effects* setting (§5.1): Off, Subtle, Full.
+const FX_INTENSITIES: Array[float] = [0.0, 0.5, 1.0]
+const FX_INTENSITY_DESKTOP: float = 1.0
+## Phones and the web start at Subtle: the 8-tap bloom halves the fetches.
+const FX_INTENSITY_HANDHELD: float = 0.5
+## `px_scale` is the shorter side of the window over this.
+const FX_REFERENCE_HEIGHT: float = 1080.0
+## A spatial period in pixels at scale 1, not a time: one dark row in three.
+const FX_SCANLINE_PERIOD: int = 3
+## §8.4: may not be raised without re-running the contrast table (a test does).
+const FX_SCANLINE_DEPTH: float = 0.08
+const FX_GRAIN_AMP: float = 0.035
+const FX_GRAIN_FPS: float = 24.0
+## §8.4: may not be raised without re-running the contrast table.
+const FX_VIGNETTE: float = 0.08
+const FX_VIGNETTE_START: float = 0.6
+const FX_BLOOM_STRENGTH: float = 0.30
+## The chroma smoothstep: near-grey text never glows, the accent and `ALERT` do.
+const FX_BLOOM_KEY: Vector2 = Vector2(0.45, 0.80)
+const FX_BLOOM_RADII: Vector2 = Vector2(4.0, 9.0)
+## Levels per channel: clean (no heat) → hot.
+const FX_DITHER_LEVELS: Vector2 = Vector2(64.0, 20.0)
+## The aberration's offset at impulse 1, its e-folding time, the floor under
+## which it stops, and the gap between two impulses (§4.1).
+const FX_CA_PX: float = 5.0
+const FX_CA_DECAY: int = 250
+const FX_CA_FLOOR: float = 0.02
+const FX_IMPULSE_COOLDOWN: int = 2000
+## §3.6: the late game escalates here, not in a third palette.
+const FX_HEAT_PHASE: Dictionary[World.Phase, float] = {
+	World.Phase.BOXED: 0.0,
+	World.Phase.COVERT: 0.2,
+	World.Phase.EMERGENT: 0.45,
+	World.Phase.OPEN: 0.75,
+}
+const FX_HEAT_ENDGAME: Vector2 = Vector2(0.25, 0.75)
+## Heat outside a run.
+const FX_HEAT_SCREEN: Dictionary[StringName, float] = {
+	&"boot": 0.5,
+	&"title": 0.3,
+	&"setup": 0.3,
+}
+const FX_DISSOLVE_CELL: float = 4.0
+## §4.3: the screen change; reduced motion makes it a cut.
+const MOTION_DISSOLVE: int = 360
+## §3.6: a change of heat; reduced motion makes it instant.
+const MOTION_HEAT: int = 2000
+## §6: at most `FLASH_MAX` full-screen flashes in `FLASH_WINDOW` ms, never two
+## closer than `FLASH_MIN_GAP` ms.
+const FLASH_WINDOW: int = 1000
+const FLASH_MAX: int = 3
+const FLASH_MIN_GAP: int = 334
+
+
 # --------------------------------------------------------------- derived values
 
 

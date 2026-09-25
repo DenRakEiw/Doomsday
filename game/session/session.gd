@@ -145,6 +145,10 @@ func _input(event: InputEvent) -> void:
 			_toggle_analysis()
 		KEY_A:
 			_toggle_ability_picker()
+		KEY_V:
+			# polish-visuals.md §5.1: Off → Subtle → Full, for review.
+			Settings.cycle_screen_effects()
+			print("screen effects: %s" % Settings.screen_effects)
 		KEY_ESCAPE:
 			if _modals.is_open():
 				# The modal host answers `Escape` itself (m3-screens §10.4).

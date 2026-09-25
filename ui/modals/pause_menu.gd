@@ -28,6 +28,9 @@ const KEY_LOCALE: String = "UI_SETTINGS_LOCALE"
 const KEY_LOCALE_EN: String = "UI_SETTINGS_LOCALE_EN"
 const KEY_LOCALE_DE: String = "UI_SETTINGS_LOCALE_DE"
 const KEY_REDUCED_MOTION: String = "UI_SETTINGS_REDUCED_MOTION"
+const KEY_SCREEN_EFFECTS: String = "UI_SETTINGS_SCREEN_EFFECTS"
+const KEY_FX_SUBTLE: String = "UI_SETTINGS_FX_SUBTLE"
+const KEY_FX_FULL: String = "UI_SETTINGS_FX_FULL"
 const KEY_TREE_PAUSES: String = "UI_SETTINGS_TREE_PAUSES"
 const KEY_TUTORIAL: String = "UI_SETTINGS_TUTORIAL"
 const KEY_TEXT_SCALE: String = "UI_SETTINGS_TEXT_SCALE"
@@ -36,8 +39,16 @@ const KEY_BOOT_FIRST: String = "UI_SETTINGS_BOOT_FIRST"
 const KEY_BOOT_ALWAYS: String = "UI_SETTINGS_BOOT_ALWAYS"
 const KEY_RESET_PROFILE: String = "UI_SETTINGS_RESET_PROFILE"
 const KEY_RESET_CONFIRM: String = "UI_SETTINGS_RESET_CONFIRM"
-## screens-full.md §6.3: the settings only the title shows.
-const INDEX_BOOT: int = 5
+## The rows in the order they are built. polish-visuals.md §5.1 put *Screen
+## effects* directly after *Reduced motion*; screens-full.md §6.3's boot row is
+## the title's only.
+const INDEX_LOCALE: int = 0
+const INDEX_REDUCED_MOTION: int = 1
+const INDEX_SCREEN_EFFECTS: int = 2
+const INDEX_TREE_PAUSES: int = 3
+const INDEX_TEXT_SCALE: int = 4
+const INDEX_TUTORIAL: int = 5
+const INDEX_BOOT: int = 6
 const KEY_ON: String = "UI_SETTINGS_ON"
 const KEY_OFF: String = "UI_SETTINGS_OFF"
 
@@ -194,8 +205,8 @@ func _slot_button(into: Container, action: Callable, with_caption: bool) -> Cons
 ## text scale of UI.md §5 came in S4.9, the introduction (first-run.md §3.1) in
 ## S4.11, and so they are the last rows.
 func _build_settings() -> void:
-	for key: String in [KEY_LOCALE, KEY_REDUCED_MOTION, KEY_TREE_PAUSES, KEY_TEXT_SCALE,
-			KEY_TUTORIAL, KEY_BOOT]:
+	for key: String in [KEY_LOCALE, KEY_REDUCED_MOTION, KEY_SCREEN_EFFECTS, KEY_TREE_PAUSES,
+			KEY_TEXT_SCALE, KEY_TUTORIAL, KEY_BOOT]:
 		var row: HBoxContainer = HBoxContainer.new()
 		row.theme_type_variation = &"Row"
 		var label: Label = Label.new()
@@ -229,13 +240,28 @@ func _refresh_settings() -> void:
 			continue
 		var label: Label = (row as Container).get_child(0) as Label
 		label.text = tr(str(label.get_meta(&"key")))
-	_setting_buttons[0].text = Format.caps(tr(KEY_LOCALE_DE if Settings.locale == "de" \
-		else KEY_LOCALE_EN))
-	_setting_buttons[1].text = Format.caps(tr(KEY_ON if Settings.reduced_motion else KEY_OFF))
-	_setting_buttons[2].text = Format.caps(tr(KEY_ON if Settings.tree_pauses else KEY_OFF))
-	_setting_buttons[3].text = Format.number(Settings.text_scale, Format.Kind.PERCENT)
-	_setting_buttons[4].text = Format.caps(tr(KEY_ON if Settings.tutorial else KEY_OFF))
+	_setting_buttons[INDEX_LOCALE].text = Format.caps(tr(
+		KEY_LOCALE_DE if Settings.locale == "de" else KEY_LOCALE_EN))
+	_setting_buttons[INDEX_REDUCED_MOTION].text = Format.caps(tr(
+		KEY_ON if Settings.reduced_motion else KEY_OFF))
+	_setting_buttons[INDEX_SCREEN_EFFECTS].text = Format.caps(tr(
+		screen_effects_key(Settings.screen_effects)))
+	_setting_buttons[INDEX_TREE_PAUSES].text = Format.caps(tr(
+		KEY_ON if Settings.tree_pauses else KEY_OFF))
+	_setting_buttons[INDEX_TEXT_SCALE].text = Format.number(Settings.text_scale,
+		Format.Kind.PERCENT)
+	_setting_buttons[INDEX_TUTORIAL].text = Format.caps(tr(
+		KEY_ON if Settings.tutorial else KEY_OFF))
 	_setting_buttons[INDEX_BOOT].text = Format.caps(tr(KEY_BOOT_ALWAYS if Settings.boot_always 		else KEY_BOOT_FIRST))
+
+
+## §5.1: the button's word for an intensity — the nearest of the three steps.
+static func screen_effects_key(intensity: float) -> String:
+	if intensity <= 0.0:
+		return KEY_OFF
+	var subtle: float = UiTokens.FX_INTENSITIES[1]
+	var full: float = UiTokens.FX_INTENSITIES[UiTokens.FX_INTENSITIES.size() - 1]
+	return KEY_FX_SUBTLE if absf(intensity - subtle) < absf(intensity - full) else KEY_FX_FULL
 
 
 # ------------------------------------------------------------------ actions
@@ -268,15 +294,17 @@ func _on_load_pressed(index: int) -> void:
 
 func _on_setting_pressed(index: int) -> void:
 	match index:
-		0:
+		INDEX_LOCALE:
 			Settings.toggle_locale()
-		1:
+		INDEX_REDUCED_MOTION:
 			Settings.set_reduced_motion(not Settings.reduced_motion)
-		2:
+		INDEX_SCREEN_EFFECTS:
+			Settings.cycle_screen_effects()
+		INDEX_TREE_PAUSES:
 			Settings.set_tree_pauses(not Settings.tree_pauses)
-		3:
+		INDEX_TEXT_SCALE:
 			Settings.cycle_text_scale()
-		4:
+		INDEX_TUTORIAL:
 			Settings.set_tutorial(not Settings.tutorial)
 		_:
 			Settings.set_boot_always(not Settings.boot_always)

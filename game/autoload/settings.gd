@@ -32,6 +32,10 @@ const KEY_TREE_PAUSES: String = "tree_pauses"
 const KEY_TUTORIAL: String = "tutorial"
 ## screens-full.md §6.3: the boot sequence in full on every launch, not only the first.
 const KEY_BOOT_ALWAYS: String = "boot_always"
+## polish-visuals.md §5.1: the intensity of the full-screen pass, 0…1.
+const KEY_SCREEN_EFFECTS: String = "screen_effects"
+## Where a desktop and a handheld start (§5.1).
+const FEATURE_WEB: String = "web"
 ## After `--` on the command line: start with the pseudo-locale on (UI.md §4).
 const ARG_PSEUDO: String = "--pseudo"
 
@@ -41,6 +45,8 @@ var text_scale: float = DEFAULT_TEXT_SCALE
 var tree_pauses: bool = true
 var tutorial: bool = true
 var boot_always: bool = false
+## One of `UiTokens.FX_INTENSITIES`; a stored value between the steps is kept.
+var screen_effects: float = UiTokens.FX_INTENSITY_DESKTOP
 ## The overflow check of UI.md §4. A development switch, never written to the file.
 var pseudo_locale: bool = false
 
@@ -53,6 +59,7 @@ func _ready() -> void:
 	tree_pauses = bool(values[KEY_TREE_PAUSES])
 	tutorial = bool(values[KEY_TUTORIAL])
 	boot_always = bool(values[KEY_BOOT_ALWAYS])
+	screen_effects = float(values[KEY_SCREEN_EFFECTS])
 	TranslationServer.set_locale(locale)
 	write()
 	if OS.get_cmdline_user_args().has(ARG_PSEUDO):
@@ -62,6 +69,13 @@ func _ready() -> void:
 ## Whether opening the tech tree should pause the run when the file says nothing.
 static func default_tree_pauses() -> bool:
 	return not OS.has_feature(FEATURE_MOBILE)
+
+
+## §5.1: a phone or a browser starts at Subtle, a desktop at Full.
+static func default_screen_effects() -> float:
+	if OS.has_feature(FEATURE_MOBILE) or OS.has_feature(FEATURE_WEB):
+		return UiTokens.FX_INTENSITY_HANDHELD
+	return UiTokens.FX_INTENSITY_DESKTOP
 
 
 ## The locale the machine asks for, as one of `LOCALES`.
@@ -80,6 +94,7 @@ static func values_from(raw: Variant, fallback_locale: String) -> Dictionary:
 		KEY_TREE_PAUSES: default_tree_pauses(),
 		KEY_TUTORIAL: true,
 		KEY_BOOT_ALWAYS: false,
+		KEY_SCREEN_EFFECTS: default_screen_effects(),
 	}
 	if typeof(raw) != TYPE_DICTIONARY:
 		return values
@@ -99,6 +114,9 @@ static func values_from(raw: Variant, fallback_locale: String) -> Dictionary:
 		values[KEY_TUTORIAL] = bool(stored[KEY_TUTORIAL])
 	if typeof(stored.get(KEY_BOOT_ALWAYS)) == TYPE_BOOL:
 		values[KEY_BOOT_ALWAYS] = bool(stored[KEY_BOOT_ALWAYS])
+	var effects_type: int = typeof(stored.get(KEY_SCREEN_EFFECTS))
+	if effects_type == TYPE_FLOAT or effects_type == TYPE_INT:
+		values[KEY_SCREEN_EFFECTS] = float(stored[KEY_SCREEN_EFFECTS])
 	return values
 
 
@@ -141,6 +159,25 @@ func cycle_text_scale() -> void:
 			set_text_scale(step)
 			return
 	set_text_scale(UiTokens.TEXT_SCALES.front())
+
+
+## polish-visuals.md §5.1. The pass clamps the value to 0…1.
+func set_screen_effects(value: float) -> void:
+	if is_equal_approx(value, screen_effects):
+		return
+	screen_effects = value
+	write()
+	EventBus.screen_effects_changed.emit(screen_effects)
+
+
+## The settings button and debug key **V**: the next step up, and after the
+## largest the smallest.
+func cycle_screen_effects() -> void:
+	for step: float in UiTokens.FX_INTENSITIES:
+		if step > screen_effects + TEXT_SCALE_EPSILON:
+			set_screen_effects(step)
+			return
+	set_screen_effects(UiTokens.FX_INTENSITIES.front())
 
 
 ## Shows the pseudo-locale in place of English, whatever the stored locale is;
@@ -194,6 +231,7 @@ func to_dict() -> Dictionary:
 		KEY_TREE_PAUSES: tree_pauses,
 		KEY_TUTORIAL: tutorial,
 		KEY_BOOT_ALWAYS: boot_always,
+		KEY_SCREEN_EFFECTS: screen_effects,
 	}
 
 

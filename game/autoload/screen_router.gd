@@ -113,16 +113,6 @@ func _swap(path: String) -> void:
 		return
 	_screen_node = scene.instantiate()
 	slot.add_child(_screen_node)
-	_fade_in(_screen_node as Control)
-
-
-## §7.0: the incoming screen fades in. Reduced motion cuts.
-static func _fade_in(screen: Control) -> void:
-	if screen == null:
-		return
-	var seconds: float = UiTokens.duration(UiTokens.MOTION_MODAL)
-	if seconds <= 0.0:
-		screen.modulate.a = 1.0
-		return
-	screen.modulate.a = 0.0
-	screen.create_tween().tween_property(screen, "modulate:a", 1.0, seconds)
+	# polish-visuals.md §4.3: the new screen dissolves in out of the ground; the
+	# old one is gone in the same frame. Reduced motion cuts.
+	ScreenFx.dissolve_in()

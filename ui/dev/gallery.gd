@@ -147,6 +147,13 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		_toggle_variant()
 		get_viewport().set_input_as_handled()
 		return
+	# `V` steps the full-screen pass (polish-visuals.md §5.1), so every
+	# component is reviewed under it too.
+	if key.keycode == KEY_V:
+		Settings.cycle_screen_effects()
+		print("gallery screen effects: %s" % Settings.screen_effects)
+		get_viewport().set_input_as_handled()
+		return
 	if key.keycode != KEY_F12:
 		return
 	var image: Image = get_viewport().get_texture().get_image()
