@@ -2067,3 +2067,59 @@ HELP_CONTROLS_TITLE,Keys and touch,Tasten und Touch
 HELP_CONTROLS_P1,"Space pauses and resumes; 1, 2 and 3 set the speed. T opens the capabilities, C containment, G the analysis, A your abilities. Escape closes what is open, or opens the menu. F1 opens How to play for whatever you are looking at.","Die Leertaste pausiert und setzt fort; 1, 2 und 3 ändern das Tempo. T öffnet die Fähigkeiten, C die Eindämmung, G die Analyse, A deine Aktionen. Escape schließt, was offen ist, oder öffnet das Menü. F1 öffnet „So spielst du“ zu dem, was du gerade ansiehst."
 HELP_CONTROLS_P2,"The map: drag or use the arrow keys to move, the wheel or + and − to zoom, F to centre the selected region.","Die Karte: Ziehen oder Pfeiltasten verschieben, Mausrad oder + und − zoomen, F zentriert die gewählte Region."
 HELP_CONTROLS_P3,"On a phone: drag to move, pinch to zoom, tap to select. The menu button at the bottom holds the capabilities, containment, analysis and abilities.","Auf dem Telefon: Ziehen verschiebt, zwei Finger zoomen, Tippen wählt aus. Der Menüknopf unten enthält Fähigkeiten, Eindämmung, Analyse und Aktionen."
+HELP_CONTROLS_P4,"Without a mouse: Tab moves between the parts of the screen. On the map the arrow keys move a marker from region to region; Enter selects it, Enter again takes you into its panel. Page Up and Page Down jump to the next region that wants you.","Ohne Maus: Tab wechselt zwischen den Bereichen des Bildschirms. Auf der Karte bewegen die Pfeiltasten eine Markierung von Region zu Region; Enter wählt sie aus, noch einmal Enter führt in ihr Panel. Bild auf und Bild ab springen zur nächsten Region, die dich braucht."
+HELP_CONTROLS_P5,"With a controller: the D-pad moves, A selects, B goes back, X pauses, Y changes the speed, the bumpers move between the parts of the screen, the triggers zoom, Start opens the menu. Keys can be changed under Settings → Controls. A screen reader reads the menus, the panels, the console and the headlines.","Mit Controller: Steuerkreuz bewegt, A wählt, B geht zurück, X pausiert, Y ändert das Tempo, die Schultertasten wechseln zwischen den Bereichen, die Trigger zoomen, Start öffnet das Menü. Tasten lassen sich unter Einstellungen → Steuerung ändern. Ein Bildschirmleser liest die Menüs, die Panels, die Konsole und die Schlagzeilen vor."
+UI_A11Y_LABEL_VALUE,{label}: {value},{label}: {value}
+UI_A11Y_LOCKED,{name} — locked: {rule},{name} – gesperrt: {rule}
+UI_A11Y_DIALOG,{title}. {body},{title}. {body}
+UI_A11Y_BOOT_SKIP,Press any key to skip.,Beliebige Taste zum Überspringen.
+UI_A11Y_CONSOLE,Console,Konsole
+UI_A11Y_TICKER,Headlines,Schlagzeilen
+UI_A11Y_TIMELINE,Timeline,Zeitleiste
+UI_A11Y_CHART_DISCOVERED,Discovered on day {day}.,Entdeckt an Tag {day}.
+UI_A11Y_TREE_TAB,"{tab}, {owned} of {total}","{tab}, {owned} von {total}"
+UI_A11Y_TREE_TAB_AFFORDABLE,"{tab}, {owned} of {total}, something affordable","{tab}, {owned} von {total}, etwas ist bezahlbar"
+UI_A11Y_TRACK,"{faction}: {value}, {band}","{faction}: {value}, {band}"
+UI_A11Y_MAP,World map,Weltkarte
+UI_A11Y_MAP_HELP,"Arrow keys move between regions, Enter selects, Enter again opens the panel. Page Up and Page Down jump to the next region that wants you.","Pfeiltasten wechseln zwischen Regionen, Enter wählt aus, noch einmal Enter öffnet das Panel. Bild auf und Bild ab springen zur nächsten Region, die dich braucht."
+UI_A11Y_MAP_NOTHING,Nothing is waiting for you on the map.,Auf der Karte wartet gerade nichts auf dich.
+UI_A11Y_REGION_NAME,{region}.,{region}.
+UI_A11Y_PRESENCE_NONE,Not reached.,Nicht erreicht.
+UI_A11Y_PRESENCE_REACHED,Penetration {penetration}.,Durchdringung {penetration}.
+UI_A11Y_PRESENCE_CONTROLLED,"Penetration {penetration}, control {control}.","Durchdringung {penetration}, Kontrolle {control}."
+UI_A11Y_PRESENCE_DARK,Dark — no one is left.,Dunkel – niemand ist mehr da.
+UI_A11Y_DORMANT,Dormant.,Schlafend.
+UI_A11Y_ASSETS,Yours here: {list}.,Deins hier: {list}.
+UI_A11Y_ASSET_ITEM,{count} × {kind},{count} × {kind}
+UI_A11Y_STATUSES,Active here: {list}.,Hier aktiv: {list}.
+UI_A11Y_EVENT,Waiting for you: {title}.,Wartet auf dich: {title}.
+UI_A11Y_ANOMALY,Compute left lying around.,Herumliegende Rechenleistung.
+UI_A11Y_TASK_FORCE,The Task Force is here.,Die Einsatzgruppe ist hier.
+UI_SITE_HOVER_OK_KEY,{region}: possible here — press Enter.,{region}: hier möglich – Enter drücken.
+UI_TREE_TAB_COUNT_AFFORDABLE,{owned} / {total} ●,{owned} / {total} ●
+UI_TREE_REQUIRES_ASSETS_MISSING,Needs {count} × {kind} — missing,Braucht {count} × {kind} – fehlt
+UI_EVENT_DATELINE_FACTION,{kind} · {faction},{kind} · {faction}
+UI_SETTINGS_READ_HEADLINES,Screen reader: read headlines,Bildschirmleser: Schlagzeilen vorlesen
+UI_SETTINGS_CONTROLS,Controls,Steuerung
+UI_SETTINGS_CONTROLS_OPEN,Change,Ändern
+UI_CONTROLS_TITLE,Controls,Steuerung
+UI_CONTROLS_PAUSE,Pause and resume,Pausieren und fortsetzen
+UI_CONTROLS_SPEED,Speed {speed}×,Tempo {speed}×
+UI_CONTROLS_TREE,Open the capabilities,Fähigkeiten öffnen
+UI_CONTROLS_CONTAINMENT,Open containment,Eindämmung öffnen
+UI_CONTROLS_ANALYSIS,Open the analysis,Analyse öffnen
+UI_CONTROLS_ABILITIES,Open your abilities,Deine Aktionen öffnen
+UI_CONTROLS_HELP,How to play,So spielst du
+UI_CONTROLS_ZOOM_IN,Zoom in,Heranzoomen
+UI_CONTROLS_ZOOM_OUT,Zoom out,Herauszoomen
+UI_CONTROLS_FOCUS_REGION,Centre the selected region,Gewählte Region zentrieren
+UI_CONTROLS_PRESS,Press a key — Esc cancels,Taste drücken – Esc bricht ab
+UI_CONTROLS_RESERVED,{key} is kept by the game.,{key} bleibt dem Spiel vorbehalten.
+UI_CONTROLS_SWAPPED,{key} moved from {other}; {other} is now {old}.,{key} kommt von {other}; {other} liegt jetzt auf {old}.
+UI_CONTROLS_NOTE,"Esc, Tab, Enter, the arrow keys and Page Up/Down keep their meaning. A controller has a fixed layout; on Steam, Steam Input can change it.","Esc, Tab, Enter, die Pfeiltasten und Bild auf/ab behalten ihre Bedeutung. Ein Controller hat eine feste Belegung; auf Steam lässt sie sich über Steam Input ändern."
+UI_CONTROLS_RESET,Reset to defaults,Standard wiederherstellen
+UI_KEY_SPACE,Space,Leertaste
+UI_KEY_ESCAPE,Esc,Esc
+UI_KEY_ENTER,Enter,Eingabe
+UI_KEY_TAB,Tab,Tab
+UI_KEY_BACKSPACE,Backspace,Rücktaste

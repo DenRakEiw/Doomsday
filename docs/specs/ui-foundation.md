@@ -269,6 +269,10 @@ with its German label; `autowrap` off, `clip_text` off.
 | focus (keyboard) | as the underlying state | `BORDER_FOCUS` `ACCENT` | |
 | disabled | `BG_2` | `LINE_0` | `TEXT_2` |
 
+*D6.6 (`accessibility.md` §4.2):* the focus border moves **outside** the control — a 2 px `ACCENT` ring
+`FOCUS_OUTSET` (4) out, `draw_center` off — for every focusable type; inside, it vanished on
+`ConsoleButtonPrimary` and toggled buttons.
+
 `ConsoleButtonPrimary`: normal surface `ACCENT`, text `INK`, border `ACCENT`; hover surface
 `#8FEAFF`; pressed surface `#4FCBE8`; disabled as `ConsoleButton` disabled.
 

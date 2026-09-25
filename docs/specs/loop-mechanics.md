@@ -1104,7 +1104,8 @@ func site_confirm(region_id: String) -> CommandResult   # apply(build(region_id)
 `ui/hud/console_line.tscn` (`PanelContainer`-less: one `LabelCaption` in `ACCENT`, `TYPE_CAPTION`,
 autowrap off, clip, `mouse_filter IGNORE`) under the top bar and **above** the site prompt's slot, in
 both layouts; hidden while empty. `push(text)` queues; the queue keeps the newest
-`CONSOLE_QUEUE_MAX` 3 and drops the rest; each line shows for `CONSOLE_LINE_MS` 4 000 (fade in and
+`CONSOLE_QUEUE_MAX` 3 and drops the rest; each line shows for `CONSOLE_LINE_MS` 4 000 (*D6.6: plus 40 ms per
+character, and not while paused — `accessibility.md` §9*) (fade in and
 out over `MOTION_PANEL`; reduced motion: cut). A new line while one shows waits its turn — never
 interrupts.
 

@@ -1067,9 +1067,14 @@ panels, the pause menu and the menu sheet, `ModalHost.open_over`, the `HELP` gly
 **Done when:** first-run §6's acceptance, looked at in German and English, desktop and phone.
 
 ### S6.8 — Accessibility **[O]** · **Read first:** `docs/specs/accessibility.md`
-Accessible names, focus order and navigation, remapping if specified, the colour-vision fixes,
-captions on; the checklist ticked.
-**Done when:** the checklist; a keyboard-only run from the title to the results.
+Accessible names and the `LiveRegion` speech (console, headlines, modal openings, the seven
+`announce` cues); the session focus ring, the modal-trap and panel-focus fixes, the outer focus
+ring; the keyboard/pad map (`MapFocus`, cursor, step, jump); the input actions, `KeyBindings`
+and the *Controls* modal, with §10.2's key-placeholder strings swapped in; the colour fixes
+(`TASK_FORCE_DIM`, tab `●`, *missing* rows, the faction dateline); text-scaled widths and the
+three 150 % fixes; the console's reading time.
+**Done when:** accessibility.md §12's checklist and §13's acceptance: a keyboard-only and a
+pad-only run from the boot to the results; the Narrator check recorded.
 
 ## Block 15 — M6 design II: release and the benchmark · design
 

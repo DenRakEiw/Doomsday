@@ -221,6 +221,7 @@ with `_` ignored. Read by `AudioSheet`.
 | `duck` | bool | no (false) | `alerts` only: ducks music and ambience (§5.5) |
 | `final` | bool | no (false) | `alerts` only: may play in the ending (§5.4) |
 | `caption` | string | no (`""`) | a `UI_CAPTION_*` key; `alerts` only — an interface cue never has one (§8) |
+| `announce` | bool | no (false) | `alerts` with a `caption` only: the caption is also spoken to a screen reader, whatever *Sound captions* says (`accessibility.md` §7.2, D6.6) |
 
 ### 4.4 `triggers` — array, checked in file order
 
@@ -638,6 +639,10 @@ Every argument is converted, not only the ones the text uses (as `HeadlineText`)
 
 D6.6 decides whether the stack is a screen-reader live region and audits the *Sign* column; the
 stack's look, place, timing and the setting are fixed here.
+
+*D6.6 (`accessibility.md` §7):* the stack is **not** a live region; the *Sign* audit passes; seven
+cues whose sign is only visual carry `"announce": true` and are spoken through the HUD's `LiveRegion`.
+The stack's `CAPTION_MAX_WIDTH` scales with the text size (`accessibility.md` §8.1).
 
 ---
 

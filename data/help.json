@@ -15,6 +15,6 @@
 		{"id": "emergent", "paragraphs": 3, "coach": ["emergent", "drift", "value_drift"], "contexts": []},
 		{"id": "society", "paragraphs": 3, "coach": [], "contexts": []},
 		{"id": "analysis", "paragraphs": 2, "coach": [], "contexts": ["analysis"]},
-		{"id": "controls", "paragraphs": 3, "coach": [], "contexts": []}
+		{"id": "controls", "paragraphs": 5, "coach": [], "contexts": []}
 	]
 }

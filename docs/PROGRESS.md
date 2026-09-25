@@ -14,17 +14,17 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D6.6 — Accessibility** [F]: `docs/specs/accessibility.md` — screen-reader names per component (AccessKit), the ticker as a live region, focus order per screen, key remapping (or why not), a colour-vision audit of every map state and chip, captions (from `audio.md`), 150 % text on the new screens (incl. D6.5's Codex tab and hints); strings en/de; a per-screen checklist for S6.8. IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **D6.7 — Illustration style and briefs** [F] *(no pictures yet)*: `docs/specs/illustrations.md` — the style bound to the palette and the dither pass, the style reference, a brief for each of the 24 named ids plus title key art (outcome, never method), size and import, the production method, a model shortlist with every licence read and linked; VISUALS q4 (region vignettes, default: cut). IMPLEMENTATION Block 13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D6.7 (the rest of Block 13), then Block 14 (S5.9, S6.1–S6.8). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | D6.5 — `first-run.md` §6: ten **hints** (once per profile, `Settings.hints`, `ProfileManager.hints_seen`) for starving, the Task Force (appears, sets up), counter-move, Value Drift, emergent, chain, ability, Open, drift; step 7 narrowed to openings; *How to play* = the Codex's first tab (14 pages, `data/help.json`); help from `F1`, a **?** on four panels, pause menu, menu sheet, the coach's *More*; `ModalHost.open_over`; `HELP` glyph; 84 strings; 1531 tests green (2026-09-25). |
-| **Before that** | D6.4 — `docs/specs/audio.md`, `data/audio.json` (56 cues), 64 synth recipes; 32 strings (2026-09-25). |
+| **After it** | Block 14 (S5.9, S6.1–S6.8), then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | D6.6 — `docs/specs/accessibility.md`: screen-reader names and `LiveRegion` speech (console, headlines, modals, map cursor, seven `announce` cues), the keyboard/pad map (`MapFocus`, cursor, step, jump), one session focus ring, modal-trap fixes, the outer focus ring, keyboard remapping (twelve actions, *Controls* modal), colour audit + four fixes, 150 % rules and fixes, reading time; 56 strings, 10 revisions for S6.8; per-screen checklist; 1531 tests green (2026-09-25). |
+| **Before that** | D6.5 — `first-run.md` §6: ten once-per-profile hints, *How to play* (14 pages), `F1`/**?**, `open_over`; 84 strings (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (2068 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 240 scripts compile (96 judged by the suite), then `tools/check_strings.gd` (2124 rows), 1531 tests, **all green since S4.9**. The same command is all of CI. |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -149,7 +149,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] D6.3 [F] Custom silhouettes *(`assets/icons/custom/`, `tools/icons/draw_silhouettes.py`)*
 - [x] D6.4 [F] Audio direction and cue sheet *(`docs/specs/audio.md`, `data/audio.json`, `tools/audio/recipes.json`)*
 - [x] D6.5 [F] Tutorial II and help *(`docs/specs/first-run.md` §6, `data/help.json`)*
-- [ ] D6.6 [F] Accessibility
+- [x] D6.6 [F] Accessibility *(`docs/specs/accessibility.md`)*
 - [ ] D6.7 [F] Illustration style and briefs *(no pictures yet)*
 
 **Block 14 — M6 build I**
@@ -1222,6 +1222,22 @@ without new information.
   sheet and every coach card's *More*. `ModalHost.open_over`: one level of stacking, Codex only.
   New glyph `HELP` → `phosphor/question-mark-bold.svg` (S6.7 adds the `icons.json` row with the enum).
 
+- **2026-09-25** (D6.6, overnight, pending user confirmation) — **Accessibility**
+  (`docs/specs/accessibility.md`): AccessKit via `accessibility_*` (engine setting *Auto*); a
+  `LiveRegion` speaks console lines, headlines (8 s apart, setting *read headlines*, default on),
+  modal openings (assertive), the map cursor and seven alert cues flagged `"announce": true` in
+  `audio.json` — the caption stack is **not** a live region (it would say everything twice).
+  **The map is keyboard/pad playable** (`MapFocus`: a cursor stepped by arrows/D-pad in a 60°
+  cone, `Enter` selects, `Enter` again enters the panel, `PgUp/PgDn` jump to what wants you); one
+  session focus ring across the layers; the modal trap wraps both ways, skips disabled buttons,
+  takes the coach as a companion. **The focus ring moves outside the control** (`FOCUS_OUTSET` 4)
+  — inside, it vanished on accent-filled buttons. **Keyboard remapping** of twelve actions
+  (physical keys, swap on conflict); **no in-game pad remap** (Steam Input). Colour audit passes
+  the ΔE floor everywhere; fixes: `TASK_FORCE_DIM` → `#CC4040` (3 : 1 on land), the tech tab's
+  `●`, *missing* asset rows, the counter-move dateline names its faction. Text-bearing widths
+  scale with the text size; console lines stand 40 ms per character longer and hold while paused;
+  reduced motion's first default follows the OS. No high-contrast theme, no colour-blind mode.
+
 ## Design questions for Fable
 
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
@@ -2017,6 +2033,10 @@ The ear check itself is G6's.
 (1) hints once per profile across runs (not per run) — right? (2) the **?** on four panels, and the
 Codex opening on *How to play* — worth it? (3) the 14 help pages' text (`HELP_*` in `strings.csv`).
 
+**D6.6 (2026-09-25, overnight, pending user confirmation):** `docs/specs/accessibility.md` —
+(1) controller remapping left to Steam Input (keyboard keys are remappable in the game) — fine?
+(2) headlines spoken to a screen reader by default, 8 s apart — on by default right?
+
 **D5.2 (2026-09-24), at G5:** `docs/specs/taskforce-endings.md` §13 — is *Supplanted* (a secret
 loss that turns a win, after one warning card) fair, or should a normal win's results screen hint
 that a released child is still out there?
@@ -2299,6 +2319,13 @@ takes an OS path, which is worth knowing).
 ---
 
 ## Session log
+
+### 2026-09-25 — D6.6 Accessibility [F]
+- `docs/specs/accessibility.md`: AccessKit names, `LiveRegion`/`LiveQueue` speech, keyboard/pad map
+  (`MapFocus`, `MapNav`), `FocusRing`, modal/panel focus fixes, outer focus ring, `KeyBindings` + *Controls*.
+- Colour audit (Machado + ΔE₀₀, L\* ramps, 3 : 1 marks): four fixes. 150 % looked at (title, setup,
+  Codex, statistics; 1920/400): statistics word-break, phone Codex tabs. 56 strings; `audio.json`
+  `announce` ×7; `help.json` controls 5 paragraphs. Suite green (1531).
 
 ### 2026-09-25 — D6.5 Tutorial II and help [F]
 - `first-run.md` §6: ten once-per-profile hints (trigger, ring target, end, page), step 7 narrowed,

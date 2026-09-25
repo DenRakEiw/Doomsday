@@ -440,7 +440,7 @@ only; the `OPEN` table does not list them, like `ALERT`):
 | Token | Value | Used for |
 | --- | --- | --- |
 | `TASK_FORCE` | `#FF3B3B` (= `ALERT`) | the marker's stroke and countdown ring **while it sets up** (the moment before it acts); every `tf_*` status: its ring on the status overlay, its map marker, its chip in the region panel |
-| `TASK_FORCE_DIM` | `#C23A3A` (≥ 3 : 1 on `BG_2` in both palettes) | the marker's stroke **while it travels or rests**, and the dotted road to its target |
+| `TASK_FORCE_DIM` | `#C23A3A` (≥ 3 : 1 on `BG_2` in both palettes) — *D6.6: `#CC4040`, for 3 : 1 on `MAP_LAND` too (`accessibility.md` §6.3)* | the marker's stroke **while it travels or rests**, and the dotted road to its target |
 
 - A status belongs to the team when its **source** is `TaskForceSystem.SOURCE` (`"task_force"`),
   never by the `tf_` id prefix; that is the one new branch in the status→colour rule (loop-

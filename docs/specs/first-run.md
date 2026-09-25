@@ -375,7 +375,8 @@ One level of stacking (m3-screens §10.4 said "at most one modal"; this is the o
   it in the slot (added last, so it draws above) and takes the focus trap; the scrim stays.
 - `close()` with a modal below → the top closes and the one below becomes current again with its
   focus restored; the **queue is consulted only when nothing is below**. `Escape` goes to the top.
-- `open_over` while already stacked → behaves as `open` (queues). Only the Codex calls it.
+- `open_over` while already stacked → behaves as `open` (queues). Only the Codex calls it. *(D6.6: the
+  Controls modal is its second caller, `accessibility.md` §5.3.)*
 
 ### 6.9 The `HELP` glyph
 
