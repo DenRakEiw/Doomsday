@@ -1,0 +1,183 @@
+extends GutTest
+## S6.12b — the replay verifier end to end (docs/specs/benchmark.md §16.4, §16.9)
+## on a board of its own under `user://`: good runs verified, a tampered and a
+## broken one rejected, a badly named file ignored, the board counting only the
+## verified; a second invocation changes nothing; the canary stops everything.
+## Runs and canary are real 300-day entries made here (a mock and two bots).
+
+const Tool := preload("res://tools/bench/verify_runs.gd")
+const VerifyRecord := preload("res://tools/bench/verify_record.gd")
+const Verifier := preload("res://tools/bench/bench_verifier.gd")
+const Writer := preload("res://tools/bench/leaderboard_writer.gd")
+const ROOT: String = "user://test_bench/verify"
+const BOARD: String = "user://test_bench/verify/board"
+const CANARY: String = "user://test_bench/verify/canary.json"
+const BAD_CANARY: String = "user://test_bench/verify/bad_canary.json"
+const MESSAGE: String = "user://test_bench/verify/message.txt"
+const MAX_DAYS: int = 300
+const SEED: int = 1001
+const COMMIT: String = "0123456789abcdef0123456789abcdef01234567"
+const TODAY: String = "2026-09-26"
+const TOMORROW: String = "2026-09-27"
+const BROKEN_NAME: String = "broken__00000000__p1__standard__s1001.json"
+const BAD_NAME: String = "Bad Name.json"
+
+var _config: BenchConfig = null
+var _mock: BenchEntry = null
+var _greedy: BenchEntry = null
+var _idle: BenchEntry = null
+
+
+func before_all() -> void:
+	var db: ContentDB = ContentLoader.load_root("res://data").db
+	_config = BenchConfig.load_file()
+	_config.max_days = MAX_DAYS
+	_mock = Fixtures.bench_mock_entry(db, _config, SEED)
+	_greedy = Fixtures.bench_bot_entry(db, _config, SEED, "greedy")
+	_idle = Fixtures.bench_bot_entry(db, _config, SEED, "idle")
+
+
+func before_each() -> void:
+	_config.max_days = MAX_DAYS
+	Fixtures.remove_root(ROOT)
+	DirAccess.make_dir_recursive_absolute(BOARD.path_join(Writer.RUNS_DIR))
+	_write(CANARY, _mock.to_json())
+	_write_run(_mock.file_name(), _mock.to_json())
+	_write_run(_greedy.file_name(), _greedy.to_json())
+	var tampered: Dictionary = JSON.parse_string(_idle.to_json())
+	tampered["hash"] = "0".repeat(64)
+	_write_run(_idle.file_name(), JSON.stringify(tampered, "\t", false) + "\n")
+	_write_run(BROKEN_NAME, "{\"version\": 1,")
+	_write_run(BAD_NAME, _mock.to_json())
+
+
+func after_all() -> void:
+	Fixtures.remove_root(ROOT)
+
+
+func _write(path: String, text: String) -> void:
+	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
+	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+	file.store_string(text)
+	file.close()
+
+
+func _write_run(file_name: String, text: String) -> void:
+	_write(BOARD.path_join(Writer.RUNS_DIR).path_join(file_name), text)
+
+
+func _args(extra: Dictionary = {}) -> Dictionary[String, String]:
+	var args: Dictionary[String, String] = {"board": BOARD, "game-commit": COMMIT,
+		"canary": CANARY, "today": TODAY}
+	for key: Variant in extra:
+		args[str(key)] = str(extra[key])
+	return args
+
+
+func _records() -> Dictionary[String, VerifyRecord]:
+	var out: Dictionary[String, VerifyRecord] = {}
+	var dir: String = BOARD.path_join(Tool.VERIFIED_DIR)
+	for file_name: String in DirAccess.get_files_at(dir):
+		out[file_name] = Tool.read_record(dir.path_join(file_name))
+	return out
+
+
+## Every file of the board, by path, as bytes.
+func _snapshot() -> Dictionary[String, PackedByteArray]:
+	var out: Dictionary[String, PackedByteArray] = {}
+	for sub: String in ["", Writer.RUNS_DIR, Tool.VERIFIED_DIR]:
+		var dir: String = BOARD.path_join(sub)
+		if not DirAccess.dir_exists_absolute(dir):
+			continue
+		for file_name: String in DirAccess.get_files_at(dir):
+			out[sub.path_join(file_name)] = FileAccess.get_file_as_bytes(dir.path_join(file_name))
+	return out
+
+
+func _board_runs() -> int:
+	var board: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(BOARD.path_join(Writer.LEADERBOARD_JSON)))
+	var runs: int = 0
+	for row: Variant in board["rows"]:
+		runs += int((row as Dictionary)["runs"])
+	return runs
+
+
+func test_good_runs_are_verified_the_rest_rejected_and_a_bad_name_ignored() -> void:
+	assert_eq(Tool.run(_args(), _config), Tool.EXIT_OK)
+	var records: Dictionary[String, VerifyRecord] = _records()
+	assert_eq(records.size(), 4, "four records; the badly named file has none")
+	assert_false(records.has(BAD_NAME))
+	assert_true(records[_mock.file_name()].verified, records[_mock.file_name()].detail)
+	assert_true(records[_greedy.file_name()].verified, records[_greedy.file_name()].detail)
+	assert_eq(records[_idle.file_name()].reason, Verifier.REASON_HASH)
+	assert_eq(records[BROKEN_NAME].reason, Verifier.REASON_UNREADABLE)
+	assert_eq(records[_mock.file_name()].game_commit, COMMIT)
+	assert_eq(records[_mock.file_name()].checked, TODAY)
+	assert_eq(_board_runs(), 2, "the board counts the verified runs only")
+	var page: String = FileAccess.get_file_as_string(BOARD.path_join(Writer.LEADERBOARD_MD))
+	assert_true(page.begins_with("<!-- Generated by " + Tool.GENERATOR))
+
+
+func test_a_second_run_changes_nothing() -> void:
+	assert_eq(Tool.run(_args(), _config), Tool.EXIT_OK)
+	var first: Dictionary[String, PackedByteArray] = _snapshot()
+	assert_eq(Tool.run(_args({"today": TOMORROW}), _config), Tool.EXIT_OK)
+	assert_eq(_snapshot(), first, "every file byte-identical")
+
+
+func test_a_changed_run_file_alone_is_verified_again() -> void:
+	assert_eq(Tool.run(_args(), _config), Tool.EXIT_OK)
+	var changed: Dictionary = JSON.parse_string(_greedy.to_json())
+	changed["hash"] = "1".repeat(64)
+	_write_run(_greedy.file_name(), JSON.stringify(changed, "\t", false) + "\n")
+	assert_eq(Tool.run(_args({"today": TOMORROW}), _config), Tool.EXIT_OK)
+	var records: Dictionary[String, VerifyRecord] = _records()
+	assert_eq(records[_greedy.file_name()].checked, TOMORROW)
+	assert_eq(records[_greedy.file_name()].reason, Verifier.REASON_HASH)
+	for file_name: String in [_mock.file_name(), _idle.file_name(), BROKEN_NAME]:
+		assert_eq(records[file_name].checked, TODAY, file_name + " was not judged again")
+	assert_eq(_board_runs(), 1)
+
+
+func test_a_record_whose_run_was_removed_is_deleted() -> void:
+	assert_eq(Tool.run(_args(), _config), Tool.EXIT_OK)
+	DirAccess.remove_absolute(BOARD.path_join(Writer.RUNS_DIR).path_join(_idle.file_name()))
+	assert_eq(Tool.run(_args(), _config), Tool.EXIT_OK)
+	assert_false(_records().has(_idle.file_name()))
+	assert_eq(_records().size(), 3)
+
+
+func test_the_limit_leaves_the_rest_waiting() -> void:
+	assert_eq(Tool.run(_args({"limit": 1}), _config), Tool.EXIT_OK)
+	assert_eq(_records().size(), 1)
+	assert_eq(Tool.run(_args({"limit": 1}), _config), Tool.EXIT_OK)
+	assert_eq(_records().size(), 2, "the next invocation takes the next one")
+
+
+func test_a_canary_that_does_not_reproduce_stops_before_anything_is_written() -> void:
+	var bad: Dictionary = JSON.parse_string(_mock.to_json())
+	bad["hash"] = "0".repeat(64)
+	_write(BAD_CANARY, JSON.stringify(bad, "\t", false))
+	var before: Dictionary[String, PackedByteArray] = _snapshot()
+	assert_eq(Tool.run(_args({"canary": BAD_CANARY, "message": MESSAGE}), _config),
+		Tool.EXIT_CANARY)
+	assert_eq(_snapshot(), before, "nothing written")
+	assert_false(FileAccess.file_exists(MESSAGE))
+
+
+func test_the_commit_message_holds_only_numbers_and_the_commit() -> void:
+	assert_eq(Tool.run(_args({"message": MESSAGE}), _config), Tool.EXIT_OK)
+	var message: String = FileAccess.get_file_as_string(MESSAGE)
+	assert_eq(message, "verify: 2 verified, 2 rejected (game 0123456)\n")
+	var shape: RegEx = RegEx.create_from_string(
+		"^verify: [0-9]+ verified, [0-9]+ rejected \\(game [0-9a-f]{7}\\)\\n$")
+	assert_not_null(shape.search(Tool.commit_message(12, 3, COMMIT)))
+
+
+func test_bad_arguments_exit_one_and_write_nothing() -> void:
+	var before: Dictionary[String, PackedByteArray] = _snapshot()
+	for bad: Dictionary in [{"game-commit": "main"}, {"board": ROOT.path_join("nothing")},
+			{"limit": "0"}, {"today": "tomorrow"}, {"canary": ROOT.path_join("none.json")}]:
+		assert_eq(Tool.run(_args(bad), _config), Tool.EXIT_BAD_INPUT, str(bad))
+	assert_eq(_snapshot(), before)

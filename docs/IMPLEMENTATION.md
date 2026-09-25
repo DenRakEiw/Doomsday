@@ -1186,6 +1186,10 @@ recorded **on Windows** and `test_bench_determinism.gd`; `.github/workflows/lead
 mock and bot runs, rejects a tampered one, a second run changes nothing; the determinism test is
 green here and in CI. **Nothing is pushed to the public repository and the workflow is not
 dispatched** — the deploy key and the secret are the user's (*Waiting on the user*).
+*Done 2026-09-25: the verifier judged a temp clone with the mock standard suite, the 70 bot runs
+and a tampered copy (80 verified, 1 `hash`; a second run changed nothing; the public
+`validate.py --all` passes on the result); the canary is recorded on Windows; the workflow's
+publish step was rehearsed against a local bare remote. Deviations in `PROGRESS.md`.*
 
 ### S6.13 — Spectator view and the online list **[O]** · **Read first:** `benchmark.md` §0, §10.2, §12–§13, §14.2, §16.6, §16.7, §16.9's S6.13 part · `release.md` §6.2, §9.2
 The view that replays a leaderboard entry in the session with its overlay; then the global

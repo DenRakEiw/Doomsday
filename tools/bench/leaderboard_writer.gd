@@ -40,7 +40,7 @@ static func read_entries(dir: String, max_bytes: int) -> Dictionary:
 		if bytes.size() > max_bytes:
 			skipped.append(file_name)
 			continue
-		var entry: BenchEntry = BenchEntry.from_json(bytes.get_string_from_utf8())
+		var entry: BenchEntry = BenchEntry.from_bytes(bytes)
 		if entry == null:
 			skipped.append(file_name)
 			continue

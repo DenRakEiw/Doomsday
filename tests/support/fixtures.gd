@@ -57,6 +57,10 @@ const PROBE_EVENT: String = "fx_probe"
 const NOTICE_EVENT: String = "fx_notice"
 const NOTICE_SEA_EVENT: String = "fx_notice_sea"
 const RIOT_EVENT: String = "fx_riot_move"
+## The benchmark tool and the day loop, for the benchmark fixtures below.
+const BenchTool := preload("res://tools/bench/bench_run.gd")
+const Harness := preload("res://tools/sim_harness.gd")
+const BENCH_MOCK_MODEL: String = "mock"
 
 ## Loaded once: the database is immutable, so every test may share it.
 static var _db: ContentDB = null
@@ -399,3 +403,26 @@ static func read_json(path: String) -> Dictionary:
 	assert(json.parse(FileAccess.get_file_as_string(path)) == OK, "cannot parse %s" % path)
 	var parsed: Dictionary = json.data
 	return parsed.duplicate(true)
+
+
+## A benchmark entry (benchmark.md §10.2) played by the `mock:cheapest` backend on
+## `db` under `config`'s rules, its `max_days` included — a run the verifier must
+## accept. `model` lets a test name it (the verifier tests use a marker).
+static func bench_mock_entry(db: ContentDB, config: BenchConfig, seed_value: int,
+		model: String = BENCH_MOCK_MODEL) -> BenchEntry:
+	var params: Dictionary = BenchTool.build_params({}, config)["params"]
+	var backend: MockBackend = MockBackend.new(MockBackend.MODE_CHEAPEST)
+	var played: Dictionary = BenchTool.play_model(db, config, RunSetup.from_dict(config.setup),
+		seed_value, backend, params, config.locale)
+	return BenchTool.make_entry(played["sim"], config, model, backend.backend_id(), params,
+		config.locale, BenchConfig.SUITE_STANDARD, config.max_days, played["policy"])
+
+
+## A bot's reference entry (§10.4) on `db` under `config`'s rules.
+static func bench_bot_entry(db: ContentDB, config: BenchConfig, seed_value: int,
+		policy_id: String) -> BenchEntry:
+	var problems: Array[String] = []
+	var played: Dictionary = Harness.play(db, seed_value, policy_id, config.max_days, false,
+		problems, RunSetup.from_dict(config.setup))
+	return BenchTool.make_entry(played["sim"], config, BenchEntry.MODEL_BOT_PREFIX + policy_id,
+		BenchEntry.BACKEND_BOT, {}, config.locale, BenchConfig.SUITE_STANDARD, config.max_days)

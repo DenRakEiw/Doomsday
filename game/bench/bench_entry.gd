@@ -21,6 +21,29 @@ const SLUG_OTHER: String = "-"
 ## Score is written to one decimal (§10.1).
 const SCORE_STEP: float = 0.1
 
+## UTF-8's shape (RFC 3629) for `is_utf8`: lead bytes, continuation bytes, the
+## smallest code point each length may carry, the surrogates, the last code point.
+const UTF8_ASCII_END: int = 0x80
+const UTF8_CONTINUATION_MASK: int = 0xC0
+const UTF8_CONTINUATION: int = 0x80
+const UTF8_PAYLOAD: int = 0x3F
+const UTF8_PAYLOAD_BITS: int = 6
+const UTF8_LEAD_2_FIRST: int = 0xC2
+const UTF8_LEAD_2_LAST: int = 0xDF
+const UTF8_LEAD_3_FIRST: int = 0xE0
+const UTF8_LEAD_3_LAST: int = 0xEF
+const UTF8_LEAD_4_FIRST: int = 0xF0
+const UTF8_LEAD_4_LAST: int = 0xF4
+const UTF8_LEAD_2_BITS: int = 0x1F
+const UTF8_LEAD_3_BITS: int = 0x0F
+const UTF8_LEAD_4_BITS: int = 0x07
+const UTF8_MIN_2: int = 0x80
+const UTF8_MIN_3: int = 0x800
+const UTF8_MIN_4: int = 0x10000
+const UTF8_SURROGATE_FIRST: int = 0xD800
+const UTF8_SURROGATE_LAST: int = 0xDFFF
+const UTF8_MAX: int = 0x10FFFF
+
 var version: int = VERSION
 var model: String = ""
 var backend: String = ""
@@ -240,6 +263,58 @@ static func from_json(text: String) -> BenchEntry:
 	if json.parse(text) != OK or typeof(json.data) != TYPE_DICTIONARY:
 		return _fail("not a JSON object")
 	return from_dict(json.data)
+
+
+## A file's bytes read — the form an untrusted file arrives in (a submitted run,
+## a download). UTF-8 is checked first, so a broken file never makes the engine
+## report a decoding error; null (with `last_error`) as `from_json`.
+static func from_bytes(bytes: PackedByteArray) -> BenchEntry:
+	if not is_utf8(bytes):
+		return _fail("not UTF-8 text")
+	return from_json(bytes.get_string_from_utf8())
+
+
+## Whether `bytes` are well-formed UTF-8 without a NUL (RFC 3629: no overlong
+## form, no surrogate, nothing past U+10FFFF).
+static func is_utf8(bytes: PackedByteArray) -> bool:
+	var size: int = bytes.size()
+	var i: int = 0
+	while i < size:
+		var lead: int = bytes[i]
+		if lead < UTF8_ASCII_END:
+			if lead == 0:
+				return false
+			i += 1
+			continue
+		var follow: int = 0
+		var code: int = 0
+		var smallest: int = 0
+		if lead >= UTF8_LEAD_2_FIRST and lead <= UTF8_LEAD_2_LAST:
+			follow = 1
+			code = lead & UTF8_LEAD_2_BITS
+			smallest = UTF8_MIN_2
+		elif lead >= UTF8_LEAD_3_FIRST and lead <= UTF8_LEAD_3_LAST:
+			follow = 2
+			code = lead & UTF8_LEAD_3_BITS
+			smallest = UTF8_MIN_3
+		elif lead >= UTF8_LEAD_4_FIRST and lead <= UTF8_LEAD_4_LAST:
+			follow = 3
+			code = lead & UTF8_LEAD_4_BITS
+			smallest = UTF8_MIN_4
+		else:
+			return false
+		if i + follow >= size:
+			return false
+		for k: int in range(1, follow + 1):
+			var next: int = bytes[i + k]
+			if (next & UTF8_CONTINUATION_MASK) != UTF8_CONTINUATION:
+				return false
+			code = (code << UTF8_PAYLOAD_BITS) | (next & UTF8_PAYLOAD)
+		if code < smallest or code > UTF8_MAX \
+				or (code >= UTF8_SURROGATE_FIRST and code <= UTF8_SURROGATE_LAST):
+			return false
+		i += follow + 1
+	return true
 
 
 static func _fail(reason: String) -> BenchEntry:

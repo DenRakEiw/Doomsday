@@ -136,3 +136,19 @@ func test_the_score_is_written_to_one_decimal() -> void:
 	var entry: BenchEntry = _entry()
 	entry.score = 84.66666
 	assert_almost_eq(float(entry.to_dict()["score"]), 84.7, 0.00001)
+
+
+func test_utf8_is_told_from_broken_bytes() -> void:
+	assert_true(BenchEntry.is_utf8("plain, ä, €, 𝄞".to_utf8_buffer()))
+	assert_false(BenchEntry.is_utf8(PackedByteArray([0xC0, 0xAF])), "overlong")
+	assert_false(BenchEntry.is_utf8(PackedByteArray([0xED, 0xA0, 0x80])), "surrogate")
+	assert_false(BenchEntry.is_utf8(PackedByteArray([0xE2, 0x82])), "cut short")
+	assert_false(BenchEntry.is_utf8(PackedByteArray([0x41, 0x00])), "NUL")
+
+
+func test_bytes_read_as_an_entry_and_broken_bytes_as_null() -> void:
+	var entry: BenchEntry = BenchEntry.from_bytes(_entry().to_json().to_utf8_buffer())
+	assert_not_null(entry, BenchEntry.last_error)
+	assert_null(BenchEntry.from_bytes(PackedByteArray([0x7B, 0xFF, 0x7D])))
+	assert_eq(BenchEntry.last_error, "not UTF-8 text")
+	assert_engine_error_count(0)
