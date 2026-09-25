@@ -46,3 +46,23 @@ func test_has_file_needs_the_file() -> void:
 	assert_true(slot.has_file(FIXTURE_ID))
 	assert_false(slot.has_file("end_merge"))
 	assert_false(slot.has_file(""))
+
+
+## icons.md §7: a counter-move without a picture shows its icon file at
+## `ICON_HERO` instead of the faction's glyph; a picture still wins.
+func test_counter_move_shows_its_icon_without_a_picture() -> void:
+	var slot: IllustrationSlot = _slot()
+	slot.show_illustration("", Glyphs.Glyph.FACTION_GOVERNMENTS, &"TEXT_2",
+		Icons.KIND_COUNTER_MOVE, "cm_lockdown")
+	assert_true(slot.fallback_icon().visible)
+	assert_false(slot.fallback_glyph().visible)
+	assert_eq(slot.fallback_icon().box_size, float(UiTokens.ICON_HERO))
+	slot.show_illustration("", Glyphs.Glyph.FACTION_GOVERNMENTS, &"TEXT_2",
+		Icons.KIND_COUNTER_MOVE, "no_such_move")
+	assert_false(slot.fallback_icon().visible, "no file: the faction glyph again")
+	assert_true(slot.fallback_glyph().visible)
+	slot.root = FIXTURE_ROOT
+	slot.show_illustration(FIXTURE_ID, Glyphs.Glyph.OUTCOME, &"TEXT_2",
+		Icons.KIND_COUNTER_MOVE, "cm_lockdown")
+	assert_true(slot.has_picture())
+	assert_false(slot.fallback_icon().visible, "a picture wins over the icon")

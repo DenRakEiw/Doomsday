@@ -71,6 +71,7 @@ const STATE_IS_ACCENT: Array[bool] = [false, false, true, true, false, false]
 @onready var _requires_any_hint: Label = %RequiresAnyHint
 @onready var _body: Control = %Body
 @onready var _title: Label = %Title
+@onready var _title_icon: IconRect = %TitleIcon
 @onready var _tier: Label = %Tier
 @onready var _tree_chip: Chip = %TreeChip
 @onready var _state_chip: Chip = %StateChip
@@ -159,6 +160,7 @@ func shown_id() -> String:
 
 func _fill_head(definition: TechNodeDef, state: TechNode.State, sim: Simulation) -> void:
 	_title.text = TechText.node_name(definition.id)
+	_title_icon.show_icon(Icons.KIND_TECH, definition.id)
 	_tier.text = tr(KEY_TIER).format({"tier": definition.tier})
 	_tree_chip.set_label(TAB_KEY[definition.tree])
 	_state_chip.set_label(STATE_KEY[state], TechNode.state_args(definition, sim))

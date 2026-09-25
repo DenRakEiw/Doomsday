@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://ui/panels/tech_detail.gd" id="1_tech_detail"]
 [ext_resource type="Script" path="res://ui/components/chip.gd" id="2_chip"]
 [ext_resource type="Script" path="res://ui/components/console_button.gd" id="3_console_button"]
 [ext_resource type="Script" path="res://ui/components/caps_label.gd" id="4_caps_label"]
 [ext_resource type="Script" path="res://ui/components/icon_button.gd" id="5_icon_button"]
+[ext_resource type="Script" path="res://ui/components/icon_rect.gd" id="6_icon_rect"]
 
 [node name="TechDetail" type="PanelContainer"]
 theme_type_variation = &"ConsolePanel"
@@ -36,6 +37,15 @@ theme_type_variation = &"PanelContent"
 [node name="Header" type="HBoxContainer" parent="Scroll/Content/Body"]
 layout_mode = 2
 theme_type_variation = &"Row"
+
+[node name="TitleIcon" type="Control" parent="Scroll/Content/Body/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("6_icon_rect")
+box_size = 48.0
 
 [node name="Title" type="Label" parent="Scroll/Content/Body/Header"]
 unique_name_in_owner = true

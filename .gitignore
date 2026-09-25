@@ -34,3 +34,8 @@ Thumbs.db
 .vscode/
 .idea/
 *.tmp
+
+# Icons: the downloaded set archives (tools/icons/vendor_icons.py) and the PNG
+# atlas, a build product switched on per export (docs/specs/icons.md §10).
+tools/icons/.cache/
+/assets/icons/atlas/

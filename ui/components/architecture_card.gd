@@ -4,8 +4,8 @@ extends Button
 ## card with a glyph, the name and the tagline — or, while it is locked, the
 ## rule that unlocks it.
 ##
-## The glyph is M6 art (`Glyphs` id `arch_<id>`); until then it is the first
-## letter of the name.
+## The icon is the architecture's file (icons.md §7, `ICON_L`); the first letter
+## of the name stands in only where no file resolves.
 
 const VARIATION: StringName = &"ArchitectureCard"
 const KEY_TAGLINE: String = "ARCH_%s_TAGLINE"
@@ -16,6 +16,7 @@ var architecture_id: String = ""
 var locked: bool = false
 
 var _glyph: Label = null
+var _icon: IconRect = null
 var _name: Label = null
 var _tagline: Label = null
 var _new_chip: Chip = null
@@ -38,6 +39,9 @@ func setup(id: String, is_locked: bool, rule_text: String, is_new: bool) -> void
 	_rule_text = rule_text
 	disabled = is_locked
 	_new_chip.visible = is_new and not is_locked
+	_icon.show_icon(Icons.KIND_ARCHITECTURE, id)
+	_glyph.visible = not _icon.visible
+	_refresh_icon_colour()
 	_refresh_strings()
 
 
@@ -52,6 +56,20 @@ func is_new() -> bool:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED and _name != null:
 		_refresh_strings()
+	elif what == NOTIFICATION_DRAW and _icon != null:
+		# `set_pressed_no_signal` and a group letting go send no `toggled`, but
+		# every change of the pressed state redraws the card.
+		_refresh_icon_colour()
+
+
+## §7: `TEXT_0`, `ACCENT` when pressed, `TEXT_2` while locked.
+func _refresh_icon_colour() -> void:
+	if locked:
+		_icon.color_token = &"TEXT_2"
+	elif button_pressed:
+		_icon.color_token = &"ACCENT"
+	else:
+		_icon.color_token = &"TEXT_0"
 
 
 func _refresh_strings() -> void:
@@ -78,6 +96,10 @@ func _build() -> void:
 	head.theme_type_variation = &"Row"
 	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(head)
+	_icon = IconRect.new()
+	_icon.box_size = float(UiTokens.ICON_L)
+	_icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	head.add_child(_icon)
 	_glyph = _label(&"LabelDisplay", head)
 	_name = _label(&"LabelHeading", head)
 	_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL

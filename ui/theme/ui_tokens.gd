@@ -270,6 +270,13 @@ const BAR_COMPACT_HEIGHT: int = 28
 ## The glyph box an `IconButton` draws in, and its stroke (§4.3).
 const GLYPH_BOX: int = 24
 const GLYPH_STROKE: float = 2.0
+## icons.md §7: the sizes an icon file is drawn at — a row (status, action,
+## counter-move), the detail pane and the architecture card, the Codex's
+## architecture, the wire card. An illustrative icon never goes below `ICON_ROW`.
+const ICON_ROW: int = 20
+const ICON_L: int = 48
+const ICON_XL: int = 64
+const ICON_HERO: int = 96
 
 
 # ------------------------------------------------------------- §5 HUD geometry

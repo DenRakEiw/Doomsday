@@ -435,6 +435,13 @@ func _status_row(status: Status, world: World) -> Control:
 
 	var head: HBoxContainer = HBoxContainer.new()
 	head.theme_type_variation = VARIATION_ROW
+	# icons.md §7: the status's icon before its code, in the chip's colour.
+	var icon: IconRect = IconRect.new()
+	icon.box_size = float(UiTokens.ICON_ROW)
+	icon.color_token = UiTokens.status_token(status.source)
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	icon.show_icon(Icons.KIND_STATUS, status.id)
+	head.add_child(icon)
 	var chip: Chip = Chip.new()
 	chip.set_status_source(status.source)
 	chip.set_label(PREFIX_STATUS + status.id.to_upper() + SUFFIX_CODE)
@@ -550,6 +557,8 @@ func _action_row(ability: AbilityDef) -> Control:
 	button.tooltip_key = AbilityDef.detail_key(ability.id)
 	button.disabled = not reason.is_empty()
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# icons.md §7: the ability's icon, tinted by the button's state colours.
+	button.icon = Icons.texture(Icons.KIND_ABILITY, ability.id, UiTokens.ICON_ROW)
 	button.pressed.connect(_on_action_pressed.bind(ability.id))
 	row.add_child(button)
 	var chip: Chip = Chip.new()

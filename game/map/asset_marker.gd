@@ -100,12 +100,8 @@ func _draw() -> void:
 	var top: float = float(UiTokens.MARKER_ROW_OFFSET)
 	for kind: String in listed:
 		var size: float = _glyph_size(kind)
-		var scale_factor: float = size / float(UiTokens.GLYPH_BOX)
-		draw_set_transform(Vector2(x, top), 0.0, Vector2(scale_factor, scale_factor))
-		Glyphs.draw(self, glyphs.get(kind, Glyphs.Glyph.ASSET_OFFICE) as Glyphs.Glyph,
-			Rect2(Vector2.ZERO, Vector2.ONE * float(UiTokens.GLYPH_BOX)), colour,
-			UiTokens.GLYPH_STROKE)
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		Glyphs.draw_scaled(self, glyphs.get(kind, Glyphs.Glyph.ASSET_OFFICE) as Glyphs.Glyph,
+			Vector2(x, top), size, colour, UiTokens.GLYPH_STROKE)
 		x += size
 		if counts[kind] > 1:
 			x += COUNT_GAP

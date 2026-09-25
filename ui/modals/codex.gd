@@ -150,6 +150,7 @@ func show_entry(id: String) -> void:
 			_heading(tr(KEY_CHARACTER_NAME % id.to_upper()))
 			_body(tr(KEY_CHARACTER_TEXT % id.to_upper()))
 		CodexEntries.TAB_STATUSES:
+			_icon(Icons.KIND_STATUS, id, UiTokens.ICON_L, &"TEXT_0")
 			_heading(tr(StatusDef.name_key(id)))
 			_caps(tr(StatusDef.code_key(id)))
 			_body(tr(StatusDef.detail_key(id)))
@@ -217,24 +218,38 @@ func _fill_region(id: String) -> void:
 
 
 func _fill_faction(id: String) -> void:
+	# icons.md §7: the faction's chrome icon, its counter-moves' icons on their
+	# rows, all in the faction's colour.
+	var colour: StringName = UiTokens.FACTION_TOKENS.get(id, &"TEXT_0")
+	_icon(Icons.KIND_FACTION, id, UiTokens.ICON_L, colour)
 	_heading(tr(PREFIX_FACTION + id.to_upper()))
 	_body(tr(KEY_FACTION_TEXT % id.to_upper()))
 	var seen: Array = ProfileManager.codex.get(CodexTracker.TAB_MOVES, [])
-	var names: Array[String] = []
+	var moves: Array[String] = []
 	for def: EventDef in _db.events:
 		if def.kind == EventDef.KIND_COUNTER_MOVE and def.faction == id and seen.has(def.id):
-			names.append(tr(EventDef.title_key(def.id)))
-	if names.is_empty():
+			moves.append(def.id)
+	if moves.is_empty():
 		return
 	_caps(tr(KEY_MOVES))
-	for text: String in names:
-		_caption(text)
+	for move: String in moves:
+		var row: HBoxContainer = HBoxContainer.new()
+		row.theme_type_variation = &"RowSnug"
+		_entry.add_child(row)
+		row.add_child(_icon_rect(Icons.KIND_COUNTER_MOVE, move, UiTokens.ICON_ROW, colour))
+		var label: Label = Label.new()
+		label.theme_type_variation = &"LabelCaption"
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		label.text = tr(EventDef.title_key(move))
+		row.add_child(label)
 
 
 ## §6.1: the tech card as the tree's detail pane shows it, without cost or
 ## buttons — name, tree, effect, flavour, and the effect lines.
 func _fill_tech(id: String) -> void:
 	var def: TechNodeDef = _db.tech(id)
+	_icon(Icons.KIND_TECH, id, UiTokens.ICON_L, &"TEXT_0")
 	_heading(TechText.node_name(id))
 	_caps(tr(PREFIX_TREE_TAB + def.tree.to_upper()))
 	_body(tr(KEY_TECH_EFFECT % id.to_upper()))
@@ -275,8 +290,10 @@ func entry_illustration() -> IllustrationSlot:
 
 func _fill_architecture(id: String) -> void:
 	var def: ArchitectureDef = _db.architecture(id)
+	var is_unlocked: bool = ProfileManager.is_unlocked(def)
+	_icon(Icons.KIND_ARCHITECTURE, id, UiTokens.ICON_XL, &"TEXT_0" if is_unlocked else &"TEXT_2")
 	_heading(tr(ArchitectureDef.name_key(id)))
-	if not ProfileManager.is_unlocked(def):
+	if not is_unlocked:
 		_caption(_unlock_text(def.unlock))
 		return
 	_caption(tr(KEY_ARCH_TAGLINE % id.to_upper()))
@@ -292,6 +309,22 @@ func _unlock_text(unlock: Dictionary) -> String:
 	var needed: Dictionary = unlock.get(ProfileManager.UNLOCK_WINS_BY_OUTCOME, {})
 	var outcome: String = "" if needed.is_empty() else str(needed.keys()[0])
 	return tr(KEY_UNLOCK_WIN_BY).format({"outcome": tr(PREFIX_OUTCOME + outcome.to_upper())})
+
+
+## icons.md §7: an entry's icon above its text. No file, no icon — the rect hides.
+func _icon(kind: StringName, id: String, side: int, colour: StringName) -> void:
+	_entry.add_child(_icon_rect(kind, id, side, colour))
+
+
+static func _icon_rect(kind: StringName, id: String, side: int,
+		colour: StringName) -> IconRect:
+	var icon: IconRect = IconRect.new()
+	icon.box_size = float(side)
+	icon.color_token = colour
+	icon.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	icon.show_icon(kind, id)
+	return icon
 
 
 func _heading(text: String) -> void:

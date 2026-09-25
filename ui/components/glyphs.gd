@@ -3,10 +3,10 @@ extends RefCounted
 ## Every glyph the interface draws, as code (spec ui-foundation.md §4.3,
 ## m3-screens.md §3.4.1).
 ##
-## M2 shipped no icon assets and M3 ships none either: a glyph is drawn into a
-## 24 × 24 box in whatever colour the caller is using, so a button, a tech node
-## and a chip can all show the same shape without a texture between them. The
-## icon pipeline is M6; until then this file is the whole icon set.
+## Since S6.4 a glyph is the Phosphor (or own) file `data/icons.json` maps it to,
+## drawn through `Icons` in whatever colour the caller is using (icons.md §5.3).
+## The shapes below stay as the fallback (§6): a glyph whose file is missing is
+## drawn as code into a 24 × 24 box, so nothing that worked before can break.
 ##
 ## Never instantiated; it is a namespace of shapes.
 
@@ -96,6 +96,10 @@ const CORNER_SEGMENTS: int = 6
 ## caller only has to decide where the 24 square sits.
 static func draw(canvas: CanvasItem, glyph: Glyph, box: Rect2, color: Color,
 		stroke: float) -> void:
+	var file: Texture2D = Icons.glyph_texture(glyph, int(round(box.size.x)))
+	if file != null:
+		canvas.draw_texture_rect(file, box, false, color)
+		return
 	match glyph:
 		Glyph.PAUSE:
 			_pause(canvas, box, color)
@@ -161,6 +165,23 @@ static func draw(canvas: CanvasItem, glyph: Glyph, box: Rect2, color: Color,
 			canvas.draw_circle(box.get_center(), LOG_DOT, color)
 		_:
 			_chevron(canvas, glyph, box, color, stroke)
+
+
+## Draws `glyph` into the `side` square at `at`. The file is made at `side`
+## itself; only the procedural fallback is drawn in the 24 box and scaled, so a
+## 12 px map glyph is rasterised at 12 and not shrunk from 24 (icons.md §5.3).
+## `stroke` is in the 24 box's units.
+static func draw_scaled(canvas: CanvasItem, glyph: Glyph, at: Vector2, side: float,
+		color: Color, stroke: float) -> void:
+	var file: Texture2D = Icons.glyph_texture(glyph, int(round(side)))
+	if file != null:
+		canvas.draw_texture_rect(file, Rect2(at, Vector2(side, side)), false, color)
+		return
+	var box: float = float(UiTokens.GLYPH_BOX)
+	var scale_factor: float = side / box
+	canvas.draw_set_transform(at, 0.0, Vector2(scale_factor, scale_factor))
+	draw(canvas, glyph, Rect2(Vector2.ZERO, Vector2(box, box)), color, stroke)
+	canvas.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 ## The shape an asset kind's `glyph` name stands for. An unknown name is a

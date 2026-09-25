@@ -112,3 +112,28 @@ func _measure(cell: Vector2, locale: String, too_long: Array[String]) -> void:
 			too_long.append("%s %d %s" % [locale, int(cell.x), definition.id])
 		_root.remove_child(node)
 		node.queue_free()
+
+
+## icons.md §7: the footer holds the icon, the cost, the footprint and the state
+## glyph without overflowing the cell. At the full cell everything fits, and in
+## the compact cell a node without a footprint; with one (Cloud Federation's
+## +2) the compact footer has no room, and the icon — never the text — gives
+## way (S6.4, DESIGN?).
+func test_compact_footer_fits_icon() -> void:
+	for cell: Vector2 in [UiTokens.TECH_CELL, UiTokens.TECH_CELL_COMPACT]:
+		for id: String in ["supply_chain_firmware", "cloud_federation"]:
+			var node: TechNode = TECH_NODE.instantiate()
+			node.custom_minimum_size = cell
+			_root.add_child(node)
+			node.bind(_db.tech(id), 99.0, TechNode.State.LOCKED, true)
+			node.size = cell
+			await get_tree().process_frame
+			var footer: Control = node.get_node("Content/Column/Footer") as Control
+			var room: float = cell.x - float(UiTokens.SPACE_3) * 2.0
+			var case: String = "%d %s" % [int(cell.x), id]
+			assert_true(footer.get_combined_minimum_size().x <= room,
+				"%s: the footer fits: %s" % [case, footer.get_combined_minimum_size()])
+			if cell == UiTokens.TECH_CELL or id == "supply_chain_firmware":
+				assert_true(node.shows_icon(), "%s: the icon has room" % case)
+			_root.remove_child(node)
+			node.queue_free()

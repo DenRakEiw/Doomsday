@@ -14,17 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.4 — Icon pipeline** [O]: `docs/specs/icons.md` — the Phosphor and game-icons sets vendored at their pinned releases (only the icons used), `DPITexture` import, `Icons`, the atlas-fallback tool, `Glyphs`/`IconButton` on icon files with the procedural glyph as fallback, the D6.3 silhouettes; the rows `icons_phosphor`/`icons_game_icons` go in with the files (their credits entries already exist, hidden until the `requires` file ships). IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.5 — Audio I: service, buses, cues, captions** [O]: `docs/specs/audio.md` (buses, cues, captions) — an audio autoload (not in `core/`), the bus layout, the volume settings, the cue table as data, dispatch from `EventBus`, cooldowns and voice limits, captions; silent placeholder streams. IMPLEMENTATION Block 14. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.5–S6.8, then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | S6.3 — the credits and licences modal on the title (`CreditsData`, `credits.tscn`, engine/file/game-icons licence pages, the CC BY 3.0 legal code vendored), the credits-vs-`ASSET_LICENCES.md` test; the illustration hooks (`IllustrationSlot` mipmaps, 4 : 3 in compact, `width`; `EndingDef.illustration`; results and Codex slots; `test_illustrations.gd`); 1655 tests green (2026-09-25). |
-| **Before that** | S6.2 — pale-amber Open accent, coast pass, mask-built outlines, the society view (2026-09-25). |
+| **After it** | S6.6–S6.8, then Block 15 (D6.8, D6.9). Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | S6.4 — the icon pipeline: Phosphor 2.1.1 (25) and game-icons `82d9488` (117) vendored by `tools/icons/vendor_icons.py` (hash-checked, normalised to white), `Icons` (`DPITexture` per size, stand-ins, atlas mode), `IconRect`, `Glyphs.draw`/`draw_scaled` on files with the procedural fallback, `tools/build_icon_atlas.gd`, the placements of icons.md §7, rows `icons_phosphor`/`icons_game_icons`; 1675 tests green (2026-09-25). |
+| **Before that** | S6.3 — the credits and licences modal, the illustration hooks (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 251 scripts compile (102 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1655 tests, **all green since S4.9**. The same command is all of CI. |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 255 scripts compile (103 judged by the suite), then `tools/check_strings.gd` (2125 rows), 1675 tests, **all green since S4.9**. The same command is all of CI. |
+| **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
 | **Component gallery** | `run_project` with `scene: res://ui/dev/gallery.tscn` (or `"$GODOT" --path . res://ui/dev/gallery.tscn`). **F12** writes the view to `user://gallery_<locale>_<width>.png`, **O** swaps the cold/open palette; below 1100 px the window lays out one logical pixel per window pixel, so a 400 × 860 window really is the phone layout. |
 | **Site select** | S4.1/S4.2: the origin, a deploying node's site and an ability target are one mode. `Game.site_select(request)` / `site_cancel()` / `site_confirm(region_id)`, `EventBus.site_select_changed`; the strip is `ui/hud/site_prompt.tscn`, the eligible set is the **G channel of the data texture's row 1**, and the one button is the region panel's (`%OriginButton`, relabelled per kind). `SiteRequest.for_origin()` is the origin's. |
@@ -157,7 +158,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S6.1 [O] Post-processing pass
 - [x] S6.2 [O] Phase-shift variants and map polish
 - [x] S6.3 [O] Credits and licences screen; the illustration hooks
-- [ ] S6.4 [O] Icon pipeline
+- [x] S6.4 [O] Icon pipeline
 - [ ] S6.5 [O] Audio I: service, buses, cues, captions
 - [ ] S6.6 [O] Audio II: the sound set
 - [ ] S6.7 [O] Tutorial II
@@ -1259,6 +1260,15 @@ without new information.
 D5.5 answered the Task Force against dormancy and the scenario levers, BALANCE §5.7 (3)–(4).
 D6.1 answered the parked border note: `polish-visuals.md` §9.)*
 
+- **S6.4 — the tech node's footer has no room for the icon in some states.** icons.md §7 counted
+  24 + `SPACE_2` + cost + footprint + 24 ≤ 144 px in the compact cell; the content is 136 px
+  (`GutterTight` 12 each side), and a node with a footprint needs 152. At the full cell an owned
+  node with a footprint (*Erworben* + *Sig. ▲ +2* + ✓) is over too. Placeholder (`# DESIGN?` in
+  `TechNode._fit_icon`): **the icon steps aside when the footer would overflow** — so in compact
+  most nodes show none, and owned ones with a footprint none at desktop either. Options: a smaller
+  footer icon (`ICON_ROW` 20), the icon in the name row, the state glyph dropped where the chip
+  says it, or icons only at the full cell. Also seen: an owned node with a footprint overflowed
+  its compact cell before S6.4 (*Known issues*).
 - **S5.9 — `HEADLINE_TF_MARKED` was over the headline caps** (en 94 > 80, de 122 > 88;
   `test_headline_text.gd`, and the longest German line broke the phone ticker's two rows). S5.9
   shortened it, same joke: en *"{region}: A 'routine outage' is logged. Routine outages now have a
@@ -1314,11 +1324,32 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
 
 ## Deviations from the plan or a spec
 
+- **2026-09-25** (S6.4) — **`Icons` has four helpers the spec does not list**: `section(kind)`
+  and `stand_ins()` (the tests read the map through them), `view_box_of(path)` (the atlas tool
+  shares it), `load_atlas(dir)` (the atlas test points `Icons` at `user://atlas_test/`, as
+  `load_map` does for the map). **`Glyphs.draw_scaled(canvas, glyph, at, side, …)`** replaces the
+  scale-the-canvas pattern in `GlyphIcon`, the asset and event markers and the timeline strip: the
+  file is made at the real size, only the procedural fallback is scaled. **The atlas tool's work
+  is a static `build(out)`** on `tools/build_icon_atlas.gd`, which the test preloads.
+  **`IllustrationSlot.show_illustration` takes an optional icon kind and id** (the wire card's
+  counter-move icon, §7); a picture still wins, the faction glyph stays when no file resolves.
+  **The tech node's footer puts icon, cost and *Owned* tag in a `RowSnug` HBox** (`Lead`) so the
+  icon stands `SPACE_2` from the cost while the footer keeps `RowTight`. **The architecture card
+  keeps its letter** as the fallback where no icon resolves. **The Codex's counter-move rows** are
+  an icon + caption `RowSnug`. The gallery gained a sheet of every mapped id at 48 and at the
+  smallest drawn size. **169 files resolve** (25 + 117 + 27 own; `tech_voluntary_pause` keeps its
+  stand-in). **Acceptance:** looked at in the gallery (1920, 400, 3840 × 2160) and the session
+  (tree and detail pane at 1920, 400 and a 4K F12 shot — crisp; region-panel status icon; top bar,
+  markers); the ability buttons, the wire card's counter-move and the Codex were checked by tests,
+  not by eye (the greedy bot bought no ability within the look). The procedural fallback was
+  proved with a map fixture pointing at a missing file, not by deleting a vendored file (the
+  imported copy would still resolve until a re-import).
 - **2026-09-25** (S6.3) — **The coverage test compares the *visible* entries** (`requires` file
   ships) with the shipped rows: D6.2's Phosphor and game-icons entries name rows S6.4 adds, so
   comparing every entry would fail until then (an entry that shows without its row still fails).
   **The authors line reads the game-icons folder** (`CreditsData.used_icon_paths`,
-  `ResourceLoader.list_directory`) because `Icons.all_paths()` is S6.4's; S6.4 may switch it.
+  `ResourceLoader.list_directory`); S6.4 kept it (the vendoring tool deletes unmapped files, so
+  the folder is exactly what is used) and made `CreditsData.author_of` call `Icons.author_of`.
   **Three theme variations**: `StackSections` (`SPACE_4`), `StackLines` (`SPACE_1`),
   `CaptionSelectable` (a `RichTextLabel` dressed as `LabelCaption`, for §11.2's selectable URL).
   The licence page keeps the modal's title and close button above *Back*. **`IllustrationSlot`'s
@@ -1891,6 +1922,9 @@ D6.1 answered the parked border note: `polish-visuals.md` §9.)*
 
 ## Known issues and carry-overs
 
+- **An owned tech node with a footprint overflows its compact cell** (seen in S6.4, older than
+  it): *Erworben* + *Sig. ▲ +2* + ✓ is ~155 px in the 136 px the 160-px cell leaves, so the
+  footer pushes past the node's left padding. Belongs with the S6.4 design question on the footer.
 - **Licence texts are `.txt` files** (S6.3): `assets/fonts/OFL-*.txt`,
   `assets/licences/CC-BY-3.0.txt`, S6.4's vendored `LICENSE.txt`/`license.txt`. Godot exports only
   resources by default, so **S6.10's presets must include `*.txt`** (non-resource filter), or those
@@ -2434,6 +2468,13 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — S6.4 Icon pipeline [O]
+- `tools/icons/vendor_icons.py` (pins + SHA-256 checked, 142 files normalised, `--check`), `Icons`,
+  `IconRect`, `Glyphs` on files (+ `draw_scaled`), `tools/build_icon_atlas.gd`, `ICON_*` tokens, button icon colours.
+- Placements: tech node footer (gives way when full — DESIGN?), detail pane, Codex, architecture card,
+  region-panel statuses/actions, ability picker, wire-card counter-move. Rows `icons_phosphor`/`icons_game_icons`.
+- Looked at: gallery 1920/400/4K, session tree 1920/400/4K, status row. +20 tests, 1675 green.
 
 ### 2026-09-25 — S6.3 Credits and licences screen; the illustration hooks [O]
 - `CreditsData` (load/validate `credits.json`, visibility, authors), `ui/modals/credits.tscn` on the

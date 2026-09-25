@@ -3,8 +3,9 @@ extends Control
 ## One `Glyphs` shape as a `Control`, so a row or a bar can hold an icon without
 ## a texture (`loop-mechanics.md` §16.3.2, §16.5, §16.9).
 ##
-## `Glyphs.draw` works in a 24 box; this scales that box to `box_size`, which is
-## what lets a fleet glyph be 16 px in one row and 12 px in another.
+## The icon file is drawn at `box_size`; the procedural fallback works in a 24 box
+## scaled to it — either way a fleet glyph can be 16 px in one row and 12 in
+## another.
 
 ## The 24 square `Glyphs` draws in.
 const AUTHORED_BOX: float = 24.0
@@ -37,10 +38,10 @@ func _ready() -> void:
 
 
 func _draw() -> void:
-	var scale_factor: float = box_size / AUTHORED_BOX
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2(scale_factor, scale_factor))
-	Glyphs.draw(self, glyph, Rect2(Vector2.ZERO, Vector2(AUTHORED_BOX, AUTHORED_BOX)),
-		UiTokens.color(color_token), UiTokens.GLYPH_STROKE)
+	# icons.md §5.3: the file is made at `box_size`; only the procedural fallback
+	# is drawn in the 24 box and scaled.
+	Glyphs.draw_scaled(self, glyph, Vector2.ZERO, box_size, UiTokens.color(color_token),
+		UiTokens.GLYPH_STROKE)
 
 
 func _on_theme_variant_changed(_variant: StringName) -> void:

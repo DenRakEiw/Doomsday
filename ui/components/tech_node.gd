@@ -27,6 +27,9 @@ const STATE_SUFFIX: Array[String] = ["Locked", "", "Affordable", "Owned", "Locke
 ## one colour — so each is its own family (§3.4's table).
 const NAME_VARIATION: Array[String] = ["TechNodeNameLocked", "TechNodeName", "TechNodeName",
 	"TechNodeName", "TechNodeNameLocked", "TechNodeNameLocked"]
+const NAME_LOCKED: String = "TechNodeNameLocked"
+const MARGIN_LEFT: StringName = &"margin_left"
+const MARGIN_RIGHT: StringName = &"margin_right"
 const COST_VARIATION: Array[String] = ["TechNodeCostLocked", "TechNodeCost",
 	"TechNodeCostAffordable", "TechNodeCost", "TechNodeCostLocked", "TechNodeCostLocked"]
 ## The accessible state names, in the order of `State`.
@@ -54,6 +57,9 @@ var has_external_prerequisite: bool = false
 @onready var _owned_tag: Label = %OwnedTag
 @onready var _footprint: Label = %Footprint
 @onready var _glyph_box: Control = %GlyphBox
+@onready var _icon: IconRect = %NodeIcon
+@onready var _content: MarginContainer = $Content
+@onready var _footer: HBoxContainer = $Content/Column/Footer
 
 var _cell: Vector2i = Vector2i.ZERO
 var _is_selected: bool = false
@@ -75,6 +81,7 @@ func _ready() -> void:
 	# before the layout has put that box anywhere.
 	_glyph_box.item_rect_changed.connect(queue_redraw)
 	resized.connect(queue_redraw)
+	resized.connect(_fit_icon)
 	pressed.connect(_on_pressed)
 	_apply_state()
 	# The palette can change mid-run (m3-screens §6.2); a drawn colour is not
@@ -97,6 +104,7 @@ func _notification(what: int) -> void:
 func bind(definition: TechNodeDef, cost: float, node_state: State, external: bool,
 		state_arguments: Dictionary = {}) -> void:
 	node_id = definition.id
+	_icon.show_icon(Icons.KIND_TECH, definition.id)
 	_state_args = state_arguments
 	_cell = definition.grid
 	state = node_state
@@ -185,6 +193,28 @@ func glyph() -> int:
 	return Glyphs.Glyph.EXTERNAL if has_external_prerequisite else Glyphs.Glyph.LOCK
 
 
+## Whether the footer shows the node's icon — false when it has no file, or when
+## the compact cell has no room for it (see `_fit_icon`).
+func shows_icon() -> bool:
+	return _icon.visible
+
+
+## icons.md §7 expected the icon to fit the compact cell with everything else in
+## the footer; at 160 px a locked node with a footprint and the external glyph
+## needs 152 of the 136 px there are. The text carries the meaning (§6), so the
+## icon is what gives way.
+# DESIGN? The icon steps aside when the footer would overflow its cell (S6.4
+# placeholder, PROGRESS "Design questions for Fable").
+func _fit_icon() -> void:
+	if not is_node_ready():
+		return
+	_icon.visible = not Icons.path_for(Icons.KIND_TECH, node_id).is_empty()
+	if not _icon.visible or size.x <= 0.0:
+		return
+	var room: float = size.x - float(_content.get_theme_constant(MARGIN_LEFT)) 		- float(_content.get_theme_constant(MARGIN_RIGHT))
+	_icon.visible = _footer.get_combined_minimum_size().x <= room
+
+
 func _draw() -> void:
 	_draw_glyph()
 	if _is_selected:
@@ -234,6 +264,8 @@ func _apply_state() -> void:
 	theme_type_variation = StringName(VARIATION + STATE_SUFFIX[state])
 	if is_node_ready():
 		_name.theme_type_variation = StringName(NAME_VARIATION[state])
+		# icons.md §7: the icon takes the name's colour — dim where the name is.
+		_icon.color_token = &"TEXT_2" if NAME_VARIATION[state] == NAME_LOCKED else &"TEXT_0"
 		_cost.variation_base = StringName(COST_VARIATION[state])
 		# An owned node has no price any more; it has a date (§3.4).
 		_cost.visible = state != State.OWNED
@@ -241,6 +273,7 @@ func _apply_state() -> void:
 		_cost.set_number(_cost_value, Format.Kind.COMPUTE)
 		_owned_tag.text = tr(KEY_OWNED)
 	_refresh_strings()
+	_fit_icon()
 	queue_redraw()
 
 

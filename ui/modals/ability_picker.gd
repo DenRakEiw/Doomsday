@@ -93,6 +93,8 @@ func _row(ability: AbilityDef) -> Control:
 	button.label_key = AbilityDef.name_key(ability.id)
 	button.tooltip_key = AbilityDef.detail_key(ability.id)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# icons.md §7: the ability's icon, tinted by the button's state colours.
+	button.icon = Icons.texture(Icons.KIND_ABILITY, ability.id, UiTokens.ICON_ROW)
 	# A region ability is disabled here only when no region could take it (a
 	# Misdirect with no team, `taskforce-endings.md` §4): which region it can be
 	# used in is what site select is for, and a picker that greys out a verb

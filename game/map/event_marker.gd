@@ -86,12 +86,8 @@ func _draw() -> void:
 	draw_arc(at, DISC_RADIUS, 0.0, TAU, PULSE_SEGMENTS, color, DISC_STROKE, true)
 	Rings.draw_countdown(self, at, COUNTDOWN_RADIUS, share, color, COUNTDOWN_STROKE)
 	var scale_factor: float = GLYPH_SIZE / float(UiTokens.GLYPH_BOX)
-	draw_set_transform(at - Vector2(GLYPH_SIZE, GLYPH_SIZE) * 0.5, 0.0,
-		Vector2(scale_factor, scale_factor))
-	Glyphs.draw(self, Glyphs.event_glyph(kind),
-		Rect2(Vector2.ZERO, Vector2(UiTokens.GLYPH_BOX, UiTokens.GLYPH_BOX)), color,
-		GLYPH_STROKE / scale_factor)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	Glyphs.draw_scaled(self, Glyphs.event_glyph(kind), at - Vector2(GLYPH_SIZE, GLYPH_SIZE) * 0.5,
+		GLYPH_SIZE, color, GLYPH_STROKE / scale_factor)
 	if count > 1:
 		var font: Font = ThemeDB.fallback_font
 		var text: String = str(count)

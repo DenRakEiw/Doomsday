@@ -122,11 +122,8 @@ func _draw() -> void:
 		var list: Array = all[slot]
 		var top: Dictionary = list[0]
 		var box: Rect2 = Rect2(_slot_centre(slot) - GLYPH * 0.5, mid - GLYPH * 0.5, GLYPH, GLYPH)
-		var scale_factor: float = GLYPH / GlyphIcon.AUTHORED_BOX
-		draw_set_transform(box.position, 0.0, Vector2(scale_factor, scale_factor))
-		Glyphs.draw(self, top["glyph"], Rect2(Vector2.ZERO, Vector2.ONE * GlyphIcon.AUTHORED_BOX),
-			top["color"], UiTokens.GLYPH_STROKE)
-		draw_set_transform(Vector2.ZERO)
+		Glyphs.draw_scaled(self, top["glyph"] as Glyphs.Glyph, box.position, GLYPH, top["color"],
+			UiTokens.GLYPH_STROKE)
 		if list.size() > 1:
 			draw_circle(Vector2(_slot_centre(slot), box.end.y + DOT_R), DOT_R,
 				UiTokens.color(&"TEXT_2"))

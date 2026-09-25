@@ -43,6 +43,15 @@ const COLOR_FONT_PRESSED: String = "font_pressed_color"
 const COLOR_FONT_HOVER_PRESSED: String = "font_hover_pressed_color"
 const COLOR_FONT_FOCUS: String = "font_focus_color"
 const COLOR_FONT_DISABLED: String = "font_disabled_color"
+## icons.md §4: an icon file is white and takes its button's state colours, the
+## same table as the text.
+const COLOR_ICON_NORMAL: String = "icon_normal_color"
+const COLOR_ICON_HOVER: String = "icon_hover_color"
+const COLOR_ICON_PRESSED: String = "icon_pressed_color"
+const COLOR_ICON_HOVER_PRESSED: String = "icon_hover_pressed_color"
+const COLOR_ICON_FOCUS: String = "icon_focus_color"
+const COLOR_ICON_DISABLED: String = "icon_disabled_color"
+const ICON_MAX_WIDTH: String = "icon_max_width"
 ## The three colours of a `StatBar` (§4.4) plus the trough's edge, which the
 ## spec names in prose but not as an item.
 const COLOR_FILL: String = "fill"
@@ -533,6 +542,11 @@ static func _buttons() -> Theme:
 		UiTokens.accent_wash(), Color.TRANSPARENT, Color.TRANSPARENT, UiTokens.color(&"ACCENT"))
 	_button_colours(theme, "ConsoleButtonFlat", UiTokens.color(&"TEXT_0"), UiTokens.color(&"TEXT_0"),
 		UiTokens.color(&"ACCENT"))
+	# icons.md §5.3: an action or ability row carries its icon at `ICON_ROW`,
+	# never at the texture's own size.
+	for button: String in ["ConsoleButton", "ConsoleButtonPrimary", "ConsoleButtonCompact",
+			"ConsoleButtonPrimaryCompact", "ConsoleButtonFlat", "ConsoleButtonAlert"]:
+		theme.set_constant(ICON_MAX_WIDTH, button, UiTokens.ICON_ROW)
 
 	# m3-screens §3.4: one variation per state, hover a surface step lighter and a
 	# border step stronger. `TechNode` itself is the AVAILABLE state.
@@ -643,6 +657,12 @@ static func _button_colours(theme: Theme, type: String, normal: Color, hover: Co
 	theme.set_color(COLOR_FONT_HOVER_PRESSED, type, pressed)
 	theme.set_color(COLOR_FONT_FOCUS, type, normal)
 	theme.set_color(COLOR_FONT_DISABLED, type, UiTokens.color(&"TEXT_2"))
+	theme.set_color(COLOR_ICON_NORMAL, type, normal)
+	theme.set_color(COLOR_ICON_HOVER, type, hover)
+	theme.set_color(COLOR_ICON_PRESSED, type, pressed)
+	theme.set_color(COLOR_ICON_HOVER_PRESSED, type, pressed)
+	theme.set_color(COLOR_ICON_FOCUS, type, normal)
+	theme.set_color(COLOR_ICON_DISABLED, type, UiTokens.color(&"TEXT_2"))
 
 
 ## Every surface in the game is a `StyleBoxFlat` (§3.8) — no texture anywhere.

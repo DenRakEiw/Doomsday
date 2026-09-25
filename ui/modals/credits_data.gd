@@ -33,7 +33,6 @@ const PREFIX_LICENCE: String = "UI_CREDITS_LICENCE_"
 const RES_PREFIX: String = "res://"
 ## Game-icons live one folder per author (§11.5).
 const GAME_ICONS_ROOT: String = "res://assets/icons/game-icons"
-const GAME_ICONS_FOLDER: String = "game-icons/"
 const ICON_EXTENSION: String = ".svg"
 const LOCALE_SOURCE: String = "en"
 const ID_PATTERN: String = "^[a-z][a-z0-9_]*$"
@@ -132,17 +131,12 @@ static func credited_rows(data: Dictionary) -> Array[String]:
 ## The author folder of a game-icons path ("…/game-icons/lorc/wheat.svg" →
 ## "lorc"), "" for any other path.
 static func author_of(path: String) -> String:
-	var at: int = path.find(GAME_ICONS_FOLDER)
-	if at < 0:
-		return ""
-	var rest: String = path.substr(at + GAME_ICONS_FOLDER.length())
-	var slash: int = rest.find("/")
-	return "" if slash <= 0 else rest.substr(0, slash)
+	return Icons.author_of(path)
 
 
 ## Every game-icons file that ships, as `res://` paths. Only the icons the game
-## uses are vendored (S6.4), so what is in the folder is what is used. §11.5
-## reads `Icons.all_paths()` instead, which S6.4 builds — it may switch this over.
+## uses are vendored (S6.4; `vendor_icons.py` deletes what the map no longer
+## names), so what is in the folder is what is used.
 static func used_icon_paths(root: String = GAME_ICONS_ROOT) -> Array[String]:
 	var out: Array[String] = []
 	if not DirAccess.dir_exists_absolute(root):

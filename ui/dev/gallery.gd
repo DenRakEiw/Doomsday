@@ -110,6 +110,7 @@ func _ready() -> void:
 	_build_panels()
 	_build_buttons()
 	_build_icon_buttons()
+	_build_icons()
 	_build_chips()
 	_build_value_labels()
 	_build_stat_bars()
@@ -243,6 +244,24 @@ func _build_icon_buttons() -> void:
 	disabled.tooltip_key = KEY_CLOSE
 	disabled.disabled = true
 	_state(row, "disabled", disabled)
+
+
+## icons.md §14: every mapped id of every kind, at `ICON_L` and at the smallest
+## size it is drawn at — the glyphs at 12 (the map's asset row), the rest at
+## `ICON_ROW`, in the map's (sorted) id order.
+func _build_icons() -> void:
+	for kind: StringName in Icons.KINDS:
+		var ids: Array = Icons.section(kind).keys()
+		ids.sort()
+		var small: float = float(UiTokens.ASSET_GLYPH) if kind == Icons.KIND_GLYPH 			else float(UiTokens.ICON_ROW)
+		for side: float in [float(UiTokens.ICON_L), small]:
+			var row: HFlowContainer = _section("Icons — %s (%d) at %d px" % [kind, ids.size(),
+				int(side)])
+			for id: Variant in ids:
+				var icon: IconRect = IconRect.new()
+				icon.box_size = side
+				icon.show_icon(kind, str(id))
+				row.add_child(icon)
 
 
 func _build_chips() -> void:

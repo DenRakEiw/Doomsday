@@ -95,6 +95,9 @@ func test_the_action_button_sends_the_ability_and_the_status_appears() -> void:
 	var row: Control = _rows(panel, "Actions")[0] as Control
 	var button: Button = row.get_child(0).get_child(0) as Button
 	assert_false(button.disabled, "the origin takes a Harvest")
+	# icons.md §7: the ability's icon at `ICON_ROW`, tinted by the theme.
+	assert_not_null(button.icon, "the button carries Harvest's icon")
+	assert_eq(button.icon.get_size(), Vector2(UiTokens.ICON_ROW, UiTokens.ICON_ROW))
 	button.emit_signal("pressed")
 
 	assert_true(Game.sim.world.has_status(HARVESTED, index), "within the same command")
@@ -124,8 +127,13 @@ func test_a_status_row_says_what_it_is_whose_it_is_and_how_long() -> void:
 	EventBus.region_selected.emit(index)
 	var row: Control = _rows(panel, "Statuses")[0] as Control
 	var head: Control = row.get_child(0) as Control
-	assert_eq((head.get_child(1) as Label).text, tr(StatusDef.name_key(HARVESTED)))
-	var days: Label = head.get_child(2) as Label
+	# icons.md §7: the status's icon leads the row (S6.4), then the code chip.
+	var icon: IconRect = head.get_child(0) as IconRect
+	assert_not_null(icon)
+	assert_eq(icon.id, HARVESTED)
+	assert_true(icon.visible, "harvested shows the sickle")
+	assert_eq((head.get_child(2) as Label).text, tr(StatusDef.name_key(HARVESTED)))
+	var days: Label = head.get_child(3) as Label
 	assert_string_contains(days.text,
 		str(Game.sim.world.status_in_region(HARVESTED, index).days_left(Game.sim.world.day)))
 	assert_eq((row.get_child(1) as Label).text, tr("UI_REGION_STATUS_YOURS"))

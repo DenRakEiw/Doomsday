@@ -36,6 +36,9 @@ var width: float = WIDTH:
 
 var _texture: TextureRect = null
 var _glyph: GlyphIcon = null
+## icons.md §7: a counter-move without a picture shows its icon file instead of
+## the glyph, when one resolves.
+var _icon: IconRect = null
 var _illustration: String = ""
 
 
@@ -58,9 +61,11 @@ func has_file(illustration: String) -> bool:
 	return not illustration.is_empty() and ResourceLoader.exists(path_for(illustration))
 
 
-## Shows `illustration` when its file exists, else `fallback` in `color_token`.
+## Shows `illustration` when its file exists, else the icon `icon_id` of
+## `icon_kind` when one resolves, else `fallback` — both in `color_token`.
 func show_illustration(illustration: String, fallback: Glyphs.Glyph,
-		color_token: StringName = &"TEXT_2") -> void:
+		color_token: StringName = &"TEXT_2", icon_kind: StringName = &"",
+		icon_id: String = "") -> void:
 	_build()
 	_illustration = illustration
 	var texture: Texture2D = null
@@ -68,7 +73,10 @@ func show_illustration(illustration: String, fallback: Glyphs.Glyph,
 		texture = load(path_for(illustration)) as Texture2D
 	_texture.texture = texture
 	_texture.visible = texture != null
-	_glyph.visible = texture == null
+	_icon.show_icon(icon_kind, icon_id)
+	_icon.color_token = color_token
+	_icon.visible = texture == null and _icon.visible
+	_glyph.visible = texture == null and not _icon.visible
 	_glyph.glyph = fallback
 	_glyph.color_token = color_token
 
@@ -80,6 +88,11 @@ func has_picture() -> bool:
 
 func fallback_glyph() -> GlyphIcon:
 	return _glyph
+
+
+## The icon shown in place of the glyph, for the tests.
+func fallback_icon() -> IconRect:
+	return _icon
 
 
 func _build() -> void:
@@ -100,6 +113,10 @@ func _build() -> void:
 	_glyph = GlyphIcon.new()
 	_glyph.box_size = FALLBACK_SIZE
 	centre.add_child(_glyph)
+	_icon = IconRect.new()
+	_icon.box_size = float(UiTokens.ICON_HERO)
+	_icon.visible = false
+	centre.add_child(_icon)
 
 
 func _apply_size() -> void:

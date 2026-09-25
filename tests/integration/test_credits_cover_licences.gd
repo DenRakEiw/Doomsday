@@ -95,7 +95,7 @@ func test_no_entry_credits_a_missing_row() -> void:
 		seen[id] = true
 
 
-## §11.5: before S6.4 no game-icon ships, and this passes vacuously.
+## §11.5: every author folder that ships (seven since S6.4) is listed.
 func test_every_used_author_is_listed() -> void:
 	var authors: Dictionary = _data["authors"]
 	var used: Dictionary[String, Array] = CreditsData.icons_by_author(
