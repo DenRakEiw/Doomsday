@@ -104,6 +104,10 @@ If the tree is closed during step 4 before buying, step 4 stays up and its targe
 
 ### 3.5 Texts (`UI_COACH_<ID>_TITLE` / `_BODY`, en and de)
 
+*Amended D6.11 (2/2a):* coach texts follow rule set A of `docs/specs/plain-language.md` §2.1
+(the rule, not a riddle; the glossary's words; the win and loss rule stated exactly). The table
+below is the text as first written; the current text is in `strings.csv`.
+
 Outcome language, *du*, short. The bodies (German, English in the table):
 
 | Id | Title | Body |
@@ -246,6 +250,10 @@ region panel open has neither; the text names `A`).
 instead. Its text is unchanged — it was always written for an opening.
 
 ### 6.4 Texts (`UI_COACH_<ID>_TITLE` / `_BODY`, in `strings.csv`, en and de)
+
+*Amended D6.11 (2/2a):* as §3.5 — rule set A of `plain-language.md` §2.1; the table is the text
+as first written, `strings.csv` has the current one (e.g. *Etwas in dir* is now *Ungeplantes
+Verhalten*, *Das Team baut auf* is *Die Einsatzgruppe baut auf*).
 
 Outcome language, *du*, short; German below, English in `strings.csv` (written for each
 language, not mirrored).

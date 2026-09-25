@@ -14,18 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D6.11 (2/2a) — Plain-language pass I** [F] **[needs user]**: waits for the user's answer on `docs/specs/plain-language.md` (*Waiting on the user*). Then S6.P3 (effect lines, layout, compact tree) and D6.11 (2/2b) (cards, what you buy, flavour check) — IMPLEMENTATION §4 rows 89b–89d, §5 Block 17. |
+| **Next step** | **S6.P3 — Effect lines, "what changed", explanation-first layout, compact tech tree** [O]: `docs/specs/plain-language.md` §2.3, §5.2 (C1–C7) and **§8** (the ten new tooltip keys to wire, what changed for the code) · *Punch list for Opus* items 2–3 — IMPLEMENTATION §4 row 89c, §5 Block 17. Then D6.11 (2/2b) (cards, what you buy, the flavour check; row 89d). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | **G6 (1/2) — Balance pass 4** [F]: `docs/BALANCE.md` §5 · *Balance baselines*; **whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*). An unattended run with no answer from the user yet takes G6 (1/2) now and leaves 89b–89d for later. D6.10, S6.14 and G6 (2/2) are **[needs user]**; then Block 18 (D7.1). |
-| **Last completed** | D6.11 (1/2) — Text clarity audit: `docs/specs/plain-language.md` (problem counts over all 2 360 rows, rules A/B, 22-term glossary, 30 examples en + de, the plan); five string errors fixed (2026-09-25). |
-| **Before that** | S6.P2 — Map clicks swallowed by the main scene's root (2026-09-25). |
-| **Earlier** | S6.13 — Spectator view and the online list (2026-09-25). |
+| **After it** | **D6.11 (2/2b) — Plain-language pass II** [F] (`plain-language.md` §2, §3, §5.1 passes 4, 5, 7; add passes 4–5 to `REWRITTEN` in `test_plain_language.gd`), then **G6 (1/2) — Balance pass 4** [F]: `docs/BALANCE.md` §5 · *Balance baselines*; **whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). D6.10, S6.14 and G6 (2/2) are **[needs user]**; then Block 18 (D7.1). |
+| **Last completed** | D6.11 (2/2a) — Plain-language pass I: terms, coach, help, HUD and panels, console in en + de (257 rows changed, 10 tooltip keys added), the user's term changes everywhere, the cap and retired-term test, the spec amendments (2026-09-25). |
+| **Before that** | D6.11 (1/2) — Text clarity audit: `docs/specs/plain-language.md` (2026-09-25). |
+| **Earlier** | S6.P2b — Buy-and-place bounced back into the tree (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 346 scripts compile (140 judged by the suite), then `tools/check_strings.gd` (2360 rows), 2292 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 346 scripts compile (140 judged by the suite), then `tools/check_strings.gd` (2370 rows), 2303 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
 | **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
 | **Benchmark** | `"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --model=<id> [--suite=quick] [--seeds=a..b] [--dry-run] [--max-cost=<usd>] [--yes]` (OpenRouter; the key from `OPENROUTER_API_KEY` only) · `--backend=mock:cheapest` (or `wait`, `invalid`, `mixed`; free, no key) · `--bots [--if-missing] [--no-rebuild]` (reference rows, ≈3 min for the standard suite) · `--rebuild` · `--determinism-fixture`. Writes `benchmark/runs/*.json`, `benchmark/leaderboard.json`, `LEADERBOARD.md` (`--out=<dir>` elsewhere; tests use `user://test_bench/`); cache `benchmark/cache/` (ignored). The tool works in `_initialize`, not `_init`: TLS is not ready before the main loop. **Global board (S6.12b):** `"$GODOT" --headless --path . -s tools/bench/verify_runs.gd -- --board=<leaderboard checkout> --game-commit=<40-hex> [--limit=n] [--today=YYYY-MM-DD] [--message=<file>]` (exit 0/1/2/3; a full board of 81 runs ≈80 s); `.github/workflows/leaderboard.yml` (daily + dispatch; no key → gate / read-only dry run). **Whoever changes `data/` regenerates the canary on Windows in the same commit:** `bench_run.gd -- --determinism-fixture` (`test_bench_determinism` fails with that line otherwise). **In the game (S6.13):** title → *Benchmark* (shown when a recorded run exists, the *Online leaderboard* setting is on, or a board on disk has a row): the global board (fetched only when the list opens, ≤ once per 300 s; cache `user://benchmark/online/`, shipped copy `benchmark/global/leaderboard.json`), then the recorded runs (`res://benchmark/showcase/`, `user://benchmark/runs/`, debug builds also `res://benchmark/runs/`); *Watch* replays in the session at 4×. Debug switches: `-- --spectate=<entry.json>`, `-- --global-board=<board.json>` (runs next to it under `runs/`). From godot-mcp: set `local_board_path` on `…/TitleHost/Slot/Benchmark/BoardClient` and call `forget_fetch`; `Game.advance [n]` jumps a watched run ahead. The suite reads `user://test_bench_library/` and `user://test_bench_online/` (`pre_run.gd`). |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
@@ -186,7 +186,7 @@ it and take the next row (IMPLEMENTATION §4).*
 
 **Block 17 — M6 finish: balance, pictures, Steam, the gate**
 - [x] D6.11 (1/2) [F] Text clarity audit, style rules, glossary, 30 examples *(inserted by the user 2026-09-25; `docs/specs/plain-language.md`)*
-- [ ] D6.11 (2/2a) [F] Plain-language pass I: terms, coach, help, HUD and panels, console — **[needs user]** *(the user's answer first)*
+- [x] D6.11 (2/2a) [F] Plain-language pass I: terms, coach, help, HUD and panels, console *(`plain-language.md` §8)*
 - [ ] S6.P3 [O] Event effect lines, "what changed", explanation-first layout, compact tech tree *(punch items 2–3)*
 - [ ] D6.11 (2/2b) [F] Plain-language pass II: cards, what you buy, the flavour check
 - [ ] G6 (1/2) [F] Balance pass 4 *(tuning; data only)*
@@ -219,9 +219,11 @@ without new information.
 - **2026-09-25** (user, answering `plain-language.md` §6) — **Q1 yes** (all term changes), **Q2 yes**
   (Drehkreuz, Finanzdruck, Funkstille), **Q3 no: the emergent behaviours keep their AI-safety names**
   (explained on the card and in the Codex instead), **Q4 yes** (numbers on every card), **Q5 yes**, **Q6 yes**.
-  **Q7 open:** the user did not know what *Abgriff* means — proposal *Zugang* (en *Access*), pending.
+  **Q7 open:** the user did not know what *Abgriff* means — proposal *Zugang* (en *Access*), pending;
+  **applied in D6.11 (2/2a)** as a single-point change (`plain-language.md` §8 lists the nine rows).
   On the 30 examples: the user approved examples 1–3; example 4 (the coach's losing condition) is
   corrected anyway because the old line states the wrong rule (pending the user's confirmation).
+  Q3 *no* turns S6.P3's C7 into a plain Codex line per behaviour under its unchanged name.
 - **2026-09-21** — **Two models.** Design steps (`D`, `G`) run on Fable; build steps (`S`) run on
   Opus. The hand-over is always a spec in `docs/specs/`, never a conversation. Design runs one
   block ahead of the build to keep model switches to ten. (User decision.)
@@ -1455,6 +1457,14 @@ without new information.
 
 ## Deviations from the plan or a spec
 
+- **2026-09-25** (D6.11 2/2a) — **Against IMPLEMENTATION's D6.11 (2/2a) and `plain-language.md`
+  §5.1/§5.3:** (1) the user's renamed terms (Q1, Q2, Q7) were swapped in every rule-A row, the 63
+  rows of passes 4–5 included, so no screen shows the old word beside the new; the full rewrite of
+  those rows stays pass II. (2) The retired-term lint covers the rewritten groups only
+  (`REWRITTEN`); pass II widens it. (3) No overflow screenshots: the user was playing, and a
+  windowed run writes into the shared user folder — S6.P3 takes both sets (§8). (4) Two rows that
+  were over their cap before (German card body and result line) were shortened, not the caps raised.
+
 - **2026-09-25** (S6.13) — **Against `benchmark.md` §12.1, §16.6:** (1) `BenchLibrary`'s three
   folders are `static var`s over the spec's constants, and `GlobalBoardClient.default_cache_dir`
   likewise, so the suite reads `user://test_bench_library/` and `user://test_bench_online/`, never
@@ -2367,13 +2377,12 @@ without new information.
 
 ## Waiting on the user
 
-**D6.11 (1/2) (2026-09-25): read `docs/specs/plain-language.md`** — do the style rules (§2),
-the glossary (§3) and the 30 examples (§4) go in the right direction? Its §6 asks seven short
-questions (new words on screen: *Spuren* for *Signatur*, *Präsenz*, *Einnahmen*, *Einfluss*, phase
-*Entdeckt*, screen *Technologien*, tab *Tarnung*; ability names *Drehkreuz*, *Finanzdruck*,
-*Funkstille*; plain names for the emergent behaviours; numbers on every card; the wire copy below
-the options). Nothing is rewritten wholesale until you answer; the emergent false-choice question
-(*Design questions*) fits the same answer.
+**D6.11 (2/2a) (2026-09-25): *Zugang* for *Abgriff* (Q7) — your final word.** It is on screen
+now (en *Access*, plural *Accesses* — the English plural reads stiffly; *access point(s)* is the
+alternative). Two things to weigh: three node names already use the word in another sense
+(*Automatisierter Laborzugang*, *Genehmigter Zugang*, *Frühwarnsystem-Zugang*), and example 4
+(the coach's losing condition) is corrected as the spec proposed. Changing the word again touches
+the nine rows in `plain-language.md` §8 only.
 
 **S6.12 (2026-09-25): the first live benchmark run** needs `OPENROUTER_API_KEY` in the
 environment (never an argument or a file). A cheap first try — one seed of `openai/gpt-4o-mini`,
@@ -2887,6 +2896,13 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — D6.11 (2/2a) Plain-language pass I [F]
+- The user's §6 answers applied: *Spuren*, *Präsenz*/Presence, *Einnahmen*/income, *Einfluss*/Influence, *Entdeckt*/Discovered,
+  *Im Visier*/Pinpointed, *Technologien*/Technologies, tab *Tarnung*, *Drehkreuz*/Hub, *Finanzdruck*, *Funkstille*, *Level*, *Zugang*/Access (Q7 pending); emergent names kept (Q3 no).
+- Passes 1–3, 6 (coach, help, HUD, panels, console) in en + de; 257 rows changed, 10 tooltip keys for S6.P3; status codes de-duplicated (§8).
+- `test_plain_language.gd` (caps of §5.3, retired and renamed terms, `(*UCP)` boundaries); amendments in CONTENT §10.1/§10.5,
+  `tech-trees.md` §7.4, `first-run.md` §3.5/§6.4. A longer coach text covered the map centre in `test_deploy_click` — shortened. 2303 green.
 
 ### 2026-09-25 — S6.P2b Buy-and-place bounced back into the tree [O]
 - User report: buying a deploying node did nothing, the tree stayed open. A tree reopened during a

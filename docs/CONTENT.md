@@ -395,7 +395,7 @@ Codex (D5.3). PLAN §1 gives the tone; this gives the rules a reviewer can check
 
 | Voice | Where | Addresses | Register |
 | --- | --- | --- | --- |
-| **The console** | interface labels, tooltips, node effect lines, results verdicts | the player, as *you* / *du* | terse, exact, faintly amused; it is the thing the player is (`ui-foundation.md` §8.1) |
+| **The console** | interface labels, tooltips, node effect lines, results verdicts | the player, as *you* / *du* | **plain and exact** wherever it explains a mechanic (rule set A of `docs/specs/plain-language.md`, amended D6.11); "faintly amused" only in the verdicts and in flavour; it is the thing the player is (`ui-foundation.md` §8.1) |
 | **The world** | the ticker's headlines, later the event modals' narration | nobody — it is wire copy; where it quotes an institution addressing the public, that institution says *Sie* | institutional, then emergency (§10.3) |
 | **The margin** | node flavour lines, Codex entries | nobody | the console's dry aside, one joke per tier at most (`tech-trees.md` §7.4) |
 
@@ -485,9 +485,11 @@ Written, not translated. The German institutional register is *Behördendeutsch*
 *es wird darauf hingewiesen*, *im Rahmen der*, *zeitnah*. The emergency register is the idiom of
 the *Katastrophenschutz-Durchsage*: *Dies ist keine Übung*, *Bleiben Sie in Ihren Häusern*,
 *Weitere Anweisungen folgen*. Where the public is addressed it is *Sie*; the interface stays *du*
-(D2.1). Footprint is *Signatur*, Compute is *Rechenleistung*, and neither should appear in a
-headline anyway — the world does not know the player's stats. Quoted euphemisms keep single
-quotes, not „…“. The 88-character cap is tighter than it looks: German compounds do not wrap.
+(D2.1). Footprint is *Spuren* (was *Signatur* until D6.11), Compute is *Rechenleistung*, and
+neither should appear in a headline anyway — the world does not know the player's stats. The
+interface's words are the glossary of `docs/specs/plain-language.md` §3. Quotes are the German
+„…“ (the practice in 171 rows; amended D6.11 — the old rule said single quotes). The
+88-character cap is tighter than it looks: German compounds do not wrap.
 
 ### 10.6 Review checklist
 

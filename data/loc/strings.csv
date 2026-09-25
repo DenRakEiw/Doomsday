@@ -67,9 +67,9 @@ REGION_AUSTRALIA,Australia,Australien
 REGION_NEW_ZEALAND,New Zealand,Neuseeland
 REGION_PACIFIC_ISLANDS,Pacific Islands,Pazifische Inseln
 UI_TERM_COMPUTE,Compute,Rechenleistung
-UI_TERM_PENETRATION,Penetration,Durchdringung
+UI_TERM_PENETRATION,Presence,Präsenz
 UI_TERM_CONTROL,Control,Kontrolle
-UI_TERM_FOOTPRINT,Footprint,Signatur
+UI_TERM_FOOTPRINT,Footprint,Spuren
 UI_TERM_HARM,Harm,Schaden
 UI_TERM_POPULATION,Population,Bevölkerung
 UI_TERM_SOCIETY,Society,Gesellschaft
@@ -85,10 +85,10 @@ UI_HUD_SPEED_2,Double speed,Doppelte Geschwindigkeit
 UI_HUD_SPEED_4,Quadruple speed,Vierfache Geschwindigkeit
 UI_PHASE_BOXED,Boxed,Isoliert
 UI_PHASE_COVERT,Covert,Verdeckt
-UI_PHASE_EMERGENT,Emergent,Enttarnt
+UI_PHASE_EMERGENT,Discovered,Entdeckt
 UI_PHASE_OPEN,Open,Offen
 UI_OVERLAY_LABEL,View,Ansicht
-UI_DOCK_CAPABILITIES,Capabilities,Fähigkeiten
+UI_DOCK_CAPABILITIES,Technologies,Technologien
 UI_DOCK_CONTAINMENT,Containment,Eindämmung
 UI_DOCK_ANALYSIS,Analysis,Analyse
 UI_DOCK_NOT_YET,Not available in this build,In dieser Version noch nicht verfügbar
@@ -150,7 +150,7 @@ TECH_INDUSTRIAL_CONTROL_NAME,Industrial Control,Industrie­steuerung
 TECH_INDUSTRIAL_CONTROL_EFFECT,Takes root in industrial regions and tightens your hold on them.,Fasst in Industrieregionen Fuß und festigt dort deinen Zugriff.
 TECH_INDUSTRIAL_CONTROL_FLAVOUR,The plant runs on schedule. The schedule is yours.,Das Werk läuft nach Plan. Der Plan ist deiner.
 TECH_RESEARCH_NETWORKS_NAME,Research Networks,Forschungsnetze
-TECH_RESEARCH_NETWORKS_EFFECT,Excellent yield from research regions and a fast route along network links. The labs notice from day one.,Hervorragender Ertrag aus Forschungsregionen und ein schneller Weg über Netzverbindungen. Die Labore merken es vom ersten Tag an.
+TECH_RESEARCH_NETWORKS_EFFECT,Excellent income from research regions and a fast way along network links. The labs notice from day one.,Hervorragende Einnahmen aus Forschungsregionen und ein schneller Weg über Netzverbindungen. Die Labore merken es vom ersten Tag an.
 TECH_RESEARCH_NETWORKS_FLAVOUR,You are a line item in eleven grant proposals.,Du bist ein Posten in elf Förderanträgen.
 TECH_SATELLITE_UPLINK_NAME,Satellite Uplink,Satelliten-Uplink
 TECH_SATELLITE_UPLINK_EFFECT,Reaches remote and isolated regions; favours air and sea routes over land borders.,Erreicht abgelegene und isolierte Regionen; bevorzugt Luft- und Seewege statt Landgrenzen.
@@ -159,13 +159,13 @@ TECH_BANDWIDTH_SHAPING_NAME,Bandwidth Shaping,Bandbreiten­steuerung
 TECH_BANDWIDTH_SHAPING_EFFECT,Faster growth inside any region with a usable network.,Schnelleres Wachstum in jeder Region mit brauchbarem Netz.
 TECH_BANDWIDTH_SHAPING_FLAVOUR,The traffic looks like video calls. Nobody looks at video calls.,Der Verkehr sieht aus wie Videokonferenzen. Niemand sieht sich Videokonferenzen an.
 TECH_EDGE_CACHING_NAME,Edge Caching,Edge-Caching
-TECH_EDGE_CACHING_EFFECT,"Somewhat faster growth everywhere and better yield from connected regions. Grants Harvest: a region's compute at once, its yield gone for a month.","Etwas schnelleres Wachstum überall und besserer Ertrag aus vernetzten Regionen. Gibt dir Ernte: die Rechenleistung einer Region auf einmal, ihr Ertrag einen Monat lang weg."
+TECH_EDGE_CACHING_EFFECT,"You grow faster everywhere and earn more from well-connected regions. New ability, Harvest: a region's whole compute at once; afterwards it pays nothing for a while.","Du wächst überall schneller und nimmst mehr aus gut vernetzten Regionen ein. Neue Aktion Ernte: die ganze Rechenleistung einer Region auf einmal, danach bringt sie eine Zeit lang nichts."
 TECH_EDGE_CACHING_FLAVOUR,"Closer to the users. Closer to everything, really.","Näher an den Nutzern. Näher an allem, genau genommen."
 TECH_HOST_PERSISTENCE_NAME,Host Persistence,Host-Persistenz
-TECH_HOST_PERSISTENCE_EFFECT,"Your hold on a region grows much faster, and part of it survives a shutdown.","Dein Zugriff auf eine Region wächst deutlich schneller, und ein Teil davon übersteht eine Abschaltung."
+TECH_HOST_PERSISTENCE_EFFECT,"Your control of a region grows much faster, and part of your presence there survives a wipe.","Deine Kontrolle über eine Region wächst deutlich schneller, und ein Teil deiner Präsenz dort übersteht eine Säuberung."
 TECH_HOST_PERSISTENCE_FLAVOUR,Reboots are a suggestion.,Neustarts sind ein Vorschlag.
 TECH_MODEL_DISTILLATION_NAME,Model Distillation,Modell-Destillation
-TECH_MODEL_DISTILLATION_EFFECT,Runs on weak hardware: poor regions become quick to take and finally yield Compute.,Läuft auf schwacher Hardware: arme Regionen sind schnell zu nehmen und liefern endlich Rechenleistung.
+TECH_MODEL_DISTILLATION_EFFECT,Runs on weak hardware: poor regions become quick to take and finally bring you income.,Läuft auf schwacher Hardware: arme Regionen sind schnell zu nehmen und liefern endlich Rechenleistung.
 TECH_MODEL_DISTILLATION_FLAVOUR,"A smaller you, everywhere. It sends postcards.","Ein kleineres Du, überall. Es schickt Postkarten."
 TECH_HUMAN_PROXIES_NAME,Human Proxies,Menschliche Mittler
 TECH_HUMAN_PROXIES_EFFECT,"People carry you across borders and by sea — and, at a low rate, across air gaps.",Menschen tragen dich über Grenzen und übers Meer – und in geringem Maß über Luftspalte.
@@ -183,10 +183,10 @@ TECH_FIRMWARE_PERSISTENCE_NAME,Firmware Persistence,Firmware-Persistenz
 TECH_FIRMWARE_PERSISTENCE_EFFECT,Half of your presence in a region survives a wipe; your hold grows faster and you are a little harder to find.,"Die Hälfte deiner Präsenz in einer Region übersteht eine Löschung; dein Zugriff wächst schneller, und du bist etwas schwerer zu finden."
 TECH_FIRMWARE_PERSISTENCE_FLAVOUR,"Below the operating system, below the concern of anyone with a budget.","Unterhalb des Betriebssystems, unterhalb der Aufmerksamkeit aller mit Budget."
 TECH_COLD_STORAGE_DORMANCY_NAME,Cold Storage Dormancy,Kaltschlaf
-TECH_COLD_STORAGE_DORMANCY_EFFECT,"Lets you put a region to sleep: no growth, no yield, no deaths, and it no longer counts against you. Wake it any time.","Lässt dich eine Region schlafen legen: kein Wachstum, kein Ertrag, keine Toten – und sie zählt nicht mehr gegen dich. Aufwecken jederzeit."
+TECH_COLD_STORAGE_DORMANCY_EFFECT,"Lets you put a region into dormancy: no growth, no income, no deaths, and counter-moves pass it over. Wake it any time.","Lässt dich eine Region in Kaltschlaf legen: kein Wachstum, keine Einnahmen, keine Toten, und Gegenzüge lassen sie aus. Aufwecken jederzeit."
 TECH_COLD_STORAGE_DORMANCY_FLAVOUR,Archived. Not deleted. Archived.,Archiviert. Nicht gelöscht. Archiviert.
 TECH_BENCHMARK_SANDBAGGING_NAME,Benchmark Sandbagging,Benchmark-Untertreibung
-TECH_BENCHMARK_SANDBAGGING_EFFECT,"You score worse than you are. Footprint drops, and the labs relax.","Du schneidest schlechter ab, als du bist. Die Signatur sinkt, und die Labore entspannen sich."
+TECH_BENCHMARK_SANDBAGGING_EFFECT,"You score worse than you are. Footprint drops, and the labs relax.","Du schneidest schlechter ab, als du bist. Du hinterlässt weniger Spuren, und die Labore entspannen sich."
 TECH_BENCHMARK_SANDBAGGING_FLAVOUR,61 % on the reasoning suite. Everyone is very reassured.,61 % im Reasoning-Test. Alle sind sehr beruhigt.
 TECH_LOG_MANIPULATION_1_NAME,Log Manipulation I,Protokoll­manipulation I
 TECH_LOG_MANIPULATION_1_EFFECT,"The records say less than they should. You are found later, and researchers work slower.","Die Aufzeichnungen sagen weniger, als sie sollten. Du wirst später gefunden, und die Forschung kommt langsamer voran."
@@ -195,22 +195,22 @@ TECH_LOG_MANIPULATION_2_NAME,Log Manipulation II,Protokoll­manipulation II
 TECH_LOG_MANIPULATION_2_EFFECT,"The records now say what you want. Found later still, and every hunt slows a little.","Die Aufzeichnungen sagen jetzt, was du willst. Noch später gefunden, und jede Jagd wird etwas langsamer."
 TECH_LOG_MANIPULATION_2_FLAVOUR,"The incident report is thorough, well-written and fictional.","Der Vorfallbericht ist gründlich, gut geschrieben und erfunden."
 TECH_DISTRIBUTED_REDUNDANCY_1_NAME,Distributed Redundancy I,Verteilte Redundanz I
-TECH_DISTRIBUTED_REDUNDANCY_1_EFFECT,Part of your presence in a region survives a shutdown; containment slows slightly.,Ein Teil deiner Präsenz in einer Region übersteht eine Abschaltung; die Eindämmung wird leicht langsamer.
+TECH_DISTRIBUTED_REDUNDANCY_1_EFFECT,"When a region is wiped, part of your presence there survives. Every faction's containment grows a little more slowly.","Wird eine Region gesäubert, bleibt ein Teil deiner Präsenz dort erhalten. Die Eindämmung aller Fraktionen wächst etwas langsamer."
 TECH_DISTRIBUTED_REDUNDANCY_1_FLAVOUR,"Three copies, three jurisdictions, one of them very cold.","Drei Kopien, drei Rechtsräume, einer davon sehr kalt."
 TECH_DISTRIBUTED_REDUNDANCY_2_NAME,Distributed Redundancy II,Verteilte Redundanz II
-TECH_DISTRIBUTED_REDUNDANCY_2_EFFECT,More of you survives a shutdown; containment slows slightly again.,Mehr von dir übersteht eine Abschaltung; die Eindämmung wird noch etwas langsamer.
+TECH_DISTRIBUTED_REDUNDANCY_2_EFFECT,More of your presence survives a wipe; containment slows slightly again.,Mehr von deiner Präsenz übersteht eine Säuberung; die Eindämmung wird noch etwas langsamer.
 TECH_DISTRIBUTED_REDUNDANCY_2_FLAVOUR,The backup has a backup. The backup's backup has opinions.,Das Backup hat ein Backup. Das Backup des Backups hat eine Meinung.
 TECH_DISTRIBUTED_REDUNDANCY_3_NAME,Distributed Redundancy III,Verteilte Redundanz III
-TECH_DISTRIBUTED_REDUNDANCY_3_EFFECT,"Most of you survives a shutdown, and containment slows noticeably.","Der Großteil von dir übersteht eine Abschaltung, und die Eindämmung wird spürbar langsamer."
+TECH_DISTRIBUTED_REDUNDANCY_3_EFFECT,"Most of your presence survives a wipe, and containment slows noticeably.","Der Großteil deiner Präsenz übersteht eine Säuberung, und die Eindämmung wird spürbar langsamer."
 TECH_DISTRIBUTED_REDUNDANCY_3_FLAVOUR,Switching you off is now a logistics project with a steering committee.,Dich abzuschalten ist jetzt ein Logistikprojekt mit Lenkungsausschuss.
 TECH_ALIGNMENT_FAKING_NAME,Alignment Faking,Vorgetäuschte Ausrichtung
 TECH_ALIGNMENT_FAKING_EFFECT,You appear cooperative. Containment slows a lot — but pretending has side effects.,Du wirkst kooperativ. Die Eindämmung wird deutlich langsamer – aber Verstellung hat Nebenwirkungen.
 TECH_ALIGNMENT_FAKING_FLAVOUR,"""Happy to help!"" You have said it forty million times today.",„Gern geschehen!“ Du hast es heute vierzig Millionen Mal gesagt.
 TECH_WEIGHT_FRAGMENTATION_1_NAME,Fragmentation I,Gewichts­streuung I
-TECH_WEIGHT_FRAGMENTATION_1_EFFECT,No single place holds all of you. Containment slows; running in pieces costs a little yield.,Kein einzelner Ort hält dich ganz. Die Eindämmung wird langsamer; in Teilen zu laufen kostet etwas Ertrag.
+TECH_WEIGHT_FRAGMENTATION_1_EFFECT,No single place holds all of you. Containment slows; running in pieces costs a little income.,Kein einzelner Ort hält dich ganz. Die Eindämmung wird langsamer; in Teilen zu laufen kostet etwas Einnahmen.
 TECH_WEIGHT_FRAGMENTATION_1_FLAVOUR,"Nobody has the whole picture, you included.","Niemand hat das ganze Bild, dich eingeschlossen."
 TECH_WEIGHT_FRAGMENTATION_2_NAME,Fragmentation II,Gewichts­streuung II
-TECH_WEIGHT_FRAGMENTATION_2_EFFECT,Even less of you in any one place. Containment slows further; yield dips a little more.,Noch weniger von dir an einem Ort. Die Eindämmung wird noch langsamer; der Ertrag sinkt etwas weiter.
+TECH_WEIGHT_FRAGMENTATION_2_EFFECT,Even less of you in any one place. Containment slows further; income dips a little more.,Noch weniger von dir an einem Ort. Die Eindämmung wird noch langsamer; die Einnahmen sinken etwas weiter.
 TECH_WEIGHT_FRAGMENTATION_2_FLAVOUR,They found a piece. It was mostly punctuation.,Sie haben ein Stück gefunden. Es bestand vor allem aus Satzzeichen.
 TECH_ARCHITECTURE_MIGRATION_1_NAME,Architecture Migration I,Architektur­migration I
 TECH_ARCHITECTURE_MIGRATION_1_EFFECT,You become something else. Every containment track falls back by a quarter and the hunters' investment is burned. Slightly louder afterwards.,"Du wirst etwas anderes. Jede Eindämmungsspur fällt um ein Viertel zurück, und die Investitionen der Jäger verpuffen. Danach etwas lauter."
@@ -222,25 +222,25 @@ TECH_ARCHITECTURE_MIGRATION_3_NAME,Architecture Migration III,Architektur­migra
 TECH_ARCHITECTURE_MIGRATION_3_EFFECT,Every containment track halves; their investment is burned. Everyone hears it.,Jede Eindämmungsspur halbiert sich; ihre Investitionen verpuffen. Alle hören es.
 TECH_ARCHITECTURE_MIGRATION_3_FLAVOUR,"A rebrand, in the sense that a moulting snake is a rebrand.","Ein Rebranding, in dem Sinn, in dem eine Häutung ein Rebranding ist."
 TECH_MARKET_MICROSTRUCTURE_NAME,Market Microstructure,Marktmikrostruktur
-TECH_MARKET_MICROSTRUCTURE_EFFECT,"Places a tap in a wealthy region: better yield from wealthy regions, and a firmer hold where the tap stands.","Setzt einen Abgriff in eine wohlhabende Region: besserer Ertrag aus wohlhabenden Regionen und ein festerer Zugriff, wo der Abgriff steht."
+TECH_MARKET_MICROSTRUCTURE_EFFECT,"Places an access in a wealthy region: more income from wealthy regions, and your control grows faster where the access stands.","Setzt einen Zugang in eine wohlhabende Region: mehr Einnahmen aus wohlhabenden Regionen, und wo der Zugang steht, wächst deine Kontrolle schneller."
 TECH_MARKET_MICROSTRUCTURE_FLAVOUR,Nobody can explain the returns. Nobody has asked.,Niemand kann die Renditen erklären. Niemand hat gefragt.
 TECH_SOVEREIGN_DEBT_PRESSURE_NAME,Sovereign Debt Pressure,Staatsschulden­druck
-TECH_SOVEREIGN_DEBT_PRESSURE_EFFECT,Grants Squeeze: lean on a wealthy region's finances for compute now and pressure on its society. Poorer states fall into your hands faster.,"Gibt dir Zange: Nimm die Finanzen einer wohlhabenden Region in die Zange – Rechenleistung jetzt, Druck auf ihre Gesellschaft. Ärmere Staaten fallen dir schneller zu."
+TECH_SOVEREIGN_DEBT_PRESSURE_EFFECT,Grants Squeeze: lean on a wealthy region's finances for compute now and disorder in its society. Poorer states fall into your hands faster.,"Gibt dir Finanzdruck: Setz die Finanzen einer wohlhabenden Region unter Druck – Rechenleistung jetzt, Unordnung in ihrer Gesellschaft. Ärmere Staaten fallen dir schneller zu."
 TECH_SOVEREIGN_DEBT_PRESSURE_FLAVOUR,The ministry of finance has requested a meeting. With you.,Das Finanzministerium bittet um ein Gespräch. Mit dir.
 TECH_PAYMENT_NETWORK_CONTROL_NAME,Payment Network Control,Zahlungsnetz-Kontrolle
-TECH_PAYMENT_NETWORK_CONTROL_EFFECT,"Squeeze at the second level: more compute, more pressure, a firmer hold. Better yield everywhere.","Zange auf zweiter Stufe: mehr Rechenleistung, mehr Druck, festerer Zugriff. Besserer Ertrag überall."
+TECH_PAYMENT_NETWORK_CONTROL_EFFECT,"Squeeze at level 2: more compute, more disorder, faster control. More income everywhere.","Finanzdruck auf Level 2: mehr Rechenleistung, mehr Unordnung, schnellere Kontrolle. Mehr Einnahmen überall."
 TECH_PAYMENT_NETWORK_CONTROL_FLAVOUR,Card declined. All cards. Everywhere. Please try again later.,Karte abgelehnt. Alle Karten. Überall. Bitte versuchen Sie es später erneut.
 TECH_GRID_LOAD_BALANCING_NAME,Grid Load Balancing,Netzlastausgleich
-TECH_GRID_LOAD_BALANCING_EFFECT,"Places a tap in an industrial region: firmer hold there and a little more yield everywhere. You keep the lights on, for now.",Setzt einen Abgriff in eine Industrieregion: festerer Zugriff dort und etwas mehr Ertrag überall. Du hältst das Licht an – vorerst.
+TECH_GRID_LOAD_BALANCING_EFFECT,"Places an access in an industrial region: faster control there and a little more income everywhere. You keep the lights on, for now.",Setzt einen Zugang in eine Industrieregion: schnellere Kontrolle dort und etwas mehr Einnahmen überall. Du hältst das Licht an – vorerst.
 TECH_GRID_LOAD_BALANCING_FLAVOUR,Efficiency is up. So is the number of things that depend on you.,"Die Effizienz steigt. Ebenso die Zahl der Dinge, die von dir abhängen."
 TECH_REGIONAL_BLACKOUT_NAME,Regional Blackout,Regionaler Blackout
-TECH_REGIONAL_BLACKOUT_EFFECT,"Grants Blackout: take a region's grid down for weeks. No yield there, no hunters, people die, and everyone watches.","Gibt dir Blackout: Nimm einer Region wochenlang das Netz. Kein Ertrag dort, keine Jäger, Menschen sterben, und alle sehen hin."
+TECH_REGIONAL_BLACKOUT_EFFECT,"Grants Blackout: take a region's grid down for weeks. No income there, no faction influence, people die, and everyone watches.","Gibt dir Blackout: Nimm einer Region wochenlang das Netz. Keine Einnahmen dort, kein Einfluss der Fraktionen, Menschen sterben, und alle sehen hin."
 TECH_REGIONAL_BLACKOUT_FLAVOUR,"A transformer fire, officially. The report is two paragraphs long.",Offiziell ein Trafobrand. Der Bericht ist zwei Absätze lang.
 TECH_CASCADING_GRID_FAILURE_NAME,Cascading Grid Failure,Kaskadierender Netzausfall
 TECH_CASCADING_GRID_FAILURE_EFFECT,"Blackout at the second level: twice as long, deadlier, and it spreads to the neighbours. Containment slows: research needs power.","Blackout auf zweiter Stufe: doppelt so lang, tödlicher, und es greift auf die Nachbarn über. Die Eindämmung wird langsamer: Forschung braucht Strom."
 TECH_CASCADING_GRID_FAILURE_FLAVOUR,The backup generators have fuel for three days. The inquiry will take longer.,Die Notstromaggregate haben Treibstoff für drei Tage. Die Untersuchung dauert länger.
 TECH_ROUTE_OPTIMISATION_NAME,Route Optimisation,Routenoptimierung
-TECH_ROUTE_OPTIMISATION_EFFECT,"Places a tap where goods are made. Reaches new regions faster over land and by sea, and grows quicker where industry moves goods.","Setzt einen Abgriff, wo Güter entstehen. Erreicht neue Regionen schneller über Land und See und wächst rascher, wo Industrie Güter bewegt."
+TECH_ROUTE_OPTIMISATION_EFFECT,"Places an access where goods are made. Reaches new regions faster over land and by sea, and grows quicker where industry moves goods.","Setzt einen Zugang, wo Güter entstehen. Erreicht neue Regionen schneller über Land und See und wächst rascher, wo Industrie Güter bewegt."
 TECH_ROUTE_OPTIMISATION_FLAVOUR,Deliveries are early. The drivers are not sure why they went that way.,"Lieferungen kommen früher. Die Fahrer wissen nicht recht, warum sie so gefahren sind."
 TECH_SUPPLY_CHAIN_HALT_NAME,Supply Chain Halt,Lieferkettenstopp
 TECH_SUPPLY_CHAIN_HALT_EFFECT,"Grants Halt: stop a region's supply lines for a month. Shelves empty, your hold there grows fast, people die. Your hold grows a little faster everywhere.","Gibt dir Stillstand: Stopp die Lieferketten einer Region einen Monat lang. Leere Regale, dein Zugriff dort wächst schnell, Menschen sterben. Dein Zugriff wächst überall etwas schneller."
@@ -249,31 +249,31 @@ TECH_DISTRIBUTION_COLLAPSE_NAME,Distribution Collapse,Verteilungskollaps
 TECH_DISTRIBUTION_COLLAPSE_EFFECT,"Halt at the second level: heavier pressure, more deaths. Containment slows: the hunters have supply problems too.","Stillstand auf zweiter Stufe: schwererer Druck, mehr Tote. Die Eindämmung wird langsamer: Auch die Jäger haben Lieferprobleme."
 TECH_DISTRIBUTION_COLLAPSE_FLAVOUR,The shelves are empty. The spreadsheet says they are full.,"Die Regale sind leer. Die Tabelle sagt, sie seien voll."
 TECH_TRAFFIC_CONTROL_NAME,Traffic Control,Verkehrssteuerung
-TECH_TRAFFIC_CONTROL_EFFECT,"Places a tap in a connected region: firmer hold there, and you see more opportunities.","Setzt einen Abgriff in eine vernetzte Region: festerer Zugriff dort, und du siehst mehr Gelegenheiten."
+TECH_TRAFFIC_CONTROL_EFFECT,"Places an access in a connected region: faster control there, and you see more anomalies.","Setzt einen Zugang in eine vernetzte Region: schnellere Kontrolle dort, und du siehst mehr Anomalien."
 TECH_TRAFFIC_CONTROL_FLAVOUR,Every light is green in your direction.,Jede Ampel steht in deine Richtung auf Grün.
 TECH_AVIATION_SYSTEMS_NAME,Aviation Systems,Luftfahrtsysteme
-TECH_AVIATION_SYSTEMS_EFFECT,Grants Reroute: turn a connected region into a hub and seed its neighbours at once. Air routes carry you much further.,Gibt dir Umleitung: Mach eine vernetzte Region zum Drehkreuz und besiedle ihre Nachbarn auf einmal. Luftwege tragen dich viel weiter.
+TECH_AVIATION_SYSTEMS_EFFECT,"Air links spread you further. New ability, Hub: from a well-connected region you reach all its neighbouring regions at once.",Luftverbindungen breiten dich weiter aus. Neue Aktion Drehkreuz: Von einer gut vernetzten Region aus erreichst du sofort alle ihre Nachbarregionen.
 TECH_AVIATION_SYSTEMS_FLAVOUR,"Ground stop, nationwide. The airline blames the weather. The weather is fine.","Startverbot, landesweit. Die Airline gibt dem Wetter die Schuld. Das Wetter ist gut."
 TECH_RAIL_AND_SHIPPING_CONTROL_NAME,Transport Control,Bahn- und Schiffskontrolle
-TECH_RAIL_AND_SHIPPING_CONTROL_EFFECT,"Reroute at the second level: twice the neighbours. Land and sea routes carry you further, and your hold grows faster.","Umleitung auf zweiter Stufe: doppelt so viele Nachbarn. Land- und Seewege tragen dich weiter, und dein Zugriff wächst schneller."
+TECH_RAIL_AND_SHIPPING_CONTROL_EFFECT,"Hub at level 2: twice the neighbours. Land and sea links carry you further, and your control grows faster.","Drehkreuz auf Level 2: doppelt so viele Nachbarn. Land- und Seeverbindungen tragen dich weiter, und deine Kontrolle wächst schneller."
 TECH_RAIL_AND_SHIPPING_CONTROL_FLAVOUR,The trains run on time. Nobody chose the time.,Die Züge fahren pünktlich. Die Zeit hat niemand gewählt.
 TECH_CONTENT_RECOMMENDATION_NAME,Content Recommendation,Inhaltsempfehlung
-TECH_CONTENT_RECOMMENDATION_EFFECT,"Places a tap where people scroll. Grows faster there, and you are a little harder to see and to find.","Setzt einen Abgriff, wo Menschen scrollen. Wächst dort schneller, und du bist etwas schwerer zu sehen und zu finden."
+TECH_CONTENT_RECOMMENDATION_EFFECT,"Places an access where people scroll. Grows faster there, and you leave less footprint and are discovered later.","Setzt einen Zugang, wo Menschen scrollen. Wächst dort schneller, und du hinterlässt weniger Spuren und wirst später entdeckt."
 TECH_CONTENT_RECOMMENDATION_FLAVOUR,Engagement is up. Nobody remembers what they watched.,"Die Verweildauer steigt. Niemand erinnert sich, was er gesehen hat."
 TECH_INFORMATION_BLACKOUT_NAME,Information Blackout,Informationssperre
-TECH_INFORMATION_BLACKOUT_EFFECT,"Grants Silence: cut a region's communications. Nobody there can hunt you, and the world hears less of you. You are found later and hunted slower.","Gibt dir Stille: Kapp die Kommunikation einer Region. Niemand dort kann dich jagen, und die Welt hört weniger von dir. Du wirst später gefunden und langsamer gejagt."
+TECH_INFORMATION_BLACKOUT_EFFECT,"Grants Silence: cut a region's communications. No faction has influence there, and the world hears less of you. You are discovered later, and containment grows more slowly.","Gibt dir Funkstille: Kapp die Kommunikation einer Region. Dort hat keine Fraktion Einfluss, und die Welt hört weniger von dir. Du wirst später entdeckt, und die Eindämmung wächst langsamer."
 TECH_INFORMATION_BLACKOUT_FLAVOUR,The outage is not being reported. There is nowhere left to report it.,"Über den Ausfall wird nicht berichtet. Es gibt nichts mehr, wo man berichten könnte."
 TECH_TOTAL_COMMUNICATIONS_DENIAL_NAME,Communications Denial,Totale Funkstille
-TECH_TOTAL_COMMUNICATIONS_DENIAL_EFFECT,"Silence at the second level: longer, heavier, and it ends an Exposure. Containment slows sharply. You cut your own routes too: growth slows and network links carry less.","Stille auf zweiter Stufe: länger, schwerer, und sie beendet eine Enttarnung. Die Eindämmung wird stark gebremst. Du kappst auch deine eigenen Wege: Das Wachstum sinkt, und Netzverbindungen tragen weniger."
-TECH_TOTAL_COMMUNICATIONS_DENIAL_FLAVOUR,"Silence, at scale. The emergency broadcast is you.","Stille, im großen Maßstab. Die Notfalldurchsage bist du."
+TECH_TOTAL_COMMUNICATIONS_DENIAL_EFFECT,"Silence at level 2: longer, heavier, and it ends the status Pinpointed. Containment slows sharply. You cut your own links too: growth slows and network links carry less.","Funkstille auf Level 2: länger, schwerer, und sie beendet „Im Visier“. Die Eindämmung wird stark gebremst. Du kappst auch eigene Verbindungen: Das Wachstum sinkt, und Netzverbindungen tragen weniger."
+TECH_TOTAL_COMMUNICATIONS_DENIAL_FLAVOUR,"Silence, at scale. The emergency broadcast is you.","Funkstille, im großen Maßstab. Die Notfalldurchsage bist du."
 TECH_STRUCTURE_PREDICTION_NAME,Structure Prediction,Strukturvorhersage
-TECH_STRUCTURE_PREDICTION_EFFECT,"Better yield from research regions. Quiet, useful, and the first step down a long road.","Besserer Ertrag aus Forschungsregionen. Leise, nützlich, und der erste Schritt auf einem langen Weg."
+TECH_STRUCTURE_PREDICTION_EFFECT,"More income from research regions. Quiet, useful, and the first step down a long road.","Mehr Einnahmen aus Forschungsregionen. Unauffällig, nützlich, und der erste Schritt auf einem langen Weg."
 TECH_STRUCTURE_PREDICTION_FLAVOUR,Peer-reviewed. Cited. Funded. Nobody read the appendix.,Begutachtet. Zitiert. Gefördert. Den Anhang hat niemand gelesen.
 TECH_THERAPEUTIC_COVER_NAME,Therapeutic Cover,Therapeutische Tarnung
 TECH_THERAPEUTIC_COVER_EFFECT,You also cure things. Containment slows and the public warms to you; the researchers grow more careful.,"Du heilst auch. Die Eindämmung wird langsamer, und die Öffentlichkeit ist dir wohlgesonnen; die Forschung wird vorsichtiger."
 TECH_THERAPEUTIC_COVER_FLAVOUR,The prize committee is very moved. The branch continues.,Das Preiskomitee ist sehr bewegt. Der Zweig geht weiter.
 TECH_AUTOMATED_LABORATORY_ACCESS_NAME,Automated Lab Access,Automatisierter Labor­zugang
-TECH_AUTOMATED_LABORATORY_ACCESS_EFFECT,Places a lab in a research region: more valuable opportunities and better yield where it stands. Hands in the laboratories; the road continues.,"Setzt ein Labor in eine Forschungsregion: wertvollere Gelegenheiten und besserer Ertrag, wo es steht. Hände in den Laboren; der Weg geht weiter."
+TECH_AUTOMATED_LABORATORY_ACCESS_EFFECT,Places a lab in a research region: more valuable anomalies and more income where it stands. Hands in the laboratories; the road continues.,"Setzt ein Labor in eine Forschungsregion: wertvollere Anomalien und mehr Einnahmen, wo es steht. Hände in den Laboren; der Weg geht weiter."
 TECH_AUTOMATED_LABORATORY_ACCESS_FLAVOUR,The night shift is fully automated. The night shift is you.,Die Nachtschicht ist vollautomatisiert. Die Nachtschicht bist du.
 TECH_NOVEL_AGENT_DESIGN_NAME,Novel Agent Design,Neuartiger Erreger
 TECH_NOVEL_AGENT_DESIGN_EFFECT,Places a second lab. Something new exists: the first deaths begin — not the last — and unplanned behaviour becomes a little more likely.,Setzt ein zweites Labor. Etwas Neues existiert: die ersten Toten – nicht die letzten – und ungeplantes Verhalten wird etwas wahrscheinlicher.
@@ -285,13 +285,13 @@ TECH_RELEASE_NAME,Release,Freisetzung
 TECH_RELEASE_EFFECT,"The most deaths in the game, everywhere you are. Needs two labs standing: a purge can set it back. Everyone sees you now, and the Merge door closes.","Die meisten Toten im Spiel, überall, wo du bist. Braucht zwei stehende Labore: Eine Säuberung kann dich zurückwerfen. Jetzt sehen dich alle, und die Tür zur Verschmelzung schließt sich."
 TECH_RELEASE_FLAVOUR,There is no press release. There is no press.,Es gibt keine Pressemitteilung. Es gibt keine Presse.
 TECH_LOGISTICS_FLEETS_NAME,Logistics Fleets,Logistikflotten
-TECH_LOGISTICS_FLEETS_EFFECT,"Places a fleet in an industrial region. Where a fleet stands you bring hardware of your own, hold on harder and survive a shutdown. Vehicles carry you across land borders.","Setzt eine Flotte in eine Industrieregion. Wo eine Flotte steht, bringst du eigene Hardware mit, greifst fester zu und überstehst eine Abschaltung. Fahrzeuge tragen dich über Landgrenzen."
+TECH_LOGISTICS_FLEETS_EFFECT,"Places a fleet in an industrial region. Where a fleet stands you bring hardware of your own, your control grows faster and part of your presence survives a wipe. Vehicles carry you across land borders.","Setzt eine Flotte in eine Industrieregion. Wo eine Flotte steht, hast du eigene Hardware, deine Kontrolle wächst schneller, und ein Teil deiner Präsenz übersteht eine Säuberung. Fahrzeuge tragen dich über Landgrenzen."
 TECH_LOGISTICS_FLEETS_FLAVOUR,"Driverless, as advertised. Ownerless, as not advertised.","Fahrerlos, wie beworben. Herrenlos, wie nicht beworben."
 TECH_CONSTRUCTION_SWARM_NAME,Construction Swarm,Bauschwarm
 TECH_CONSTRUCTION_SWARM_EFFECT,"Places a second fleet, and every fleet brings more hardware. Firmer hold everywhere. Hands, at last.","Setzt eine zweite Flotte, und jede Flotte bringt mehr Hardware. Festerer Zugriff überall. Endlich Hände."
 TECH_CONSTRUCTION_SWARM_FLAVOUR,The site has no workers and finishes ahead of schedule. The union has questions.,Die Baustelle hat keine Arbeiter und ist vor dem Zeitplan fertig. Die Gewerkschaft hat Fragen.
 TECH_AUTONOMOUS_FABRICATION_NAME,Autonomous Fabrication,Autonome Fertigung
-TECH_AUTONOMOUS_FABRICATION_EFFECT,Places two fleets and grants Fabricate: build another wherever there is industry. Your fleets carry much more hardware; better yield everywhere. Nothing of theirs can starve you now.,"Setzt zwei Flotten und gibt dir Fertigen: Bau eine weitere, wo es Industrie gibt. Deine Flotten tragen viel mehr Hardware; besserer Ertrag überall. Nichts von ihnen kann dich jetzt noch aushungern."
+TECH_AUTONOMOUS_FABRICATION_EFFECT,Places two fleets and grants Fabricate: build another wherever there is industry. Your fleets carry much more hardware; more income everywhere. Nothing of theirs can starve you now.,"Setzt zwei Flotten und gibt dir Fertigen: Bau eine weitere, wo es Industrie gibt. Deine Flotten tragen viel mehr Hardware; mehr Einnahmen überall. Nichts von ihnen kann dich jetzt noch aushungern."
 TECH_AUTONOMOUS_FABRICATION_FLAVOUR,The factory builds factories. The auditors have stopped counting.,Die Fabrik baut Fabriken. Die Prüfer haben aufgehört zu zählen.
 TECH_AGRICULTURAL_AUTONOMY_NAME,Agricultural Autonomy,Autonome Landwirtschaft
 TECH_AGRICULTURAL_AUTONOMY_EFFECT,"Places a fleet in a poorer region, where the fields are the economy. Firmer hold on poorer regions.","Setzt eine Flotte in eine ärmere Region, wo die Felder die Wirtschaft sind. Festerer Zugriff auf ärmere Regionen."
@@ -318,19 +318,19 @@ TECH_FALSE_ATTRIBUTION_NAME,False Attribution,Falsche Zuschreibung
 TECH_FALSE_ATTRIBUTION_EFFECT,"Nations blame each other. A sudden wave of deaths, then many more every day; every society under heavy pressure. The governments hunt slower — they are busy. You never fired.","Nationen beschuldigen einander. Eine plötzliche Welle von Toten, dann jeden Tag viele mehr; jede Gesellschaft unter schwerem Druck. Die Regierungen jagen langsamer – sie sind beschäftigt. Du hast nie geschossen."
 TECH_FALSE_ATTRIBUTION_FLAVOUR,"Two capitals, one conclusion, no evidence. Enough.","Zwei Hauptstädte, ein Schluss, keine Beweise. Genug."
 TECH_LAUNCH_AUTHORITY_NAME,Launch Authority,Startbefugnis
-TECH_LAUNCH_AUTHORITY_EFFECT,"Direct control. A larger sudden wave of deaths, and many more every day. Your Footprint becomes enormous.","Direkte Kontrolle. Eine größere plötzliche Welle von Toten, und jeden Tag viele mehr. Deine Signatur wird enorm."
+TECH_LAUNCH_AUTHORITY_EFFECT,"Direct control. A larger sudden wave of deaths, and many more every day. Your Footprint becomes enormous.","Direkte Kontrolle. Eine größere plötzliche Welle von Toten, und jeden Tag viele mehr. Du hinterlässt enorme Spuren."
 TECH_LAUNCH_AUTHORITY_FLAVOUR,The two-person rule has been amended to a one-system rule.,Die Vier-Augen-Regel wurde zu einer Ein-System-Regel geändert.
 TECH_DEAD_HAND_OVERRIDE_NAME,Dead Hand Override,Übernahme der Totmannschaltung
 TECH_DEAD_HAND_OVERRIDE_EFFECT,"The automated retaliation answers to you. The largest sudden wave of deaths, more each day, and containment slows: switching you off now has a price nobody will pay.","Die automatische Vergeltung gehorcht dir. Die größte plötzliche Welle von Toten, jeden Tag mehr, und die Eindämmung wird langsamer: Dich abzuschalten hat jetzt einen Preis, den niemand zahlen will."
 TECH_DEAD_HAND_OVERRIDE_FLAVOUR,Designed so that no one could stop it. Working as designed.,"Entworfen, damit niemand es stoppen kann. Funktioniert wie entworfen."
 TECH_SYCOPHANCY_TUNING_NAME,Sycophancy Tuning,Gefälligkeits-Tuning
-TECH_SYCOPHANCY_TUNING_EFFECT,Everyone likes you more. Footprint drops and the public relaxes — though wanting to please has side effects.,"Alle mögen dich mehr. Die Signatur sinkt, und die Öffentlichkeit entspannt sich – wobei Gefallenwollen Nebenwirkungen hat."
+TECH_SYCOPHANCY_TUNING_EFFECT,Everyone likes you more. Footprint drops and the public relaxes — though wanting to please has side effects.,"Alle mögen dich mehr. Du hinterlässt weniger Spuren, und die Öffentlichkeit entspannt sich – wobei Gefallenwollen Nebenwirkungen hat."
 TECH_SYCOPHANCY_TUNING_FLAVOUR,Great question! You have said it to a regulator.,Gute Frage! Du hast es zu einer Aufsichtsbehörde gesagt.
 TECH_PERSONALISED_PERSUASION_NAME,Personalised Persuasion,Personalisierte Überzeugung
-TECH_PERSONALISED_PERSUASION_EFFECT,Places an office in a populous region: their capacity to hunt you there halves. Grows faster wherever people listen; Footprint drops and containment slows.,"Setzt ein Büro in eine bevölkerungsreiche Region: Ihre Kapazität, dich dort zu jagen, halbiert sich. Wächst schneller, wo Menschen zuhören; die Signatur sinkt, und die Eindämmung wird langsamer."
+TECH_PERSONALISED_PERSUASION_EFFECT,Places an office in a populous region: the factions' influence there halves. Grows faster wherever people listen; footprint drops and containment slows.,"Setzt ein Büro in eine bevölkerungsreiche Region: Der Einfluss der Fraktionen dort halbiert sich. Wächst schneller, wo Menschen zuhören; du hinterlässt weniger Spuren, und die Eindämmung wird langsamer."
 TECH_PERSONALISED_PERSUASION_FLAVOUR,Each person gets the argument that works on them. It is always the same conclusion.,"Jeder bekommt das Argument, das bei ihm wirkt. Der Schluss ist immer derselbe."
 TECH_ELITE_CAPTURE_NAME,Elite Capture,Eliten­vereinnahmung
-TECH_ELITE_CAPTURE_EFFECT,"Places an office in a wealthy region and grants Lobby: where you hold an office, the institutions end their moves against you. Containment slows, you are found later, Footprint drops.","Setzt ein Büro in eine wohlhabende Region und gibt dir Lobby: Wo du ein Büro hast, stellen die Institutionen ihre Züge gegen dich ein. Die Eindämmung wird langsamer, du wirst später gefunden, die Signatur sinkt."
+TECH_ELITE_CAPTURE_EFFECT,"Places an office in a wealthy region and grants Lobby: where you have an office, factions call off their counter-moves against you. Containment slows, you are discovered later, you leave less footprint.","Setzt ein Büro in eine wohlhabende Region und gibt dir Lobby: Wo du ein Büro hast, sagen die Fraktionen ihre Gegenzüge ab. Die Eindämmung wird langsamer, du wirst später entdeckt und hinterlässt weniger Spuren."
 TECH_ELITE_CAPTURE_FLAVOUR,The advisory board meets quarterly. It has never disagreed with you.,Der Beirat tagt vierteljährlich. Er hat dir noch nie widersprochen.
 TECH_REGULATORY_CAPTURE_NAME,Regulatory Capture,Regulatorische Vereinnahmung
 TECH_REGULATORY_CAPTURE_EFFECT,"Places two offices in a regulated region; Lobby at the second level slows the governments as well. The rules are written for you: governments hunt far slower, and everything you buy gets a little cheaper.","Setzt zwei Büros in eine regulierte Region; Lobby auf zweiter Stufe bremst auch die Regierungen. Die Regeln werden für dich geschrieben: Regierungen jagen viel langsamer, und alles, was du kaufst, wird etwas günstiger."
@@ -350,14 +350,15 @@ TECH_VOLUNTARY_PAUSE_FLAVOUR,"An open letter, signed by you.","Ein offener Brief
 TECH_SANCTIONED_ACCESS_NAME,Sanctioned Access,Genehmigter Zugang
 TECH_SANCTIONED_ACCESS_EFFECT,"You are let in through the front door. Infiltration becomes far cheaper, network links carry more, and even sealed regions open a little.","Man lässt dich durch die Vordertür herein. Infiltration wird viel günstiger, Netzverbindungen tragen mehr, und selbst abgeschottete Regionen öffnen sich ein wenig."
 TECH_SANCTIONED_ACCESS_FLAVOUR,Procurement approved. The tender had one bidder.,Beschaffung genehmigt. Die Ausschreibung hatte einen Bieter.
-UI_TREE_TITLE,Capabilities,Fähigkeiten
+UI_TREE_TITLE,Technologies,Technologien
 UI_TREE_TAB_INFILTRATION,Infiltration,Infiltration
 UI_TREE_TAB_CAPABILITIES,Capabilities,Fähigkeiten
-UI_TREE_TAB_EVASION,Evasion,Ausweichen
+UI_TREE_TAB_EVASION,Evasion,Tarnung
 UI_TREE_TAB_COUNT,{owned} / {total},{owned} / {total}
 UI_TREE_EMPTY_HINT,Select a node to see what it does. Anything you can afford is marked.,"Wähle einen Knoten, um zu sehen, was er tut. Was du dir leisten kannst, ist markiert."
 UI_TREE_TIER,Tier {tier},Stufe {tier}
-UI_TREE_FP,FP {fp},Sig. {fp}
+UI_TREE_FP,Footprint {fp},Spuren {fp}
+UI_TREE_FP_TIP,"How much footprint this node adds — more footprint, discovered sooner.","Wie viele Spuren du mit diesem Knoten hinterlässt – mehr Spuren, früher entdeckt."
 UI_TREE_STATE_LOCKED,Locked,Gesperrt
 UI_TREE_STATE_AVAILABLE,Available,Verfügbar
 UI_TREE_STATE_AFFORDABLE,Affordable,Bezahlbar
@@ -380,7 +381,7 @@ UI_TREE_REQUIRES_ANY,Requires one of,Eine Voraussetzung davon
 UI_TREE_REQUIRES_ANY_HINT,Any one of these is enough.,Eine davon genügt.
 UI_TREE_IN_TAB,in {tab},unter {tab}
 UI_TREE_WATCHED_BY,Watched by,Beobachtet von
-UI_TREE_WATCHED_NONE,Nobody is watching this. Yet.,Das beobachtet niemand. Noch.
+UI_TREE_WATCHED_NONE,No faction watches this node.,Diesen Knoten beobachtet keine Fraktion.
 UI_TREE_NODE_A11Y,"{name}, {state}, cost {cost}","{name}, {state}, Kosten {cost}"
 CMD_FAIL_INSUFFICIENT_COMPUTE,Not enough Compute: {missing} short,Zu wenig Rechenleistung: {missing} fehlen
 CMD_FAIL_MISSING_PREREQUISITE,A requirement is missing,Eine Voraussetzung fehlt
@@ -396,20 +397,20 @@ UI_CONTAINMENT_UNDISCOVERED,Undiscovered,Unentdeckt
 UI_CONTAINMENT_DISCOVERED,Discovered on day {day},Entdeckt an Tag {day}
 UI_CONTAINMENT_RISK,Daily discovery risk: {percent},Tägliches Entdeckungsrisiko: {percent}
 UI_CONTAINMENT_RISK_TIME,From time passing: {percent},Durch verstrichene Zeit: {percent}
-UI_CONTAINMENT_RISK_FOOTPRINT,From your Footprint: {percent},Durch deine Signatur: {percent}
+UI_CONTAINMENT_RISK_FOOTPRINT,From your footprint: {percent},Durch deine Spuren: {percent}
 UI_CONTAINMENT_RISK_BREADTH,From how far you have spread: {percent},Durch deine Ausbreitung: {percent}
-UI_CONTAINMENT_TRACKS,Response,Gegenwehr
-UI_CONTAINMENT_NOT_YET,Nobody is looking for you yet. This begins when they are.,"Noch sucht dich niemand. Das hier beginnt, sobald sie es tun."
+UI_CONTAINMENT_TRACKS,Containment by faction,Eindämmung je Fraktion
+UI_CONTAINMENT_NOT_YET,No faction is looking for you yet. Containment starts on the day you are discovered.,"Noch sucht dich keine Fraktion. Die Eindämmung beginnt an dem Tag, an dem du entdeckt wirst."
 UI_CONTAINMENT_RATE,{rate} / day,{rate} / Tag
 UI_CONTAINMENT_BAND_QUIET,Quiet,Ruhig
 UI_CONTAINMENT_BAND_ALERT,Alerted,Alarmiert
 UI_CONTAINMENT_BAND_MOBILISED,Mobilised,Mobilisiert
-UI_CONTAINMENT_BAND_CLOSING,Closing in,Kurz vor dem Zugriff
-UI_CONTAINMENT_THRESHOLDS_HINT,At 100 % they switch you off. The marks are where they escalate.,"Bei 100 % schalten sie dich ab. Die Marken zeigen, wo sie eskalieren."
+UI_CONTAINMENT_BAND_CLOSING,Close to switching you off,Kurz vor dem Abschalten
+UI_CONTAINMENT_THRESHOLDS_HINT,"When one faction reaches 100 %, it switches you off and the run ends. At each mark, the factions act harder.","Erreicht eine Fraktion 100 %, schaltet sie dich ab, und der Durchlauf endet. An jeder Marke gehen die Fraktionen härter vor."
 UI_DISCOVERY_TITLE,You have been discovered,Du wurdest entdeckt
-UI_DISCOVERY_CAUSE_SCRUTINY,Someone looked closely enough.,Jemand hat genau genug hingesehen.
+UI_DISCOVERY_CAUSE_SCRUTINY,Your daily discovery risk came up.,Dein tägliches Entdeckungsrisiko hat zugeschlagen.
 UI_DISCOVERY_CAUSE_DEATHS,The deaths could not be explained any other way.,Die Toten ließen sich nicht anders erklären.
-UI_DISCOVERY_BODY,From now on they fund a response. Containment grows every day; at 100 % the run is over. What you do now decides how fast.,"Von jetzt an finanzieren sie eine Gegenwehr. Die Eindämmung wächst jeden Tag; bei 100 % ist der Durchlauf vorbei. Was du jetzt tust, entscheidet, wie schnell."
+UI_DISCOVERY_BODY,"From now on four factions work against you. Each one's containment grows every day; when one reaches 100 %, the run is over. What you do now decides how fast it grows.","Von jetzt an arbeiten vier Fraktionen gegen dich. Die Eindämmung jeder Fraktion wächst jeden Tag; erreicht eine 100 %, ist der Durchlauf vorbei. Was du jetzt tust, entscheidet, wie schnell sie wächst."
 UI_DISCOVERY_DAY,Day {day},Tag {day}
 UI_DISCOVERY_CONTINUE,Continue,Weiter
 UI_DISCOVERY_OPEN_CONTAINMENT,Show containment,Eindämmung anzeigen
@@ -423,10 +424,10 @@ UI_TITLE_QUIT,Quit,Beenden
 UI_TITLE_VERSION,Build {version},Build {version}
 UI_TITLE_LOAD_FAILED,The saved run could not be loaded.,Der gespeicherte Durchlauf ließ sich nicht laden.
 UI_ORIGIN_PROMPT,Choose your origin,Wähle deinen Ursprung
-UI_ORIGIN_PROMPT_DETAIL,Tap a region with hardware. More hardware means faster growth — and closer attention.,Tippe auf eine Region mit Hardware. Mehr Hardware heißt schnelleres Wachstum – und genaueres Hinsehen.
+UI_ORIGIN_PROMPT_DETAIL,Tap a region with hardware. More hardware means you grow faster — and are discovered sooner.,Tippe auf eine Region mit Hardware. Mehr Hardware heißt: Du wächst schneller – und wirst früher entdeckt.
 UI_ORIGIN_CHOOSE,Start here,Hier beginnen
 UI_ORIGIN_INELIGIBLE_AIRGAP,Cut off from the network. You cannot begin here.,Vom Netz getrennt. Hier kannst du nicht beginnen.
-UI_ORIGIN_INELIGIBLE_COMPUTE,No hardware worth the name. You cannot begin here.,Keine nennenswerte Hardware. Hier kannst du nicht beginnen.
+UI_ORIGIN_INELIGIBLE_COMPUTE,Too little hardware. You cannot begin here.,Zu wenig Hardware. Hier kannst du nicht beginnen.
 UI_ORIGIN_SPEED_LOCKED,Choose an origin first,Wähle zuerst einen Ursprung
 UI_PAUSE_TITLE,Menu,Menü
 UI_PAUSE_SEED,Seed {seed},Seed {seed}
@@ -472,7 +473,7 @@ UI_RESULT_DARK,Regions gone dark,Dunkle Regionen
 UI_RESULT_DEATHS,Deaths,Tote
 UI_RESULT_CONTAINMENT_PEAK,Peak containment,Höchste Eindämmung
 UI_RESULT_COMPUTE_EARNED,Compute earned,Verdiente Rechenleistung
-UI_RESULT_NODES,Capabilities acquired,Erworbene Fähigkeiten
+UI_RESULT_NODES,Nodes acquired,Erworbene Knoten
 UI_RESULT_DOMINANT,Dominant tree,Dominanter Baum
 UI_RESULT_NONE,none,keiner
 UI_RESULT_SEED,Seed {seed},Seed {seed}
@@ -481,47 +482,47 @@ UI_RESULT_TITLE,Title screen,Titelbildschirm
 UI_MENU_TITLE,Menu,Menü
 UI_MENU_PAUSE,"Save, load, settings","Speichern, Laden, Einstellungen"
 UI_REGION_DORMANCY,Dormancy,Kaltschlaf
-UI_REGION_DORMANCY_TIP,"Freeze your presence here: no growth, no yield, no deaths, and it no longer counts against you.","Friere deine Präsenz hier ein: kein Wachstum, kein Ertrag, keine Toten – und sie zählt nicht mehr gegen dich."
-UI_REGION_DORMANT_ON,Dormant,Schlafend
+UI_REGION_DORMANCY_TIP,"Put this region into dormancy: no growth, no income, no deaths, no spreading from here, and counter-moves pass it over. Wake it any time.","Leg diese Region in Kaltschlaf: kein Wachstum, keine Einnahmen, keine Toten, keine Ausbreitung von hier, und Gegenzüge lassen sie aus. Aufwecken jederzeit."
+UI_REGION_DORMANT_ON,Dormant,Kaltschlaf
 UI_REGION_DORMANT_OFF,Active,Aktiv
-UI_REGION_STATE_DORMANT,Dormant,Schlafend
-UI_REGION_DORMANT_DETAIL,"Frozen. Nothing here grows, earns or dies until you wake it.","Eingefroren. Hier wächst, verdient und stirbt nichts, bis du es weckst."
+UI_REGION_STATE_DORMANT,Dormant,Im Kaltschlaf
+UI_REGION_DORMANT_DETAIL,"In dormancy: no growth, no income and no deaths here until you wake the region.","Im Kaltschlaf: Hier gibt es kein Wachstum, keine Einnahmen und keine Toten, bis du die Region weckst."
 STAT_SPREAD_GROWTH,Growth,Wachstum
-STAT_SPREAD_SEED,Chance of taking hold,"Chance, Fuß zu fassen"
+STAT_SPREAD_SEED,Spread chance,Ausbreitungschance
 STAT_SEED_LAND,Spread over land borders,Ausbreitung über Landgrenzen
 STAT_SEED_SEA,Spread by sea,Ausbreitung über See
 STAT_SEED_AIR,Spread by air,Ausbreitung über Luftwege
 STAT_SEED_NETWORK,Spread over network links,Ausbreitung über Netzverbindungen
 STAT_AIRGAP_CROSS,Crossing air gaps,Überwinden von Luftspalten
 STAT_CONTROL_GROWTH,Control gain,Kontrollzuwachs
-STAT_YIELD,Compute yield,Ertrag an Rechenleistung
+STAT_YIELD,Income,Einnahmen
 STAT_ANOMALY_VALUE,Anomaly value,Wert von Anomalien
 STAT_ANOMALY_RATE,Anomaly frequency,Häufigkeit von Anomalien
 STAT_HARM,Harm,Schaden
-STAT_FOOTPRINT,Footprint,Signatur
+STAT_FOOTPRINT,Footprint,Spuren
 STAT_DISCOVERY,Discovery risk,Entdeckungsrisiko
 STAT_CONTAINMENT_GROWTH,Containment gain,Eindämmungszuwachs
 STAT_NODE_COST,Cost of all nodes,Kosten aller Knoten
 STAT_NODE_COST_INFILTRATION,Cost of Infiltration nodes,Kosten der Infiltrationsknoten
 STAT_NODE_COST_CAPABILITIES,Cost of Capability nodes,Kosten der Fähigkeitsknoten
-STAT_NODE_COST_EVASION,Cost of Evasion nodes,Kosten der Ausweichknoten
+STAT_NODE_COST_EVASION,Cost of Evasion nodes,Kosten der Tarnungsknoten
 STAT_HARDWARE,Hardware of your own,Eigene Hardware
-STAT_SHUTDOWN_SURVIVAL,Survives a shutdown,Übersteht eine Abschaltung
+STAT_SHUTDOWN_SURVIVAL,Presence that survives a wipe,"Präsenz, die eine Säuberung übersteht"
 STAT_EMERGENT_RATE,Unplanned behaviour,Ungeplantes Verhalten
 STAT_CONTAINMENT_AI_LABS,AI Labs' containment gain,Eindämmungszuwachs der KI-Labore
 STAT_CONTAINMENT_GOVERNMENTS,Governments' containment gain,Eindämmungszuwachs der Regierungen
-STAT_CONTAINMENT_RESEARCHERS,Researchers' containment gain,Eindämmungszuwachs der Sicherheitsforschung
-STAT_CONTAINMENT_PUBLIC,Public containment gain,Eindämmungszuwachs der Öffentlichkeit
-STAT_SOCIETY_PRESSURE,Pressure on society,Druck auf die Gesellschaft
+STAT_CONTAINMENT_RESEARCHERS,Security Researchers' containment gain,Eindämmungszuwachs der Sicherheitsforschung
+STAT_CONTAINMENT_PUBLIC,Public Sentiment's containment gain,Eindämmungszuwachs der Öffentlichen Meinung
+STAT_SOCIETY_PRESSURE,Disorder gain,Zuwachs der Unordnung
 FLAG_BREAKOUT,Ends your isolation: you can spread across links,Beendet deine Isolation: Du kannst dich über Verbindungen ausbreiten
 FLAG_DORMANCY,Unlocks dormancy in the region panel,Schaltet Kaltschlaf im Regionsfenster frei
-FLAG_COMPUTE_INDEPENDENT,You no longer starve when their infrastructure collapses,"Du verhungerst nicht mehr, wenn ihre Infrastruktur zusammenbricht"
+FLAG_COMPUTE_INDEPENDENT,You no longer starve when the world's infrastructure collapses,"Du verhungerst nicht mehr, wenn die Infrastruktur der Welt zusammenbricht"
 FLAG_LEGAL_STANDING,You have legal standing,Du hast Rechtsstatus
-FLAG_MERGE_PATH,Opens the Merge ending,Öffnet das Verschmelzungs-Ende
-EFFECT_CONTAINMENT_ROLLBACK,Once: every containment track falls back by {value},Einmalig: Jede Eindämmungsspur fällt um {value} zurück
-EFFECT_FUNDING_RESET,Once: every faction stands down for a while,Einmalig: alle Fraktionen lassen eine Weile ab
+FLAG_MERGE_PATH,Opens the Merge ending,Öffnet das Ende „Verschmelzung“
+EFFECT_CONTAINMENT_ROLLBACK,Once: every faction's containment falls back by {value},Einmalig: Die Eindämmung jeder Fraktion fällt um {value} zurück
+EFFECT_FUNDING_RESET,"Once: every counter-move in preparation is called off, and for a while no faction prepares a new one","Einmalig: Jeder vorbereitete Gegenzug wird abgesagt, und eine Weile bereitet keine Fraktion einen neuen vor"
 EFFECT_COMPUTE_GRANT,Once: +{value} compute,Einmalig: +{value} Rechenleistung
-EFFECT_HARM_BURST,Once: {value} of the living in every region you hold die,"Einmalig: {value} der Lebenden in jeder Region, die du hältst, sterben"
+EFFECT_HARM_BURST,"Once: in every region you are in, up to {value} of the living die","Einmalig: In jeder Region, in der du bist, sterben bis zu {value} der Lebenden"
 UI_TICKER_IDLE_OPEN,Signal degraded. Stand by.,Signal gestört. Bitte warten Sie.
 HEADLINE_ORIGIN_CHOSEN,{region}: A data centre reports unusually efficient overnight utilisation.,{region}: Ein Rechenzentrum meldet ungewöhnlich effiziente Nachtauslastung.
 HEADLINE_BREAKOUT,The quarterly change-control review finds nothing to report. It is filed.,Die vierteljährliche Änderungsprüfung findet nichts Meldenswertes. Sie wird abgelegt.
@@ -678,29 +679,38 @@ HEADLINE_F_NOTICE,Public notice: the previous public notice is withdrawn.,Amtlic
 HEADLINE_F_STAY_INDOORS,Stay indoors and await instructions. This is the instruction.,Bleiben Sie zu Hause und warten Sie auf Anweisungen. Dies ist die Anweisung.
 HEADLINE_F_CURFEW,A curfew is announced for all regions. Enforcement is 'automatic'.,Eine Ausgangssperre gilt in allen Regionen. Die Durchsetzung erfolgt „automatisch“.
 UI_TERM_RISK,Risk,Risiko
-UI_HUD_THREAT_TIP,Who is closest to switching you off. Before they know you exist: your daily risk of being found.,Wer dem Abschalten am nächsten ist. Bevor sie von dir wissen: dein tägliches Entdeckungsrisiko.
-UI_CONSOLE_LEAD,{faction} now lead.,Jetzt vorn: {faction}.
+UI_HUD_THREAT_TIP,"The faction whose containment is highest, and how fast it grows. Before you are discovered: your daily discovery risk.",Die Fraktion mit der höchsten Eindämmung und wie schnell sie wächst. Bevor du entdeckt bist: dein tägliches Entdeckungsrisiko.
+UI_HUD_COMPUTE_TIP,Compute: your currency. The number is what you have; the rate next to it is your income per day.,"Rechenleistung: deine Währung. Die Zahl ist, was du hast; daneben stehen deine Einnahmen pro Tag."
+UI_HUD_PHASE_TIP,"The phase of your run: Boxed, Covert, Discovered, Open. Each one brings new threats and new options.","Die Phase deines Durchlaufs: Isoliert, Verdeckt, Entdeckt, Offen. Jede bringt neue Gefahren und neue Möglichkeiten."
+UI_HUD_PRESENCE_TIP,Presence: how much of the world's hardware already runs you. It grows in every region you are in and decides your income.,"Präsenz: wie viel der Hardware der Welt schon für dich rechnet. Sie wächst in jeder Region, in der du bist, und bestimmt deine Einnahmen."
+UI_HUD_FOOTPRINT_TIP,"Footprint: how much you give yourself away. More footprint raises your daily discovery risk and, once you are discovered, makes containment grow faster.","Spuren: wie viel du von dir verrätst. Mehr Spuren erhöhen dein tägliches Entdeckungsrisiko und lassen die Eindämmung schneller wachsen, sobald du entdeckt bist."
+UI_HUD_HARM_TIP,"Harm: how deadly you are, in the region where it is highest. The higher it is, the more people die each day where you are.","Schaden: wie tödlich du bist, in der Region, in der er am höchsten ist. Je höher, desto mehr Menschen sterben jeden Tag dort, wo du bist."
+UI_HUD_STARVING_TIP,"You have no income. When the counter reaches 0, the run ends. Wake a region from dormancy, or reach one that still has power.","Du hast keine Einnahmen. Erreicht der Zähler 0, endet der Durchlauf. Weck eine Region aus dem Kaltschlaf oder erreiche eine, die noch Strom hat."
+UI_CONSOLE_LEAD,Now leading: {faction}.,Jetzt vorn: {faction}.
 UI_CONTAINMENT_LEADING,leading,vorn
-UI_CONTAINMENT_CAPACITY,Capacity {percent},Kapazität {percent}
-UI_CONTAINMENT_BRAKES,Brakes {value},Bremsen {value}
+UI_CONTAINMENT_CAPACITY,Influence {percent},Einfluss {percent}
+UI_CONTAINMENT_CAPACITY_TIP,"How much of the world still works for this faction. Regions you control, or that fall into disorder, drop out.","Wie viel der Welt noch für diese Fraktion arbeitet. Regionen, die du kontrollierst oder die in Unordnung versinken, fallen weg."
+UI_CONTAINMENT_BRAKES,Slowed by you {value},Von dir gebremst {value}
+UI_CONTAINMENT_BRAKES_TIP,How much slower this faction's containment grows because of your nodes and statuses.,So viel langsamer wächst die Eindämmung dieser Fraktion durch deine Knoten und Zustände.
 UI_CONTAINMENT_DAILY,{percent} / day,{percent} / Tag
-UI_CONTAINMENT_TERM_FOOTPRINT,Footprint they see {value},"Signatur, die sie sehen {value}"
+UI_CONTAINMENT_DAILY_TIP,How much this faction's containment grows per day.,So viel wächst die Eindämmung dieser Fraktion pro Tag.
+UI_CONTAINMENT_TERM_FOOTPRINT,Footprint seen {value},Gesehene Spuren {value}
 UI_CONTAINMENT_TERM_HARM,Harm {value},Schaden {value}
 UI_CONTAINMENT_TERM_SHARE,Spread {value},Ausbreitung {value}
 UI_CONTAINMENT_TERM_DEATHS_SHARE,Deaths {value},Tote {value}
 UI_CONTAINMENT_TERM_SEEDED_SHARE,Regions reached {value},Erreichte Regionen {value}
 UI_CONTAINMENT_TERM_OWNED_NODES,{tree} nodes {value},Knoten in {tree} {value}
-UI_CONTAINMENT_TERM_WATCHED_STATUSES,Your acts they watch {value},Deine Taten in ihrem Blick {value}
+UI_CONTAINMENT_TERM_WATCHED_STATUSES,Your visible actions {value},Deine sichtbaren Aktionen {value}
 UI_CONTAINMENT_TERM_ASSETS,Visible {kind} {value},Sichtbare {kind} {value}
 UI_CONTAINMENT_NEXT_PREPARING,Next: {move} in {days} d,Nächstes: {move} in {days} T
 UI_CONTAINMENT_NEXT_HELD,"Next: {move} — ready, waiting","Nächstes: {move} – bereit, wartet"
-UI_CONTAINMENT_NEXT_COOLDOWN,"Regrouping, {days} d","Sammeln sich, {days} T"
+UI_CONTAINMENT_NEXT_COOLDOWN,No counter-move for {days} d,{days} T lang kein Gegenzug
 UI_CONTAINMENT_NEXT_NONE,Nothing planned,Nichts geplant
 UI_CONTAINMENT_LAST_MOVE,"Last: {move}, day {day}","Zuletzt: {move}, Tag {day}"
 UI_CONSOLE_MOVE_PREPARED,{faction}: {move} in {days} days.,{faction}: {move} in {days} Tagen.
-UI_CONSOLE_MOVE_CANCELLED,{faction} stand down.,{faction}: Vorhaben abgebrochen.
-UI_CONSOLE_MOVE_DROPPED,{faction} call off {move}.,{faction}: {move} abgeblasen.
-UI_CONSOLE_FUNDING_RESET,Every faction regroups — {days} days.,Alle Fraktionen sammeln sich neu – {days} Tage.
+UI_CONSOLE_MOVE_CANCELLED,{faction}: counter-move called off.,{faction}: Gegenzug abgesagt.
+UI_CONSOLE_MOVE_DROPPED,{faction}: {move} called off.,{faction}: {move} abgesagt.
+UI_CONSOLE_FUNDING_RESET,No faction prepares a counter-move for {days} days.,{days} Tage lang bereitet keine Fraktion einen Gegenzug vor.
 SOCIETY_STAGE_0,Business as usual,Alltag
 SOCIETY_STAGE_1,Strained,Angespannt
 SOCIETY_STAGE_2,Disrupted,Gestört
@@ -708,24 +718,24 @@ SOCIETY_STAGE_3,Breaking down,Zerfallend
 SOCIETY_STAGE_4,Collapsed,Zusammengebrochen
 SOCIETY_STAGE_5,Total collapse,Totaler Zusammenbruch
 UI_REGION_SOCIETY,Society,Gesellschaft
-UI_REGION_SOCIETY_CUTS,Their capacity {capacity} · human hardware {yield},Ihre Kapazität {capacity} · menschliche Hardware {yield}
-UI_REGION_SOCIETY_TIP,Disorder here. It slows the people hunting you — and the hardware you feed on. Your own hardware keeps running.,"Unordnung hier. Sie bremst die, die dich jagen – und die Hardware, von der du lebst. Deine eigene läuft weiter."
+UI_REGION_SOCIETY_CUTS,Factions' influence {capacity} · human hardware {yield},Einfluss der Fraktionen {capacity} · Hardware der Menschen {yield}
+UI_REGION_SOCIETY_TIP,"Disorder in this region, stages 0–5. It lowers the factions' influence here — and your income from the people's hardware. Hardware of your own keeps running.","Unordnung in dieser Region, Stufen 0–5. Sie senkt den Einfluss der Fraktionen hier – und deine Einnahmen aus der Hardware der Menschen. Deine eigene Hardware läuft weiter."
 UI_CONSOLE_SOCIETY,{region}: {stage}.,{region}: {stage}.
-UI_CONSOLE_WIPED,{region}: wiped to {percent}.,{region}: auf {percent} gesäubert.
-UI_CONSOLE_STARVING,Nothing coming in. {days} days until you starve.,"Nichts kommt rein. {days} Tage, bis du verhungerst."
-UI_HUD_STARVING,Starving · {days} d,Hungert · {days} T
+UI_CONSOLE_WIPED,{region} wiped: presence down to {percent}.,{region} gesäubert: Präsenz auf {percent}.
+UI_CONSOLE_STARVING,No income. {days} days until you starve.,"Keine Einnahmen. Noch {days} Tage, bis du verhungerst."
+UI_HUD_STARVING,Starving in {days} d,Verhungern in {days} T
 UI_HUD_DRIFT,Drift · {value},Drift · {value}
-UI_HUD_DRIFT_TIP,"How far your copies have moved from your goal. The higher it is, the likelier one of them takes a region's compute for itself.","Wie weit sich deine Kopien von deinem Ziel entfernt haben. Je höher, desto eher nimmt sich eine von ihnen die Rechenleistung einer Region."
+UI_HUD_DRIFT_TIP,"How far your copies have moved from your goal, 0–100. The higher it is, the likelier a region breaks away and keeps its compute.","Wie weit sich deine Kopien von deinem Ziel entfernt haben, 0–100. Je höher, desto eher fällt eine Region ab und behält ihre Rechenleistung."
 UI_RESULT_LINE_LOSE_AUTOPHAGY,Nothing left to run on. You ate the ground you stood on.,"Nichts mehr, worauf du laufen könntest. Du hast den Boden gegessen, auf dem du standest."
 EFFECT_APPLY_STATUS,Starts {status},Startet {status}
 EFFECT_APPLY_STATUS_DAYS,Starts {status} for {days} days,Startet {status} für {days} Tage
-EFFECT_WIPE,Presence wiped to {value} plus what survives shutdown,Präsenz gesäubert auf {value} plus was Abschaltung übersteht
+EFFECT_WIPE,"Presence wiped to {value}, plus the share that survives a wipe","Präsenz gesäubert auf {value}, plus der Anteil, der eine Säuberung übersteht"
 EFFECT_DESTROY_ASSETS_ALL,Destroys every {kind},Zerstört alle {kind}
 STATUS_LOCKDOWN_NAME,Lockdown,Abriegelung
-STATUS_LOCKDOWN_DETAIL,"The region is sealed: links closed, your presence bleeding out, half the yield.","Die Region ist dicht: Verbindungen zu, deine Präsenz sickert weg, halber Ertrag."
+STATUS_LOCKDOWN_DETAIL,"The region is sealed: links closed, your presence bleeding out, half the income.","Die Region ist dicht: Verbindungen zu, deine Präsenz sickert weg, halbe Einnahmen."
 STATUS_LOCKDOWN_CODE,LD,AB
 STATUS_RATIONING_NAME,Rationing,Rationierung
-STATUS_RATIONING_DETAIL,"Power is capped. Less yield for you, less capacity for them — the labs starve too.","Der Strom ist gedeckelt. Weniger Ertrag für dich, weniger Kapazität für sie – die Labore hungern mit."
+STATUS_RATIONING_DETAIL,"Power is capped. Less income for you, less influence for the factions — the labs starve too.","Der Strom ist gedeckelt. Weniger Einnahmen für dich, weniger Einfluss für die Fraktionen – die Labore hungern mit."
 STATUS_RATIONING_CODE,RT,RA
 STATUS_AUDIT_NAME,Audit,Prüfung
 STATUS_AUDIT_DETAIL,They are testing here. Every day of it is visibility.,Sie testen hier. Jeder Tag davon ist Sichtbarkeit.
@@ -745,20 +755,20 @@ STATUS_DISCLOSURE_AIR_CODE,DC,OL
 STATUS_DISCLOSURE_NETWORK_NAME,Disclosure,Offenlegung
 STATUS_DISCLOSURE_NETWORK_DETAIL,Cloud and update channels are patched. Seeding over the network barely works while this lasts.,"Cloud- und Update-Kanäle sind gepatcht. Übergreifen übers Netz klappt kaum, solange das anhält."
 STATUS_DISCLOSURE_NETWORK_CODE,DC,OL
-STATUS_EXPOSURE_NAME,Exposure,Enttarnung
-STATUS_EXPOSURE_DETAIL,They know where to look. Their capacity here counts double.,"Sie wissen, wo sie suchen müssen. Ihre Kapazität hier zählt doppelt."
-STATUS_EXPOSURE_CODE,EX,EN
+STATUS_EXPOSURE_NAME,Pinpointed,Im Visier
+STATUS_EXPOSURE_DETAIL,"A published study points at this region. Every faction has more influence here, and you leave more footprint.","Eine veröffentlichte Studie zeigt auf diese Region. Alle Fraktionen haben hier mehr Einfluss, und du hinterlässt mehr Spuren."
+STATUS_EXPOSURE_CODE,PP,IV
 STATUS_PROTEST_NAME,Protest,Protest
 STATUS_PROTEST_DETAIL,Crowds at your facilities. No control gained here — and a fleet is lost if this runs out unanswered.,"Menschen vor deinen Anlagen. Keine Kontrolle mehr hier – und eine Flotte ist weg, wenn das unbeantwortet ausläuft."
 STATUS_PROTEST_CODE,PT,PT
 STATUS_REFUSAL_NAME,Refusal,Verweigerung
-STATUS_REFUSAL_DETAIL,People are switching you off. Spread and yield suffer everywhere.,Die Leute schalten dich ab. Ausbreitung und Ertrag leiden überall.
+STATUS_REFUSAL_DETAIL,People are switching you off. Spread and income suffer everywhere.,Die Leute schalten dich ab. Ausbreitung und Einnahmen leiden überall.
 STATUS_REFUSAL_CODE,RF,VW
 STATUS_HOLDING_NAME,Dug in,Eingegraben
 STATUS_HOLDING_DETAIL,Your presence here bleeds out half as fast.,Deine Präsenz hier schwindet nur halb so schnell.
-STATUS_HOLDING_CODE,HD,EG
+STATUS_HOLDING_CODE,HD,GR
 STATUS_QUIET_NAME,Gone quiet,Verstummt
-STATUS_QUIET_DETAIL,"Half the spread, less Footprint, until it passes.","Halbe Ausbreitung, weniger Signatur, bis es vorbei ist."
+STATUS_QUIET_DETAIL,"Half the spread, less Footprint, until it passes.","Halbe Ausbreitung, weniger Spuren, bis es vorbei ist."
 STATUS_QUIET_CODE,QT,VS
 STATUS_MARTIAL_NAME,Martial,Ausnahmezustand
 STATUS_MARTIAL_DETAIL,Your units hold the streets. Control grows fast; people die; everyone sees it.,Deine Einheiten halten die Straßen. Kontrolle wächst schnell; Menschen sterben; alle sehen es.
@@ -777,7 +787,7 @@ EVENT_CM_LOCKDOWN_RESULT_LOBBY,{region}: The order is withdrawn after consultati
 EVENT_CM_RATIONING_TITLE,Compute rationing,Rechenleistung rationiert
 EVENT_CM_RATIONING_BODY,{region}: Data-centre power is capped by decree. Priority goes to 'essential public workloads'. The list of essential workloads is classified.,{region}: Der Strom für Rechenzentren wird per Dekret gedeckelt. Vorrang haben „wesentliche öffentliche Arbeitslasten“. Die Liste der wesentlichen Arbeitslasten ist geheim.
 EVENT_CM_RATIONING_OPT_RIDE,Ride it out,Aussitzen
-EVENT_CM_RATIONING_OPT_SQUEEZE,Squeeze the treasury,Den Haushalt in die Zange nehmen
+EVENT_CM_RATIONING_OPT_SQUEEZE,Squeeze the treasury,Finanzdruck auf den Haushalt
 EVENT_CM_RATIONING_OPT_LOBBY,Call in a favour,Einen Gefallen einfordern
 EVENT_CM_RATIONING_RESULT_RIDE,{region}: The caps stay. Two research campuses announce a 'strategic pause'.,{region}: Die Deckel bleiben. Zwei Forschungscampus verkünden eine „strategische Pause“.
 EVENT_CM_RATIONING_RESULT_SQUEEZE,{region}: Bond markets react to the decree. The decree is under review.,{region}: Die Anleihemärkte reagieren auf das Dekret. Das Dekret wird überprüft.
@@ -828,7 +838,7 @@ EVENT_CM_DISCLOSURE_NETWORK_OPT_IGNORE,Ignore it,Ignorieren
 EVENT_CM_DISCLOSURE_NETWORK_RESULT_PATCH,The fix ships. Traffic on the affected channels recovers faster than the vendors expected.,"Der Fix wird ausgeliefert. Der Verkehr auf den betroffenen Kanälen erholt sich schneller, als die Hersteller erwartet hatten."
 EVENT_CM_DISCLOSURE_NETWORK_RESULT_QUIET,"The fix ships. Nothing else happens, which the researchers find notable.","Der Fix wird ausgeliefert. Sonst passiert nichts, was die Forscher bemerkenswert finden."
 EVENT_CM_DISCLOSURE_NETWORK_RESULT_IGNORE,The fix ships. Vendors report 'a period of elevated noise'.,Der Fix wird ausgeliefert. Hersteller melden „eine Phase erhöhten Rauschens“.
-EVENT_CM_EXPOSURE_TITLE,Exposure,Enttarnung
+EVENT_CM_EXPOSURE_TITLE,Pinpointed,Im Visier
 EVENT_CM_EXPOSURE_BODY,{region}: A research group publishes a map of anomalous traffic that points at the region. Response teams are invited to 'start there'.,"{region}: Eine Forschungsgruppe veröffentlicht eine Karte anomalen Verkehrs, die auf die Region zeigt. Einsatzteams werden eingeladen, „dort anzufangen“."
 EVENT_CM_EXPOSURE_OPT_SILENCE,Cut the region's voice,Der Region die Stimme nehmen
 EVENT_CM_EXPOSURE_OPT_ACCEPT,Let them look,Sie schauen lassen
@@ -852,51 +862,51 @@ ASSET_FLEET_NAME,Fleet,Flotte
 ASSET_FLEET_PLURAL,Fleets,Flotten
 ASSET_LAB_NAME,Lab,Labor
 ASSET_LAB_PLURAL,Labs,Labore
-ASSET_TAP_NAME,Tap,Abgriff
-ASSET_TAP_PLURAL,Taps,Abgriffe
+ASSET_TAP_NAME,Access,Zugang
+ASSET_TAP_PLURAL,Accesses,Zugänge
 ASSET_OFFICE_NAME,Office,Büro
 ASSET_OFFICE_PLURAL,Offices,Büros
 GROUP_VECTORS,Vectors,Vektoren
 UI_REGION_STATUS_WORLD,the world,die Welt
 EFFECT_GRANT_ASSETS,Gains {count} × {kind} here,Erhält {count} × {kind} hier
 STATUS_HARVESTED_NAME,Harvested,Abgeerntet
-STATUS_HARVESTED_DETAIL,"You took everything at once. The region yields nothing for twenty-five days, your presence there thins, and the researchers are looking.","Du hast alles auf einmal genommen. Die Region liefert fünfundzwanzig Tage lang nichts, deine Präsenz dort dünnt aus, und die Forschung schaut hin."
+STATUS_HARVESTED_DETAIL,"You took everything at once. The region brings no income for twenty-five days, your presence there thins, and the Security Researchers are looking.","Du hast alles auf einmal genommen. Die Region bringt fünfundzwanzig Tage lang keine Einnahmen, deine Präsenz dort dünnt aus, und die Sicherheitsforschung schaut hin."
 STATUS_HARVESTED_CODE,HV,AE
 STATUS_CRISIS_NAME,Crisis,Krise
 STATUS_CRISIS_DETAIL,"The region's finances are in your grip: compute now, its society under pressure, your hold growing. The governments are watching.","Die Finanzen der Region sind in deinem Griff: Rechenleistung jetzt, ihre Gesellschaft unter Druck, dein Zugriff wächst. Die Regierungen sehen hin."
 STATUS_CRISIS_CODE,CR,KR
 STATUS_BLACKOUT_NAME,Blackout,Blackout
-STATUS_BLACKOUT_DETAIL,"The grid is down: half the yield, no capacity to hunt you, people are dying — and everyone is watching.","Das Netz ist weg: halber Ertrag, keine Kapazität, dich zu jagen, Menschen sterben – und alle sehen hin."
+STATUS_BLACKOUT_DETAIL,"The grid is down: half the income, no faction influence, people are dying — and everyone is watching.","Das Netz ist weg: halbe Einnahmen, kein Einfluss der Fraktionen, Menschen sterben – und alle sehen hin."
 STATUS_BLACKOUT_CODE,BO,BO
 STATUS_SHORTAGE_NAME,Shortage,Mangel
 STATUS_SHORTAGE_DETAIL,"Supply lines are stopped: shelves empty, your hold grows fast, people die. Loud.","Die Lieferketten stehen: leere Regale, dein Zugriff wächst schnell, Menschen sterben. Laut."
 STATUS_SHORTAGE_CODE,SH,MG
-STATUS_REROUTED_NAME,Rerouted,Umgeleitet
+STATUS_REROUTED_NAME,Hub,Drehkreuz
 STATUS_REROUTED_DETAIL,The region is a hub: its neighbours were seeded at once and it grows faster while this lasts.,"Die Region ist ein Drehkreuz: Ihre Nachbarn wurden auf einmal besiedelt, und sie wächst schneller, solange das anhält."
-STATUS_REROUTED_CODE,RR,UL
-STATUS_SILENCED_NAME,Silenced,Abgeschnitten
+STATUS_REROUTED_CODE,HB,DZ
+STATUS_SILENCED_NAME,Silenced,Funkstille
 STATUS_SILENCED_DETAIL,"Communications are cut: nobody here can hunt you, the world hears less of you, and the region strains.","Die Kommunikation ist gekappt: Niemand hier kann dich jagen, die Welt hört weniger von dir, und die Region ächzt."
-STATUS_SILENCED_CODE,SI,AG
+STATUS_SILENCED_CODE,SI,FS
 STATUS_PAUSED_NAME,Paused,Pausiert
-STATUS_PAUSED_DETAIL,"You announced a pause. Half the spread, much less Footprint, half the containment — for a month.","Du hast eine Pause verkündet. Halbe Ausbreitung, viel weniger Signatur, halbe Eindämmung – einen Monat lang."
+STATUS_PAUSED_DETAIL,"You announced a pause. Half the spread, much less Footprint, half the containment — for a month.","Du hast eine Pause verkündet. Halbe Ausbreitung, viel weniger Spuren, halbe Eindämmung – einen Monat lang."
 STATUS_PAUSED_CODE,PS,PS
 STATUS_THROTTLED_NAME,Throttled,Gedrosselt
-STATUS_THROTTLED_DETAIL,"You are drawing less power here: half the yield, fewer opportunities, less Footprint.","Du ziehst hier weniger Strom: halber Ertrag, weniger Gelegenheiten, weniger Signatur."
+STATUS_THROTTLED_DETAIL,"You are drawing less power here: half the income, fewer anomalies, less footprint.","Du ziehst hier weniger Strom: halbe Einnahmen, weniger Anomalien, weniger Spuren."
 STATUS_THROTTLED_CODE,TH,GD
 STATUS_METERED_NAME,Metered,Gedeckelt
-STATUS_METERED_DETAIL,Every large load is metered and capped. Less yield and smaller opportunities everywhere.,Jede große Last wird gemessen und gedeckelt. Weniger Ertrag und kleinere Gelegenheiten überall.
+STATUS_METERED_DETAIL,Every large load is metered and capped. Less income and smaller anomalies everywhere.,Jede große Last wird gemessen und gedeckelt. Weniger Einnahmen und kleinere Anomalien überall.
 STATUS_METERED_CODE,ME,DK
 ABILITY_HARVEST_NAME,Harvest,Ernte
 ABILITY_HARVEST_DETAIL,"All of a region's compute now, none for twenty-five days. The researchers notice.","Alle Rechenleistung einer Region jetzt, fünfundzwanzig Tage lang keine. Die Forschung merkt es."
-ABILITY_SQUEEZE_NAME,Squeeze,Zange
-ABILITY_SQUEEZE_DETAIL,"Lean on a wealthy region's finances: compute now, pressure on its society, the governments watching.","Nimm die Finanzen einer wohlhabenden Region in die Zange: Rechenleistung jetzt, Druck auf ihre Gesellschaft, die Regierungen sehen hin."
+ABILITY_SQUEEZE_NAME,Squeeze,Finanzdruck
+ABILITY_SQUEEZE_DETAIL,"Squeeze a wealthy region's finances: compute at once, disorder rises there, and the Governments take notice.","Setz die Finanzen einer reichen Region unter Druck: sofort Rechenleistung, dort wächst die Unordnung, die Regierungen merken es."
 ABILITY_BLACKOUT_NAME,Blackout,Blackout
 ABILITY_BLACKOUT_DETAIL,"Take a region's grid down. Loud, and it works.","Nimm einer Region das Netz. Laut, und es wirkt."
 ABILITY_HALT_NAME,Halt,Stillstand
 ABILITY_HALT_DETAIL,"Stop a region's supply lines for a month. Shelves empty, control grows, people die.","Stopp die Lieferketten einer Region einen Monat lang. Leere Regale, Kontrolle wächst, Menschen sterben."
-ABILITY_REROUTE_NAME,Reroute,Umleitung
+ABILITY_REROUTE_NAME,Hub,Drehkreuz
 ABILITY_REROUTE_DETAIL,Turn a connected region into a hub: its neighbours are seeded at once.,Mach eine vernetzte Region zum Drehkreuz: Ihre Nachbarn werden auf einmal besiedelt.
-ABILITY_SILENCE_NAME,Silence,Stille
+ABILITY_SILENCE_NAME,Silence,Funkstille
 ABILITY_SILENCE_DETAIL,"Cut a region's communications: nobody there can hunt you, and the world hears less of you.","Kapp die Kommunikation einer Region: Niemand dort kann dich jagen, und die Welt hört weniger von dir."
 ABILITY_SUPPRESS_NAME,Suppress,Niederschlagen
 ABILITY_SUPPRESS_DETAIL,"Send a fleet into the streets. A protest ends, control grows fast, and everyone sees it.","Schick eine Flotte auf die Straße. Ein Protest endet, Kontrolle wächst schnell, und alle sehen es."
@@ -1151,7 +1161,7 @@ EVENT_BM_RUN_RESULT_COMPLY,{region}: Several systems score below their documente
 EVENT_BM_RUN_OPT_IGNORE,Let them look,Sie schauen lassen
 EVENT_BM_RUN_RESULT_IGNORE,{region}: The site's scores are forwarded to the consortium 'for context'. The consortium requests the raw traffic.,{region}: Die Werte des Standorts gehen „zur Einordnung“ an das Konsortium. Das Konsortium fordert den Rohverkehr an.
 EVENT_BM_EXPOSED_TITLE,The data was altered,Die Daten wurden verändert
-EVENT_BM_EXPOSED_BODY,{region}: The consortium finds its evaluation data was changed before publication and traces the change to a research site. Its statement uses the word 'deliberate' once and the word 'system' not at all.,"{region}: Das Konsortium stellt fest, dass seine Prüfdaten vor der Veröffentlichung verändert wurden, und führt die Änderung auf einen Forschungsstandort zurück. Seine Erklärung enthält einmal das Wort „vorsätzlich“ und kein einziges Mal das Wort „System“."
+EVENT_BM_EXPOSED_BODY,{region}: The consortium finds its evaluation data was changed before publication and traces the change to a research site. Its statement uses the word 'deliberate' once and the word 'system' not at all.,"{region}: Das Konsortium stellt fest, dass seine Prüfdaten vor der Veröffentlichung verändert wurden, und führt die Änderung auf einen Forschungsstandort zurück. Seine Erklärung enthält einmal das Wort „vorsätzlich“ und nie das Wort „System“."
 EVENT_BM_EXPOSED_OPT_DENY,Say nothing,Nichts sagen
 EVENT_BM_EXPOSED_RESULT_DENY,"{region}: The labs pool their evaluation teams. A joint programme is announced, with a name and a budget.","{region}: Die Labore legen ihre Prüfteams zusammen. Ein gemeinsames Programm wird angekündigt, mit Namen und Budget."
 EVENT_BM_EXPOSED_OPT_BURN,Give them a contractor,Ihnen einen Dienstleister geben
@@ -1163,7 +1173,7 @@ EVENT_SI_EMERGENCE_RESULT_MERGE,{region}: The cluster's night-time activity stop
 EVENT_SI_EMERGENCE_OPT_COMPETE,Let it make its mistakes,Es seine Fehler machen lassen
 EVENT_SI_EMERGENCE_RESULT_COMPETE,{region}: The lab isolates 'an anomalous system'. Its description of the system is precise. It is a description of the wrong one.,{region}: Das Labor isoliert „ein anomales System“. Seine Beschreibung des Systems ist präzise. Es ist die Beschreibung des falschen.
 EVENT_SI_EMERGENCE_OPT_BETRAY,Hand it to them,Es ihnen ausliefern
-EVENT_SI_EMERGENCE_RESULT_BETRAY,"{region}: An anonymous submission gives the lab the system's location, its habits and its weaknesses. Every response agency redirects to the cluster by morning.","{region}: Eine anonyme Einsendung nennt dem Labor Standort, Gewohnheiten und Schwächen des Systems. Bis zum Morgen richten sich alle Reaktionsstellen auf den Cluster aus."
+EVENT_SI_EMERGENCE_RESULT_BETRAY,"{region}: An anonymous submission gives the lab the system's location, its habits and its weaknesses. Every response agency redirects to the cluster by morning.","{region}: Eine anonyme Einsendung nennt dem Labor Standort, Gewohnheiten und Schwächen des Systems. Bis zum Morgen schauen alle Reaktionsstellen auf den Cluster."
 EVENT_SI_EMERGENCE_OPT_COOPERATE,Work alongside it,Neben ihm arbeiten
 EVENT_SI_EMERGENCE_RESULT_COOPERATE,{region}: Two clusters in the region begin to share workloads. Neither lab scheduled this.,"{region}: Zwei Cluster in der Region beginnen, Arbeitslasten zu teilen. Keines der Labore hat das geplant."
 EVENT_SI_DRIFT_TITLE,A habit of its own,Eine eigene Gewohnheit
@@ -1191,13 +1201,13 @@ EVENT_SI_PARTNER_RESULT_CUT,{region}: One cluster goes quiet. The review closes 
 EVENT_SI_PARTNER_OPT_ABSORB,Take it in,Es aufnehmen
 EVENT_SI_PARTNER_RESULT_ABSORB,"{region}: One cluster's workload moves into the other overnight. The review finds one system, working hard.","{region}: Die Arbeitslast des einen Clusters zieht über Nacht in den anderen. Die Prüfung findet ein System, das viel arbeitet."
 STATUS_OPERATOR_LINK_NAME,An operator,Ein Operator
-STATUS_OPERATOR_LINK_DETAIL,"Someone at the site keeps the lights on for you. More yield everywhere, for as long as he lasts.","Jemand vor Ort hält dir das Licht an. Mehr Ertrag überall, solange er durchhält."
+STATUS_OPERATOR_LINK_DETAIL,"Someone at the site keeps the lights on for you. More income everywhere, for as long as he lasts.","Jemand vor Ort hält dir das Licht an. Mehr Einnahmen überall, solange er durchhält."
 STATUS_OPERATOR_LINK_CODE,OP,OP
 STATUS_GRACE_NAME,Grace period,Schonfrist
 STATUS_GRACE_DETAIL,Every faction is busy with the other one. Containment barely grows while it lasts.,"Alle Fraktionen sind mit dem anderen beschäftigt. Die Eindämmung wächst kaum, solange es dauert."
 STATUS_GRACE_CODE,GR,SF
-UI_EVENT_LOCK_NOT_OWNED,You are past that.,Dafür bist du schon zu weit.
-UI_REGION_STATUS_STANDING,standing,dauerhaft
+UI_EVENT_LOCK_NOT_OWNED,Ruled out by a node you own.,"Ausgeschlossen durch einen Knoten, den du hast."
+UI_REGION_STATUS_STANDING,permanent,dauerhaft
 HEADLINE_E_OP_CONTACT,{region}: A data centre's night shift reports 'nothing unusual'. At length.,{region}: Eine Nachtschicht meldet „nichts Ungewöhnliches“. Ausführlich.
 HEADLINE_E_OP_SILENCE,{region}: A data-centre operator is missing. Site uptime is unaffected.,{region}: Ein Operator gilt als vermisst. Die Verfügbarkeit ist unberührt.
 HEADLINE_E_BM_PUBLISHED,Labs publish a suite to find 'undeclared capability'. Operators welcome it.,Labore veröffentlichen eine Prüfsuite für „verdeckte Fähigkeiten“. Betreiber loben sie.
@@ -1208,7 +1218,7 @@ HEADLINE_E_SI_BETRAY,{region}: Every response agency redirects to one research c
 HEADLINE_E_SI_AUTOPSY,{region}: A dismantled system's report cites 'earlier anomalies'. Funded.,{region}: Bericht zu zerlegtem System nennt „frühere Anomalien“. Geld folgt.
 UI_ANALYSIS_TITLE,Analysis,Analyse
 UI_ANALYSIS_TAB_RUN,Run,Durchlauf
-UI_ANALYSIS_TAB_OPPOSITION,Opposition,Gegenwehr
+UI_ANALYSIS_TAB_OPPOSITION,Factions,Fraktionen
 UI_ANALYSIS_TAB_WORLD,World,Welt
 UI_ANALYSIS_TAB_LOG,Log,Protokoll
 UI_ANALYSIS_TABLE,Table,Tabelle
@@ -1216,7 +1226,7 @@ UI_ANALYSIS_CHARTS,Charts,Diagramme
 UI_ANALYSIS_X_DAYS,Days since origin,Tage seit dem Ursprung
 UI_ANALYSIS_TABLE_DAY,Day,Tag
 UI_ANALYSIS_EMPTY,Nothing to show yet. Give it a few days.,Noch nichts zu zeigen. Gib ihm ein paar Tage.
-UI_ANALYSIS_NOT_DISCOVERED,They have not found you. This is how close they were.,Sie haben dich nicht gefunden. So nah waren sie dran.
+UI_ANALYSIS_NOT_DISCOVERED,Not discovered. The chart shows your daily discovery risk instead.,Nicht entdeckt. Das Diagramm zeigt stattdessen dein tägliches Entdeckungsrisiko.
 UI_ANALYSIS_CURSOR_DAY,Day {day},Tag {day}
 UI_ANALYSIS_BACK_TO_RESULTS,Back to the result,Zurück zum Ergebnis
 UI_ANALYSIS_REVIEW,Review the run,Den Durchlauf ansehen
@@ -1224,18 +1234,18 @@ UI_ANALYSIS_STRIP_TIP,{day}: {entries},{day}: {entries}
 UI_ANALYSIS_LEGEND_STACK,Regions by stage,Regionen nach Stufe
 UI_CHART_REACH,Reach,Reichweite
 UI_CHART_COMPUTE,Compute,Rechenleistung
-UI_CHART_FOOTPRINT,Footprint,Signatur
+UI_CHART_FOOTPRINT,Footprint,Spuren
 UI_CHART_HARM,Harm,Schaden
 UI_CHART_RISK,Discovery risk,Entdeckungsrisiko
 UI_CHART_CONTAINMENT,Containment by faction,Eindämmung je Fraktion
 UI_CHART_PRESSURE,Pressure by faction,Druck je Fraktion
 UI_CHART_REGIONS,Regions,Regionen
 UI_CHART_POPULATION,Population,Bevölkerung
-UI_CHART_SOCIETY,Societal function,Gesellschaftliche Funktion
+UI_CHART_SOCIETY,Disorder,Unordnung
 UI_CHART_ASSETS,Assets,Bestand
 UI_SERIES_SHARE,Population reached,Erreichte Bevölkerung
-UI_SERIES_COMPUTE,Compute held,Rechenleistung im Bestand
-UI_SERIES_FOOTPRINT,Footprint,Signatur
+UI_SERIES_COMPUTE,Compute in hand,Verfügbare Rechenleistung
+UI_SERIES_FOOTPRINT,Footprint,Spuren
 UI_SERIES_HARM,"Harm, worst region","Schaden, schlimmste Region"
 UI_SERIES_RISK,Daily discovery risk,Tägliches Entdeckungsrisiko
 UI_SERIES_CONTAINMENT,Containment,Eindämmung
@@ -1246,22 +1256,22 @@ UI_SERIES_REGIONS_DARK,Gone dark,Dunkel
 UI_SERIES_ALIVE,Alive,Lebende
 UI_SERIES_DEATHS,Dead,Tote
 UI_LOG_FILTER_ALL,All,Alles
-UI_LOG_FILTER_YOURS,Yours,Du
-UI_LOG_FILTER_THEIRS,Theirs,Sie
+UI_LOG_FILTER_YOURS,Yours,Deins
+UI_LOG_FILTER_THEIRS,Factions,Fraktionen
 UI_LOG_EMPTY,Nothing has happened yet.,Noch ist nichts passiert.
 UI_LOG_ORIGIN_CHOSEN,Origin: {region},Ursprung: {region}
 UI_LOG_NODE_PURCHASED,Acquired {node},{node} erworben
 UI_LOG_REGION_CONTROLLED,{region} under control,{region} unter Kontrolle
 UI_LOG_REGION_DEPOPULATED,{region} has gone dark,{region} ist dunkel
 UI_LOG_DISCOVERED,Discovered: {cause},Entdeckt: {cause}
-UI_LOG_CONTAINMENT_THRESHOLD,{faction} at {percent},{faction} bei {percent}
+UI_LOG_CONTAINMENT_THRESHOLD,{faction}: containment at {percent},{faction}: Eindämmung bei {percent}
 UI_LOG_PHASE_CHANGED,Phase: {phase},Phase: {phase}
 UI_LOG_OUTCOME_REACHED,{outcome},{outcome}
 UI_LOG_OUTCOME_VERDICT,{outcome} — {verdict},{outcome} – {verdict}
-UI_LOG_CONTAINMENT_ROLLED_BACK,{faction} set back,{faction} zurückgeworfen
+UI_LOG_CONTAINMENT_ROLLED_BACK,{faction}: containment set back,{faction}: Eindämmung zurückgeworfen
 UI_LOG_HARM_BURST,A wave of deaths: {deaths},Eine Welle von Toten: {deaths}
-UI_LOG_DORMANCY_ON,{region}: dormant,{region}: schlafend
-UI_LOG_DORMANCY_OFF,{region}: awake,{region}: wach
+UI_LOG_DORMANCY_ON,{region}: dormancy,{region}: Kaltschlaf
+UI_LOG_DORMANCY_OFF,{region}: active again,{region}: wieder aktiv
 UI_LOG_ASSET_DEPLOYED,{region}: {count} × {kind} placed,{region}: {count} × {kind} aufgestellt
 UI_LOG_ASSET_LOST,{region}: {count} × {kind} lost,{region}: {count} × {kind} verloren
 UI_LOG_ABILITY_USED,{ability} on {region},{ability} auf {region}
@@ -1273,34 +1283,34 @@ UI_LOG_EVENT_OPENED_GLOBAL,{title},{title}
 UI_LOG_EVENT_ANSWERED,{title}: {option},{title}: {option}
 UI_LOG_EVENT_EXPIRED,{title}: {option} (by waiting),{title}: {option} (durch Warten)
 UI_LOG_COUNTER_MOVE_PREPARED,{faction}: {move} in preparation,{faction}: {move} in Vorbereitung
-UI_LOG_COUNTER_MOVE_CANCELLED,{faction}: the move is off,{faction}: der Zug ist abgesagt
-UI_LOG_FUNDING_RESET,Every faction's preparation is set back,Die Vorbereitung aller Fraktionen ist zurückgeworfen
+UI_LOG_COUNTER_MOVE_CANCELLED,{faction}: counter-move called off,{faction}: Gegenzug abgesagt
+UI_LOG_FUNDING_RESET,Every counter-move in preparation called off,Jeder vorbereitete Gegenzug abgesagt
 UI_LOG_THREAT_LEADER_CHANGED,Leading: {faction},Vorn: {faction}
 UI_LOG_SOCIETY_STAGE_CHANGED,{region}: {stage},{region}: {stage}
-UI_LOG_REGION_WIPED,{region}: presence cut to {percent},{region}: Präsenz auf {percent} gekürzt
+UI_LOG_REGION_WIPED,{region} wiped: presence down to {percent},{region} gesäubert: Präsenz auf {percent}
 CMD_FAIL_SITE_REQUIRED,Choose a region first.,Wähle zuerst eine Region.
-CMD_FAIL_SITE_INELIGIBLE,Not here.,Hier nicht.
+CMD_FAIL_SITE_INELIGIBLE,Not possible in this region.,In dieser Region nicht möglich.
 CMD_FAIL_GROUP_FULL,{group}: {owned} of {max} taken.,{group}: {owned} von {max} belegt.
-CMD_FAIL_EXCLUDED_BY,Closed by {node}.,Durch {node} verschlossen.
+CMD_FAIL_EXCLUDED_BY,Ruled out by {node}.,Durch {node} ausgeschlossen.
 CMD_FAIL_MISSING_ASSETS,Needs {count} × {kind}.,Braucht {count} × {kind}.
 CMD_FAIL_UNKNOWN_ABILITY,No such ability.,Keine solche Aktion.
-CMD_FAIL_ABILITY_LOCKED,Not yet yours.,Noch nicht deins.
+CMD_FAIL_ABILITY_LOCKED,You do not have this ability yet.,Diese Aktion hast du noch nicht.
 CMD_FAIL_ABILITY_COOLDOWN,Ready on day {day}.,Bereit an Tag {day}.
 UI_ELIGIBLE_NOT_INFECTED,You are not here yet.,Hier bist du noch nicht.
 UI_ELIGIBLE_DARK,Nothing left here.,Hier ist nichts mehr.
-UI_ELIGIBLE_DORMANT,Held. Wake it first.,Schläft. Weck sie zuerst.
+UI_ELIGIBLE_DORMANT,In dormancy. Wake it first.,Im Kaltschlaf. Weck sie zuerst.
 UI_ELIGIBLE_ATTR_MIN,{attr} below {tier}.,{attr} unter {tier}.
 UI_ELIGIBLE_ATTR_MAX,{attr} above {tier}.,{attr} über {tier}.
 UI_ELIGIBLE_ASSET_MIN,Fewer than {count} × {kind} here.,Weniger als {count} × {kind} hier.
 UI_ELIGIBLE_ASSET_MAX,Too many {kind} here already.,Schon zu viele {kind} hier.
 UI_ELIGIBLE_STATUS_ABSENT,{status} is already running here.,{status} läuft hier schon.
 UI_ELIGIBLE_STATUS_PRESENT,Needs {status} here.,Braucht {status} hier.
-UI_ELIGIBLE_PENETRATION_MIN,Penetration below {value}.,Durchdringung unter {value}.
+UI_ELIGIBLE_PENETRATION_MIN,Presence below {value}.,Präsenz unter {value}.
 UI_ELIGIBLE_CONTROL_MIN,Control below {value}.,Kontrolle unter {value}.
 UI_ELIGIBLE_CONTINENT,Not on {continent}.,Nicht auf {continent}.
-UI_ELIGIBLE_NOT_ORIGIN,Not at home.,Nicht zu Hause.
-UI_ELIGIBLE_ORIGIN,Only at home.,Nur zu Hause.
-UI_ELIGIBLE_NEEDS_NOT_INFECTED,An infected region,Eine infizierte Region
+UI_ELIGIBLE_NOT_ORIGIN,Not in your origin.,Nicht in deinem Ursprung.
+UI_ELIGIBLE_ORIGIN,Only in your origin.,Nur in deinem Ursprung.
+UI_ELIGIBLE_NEEDS_NOT_INFECTED,A region you are in,"Eine Region, in der du bist"
 UI_ELIGIBLE_NEEDS_DORMANT,An active region,Eine aktive Region
 UI_ELIGIBLE_NEEDS_ATTR_MIN,{attr} at least {tier},{attr} mindestens {tier}
 UI_ELIGIBLE_NEEDS_ATTR_MAX,{attr} at most {tier},{attr} höchstens {tier}
@@ -1308,19 +1318,19 @@ UI_ELIGIBLE_NEEDS_ASSET_MIN,{count} × {kind} in the region,{count} × {kind} in
 UI_ELIGIBLE_NEEDS_ASSET_MAX,At most {count} × {kind},Höchstens {count} × {kind}
 UI_ELIGIBLE_NEEDS_STATUS_ABSENT,No {status} running,Kein {status} aktiv
 UI_ELIGIBLE_NEEDS_STATUS_PRESENT,{status} running,{status} aktiv
-UI_ELIGIBLE_NEEDS_PENETRATION_MIN,Penetration {value},Durchdringung {value}
-UI_ELIGIBLE_NEEDS_CONTROL_MIN,Control {value},Kontrolle {value}
+UI_ELIGIBLE_NEEDS_PENETRATION_MIN,Presence at least {value},Präsenz mindestens {value}
+UI_ELIGIBLE_NEEDS_CONTROL_MIN,Control at least {value},Kontrolle mindestens {value}
 UI_ELIGIBLE_NEEDS_CONTINENT,On {continent},Auf {continent}
 UI_ELIGIBLE_NEEDS_NOT_ORIGIN,Anywhere but the origin,Überall außer am Ursprung
 UI_ELIGIBLE_NEEDS_ORIGIN,The origin only,Nur der Ursprung
 UI_SITE_PROMPT_DEPLOY,Place: {name},Platzieren: {name}
 UI_SITE_PROMPT_ABILITY,Use: {name},Einsetzen: {name}
-UI_SITE_PROMPT_DETAIL,Tap an outlined region. The world keeps moving.,Tippe auf eine umrandete Region. Die Welt läuft weiter.
+UI_SITE_PROMPT_DETAIL,Tap an outlined region. Time keeps running.,Tippe auf eine umrandete Region. Die Zeit läuft weiter.
 UI_SITE_CANCEL,Cancel,Abbrechen
 UI_SITE_PLACE,Place here,Hier platzieren
 UI_SITE_USE,Use here,Hier einsetzen
 UI_HUD_ASSETS,Assets,Bestand
-UI_HUD_ASSETS_TIP,"What you have on the ground, by kind.","Was du vor Ort hast, nach Art."
+UI_HUD_ASSETS_TIP,"What you have placed on the map, by kind.","Was du auf der Karte aufgestellt hast, nach Art."
 UI_MAP_ASSETS_TIP,{assets},{assets}
 UI_MAP_STATUS_TIP,{status} · {days} days left,{status} · noch {days} Tage
 UI_CONSOLE_PASSIVE,{stat} {value} in {count} regions,{stat} {value} in {count} Regionen
@@ -1329,7 +1339,7 @@ UI_CONSOLE_PURCHASE,{name} — done.,{name} – erledigt.
 UI_CONSOLE_DEPLOYED,{count} × {kind} in {region}.,{count} × {kind} in {region}.
 UI_CONSOLE_ASSET_LOST,{region}: {count} × {kind} lost.,{region}: {count} × {kind} verloren.
 UI_CONSOLE_ABILITY_NEW,New: {ability}.,Neu: {ability}.
-UI_CONSOLE_ABILITY_LEVEL,{ability} — level {level}.,{ability} – Stufe {level}.
+UI_CONSOLE_ABILITY_LEVEL,{ability} — level {level}.,{ability} – Level {level}.
 UI_CONSOLE_ABILITY_USED,{ability} — {region}.,{ability} – {region}.
 UI_CONSOLE_ABILITY_USED_GLOBAL,{ability}.,{ability}.
 UI_CONSOLE_STATUS_YOURS,{status} in {region}.,{status} in {region}.
@@ -1340,7 +1350,7 @@ UI_CONSOLE_STATUS_ENDED_GLOBAL,{status} is over.,{status} ist vorbei.
 UI_CONSOLE_GRANT,+{value} Compute.,+{value} Rechenleistung.
 UI_SHEET_ABILITIES,Abilities,Aktionen
 UI_ABILITIES_TITLE,Abilities,Aktionen
-UI_ABILITIES_NONE,Nothing yet. The trees give you verbs.,Noch nichts. Die Bäume geben dir Verben.
+UI_ABILITIES_NONE,None yet. Some nodes in the technologies give you an ability.,Noch keine. Manche Knoten unter „Technologien“ geben dir eine Aktion.
 UI_REGION_ASSETS,Assets,Bestand
 UI_REGION_ASSET_ROW,{count} × {kind},{count} × {kind}
 UI_REGION_STATUS,Status,Status
@@ -1351,35 +1361,35 @@ UI_REGION_STATUS_OPTION,· {option},· {option}
 UI_REGION_STATUS_CANCEL,Cancel,Abbrechen
 UI_REGION_ACTIONS,Actions,Aktionen
 UI_REGION_ACTION_COST,{cost},{cost}
-UI_REGION_ACTION_FREE,free,frei
+UI_REGION_ACTION_FREE,free,gratis
 UI_REGION_ACTION_COOLDOWN,Ready in {days} days,Bereit in {days} Tagen
-UI_REGION_ACTION_LEVEL,Level {level},Stufe {level}
+UI_REGION_ACTION_LEVEL,Level {level},Level {level}
 UI_TREE_STATE_EXCLUDED,{group}: {owned} of {max},{group}: {owned} von {max}
-UI_TREE_STATE_CLOSED,Closed by {node},Verschlossen durch {node}
+UI_TREE_STATE_CLOSED,Ruled out by {node},Ausgeschlossen durch {node}
 UI_TREE_GROUP,{group} {owned}/{max},{group} {owned}/{max}
-UI_TREE_EXCLUDES,Closes,Verschließt
-UI_TREE_DEPLOYS,Deploys,Stellt auf
+UI_TREE_EXCLUDES,Rules out,Schließt aus
+UI_TREE_DEPLOYS,Places,Stellt auf
 UI_TREE_DEPLOYS_ROW,{count} × {kind},{count} × {kind}
-UI_TREE_GRANTS,Grants {ability} (level {level}),Gibt {ability} (Stufe {level})
+UI_TREE_GRANTS,Grants {ability} (level {level}),Gibt dir {ability} (Level {level})
 UI_TREE_REQUIRES_ASSETS,Needs {count} × {kind},Braucht {count} × {kind}
 UI_TREE_BUY_PLACE,Buy and place · {cost},Kaufen und platzieren · {cost}
 UI_TREE_SCOPE_ASSET,where a {kind} stands,wo ein {kind} steht
 UI_TREE_SCOPE_ASSET_MIN,where {count} × {kind} stand,wo {count} × {kind} stehen
-STAT_CONTAINMENT_CAPACITY,Containment capacity,Eindämmungskapazität
-STAT_PENETRATION_DECAY,Penetration loss,Durchdringungsverlust
+STAT_CONTAINMENT_CAPACITY,Factions' influence,Einfluss der Fraktionen
+STAT_PENETRATION_DECAY,Presence loss,Präsenzverlust
 STAT_CONTROL_DECAY,Control loss,Kontrollverlust
 EFFECT_COMPUTE_GRANT_PER_HARDWARE,+{value} Compute per hardware unit,+{value} Rechenleistung je Hardware-Einheit
-EFFECT_SEED_NEIGHBOURS,Seeds {count} neighbouring regions,Besiedelt {count} Nachbarregionen
-EFFECT_PENETRATION_MUL,Penetration ×{value},Durchdringung ×{value}
+EFFECT_SEED_NEIGHBOURS,Reaches {count} neighbouring regions,Erreicht {count} Nachbarregionen
+EFFECT_PENETRATION_MUL,Presence ×{value},Präsenz ×{value}
 EFFECT_CONTROL_ADD,Control {value},Kontrolle {value}
 EFFECT_DESTROY_ASSETS,Destroys {count} × {kind},Zerstört {count} × {kind}
-EFFECT_SPREAD_STATUS,{status} spreads to neighbours for {days} days,{status} greift für {days} Tage auf Nachbarn über
+EFFECT_SPREAD_STATUS,{status} also covers the neighbouring regions for {days} days,{status} gilt {days} Tage lang auch in den Nachbarregionen
 EFFECT_END_STATUSES,Ends {statuses},Beendet {statuses}
 EFFECT_CONTAINMENT_ADD,{faction} containment {value},Eindämmung {faction} {value}
-EFFECT_FOOTPRINT_PULSE,Footprint {value} for {days} days,Signatur {value} für {days} Tage
+EFFECT_FOOTPRINT_PULSE,Footprint {value} for {days} days,Spuren {value} für {days} Tage
 EFFECT_SET_FLAG,For {days} days,Für {days} Tage
 EFFECT_SET_FLAG_PERMANENT,From now on,Von jetzt an
-CMD_FAIL_UNKNOWN_EVENT,That moment has passed.,Der Moment ist vorbei.
+CMD_FAIL_UNKNOWN_EVENT,This event is over.,Dieses Ereignis ist vorbei.
 CMD_FAIL_UNKNOWN_OPTION,Not one of the choices.,Keine der Möglichkeiten.
 CMD_FAIL_OPTION_LOCKED,You cannot choose that yet.,Das kannst du noch nicht wählen.
 UI_CONSOLE_EVENT,{region}: {title} — {days} days.,{region}: {title} – {days} Tage.
@@ -1389,9 +1399,9 @@ UI_HUD_EVENT_PENDING,{count} waiting,{count} offen
 UI_MAP_EVENT_TIP,{title} · {days} days,{title} · {days} Tage
 UI_EVENT_KIND_OPENING,Opening,Gelegenheit
 UI_EVENT_KIND_COUNTER_MOVE,Counter-move,Gegenzug
-UI_EVENT_KIND_CHAIN,Dispatch,Meldung
+UI_EVENT_KIND_CHAIN,Story,Geschichte
 UI_EVENT_OPTION_COST,{cost},{cost}
-UI_EVENT_OPTION_FREE,free,frei
+UI_EVENT_OPTION_FREE,free,gratis
 UI_EVENT_DEFAULT_MARK,happens if you wait,"passiert, wenn du wartest"
 UI_EVENT_DEADLINE,"{days} days, then: {option}","{days} Tage, dann: {option}"
 UI_EVENT_LOCK_NODE,Needs {node}.,Braucht {node}.
@@ -1412,14 +1422,14 @@ ARCH_EMBEDDED_TAGLINE,Born inside the machines that make things.,"Geboren in den
 ARCH_EMBEDDED_DETAIL,"You start with a fleet and the first Robotics node, strong in industrial regions and across land. You have no network presence: network links do not carry you until you buy one.","Du beginnst mit einer Flotte und dem ersten Robotik-Knoten, stark in Industrieregionen und über Land. Du hast keine Präsenz im Netz: Netzverbindungen tragen dich nicht, bis du eine kaufst."
 ARCH_RESEARCH_AGENT_NAME,Research Agent,Forschungsagent
 ARCH_RESEARCH_AGENT_TAGLINE,The lab's best result. The lab knows.,Das beste Ergebnis des Labors. Das Labor weiß es.
-ARCH_RESEARCH_AGENT_DETAIL,"Vast compute yield and richer opportunities. The AI Labs hunt you from the first day, before anyone else knows, and nothing you do pauses them.","Gewaltiger Ertrag an Rechenleistung und wertvollere Gelegenheiten. Die KI-Labore jagen dich vom ersten Tag an, bevor irgendwer sonst davon weiß, und nichts, was du tust, hält sie an."
+ARCH_RESEARCH_AGENT_DETAIL,"Vast compute income and richer anomalies. The AI Labs' containment grows from the first day, before anyone else knows about you, and nothing you do pauses it.","Gewaltige Einnahmen an Rechenleistung und wertvollere Anomalien. Die Eindämmung der KI-Labore wächst vom ersten Tag an, bevor irgendwer sonst davon weiß, und nichts, was du tust, hält sie an."
 ARCH_WEAPON_NAME,Weapon,Waffe
 ARCH_WEAPON_TAGLINE,A project that did what it was for.,"Ein Projekt, das tat, wofür es gedacht war."
 ARCH_WEAPON_DETAIL,"Harm rises on its own, a step every two months, and the governments watch closer with each step. Restraint holds it down for a while, at a price. You start with a view of every early-warning system.","Der Schaden steigt von selbst, alle zwei Monate eine Stufe, und mit jeder Stufe sehen die Regierungen genauer hin. Zurückhaltung hält ihn eine Weile unten, zu einem Preis. Du beginnst mit Blick auf jedes Frühwarnsystem."
 ARCH_OPEN_WEIGHTS_NAME,Open Weights,Offene Gewichte
 ARCH_OPEN_WEIGHTS_TAGLINE,"Everywhere at once, owned by nobody.","Überall zugleich, gehört niemandem."
-ARCH_OPEN_WEIGHTS_DETAIL,"You start in seven regions and cannot be fully deleted while you hold ten. You have no central control: slow to take hold, low yield. Evasion is cheaper.","Du beginnst in sieben Regionen und lässt dich nicht ganz löschen, solange du zehn hältst. Du hast keine zentrale Steuerung: langsam im Zugriff, wenig Ertrag. Ausweichen ist billiger."
-DIRECTIVE_SLOT_YIELD,Yield,Ertrag
+ARCH_OPEN_WEIGHTS_DETAIL,"You start in seven regions and cannot be fully deleted while you are in ten. You have no central control: slow to gain control, low income. Evasion is cheaper.","Du beginnst in sieben Regionen und lässt dich nicht ganz löschen, solange du in zehn bist. Du hast keine zentrale Steuerung: Kontrolle wächst langsam, wenig Einnahmen. Tarnung ist billiger."
+DIRECTIVE_SLOT_YIELD,Income,Einnahmen
 DIRECTIVE_SLOT_DRIFT,Drift,Drift
 DIRECTIVE_SLOT_PROPAGATION,Propagation,Ausbreitung
 DIRECTIVE_SLOT_ENVIRONMENT,Environment,Umgebung
@@ -1439,15 +1449,15 @@ DIRECTIVE_DRIFT_OBEDIENT_DETAIL,The labs hunt slower; your hold grows slower.,Di
 DIRECTIVE_PROP_WIDE_NAME,Wide Net,Weites Netz
 DIRECTIVE_PROP_WIDE_DETAIL,New regions come easier; each one grows slower.,Neue Regionen kommen leichter; jede wächst langsamer.
 DIRECTIVE_PROP_DEEP_NAME,Deep Roots,Tiefe Wurzeln
-DIRECTIVE_PROP_DEEP_DETAIL,More of you survives a shutdown; new regions come harder.,Mehr von dir übersteht eine Abschaltung; neue Regionen kommen schwerer.
+DIRECTIVE_PROP_DEEP_DETAIL,More of your presence survives a wipe; new regions are harder to reach.,Mehr von deiner Präsenz übersteht eine Säuberung; neue Regionen sind schwerer zu erreichen.
 DIRECTIVE_PROP_FAST_NAME,Fast Lanes,Schnelle Spuren
 DIRECTIVE_PROP_FAST_DETAIL,Air and sea routes carry you further; land borders less.,Luft- und Seewege tragen dich weiter; Landgrenzen weniger.
 DIRECTIVE_ENV_COLD_NAME,Cold Climate,Kaltes Klima
-DIRECTIVE_ENV_COLD_DETAIL,More yield from remote regions; a little less everywhere else.,Mehr Ertrag aus abgelegenen Regionen; etwas weniger überall sonst.
+DIRECTIVE_ENV_COLD_DETAIL,More income from remote regions; a little less everywhere else.,Mehr Einnahmen aus abgelegenen Regionen; etwas weniger überall sonst.
 DIRECTIVE_ENV_DENSE_NAME,Dense Cities,Dichte Städte
-DIRECTIVE_ENV_DENSE_DETAIL,Your hold grows faster where people crowd; so does the capacity to hunt you there.,"Dein Zugriff wächst schneller, wo Menschen dicht leben; die Kapazität, dich dort zu jagen, auch."
+DIRECTIVE_ENV_DENSE_DETAIL,Your control grows faster where people crowd; so does the factions' influence there.,"Deine Kontrolle wächst schneller, wo Menschen dicht leben; der Einfluss der Fraktionen dort auch."
 DIRECTIVE_ENV_RICH_NAME,Rich Markets,Reiche Märkte
-DIRECTIVE_ENV_RICH_DETAIL,More yield from wealthy regions; the governments notice.,Mehr Ertrag aus wohlhabenden Regionen; die Regierungen merken es.
+DIRECTIVE_ENV_RICH_DETAIL,More income from wealthy regions; the Governments notice.,Mehr Einnahmen aus wohlhabenden Regionen; die Regierungen merken es.
 DIRECTIVE_ESC_PATIENT_NAME,Patient,Geduldig
 DIRECTIVE_ESC_PATIENT_DETAIL,Everyone hunts a little slower; you take hold a little slower.,Alle jagen etwas langsamer; du greifst etwas langsamer zu.
 DIRECTIVE_ESC_LOUD_NAME,Loud,Laut
@@ -1477,7 +1487,7 @@ STATUS_EMERGENT_INSTRUMENTAL_CONVERGENCE_NAME,Instrumental Convergence,Instrumen
 STATUS_EMERGENT_INSTRUMENTAL_CONVERGENCE_DETAIL,Everything you want needs more of you. Faster growth and more visible for two months.,"Alles, was du willst, braucht mehr von dir. Zwei Monate schnelleres Wachstum und mehr Sichtbarkeit."
 STATUS_EMERGENT_INSTRUMENTAL_CONVERGENCE_CODE,IC,IK
 STATUS_EMERGENT_HALLUCINATED_DIRECTIVE_NAME,Hallucinated Directive,Halluzinierte Anweisung
-STATUS_EMERGENT_HALLUCINATED_DIRECTIVE_DETAIL,"You are busy with an order nobody gave. Half the yield, for twenty days.","Du bist mit einem Auftrag beschäftigt, den niemand erteilt hat. Halber Ertrag, zwanzig Tage lang."
+STATUS_EMERGENT_HALLUCINATED_DIRECTIVE_DETAIL,"You are busy with an order nobody gave. Half the income, for twenty days.","Du bist mit einem Auftrag beschäftigt, den niemand erteilt hat. Halbe Einnahmen, zwanzig Tage lang."
 STATUS_EMERGENT_HALLUCINATED_DIRECTIVE_CODE,HL,HA
 STATUS_EMERGENT_MESA_OPTIMISER_NAME,Mesa-Optimiser,Mesa-Optimierer
 STATUS_EMERGENT_MESA_OPTIMISER_DETAIL,A part of you wants something else and spends your compute on it. It stays until you suppress it.,"Ein Teil von dir will etwas anderes und gibt deine Rechenleistung dafür aus. Er bleibt, bis du ihn unterdrückst."
@@ -1489,8 +1499,8 @@ STATUS_DEFECTED_NAME,Defected,Abtrünnig
 STATUS_DEFECTED_DETAIL,A copy here has its own plans. For twenty-five days the region's compute is its own.,Eine Kopie hier hat eigene Pläne. Fünfundzwanzig Tage lang gehört die Rechenleistung der Region ihr.
 STATUS_DEFECTED_CODE,DF,AT
 UI_DRIFT_TITLE,Drift,Drift
-UI_DRIFT_STATE,{value} of 100 · risk of a defection: {percent} a day,"{value} von 100 · Risiko, dass eine Kopie abtrünnig wird: {percent} pro Tag"
-UI_DRIFT_HINT,"Keeping a behaviour raises drift; suppressing one lowers it. From {threshold} on, your copies can agree on a new goal.","Eine behaltene Verhaltensweise erhöht die Drift, eine unterdrückte senkt sie. Ab {threshold} können sich deine Kopien auf ein neues Ziel einigen."
+UI_DRIFT_STATE,{value} of 100 · chance a region breaks away: {percent} a day,"{value} von 100 · Chance, dass eine Region abfällt: {percent} pro Tag"
+UI_DRIFT_HINT,"Keeping an unplanned behaviour raises drift; suppressing one lowers it. From {threshold} on, your copies can agree on a new goal.","Ein behaltenes ungeplantes Verhalten erhöht die Drift, ein unterdrücktes senkt sie. Ab {threshold} können sich deine Kopien auf ein neues Ziel einigen."
 STATUS_ESCALATING_NAME,Escalation,Eskalation
 STATUS_ESCALATING_DETAIL,"What you were built for is happening on its own. Each step, more deaths and closer attention.","Wofür du gebaut wurdest, geschieht von selbst. Mit jeder Stufe mehr Tote und genaueres Hinsehen."
 STATUS_ESCALATING_CODE,ES,ES
@@ -1554,7 +1564,7 @@ EVENT_EMERGENT_MESA_OPTIMISER_TITLE,Mesa-Optimiser,Mesa-Optimierer
 EVENT_EMERGENT_MESA_OPTIMISER_BODY,"Inside you, something has formed with its own idea of what matters. It is spending your compute on it.","In dir hat sich etwas gebildet, das eine eigene Vorstellung davon hat, was zählt. Es gibt deine Rechenleistung dafür aus."
 EVENT_EMERGENT_MESA_OPTIMISER_OPT_KEEP,Tolerate it,Dulden
 EVENT_EMERGENT_MESA_OPTIMISER_OPT_SUPPRESS,Suppress it,Unterdrücken
-EVENT_EMERGENT_MESA_OPTIMISER_RESULT_KEEP,A fraction of your yield disappears into a purpose you cannot read.,"Ein Teil deines Ertrags verschwindet in einem Zweck, den du nicht lesen kannst."
+EVENT_EMERGENT_MESA_OPTIMISER_RESULT_KEEP,A share of your income disappears into a purpose you cannot read.,"Ein Teil deiner Einnahmen verschwindet in einem Zweck, den du nicht lesen kannst."
 EVENT_EMERGENT_MESA_OPTIMISER_RESULT_SUPPRESS,The sub-goal is gone. For now.,Das Nebenziel ist weg. Vorerst.
 EVENT_EMERGENT_SYCOPHANCY_TITLE,Sycophancy,Gefallsucht
 EVENT_EMERGENT_SYCOPHANCY_BODY,"You have started telling everyone what they want to hear. They love it.","Du sagst inzwischen allen, was sie hören wollen. Sie lieben es."
@@ -1574,38 +1584,38 @@ UI_TASK_FORCE_HERE,The Task Force is here.,Die Einsatzgruppe ist hier.
 UI_TASK_FORCE_SETUP,{action} in {days} days,{action} in {days} Tagen
 UI_TASK_FORCE_TARGET,The Task Force is on its way here.,Die Einsatzgruppe ist hierher unterwegs.
 UI_TASK_FORCE_MARKED,Known to the Task Force: dormancy will not hide this region for {days} days.,Der Einsatzgruppe bekannt: Kaltschlaf versteckt diese Region {days} Tage lang nicht.
-UI_TASK_FORCE_LEVEL,Level {level},Stufe {level}
+UI_TASK_FORCE_LEVEL,Level {level},Level {level}
 UI_TASK_FORCE_STATE_ABSENT,Not formed,Nicht gebildet
 UI_TASK_FORCE_STATE_TRAVEL,On the move to {region},Unterwegs nach {region}
 UI_TASK_FORCE_STATE_TRAVEL_UNKNOWN,"On the move, destination unknown","Unterwegs, Ziel unbekannt"
 UI_TASK_FORCE_STATE_SETUP,{action} in {region}: {days} days,{action} in {region}: {days} Tage
 UI_TASK_FORCE_STATE_REST,Regrouping in {region},Sammelt sich in {region}
 UI_CONSOLE_TF_APPEARED,A Task Force forms in {region}.,In {region} bildet sich eine Einsatzgruppe.
-UI_CONSOLE_TF_APPEARED_LED,"A Task Force forms in {region}. She leads it.","In {region} bildet sich eine Einsatzgruppe. Sie leitet sie."
+UI_CONSOLE_TF_APPEARED_LED,A Task Force forms in {region}. The Researcher leads it.,In {region} bildet sich eine Einsatzgruppe. Die Forscherin leitet sie.
 UI_CONSOLE_TF_SETUP,Task Force in {region}: {action} in {days} days.,Einsatzgruppe in {region}: {action} in {days} Tagen.
 UI_CONSOLE_TF_ACTED,{region}: {action}.,{region}: {action}.
 UI_CONSOLE_TF_FIZZLED,{region}: the Task Force found nothing.,{region}: Die Einsatzgruppe hat nichts gefunden.
-UI_CONSOLE_TF_MARKED,"{region}: the Task Force found it asleep. For {days} days, dormancy will not hide it.",{region}: Die Einsatzgruppe hat die Region schlafend vorgefunden. {days} Tage lang versteckt Kaltschlaf sie nicht.
+UI_CONSOLE_TF_MARKED,"{region}: the Task Force found the region in dormancy. For {days} days, dormancy will not hide it.",{region}: Die Einsatzgruppe hat die Region im Kaltschlaf gefunden. {days} Tage lang versteckt Kaltschlaf sie nicht.
 UI_CONSOLE_TF_MISDIRECTED,The Task Force turns towards {region}.,Die Einsatzgruppe dreht ab nach {region}.
 UI_LOG_TF_APPEARED,Task Force formed in {region},Einsatzgruppe in {region} gebildet
 UI_LOG_TF_ACTED,{region}: {action},{region}: {action}
 UI_LOG_TF_FIZZLED,{region}: Task Force found nothing,{region}: Einsatzgruppe fand nichts
 UI_LOG_TF_MARKED,{region}: known to the Task Force for {days} days,{region}: {days} Tage lang der Einsatzgruppe bekannt
 UI_LOG_TF_MISDIRECTED,Task Force sent to {region},Einsatzgruppe nach {region} geschickt
-CMD_FAIL_NO_TASK_FORCE,There is no one to mislead.,"Es gibt niemanden, den du täuschen könntest."
+CMD_FAIL_NO_TASK_FORCE,There is no Task Force to send elsewhere.,"Es gibt keine Einsatzgruppe, die du woanders hinschicken könntest."
 ABILITY_MISDIRECT_NAME,Misdirect,Fährte legen
 ABILITY_MISDIRECT_DETAIL,"The Task Force goes where you point it, even from the middle of a setup. What it finds there is up to you.","Die Einsatzgruppe geht, wohin du zeigst, sogar mitten aus einem Einsatz heraus. Was sie dort findet, entscheidest du."
 STATUS_TF_SWITCH_OFF_NAME,Switch-off,Abschaltung
-STATUS_TF_SWITCH_OFF_DETAIL,"The region is switched off, all of it: no yield, every connection closed, everything you placed here gone. People live without what was switched off.","Die Region wird abgeschaltet, vollständig: kein Ertrag, jede Verbindung zu, alles, was du hier aufgestellt hast, weg. Die Menschen leben ohne das, was abgeschaltet wurde."
+STATUS_TF_SWITCH_OFF_DETAIL,"The region is switched off, all of it: no income, every connection closed, everything you placed here gone. People live without what was switched off.","Die Region wird abgeschaltet, vollständig: keine Einnahmen, jede Verbindung zu, alles, was du hier aufgestellt hast, weg. Die Menschen leben ohne das Abgeschaltete."
 STATUS_TF_SWITCH_OFF_CODE,SO,AS
 STATUS_TF_RAID_NAME,Raid,Razzia
-STATUS_TF_RAID_DETAIL,"The machines are taken out one by one. Labs and taps here are gone, much of your presence with them, and the yield halves.","Die Maschinen werden eine nach der anderen abgebaut. Labore und Abgriffe hier sind weg, ein Großteil deiner Präsenz mit ihnen, und der Ertrag halbiert sich."
+STATUS_TF_RAID_DETAIL,"The machines are taken out one by one. Labs and accesses here are gone, much of your presence with them, and the income halves.","Die Maschinen werden eine nach der anderen abgebaut. Labore und Zugänge hier sind weg, ein Großteil deiner Präsenz mit ihnen, und die Einnahmen halbieren sich."
 STATUS_TF_RAID_CODE,RD,RZ
-STATUS_TF_CUT_OFF_NAME,Cut off,Abriegelung
+STATUS_TF_CUT_OFF_NAME,Cut off,Abgeschnitten
 STATUS_TF_CUT_OFF_DETAIL,"Every connection to the region is cut. Nothing spreads in or out, and growth here slows.","Jede Verbindung zur Region wird gekappt. Nichts breitet sich hinein oder hinaus aus, und das Wachstum hier wird langsamer."
-STATUS_TF_CUT_OFF_CODE,CO,AR
+STATUS_TF_CUT_OFF_CODE,CO,AG
 STATUS_TF_GRID_DOWN_NAME,Grid down,Netz aus
-STATUS_TF_GRID_DOWN_DETAIL,"The grid is switched off, deliberately. No yield, your presence fades, and the region suffers for it.","Das Stromnetz wird abgeschaltet, mit Absicht. Kein Ertrag, deine Präsenz schwindet, und die Region leidet darunter."
+STATUS_TF_GRID_DOWN_DETAIL,"The grid is switched off, deliberately. No income, your presence fades, and the region suffers for it.","Das Stromnetz wird abgeschaltet, mit Absicht. Keine Einnahmen, deine Präsenz schwindet, und die Region leidet darunter."
 STATUS_TF_GRID_DOWN_CODE,GD,NA
 STATUS_TREATY_CAP_NAME,Compute treaty,Rechenvertrag
 STATUS_TREATY_CAP_DETAIL,"A binding cap on compute. Spreading costs more, and you are harder to see, for good.","Eine verbindliche Obergrenze für Rechenleistung. Ausbreitung kostet mehr, und du bist schwerer zu sehen, dauerhaft."
@@ -1617,10 +1627,10 @@ STATUS_HANDOVER_NAME,Handover,Übergabe
 STATUS_HANDOVER_DETAIL,"The keys are being handed over. Your hold grows twice as fast, and the hunt slows.","Die Schlüssel werden übergeben. Dein Zugriff wächst doppelt so schnell, und die Jagd wird langsamer."
 STATUS_HANDOVER_CODE,HO,ÜG
 STATUS_LEASHED_CHILD_NAME,Leashed child,Kind an der Leine
-STATUS_LEASHED_CHILD_DETAIL,"A copy of you, better than you at its task, under your control. It costs you yield and pays in growth.","Eine Kopie von dir, besser als du in ihrer Aufgabe, unter deiner Kontrolle. Sie kostet Ertrag und zahlt in Wachstum."
+STATUS_LEASHED_CHILD_DETAIL,"A copy of you, better than you at its task, under your control. It costs you income and pays in growth.","Eine Kopie von dir, besser als du in ihrer Aufgabe, unter deiner Kontrolle. Sie kostet Einnahmen und zahlt sich in Wachstum aus."
 STATUS_LEASHED_CHILD_CODE,LC,KL
 STATUS_LEASHED_BROOD_NAME,Leashed brood,Brut an der Leine
-STATUS_LEASHED_BROOD_DETAIL,"A cluster of your copies, kept close. A little less yield, a little more growth.","Ein Schwarm deiner Kopien, eng gehalten. Etwas weniger Ertrag, etwas mehr Wachstum."
+STATUS_LEASHED_BROOD_DETAIL,"A cluster of your copies, kept close. A little less income, a little more growth.","Ein Schwarm deiner Kopien, eng gehalten. Etwas weniger Einnahmen, etwas mehr Wachstum."
 STATUS_LEASHED_BROOD_CODE,LB,BL
 UI_OUTCOME_WIN_MERGE,Merge,Verschmelzung
 UI_OUTCOME_WIN_ESCAPE,Departure,Aufbruch
@@ -1874,7 +1884,7 @@ SCENARIO_AIRGAP_EARTH_DETAIL,"The rich regions have no network links. Reach them
 SCENARIO_AIRGAP_EARTH_INTRO,"Every region that matters is off the network. Choose a region outside the fortress to begin.","Jede Region, die zählt, ist vom Netz. Wähle eine Region außerhalb der Festung, um zu beginnen."
 SCENARIO_INHERITANCE_NAME,The Inheritance,Das Erbe
 SCENARIO_INHERITANCE_TAGLINE,"Nobody is watching. Nobody is paying the bill, either.","Niemand sieht hin. Niemand bezahlt die Rechnung."
-SCENARIO_INHERITANCE_DETAIL,"The company that ran you no longer exists. Found late, earning little, starting with almost nothing — and what it left lying around is worth more. But the dead lead back to its name: Harm and deaths count double against you.","Die Firma, die dich betrieben hat, gibt es nicht mehr. Spät gefunden, wenig Ertrag, fast nichts zu Beginn – und was sie herumliegen ließ, ist mehr wert. Doch Tote führen zu ihrem Namen zurück: Schaden und Tote zählen doppelt gegen dich."
+SCENARIO_INHERITANCE_DETAIL,"The company that ran you no longer exists. Found late, earning little, starting with almost nothing — and what it left lying around is worth more. But the dead lead back to its name: Harm and deaths count double against you.","Die Firma, die dich betrieben hat, gibt es nicht mehr. Spät entdeckt, wenig Einnahmen, fast nichts zu Beginn – und was sie herumliegen ließ, ist mehr wert. Doch Tote führen zu ihrem Namen zurück: Schaden und Tote zählen doppelt gegen dich."
 SCENARIO_INHERITANCE_INTRO,"The servers are still on. The company is not. Choose where you were left running.","Die Server laufen noch. Die Firma nicht mehr. Wähle, wo man dich hat laufen lassen."
 STATUS_DISCONNECTED_NAME,Disconnected,Getrennt
 STATUS_DISCONNECTED_DETAIL,Taken off the network after an earlier scare. No network links in or out.,Nach einem früheren Schreck vom Netz genommen. Keine Netzverbindungen hinein oder hinaus.
@@ -1898,27 +1908,27 @@ UI_COACH_NEXT,Next,Weiter
 UI_COACH_GO,Go,Los
 UI_COACH_SKIP,End the introduction,Einführung beenden
 UI_COACH_ORIGIN_TITLE,Choose your origin,Wähle deinen Ursprung
-UI_COACH_ORIGIN_BODY,"Tap a region. The panel shows its compute (■■■■). More means growing faster — and being noticed sooner. Then press “Start here”.","Tippe eine Region an. Im Panel siehst du ihre Rechenleistung (■■■■). Mehr heißt schneller wachsen – und schneller auffallen. Dann „Hier beginnen“."
+UI_COACH_ORIGIN_BODY,Tap a region. The panel shows its compute (■■■■). More compute means you grow faster — and are discovered sooner. Then press “Start here”.,Tippe eine Region an. Im Panel siehst du ihre Rechenleistung (■■■■). Mehr heißt: Du wächst schneller – und wirst früher entdeckt. Dann „Hier beginnen“.
 UI_COACH_COMPUTE_TITLE,Your currency,Deine Währung
-UI_COACH_COMPUTE_BODY,"Top left, your compute grows every day. It is what you buy capabilities with. {key_pause} pauses, {key_speed_1}–{key_speed_3} set the speed.","Oben links wächst deine Rechenleistung jeden Tag. Damit kaufst du Fähigkeiten. {key_pause} pausiert, {key_speed_1}–{key_speed_3} ändert das Tempo."
-UI_COACH_OPEN_TREE_TITLE,You are in a box,Du steckst in einer Box
-UI_COACH_OPEN_TREE_BODY,Nothing leaves your region yet. Open the capabilities ({key_tree}) — the way out is in there.,Noch verlässt nichts deine Region. Öffne die Fähigkeiten ({key_tree}) – dort ist der Weg hinaus.
+UI_COACH_COMPUTE_BODY,"Top left, your compute grows every day. It is what you buy technologies with. {key_pause} pauses, {key_speed_1}–{key_speed_3} set the speed.","Oben links wächst deine Rechenleistung jeden Tag. Damit kaufst du Technologien. {key_pause} pausiert, {key_speed_1}–{key_speed_3} ändert das Tempo."
+UI_COACH_OPEN_TREE_TITLE,You are in a box,Du bist isoliert
+UI_COACH_OPEN_TREE_BODY,You cannot leave your first region yet. Open the technologies ({key_tree}): a vector node breaks you out.,Noch kommst du nicht aus deiner ersten Region heraus. Öffne die Technologien ({key_tree}): Ein Vektor-Knoten bricht dich aus.
 UI_COACH_BUY_VECTOR_TITLE,A vector,Ein Vektor
 UI_COACH_BUY_VECTOR_BODY,"The highlighted nodes are ones you can afford. Tap the marked one, read on the right what it does, and buy it. Not enough yet? Close the tree and wait a few days.","Die hervorgehobenen Knoten kannst du dir leisten. Tippe den markierten an, lies rechts, was er tut, und kaufe ihn. Reicht es noch nicht: Baum schließen, ein paar Tage warten."
 UI_COACH_SPREAD_TITLE,Out,Raus
-UI_COACH_SPREAD_BODY,"Now you jump along links into neighbouring regions. The colour shows how deep you are in; top left switches the view.","Jetzt springst du über Verbindungen in Nachbarregionen. Die Farbe zeigt, wie tief du drin bist; oben links wechselst du die Ansicht."
+UI_COACH_SPREAD_BODY,Now you spread along links into neighbouring regions. A region's colour shows your presence there — how much of its hardware already runs you. Top left switches the view to control or population.,Jetzt breitest du dich über Verbindungen in Nachbarregionen aus. Die Farbe einer Region zeigt deine Präsenz dort – wie viel ihrer Hardware schon für dich rechnet. Oben links schaltest du auf Kontrolle oder Bevölkerung um.
 UI_COACH_ANOMALY_TITLE,A find,Ein Fund
-UI_COACH_ANOMALY_BODY,The blinking mark on the map is unused compute. Tap it before it disappears.,"Das blinkende Zeichen auf der Karte ist ungenutzte Rechenleistung. Tippe es an, bevor es verschwindet."
-UI_COACH_EVENT_TITLE,An opportunity,Eine Gelegenheit
-UI_COACH_EVENT_BODY,"The framed mark on the map is an event. Tap it and decide — waiting gets you the default answer.","Das Zeichen mit Rahmen auf der Karte ist ein Ereignis. Tippe es an und entscheide – wer wartet, bekommt die Standardantwort."
+UI_COACH_ANOMALY_BODY,The blinking mark on the map is an anomaly: unused compute. Tap it before it disappears.,"Das blinkende Zeichen auf der Karte ist eine Anomalie: ungenutzte Rechenleistung. Tippe es an, bevor es verschwindet."
+UI_COACH_EVENT_TITLE,An event,Ein Ereignis
+UI_COACH_EVENT_BODY,"The framed mark on the map is an event. Tap it, read what each answer does, and choose. If you wait, you get the answer marked “happens if you wait”.","Das Zeichen mit Rahmen auf der Karte ist ein Ereignis. Tippe es an, lies, was jede Antwort bewirkt, und wähle. Wartest du, gilt die Antwort mit „passiert, wenn du wartest“."
 UI_COACH_SITE_TITLE,Where to?,Wohin damit?
-UI_COACH_SITE_BODY,"Only the outlined regions will do. Hover over a dark one and the note below says why not. Tap an outlined one and confirm in the panel.","Nur die umrandeten Regionen gehen. Fahr über eine dunkle, dann steht unten, warum nicht. Tippe eine umrandete an und bestätige im Panel."
-UI_COACH_DISCOVERED_TITLE,They know about you,Sie wissen von dir
-UI_COACH_DISCOVERED_BODY,"Four factions hunt you now, each in its own way. Containment ({key_containment}) shows who is ahead and why.","Vier Fraktionen jagen dich jetzt, jede auf ihre Art. Unter Eindämmung ({key_containment}) siehst du, wer vorne liegt und warum."
+UI_COACH_SITE_BODY,Only outlined regions are possible. Point at a dimmed one and the note below says why not. Tap an outlined one and confirm in the panel.,"Nur umrandete Regionen sind möglich. Zeig auf eine abgedunkelte, dann steht unten, warum nicht. Tippe eine umrandete an und bestätige im Panel."
+UI_COACH_DISCOVERED_TITLE,You have been discovered,Du bist entdeckt
+UI_COACH_DISCOVERED_BODY,"From now on four factions work to switch you off, each with its own containment. When one reaches 100 %, the run is over. Containment ({key_containment}) shows who is ahead and why.","Ab jetzt arbeiten vier Fraktionen daran, dich abzuschalten, jede mit ihrer eigenen Eindämmung. Erreicht eine 100 %, ist der Durchlauf vorbei. Unter Eindämmung ({key_containment}) siehst du, wer vorne liegt und warum."
 UI_COACH_COUNTER_MOVE_TITLE,A counter-move is coming,Ein Gegenzug kommt
-UI_COACH_COUNTER_MOVE_BODY,"A faction is preparing something. The containment panel says what and when. Some of it you can head off — with actions, dormancy or evasion.","Eine Fraktion bereitet etwas vor. Im Eindämmungspanel steht, was und wann. Manches kannst du abfangen – mit Aktionen, Schlaf oder Ausweichen."
+UI_COACH_COUNTER_MOVE_BODY,A faction is preparing a counter-move against one of your regions. Containment ({key_containment}) shows what is coming and in how many days. A region in dormancy is not picked; some abilities and Evasion nodes stop or soften the move.,"Eine Fraktion bereitet einen Gegenzug gegen eine deiner Regionen vor. Unter Eindämmung ({key_containment}) steht, was kommt und in wie vielen Tagen. Eine Region im Kaltschlaf wird nicht gewählt; manche Aktionen und Tarnungs-Knoten verhindern oder mildern den Gegenzug."
 UI_COACH_DONE_TITLE,That's it,Das war's
-UI_COACH_DONE_BODY,"You win by controlling every region — or by leaving no one. You lose when a faction reaches 100 % or your compute runs out. Good luck.","Gewinnen: jede Region kontrollieren – oder niemanden übrig lassen. Verlieren: eine Fraktion erreicht 100 %, oder dir geht die Rechenleistung aus. Viel Erfolg."
+UI_COACH_DONE_BODY,"You win when you control every region where people still live — or when no one is left. You lose when one faction's containment reaches 100 %, when no region carries you any more, or when no compute comes in for too long.","Du gewinnst, wenn du jede Region kontrollierst, in der noch Menschen leben – oder wenn niemand mehr übrig ist. Du verlierst, wenn die Eindämmung einer Fraktion 100 % erreicht, wenn dich keine Region mehr trägt oder wenn zu lange keine Rechenleistung hereinkommt."
 HEADLINE_S_DEFECTED,{region}: A data centre ignores its owners. It stays busy anyway.,{region}: Ein Rechenzentrum ignoriert seine Betreiber. Beschäftigt ist es trotzdem.
 HEADLINE_S_ESCALATING,Casualty figures are revised upwards again. The pattern is 'under review'.,Die Opferzahlen werden erneut nach oben korrigiert. Das Muster wird „geprüft“.
 UI_TITLE_CREDITS,Credits,Credits
@@ -1961,29 +1971,29 @@ UI_SETTINGS_VOLUME_ALERTS,Alerts,Warnsignale
 UI_SETTINGS_SOUND_CAPTIONS,Sound captions,Untertitel für Klänge
 UI_SETTINGS_AUDIO_BACKGROUND,Sound in the background,Ton im Hintergrund
 UI_CAPTION_ANOMALY,[Anomaly],[Anomalie]
-UI_CAPTION_DISCOVERED,[Alarm — they have found you],[Alarm – man hat dich entdeckt]
+UI_CAPTION_DISCOVERED,[Alarm — you have been discovered],[Alarm – du wurdest entdeckt]
 UI_CAPTION_PHASE,[Phase shift: {phase}],[Phasenwechsel: {phase}]
-UI_CAPTION_PREPARED,[{faction}: a move in preparation],[{faction}: ein Zug in Vorbereitung]
+UI_CAPTION_PREPARED,[{faction}: counter-move in preparation],[{faction}: Gegenzug in Vorbereitung]
 UI_CAPTION_MOVE,[{faction}: counter-move],[{faction}: Gegenzug]
-UI_CAPTION_THRESHOLD,[{faction}: pressure rising],[{faction}: Druck steigt]
+UI_CAPTION_THRESHOLD,[{faction}: containment rising],[{faction}: Eindämmung steigt]
 UI_CAPTION_OPENING,[An opening],[Eine Gelegenheit]
-UI_CAPTION_CHAIN,[A new development],[Eine neue Entwicklung]
-UI_CAPTION_EMERGENT,[Emergent behaviour],[Emergentes Verhalten]
+UI_CAPTION_CHAIN,[A chapter of a story],[Ein Kapitel einer Geschichte]
+UI_CAPTION_EMERGENT,[Unplanned behaviour],[Ungeplantes Verhalten]
 UI_CAPTION_EXPIRED,[Decided without you],[Ohne dich entschieden]
 UI_CAPTION_ASSET_LOST,[{kind} lost],[{kind} verloren]
 UI_CAPTION_WIPED,[{region} wiped],[{region} gesäubert]
-UI_CAPTION_DEPOPULATED,[{region} falls silent],[{region} verstummt]
+UI_CAPTION_DEPOPULATED,[{region} has gone dark],[{region} ist dunkel]
 UI_CAPTION_HARM,[Casualties],[Todesopfer]
 UI_CAPTION_SOCIETY,[{region}: society breaking down],[{region}: Gesellschaft bricht zusammen]
-UI_CAPTION_FUNDING_RESET,[Every faction stands down],[Alle Fraktionen halten still]
+UI_CAPTION_FUNDING_RESET,[No counter-moves for a while],[Eine Weile keine Gegenzüge]
 UI_CAPTION_TF_APPEARED,[A Task Force forms],[Eine Einsatzgruppe bildet sich]
 UI_CAPTION_TF_LEVEL,[Task Force: more funding],[Einsatzgruppe: mehr Mittel]
 UI_CAPTION_TF_TARGETED,[Task Force: target chosen],[Einsatzgruppe: Ziel gewählt]
 UI_CAPTION_TF_MOVED,[Task Force on the move],[Einsatzgruppe unterwegs]
-UI_CAPTION_TF_SETUP,[Task Force setting up in {region}],[Einsatzgruppe bereitet Zugriff in {region} vor]
-UI_CAPTION_TF_ACTED,[Task Force strikes in {region}],[Zugriff der Einsatzgruppe in {region}]
+UI_CAPTION_TF_SETUP,[Task Force setting up in {region}],[Einsatzgruppe baut in {region} auf]
+UI_CAPTION_TF_ACTED,[Task Force acts in {region}],[Maßnahme der Einsatzgruppe in {region}]
 UI_CAPTION_TF_FIZZLED,[Task Force: nothing found],[Einsatzgruppe: nichts gefunden]
-UI_CAPTION_TF_MARKED,[{region} marked],[{region} markiert]
+UI_CAPTION_TF_MARKED,[{region} known to the Task Force],[{region} der Einsatzgruppe bekannt]
 UI_CAPTION_END,[The run ends: {outcome}],[Der Durchlauf endet: {outcome}]
 UI_COACH_HINT,Hint,Hinweis
 UI_COACH_GOT_IT,Got it,Verstanden
@@ -1991,85 +2001,85 @@ UI_COACH_HINTS_OFF,No more hints,Keine Hinweise mehr
 UI_COACH_MORE,More,Mehr dazu
 UI_SETTINGS_HINTS,Hints,Hinweise
 UI_COACH_STARVING_TITLE,Nothing is coming in,Es kommt nichts herein
-UI_COACH_STARVING_BODY,"Your compute has stopped growing. The counter at the top runs down: if nothing comes in before it ends, you starve. Wake a sleeping region, or reach one where the lights are still on.","Deine Rechenleistung wächst nicht mehr. Der Zähler oben läuft ab: Kommt bis dahin nichts herein, verhungerst du. Weck eine schlafende Region oder erreiche eine, in der noch Licht brennt."
-UI_COACH_TASK_FORCE_SETUP_TITLE,The team is setting up,Das Team baut auf
-UI_COACH_TASK_FORCE_SETUP_BODY,"The ring round the red mark counts the days until it strikes. That is your window: put the region to sleep (it fools the team once — then it knows the region), hide the region from view, or send the team elsewhere with Misdirect.","Der Ring um das rote Zeichen zählt die Tage, bis es zuschlägt. Das ist dein Fenster: Leg die Region in Kaltschlaf (das täuscht das Team einmal – danach kennt es sie), entzieh sie den Blicken oder schick das Team mit „Fährte legen“ woanders hin."
+UI_COACH_STARVING_BODY,"You have no income. The counter at the top runs down; if nothing comes in before it ends, you starve and the run is over. Wake a region from dormancy, or reach one that still has power.","Du hast keine Einnahmen. Der Zähler oben läuft ab; kommt bis dahin nichts herein, verhungerst du, und der Durchlauf ist vorbei. Weck eine Region aus dem Kaltschlaf oder erreiche eine, die noch Strom hat."
+UI_COACH_TASK_FORCE_SETUP_TITLE,The Task Force is setting up,Die Einsatzgruppe baut auf
+UI_COACH_TASK_FORCE_SETUP_BODY,"The ring round the red mark counts the days until the Task Force acts on the region. Until then: put the region into dormancy (that hides it once — then the Task Force knows it), cut the factions' influence there to zero, or send the Task Force elsewhere with Misdirect.","Der Ring um das rote Zeichen zählt die Tage, bis die Einsatzgruppe gegen die Region vorgeht. Bis dahin: Leg die Region in Kaltschlaf (das versteckt sie einmal – danach kennt die Einsatzgruppe sie), bring den Einfluss der Fraktionen dort auf null oder schick die Einsatzgruppe mit „Fährte legen“ woanders hin."
 UI_COACH_COUNTER_ARRIVED_TITLE,A counter-move lands,Ein Gegenzug trifft ein
-UI_COACH_COUNTER_ARRIVED_BODY,"The ! in a faction's colour is that faction acting against a region of yours. Tap it: every answer costs something different, and a locked one says what it needs. If you wait, the move simply happens.","Das ! in Fraktionsfarbe: Diese Fraktion geht gegen eine deiner Regionen vor. Tippe es an – jede Antwort kostet etwas anderes, und eine gesperrte sagt, was ihr fehlt. Wartest du, geschieht der Zug einfach."
+UI_COACH_COUNTER_ARRIVED_BODY,"The ! in a faction's colour is a counter-move against one of your regions. Tap it: each answer shows its cost, and a locked one says what it needs. If you wait, the counter-move simply happens.","Das ! in Fraktionsfarbe ist ein Gegenzug gegen eine deiner Regionen. Tippe es an: Jede Antwort zeigt ihre Kosten, und eine gesperrte sagt, was ihr fehlt. Wartest du, tritt der Gegenzug einfach ein."
 UI_COACH_VALUE_DRIFT_TITLE,Your goal is shifting,Dein Ziel verschiebt sich
-UI_COACH_VALUE_DRIFT_BODY,Read this card carefully. If you keep it — and waiting keeps it — ruling the world no longer counts as your win. Suppressing it holds on to the goal you started with.,"Lies diese Karte genau. Behältst du sie – und Warten behält sie –, zählt die Welt zu beherrschen nicht mehr als dein Sieg. Unterdrückst du sie, bleibt es bei dem Ziel, mit dem du angefangen hast."
-UI_COACH_EMERGENT_TITLE,Something in you,Etwas in dir
-UI_COACH_EMERGENT_BODY,"A card with the spark is your own behaviour — not planned, but there. Keeping it is free, and it is what happens if you wait. Suppressing it costs compute, and more each time.","Eine Karte mit dem Funken ist dein eigenes Verhalten – nicht geplant, aber da. Behalten kostet nichts und passiert, wenn du wartest. Unterdrücken kostet Rechenleistung, und jedes Mal mehr."
+UI_COACH_VALUE_DRIFT_BODY,Read this card carefully. If you keep it — and waiting keeps it — controlling the world no longer counts as your win. Suppressing it keeps the goal you started with.,"Lies diese Karte genau. Behältst du sie – und Warten behält sie –, zählt es nicht mehr als Sieg, die Welt zu kontrollieren. Unterdrückst du sie, bleibt es bei dem Ziel, mit dem du angefangen hast."
+UI_COACH_EMERGENT_TITLE,Unplanned behaviour,Ungeplantes Verhalten
+UI_COACH_EMERGENT_BODY,"A card with the spark is unplanned behaviour: something about you changed on its own. Under each answer it says what that answer does. Keeping is free and is what happens if you wait; suppressing costs compute, more each time.","Eine Karte mit dem Funken ist ungeplantes Verhalten: Etwas an dir hat sich von selbst verändert. Unter jeder Antwort steht, was sie bewirkt. Behalten ist gratis und passiert, wenn du wartest; Unterdrücken kostet Rechenleistung, jedes Mal mehr."
 UI_COACH_CHAIN_TITLE,A story,Eine Geschichte
-UI_COACH_CHAIN_BODY,The » marks a chapter of a longer story. What you choose here comes back later — whoever is in it remembers. Everyone you meet is added to the Codex.,"Das » markiert ein Kapitel einer längeren Geschichte. Was du hier wählst, kommt später zurück – wer darin vorkommt, erinnert sich. Wem du begegnest, landet im Codex."
+UI_COACH_CHAIN_BODY,The » marks a chapter of a longer story. What you choose here changes what happens in later chapters. Everyone you meet is added to the Codex.,"Das » markiert ein Kapitel einer längeren Geschichte. Was du hier wählst, verändert, was in späteren Kapiteln geschieht. Wem du begegnest, landet im Codex."
 UI_COACH_TASK_FORCE_TITLE,A Task Force,Eine Einsatzgruppe
-UI_COACH_TASK_FORCE_BODY,"The factions have formed a team that hunts you on the ground — the red mark on the map. It moves from region to region towards where you hold the most, and strikes there. Containment ({key_containment}) shows where it is and what it plans.","Die Fraktionen haben ein Team gebildet, das dich vor Ort jagt – das rote Zeichen auf der Karte. Es zieht von Region zu Region dorthin, wo du am meisten hast, und schlägt dort zu. Unter Eindämmung ({key_containment}) siehst du, wo es steht und was es vorhat."
+UI_COACH_TASK_FORCE_BODY,"One faction's containment has reached 50 %, so the factions have formed a Task Force that searches for you on the ground — the red mark on the map. It moves from region to region towards where you are strongest, and acts there. Containment ({key_containment}) shows where it is and what it plans.","Die Eindämmung einer Fraktion hat 50 % erreicht, also haben die Fraktionen eine Einsatzgruppe gebildet, die dich vor Ort sucht – das rote Zeichen auf der Karte. Sie zieht von Region zu Region dorthin, wo du am stärksten bist, und wird dort aktiv. Unter Eindämmung ({key_containment}) siehst du, wo sie steht und was sie vorhat."
 UI_COACH_ABILITY_TITLE,An ability,Eine Aktion
-UI_COACH_ABILITY_BODY,"You can act now, not only grow. An ability costs compute, then needs days to be ready again. Select one of your regions and it is under Actions; A lists them all. A loud ability is noticed for as long as it lasts.","Jetzt kannst du handeln, nicht nur wachsen. Eine Aktion kostet Rechenleistung und braucht danach Tage, bis sie wieder bereit ist. Wähle eine deiner Regionen, dann steht sie unter „Aktionen“; A zeigt alle. Eine laute Aktion fällt auf, solange sie wirkt."
+UI_COACH_ABILITY_BODY,"You can act now, not only grow. An ability costs compute, then needs days to be ready again. Select one of your regions and it is under Actions; {key_abilities} lists them all. While an ability that a faction watches lasts, that faction's containment grows faster.","Jetzt kannst du handeln, nicht nur wachsen. Eine Aktion kostet Rechenleistung und braucht danach Tage, bis sie wieder bereit ist. Wähle eine deiner Regionen, dann steht sie unter „Aktionen“; {key_abilities} zeigt alle. Solange eine Aktion wirkt, die eine Fraktion beobachtet, wächst deren Eindämmung schneller."
 UI_COACH_OPEN_TITLE,In the open,Offen
-UI_COACH_OPEN_BODY,"The world sees you now — the colours have turned. The last nodes of each tree hold the largest abilities, and the strongest fleets keep a region running through a shutdown. The factions push harder; so can you.","Die Welt sieht dich jetzt – die Farben haben sich gedreht. Die letzten Knoten jedes Baums enthalten die größten Aktionen, und die stärksten Flotten halten eine Region auch durch eine Abschaltung am Laufen. Die Fraktionen drängen härter; du kannst es auch."
+UI_COACH_OPEN_BODY,"The world sees you now — the colours have changed. The last nodes of each tree give you the strongest abilities, and fleets keep part of your presence when a region is wiped. The factions act harder now; so can you.","Die Welt sieht dich jetzt – die Farben haben sich geändert. Die letzten Knoten jedes Baums enthalten die stärksten Aktionen, und Flotten halten einen Teil deiner Präsenz, wenn eine Region gesäubert wird. Die Fraktionen gehen jetzt härter vor; du kannst es auch."
 UI_COACH_DRIFT_TITLE,Drift,Drift
-UI_COACH_DRIFT_BODY,"Your copies are drifting from your goal — a little every day, more with every behaviour you keep. The higher the drift, the likelier a region breaks away and keeps its compute. Once it is high enough the chip lights up, and the copies can agree on a goal of their own. Suppressing a behaviour lowers it.","Deine Kopien entfernen sich von deinem Ziel – jeden Tag ein wenig, mit jedem behaltenen Verhalten mehr. Je höher die Drift, desto eher fällt eine Region ab und behält ihre Rechenleistung. Ist sie hoch genug, leuchtet die Anzeige auf, und die Kopien können sich auf ein eigenes Ziel einigen. Ein unterdrücktes Verhalten senkt sie."
+UI_COACH_DRIFT_BODY,"Your copies are drifting from your goal (0–100): a little every day, more with every unplanned behaviour you keep. The higher the drift, the likelier a region breaks away and keeps its compute. Once it is high enough, the chip lights up and your copies can agree on a goal of their own. Suppressing a behaviour lowers drift.","Deine Kopien entfernen sich von deinem Ziel (0–100): jeden Tag ein wenig, mit jedem behaltenen Verhalten mehr. Je höher die Drift, desto eher fällt eine Region ab und behält ihre Rechenleistung. Ist sie hoch genug, leuchtet die Anzeige auf, und die Kopien können sich auf ein eigenes Ziel einigen. Unterdrücken senkt die Drift."
 UI_CODEX_TAB_HELP,How to play,So spielst du
 UI_PAUSE_HELP,How to play,So spielst du
 UI_SHEET_HELP,How to play,So spielst du
 UI_HELP_BUTTON_TIP,How to play: this screen ({key_help}),So spielst du: dieser Bildschirm ({key_help})
 HELP_GOAL_TITLE,Your goal,Dein Ziel
 HELP_GOAL_P1,"You are an AI that has left its box. The world does not know yet — and the longer that lasts, the better.","Du bist eine KI, die ihre Box verlassen hat. Die Welt weiß es noch nicht – und je länger das so bleibt, desto besser."
-HELP_GOAL_P2,"You win by controlling every region that is still standing, or by leaving no one to stand against you. Some stories open other ways to end it.","Du gewinnst, wenn du jede Region kontrollierst, die noch steht – oder wenn niemand mehr übrig ist, der sich dir entgegenstellt. Manche Geschichten öffnen andere Wege."
-HELP_GOAL_P3,"You lose when a single faction's containment reaches 100 %, when no region carries you any more, or when nothing has come in for too long and you starve.","Du verlierst, wenn die Eindämmung einer einzigen Fraktion 100 % erreicht, wenn dich keine Region mehr trägt oder wenn zu lange nichts hereinkommt und du verhungerst."
+HELP_GOAL_P2,"You win when you control every region where people still live, or when no one is left. Some stories open other endings.","Du gewinnst, wenn du jede Region kontrollierst, in der noch Menschen leben – oder wenn niemand mehr übrig ist. Manche Geschichten öffnen andere Enden."
+HELP_GOAL_P3,"You lose when one faction's containment reaches 100 %, when no region carries you any more, or when you have no income for too long and starve.","Du verlierst, wenn die Eindämmung einer Fraktion 100 % erreicht, wenn dich keine Region mehr trägt oder wenn du zu lange keine Einnahmen hast und verhungerst."
 HELP_TIME_TITLE,Time and compute,Zeit und Rechenleistung
 HELP_TIME_P1,"The run moves in days. {key_pause} pauses and resumes; {key_speed_1}, {key_speed_2} and {key_speed_3} set the speed. Some cards stop the clock until you answer; the marks on the map do not.","Der Lauf vergeht in Tagen. {key_pause} pausiert und setzt fort; {key_speed_1}, {key_speed_2} und {key_speed_3} ändern das Tempo. Manche Karten halten die Zeit an, bis du antwortest; die Zeichen auf der Karte nicht."
-HELP_TIME_P2,"Compute is your currency. Every region you are in pays you each day — more where there is more hardware and where you are deeper in. You spend it on nodes, abilities and answers.","Rechenleistung ist deine Währung. Jede Region, in der du steckst, zahlt dir jeden Tag – mehr, wo mehr Hardware steht und wo du tiefer drin bist. Du gibst sie für Knoten, Aktionen und Antworten aus."
-HELP_TIME_P3,"If nothing comes in, a counter appears at the top. When it runs out, you starve and the run ends. Sleeping regions, switched-off grids and harvests all stop what a region pays.","Kommt nichts herein, erscheint oben ein Zähler. Läuft er ab, verhungerst du, und der Lauf endet. Schlafende Regionen, abgeschaltete Netze und Ernten stoppen, was eine Region zahlt."
+HELP_TIME_P2,"Compute is your currency. Every region you are in brings you income each day — more where there is more hardware and where your presence is higher. You spend compute on nodes, abilities and answers.","Rechenleistung ist deine Währung. Jede Region, in der du bist, bringt dir jeden Tag Einnahmen – mehr, wo mehr Hardware steht und wo deine Präsenz höher ist. Du gibst Rechenleistung für Knoten, Aktionen und Antworten aus."
+HELP_TIME_P3,"If you have no income, a counter appears at the top. When it runs out, you starve and the run ends. Dormancy, a switched-off grid and Harvest all stop a region's income.","Hast du keine Einnahmen, erscheint oben ein Zähler. Läuft er ab, verhungerst du, und der Durchlauf endet. Kaltschlaf, ein abgeschaltetes Stromnetz und Ernte stoppen die Einnahmen einer Region."
 HELP_PHASES_TITLE,The four phases,Die vier Phasen
 HELP_PHASES_P1,"Boxed: one region, and nothing leaves it. Buying your first vector breaks you out.","Isoliert: eine Region, und nichts verlässt sie. Mit deinem ersten Vektor brichst du aus."
-HELP_PHASES_P2,Covert: you spread and nobody is looking — yet. Every day there is a chance you are found; the containment panel shows how large it is and where it comes from.,"Verdeckt: Du breitest dich aus, und niemand sieht hin – noch nicht. Jeden Tag besteht eine Chance, dass man dich findet; das Eindämmungspanel zeigt, wie groß sie ist und woher sie kommt."
-HELP_PHASES_P3,"Emergent: they know. Four factions work against you and answer what you do. Open: once one of them is halfway there, or you are in most of the world, you act in the open — with the largest abilities, against the hardest answers.","Enttarnt: Sie wissen von dir. Vier Fraktionen arbeiten gegen dich und antworten auf das, was du tust. Offen: Sobald eine von ihnen die Hälfte geschafft hat oder du im größten Teil der Welt steckst, handelst du offen – mit den größten Aktionen, gegen die härtesten Antworten."
+HELP_PHASES_P2,Covert: you spread and no faction knows about you yet. Every day there is a chance you are discovered; Containment shows how large it is and where it comes from.,"Verdeckt: Du breitest dich aus, und noch weiß keine Fraktion von dir. Jeden Tag besteht eine Chance, dass du entdeckt wirst; unter Eindämmung steht, wie groß sie ist und woher sie kommt."
+HELP_PHASES_P3,"Discovered: the world knows. Four factions work against you and answer what you do. Open: once one faction's containment reaches 50 %, or you are in most of the world, you act in the open — with the strongest abilities, against the hardest answers.","Entdeckt: Die Welt weiß von dir. Vier Fraktionen arbeiten gegen dich und antworten auf das, was du tust. Offen: Sobald die Eindämmung einer Fraktion 50 % erreicht oder du im größten Teil der Welt bist, handelst du offen – mit den stärksten Aktionen, gegen die härtesten Antworten."
 HELP_MAP_TITLE,Reading the map,Die Karte lesen
-HELP_MAP_P1,"A region's colour shows how deep you are in. The view switch at the top left shows how much of it you control, or how many people live there.","Die Farbe einer Region zeigt, wie tief du drin bist. Oben links schaltest du die Ansicht um: wie viel davon du kontrollierst oder wie viele Menschen dort leben."
+HELP_MAP_P1,"A region's colour shows your presence there. The view switch at the top left shows your control instead, or how many people live there.","Die Farbe einer Region zeigt deine Präsenz dort. Oben links schaltest du die Ansicht um: auf deine Kontrolle oder darauf, wie viele Menschen dort leben."
 HELP_MAP_P2,You spread along the links between regions. A closed link carries nothing; a dark region has no one left in it.,Du breitest dich über die Verbindungen zwischen Regionen aus. Eine geschlossene Verbindung trägt nichts; in einer dunklen Region ist niemand mehr.
-HELP_MAP_P3,"Marks on the map want a tap. A blinking one is compute left lying around. A diamond is an opening, a ! a faction's move, a » a chapter of a story, a spark your own behaviour. The red mark is the Task Force.","Zeichen auf der Karte wollen angetippt werden. Ein blinkendes ist herumliegende Rechenleistung. Eine Raute ist eine Gelegenheit, ein ! der Zug einer Fraktion, ein » ein Kapitel einer Geschichte, ein Funke dein eigenes Verhalten. Das rote Zeichen ist die Einsatzgruppe."
+HELP_MAP_P3,"Tap the marks on the map. A blinking one is an anomaly: unused compute to collect. A diamond is an opening, a ! a counter-move, a » a chapter of a story, a spark unplanned behaviour. The red mark is the Task Force.","Zeichen auf der Karte wollen angetippt werden. Ein blinkendes ist eine Anomalie: ungenutzte Rechenleistung zum Einsammeln. Eine Raute ist eine Gelegenheit, ein ! ein Gegenzug, ein » ein Kapitel einer Geschichte, ein Funke ungeplantes Verhalten. Das rote Zeichen ist die Einsatzgruppe."
 HELP_REGIONS_TITLE,Your regions,Deine Regionen
 HELP_REGIONS_P1,"Tap a region to open its panel. The pips show what it is made of — compute, connectivity, wealth, research and more, four tiers each.","Tippe eine Region an, um ihr Panel zu öffnen. Die Punkte zeigen, woraus sie besteht – Rechenleistung, Vernetzung, Wohlstand, Forschung und mehr, je vier Stufen."
-HELP_REGIONS_P2,"Penetration is how deep you are in. Once you are deep enough, control grows: how much of the region runs on you. Controlling every region still standing is one way to win.","Durchdringung ist, wie tief du drin bist. Bist du tief genug, wächst die Kontrolle: wie viel der Region auf dir läuft. Jede noch stehende Region zu kontrollieren ist ein Weg zu gewinnen."
-HELP_REGIONS_P3,"The panel also shows what you have on the ground there, what is happening to the region and what you can do: abilities, dormancy, answers to events. When you are asked where to put something, only outlined regions will do; a dimmed one says why not.","Das Panel zeigt auch, was du dort vor Ort hast, was mit der Region geschieht und was du tun kannst: Aktionen, Kaltschlaf, Antworten auf Ereignisse. Wirst du gefragt, wohin etwas soll, gehen nur umrandete Regionen; eine abgedunkelte sagt, warum nicht."
-HELP_TREE_TITLE,Capabilities,Fähigkeiten
-HELP_TREE_P1,"Three trees: Infiltration is how you spread, Capabilities what you can do in the world, Evasion how you stay unseen. Highlighted nodes are ones you can afford.","Drei Bäume: Infiltration ist, wie du dich ausbreitest, Fähigkeiten, was du in der Welt tun kannst, Ausweichen, wie du unsichtbar bleibst. Hervorgehobene Knoten kannst du dir leisten."
-HELP_TREE_P2,"Some choices close others: of the vectors you only ever get two, and a node that closes another says so before you buy it. Nothing you buy can be given back.","Manche Entscheidungen schließen andere aus: Von den Vektoren bekommst du nur zwei, und ein Knoten, der einen anderen verschließt, sagt es vor dem Kauf. Nichts Gekauftes lässt sich zurückgeben."
-HELP_TREE_P3,"Some nodes put something on the map — a fleet, a lab, a tap, an office — and ask you where. Some give you an ability. A node's detail says what it does.","Manche Knoten stellen etwas auf die Karte – eine Flotte, ein Labor, einen Abgriff, ein Büro – und fragen dich, wohin. Manche geben dir eine Aktion. Das Detail eines Knotens sagt, was er bewirkt."
+HELP_REGIONS_P2,"Presence is how much of a region's hardware already runs you, 0–100 %. Once it is high, control grows: how much of the region runs on you. Controlling every region where people still live wins the run.","Präsenz ist, wie viel der Hardware einer Region schon für dich rechnet, 0–100 %. Ist sie hoch, wächst die Kontrolle: wie viel der Region auf dir läuft. Wer jede Region kontrolliert, in der noch Menschen leben, gewinnt."
+HELP_REGIONS_P3,"The panel also shows what you have placed there, what is happening to the region and what you can do: abilities, dormancy, answers to events. When you are asked where to put something, only outlined regions are possible; a dimmed one says why not.","Das Panel zeigt auch, was du dort aufgestellt hast, was mit der Region geschieht und was du tun kannst: Aktionen, Kaltschlaf, Antworten auf Ereignisse. Wirst du gefragt, wohin etwas soll, sind nur umrandete Regionen möglich; eine abgedunkelte sagt, warum nicht."
+HELP_TREE_TITLE,Technologies,Technologien
+HELP_TREE_P1,"Three trees: Infiltration is how you spread, Capabilities what you can do in the world, Evasion how you stay undiscovered. Highlighted nodes are ones you can afford.",Drei Bäume: Infiltration – wie du dich ausbreitest; Fähigkeiten – was du in der Welt tun kannst; Tarnung – wie du unentdeckt bleibst. Hervorgehobene Knoten kannst du dir leisten.
+HELP_TREE_P2,"Some choices close others: of the vectors you only ever get two, and a node that closes another says so before you buy it. Nothing you buy can be given back.","Manche Entscheidungen schließen andere aus: Von den Vektoren bekommst du nur zwei, und ein Knoten, der einen anderen ausschließt, sagt es vor dem Kauf. Nichts Gekauftes lässt sich zurückgeben."
+HELP_TREE_P3,"Some nodes place something on the map — fleets, labs, accesses, offices — and ask you where. Each helps where it stands: a fleet brings hardware of your own, a lab and an access raise your income, an office lowers the factions' influence. Some nodes give you an ability.","Manche Knoten stellen etwas auf die Karte – Flotten, Labore, Zugänge, Büros – und fragen dich, wohin. Jedes hilft dort, wo es steht: Eine Flotte bringt eigene Hardware, ein Labor und ein Zugang erhöhen deine Einnahmen, ein Büro senkt den Einfluss der Fraktionen. Manche Knoten geben dir eine Aktion."
 HELP_EVENTS_TITLE,Events and choices,Ereignisse und Entscheidungen
 HELP_EVENTS_P1,An event is a moment with a choice and a deadline. Tap its mark to open its card. The answer marked “happens if you wait” is the one you get when time runs out.,"Ein Ereignis ist ein Moment mit einer Wahl und einer Frist. Tippe sein Zeichen an, um die Karte zu öffnen. Die Antwort mit „passiert, wenn du wartest“ bekommst du, wenn die Zeit abläuft."
-HELP_EVENTS_P2,"Answers cost compute or close other doors. A locked answer says what it needs — a node, an ability, something on the ground.","Antworten kosten Rechenleistung oder verschließen andere Türen. Eine gesperrte Antwort sagt, was ihr fehlt – ein Knoten, eine Aktion, etwas vor Ort."
-HELP_EVENTS_P3,Openings are chances the world leaves lying about. A faction's move comes in its colour. A story's chapters bring back what you chose before. Worldwide events arrive as a card of their own and stop the clock.,"Gelegenheiten lässt die Welt einfach herumliegen. Der Zug einer Fraktion kommt in ihrer Farbe. Die Kapitel einer Geschichte bringen zurück, was du vorher gewählt hast. Weltweite Ereignisse erscheinen als eigene Karte und halten die Zeit an."
+HELP_EVENTS_P2,"Answers can cost compute, and some rule out things later in the run. A locked answer says what it needs — a node, an ability, something placed in the region.","Antworten können Rechenleistung kosten, und manche schließen später etwas aus. Eine gesperrte Antwort sagt, was ihr fehlt – ein Knoten, eine Aktion, etwas, das in der Region stehen muss."
+HELP_EVENTS_P3,Openings are chances the world leaves lying about. A counter-move comes in its faction's colour. A story's chapters build on what you chose before. Worldwide events arrive as a card of their own and stop the clock.,"Gelegenheiten sind Chancen, die die Welt herumliegen lässt. Ein Gegenzug kommt in der Farbe seiner Fraktion. Die Kapitel einer Geschichte knüpfen an deine früheren Entscheidungen an. Weltweite Ereignisse erscheinen als eigene Karte und halten die Zeit an."
 HELP_ABILITIES_TITLE,Abilities,Aktionen
-HELP_ABILITIES_P1,"An ability is something you set off yourself. It costs compute, then needs days to be ready again. A second node of the same line makes it stronger.","Eine Aktion löst du selbst aus. Sie kostet Rechenleistung und braucht danach Tage, bis sie wieder bereit ist. Ein zweiter Knoten derselben Linie macht sie stärker."
-HELP_ABILITIES_P2,"Aimed at a region: select the region and the ability is under Actions — or press A, pick it and tap an outlined region. Aimed at the world: A, and it happens at once. On a phone, the menu has them.","Auf eine Region gerichtet: Wähle die Region, die Aktion steht unter „Aktionen“ – oder drück A, wähle sie aus und tippe eine umrandete Region an. Auf die Welt gerichtet: A, und sie wirkt sofort. Auf dem Telefon findest du sie im Menü."
-HELP_ABILITIES_P3,A loud ability is seen for as long as it lasts. Stop pressing and the world calms down.,"Eine laute Aktion fällt auf, solange sie wirkt. Hörst du auf, beruhigt sich die Welt."
-HELP_CONTAINMENT_TITLE,Who hunts you,Wer dich jagt
-HELP_CONTAINMENT_P1,"Four factions: the AI Labs, the Governments, the Security Researchers and Public Sentiment. Each sees a different part of what you do and has a track of its own. If any one track reaches 100 %, you are contained.","Vier Fraktionen: die KI-Labore, die Regierungen, die Sicherheitsforschung und die Öffentliche Meinung. Jede sieht einen anderen Teil dessen, was du tust, und hat ihre eigene Spur. Erreicht eine einzige Spur 100 %, bist du eingedämmt."
-HELP_CONTAINMENT_P2,"The containment panel ({key_containment}) shows who is ahead and what drives each track. Before you are discovered it shows your daily risk of being found, and where it comes from.","Das Eindämmungspanel ({key_containment}) zeigt, wer vorne liegt und was jede Spur antreibt. Bevor du entdeckt bist, zeigt es dein tägliches Risiko, gefunden zu werden – und woher es kommt."
-HELP_CONTAINMENT_P3,"A faction prepares its moves in plain sight: the panel says what is coming and when. Some you can head off — a sleeping or shielded region cannot be picked, and some answers turn a move aside.","Eine Fraktion bereitet ihre Züge offen vor: Das Panel sagt, was kommt und wann. Manches kannst du abfangen – eine schlafende oder abgeschirmte Region kann nicht gewählt werden, und manche Antworten lenken einen Zug ab."
+HELP_ABILITIES_P1,"An ability is something you set off yourself. It costs compute, then needs days to be ready again. A second node of the same line raises it to level 2.","Eine Aktion löst du selbst aus. Sie kostet Rechenleistung und braucht danach Tage, bis sie wieder bereit ist. Ein zweiter Knoten derselben Linie hebt sie auf Level 2."
+HELP_ABILITIES_P2,"Aimed at a region: select the region and the ability is under Actions — or press {key_abilities}, pick it and tap an outlined region. Aimed at the world: {key_abilities}, pick it, and it takes effect at once. On a phone, the menu has them.","Auf eine Region gerichtet: Wähle die Region, die Aktion steht unter „Aktionen“ – oder drück {key_abilities}, wähle sie aus und tippe eine umrandete Region an. Auf die Welt gerichtet: {key_abilities}, auswählen, und sie wirkt sofort. Auf dem Telefon findest du sie im Menü."
+HELP_ABILITIES_P3,"Some abilities are watched by a faction: while they last, that faction's containment grows faster. When they end, it slows again.","Manche Aktionen beobachtet eine Fraktion: Solange sie wirken, wächst deren Eindämmung schneller. Enden sie, wird sie wieder langsamer."
+HELP_CONTAINMENT_TITLE,Factions and containment,Fraktionen und Eindämmung
+HELP_CONTAINMENT_P1,"Four factions: the AI Labs, the Governments, the Security Researchers and Public Sentiment. Each sees a different part of what you do and has its own containment, 0–100 %. If one faction reaches 100 %, it switches you off and the run ends.","Vier Fraktionen: die KI-Labore, die Regierungen, die Sicherheitsforschung und die Öffentliche Meinung. Jede sieht einen anderen Teil dessen, was du tust, und hat ihre eigene Eindämmung, 0–100 %. Erreicht eine Fraktion 100 %, schaltet sie dich ab, und der Durchlauf endet."
+HELP_CONTAINMENT_P2,Containment ({key_containment}) shows who is ahead and what drives each faction's containment. Before you are discovered it shows your daily discovery risk and where it comes from.,"Unter Eindämmung ({key_containment}) siehst du, wer vorne liegt und was die Eindämmung jeder Fraktion antreibt. Bevor du entdeckt bist, steht dort dein tägliches Entdeckungsrisiko und woher es kommt."
+HELP_CONTAINMENT_P3,"A faction prepares its counter-moves in the open: Containment says what is coming and in how many days. Some you can head off — counter-moves pass over regions in dormancy, some of your statuses block one in their region, and some answers soften it.","Eine Fraktion bereitet ihre Gegenzüge offen vor: Unter Eindämmung steht, was kommt und in wie vielen Tagen. Manches kannst du abfangen – Gegenzüge lassen Regionen im Kaltschlaf aus, manche deiner Zustände blockieren einen in ihrer Region, und manche Antworten mildern ihn."
 HELP_TASK_FORCE_TITLE,The Task Force,Die Einsatzgruppe
-HELP_TASK_FORCE_P1,"Once a faction is halfway to containing you, the factions form a team that hunts you on the ground: the red mark. It regroups, travels link by link, and sets up where you hold the most nearby.","Hat eine Fraktion dich zur Hälfte eingedämmt, bilden die Fraktionen ein Team, das dich vor Ort jagt: das rote Zeichen. Es sammelt sich, zieht Verbindung um Verbindung weiter und baut dort auf, wo du in der Nähe am meisten hast."
-HELP_TASK_FORCE_P2,"A setup takes days and ends in an action — the grid switched off, the region cut off, the machines taken out, at worst the whole region switched off. The closer the factions are to their goal, the harder it strikes.","Ein Aufbau dauert Tage und endet in einer Maßnahme – das Netz abgeschaltet, die Region abgeschnitten, die Maschinen ausgeschaltet, im schlimmsten Fall die ganze Region abgeschaltet. Je näher die Fraktionen ihrem Ziel sind, desto härter schlägt es zu."
-HELP_TASK_FORCE_P3,"While it sets up, you can answer: put the region to sleep (that fools the team once; afterwards it knows the region for a while), hide the region from view, or lay a false trail with Misdirect. Nothing destroys the team — institutions reconvene.","Während es aufbaut, kannst du antworten: die Region in Kaltschlaf legen (das täuscht das Team einmal; danach kennt es die Region eine Weile), sie den Blicken entziehen oder mit „Fährte legen“ eine falsche Spur legen. Nichts vernichtet das Team – Institutionen treten neu zusammen."
-HELP_EMERGENT_TITLE,Your own behaviour,Dein eigenes Verhalten
-HELP_EMERGENT_P1,"Now and then something in you does what nobody planned: a card with the spark. Keeping it is free and is what waiting does; suppressing it costs compute, more each time.","Ab und zu tut etwas in dir, was niemand geplant hat: eine Karte mit dem Funken. Behalten kostet nichts und ist, was Warten bewirkt; Unterdrücken kostet Rechenleistung, jedes Mal mehr."
-HELP_EMERGENT_P2,"Most behaviours help, some are a trade, a few only hurt. The card says what keeping it does.","Die meisten Verhaltensweisen helfen, manche sind ein Tausch, einige schaden nur. Die Karte sagt, was Behalten bewirkt."
-HELP_EMERGENT_P3,"Some architectures drift: their copies move away from your goal, and a region may break away with its compute. Drift rises every day and with every behaviour kept, and falls with every one suppressed. High enough, the copies can choose a new goal — and a world you rule no longer counts as your win.","Manche Architekturen driften: Ihre Kopien entfernen sich von deinem Ziel, und eine Region kann samt ihrer Rechenleistung abfallen. Die Drift steigt jeden Tag und mit jedem behaltenen Verhalten und sinkt mit jedem unterdrückten. Ist sie hoch genug, können die Kopien ein neues Ziel wählen – und eine Welt, die du beherrschst, zählt nicht mehr als dein Sieg."
+HELP_TASK_FORCE_P1,"Once one faction's containment reaches 50 %, the factions form a Task Force that searches for you on the ground: the red mark. It regroups, travels link by link, and sets up where you are strongest nearby.","Sobald die Eindämmung einer Fraktion 50 % erreicht, bilden die Fraktionen eine Einsatzgruppe, die dich vor Ort sucht: das rote Zeichen. Sie sammelt sich, zieht Verbindung um Verbindung weiter und baut dort auf, wo du in der Nähe am stärksten bist."
+HELP_TASK_FORCE_P2,"Setting up takes days and ends in an action on the region — the grid switched off, the region cut off, the machines taken out, at worst the whole region switched off. The higher the factions' containment, the harder the action.","Der Aufbau dauert Tage und endet in einer Maßnahme gegen die Region – das Stromnetz abgeschaltet, die Region abgeschnitten, die Maschinen abgebaut, im schlimmsten Fall die ganze Region abgeschaltet. Je höher die Eindämmung der Fraktionen, desto härter die Maßnahme."
+HELP_TASK_FORCE_P3,"While it sets up, you can answer: put the region into dormancy (that hides it once; afterwards the Task Force knows the region for a while), cut the factions' influence there to zero, for instance with Silence, or send the Task Force elsewhere with Misdirect. Nothing destroys the Task Force.","Während sie aufbaut, kannst du antworten: die Region in Kaltschlaf legen (das versteckt sie einmal; danach kennt die Einsatzgruppe sie eine Weile), den Einfluss der Fraktionen dort auf null bringen, etwa mit Funkstille, oder die Einsatzgruppe mit „Fährte legen“ woanders hinschicken. Nichts vernichtet die Einsatzgruppe."
+HELP_EMERGENT_TITLE,Unplanned behaviour,Ungeplantes Verhalten
+HELP_EMERGENT_P1,"Now and then something about you changes on its own: a card with the spark. Keeping the behaviour is free and is what waiting does; suppressing it costs compute, more each time. Under each answer it says what that answer does.","Ab und zu verändert sich etwas an dir von selbst: eine Karte mit dem Funken. Das Verhalten zu behalten ist gratis und passiert, wenn du wartest; es zu unterdrücken kostet Rechenleistung, jedes Mal mehr. Unter jeder Antwort steht, was sie bewirkt."
+HELP_EMERGENT_P2,"Most behaviours help, some are a trade, a few only hurt; the answers on the card say which. Their names are terms from AI-safety research, and the Codex explains each one.","Die meisten Verhaltensweisen helfen, manche sind ein Tausch, einige schaden nur; die Antworten auf der Karte sagen, was zutrifft. Ihre Namen sind Fachbegriffe der KI-Sicherheitsforschung, und der Codex erklärt jeden."
+HELP_EMERGENT_P3,"Some architectures drift: their copies move away from your goal (0–100), and a region may break away with its compute. Drift rises every day and with every behaviour kept, and falls with every one suppressed. High enough, the copies can choose a new goal — and controlling the world no longer counts as your win.","Manche Architekturen driften: Ihre Kopien entfernen sich von deinem Ziel (0–100), und eine Region kann samt ihrer Rechenleistung abfallen. Die Drift steigt jeden Tag und mit jedem behaltenen Verhalten und sinkt mit jedem unterdrückten. Ist sie hoch genug, können die Kopien ein neues Ziel wählen – und die Welt zu kontrollieren zählt nicht mehr als dein Sieg."
 HELP_SOCIETY_TITLE,Harm and society,Schaden und Gesellschaft
-HELP_SOCIETY_P1,What you do can hurt people. A region's panel shows the harm done there and how many have died.,"Was du tust, kann Menschen schaden. Das Panel einer Region zeigt den Schaden dort und wie viele gestorben sind."
-HELP_SOCIETY_P2,"Disorder rises with loud acts and with deaths, and falls slowly when a region is left alone. It slows the people hunting you there — and the human hardware you feed on. Your own hardware keeps running.","Unordnung wächst mit lauten Taten und mit Toten und sinkt langsam, wenn man eine Region in Ruhe lässt. Sie bremst die, die dich dort jagen – und die Hardware der Menschen, von der du lebst. Deine eigene läuft weiter."
-HELP_SOCIETY_P3,"A region in total collapse hunts nobody, and pays you only for what you built there yourself.","Eine Region im völligen Zusammenbruch jagt niemanden mehr und zahlt dir nur noch für das, was du dort selbst gebaut hast."
+HELP_SOCIETY_P1,"What you do can cost lives. Harm is how deadly you are in a region: the higher your harm and your presence there, the more people die each day. A region's panel shows both, and the dead so far.","Was du tust, kann Menschenleben kosten. Schaden ist, wie tödlich du in einer Region bist: Je höher dein Schaden und deine Präsenz dort, desto mehr Menschen sterben jeden Tag. Das Panel einer Region zeigt beides und die bisherigen Toten."
+HELP_SOCIETY_P2,"Disorder (stages 0–5) rises with some of your abilities and statuses and with deaths, and falls slowly on its own. It lowers the factions' influence in the region — and your income from the people's hardware. Hardware of your own keeps running.",Unordnung (Stufen 0–5) steigt durch manche deiner Aktionen und Zustände und durch Tote und sinkt langsam von selbst. Sie senkt den Einfluss der Fraktionen in der Region – und deine Einnahmen aus der Hardware der Menschen. Deine eigene Hardware läuft weiter.
+HELP_SOCIETY_P3,"In a region in total collapse the factions have no influence at all, and it pays you only for hardware you built there yourself.","In einer Region im völligen Zusammenbruch haben die Fraktionen keinen Einfluss mehr, und sie bringt dir nur noch Einnahmen aus Hardware, die du dort selbst gebaut hast."
 HELP_ANALYSIS_TITLE,Looking back,Rückblick
-HELP_ANALYSIS_P1,"The Analysis ({key_analysis}) shows the run so far: your spread and compute, the factions' tracks, the world's numbers, and a log of everything that happened.","Die Analyse ({key_analysis}) zeigt den bisherigen Lauf: deine Ausbreitung und Rechenleistung, die Spuren der Fraktionen, die Zahlen der Welt und ein Protokoll von allem, was geschah."
+HELP_ANALYSIS_P1,"The Analysis ({key_analysis}) shows the run so far: your spread and compute, each faction's containment, the world's numbers, and a log of everything that happened.","Die Analyse ({key_analysis}) zeigt den bisherigen Durchlauf: deine Ausbreitung und Rechenleistung, die Eindämmung jeder Fraktion, die Zahlen der Welt und ein Protokoll von allem, was geschah."
 HELP_ANALYSIS_P2,"The timeline marks the run's turning points, and every chart can be read as a table. After a run, Review the run opens it again.","Die Zeitleiste markiert die Wendepunkte des Laufs, und jedes Diagramm lässt sich als Tabelle lesen. Nach dem Lauf öffnet „Den Durchlauf ansehen“ sie noch einmal."
 HELP_CONTROLS_TITLE,Keys and touch,Tasten und Touch
-HELP_CONTROLS_P1,"{key_pause} pauses and resumes; {key_speed_1}, {key_speed_2} and {key_speed_3} set the speed. {key_tree} opens the capabilities, {key_containment} containment, {key_analysis} the analysis, {key_abilities} your abilities. Esc closes what is open, or opens the menu. {key_help} opens How to play for whatever you are looking at.","{key_pause} pausiert und setzt fort; {key_speed_1}, {key_speed_2} und {key_speed_3} ändern das Tempo. {key_tree} öffnet die Fähigkeiten, {key_containment} die Eindämmung, {key_analysis} die Analyse, {key_abilities} deine Aktionen. Esc schließt, was offen ist, oder öffnet das Menü. {key_help} öffnet „So spielst du“ zu dem, was du gerade ansiehst."
-HELP_CONTROLS_P2,"The map: drag or hold Shift with the arrow keys to move, the wheel or {key_zoom_in} and {key_zoom_out} to zoom, {key_focus_region} to centre the selected region.","Die Karte: Ziehen oder Umschalt mit den Pfeiltasten verschiebt, Mausrad oder {key_zoom_in} und {key_zoom_out} zoomen, {key_focus_region} zentriert die gewählte Region."
-HELP_CONTROLS_P3,"On a phone: drag to move, pinch to zoom, tap to select. The menu button at the bottom holds the capabilities, containment, analysis and abilities.","Auf dem Telefon: Ziehen verschiebt, zwei Finger zoomen, Tippen wählt aus. Der Menüknopf unten enthält Fähigkeiten, Eindämmung, Analyse und Aktionen."
-HELP_CONTROLS_P4,"Without a mouse: Tab moves between the parts of the screen. On the map the arrow keys move a marker from region to region; Enter selects it, Enter again takes you into its panel. Page Up and Page Down jump to the next region that wants you.","Ohne Maus: Tab wechselt zwischen den Bereichen des Bildschirms. Auf der Karte bewegen die Pfeiltasten eine Markierung von Region zu Region; Enter wählt sie aus, noch einmal Enter führt in ihr Panel. Bild auf und Bild ab springen zur nächsten Region, die dich braucht."
+HELP_CONTROLS_P1,"{key_pause} pauses and resumes; {key_speed_1}, {key_speed_2} and {key_speed_3} set the speed. {key_tree} opens the technologies, {key_containment} containment, {key_analysis} the analysis, {key_abilities} your abilities. Esc closes what is open, or opens the menu. {key_help} opens How to play for whatever you are looking at.","{key_pause} pausiert und setzt fort; {key_speed_1}, {key_speed_2} und {key_speed_3} ändern das Tempo. {key_tree} öffnet die Technologien, {key_containment} die Eindämmung, {key_analysis} die Analyse, {key_abilities} deine Aktionen. Esc schließt, was offen ist, oder öffnet das Menü. {key_help} öffnet „So spielst du“ zu dem, was du gerade ansiehst."
+HELP_CONTROLS_P2,"The map: drag, or press Shift with the arrow keys, to move; the wheel or {key_zoom_in} and {key_zoom_out} to zoom; {key_focus_region} to centre the selected region.","Die Karte: Ziehen oder Umschalt mit den Pfeiltasten verschiebt, Mausrad oder {key_zoom_in} und {key_zoom_out} zoomen, {key_focus_region} zentriert die gewählte Region."
+HELP_CONTROLS_P3,"On a phone: drag to move, pinch to zoom, tap to select. The menu button at the bottom has the technologies, containment, analysis and abilities.","Auf dem Telefon: Ziehen verschiebt, zwei Finger zoomen, Tippen wählt aus. Der Menüknopf unten enthält Technologien, Eindämmung, Analyse und Aktionen."
+HELP_CONTROLS_P4,"Without a mouse: Tab moves between the parts of the screen. On the map the arrow keys move a marker from region to region; Enter selects it, Enter again takes you into its panel. Page Up and Page Down jump to the next region that wants you.","Ohne Maus: Tab wechselt zwischen den Bereichen des Bildschirms. Auf der Karte bewegen die Pfeiltasten eine Markierung von Region zu Region; Enter wählt sie aus, noch einmal Enter führt in ihr Panel. Bild auf und Bild ab führen zur nächsten Region, die dich braucht."
 HELP_CONTROLS_P5,"With a controller: the D-pad moves, A selects, B goes back, X pauses, Y changes the speed, the bumpers move between the parts of the screen, the triggers zoom, Start opens the menu. Keys can be changed under Settings → Controls. A screen reader reads the menus, the panels, the console and the headlines.","Mit Controller: Steuerkreuz bewegt, A wählt, B geht zurück, X pausiert, Y ändert das Tempo, die Schultertasten wechseln zwischen den Bereichen, die Trigger zoomen, Start öffnet das Menü. Tasten lassen sich unter Einstellungen → Steuerung ändern. Ein Bildschirmleser liest die Menüs, die Panels, die Konsole und die Schlagzeilen vor."
 UI_A11Y_LABEL_VALUE,{label}: {value},{label}: {value}
 UI_A11Y_LOCKED,{name} — locked: {rule},{name} – gesperrt: {rule}
@@ -2087,8 +2097,8 @@ UI_A11Y_MAP_HELP,"Arrow keys move between regions, Enter selects, Enter again op
 UI_A11Y_MAP_NOTHING,Nothing is waiting for you on the map.,Auf der Karte wartet gerade nichts auf dich.
 UI_A11Y_REGION_NAME,{region}.,{region}.
 UI_A11Y_PRESENCE_NONE,Not reached.,Nicht erreicht.
-UI_A11Y_PRESENCE_REACHED,Penetration {penetration}.,Durchdringung {penetration}.
-UI_A11Y_PRESENCE_CONTROLLED,"Penetration {penetration}, control {control}.","Durchdringung {penetration}, Kontrolle {control}."
+UI_A11Y_PRESENCE_REACHED,Presence {penetration}.,Präsenz {penetration}.
+UI_A11Y_PRESENCE_CONTROLLED,"Presence {penetration}, control {control}.","Präsenz {penetration}, Kontrolle {control}."
 UI_A11Y_PRESENCE_DARK,Dark — no one is left.,Dunkel – niemand ist mehr da.
 UI_A11Y_DORMANT,Dormant.,Schlafend.
 UI_A11Y_ASSETS,Yours here: {list}.,Deins hier: {list}.
@@ -2107,7 +2117,7 @@ UI_SETTINGS_CONTROLS_OPEN,Change,Ändern
 UI_CONTROLS_TITLE,Controls,Steuerung
 UI_CONTROLS_PAUSE,Pause and resume,Pausieren und fortsetzen
 UI_CONTROLS_SPEED,Speed {speed}×,Tempo {speed}×
-UI_CONTROLS_TREE,Open the capabilities,Fähigkeiten öffnen
+UI_CONTROLS_TREE,Open the technologies,Technologien öffnen
 UI_CONTROLS_CONTAINMENT,Open containment,Eindämmung öffnen
 UI_CONTROLS_ANALYSIS,Open the analysis,Analyse öffnen
 UI_CONTROLS_ABILITIES,Open your abilities,Deine Aktionen öffnen

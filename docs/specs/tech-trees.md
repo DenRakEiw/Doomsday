@@ -356,8 +356,11 @@ node* and *stronger in total*, which is the shape a tree should have.
 Every node has `TECH_<ID>_NAME`, `_EFFECT`, `_FLAVOUR` in `data/loc/strings.csv`, English and
 German written separately. The **effect line** is authored, not generated — one or two short
 sentences, outcome language, no digits (the detail pane lists the modifiers numerically from data,
-D3.3); a fraction in words ("by a quarter") is allowed where it *is* the effect. The German
-interface term for Footprint is *Signatur* (`UI_TERM_FOOTPRINT`), never *Fußabdruck*. The
+D3.3); a fraction in words ("by a quarter") is allowed where it *is* the effect. *Amended
+D6.11:* the effect line follows rule set A of `plain-language.md` — the consequence first, the
+glossary's words, **no magnitude words** (*slightly*, *deutlich*), since the numbers come from
+data in the generated lines under it; a catch is named, not hinted. The German interface term
+for Footprint is *Spuren* (`UI_TERM_FOOTPRINT`; *Signatur* until D6.11), never *Fußabdruck*. The
 **flavour line** is the console's dry voice: institutions, never people; a joke at most once per
 tier; no method. Names of levelled nodes carry roman numerals (`Log Manipulation II`,
 `Protokollmanipulation II`); the ids carry `_2`.

@@ -116,7 +116,7 @@ func test_german_renders_in_german() -> void:
 	region.penetration = 0.25
 	TranslationServer.set_locale("de")
 	var line: String = RegionSpeech.line(simulation.world, _index(simulation), null)
-	assert_string_contains(line, "Durchdringung")
+	assert_string_contains(line, "Präsenz")
 	assert_false(line.contains("{"), "every placeholder filled")
 
 

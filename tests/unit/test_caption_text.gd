@@ -52,6 +52,6 @@ func test_an_unknown_argument_is_its_string() -> void:
 func test_german_renders() -> void:
 	TranslationServer.set_locale("de")
 	assert_eq(CaptionText.render("UI_CAPTION_PHASE", {"from": "covert", "to": "emergent"}),
-		"[Phasenwechsel: Enttarnt]")
+		"[Phasenwechsel: Entdeckt]")
 	assert_eq(CaptionText.render("UI_CAPTION_TF_ACTED", {"region": "germany"}),
-		"[Zugriff der Einsatzgruppe in Deutschland]")
+		"[Maßnahme der Einsatzgruppe in Deutschland]")

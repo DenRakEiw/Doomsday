@@ -88,7 +88,7 @@ func test_locale_change_re_renders_in_place() -> void:
 	EventBus.caption_pushed.emit("UI_CAPTION_PHASE", {"from": "covert", "to": "emergent"})
 	TranslationServer.set_locale("de")
 	_stack.propagate_notification(NOTIFICATION_TRANSLATION_CHANGED)
-	assert_eq(_texts(), ["[Phasenwechsel: Enttarnt]"] as Array[String])
+	assert_eq(_texts(), ["[Phasenwechsel: Entdeckt]"] as Array[String])
 
 
 func test_turning_the_setting_off_clears_the_stack() -> void:

@@ -1,9 +1,8 @@
 # Plain language: text clarity audit and style guide (D6.11 1/2)
 
-**Status: draft for the user's review.** Nothing in `strings.csv` is rewritten wholesale until
-the user has said whether the rules, the glossary and the 30 examples go in the right direction
-(PROGRESS *Waiting on the user*). D6.11 (2/2) does the full pass from this spec; S6.P3 builds the
-code half (§5.2).
+**Status: answered by the user on 2026-09-25 (§6, PROGRESS *Decisions*).** Pass I (D6.11 2/2a:
+terms, coach, help, HUD and panels, console) is in `strings.csv` — what it did is §8. Pass II
+(D6.11 2/2b: cards, what you buy, the flavour check) and the code half (S6.P3, §5.2) follow.
 
 ## 0. What this spec decides
 
@@ -17,7 +16,7 @@ code half (§5.2).
 5. **The plan for the full pass**: order, the code changes, the checks (§5).
 6. **Open choices for the user** (§6), and the outright errors already fixed (§7).
 
-It amends, once the user agrees: CONTENT §10.1 (the console is *plain and exact* in mechanic
+It amends (written in D6.11 2/2a): CONTENT §10.1 (the console is *plain and exact* in mechanic
 text; "faintly amused" moves to flavour), CONTENT §10.5 and `tech-trees.md` §7.4 (German
 Footprint term; effect lines carry no magnitude words, the numbers come from data), and
 `first-run.md` §3.5/§6.4 (coach texts follow §2.1). D6.11 (2/2) writes those amendments.
@@ -195,8 +194,8 @@ exact bookkeeping. Every example in §4 was read by hand.
 
 Twenty-two terms. Each is **the** word for its concept in every mechanic string of its
 language; the listed synonyms are retired from rule-A text (flavour may still use ordinary
-words). Keys are never renamed — only their text. Terms marked **(Q)** change a current
-interface term and need the user's yes (§6).
+words). Keys are never renamed — only their text. Terms marked **(Q)** changed a current
+interface term; the user said yes to all of them (§6 Q1, Q2) — and no to Q3 (below).
 
 1. **Compute · Rechenleistung** — en: your currency; you spend it on nodes, abilities and
    answers. · de: Deine Währung; du gibst sie für Knoten, Aktionen und Antworten aus. ·
@@ -272,7 +271,9 @@ interface term and need the user's yes (§6).
 19. **Node · Knoten**, **Technologies · Technologien (Q)** — en: a node is one thing you buy in
     the three trees; the screen is *Technologies*. · de: Ein Knoten ist eine Sache, die du in den
     drei Bäumen kaufst; der Bildschirm heißt *Technologien*. · *Retired:* de *Fähigkeit* for a
-    node, the screen title *Fähigkeiten*; tab *Ausweichen* → *Tarnung* (Q).
+    node, the screen title *Fähigkeiten* (en *Capabilities*); tab *Ausweichen* → *Tarnung* (Q).
+    The tabs stay *Infiltration* · *Fähigkeiten* (en *Capabilities*) · *Tarnung* (en *Evasion*);
+    the Codex tab was already *Technologien* / *Technologies*.
 20. **Ability · Aktion** — en: something you set off yourself; costs compute, then needs days to
     be ready again. · de: Etwas, das du selbst auslöst; kostet Rechenleistung und braucht danach
     Tage. · *Retired:* de *Verben*.
@@ -288,20 +289,25 @@ interface term and need the user's yes (§6).
 **Also fixed by the glossary** (no own entry): **Harm · Schaden** (deaths you cause per day;
 defined in help), **Disorder · Unordnung** (a region's societal breakdown, stages 0–5; retires
 *Druck auf die Gesellschaft*, *die Region ächzt*), **Anomaly · Anomalie** (unused compute on
-the map to collect; retires *Gelegenheit* in that sense), **Assets · Bestand** (fleets, labs,
-taps, offices you placed; *Abgriff* stays but gets a definition — §6 Q7).
+the map to collect; retires *Gelegenheit* and en *opportunity* in that sense), **Assets ·
+Bestand** (fleets, labs, accesses, offices you placed; the asset *Abgriff* / *Tap* is now
+**Zugang** / **Access**, plural *Zugänge* / *Accesses* — §6 Q7, pending the user's final word),
+**Level** (de, for ability and Task Force levels; *Stufe* stays for node tiers, attribute tiers
+and the stages of disorder — §6 Q6), **free · gratis** (a cost of nothing; *frei* now means
+only "unlocked").
 
-**Phases (Q):** *Isoliert* · *Verdeckt* · **Entdeckt** (was *Enttarnt*) · *Offen*; en *Boxed* ·
+**Phases (Q, yes):** *Isoliert* · *Verdeckt* · **Entdeckt** (was *Enttarnt*) · *Offen*; en *Boxed* ·
 *Covert* · **Discovered** (was *Emergent*) · *Open*. The status `exposure` becomes **Im Visier**
 / **Pinpointed**.
 
-**Ability names (Q):** *Umleitung / Reroute* → **Drehkreuz / Hub** · *Zange* → **Finanzdruck**
+**Ability names (Q, yes):** *Umleitung / Reroute* → **Drehkreuz / Hub** · *Zange* → **Finanzdruck**
 (en *Squeeze* stays) · *Stille* → **Funkstille** (en *Silence* stays) · *Niederschlagen* stays.
 
-**Emergent names (Q):** plain names on the card and the status; the AI-safety term moves into
-the Codex entry as "Fachbegriff / Technical term: …". Examples: *Täuschendes Schließen* →
-*Geschönte Erklärungen*, *Zielverallgemeinerung* → *Unverhofftes Können*, *Mesa-Optimierer* →
-*Ein Teil mit eigenem Ziel*, *Belohnungshacking* → *Belohnung statt Arbeit*.
+**Emergent names — Q3, answered *no*:** the behaviours **keep their AI-safety names** on the
+card, the status and the Codex (*Täuschendes Schließen*, *Zielverallgemeinerung*,
+*Mesa-Optimierer*, …). What the name means is explained instead: the card body in plain words
+(rule A, pass II) and one Codex line per behaviour (§5.2 C7). The plain titles of examples 19,
+20 and 25 are void; their bodies, status details and generated lines stand.
 
 ---
 
@@ -648,7 +654,10 @@ de *Der Region die Stimme nehmen* → **Funkstille über die Region** · en *Cut
 
 **Split:** the pass does not fit one session. **D6.11 (2/2a)** = passes 1–3 and 6; **(2/2b)** =
 passes 4, 5 and 7. Each ends green and committed. The first also writes the spec amendments
-named in §0 and the retired-term list (§5.3).
+named in §0 and the retired-term list (§5.3). **Done in 2/2a:** passes 1–3 and 6, and the
+terms the user renamed (§6 Q1, Q2, Q7) in *every* rule-A row, the rows of passes 4–5 included —
+there as word swaps only, so no screen shows *Signatur* beside *Spuren*; their full rewrite is
+still pass II (§8).
 
 ### 5.2 What needs code (build step S6.P3, Opus, after D6.11 2/2a — it can run in parallel with 2/2b)
 
@@ -680,8 +689,10 @@ named in §0 and the retired-term list (§5.3).
 - **C6 — `EVENT_<ID>_SUMMARY`**, optional per event: one plain sentence (rule A, ≤ 160
   characters) shown as the explanation of an opening or a chain card. The string check treats
   it like `_BODY` when present (both languages or neither).
-- **C7 — The emergent names** move to the Codex as "technical term" lines (one key per
-  behaviour, `CODEX_EMERGENT_<ID>_TERM`), so the AI-safety vocabulary is kept where it teaches.
+- **C7 — The emergent names are explained in the Codex** (Q3 *no*: the names stay): one plain
+  line per behaviour under its name (`CODEX_EMERGENT_<ID>_TERM`, rule A: what the term means in
+  one sentence), so the AI-safety vocabulary teaches instead of puzzling. Pass II writes the
+  twelve lines; S6.P3 shows them.
 - **Tests:** an option's effect line is non-empty in both languages and contains no raw key, for
   every shipped option; `Format.change`; the "what changed" lines for `unlock_near_node`,
   `apply_status`, `compute_grant`; the retired-term lint (§5.3); the new keys in the string
@@ -698,7 +709,11 @@ named in §0 and the retired-term list (§5.3).
    status names ≤ 25, ability names ≤ 14, phase names ≤ 10 — today's longest row per domain, so
    the layouts already hold them.
 3. **Retired-term lint**: a test with the §3 retired lists per language, run over every rule-A
-   key domain (§2.0); a hit fails with key and word. Flavour domains are exempt.
+   key domain (§2.0); a hit fails with key and word. Flavour domains are exempt. *Built in 2/2a
+   as `tests/integration/test_plain_language.gd` (with item 2's caps): the retired lists run
+   over the groups already rewritten (`REWRITTEN`, passes 1–3 and 6 — pass II adds 4 and 5),
+   the renamed terms of §6 over every rule-A group. Word boundaries are `(*UCP)` — Godot's
+   plain `\b` treats ä, ö, ü as breaks, so `\bZug\b` would find* Zugänge.
 4. **Overflow screenshots** with S4.9's tooling (`Game.debug_shot`, F12; German at 150 % text,
    the pseudo-locale, 1920 and 400 px): one card of each kind with its effect lines, the tech
    detail, the containment panel, a status tooltip, the coach card — compared with a *before*
@@ -711,25 +726,32 @@ named in §0 and the retired-term list (§5.3).
 
 ---
 
-## 6. Open choices for the user
+## 6. Choices put to the user — answered 2026-09-25
 
-- **Q1 — Terms that change what is on screen now**: *Signatur* → *Spuren*; *Durchdringung* →
-  *Präsenz* (en *Penetration* → *Presence*); *Ertrag* → *Einnahmen* (en *yield* → *income*);
-  *Kapazität* → *Einfluss*; phase *Enttarnt* → *Entdeckt* (en *Emergent* → *Discovered*);
-  status *Enttarnung* → *Im Visier*; screen *Fähigkeiten* → *Technologien*; tab *Ausweichen* →
-  *Tarnung*. Recommended: all.
-- **Q2 — Ability names**: *Umleitung* → *Drehkreuz* (en *Hub*), *Zange* → *Finanzdruck*,
-  *Stille* → *Funkstille*. Recommended: all.
-- **Q3 — Emergent behaviours get plain names**, the AI-safety term moves into the Codex.
-  Recommended.
-- **Q4 — Numbers on cards**: every option shows cost, change, duration and place. Some players
-  prefer to guess; the user's feedback says the opposite. Recommended: yes, always.
+- **Q1 — Terms that change what is on screen now** — **yes, all**: *Signatur* → *Spuren*;
+  *Durchdringung* → *Präsenz* (en *Penetration* → *Presence*); *Ertrag* → *Einnahmen* (en
+  *yield* → *income*); *Kapazität* → *Einfluss* (en *Capacity* → *Influence*); phase *Enttarnt*
+  → *Entdeckt* (en *Emergent* → *Discovered*); status *Enttarnung* → *Im Visier* (en *Exposure* →
+  *Pinpointed*); screen *Fähigkeiten* → *Technologien* (en *Capabilities* → *Technologies*); tab
+  *Ausweichen* → *Tarnung*.
+- **Q2 — Ability names** — **yes, all**: *Umleitung* → *Drehkreuz* (en *Reroute* → *Hub*),
+  *Zange* → *Finanzdruck*, *Stille* → *Funkstille*. The statuses follow: *Umgeleitet* →
+  *Drehkreuz* (en *Hub*), the silenced status *Abgeschnitten* → *Funkstille* (which frees
+  *Abgeschnitten* for the Task Force's `tf_cut_off`, §1.5).
+- **Q3 — Emergent behaviours get plain names** — **no**: they keep their AI-safety names; the
+  card and the Codex explain them in plain words (§3, §5.2 C7).
+- **Q4 — Numbers on cards** — **yes**: every option shows cost, change, duration and place
+  (the generated effect lines, S6.P3 C1).
 - **Q5 — On counter-move, opening and chain cards the wire copy moves below the options**, in
-  the smaller caption style. Recommended.
-- **Q6 — *Stufe*** is kept for node tiers and society stages; ability and Task Force levels
-  become *Level* (en unchanged). Alternative: leave *Stufe* everywhere. Recommended: split.
-- **Q7 — *Abgriff* (en *Tap*)** stays, with a definition in help and the tooltip. Alternative:
-  *Zugangspunkt* / *Access point*.
+  the smaller caption style — **yes** (S6.P3 C5).
+- **Q6 — *Stufe*** for node tiers, attribute tiers and the stages of disorder; ability and Task
+  Force levels become *Level* (en unchanged) — **yes**.
+- **Q7 — *Abgriff* (en *Tap*)** → **Zugang** (en **Access**, plural *Zugänge* / *Accesses*),
+  proposed after the user did not know the word; **pending the user's final word**. The internal
+  id `tap` stays. The rename is one point: the rows that name the asset are listed in §8.
+
+On the 30 examples the user approved examples 1–3. The coach's losing condition (example 1's
+old line said "your compute runs out", which is not the rule) is corrected in any case.
 
 ## 7. Outright errors fixed in this step
 
@@ -744,3 +766,43 @@ named in §0 and the retired-term list (§5.3).
 Found and left for D6.11 (2/2), because they are wording choices rather than errors: the two
 *Abriegelung* statuses, the **EG** code clash, *frei* for "free of charge", *Meldung* as the
 chain kind (all §1.5).
+
+## 8. Pass I — what D6.11 (2/2a) did
+
+**Rows** (en + de each): pass 1 terms 38 · pass 2 coach and help 63 · pass 3 HUD and panels 65
+changed + 10 new · pass 6 console, log, captions 28 · the renamed terms in 63 rows of passes 4–5
+(tech effects, status and ability details, directives, architectures, a scenario, two options
+and titles) as word swaps — 257 rows changed, 10 added. Two rows over their cap before this step
+were shortened (`EVENT_BM_EXPOSED_BODY`, `EVENT_SI_EMERGENCE_RESULT_BETRAY`, de).
+
+**Status codes** (unique per language): exposure en *PP* / de *IV*; holding de *GR* (was *EG*,
+the Task Force's code); rerouted en *HB* / de *DZ*; silenced de *FS* (name *Funkstille*);
+`tf_cut_off` de *AG* (name *Abgeschnitten*, no longer a second *Abriegelung*).
+
+**New keys for S6.P3 (C5) to wire** — the tooltips of A9, en and de written:
+`UI_HUD_COMPUTE_TIP`, `UI_HUD_PHASE_TIP`, `UI_HUD_PRESENCE_TIP`, `UI_HUD_FOOTPRINT_TIP`,
+`UI_HUD_HARM_TIP`, `UI_HUD_STARVING_TIP` (the top bar and the stat row; the threat bar already
+has `UI_HUD_THREAT_TIP`), `UI_CONTAINMENT_CAPACITY_TIP`, `UI_CONTAINMENT_BRAKES_TIP`,
+`UI_CONTAINMENT_DAILY_TIP` (a faction's row), `UI_TREE_FP_TIP` (a node's footprint).
+
+**For S6.P3 to know:** `UI_CONTAINMENT_BRAKES` reads *Von dir gebremst ×0,6* until C4's
+`Format.change` turns the factor into *−40 %*. `UI_TREE_FP` is a word now (*Footprint {fp}* /
+*Spuren {fp}*, was *FP* / *Sig.*) — the compact tree's node cell must hold it. The dock's
+*Technologien* is one letter longer than *Fähigkeiten* (the phone-row tests pass). Coach and
+help now name `{key_abilities}` (`UI_COACH_ABILITY_BODY`, `HELP_ABILITIES_P2`) and
+`UI_COACH_COUNTER_MOVE_BODY` names `{key_containment}` — all three are in `KEY_TEXTS`. The coach
+card at 1080 px sits over the map's centre: `test_deploy_click` taps there with the introduction
+on, so a longer `UI_COACH_COMPUTE_BODY` breaks it (it was shortened back to fit).
+
+**Q7 in one place** — the rows that name the asset (id `tap`): `ASSET_TAP_NAME`,
+`ASSET_TAP_PLURAL`, `HELP_TREE_P3`, `STATUS_TF_RAID_DETAIL`, and the effect lines of
+`market_microstructure`, `grid_load_balancing`, `route_optimisation`, `traffic_control`,
+`content_recommendation`. Watch the collision: three node names already say *Access* /
+*Zugang* in another sense (`automated_laboratory_access`, `sanctioned_access`,
+`early_warning_intrusion` de).
+
+**Not done here:** the overflow screenshots (§5.3 item 4) — the user was playing the game, and a
+windowed run writes into the shared user folder; S6.P3 takes the *before* set from commit
+`3779130` and the *after* set with its own changes. Flavour rows were not touched except the
+one pun on an ability name (`TECH_TOTAL_COMMUNICATIONS_DENIAL_FLAVOUR`) and one result line that
+named *yield* (`EVENT_EMERGENT_MESA_OPTIMISER_RESULT_KEEP`).
