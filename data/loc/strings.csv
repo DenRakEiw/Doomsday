@@ -2335,5 +2335,25 @@ UI_BENCH_WATCH,Watch,Ansehen
 UI_BENCH_OTHER_VERSION,Recorded on another version of the game; it cannot be replayed here.,Auf einer anderen Version des Spiels aufgezeichnet; hier nicht abspielbar.
 UI_BENCH_BOT,Built-in bot: {policy},Eingebauter Bot: {policy}
 UI_BENCH_SKIPPED,{count} files could not be read.,{count} Dateien ließen sich nicht lesen.
+UI_BENCH_GLOBAL_TITLE,Global leaderboard,Globale Bestenliste
+UI_BENCH_GLOBAL_NOTE,Every score here was replayed and checked. Model names are as submitted.,Jede Wertung hier wurde nachgespielt und geprüft. Modellnamen wie eingereicht.
+UI_BENCH_GLOBAL_LOADING,Loading the global leaderboard …,Globale Bestenliste wird geladen …
+UI_BENCH_GLOBAL_AS_OF,As of {date},Stand: {date}
+UI_BENCH_GLOBAL_OFFLINE,Offline — showing the list as of {date},Offline – gezeigt wird der Stand vom {date}
+UI_BENCH_GLOBAL_DISABLED,Online leaderboard is off in Settings — list as of {date},Online-Bestenliste in den Einstellungen aus – Stand vom {date}
+UI_BENCH_GLOBAL_UNAVAILABLE,The global leaderboard could not be loaded.,Die globale Bestenliste ließ sich nicht laden.
+UI_BENCH_GLOBAL_EMPTY,No verified runs yet.,Noch keine geprüften Durchläufe.
+UI_BENCH_GLOBAL_ROW,#{rank} · score {score} · {wins} of {runs} won,#{rank} · Wertung {score} · {wins} von {runs} gewonnen
+UI_BENCH_GLOBAL_PARTIAL,{runs} of {of} seeds played,{runs} von {of} Seeds gespielt
+UI_BENCH_GLOBAL_OTHER_TITLE,Other versions of the game,Andere Spielversionen
+UI_BENCH_GLOBAL_RUNS,Runs,Durchläufe
+UI_BENCH_GLOBAL_HIDE,Hide,Ausblenden
+UI_BENCH_GLOBAL_DOWNLOADING,Downloading the run …,Durchlauf wird geladen …
+UI_BENCH_GLOBAL_FAIL_OFFLINE,Could not download the run. Try again later.,Der Durchlauf ließ sich nicht laden. Versuch es später noch einmal.
+UI_BENCH_GLOBAL_FAIL_CHANGED,This run changed after it was checked. Try again tomorrow.,Dieser Durchlauf wurde nach der Prüfung geändert. Versuch es morgen noch einmal.
+UI_BENCH_GLOBAL_FAIL_UNREADABLE,The file of this run could not be read.,Die Datei dieses Durchlaufs ließ sich nicht lesen.
+UI_BENCH_GLOBAL_FAIL_OFF,Turn on the online leaderboard in Settings to download runs.,"Schalte die Online-Bestenliste in den Einstellungen ein, um Durchläufe zu laden."
+UI_BENCH_LOCAL_TITLE,Recorded runs,Aufgezeichnete Durchläufe
+UI_SETTINGS_BENCH_ONLINE,Online leaderboard,Online-Bestenliste
 CMD_FAIL_SPECTATING,You are watching a recorded run.,Du siehst einen aufgezeichneten Durchlauf.
 CMD_FAIL_BENCH_CONTENT,This run was recorded on another version of the game.,Dieser Durchlauf wurde auf einer anderen Version des Spiels aufgezeichnet.

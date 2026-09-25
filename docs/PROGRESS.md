@@ -14,18 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.12 — Benchmark tool, headless** [O] (Block 16): `docs/specs/benchmark.md` §0–§11, §13, §14.1; mock backends only — the first live run needs the user's `OPENROUTER_API_KEY` (*Waiting on the user*). Then S6.13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
+| **Next step** | **S6.12 — Benchmark tool, headless** [O] (Block 16): `docs/specs/benchmark.md` §0–§11 (**§11.5, the pre-flight estimate, new in D6.9b**), §13, §14.1, §16.9's S6.12 part; mock backends only — the first live run needs the user's `OPENROUTER_API_KEY` (*Waiting on the user*). Then S6.12b, S6.13. **The G4 and G5 gate verdicts stay with the user** (*Waiting on the user*). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.13 spectator view. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
-| **Last completed** | S6.11 — Performance pass: the bench (`tools/perf/perf_bench.tscn`, `run_perf.ps1`, `tick_profile.gd`), `Game.last_tick_usec`, `first screen <ms>`; the analysis sheet's 0.6-s ticks, the late-game day 4.1 → 1.5 ms (4 threads), the cue loads and the bloom's sines fixed; three rows still fail (Performance notes, Design questions) (2026-09-25). |
-| **Before that** | S6.10 — Export presets and release CI (2026-09-25). |
-| **Earlier** | S6.9 — PlatformService (null backend) and achievements (2026-09-25). |
+| **After it** | S6.12b the global leaderboard's verifier and workflow (`benchmark.md` §16; publishing waits for the user's deploy key), then S6.13 spectator view and the online list. Rows marked **[needs user]** are skipped in unattended runs (IMPLEMENTATION §4, rows 65–104). |
+| **Last completed** | D6.9b — The global leaderboard and the cost cap (inserted by the user): `benchmark.md` §16 (public repo `DenRakEiw/doomsday-leaderboard`, replay verifier + private scheduled workflow with a deploy key, the game's on-open fetch with cache/shipped fallback, the Windows-recorded determinism canary) and §11.5 (pre-flight estimate, cap 2 USD, `--yes`, exit 7); `benchmark.json` `estimate`/`global`; 20 strings (2026-09-25). |
+| **Before that** | S6.11 — Performance pass (2026-09-25). |
+| **Earlier** | S6.10 — Export presets and release CI (2026-09-25). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 293 scripts compile (136 judged by the suite), then `tools/check_strings.gd` (2338 rows), 2088 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 293 scripts compile (136 judged by the suite), then `tools/check_strings.gd` (2358 rows), 2088 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
 | **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
 | **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. **The sound set:** `uv run --project tools/audio python tools/audio/synth.py [--only <id>] [--check]` (≈30 s; environment `uv sync --project tools/audio`) rewrites `assets/audio/**`; after a new file run `--import` and set its `.import` per audio.md §10.3 (`compress/mode=0` / `loop=true`). |
@@ -178,8 +178,10 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S6.9 [O] PlatformService (null backend) and achievements
 - [x] S6.10 [O] Export presets and release CI
 - [x] S6.11 [O] Performance pass
+- [x] D6.9b [F] The global leaderboard and the cost cap *(inserted by the user 2026-09-25; `benchmark.md` §16, §11.5)*
 - [ ] S6.12 [O] Benchmark tool, headless *(the first live run needs the user's key)*
-- [ ] S6.13 [O] Spectator view
+- [ ] S6.12b [O] Global leaderboard: the verifier, the workflow, the determinism canary *(publishing needs the user's deploy key)*
+- [ ] S6.13 [O] Spectator view and the online list
 
 **Block 17 — M6 finish: balance, pictures, Steam, the gate**
 - [ ] G6 (1/2) [F] Balance pass 4 *(tuning; data only)*
@@ -1306,6 +1308,36 @@ without new information.
   the model, results verify the recorded hash; *Benchmark* on the title only when an entry exists
   (`res://benchmark/showcase/` ships, empty until the user picks; `user://benchmark/runs/`; the
   repo's runs in debug builds). Fix folded in: a bot run no longer deletes the player's autosave.
+- **2026-09-25** (user, in conversation) — **The model leaderboard is global, synchronised through
+  GitHub, with a GitHub Action**; and the 10 USD default cost cap is "quite a lot". Public
+  repository **`DenRakEiw/doomsday-leaderboard`** created the same day (data CC0 1.0, tools MIT):
+  `runs/` (§10.2 entries by pull request), `verified/` and `leaderboard.json`/`LEADERBOARD.md`
+  (verifier only), `tools/validate.py` + `validate.yml` (structural check, 19 tests). The game
+  repository stays **private**. S6.10's CI already got the Windows build's state hash from the
+  Linux export (cross-platform determinism holds).
+- **2026-09-25** (D6.9b, pending user confirmation where marked) — **The global leaderboard**
+  (`benchmark.md` §16): runs verified **by replay in the private repo's scheduled workflow**
+  (`.github/workflows/leaderboard.yml`: daily + dispatch, never on a pull request; clones the
+  public repo over SSH with the deploy key `LEADERBOARD_DEPLOY_KEY`, **a user step**; without it a
+  schedule does nothing and a dispatch runs read-only). Verifier = its own tool
+  `tools/bench/verify_runs.gd` (exit 0/1/2/3; checks `unreadable` · `file_name` · `rules` ·
+  `content` · `refused` · `outcome` · `days` · `score` · `unfinished` · `hash`); records
+  `verified/<run file>` keyed by the file's SHA-256; a run must match the checkout's content,
+  older content keeps its verdict (`current: false`). Run files are data only
+  (`BenchEntry.from_dict`), nothing from them reaches a shell or a line start (stop-commands
+  around the step). Bot reference rows by `bench_run --bots --if-missing --no-rebuild` in the
+  same job. The board gains `seeds` per row (with SHA-256) and is not rewritten unchanged.
+  **Canary:** `tests/fixtures/bench/determinism_entry.json` recorded on Windows, replayed by a
+  test (CI on Linux) and by the verifier before it writes anything. **In the game** (S6.13): the
+  list fetches `raw.githubusercontent.com/…/leaderboard.json` **only when opened** (≤ once per
+  5 min), caches it in `user://benchmark/online/`, falls back to the cache or the shipped
+  `benchmark/global/leaderboard.json` (refreshed by `release.yml`), shows "as of <date>",
+  downloads one run on *Watch* checked against its verified SHA-256; the game's own
+  `content_hash` decides watchability. **Setting *Online leaderboard*, default on (pending user
+  confirmation).** release.md §10's promise restated: no telemetry, the one network access is
+  this download. **Cost:** `http.max_cost_usd` **2.0** (pending user confirmation) + a pre-flight
+  estimate from the dry-run measure × calls × OpenRouter's public price (unknown price never
+  blocks), exit 7 above the cap unless `--yes` (which never lifts the cap). S6.12b added.
 
 ## Design questions for Fable
 
@@ -2067,6 +2099,9 @@ without new information.
 
 ## Known issues and carry-overs
 
+- **D6.9b → S7.2:** the Android preset needs the `INTERNET` permission for the benchmark list's
+  download (`benchmark.md` §16.6); without it the list shows its cached or shipped copy.
+
 - **S6.10's "release title larger than the editor's" (looked at in S6.11):** the release export
   opens at 1920 × 1080 on this 3840 × 2160 / 150 % screen and its title at 1920 × 1080,
   1280 × 800 and 2560 × 1369 matches the editor's, `Build 0.6.0` in view. The 1066 × 600 capture
@@ -2352,8 +2387,19 @@ policy (video/text encoders → arm actions), not a chat model; the adapter take
 OpenAI-compatible chat model (OpenRouter or a local `--base-url`). Which models first?
 (2) the score (a win 50–100 by speed, else 0; Extinction counts as a win), the 10-seed suite at
 2 000 days, the 10-day rhythm; (3) the budget defaults (250 answers a run, 10 USD per
-invocation); (4) which recorded runs, if any, ship in `benchmark/showcase/` (after G6's balance).
+invocation — *the cap: see D6.9b below*); (4) which recorded runs, if any, ship in `benchmark/showcase/` (after G6's balance).
 The first live run (S6.12 builds it) needs `OPENROUTER_API_KEY`; `--dry-run` shows the prompt free.
+
+**D6.9b (2026-09-25, pending user confirmation):** `docs/specs/benchmark.md` §16, §11.5 —
+(1) **create the deploy key and the secret** so the leaderboard workflow can publish (§16.5):
+`ssh-keygen -t ed25519 -N "" -C "doomsday-leaderboard verifier" -f leaderboard_deploy_key`; the
+`.pub` as a deploy key **with write access** on `doomsday-leaderboard`; the private half as the
+Actions secret `LEADERBOARD_DEPLOY_KEY` on `Doomsday`; delete both files; then *Run workflow*
+once (after S6.12b). Until then nothing is published. (2) The default cost cap is now **2 USD**
+with a pre-flight estimate (a standard suite of a mid-priced model ≈ 11 USD stops before its
+first request; `--max-cost`/`--yes` to go on) — right? (3) The *Online leaderboard* setting,
+**default on**, fetching only when the list is opened — or no setting (on-demand only), or
+default off?
 
 ## Balance baselines
 
@@ -2718,6 +2764,12 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-25 — D6.9b The global leaderboard and the cost cap [F]
+- Inserted by the user. `benchmark.md` §16 (two repos, records, `verify_runs.gd`, `leaderboard.yml`, online list, canary,
+  tests) and §11.5 (pre-flight estimate, `--yes`, exit 7); §0/§1/§3/§8.3/§10.3/§11/§12.7/§13–§15 amended; release.md §0/§6.2/§9.2/§10.
+- `benchmark.json`: cap 10 → 2 USD, `estimate`, `global`; SCHEMA row; 20 strings en/de. S6.12 amended, S6.12b added, S6.13 widened.
+- Waiting on the user: deploy key + secret, the 2 USD cap, the online setting. No code. Suite green.
 
 ### 2026-09-25 — S6.11 Performance pass [O]
 - Bench + wrapper + `tick_profile.gd`; `Game.last_tick_usec`; `first screen` line. Fixes: chart geometry per draw, strip fill, strip marks

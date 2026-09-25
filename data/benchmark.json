@@ -1,5 +1,5 @@
 {
-	"_comment": "docs/specs/benchmark.md §3: the benchmark's configuration — the model policy's rhythm and limits, the seed suites, the score, the defaults sent to the model, the HTTP settings. `prompt_version` / `parser_version` are bumped by any change to the prompt text or format / the parsing rules (benchmark.md §5–§7); both go into the cache key and every entry. The key is never here: it is read from the environment variable `http.key_env`. Presentation data, not loaded by the core (SCHEMA §10); read by BenchConfig (S6.12).",
+	"_comment": "docs/specs/benchmark.md §3: the benchmark's configuration — the model policy's rhythm and limits, the seed suites, the score, the defaults sent to the model, the HTTP settings. `prompt_version` / `parser_version` are bumped by any change to the prompt text or format / the parsing rules (benchmark.md §5–§7); both go into the cache key and every entry. The key is never here: it is read from the environment variable `http.key_env`. `estimate` feeds the tool's pre-flight cost estimate (§11.5); `global` is the global leaderboard's addresses and limits (§16), read by the game's online list and by the verifier. Presentation data, not loaded by the core (SCHEMA §10); read by BenchConfig (S6.12).",
 	"version": 1,
 	"prompt_version": 1,
 	"parser_version": 1,
@@ -22,6 +22,20 @@
 		"timeout_s": 180,
 		"retries": 5,
 		"backoff_s": 2.0,
-		"max_cost_usd": 10.0
+		"max_cost_usd": 2.0,
+		"models_path": "/models"
+	},
+	"estimate": {"chars_per_token": 4, "calls_per_run": 80, "digest_growth": 1.5, "output_tokens_per_call": 300},
+	"global": {
+		"leaderboard_url": "https://raw.githubusercontent.com/DenRakEiw/doomsday-leaderboard/main/leaderboard.json",
+		"run_base_url": "https://raw.githubusercontent.com/DenRakEiw/doomsday-leaderboard/main/",
+		"repo_url": "https://github.com/DenRakEiw/doomsday-leaderboard",
+		"timeout_s": 20,
+		"max_board_bytes": 1000000,
+		"max_run_bytes": 4000000,
+		"max_rows": 500,
+		"min_refetch_s": 300,
+		"cache_runs_max": 50,
+		"verify_limit": 100
 	}
 }

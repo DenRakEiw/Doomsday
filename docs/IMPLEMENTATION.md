@@ -317,8 +317,10 @@ before the *next* row; "—" means stay on the same model.
 | 85 | S6.9 PlatformService (null backend) and achievements | [O] | — |
 | 86 | S6.10 Export presets and release CI | [O] | — |
 | 87 | S6.11 Performance pass | [O] | — |
+| 87a | D6.9b The global leaderboard and the cost cap *(inserted 2026-09-25 by the user)* | **[F]** | — |
 | 88 | S6.12 Benchmark tool, headless *(the first live run waits for the user's key)* | [O] | — |
-| 89 | S6.13 Spectator view | [O] | — |
+| 88a | S6.12b Global leaderboard: the verifier, the workflow, the determinism canary *(added at D6.9b; publishing waits for the user's deploy key)* | [O] | — |
+| 89 | S6.13 Spectator view and the online list | [O] | — |
 | 90 | G6 (1/2) Balance pass 4 *(tuning; data only)* | **[F]** | — |
 | 91 | D6.10 Illustrations produced — **[needs user]** | **[F]** | — |
 | 92 | S6.14 GodotSteam: the Steam backend, achievements, overlay — **[needs user]** | [O] | — |
@@ -1156,16 +1158,41 @@ on this PC with the spec's throttling; fixes where it fails; the numbers recorde
 ≈1.6 ms and the analysis sheet's 0.6-s tick frames fixed; numbers, fixes and the rows that still
 fail in `PROGRESS.md` (Performance notes).*
 
-### S6.12 — Benchmark tool, headless **[O]** · **Read first:** `docs/specs/benchmark.md` §0–§11, §13, §14.1
-The model `Policy`, the digest and answer parsing, the adapter, the cache, the budget, the score,
-the leaderboard file; tests on the recorded mock backend only.
-**Done when:** a mock-backed leaderboard run over the fixed seeds is reproducible. **The first
-live run needs `OPENROUTER_API_KEY` from the user** — it goes under *Waiting on the user*, not in
-this step.
+### D6.9b — The global leaderboard and the cost cap **[F]** · *(inserted by the user, 2026-09-25)*
+The user wants the model leaderboard global, synchronised through GitHub with an Action, and
+found the 10 USD cap "quite a lot". `benchmark.md` §16 (two repositories, verification records,
+the verifier, the private workflow, the online list, the determinism canary) and §11.5 (the
+pre-flight estimate, the cap at 2 USD); `data/benchmark.json` `estimate` + `global`; strings.
+**Done when:** S6.12, S6.12b and S6.13 have nothing to decide.
+*Done 2026-09-25.*
 
-### S6.13 — Spectator view **[O]** · **Read first:** `benchmark.md` §0, §10.2, §12–§13, §14.2
-The view that replays a leaderboard entry in the session with its overlay.
-**Done when:** a mock-backed entry plays back to its recorded outcome and hash.
+### S6.12 — Benchmark tool, headless **[O]** · **Read first:** `docs/specs/benchmark.md` §0–§11 (§11.5 included), §13, §14.1, §16.9's S6.12 part
+The model `Policy`, the digest and answer parsing, the adapter, the cache, the budget, the score,
+the leaderboard file (with §16.3's `seeds`, the optional verified map and the no-rewrite rule —
+the writer is built once), **the pre-flight cost estimate and `--yes`/exit 7** (§11.5), the
+`--bots` flags `--if-missing`/`--no-rebuild` and `--determinism-fixture` (§16.4, §16.8); tests
+on the recorded mock backend only.
+**Done when:** a mock-backed leaderboard run over the fixed seeds is reproducible; the estimate's
+worked example is a test. **The first live run needs `OPENROUTER_API_KEY` from the user** — it
+goes under *Waiting on the user*, not in this step.
+
+### S6.12b — Global leaderboard: the verifier, the workflow, the determinism canary **[O]** · **Read first:** `benchmark.md` §10.2–§10.4, §16.1–§16.5, §16.8, §16.9 · `release.md` §9 · the public repository's `README.md` and `tools/validate.py` (clone `https://github.com/DenRakEiw/doomsday-leaderboard` to a temp directory; do not push to it)
+`tools/bench/verify_runs.gd` with `bench_verifier.gd` and `verify_record.gd`; the canary fixture
+recorded **on Windows** and `test_bench_determinism.gd`; `.github/workflows/leaderboard.yml`.
+**Done when:** §16.9's S6.12b list — the verifier run locally against a temp clone verifies the
+mock and bot runs, rejects a tampered one, a second run changes nothing; the determinism test is
+green here and in CI. **Nothing is pushed to the public repository and the workflow is not
+dispatched** — the deploy key and the secret are the user's (*Waiting on the user*).
+
+### S6.13 — Spectator view and the online list **[O]** · **Read first:** `benchmark.md` §0, §10.2, §12–§13, §14.2, §16.6, §16.7, §16.9's S6.13 part · `release.md` §6.2, §9.2
+The view that replays a leaderboard entry in the session with its overlay; then the global
+leaderboard in the *Benchmark* list: `GlobalBoard*`, `GlobalBoardClient` (fetch on opening only,
+cache, fallback to the cache or the shipped copy, one run's download checked by SHA-256), the
+*Online leaderboard* setting, `benchmark/global/leaderboard.json` + the include filter + the
+refresh in `release.yml`. If the session runs short, the online list is the part to split off as
+S6.13b (record it in `PROGRESS.md`).
+**Done when:** a mock-backed entry plays back to its recorded outcome and hash; the list shows the
+public board, falls back offline, and **the title makes no request**.
 
 ## Block 17 — M6 finish: balance, pictures, Steam, the gate
 
@@ -1272,6 +1299,6 @@ With the user: each platform's candidate played; go / change / cut per platform.
 | CONTENT q4 — Containment mode | D5.4: a mode of this game, post-launch — confirmed G5 (3/3) (overnight, pending user confirmation); not in M6 or M7 |
 | The Task Force against dormancy (BALANCE §5.7 q3) | D5.5, built S5.9 |
 | Achievements — which, and their text | D6.8; on Steam in S6.14 |
-| Spectator / benchmark mode (user idea, G1) | D6.9; the headless tool S6.12, the view S6.13; the first live run with the user's OpenRouter key |
+| Spectator / benchmark mode (user idea, G1) | D6.9; the headless tool S6.12, the view S6.13; the first live run with the user's OpenRouter key; the global leaderboard (user, 2026-09-25) D6.9b → S6.12b, S6.13, publishing with the user's deploy key |
 | Steam app id, Steamworks SDK agreement | the user, before S6.14 (app id 480 only for a local smoke test) |
 | Generation route and model licences for shipped art | D6.7 shortlisted (`illustrations.md` §6.1); the user approves before D6.10 |

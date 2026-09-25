@@ -7,6 +7,12 @@ the spectator view). Data written here: `data/benchmark.json`; strings in
 tool first, then the spectator view; OpenRouter as the one endpoint, key from the environment,
 model id and parameters next to seed and score).
 
+**D6.9b (2026-09-25)** adds **§16, the global leaderboard** (a public GitHub repository, runs
+verified by replay in this repository's workflow, read by the game's list) and **§11.5, the
+pre-flight cost estimate** with the cap lowered to 2 USD; it amends §0 items 6, 8, 10 and 13, §1,
+§3, §8.3, §11, §12.7, §13–§15. Builds from it: S6.12 (§11.5), **S6.12b** (§16.3–§16.5, §16.8),
+S6.13 (§16.6–§16.7).
+
 ---
 
 ## 0. What this spec decides
@@ -35,12 +41,17 @@ model id and parameters next to seed and score).
    Python driver and not an `HTTPRequest` node. The policy, the digest and the parser are the
    same code the tests run, in-process with the real simulation — no bridge protocol, no second
    copy of the state. It never ships: `tools/*` is excluded from every export (release.md §6.2),
-   so the game itself contains no network code. Parallelism is one process per shard of seeds.
+   so the game itself never calls a model. Parallelism is one process per shard of seeds.
+   **The game's one network access** (since D6.9b) is the global leaderboard's download when the
+   player opens the benchmark list, and one run file when they watch it (§16.6) — plain GETs of
+   public files, nothing sent, off with a setting.
 7. **The key comes from the environment only** (`OPENROUTER_API_KEY`, or the variable
    `--key-env` names): never an argument, never a file in the repo, never a save, never a log
    line, never an entry.
 8. **Budget and cost:** at most **250** answers a run (live or cached, so a re-run from the cache
-   reproduces the run exactly), a cost cap per invocation (**10 USD** by default), and a cache of
+   reproduces the run exactly), a cost cap per invocation (**2 USD** by default since D6.9b,
+   pending user confirmation — §3), a **cost estimate printed before the first request** that
+   stops the tool when it is above the cap unless `--yes` (§11.5), and a cache of
    request → *parsed* answer keyed by model, parameters, prompt and parser version (§9) — a
    repeated run costs nothing.
 9. **Score:** per run `50 + 50 × (1 − days / max_days)` for a win, **0** for anything else
@@ -49,7 +60,10 @@ model id and parameters next to seed and score).
    bots are scored the same way as reference rows (§10).
 10. **Entries and leaderboard are files in the repo** (`benchmark/runs/*.json`,
     `benchmark/leaderboard.json` + a generated `benchmark/LEADERBOARD.md`); the cache is local
-    and ignored.
+    and ignored. That is the developer's working board. **The global leaderboard** (D6.9b, §16)
+    is the public repository `DenRakEiw/doomsday-leaderboard`: runs arrive by pull request, a
+    scheduled workflow in this (private) repository verifies each by replay and publishes a
+    verified-only `leaderboard.json`, which the game's list reads.
 11. **Mock backends test everything without a key** (§8.2): deterministic answers built from the
     typed digest (`cheapest`, `wait`), and broken ones (`invalid`, `mixed`) — so S6.12 proves a
     reproducible leaderboard run without spending anything.
@@ -60,13 +74,16 @@ model id and parameters next to seed and score).
 13. **Where players find it:** a *Benchmark* button on the title, shown only when an entry
     exists — shipped ones from `res://benchmark/showcase/` (empty in M6; which runs to ship is
     the user's call at G6 2/2) and the player's own from `user://benchmark/runs/`. Debug builds
-    also list the repo's `res://benchmark/runs/`.
+    also list the repo's `res://benchmark/runs/`. Since D6.9b the list also shows **the global
+    leaderboard** (§16.6), fetched only when the list opens.
 
 **Not in scope:** live model play inside the game (the game never calls a model); streaming
 answers; tool/function calling (one JSON object is simpler and works on every chat model);
 multi-turn conversations; a model-written memo or explanation (free text — §0 item 2); the
 German brief as a ranked suite (it runs, `--locale=de`, but the leaderboard ranks `en`);
-uploading results anywhere; a public web leaderboard; statistics or achievements from watched
+uploading results from the game or the tool (a run reaches the global board by a pull request
+made by hand, §16.2); a web page beyond the public repository's `LEADERBOARD.md`; proving which
+model played a run (§16.1); statistics or achievements from watched
 runs (a watched run is a bot run: nothing counts — release.md §2.2).
 
 ---
@@ -98,7 +115,15 @@ runs (a watched run is a bot run: nothing counts — release.md §2.2).
 | `benchmark/runs/` · `benchmark/showcase/` | 6.12 | entries; each directory gets a `.gitkeep` |
 | `benchmark/cache/` | 6.12 | **git-ignored** (`.gitignore` gains `/benchmark/cache/`) |
 | `ui/hud/spectator_strip.gd` + `.tscn` | 6.13 | the strip (§12.5) |
-| `ui/modals/benchmark.gd` + `.tscn` | 6.13 | the list of entries (§12.7) |
+| `ui/modals/benchmark.gd` + `.tscn` | 6.13 | the list of entries (§12.7) and the global leaderboard (§16.6) |
+| `tools/bench/bench_estimate.gd` | 6.12 | the pre-flight estimate and the price lookup, no `class_name`, preloaded (§11.5) |
+| `tools/bench/verify_runs.gd` | 6.12b | the verifier tool (`extends SceneTree`) (§16.4) |
+| `tools/bench/bench_verifier.gd` · `verify_record.gd` | 6.12b | the judging and one `verified/` record, no `class_name`, preloaded (§16.3–§16.4) |
+| `.github/workflows/leaderboard.yml` | 6.12b | the scheduled verification and publishing workflow (§16.5) |
+| `tests/fixtures/bench/determinism_entry.json` | 6.12b | the cross-platform canary, recorded on Windows (§16.8) |
+| `game/bench/global_board.gd` · `global_board_row.gd` · `global_board_run.gd` | 6.13 | `class_name GlobalBoard` / `GlobalBoardRow` / `GlobalBoardRun` — the downloaded board, parsed (§16.6) |
+| `game/bench/global_board_client.gd` | 6.13 | `class_name GlobalBoardClient extends Node` — fetch, cache, fallback, one run's download (§16.6) |
+| `benchmark/global/leaderboard.json` | 6.13 | the shipped copy of the public `leaderboard.json` (§16.6) |
 
 **Why `game/bench/` and not `core/`:** the digest reads translated strings and the interface's
 static text helpers (`TechText`, `EventView`, `RunLogText`, `TaskForceText`, `TechNode.state_for`,
@@ -147,7 +172,21 @@ naming the reasons).
 | `http.key_env` | string | `OPENROUTER_API_KEY` | the environment variable read for the key |
 | `http.timeout_s` | int | 180 | one request, connect to last byte |
 | `http.retries` · `http.backoff_s` | int · float | 5 · 2.0 | transient failures (§8.3): waits 2, 4, 8, 16, 32 s |
-| `http.max_cost_usd` | float | 10.0 | per tool invocation (§8.3); `--max-cost` overrides |
+| `http.max_cost_usd` | float | **2.0** | per tool invocation (§8.3, §11.5); `--max-cost` overrides. 10.0 until D6.9b (the user: "quite a lot"); pending user confirmation |
+| `http.models_path` | string | `/models` | appended to `base_url` for the public price list (§11.5); only asked of `openrouter.ai` |
+| `estimate.chars_per_token` | int ≥ 1 | 4 | the `--dry-run` measure (§11.1 step 3, §11.5) |
+| `estimate.calls_per_run` | int ≥ 1 | 80 | the likely calls of one run (§11.4's 60–90) |
+| `estimate.digest_growth` | float ≥ 1 | 1.5 | the average digest against the day-0 one |
+| `estimate.output_tokens_per_call` | int ≥ 1 | 300 | the likely answer length (the upper figure uses `max_completion_tokens`) |
+| `global.leaderboard_url` | string | `https://raw.githubusercontent.com/DenRakEiw/doomsday-leaderboard/main/leaderboard.json` | the published board (§16.6) |
+| `global.run_base_url` | string | `https://raw.githubusercontent.com/DenRakEiw/doomsday-leaderboard/main/` | + a row's `runs/<file>` (§16.6) |
+| `global.repo_url` | string | `https://github.com/DenRakEiw/doomsday-leaderboard` | for people (docs, `LEADERBOARD.md`); the game does not open it |
+| `global.timeout_s` | int | 20 | one download in the game |
+| `global.max_board_bytes` · `global.max_run_bytes` | int | 1 000 000 · 4 000 000 | download limits; the run limit equals `BenchLibrary.MAX_BYTES` and `validate.py`'s |
+| `global.max_rows` | int | 500 | rows read from a board |
+| `global.min_refetch_s` | int | 300 | a reopened list within this reuses the last fetch |
+| `global.cache_runs_max` | int | 50 | downloaded run files kept in `user://benchmark/online/runs/` |
+| `global.verify_limit` | int | 100 | runs judged per verifier invocation (§16.4) |
 
 ---
 
@@ -549,7 +588,9 @@ when `--reasoning` is given; `top_p` only when `--top-p` is given. `seed` always
 ignore it ignore it). No `stream`, no `tools`, no `provider` block.
 
 **Reading:** status 200 → `choices[0].message.content` (null → `""`), `choices[0].finish_reason`,
-`usage.prompt_tokens`, `usage.completion_tokens`, `usage.cost` (absent or null → 0). A 200 whose
+`usage.prompt_tokens`, `usage.completion_tokens`, `usage.cost` (absent or null → tokens × the
+price the pre-flight found, §11.5, else 0 — and then the tool prints once `benchmark: the service
+reports no cost and the price is unknown — the cap cannot guard this run`). A 200 whose
 body is not the expected JSON is treated as a 502.
 
 **Failures:**
@@ -559,7 +600,7 @@ body is not the expected JSON is treated as a 502.
 | 401 · 402 · 403 | `FATAL` at once (`auth`, `credits`, `forbidden`): the tool stops (exit 4) |
 | 400 · 404 · 413 · 422 | `FATAL` at once (`bad_request` + OpenRouter's message) — usually a model id or a parameter the model does not take (try `--json-mode=false`) |
 | 408 · 429 · 500 · 502 · 503 · 524 · 529 · connect/TLS error · timeout | retried after `backoff_s × 2^(n−1)` seconds (2, 4, 8, 16, 32), `retries` times; still failing → `FATAL unavailable` (exit 5). A `Retry-After` header, when present and larger, is waited instead. Transport retries are not calls (§4.3). |
-| cost so far ≥ `max_cost_usd` (checked **before** each request) | `FATAL cost_cap` (exit 6) |
+| cost so far ≥ `max_cost_usd` (checked **before** each request; **2.0** by default since D6.9b) | `FATAL cost_cap` (exit 6) |
 
 A `FATAL` sets `ModelPolicy.fatal`; the policy makes no further decisions and the tool
 abandons the run (no entry is written for it — §11.3).
@@ -668,6 +709,9 @@ rule (`World.WIN_OUTCOMES`); the row's outcome counts show *how* a model won.
   `reasoning` if set) · score · wins · outcomes · mean win day · calls · unreadable · cost.
   Only `standard` rows are ranked; `quick` rows follow under their own heading. Its first line
   says it is generated by `bench_run.gd --rebuild`.
+- **Since D6.9b** every row also carries `seeds` (per run: seed, file, SHA-256, outcome, days,
+  score), the writer takes an optional map of verification records (verified runs only) and does
+  not rewrite unchanged files — §16.3.
 
 ### 10.4 Reference rows
 
@@ -686,11 +730,12 @@ rows are missing).
     --model=<id> [--backend=openrouter|mock:cheapest|mock:wait|mock:invalid|mock:mixed]
     [--suite=standard|quick] [--seeds=a..b] [--locale=en|de]
     [--temperature=<f>] [--max-tokens=<n>] [--json-mode=true|false] [--reasoning=low|medium|high] [--top-p=<f>]
-    [--base-url=<url>] [--key-env=<VAR>] [--max-cost=<usd>]
+    [--base-url=<url>] [--key-env=<VAR>] [--max-cost=<usd>] [--yes]
     [--out=<dir=res://benchmark>] [--cache=<dir=res://benchmark/cache>] [--fresh]
     [--data=<root=res://data>] [--dry-run]
-"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --bots [--suite=…]
+"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --bots [--suite=…] [--out=<dir>] [--if-missing] [--no-rebuild]
 "$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --rebuild
+"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --determinism-fixture
 ```
 
 ### 11.1 Flow
@@ -703,7 +748,10 @@ rows are missing).
 2. For `openrouter`: the key from `OS.get_environment(key_env)`; empty → print
    `benchmark: set <VAR> in the environment` and exit 1.
 3. `--dry-run`: build the brief and the day-0 digest of the first seed, print both with a line
-   `≈<chars ÷ 4> tokens` each, exit 0 — no call, no key needed. **The way to read the prompt.**
+   `≈<chars ÷ estimate.chars_per_token> tokens` each, then the estimate lines of §11.5, exit 0 —
+   no model call, no key needed. **The way to read the prompt.**
+3a. **Pre-flight** (every backend but the mocks): the estimate of §11.5, printed before the first
+   request; above the cap without `--yes` → exit 7, nothing requested.
 4. Per seed, in order: `Simulation.create(db, seed, setup)`, a fresh `ModelPolicy`, then
    `Harness.advance(sim, policy, max_days, false, problems)`; stop early when `policy.fatal`
    is set. Then the replay check (`Simulation.replay(db, seed, sim.command_log, sim.world.day,
@@ -723,7 +771,8 @@ prints `benchmark: stopped — <error>` (never the key).
 
 0 finished · 1 bad arguments, content or config errors, missing key · 3 a replay did not
 reproduce its run · 4 the service refused (auth, credits, forbidden, bad request) · 5 the service
-was unavailable after the retries · 6 the cost cap was reached. With 4–6, entries finished
+was unavailable after the retries · 6 the cost cap was reached · 7 the pre-flight estimate is
+above the cost cap and `--yes` was not given (nothing was requested). With 4–6, entries finished
 before the stop are kept and the leaderboard is rebuilt; the interrupted run leaves no file.
 
 ### 11.4 Cost and time, for the user
@@ -733,6 +782,50 @@ tokens ≈ 8–12 M input tokens, a few hundred thousand output. What that costs
 model and on whether its provider caches the unchanging brief; `--suite=quick` (3 seeds) and
 `--dry-run` are the cheap ways to look first. Wall clock is dominated by the model's latency
 (≈ 800 calls × its seconds per answer); shards (`--seeds`) run in parallel processes.
+
+**At the 2 USD default** (D6.9b) a standard suite of a mid-priced model stops at the pre-flight
+(§11.5's example: ≈ 11 USD); that is the point — the user raises `--max-cost` for a run they
+mean, or passes `--yes` to play until the cap stops it. Shards each have their own cap.
+
+### 11.5 The pre-flight cost estimate (D6.9b)
+
+Before the first request of an invocation (after the key check, before the first seed) — for
+every backend but the mocks, never with `--bots`, `--rebuild` or `--determinism-fixture` —
+`tools/bench/bench_estimate.gd` works out and prints what the invocation will likely cost:
+
+1. **Measure:** the brief and the day-0 digest of the first seed, built as `--dry-run` builds
+   them; `brief_tokens` = ⌈characters ÷ `estimate.chars_per_token`⌉, `digest_tokens` likewise.
+2. **Price:** only when the base URL's host is `openrouter.ai`: one `GET <base_url><models_path>`
+   (public — **no `Authorization` header**, the key is not sent), `http.timeout_s`, no retries;
+   the entry of `data[]` whose `id` equals the model → `pricing.prompt` and `pricing.completion`
+   (USD per token, as number strings). Not reachable, not JSON, the model not listed, or a price
+   that does not parse → **unknown**. Any other host (a local server) → unknown.
+3. **Figures,** for the `n` seeds this invocation plays; per call, `input` = `brief_tokens` +
+   `digest_tokens` × `estimate.digest_growth`:
+   - **likely** = n × `estimate.calls_per_run` × (input × prompt price +
+     `estimate.output_tokens_per_call` × completion price);
+   - **at most** = n × `max_calls` × (input × prompt price + `max_completion_tokens` × completion
+     price).
+   The cache is not consulted (a fully cached re-run is overstated — that is what `--yes` is for).
+4. **Print,** before anything else: `benchmark: estimate for <n> runs of <model>: ≈<likely> USD,
+   at most <at most> USD (cap <cap> USD)`, or, price unknown: `benchmark: estimate for <n> runs
+   of <model>: price unknown (≈<n × calls_per_run> calls, ≈<tokens> input tokens) — the cap
+   guards only the cost the service reports`.
+5. **Decide:** likely > cap and no `--yes` → `benchmark: the estimate is above the cap — raise it
+   with --max-cost=<likely, rounded up to whole USD> or pass --yes to play until the cap stops
+   it`, **exit 7**, nothing requested. `--yes` never lifts the cap: the run goes on and the cap
+   still stops it (exit 6). A price that is unknown never blocks.
+6. `--dry-run` prints the same lines after the prompt (the one public request included; its
+   failure only makes the price unknown) and exits 0 whatever they say.
+7. The price found here also backs the cost of a reply that reports none (§8.3), so the cap
+   guards a provider that does not report its cost.
+
+**Worked example** (also the unit test's): brief 10 000 tokens, day-0 digest 2 000 → input
+13 000 a call; a model at 1 USD per million input and 4 USD per million output tokens; the
+standard suite (10 seeds): likely = 10 × 80 × (0.013 + 0.0012) = **11.36 USD**, at most = 10 ×
+250 × (0.013 + 0.0048) = **44.50 USD** → exit 7 at the default cap. The quick suite: 3.41 USD,
+still above it. A model at 0.10 / 0.40 USD per million: the standard suite is likely 1.14 USD
+→ it runs.
 
 ---
 
@@ -875,6 +968,8 @@ differs). The *Again* button's text becomes `UI_SPECTATOR_WATCH_AGAIN`. Unlock c
   - Compact: the button drops under the text. Accessible name of the button:
     `UI_A11Y_LABEL_VALUE` (`{label}` = `UI_BENCH_WATCH`, `{value}` = model and seed).
   - `skipped > 0` adds a last caption `UI_BENCH_SKIPPED` (`{count}`).
+- **Since D6.9b** the modal shows the **global leaderboard first** and these rows after it, under
+  `UI_BENCH_LOCAL_TITLE`; the title button's visibility rule widens — both in §16.6.
 
 ---
 
@@ -902,6 +997,9 @@ as placeholders) · `_AIRGAPPED` · `_TREE` · `_NODE_ROW` (`{node}`, `{name}`, 
 `UI_TITLE_BENCHMARK` · `UI_BENCH_TITLE` · `_INTRO` · `_ROW` (`{seed}`, `{outcome}`, `{days}`,
 `{score}`) · `_WATCH` · `_OTHER_VERSION` · `_BOT` (`{policy}`) · `_SKIPPED` (`{count}`) ·
 `CMD_FAIL_SPECTATING` · `CMD_FAIL_BENCH_CONTENT`.
+
+**The global leaderboard** (D6.9b) — §16.7's list: `UI_BENCH_GLOBAL_*` (18 keys),
+`UI_BENCH_LOCAL_TITLE`, `UI_SETTINGS_BENCH_ONLINE`.
 
 German: *du*; the established terms (*Rechenleistung*, *Signatur*, *Eindämmung*,
 *Einsatzgruppe*, *Kaltschlaf*, *Durchlauf*). The `BENCH_*` prompt strings exist in German so
@@ -969,6 +1067,8 @@ twice gives identical entries and leaderboard rows; `--bots` writes the seven re
 `--dry-run` prints the prompt; `OPENROUTER_API_KEY` unset → exit 1 with the message. The first
 live run is the user's (*Waiting on the user*).
 
+**S6.12 also** (D6.9b): the pre-flight estimate's tests, §16.9. **S6.12b:** §16.9.
+
 ### 14.2 S6.13
 
 - `tests/unit/test_replay_policy.gd` — a mock entry's commands come back on their days, each a
@@ -990,7 +1090,8 @@ live run is the user's (*Waiting on the user*).
 
 **Acceptance (S6.13):** a mock-backed entry and a `bot:greedy` entry watched from the title to
 the results in en and de at 1920 and 400 px: strip, console lines, the verified line; screenshot
-per locale; `game_get_errors` empty.
+per locale; `game_get_errors` empty. **Plus the online list** — its tests and acceptance are
+§16.9's S6.13 part.
 
 ---
 
@@ -1000,7 +1101,7 @@ per locale; `game_get_errors` empty.
 model is a `Policy`; the prompt is the game's own strings, ids and a stance word come back and
 no model text is kept; a fixed 10-day rhythm plus triggers (a deviation from the plan's "every
 history interval" — §4.1); GDScript `HTTPClient` in a headless tool, never shipped; key from the
-environment only; 250 answers a run, 10 USD per invocation, a cache of parsed answers; the score
+environment only; 250 answers a run, 10 USD per invocation (2 USD since D6.9b), a cache of parsed answers; the score
 formula and the 10-seed standard suite; entries and leaderboard in the repo, the cache ignored;
 mock backends; the spectator replays entries in the session; the *Benchmark* title entry only
 when an entry exists, `benchmark/showcase/` empty until the user picks runs.
@@ -1015,6 +1116,559 @@ when an entry exists, `benchmark/showcase/` empty until the user picks runs.
 2. The score (a win 50–100 by speed, everything else 0; Extinction counts as a win like every
    other ending the game calls a win), the 10-seed standard suite at 2 000 days, and the 10-day
    rhythm — all three are cost/quality trade-offs (§11.4).
-3. The budget defaults: 250 answers a run, 10 USD per invocation.
+3. The budget defaults: 250 answers a run, 10 USD per invocation. *(D6.9b: the user found 10 USD
+   "quite a lot"; the default is now 2 USD with a pre-flight estimate, pending confirmation —
+   §16.10.)*
 4. Which recorded runs, if any, ship in the game (`benchmark/showcase/`) — after G6's balance,
    since any content change makes older entries unwatchable.
+
+---
+
+## 16. The global leaderboard (D6.9b)
+
+D6.9b (2026-09-25). The user's decisions (in conversation, 2026-09-25): the model leaderboard is
+**global, synchronised through GitHub, with a GitHub Action**; and the 10 USD cap was "quite a
+lot" (§11.5). Builds: **S6.12b** (§16.3–§16.5, §16.8: the records, the verifier, the workflow,
+the determinism canary) and **S6.13** (§16.6–§16.7: the online list in the game).
+
+### 16.1 Two repositories, and who writes what
+
+| Repository | What | Written by |
+| --- | --- | --- |
+| **`DenRakEiw/Doomsday`** (private) | the game, `bench_run.gd`, the verifier (§16.4), the workflow `.github/workflows/leaderboard.yml` (§16.5), the shipped copy `benchmark/global/leaderboard.json` (§16.6), the canary (§16.8); the local working board `benchmark/runs/` + `benchmark/leaderboard.json` (unverified — the tool's default `--out`, as before) | the developers |
+| **`DenRakEiw/doomsday-leaderboard`** (public, created 2026-09-25; data CC0 1.0, tools MIT) · `runs/` | one §10.2 entry per run, named by §10.2's rule | submitters, by pull request merged by the owner; the bot reference runs by the verifier's job (§16.4) |
+| ″ · `verified/<run file name>` | one record per run (§16.3) | the verifier only |
+| ″ · `leaderboard.json`, `LEADERBOARD.md` | §10.3's format plus `seeds` (§16.3), **verified runs only** | the verifier only |
+| ″ · `tools/validate.py`, `.github/workflows/validate.yml` | the structural check on every pull request and every push to `main`: a pull request may only add or modify `runs/*.json`, at most 20 files, at most 4 MB each, the file name must be §10.2's for its contents, `bot:` rows are refused; standard-library Python, 19 unit tests | the maintainers (not a build step of this repository) |
+
+**Why two.** The replay needs the game, and the game's repository is private, so the verification
+cannot run in the public one. The public repository's own workflow needs no game and no secret,
+which keeps it safe on pull requests from forks; the private workflow never runs on a pull
+request (§16.5). **What the verification proves:** these commands, on this content, from this
+seed, reach this outcome on this day with this state hash — the score is real. It cannot prove
+*which model* chose the commands: the model name, the parameters, `decisions`, `calls`, tokens
+and cost are the submitter's claims, and the list says so (`UI_BENCH_GLOBAL_NOTE`).
+
+**Neither the game nor `bench_run.gd` uploads anything.** A run reaches the global board by a
+pull request made by hand (§16.2).
+
+### 16.2 A run's way onto the board
+
+1. `bench_run.gd` plays the suite; the entries land in `benchmark/runs/` (§11).
+2. A pull request to the public repository adds them under `runs/`. The `validate` check must
+   pass; the owner merges — which is also where a person looks at the model name (printable ASCII
+   without spaces, at most 200 characters, `validate.py`'s rule).
+3. The next run of the private workflow (daily, or dispatched by hand) verifies every run without
+   a current record, writes `verified/`, rebuilds `leaderboard.json` and `LEADERBOARD.md`, commits
+   and pushes (§16.5).
+4. Players see it the next time they open the list (§16.6); `raw.githubusercontent.com` may serve
+   the previous file for a few minutes.
+
+**A run must be played on the content of the game repository's `main` when the workflow runs.** A
+run recorded on other content is rejected with reason `content` (§16.4) — so submit soon after
+playing. A content change (a balance pass) leaves every earlier row in place with its verdict:
+records are never re-judged for content the checkout no longer has, and such rows carry
+`current: false` in the published file (and show under *Other versions* in the game, §16.6).
+
+### 16.3 Formats
+
+**`verified/<run file name>`** — the run's file name, UTF-8 JSON, tab-indented, the keys in this
+order, written by `VerifyRecord.to_dict()` (`tools/bench/verify_record.gd`, preloaded, no
+`class_name`):
+
+```json
+{
+	"version": 1,
+	"file": "runs/<name>.json",
+	"sha256": "<hex SHA-256 of the run file's bytes as checked>",
+	"verified": true,
+	"reason": "",
+	"detail": "",
+	"game_commit": "<the game checkout's 40-hex commit>",
+	"game_version": "<its application/config/version>",
+	"content_hash": "<its ContentDB.content_hash>",
+	"state_hash": "<state_hash() after the replay, or \"\">",
+	"outcome": "<the replay's outcome id, or \"\">",
+	"days": 612,
+	"end_day": 612,
+	"score": 84.7,
+	"checked": "2026-09-26"
+}
+```
+
+- `verified` is true exactly when `reason` is `""`. `reason` is one of §16.4's ids; `detail` is a
+  short English line (at most 200 characters) built from ids and numbers only — never from a
+  run file's free strings (the model name never appears in a record).
+- `days`, `end_day`, `score` are the **replay's** values (`-1`, `-1`, `0.0` when no replay
+  happened); `score` rounded to one decimal. `checked` is the UTC date.
+- A record is **current for its run** when its `sha256` equals the run file's present SHA-256. A
+  run file changed after its record (a later pull request) is verified again, and the new record
+  replaces the old one.
+- `VerifyRecord.from_dict(d) -> VerifyRecord` never crashes; a record that does not read counts as
+  missing (its run is verified again).
+
+**The published `leaderboard.json`** is §10.3's format, written by `leaderboard_writer.gd`, with
+three additions (additive — `version` stays 1, and every reader ignores keys it does not know):
+
+1. **Verified only.** The writer takes an optional map *file name → record*. Given one, it counts
+   only entries whose record is current and `verified`; without one (the local board) it counts
+   every entry, as before.
+2. **`seeds`** on every row (local board too): `[{"seed": 1001, "file": "runs/<name>.json",
+   "sha256": "<hex>", "outcome": "win_merge", "days": 612, "score": 84.7}, …]`, ordered by seed —
+   what the game lists per run and checks a download against. `entries` stays as it is.
+3. **No rewrite without a change.** The writer leaves `leaderboard.json` and `LEADERBOARD.md`
+   untouched when the new rows equal the file's (the comparison ignores `generated`), so a day
+   with nothing new makes no commit. `LEADERBOARD.md`'s first line names its generator:
+   `verify_runs.gd` in the public repository, `bench_run.gd --rebuild` locally.
+
+`current` in the published file is relative to the verifier's checkout (§10.3). The game does not
+trust it for watching: it compares a row's `content_hash` with its own content (§16.6).
+
+### 16.4 The verifier — `tools/bench/verify_runs.gd`
+
+A tool of its own, not a mode of `bench_run.gd`: its input is a directory of untrusted files, its
+output is records, and it must never play a model — `bench_run.gd` stays the submitter's tool.
+Both share `BenchConfig`, `BenchEntry`, `BenchScore` and `leaderboard_writer.gd`. The judging
+itself is `tools/bench/bench_verifier.gd` (preloaded, no `class_name`, pure:
+`static func check(bytes: PackedByteArray, file_name: String, config: BenchConfig, db: ContentDB,
+context: Dictionary) -> VerifyRecord`, `context` = commit, version, date), so the tests call it
+without a board.
+
+```
+"$GODOT" --headless --path . -s tools/bench/verify_runs.gd -- \
+    --board=<directory of a doomsday-leaderboard checkout> --game-commit=<40-hex>
+    [--limit=<n = global.verify_limit>] [--canary=<path = res://tests/fixtures/bench/determinism_entry.json>]
+    [--today=<YYYY-MM-DD>] [--message=<file>]
+```
+
+**Flow:**
+
+1. Load the config (§3) and the content; errors → exit 1. `--board` must hold `runs/`;
+   `verified/` is created when missing.
+2. **The canary** (§16.8): judge the canary entry with `BenchVerifier.check`, the config's
+   `max_days` set to the entry's (300) and under its §10.2 name (the fixture's own file name is
+   not one) — it must come out `verified`.
+   A mismatch prints `verify: canary mismatch — this machine does not reproduce the recorded run;
+   nothing written` and exits 3 **before anything is written** — a platform that does not
+   reproduce would otherwise reject every honest run.
+3. List `runs/*.json`, sorted by name, no recursion; a name outside `^[a-z0-9._-]+\.json$` is
+   ignored (and counted). Per file: its bytes (a file above `global.max_run_bytes` is judged
+   `unreadable` unread) and their SHA-256; skipped when `verified/<name>` holds a current record.
+   The others, **at most `--limit` per invocation** (the rest wait for the next run and are
+   counted as `waiting`), go through `BenchVerifier.check`.
+4. Write each record (`<name>.tmp`, then rename). A record whose run file is gone (the owner
+   removed a run) is deleted.
+5. Rebuild the board's `leaderboard.json` and `LEADERBOARD.md` from the verified runs (§16.3),
+   unless the rows are unchanged.
+6. Print `verify: checked <n>, verified <k>, rejected <r>, waiting <w>, ignored <i>, board
+   <changed|unchanged>`. With `--message=<file>` write the commit message
+   `verify: <k> verified, <r> rejected (game <first 7 of the commit>)` — numbers and the commit
+   only, nothing from a run file.
+
+**The checks, in order; the first that fails is the record's `reason`:**
+
+| `reason` | When |
+| --- | --- |
+| `unreadable` | above `max_run_bytes`, not UTF-8 JSON, or `BenchEntry.from_dict` returns null (`detail` = its `last_error`) |
+| `file_name` | the file name is not §10.2's name for the entry |
+| `rules` | not the benchmark's rules on this checkout: `setup` ≠ `config.setup`; `max_days` or `interval_days` ≠ the config's; `suite` unknown or `seed` not in it; `locale` not `en`/`de`; `prompt_version` or `parser_version` above the config's; `params_id` ≠ the hash of `params` (§10.2); a `bot:` model without `backend: "bot"` or the reverse; more than `Policy.MAX_COMMANDS_PER_DAY` commands on one day; commands out of day order or after `end_day`; `end_day` > `max_days` |
+| `content` | `content_hash` ≠ the checked-out content's |
+| `refused` | a command is refused in the replay (`detail`: its day and type id) |
+| `outcome` | the replay's outcome ≠ the entry's |
+| `days` | the replay stops on another day than `end_day`, or its `day − origin_day` ≠ `days` |
+| `score` | `BenchScore.run_score` of the replay differs from `score` by more than 0.05 (the one-decimal rounding) |
+| `unfinished` | no outcome at `end_day` although `end_day` < `max_days` (a run cut short) |
+| `hash` | the replay's `state_hash()` ≠ `hash` — last, because it catches everything the lines above do not name |
+
+- **The replay** is `Simulation.replay`'s loop (commands on their day, tick, stop at `end_day` or
+  an outcome), owned by `BenchVerifier` **without `push_error`**: a refused command in a
+  submitted file is bad data, not a programming error (CLAUDE.md, *Errors*). It stops at
+  `end_day` like the tool's own replay check (§11.1 step 4).
+- **Run files are data, only data.** They are parsed as JSON and read through
+  `BenchEntry.from_dict`, which never crashes on bad data; nothing in them is executed, loaded as
+  a resource or evaluated; no value from them reaches a shell, a path (a record's path is the run's
+  already-checked file name) or the start of an output line (every line the verifier prints
+  begins with `verify:`, values are JSON-escaped — and the workflow also stops workflow commands
+  around the step, §16.5).
+- Only `commands`, `seed`, `setup`, the rule fields and the compared numbers decide a verdict.
+- **Exit codes:** 0 done (a rejection is a result, not a failure) · 1 bad arguments, content or
+  config errors, no `runs/` in the board · 2 a record or the board could not be written · 3 the
+  canary did not reproduce (nothing written).
+
+**The bot reference rows** (§10.4) are published by the same job:
+`bench_run.gd -- --bots --suite=standard --out=<board> --if-missing --no-rebuild` runs before the
+verifier. `--if-missing` plays only when `<board>/runs/` lacks, for some bot and seed, an entry
+on the current content; the new files overwrite the previous content's under the same §10.2
+names, and the verifier then checks them like any run. `--no-rebuild` leaves the board's
+leaderboard to the verifier (`bench_run` would count unverified runs).
+
+### 16.5 The workflow — `.github/workflows/leaderboard.yml` (in the private game repository)
+
+```yaml
+# Verifies the public leaderboard's runs with the game and publishes the verified board.
+# Scheduled and manual only - never on a pull request: the deploy key must never meet code
+# from a fork. Run files are read as data by the verifier (docs/specs/benchmark.md §16.4).
+name: leaderboard
+on:
+  schedule:
+    - cron: "23 3 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: leaderboard
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    container:
+      image: barichello/godot-ci:4.7.2
+    env:
+      HAS_KEY: ${{ secrets.LEADERBOARD_DEPLOY_KEY != '' }}
+    steps:
+      # 1 no key on a schedule: stop (a dispatched run without the key is a read-only dry run)
+      # 2 actions/checkout@v5 - the game at main: the content that counts
+      # 3 godot --headless --path . --import
+      # 4 with the key: ssh key file + pinned known_hosts, then clone over SSH;
+      #   without: clone over HTTPS (read-only)
+      # 5 bench_run.gd --bots --suite=standard --out="$BOARD" --if-missing --no-rebuild
+      # 6 verify_runs.gd --board="$BOARD" --game-commit="$GITHUB_SHA" --message=<file>,
+      #   between ::stop-commands::<random token> and ::<token>::
+      # 7 with the key: commit and push if anything changed
+```
+
+**The steps** (S6.12b writes them out; `shell: bash` for every `run`, as `ci.yml` does):
+
+1. **Gate.** On `schedule` with `HAS_KEY` false: print `leaderboard: LEADERBOARD_DEPLOY_KEY is
+   not set — nothing to do`; every later step has `if: env.HAS_KEY == 'true' ||
+   github.event_name == 'workflow_dispatch'`, so the job ends green without an import. A
+   `workflow_dispatch` without the key runs steps 2–6 read-only and prints what it would publish
+   (`git -C "$BOARD" status --short`). `BOARD` is `$RUNNER_TEMP/board`, set through
+   `$GITHUB_ENV` in step 4 (inside a container, `${{ github.workspace }}` names the host's path,
+   not the container's — use the shell's variables).
+2. **Check out** the game (`actions/checkout@v5`, the default branch — `main`, whose content is
+   the one runs are verified against, §16.2).
+3. **Import** (`godot --headless --path . --import`).
+4. **Clone the public repository.** With the key: install `openssh-client` if `ssh` is missing
+   (`apt-get install -y --no-install-recommends openssh-client`); write the secret (passed through
+   `env`, never on a command line) to `~/.ssh/leaderboard`, mode 600; write `~/.ssh/known_hosts`
+   with GitHub's **pinned** Ed25519 host key (`github.com ssh-ed25519
+   AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl` — the builder checks it
+   against GitHub's published fingerprints on the day; never `ssh-keyscan` at run time);
+   `GIT_SSH_COMMAND="ssh -i ~/.ssh/leaderboard -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"`;
+   `git clone --depth 50 git@github.com:DenRakEiw/doomsday-leaderboard.git "$BOARD"`. Without the
+   key: `git clone --depth 50 https://github.com/DenRakEiw/doomsday-leaderboard.git "$BOARD"`.
+5. **Bot rows** (§16.4): `bench_run.gd -- --bots --suite=standard --out="$BOARD" --if-missing
+   --no-rebuild`.
+6. **Verify:** a random token (`od -An -N16 -tx1 /dev/urandom | tr -d ' \n'`), `echo
+   "::stop-commands::$token"`, the verifier with `--board="$BOARD" --game-commit="$GITHUB_SHA"
+   --message="$RUNNER_TEMP/message.txt"`, its exit status kept (`set +e` around it), `echo
+   "::$token::"`, then exit with the status. Exit 1–3 fail the job — GitHub mails the owner;
+   nothing is pushed.
+7. **Publish** (only with the key): `git -C "$BOARD" add -A runs verified leaderboard.json
+   LEADERBOARD.md` (fixed pathspecs); nothing staged → `leaderboard: nothing to publish`, done.
+   Else commit with `-F "$RUNNER_TEMP/message.txt"` as `github-actions[bot]`
+   (`41898282+github-actions[bot]@users.noreply.github.com`) and `git push origin HEAD:main`. A
+   rejected push (a pull request merged meanwhile): `git pull --rebase origin main` once and push
+   again — the verifier only writes `verified/`, the two board files and `bot:` runs, which no
+   pull request touches, so the rebase is clean; runs merged meanwhile wait for tomorrow. A second
+   rejection fails the job.
+
+**Why it is safe.**
+
+- **Triggers:** `schedule` and `workflow_dispatch` only — never `pull_request` or
+  `pull_request_target`; nothing in the public repository can start it. It reads the public
+  `main` after the owner merged, and only as data (§16.4).
+- **The key** is a deploy key of the **public** repository with write access to that repository
+  alone — it opens nothing in the game repository. It lives only in the secret
+  `LEADERBOARD_DEPLOY_KEY` and in the job's `~/.ssh` for the job's life. The job's `GITHUB_TOKEN`
+  is read-only (`permissions: contents: read`).
+- **No data in a shell:** file names are listed by Godot, not globbed into a command; the commit
+  message is numbers and a commit; `git add` has fixed pathspecs; workflow commands are stopped
+  around the verifier's output.
+- `concurrency` keeps two runs from pushing at once.
+- **Cost:** a private repository's Actions minutes — a run with work ≈ 5–10 minutes (image pull,
+  import, replays of ≈ 5–10 s per run on the runner), ≈ 150–300 a month of the free 2 000; a
+  scheduled run without the key or with nothing new is cheap (the gate; the verifier's
+  early skip still needs the import).
+
+**The user's setup** (a user step — no build step creates keys or secrets; *Waiting on the user*):
+
+1. `ssh-keygen -t ed25519 -N "" -C "doomsday-leaderboard verifier" -f leaderboard_deploy_key`
+2. `doomsday-leaderboard` → *Settings* → *Deploy keys* → *Add deploy key*: the contents of
+   `leaderboard_deploy_key.pub`, **Allow write access** ticked.
+3. `Doomsday` → *Settings* → *Secrets and variables* → *Actions* → *New repository secret*
+   `LEADERBOARD_DEPLOY_KEY` = the contents of `leaderboard_deploy_key` (the private half).
+4. Delete both local files.
+5. Should the public `main` ever get a branch rule or ruleset, the deploy key must be allowed to
+   bypass it (rulesets list *Deploy keys* as a bypass actor), or the push fails.
+6. *Actions* → *leaderboard* → *Run workflow* once; green, and with no submitted runs yet it
+   publishes the bot rows.
+
+Until then the scheduled runs stop at the gate, and nothing is published.
+
+### 16.6 The online list in the game (S6.13)
+
+**When it talks to the network — the whole list:**
+
+- **Only when the player opens the *Benchmark* modal** (§12.7) — never at start, never from the
+  title's `_ready`, never in the background, never on a timer — and **at most once per
+  `global.min_refetch_s`** (300 s) per process: reopening within that time reuses what was
+  fetched. Never when `Settings.bench_online` is off.
+- **When the player presses *Watch* on a listed run** that is not already cached: that one file.
+- **What is sent:** an HTTPS `GET` of a public file with Godot's default headers — no cookie, no
+  query string, no identifier, nothing about the player, their runs or their settings. The host
+  sees what any download shows it (the address and the time); the setting turns it off. This is
+  release.md §10's promise restated: no telemetry, no upload.
+
+**The setting** (pending user confirmation — the recommendation): `Settings.bench_online: bool`,
+key `bench_online`, **default on**; a row `UI_SETTINGS_BENCH_ONLINE` (On/Off) in the **title's**
+settings after *Open data folder*, on every platform. *Why a toggle and why on:* opening the list
+is already the player's explicit act, so on-demand alone would be honest — but a player who wants
+the game never to touch the network gets one switch that guarantees it, and an off-by-default
+feature would hide the list from nearly everyone. Off, the list shows the cached or shipped copy
+(`UI_BENCH_GLOBAL_DISABLED`).
+
+**Classes** (`game/bench/`, `class_name` each; nothing names an autoload):
+
+```gdscript
+class_name GlobalBoard
+extends RefCounted
+var generated: String = ""                  # the file's ISO time; "" when unusable
+var content_hash: String = ""
+var rows: Array[GlobalBoardRow] = []        # standard-suite rows only, in file order
+var dropped: int = 0                        # rows or runs refused by the rules below
+var last_error: String = ""                 # non-empty → the file is unusable
+static func parse(text: String, config: BenchConfig) -> GlobalBoard
+static func newer(a: GlobalBoard, b: GlobalBoard) -> GlobalBoard   # the usable one with the later `generated` (ISO strings compare as text); null when neither is usable
+
+class_name GlobalBoardRow                   # RefCounted
+var model: String; var params_id: String; var content_hash: String
+var complete: bool; var runs: int; var of: int; var wins: int; var score: float
+var seeds: Array[GlobalBoardRun] = []
+func is_bot() -> bool                       # model begins with "bot:"
+
+class_name GlobalBoardRun                   # RefCounted
+var seed: int; var file: String; var sha256: String; var outcome: String; var days: int; var score: float
+
+class_name GlobalBoardClient
+extends Node                                # owns two HTTPRequest children, made in _ready
+const SOURCE_ONLINE: String = "online"; const SOURCE_CACHE: String = "cache"
+const SOURCE_SHIPPED: String = "shipped"; const SOURCE_NONE: String = "none"
+const FAIL_OFFLINE: String = "offline"; const FAIL_CHANGED: String = "changed"
+const FAIL_UNREADABLE: String = "unreadable"; const FAIL_OFF: String = "off"
+const CACHE_DIR: String = "user://benchmark/online/"
+const SHIPPED_PATH: String = "res://benchmark/global/leaderboard.json"
+signal board_changed(board: GlobalBoard, source: String, loading: bool)
+signal run_ready(entry: BenchEntry, reason: String)   # entry null ⇔ reason is a FAIL_*
+var requests_made: int = 0                  # every GET started (the tests' ear)
+func open_board(allow_network: bool) -> void
+func download_run(run: GlobalBoardRun, allow_network: bool) -> void
+func cancel() -> void
+```
+
+**Parsing (`GlobalBoard.parse`)** — never crashes, whatever the text: `version` must be 1,
+`generated` and `content_hash` strings, `rows` an array; at most `global.max_rows` rows read.
+A row is kept only with a `model` of 1–200 printable ASCII characters without spaces, `suite`
+`"standard"` (other suites are practice — skipped silently, not `dropped`), whole `runs`, `of`,
+`wins` ≥ 0, a number `score` in 0–100, bool `complete`, a string `content_hash`. `seeds` missing →
+empty; a seed is kept only with a whole `seed`, a `file` matching `^runs/[a-z0-9._-]+\.json$`, a
+64-hex `sha256`, a string `outcome`, a whole `days` and a number `score`. Everything refused
+counts in `dropped` (one `push_warning` per parse, with the count). Unknown keys are ignored.
+
+**Where the board comes from** (`open_board`):
+
+1. At once: `local = GlobalBoard.newer(<cache>, <shipped>)` — the cache
+   `user://benchmark/online/leaderboard.json`, the shipped copy `res://benchmark/global/leaderboard.json`
+   — emitted with its source and `loading` = whether a fetch follows.
+2. **Fetch** (network allowed, not within `min_refetch_s` of the last success in this process):
+   `GET global.leaderboard_url` (`timeout` = `global.timeout_s`, `body_size_limit` =
+   `global.max_board_bytes`). Status 200 and a usable parse → emitted as `online`; the body is
+   written to the cache (`.tmp`, then rename) unless the cache's `generated` is later. Anything
+   else — no network, a timeout, a status other than 200, too large, unusable — keeps `local`
+   (emitted again with `loading` false).
+3. **The shipped copy** `benchmark/global/leaderboard.json` is the public file as it was when the
+   build was made: S6.13 commits today's; `release.yml`'s export job refreshes it before exporting
+   (`curl -fsSL --max-time 30 <leaderboard_url>` to a temporary file, moved over the committed copy
+   only when the download succeeded — a failure keeps the committed copy). `release.md` §6.2's
+   `include_filter` gains `benchmark/global/*.json` (and `test_export_presets.gd`'s list, the §6.2
+   rule) in S6.13's commit.
+
+**Watching a listed run** (`download_run`):
+
+1. The cached file `user://benchmark/online/runs/<file's base name>` whose SHA-256 equals
+   `run.sha256` → used at once, online or not.
+2. Else network off → `FAIL_OFF`. Else `GET global.run_base_url + run.file` (`body_size_limit`
+   `global.max_run_bytes`): no answer, a timeout or a status other than 200 → `FAIL_OFFLINE`; the
+   body's SHA-256 ≠ `run.sha256` → `FAIL_CHANGED` (replaced after its verification — the next
+   verification catches up); not JSON or `BenchEntry.from_dict` null → `FAIL_UNREADABLE`.
+3. Success → the file is cached (`.tmp`, rename; at most `global.cache_runs_max` files, the oldest
+   by modification time removed) and `run_ready(entry, "")`; the modal calls
+   `ScreenRouter.start_spectating(entry)`, whose blocker shows as in §12.7.
+4. **Data, never a resource:** a downloaded file is JSON through `BenchEntry.from_dict` — never
+   `load()`, never `ResourceLoader`, never a `.tres` (CLAUDE.md). The model id is shown in a
+   `Label`, never in a `RichTextLabel` with BBCode.
+5. One download at a time: the other *Watch* buttons are disabled meanwhile. Closing the modal
+   calls `cancel()` (`HTTPRequest.cancel_request()` on both).
+
+**Platforms:** the web build's `HTTPRequest` goes through the browser's `fetch`;
+`raw.githubusercontent.com` answers with `Access-Control-Allow-Origin: *`, so it works there;
+`user://` is the browser's storage. **Android** needs the `INTERNET` permission in its export
+preset — S7.2 sets it (D7.1/S7.2 carry-over). Steam changes nothing.
+
+**The modal** (`ui/modals/benchmark.tscn`, extending §12.7; a `GlobalBoardClient` child):
+
+1. Title and intro as §12.7.
+2. `CapsLabel` `UI_BENCH_GLOBAL_TITLE`; a `LabelCaption` **status line** (§16.7); a `LiveRegion`
+   (accessibility.md §3.4, polite) says the status when it changes after the first. Then, when
+   rows are shown, `LabelCaption` `UI_BENCH_GLOBAL_NOTE`.
+3. **Rows for this game's content** (`row.content_hash` = `ContentDB.content_hash` — the game's
+   own test, not the file's `current`), `{rank}` counting from 1 in file order: a `VBoxContainer`
+   with the model (`Label`, `TEXT_0`; a bot row reads `UI_BENCH_BOT` with the id after `bot:`)
+   and `UI_BENCH_GLOBAL_ROW` (`LabelCaption`), plus `UI_BENCH_GLOBAL_PARTIAL` when not
+   `complete`; right of it a `ConsoleButton` `UI_BENCH_GLOBAL_RUNS` ⇄ `UI_BENCH_GLOBAL_HIDE` that
+   shows or hides the row's runs: per seed `UI_BENCH_ROW` (existing — `{seed}`, `{outcome}` =
+   `UI_OUTCOME_<ID>`, `{days}`, `{score}`) and a `ConsoleButton` `UI_BENCH_WATCH`; under it a
+   caption for `UI_BENCH_GLOBAL_DOWNLOADING` or `UI_BENCH_GLOBAL_FAIL_<REASON>`.
+4. **Rows for other content**, under `CapsLabel` `UI_BENCH_GLOBAL_OTHER_TITLE`: model and
+   `UI_BENCH_GLOBAL_ROW` with `UI_BENCH_OTHER_VERSION` (existing); no *Runs* button (they cannot
+   be replayed here).
+5. **Recorded runs** (§12.7's rows, unchanged) under `CapsLabel` `UI_BENCH_LOCAL_TITLE`, only when
+   `BenchLibrary` found any.
+6. Compact: buttons drop under their text (§12.7). Accessible names: *Runs*/*Hide* =
+   `UI_A11Y_LABEL_VALUE` (`{label}` the button's text, `{value}` the model); *Watch* as §12.7
+   (model and seed).
+
+**The title's *Benchmark* button** (changes §12.7): visible when `BenchLibrary` found an entry,
+**or** `Settings.bench_online` is on, **or** the cached or shipped board has a row — checked in
+`_ready` without any network (the files only).
+
+### 16.7 States and strings
+
+| State | Status line | Rows |
+| --- | --- | --- |
+| fetching, nothing local | `UI_BENCH_GLOBAL_LOADING` | none yet |
+| fetching, a local copy | `UI_BENCH_GLOBAL_LOADING` | the local copy's |
+| fetched | `UI_BENCH_GLOBAL_AS_OF` (`{date}`) | the fetched file's |
+| fetch failed, a local copy | `UI_BENCH_GLOBAL_OFFLINE` (`{date}`) | the local copy's |
+| setting off, a local copy | `UI_BENCH_GLOBAL_DISABLED` (`{date}`) | the local copy's |
+| nothing usable at all | `UI_BENCH_GLOBAL_UNAVAILABLE` | none |
+| a usable file without standard rows | the line for its source, then `UI_BENCH_GLOBAL_EMPTY` | none |
+| a run downloading | `UI_BENCH_GLOBAL_DOWNLOADING` under the run | *Watch* buttons disabled |
+| a download failed | `UI_BENCH_GLOBAL_FAIL_OFFLINE` · `_CHANGED` · `_UNREADABLE` · `_OFF` under the run | — |
+
+`{date}` = the first ten characters of `generated` (the ISO date, as written — language-neutral,
+like a seed). New keys, en/de in `strings.csv` since D6.9b: `UI_BENCH_GLOBAL_TITLE` · `_NOTE` ·
+`_LOADING` · `_AS_OF` · `_OFFLINE` · `_DISABLED` · `_UNAVAILABLE` · `_EMPTY` · `_ROW` (`{rank}`,
+`{score}`, `{wins}`, `{runs}`) · `_PARTIAL` (`{runs}`, `{of}`) · `_OTHER_TITLE` · `_RUNS` · `_HIDE` ·
+`_DOWNLOADING` · `_FAIL_OFFLINE` · `_FAIL_CHANGED` · `_FAIL_UNREADABLE` · `_FAIL_OFF` ·
+`UI_BENCH_LOCAL_TITLE` · `UI_SETTINGS_BENCH_ONLINE`. A key built at run time
+(`UI_BENCH_GLOBAL_FAIL_<REASON>`) is listed in the modal's `KEYS` constant for the strings check.
+
+### 16.8 Cross-platform determinism — the canary
+
+S6.10's CI got the same state hash from the Linux export as from the Windows build; the verifier
+runs on Linux and judges runs recorded on Windows (and elsewhere), so this must stay true.
+
+- **`tests/fixtures/bench/determinism_entry.json`** — a §10.2 entry (`mock:cheapest`, seed 1001,
+  the benchmark setup, `max_days` 300) **recorded on Windows** with its `hash`, written by
+  `bench_run.gd -- --determinism-fixture` (to that path; the tool prints the hash).
+- **`tests/integration/test_bench_determinism.gd`** replays it (`BenchVerifier.check` on its
+  bytes under its §10.2 name, the config's `max_days` taken from the entry) and asserts `verified`. It runs in the
+  suite on Windows and in CI on Linux — so a divergence between the platforms turns CI red.
+- **When content changes**, the replay's hash changes on every platform: the test fails with
+  `content changed — regenerate on Windows: "$GODOT" --headless --path . -s
+  tools/bench/bench_run.gd -- --determinism-fixture` (it tells the two cases apart by the entry's
+  `content_hash`). Whoever changes `data/` regenerates it **on Windows** in the same commit; a
+  regeneration on Linux would prove nothing.
+- The verifier uses the same file as its canary (§16.4 step 2).
+
+### 16.9 Tests and acceptance
+
+**S6.12 (the estimate, §11.5):** `tests/unit/test_bench_estimate.gd` — the two figures from
+fixed measures and prices (a worked example in the test); price unknown → no figures and the
+`unknown` flag; the models-list reader finds a model's prices, returns empty for a missing model,
+a non-JSON body, a price that is not a number string; the reply reader (`_read_reply`) takes
+`usage.cost` when present, else tokens × a known price, else 0; `--yes` and the exit-7 rule
+through the tool's pure decision helper (`preflight_blocks(estimate, cap, yes) -> bool`).
+
+**S6.12b:**
+
+- `tests/unit/test_bench_verifier.gd` (real content; a mock entry of 300 days made in the test,
+  its config built with `max_days` 300): the clean entry is `verified`; one test per reason —
+  a changed `hash`; `score` +1; another `outcome`; `days` changed; a command moved to a day it is
+  refused; a command after `end_day`; 65 commands on one day; `setup.difficulty` changed; a seed
+  outside the suite; another `content_hash`; `params_id` not matching; a wrong file name; bytes
+  that are not JSON; a file above the limit; an entry cut short (`unfinished`). No `push_error`
+  in any (GUT's error count stays 0).
+- `tests/unit/test_verify_record.gd` — `to_dict` → `from_dict` equal; each key missing or
+  ill-typed → null; `detail` never holds the entry's model string (an entry whose model is a
+  marker string, rejected for each reason).
+- `tests/integration/test_verify_runs.gd` (a temp board under `user://`): two good runs, a
+  tampered one, a broken one, a file with a bad name → four records, the bad name ignored; the
+  board counts two runs; a second invocation writes nothing and leaves the board byte-identical
+  (unchanged rows); a run file changed → only it is verified again; a record whose run was
+  removed is deleted; `--limit=1` leaves the rest `waiting`; a canary with a wrong hash → exit 3
+  and no file written; the message file holds only numbers and the commit.
+- `test_bench_score` / the writer (extend): `seeds` per row with `sha256`; the verified map
+  filters; no rewrite when unchanged.
+- `tests/integration/test_bench_determinism.gd` (§16.8).
+- The tool's `--bots --if-missing` (extend `test_bench_run`): a second call with current bot
+  files plays nothing; `--no-rebuild` leaves the board's files alone.
+- The workflow: `tests/unit/test_workflows.gd` (or the existing presets test's neighbour) reads
+  `leaderboard.yml` as text and asserts: no `pull_request` trigger, `permissions: contents: read`,
+  the secret used only through `env`, the pinned `known_hosts` line, the stop-commands wrapper.
+
+**Done when (S6.12b):** the verifier, run locally against a clone of the public repository in a
+temp directory with the suite's mock and bot runs copied in, verifies them, rejects a tampered
+copy with `hash`, writes the board, and a second run changes nothing; the determinism test is
+green locally and in CI; the workflow file is committed. **It is not run and nothing is pushed
+to the public repository** — the key is the user's (§16.5), the first run with it too.
+
+**S6.13 (the online list):**
+
+- `tests/unit/test_global_board.gd` — a fixture board (`tests/fixtures/bench/global_board.json`)
+  parses: rows, seeds, the standard filter; a missing or ill-typed key drops the row
+  (`dropped`); a bad model name, a bad run path (`../x.json`, `runs/a/b.json`, an absolute URL), a
+  short `sha256` each dropped; not JSON / `version` 2 / an array → `last_error`; more than
+  `max_rows` rows read no further; `newer` picks by `generated` and ignores an unusable board.
+- `tests/unit/test_global_board_client.gd` — no network: the response handlers called directly
+  with made-up results (200 + a good body → `online` and the cache written; 200 + a bad body,
+  404, a timeout result → the local copy with `loading` false; the cache not overwritten by an
+  older `generated`); `allow_network` false → `requests_made` stays 0; the refetch window; a run:
+  cached with the right hash → no request; a body with another hash → `changed`; a broken body →
+  `unreadable`; network off and not cached → `off`; the cache keeps at most `cache_runs_max`.
+- `test_benchmark` modal (extend): each §16.7 state's status line; other-content rows have no
+  *Runs* button; bot rows read `UI_BENCH_BOT`; **opening the title makes no request**
+  (`requests_made` 0 after the title's `_ready`, the modal closed).
+- `test_settings` (extend): `bench_online` defaults to true, persists, a bad value reads as the
+  default.
+- `test_export_presets` (extend): `benchmark/global/*.json` in the include filter.
+
+**Acceptance (S6.13, adds to §14.2):** with the setting on and the network up, the list shows the
+public board's date (with no verified runs yet: `UI_BENCH_GLOBAL_EMPTY` and the bot rows once
+the workflow has published them); with the network cut (or the setting off) the cached copy with
+`UI_BENCH_GLOBAL_OFFLINE` / `_DISABLED`; a listed run watched to the verified line — **if** the
+public board has one by then, else a board served from a local fixture through a debug-only
+`--global-board=<path>` switch (`Game.debug_allowed`, like `--spectate`); en and de, 1920 and
+400 px; `game_get_errors` empty.
+
+### 16.10 Decisions and questions (D6.9b)
+
+**Decisions:** the leaderboard is global through the public `doomsday-leaderboard` repository
+(user decision 2026-09-25); submissions by pull request, structural check there, **replay
+verification in the private game repository's scheduled workflow** with a deploy key; records
+per run keyed by the file's SHA-256; verified-only boards; older content keeps its verdict;
+the game reads the public file on opening the list only, caches it, falls back to the cache or a
+shipped copy, and downloads one run on *Watch*, checked against the verified SHA-256; the
+verifier is its own tool; a Windows-recorded canary keeps the platforms honest; the cost cap is
+2 USD with a pre-flight estimate (§11.5).
+
+**Waiting on the user** (pending user confirmation where marked):
+
+1. **Create the deploy key and the secret** (§16.5's six steps) — until then nothing is published.
+2. The **2 USD** default cap (pending user confirmation) — a standard suite of a mid-priced model
+   will stop at the pre-flight and needs `--max-cost` or `--yes` on purpose.
+3. The **online-list setting**, default **on**, fetching only when the list opens (pending user
+   confirmation) — or on-demand with no setting, or default off.

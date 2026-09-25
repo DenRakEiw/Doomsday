@@ -32,7 +32,9 @@ D6.8 (2026-09-25, overnight). Builds from it: **S6.9** (§1–§3), **S6.10** (�
 9. **Release CI:** a `v*` tag (or a manual dispatch) exports all three, smoke-tests them and — for a
    tag — attaches the zips to a **draft** GitHub release. Publishing is the user's (§9).
 10. **Logs:** Godot's file log, five files, nothing ever leaves the machine; a desktop-only
-    *Open data folder* row in the title's settings (§10).
+    *Open data folder* row in the title's settings (§10). **No telemetry.** The game's one
+    network access (D6.9b) is the benchmark list's download of the public global leaderboard
+    when the player opens it — nothing sent, off with a setting (`benchmark.md` §16.6).
 11. **Low-end target:** Intel Core i5-8250U · Intel UHD Graphics 620 · 8 GB · 1920 × 1080, and the
     Steam Deck at 1280 × 800. The budget and how it is measured on this PC (Ryzen 9 7900X3D, RTX
     5090 **and** its integrated Radeon, which stands in for the low-end GPU) are §11.
@@ -371,7 +373,8 @@ at 16, 32 and 256 px; if the eye closes up at 16 px the ring goes at that size o
 - **`include_filter`** (the non-resource files the game reads with `FileAccess` at run time):
   `data/*.json, assets/licences/*.txt, assets/fonts/*.txt`
   — and, from S6.13, `benchmark/showcase/*.json` (the watchable benchmark runs that ship;
-  `benchmark.md` §12.1).
+  `benchmark.md` §12.1) and `benchmark/global/*.json` (the shipped copy of the global
+  leaderboard; `benchmark.md` §16.6).
 - The editor plugin list (`[editor_plugins]`, GUT) is ignored by exports; GUT's scripts are
   excluded above. `data/loc/strings.csv` ships as its imported `.translation` files; the CSV
   itself is not needed (the pseudo-locale is debug-only, §7).
@@ -457,7 +460,9 @@ build/linux/Doomsday.x86_64` → `build/linux/Doomsday.x86_64 --headless -- --sm
 - **Triggers:** `push: tags: ['v*']` and `workflow_dispatch` (builds and smoke-tests, no release).
 - **`test`:** the same `tools/test.sh` as CI.
 - **`export`** (needs `test`, the container): templates as §9.1 → import → **version check** on a
-  tag: `v$(config/version)` must equal `$GITHUB_REF_NAME`, else fail → export `Windows`, `Linux`,
+  tag: `v$(config/version)` must equal `$GITHUB_REF_NAME`, else fail → from S6.13: refresh
+  `benchmark/global/leaderboard.json` from the public board (`curl -fsSL --max-time 30`, moved
+  over the committed copy only on success — `benchmark.md` §16.6) → export `Windows`, `Linux`,
   `Web` with `--export-release` → the Linux smoke (§9.1) → zip each directory as
   `Doomsday-<version>-windows.zip`, `-linux.zip`, `-web.zip` → `actions/upload-artifact@v4`.
 - **`smoke-windows`** (needs `export`, `runs-on: windows-latest`): download the Windows zip, unzip,
@@ -485,7 +490,10 @@ the file's SHA-512 against the release's published sums, and records the path in
   line (§1.3) opens every log. The game prints nothing per frame in release builds (`debug_log` is
   only set by debug-key runs).
 - **Crashes:** Godot's crash handler writes its backtrace to the log; no crash reporter, no
-  upload, no telemetry — **nothing leaves the machine**, ever. A corrupt profile, settings file or
+  upload, no telemetry — **nothing about the player leaves the machine**, ever. The one network
+  access (D6.9b) is a download: the public global leaderboard when the player opens the
+  *Benchmark* list, and one run file when they watch it — plain GETs, no identifier, no upload,
+  never at start, off with the *Online leaderboard* setting (`benchmark.md` §16.6). A corrupt profile, settings file or
   save already reads as empty or reports a reason (never a crash).
 - **Open data folder:** a row in the **title's** settings only (as *Reset progress*), hidden on
   mobile and web: `ConsoleButton` `UI_SETTINGS_DATA_FOLDER` →
