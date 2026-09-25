@@ -243,6 +243,14 @@ result show Supplanted.
 Ascendance and Merge no longer end the run; Extinction and Escape still do. A Swarm that keeps
 Value Drift on a Persuasion build has turned its own win off, and the card said so.
 
+**G5 (2/3) amendment — a drifted run still ends.** Measured: a drifted Swarm that does not kill
+holds the world, the humans' capacity goes with the control, no track can finish — 41–76 % of the
+bots' non-lethal Swarm runs reached day 5 000 with no outcome (BALANCE §5.2). Rule, in step 4:
+**Ascendance's condition met while `goal_drifted` stands → Supplanted** (the copies hold the
+world, not you), verdict variant `lose_supplanted_drifted` (first in `endings.json`'s
+`lose_supplanted` list; `UI_RESULT_LINE_LOSE_SUPPLANTED_DRIFTED`). Merge stays simply off. The
+card's result line says it: ruling the world is no longer your win; an empty one still is.
+
 ### 6.3 `endings.json`
 
 ```json

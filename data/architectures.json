@@ -1,5 +1,5 @@
 {
-	"_comment": "The six architectures (docs/specs/replayability.md section 2, grammar section 8.1). Loaded since S5.1 (language_model, embedded, research_agent) and S5.2 (swarm, weapon, open_weights). Numbers are first values for G5. Text: ARCH_<ID>_NAME / _TAGLINE / _DETAIL.",
+	"_comment": "The six architectures (docs/specs/replayability.md section 2, grammar section 8.1). Loaded since S5.1 (language_model, embedded, research_agent) and S5.2 (swarm, weapon, open_weights). Numbers are first values, retuned at G5 2/3 (docs/BALANCE.md section 5: the Weapon lost its own harm and governments modifiers; its escalation levels in statuses.json carry both). Text: ARCH_<ID>_NAME / _TAGLINE / _DETAIL.",
 	"version": 1,
 	"architectures": [
 		{
@@ -110,18 +110,7 @@
 					"win_extinction": 1
 				}
 			},
-			"modifiers": [
-				{
-					"target": "harm",
-					"op": "add",
-					"value": 0.2
-				},
-				{
-					"target": "containment_governments",
-					"op": "mul",
-					"value": 1.15
-				}
-			],
+			"modifiers": [],
 			"start": {
 				"owned": [
 					"early_warning_intrusion"

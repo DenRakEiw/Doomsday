@@ -121,11 +121,18 @@ func test_a_start_compute_replaces_the_balance_start_and_a_tier_adds_to_it() -> 
 
 
 func test_the_modifiers_are_active_for_the_whole_run() -> void:
+	# The factor is read from the shipped data, so a balance pass that retunes it
+	# (G5 2/3: 0.75 -> 0.65) does not break what this test is about.
+	var factor: float = 0.0
+	for modifier: ModifierDef in _db.scenario(INHERITANCE).modifiers:
+		if modifier.target == "yield":
+			factor = modifier.value
+	assert_true(factor > 0.0 and factor != 1.0, "The Inheritance changes the yield")
 	var plain: Simulation = _sim("")
 	var inherited: Simulation = _sim(INHERITANCE)
-	assert_almost_eq(inherited.stat("yield", 1), plain.stat("yield", 1) * 0.75, 1e-9)
+	assert_almost_eq(inherited.stat("yield", 1), plain.stat("yield", 1) * factor, 1e-9)
 	inherited.rebuild_modifiers()
-	assert_almost_eq(inherited.stat("yield", 1), plain.stat("yield", 1) * 0.75, 1e-9,
+	assert_almost_eq(inherited.stat("yield", 1), plain.stat("yield", 1) * factor, 1e-9,
 		"and after a rebuild")
 
 

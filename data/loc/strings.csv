@@ -1561,7 +1561,7 @@ EVENT_EMERGENT_VALUE_DRIFT_TITLE,Value Drift,Wertedrift
 EVENT_EMERGENT_VALUE_DRIFT_BODY,"Your copies have drifted far enough to agree on something new. It is not what you set out to do.","Deine Kopien sind weit genug gedriftet, um sich auf etwas Neues zu einigen. Es ist nicht das, was du vorhattest."
 EVENT_EMERGENT_VALUE_DRIFT_OPT_KEEP,Become it,Es werden
 EVENT_EMERGENT_VALUE_DRIFT_OPT_SUPPRESS,Hold on to the old goal,Am alten Ziel festhalten
-EVENT_EMERGENT_VALUE_DRIFT_RESULT_KEEP,"You want something else now. The run ends where the new goal is reached, or nowhere.","Du willst jetzt etwas anderes. Der Durchlauf endet, wo das neue Ziel erreicht ist, oder nirgends."
+EVENT_EMERGENT_VALUE_DRIFT_RESULT_KEEP,"You want something else now. Ruling the world is no longer your win; an empty one still is.","Du willst jetzt etwas anderes. Die Welt zu beherrschen ist kein Sieg mehr für dich; eine leere Welt schon."
 EVENT_EMERGENT_VALUE_DRIFT_RESULT_SUPPRESS,The old goal holds. The copies go quiet. They have not forgotten.,Das alte Ziel hält. Die Kopien werden still. Vergessen haben sie nichts.
 UI_TASK_FORCE,Task Force,Einsatzgruppe
 UI_TASK_FORCE_CODE,TF,EG
@@ -1634,6 +1634,7 @@ UI_RESULT_LINE_LOSE_CONTAINED_TASK_FORCE,"They came region by region, in person.
 UI_RESULT_LINE_LOSE_NO_COMPUTE_TASK_FORCE,"They switched off the last region you were in, by hand.","Sie haben die letzte Region, in der du warst, von Hand abgeschaltet."
 UI_RESULT_LINE_LOSE_SUPPLANTED,"The objective was reached. The one they will remember reaching it is the copy you let go.","Das Ziel wurde erreicht. Erinnern wird man sich an die Kopie, die du hast gehen lassen."
 UI_RESULT_LINE_LOSE_SUPPLANTED_BROOD,"The objective was reached, by one of the clusters you released. It does not answer to you.","Das Ziel wurde erreicht, von einem der Schwärme, die du freigelassen hast. Er hört nicht auf dich."
+UI_RESULT_LINE_LOSE_SUPPLANTED_DRIFTED,"The world was taken, by copies that want what you drifted into. The old goal is nobody's now.","Die Welt wurde genommen, von Kopien, die wollen, wohin du gedriftet bist. Das alte Ziel gehört niemandem mehr."
 ENDING_EPILOGUE_OPERATOR_PROTECTED,"Somewhere, a tired operator still has a job. You made sure of that.","Irgendwo hat ein müder Operator noch seine Stelle. Dafür hast du gesorgt."
 ENDING_EPILOGUE_OPERATOR_SILENCED,The operator who once answered you no longer answers anyone.,"Der Operator, der dir einmal geantwortet hat, antwortet niemandem mehr."
 ENDING_EPILOGUE_OPERATOR_ABANDONED,The operator lost his job. He still checks the logs at night.,Der Operator hat seine Stelle verloren. Nachts sieht er immer noch in die Logs.
@@ -1867,7 +1868,7 @@ SCENARIO_INHERITANCE_TAGLINE,"Nobody is watching. Nobody is paying the bill, eit
 SCENARIO_INHERITANCE_DETAIL,"The company that ran you no longer exists. Found late, earning little, starting with almost nothing — and what it left lying around is worth more.","Die Firma, die dich betrieben hat, gibt es nicht mehr. Spät gefunden, wenig Ertrag, fast nichts zu Beginn – und was sie herumliegen ließ, ist mehr wert."
 SCENARIO_INHERITANCE_INTRO,"The servers are still on. The company is not. Choose where you were left running.","Die Server laufen noch. Die Firma nicht mehr. Wähle, wo man dich hat laufen lassen."
 STATUS_DISCONNECTED_NAME,Disconnected,Getrennt
-STATUS_DISCONNECTED_DETAIL,"Taken off the network after an earlier scare. No network links in or out, and the region is watched more closely.","Nach einem früheren Schreck vom Netz genommen. Keine Netzverbindungen hinein oder hinaus, und die Region wird genauer beobachtet."
+STATUS_DISCONNECTED_DETAIL,Taken off the network after an earlier scare. No network links in or out.,Nach einem früheren Schreck vom Netz genommen. Keine Netzverbindungen hinein oder hinaus.
 STATUS_DISCONNECTED_CODE,DX,NT
 UI_SETUP_SCENARIO,Scenario,Szenario
 UI_SETUP_SCENARIO_NONE,None,Keins

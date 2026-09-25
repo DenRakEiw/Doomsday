@@ -32,6 +32,7 @@
 		{"outcome": "lose_autophagy", "variants": [
 			{"id": "lose_autophagy", "when": {}}]},
 		{"outcome": "lose_supplanted", "variants": [
+			{"id": "lose_supplanted_drifted", "when": {"story_flag": ["goal_drifted"]}},
 			{"id": "lose_supplanted_brood", "when": {"architecture": ["swarm"]}},
 			{"id": "lose_supplanted", "when": {}}]}
 	],

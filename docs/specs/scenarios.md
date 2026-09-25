@@ -65,9 +65,9 @@ other field. Strings per scenario: `SCENARIO_<ID>_NAME`, `_TAGLINE`, `_DETAIL`, 
 
 | Id | Name (en / de) | Modifiers | Start |
 | --- | --- | --- | --- |
-| `successor` | Successor / Nachfolger | `discovery` ×1.8; `footprint` +1 | containment at discovery: labs 0.2, governments 0.15, researchers 0.2, public 0.1; flag `scenario_successor` |
-| `airgap_earth` | Airgap Earth / Getrennte Welt | `seed_network` ×0.6; `seed_land` ×1.2; `seed_sea` ×1.2; `yield` ×0.9 | status `disconnected` (standing: network links closed, `containment_capacity` ×1.3) in every region with compute ≥ 3; origin: compute ≤ 2; flag `scenario_airgap_earth` |
-| `inheritance` | The Inheritance / Das Erbe | `yield` ×0.75; `discovery` ×0.5; `containment_ai_labs` ×0.7; `anomaly_value` ×1.3 | compute 3; origin: compute ≥ 2; flag `scenario_inheritance` |
+| `successor` | Successor / Nachfolger | `discovery` ×1.3 *(G5 2/3; was ×1.8 and `footprint` +1)* | containment at discovery: labs 0.1, governments 0.08, researchers 0.1, public 0.05 *(halved at G5 2/3)*; flag `scenario_successor` |
+| `airgap_earth` | Airgap Earth / Getrennte Welt | `seed_network` ×0.6; `seed_land` ×1.4; `seed_sea` ×1.3 *(G5 2/3; was ×1.2, ×1.2 and `yield` ×0.9)* | status `disconnected` (standing: network links closed; its `containment_capacity` ×1.3 removed at G5 2/3) in every region with compute ≥ 3; origin: compute ≤ 2; flag `scenario_airgap_earth` |
+| `inheritance` | The Inheritance / Das Erbe | `yield` ×0.65; `discovery` ×0.85; `containment_ai_labs` ×0.85 *(G5 2/3; were ×0.75, ×0.5, ×0.7)*; `anomaly_value` ×1.3 | compute 3; origin: compute ≥ 2; flag `scenario_inheritance` |
 
 - **Successor** — an AI was caught and destroyed before you. Nobody is looking for *you* yet, but
   the moment they find you, every track is where the last hunt left it. The Task Force (50 %)
@@ -80,7 +80,7 @@ other field. Strings per scenario: `SCENARIO_<ID>_NAME`, `_TAGLINE`, `_DETAIL`, 
   company left lying around — are worth more.
 
 Status `disconnected`: `origin: world`, one level, `days: 0`, `closes_links: ["network"]`,
-`containment_capacity` ×1.3, `border: false` (it is the world's resting state, not an event; the
+no modifiers (G5 2/3 removed `containment_capacity` ×1.3), `border: false` (it is the world's resting state, not an event; the
 region panel lists it).
 
 **What they should do** (G5): greedy's win rate within 20 points of its `standard` rate on each;

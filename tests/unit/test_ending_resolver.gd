@@ -94,7 +94,7 @@ func test_every_variant_is_reached_by_its_own_conditions() -> void:
 			assert_eq(EndingResolver.variant(sim.world, _db, outcome_id), line.id,
 				"%s with %s" % [outcome_id, line.when])
 			count += 1
-	assert_eq(count, 23, "§6.4: 4 + 6 + 3 + 2 + 3 + 2 + 1 + 2 variants")
+	assert_eq(count, 24, "§6.4: 4 + 6 + 3 + 2 + 3 + 2 + 1 + 3 variants (G5 2/3: lose_supplanted_drifted)")
 
 
 func test_the_first_variant_that_holds_wins() -> void:
@@ -256,8 +256,8 @@ func test_epilogue_ids_are_unique_and_follow_real_outcomes() -> void:
 func test_every_line_needs_its_string() -> void:
 	var strings: Dictionary[String, bool] = {}
 	var errors: Array[String] = _errors(_raw(), strings, true)
-	# 23 variant entries (`win_ascendance_machines` is checked at both of its
-	# own) and 12 epilogue lines.
-	assert_eq(errors.size(), 23 + 12, str(errors.slice(0, 3)))
+	# 24 variant entries (`win_ascendance_machines` is checked at both of its
+	# own; G5 2/3 added `lose_supplanted_drifted`) and 12 epilogue lines.
+	assert_eq(errors.size(), 24 + 12, str(errors.slice(0, 3)))
 	assert_string_contains(str(errors), "UI_RESULT_LINE_WIN_ESCAPE_BROOD")
 	assert_string_contains(str(errors), "ENDING_EPILOGUE_GRID_OWN_GENERATION")

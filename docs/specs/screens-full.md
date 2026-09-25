@@ -296,8 +296,10 @@ out, so step 2 showed nothing. It becomes three beats:
 
 - **2a. Push-in.** The *ending region* = the region of the **newest `world.run_log` entry that
   carries one** (`RunLogText.region_index` > 0 — the last wipe, the Task Force's last action, the
-  last region taken); none → the origin. The camera moves to it as `F` focuses a region (the same
-  zoom `MapCamera.focus_region` uses), tweened over `ENDING_PUSH_MS` **700 ms** `ease_out`. The
+  last region taken); none → the origin. The camera centres it at **twice `zoom_min`** (capped
+  at the camera's maximum; G5 2/3 — `focus_region` keeps the current zoom, which at `zoom_min`
+  would be no push at all) and never zooms *out* of a closer view, tweened over
+  `ENDING_PUSH_MS` **700 ms** `ease_out`. The
   region gets the **hover** highlight (`MapView.hover_index`), not a selection — no panel opens.
   Skipped when the camera already centres that region at that zoom or closer.
 - **2b. Hold** `ENDING_HOLD_MS` **600 ms**.
