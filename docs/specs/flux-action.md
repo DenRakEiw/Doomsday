@@ -1,5 +1,7 @@
 # FLUX 3 Action track — data contract, recorder, control bridge, training plan
 
+**Status: cut from the plan on 2026-09-26 (user decision). Kept for reference; nothing in it is scheduled.**
+
 D7.F (2026-09-25). The user's decision (2026-09-25): prepare everything so that Black Forest Labs'
 **FLUX 3 Action** can be trained to play Doomsday, and later play it, on the user's RTX 5090
 (32 GB). A separate research track after the itch.io browser release, and a **separate leaderboard

@@ -1164,6 +1164,8 @@ when an entry exists, `benchmark/showcase/` empty until the user picks runs.
    model: it takes no text prompt of this kind and returns no JSON. The adapter takes any
    OpenAI-compatible chat model — on OpenRouter, or a local server via `--base-url`. Which
    models should the first leaderboard run?
+   *(The FLUX 3 Action track that followed (D7.F, a "trained agents" category) was cut on
+   2026-09-26 — not planned. Decision models such as TypeSafe Jev, §17, stay.)*
 2. The score (a win 50–100 by speed, everything else 0; Extinction counts as a win like every
    other ending the game calls a win), the 10-seed standard suite at 2 000 days, and the 10-day
    rhythm — all three are cost/quality trade-offs (§11.4).

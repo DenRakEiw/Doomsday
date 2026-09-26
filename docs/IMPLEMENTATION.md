@@ -338,16 +338,9 @@ before the *next* row; "—" means stay on the same model.
 | 96 | S7.3 Web build | [O] | — |
 | 96b | S7.3b Web build: the browser performance runs *(split from S7.3 at `web.md` §13)* | [O] | — |
 | 97 | S7.I itch.io upload: butler job in `release.yml`, size check, itch web settings *(the itch project and `BUTLER_API_KEY`: user)* | [O] | — |
+| 97a | S7.IP Release polish before the itch release *(inserted 2026-09-26 by the orchestrator)* | [O] | — |
 | 98 | G7.I The itch.io release: played on the restricted page, go, public — **[needs user]** | **[F]** | — |
-| 99 | S7.F1 FLUX: contract, actuator, capture, clock | [O] | — |
-| 100 | S7.F2 FLUX: puppeteer, recorder, replay checks | [O] | — |
-| 101 | S7.F3 FLUX: converter, dataset stats, trainer plug, configs | [O] | — |
-| 102 | S7.F4 FLUX: control bridge, driver, mock policies | [O] | — |
-| 103 | S7.F5 FLUX: the leaderboard category (trained agents) | [O] | — |
-| 104 | U7.F1 Record the 42-run plan, convert — **[needs user]** *(WSL2)* | user | — |
-| 105 | U7.F2 Local smoke and heads-only training on the 5090 — **[needs user]** | user | — |
-| 106 | U7.F3 Rented recipe — **[needs user]** *(the user's go and budget)* | user | — |
-| 107 | U7.F4 Evaluation and submission — **[needs user]** | user | — |
+| 99–107 | ~~S7.F1–S7.F5, U7.F1–U7.F4 FLUX 3 Action track~~ — **cut 2026-09-26** (user; numbers kept so later rows do not move) | — | — |
 | 108 | D7.1 Touch and phone | **[F]** | — |
 | 109 | D7.3 Store pages: copy and art briefs *(Steam, Play, App Store)* | **[F]** | — |
 | 110 | S7.1 Touch pass | [O] | — |
@@ -361,9 +354,9 @@ before the *next* row; "—" means stay on the same model.
 **Rows 65–116 (G5 3/3; re-ordered 2026-09-25 for the itch-first release):** everything an AI can
 finish alone comes first; a row marked **[needs user]** needs the user's hands, taste or an
 account (Steamworks, itch.io, OpenRouter or TypeSafe key, image credits, devices, Apple, store
-consoles, the GPU) and is never started in an unattended run — skip it, note it under *Waiting on
-the user*, and take the next row that does not need them. `U7.F…` rows are the user's own work
-(`flux-action.md` §9, §11.6); a session may help but never runs them unattended. The M5 gate
+consoles) and is never started in an unattended run — skip it, note it under *Waiting on
+the user*, and take the next row that does not need them. (Rows 99–107, the FLUX 3 Action track,
+were cut on 2026-09-26; after S7.IP the next unattended row is D7.1, row 108.) The M5 gate
 verdict (the ten runs) and the G4 verdict stay the user's and block nothing below.
 
 Design runs a block ahead of the build on purpose. The cost is that a spec can be overtaken by what
@@ -929,11 +922,11 @@ deliberately coarse because it depends on what M3–M5 taught us.
 The coarse outline (post-processing, phase variants, icons, wire-card illustrations, audio,
 tutorial, accessibility, low-end performance, `PlatformService`/GodotSteam/achievements, credits
 and licences, exports and release CI, final balance, the spectator and benchmark mode; then
-Android, iOS, the web demo and store pages) is broken into Blocks 12–19. Three rules shaped the
+Android, iOS, the web demo and store pages) is broken into Blocks 12–20 (Block 19 cut 2026-09-26). Three rules shaped the
 order:
 
 1. **What an AI can finish alone comes first.** Steps that need the user's hands, taste or an
-   account carry **[needs user]** and sit at the end of M6 (Block 17) and of M7 (Block 19). An
+   account carry **[needs user]** and sit at the end of M6 (Block 17) and of M7 (Blocks 18 and 20). An
    unattended run skips them and takes the next unmarked row.
 2. **Design stays a block ahead of the build it feeds** — two design/build pairs in M6 (the look,
    the sound and the teaching; then release and the benchmark), one in M7.
@@ -960,7 +953,7 @@ upload). **Steam comes later, only if people play it:** S6.14 and the store page
 20 with the phones, after a name and trademark check. The game's licence stays *all rights
 reserved*. Two tracks were added: **D6.9c/S6.12c**, a decision-model backend (TypeSafe Jev) on the
 same leaderboard, before G6; and **Block 19, the FLUX 3 Action track** (`flux-action.md`), after
-the itch release.
+the itch release — **cut on 2026-09-26** (user; the Jev backend stays).
 
 ## Block 12 — M5 close · build
 
@@ -1418,6 +1411,15 @@ first real upload (to a restricted page) is the user's.
 dispatched — an unattended run may not trigger workflows); media in `marketing/itch/`. The
 dispatch proof and the first push are the user's (`PROGRESS.md` *Waiting on the user*).*
 
+### S7.IP — Release polish before the itch release **[O]** *(inserted 2026-09-26 by the orchestrator)* · **Read first:** `PROGRESS.md` *In progress* and *Known issues*
+Fix the player-visible *Known issues* before the page goes public: the overlay picker sticking out
+beside the region panel and a lone `%` wrapping (S7.I), tabs chosen from code drawn pressed
+(S6.P4), the phone tech detail and Statistics too wide (S6.P3b, S6.9), the achievement chip and
+wire-card captions not re-translated (S6.9, S6.7), the owned-node footprint overflow (S6.4), hints
+back to back on a loaded save (S6.7); then re-capture `marketing/itch/`.
+**Done when:** each item is fixed and verified (suite green, a look at desktop and compact width),
+the media re-captured, and the fixed rows removed from *Known issues*.
+
 ### G7.I — The itch.io release **[F]** **[needs user]**
 With the user: the restricted itch page played in two browsers (German and English), the page
 text, the AI disclosure and the privacy sentence read; go → tag `v<version>` (`itch.md` §1
@@ -1425,24 +1427,10 @@ STATUS: `0.7.0` *In development* recommended, or `1.0.0` *Released* — the user
 public; the steps are `itch.md` §10. Findings → a punch list.
 **Done when:** the page is public, or the user's change / cut is recorded.
 
-## Block 19 — FLUX 3 Action track *(research, after the itch release; `docs/specs/flux-action.md`)*
+## Block 19 — FLUX 3 Action track — cut 2026-09-26
 
-One session per build step; each **Read first:** `flux-action.md` §0, §2–§3 and the sections its
-§11 entry names, plus §12 (the rules). Scope, tests and acceptance are the spec's §11.1–§11.5.
-
-### D7.F — Data contract, recorder, control bridge, training plan **[F]** *(done 2026-09-25, `dfbd607`)*
-### S7.F1 — Contract, actuator, capture, clock **[O]** · spec §3, §4, §11.1
-### S7.F2 — Puppeteer, recorder, replay checks **[O]** · spec §5, §6, §11.2
-### S7.F3 — Converter, dataset stats, trainer plug, configs **[O]** · spec §7, §11.3
-### S7.F4 — Control bridge, driver, mock policies **[O]** · spec §8, §10.1, §11.4
-### S7.F5 — The leaderboard category **[O]** · spec §10, §11.5
-
-**User steps** (spec §9, §11.6) — **[needs user]**; they need WSL2 (installed 2026-09-25, reboot
-pending) and the answers to the spec's §13 questions:
-- **U7.F1** — record the §6.2 plan (42 runs), then `convert`; numbers into `PROGRESS.md`.
-- **U7.F2** — local smoke and heads-only training on the 5090 (§9.2–§9.3).
-- **U7.F3** — the rented recipe (§9.4), after the user's go and budget.
-- **U7.F4** — evaluation and submission (§9.5).
+Cut from the plan by the user on 2026-09-26 (`PROGRESS.md` *Decisions*); nothing is scheduled.
+D7.F's spec stays for reference in `docs/specs/flux-action.md`.
 
 ## Block 20 — M7 II: Steam and phones *(Steam only if the itch release finds players — the user's call)*
 
@@ -1523,5 +1511,5 @@ With the user: each platform's candidate played; go / change / cut per platform.
 | Where the first release goes | the user, 2026-09-25: itch.io in the browser (D7.2, D7.I → S7.3, S7.I, G7.I); price model, downloads and the itch account are the user's answers before D7.I |
 | The game's own licence | the user, 2026-09-25: all rights reserved until the user decides otherwise |
 | Decision models on the benchmark (TypeSafe Jev) | the user, 2026-09-25; D6.9c → S6.12c; the first live run with the user's `TYPESAFE_API_KEY` |
-| FLUX 3 Action (a trained agent plays) | D7.F (`flux-action.md`) → S7.F1–S7.F5; U7.F1–U7.F4 the user's; its §13 questions the user's |
+| FLUX 3 Action (a trained agent plays) | D7.F (`flux-action.md`); the track was cut by the user on 2026-09-26 — not planned |
 | Generation route and model licences for shipped art | D6.7 shortlisted (`illustrations.md` §6.1); the user approves before D6.10 |

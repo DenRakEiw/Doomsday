@@ -14,13 +14,13 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures; **G7.I**, the itch release — see *Waiting on the user*, "itch.io — going live"): IMPLEMENTATION §4 rows 91–92, 98. **Without the user: S7.F1** (row 99) [O] — FLUX: contract, actuator, capture, clock (`flux-action.md` §11). **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
+| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures; **G7.I**, the itch release — see *Waiting on the user*, "itch.io — going live"): IMPLEMENTATION §4 rows 91–92, 98. **Without the user: S7.IP** (row 97a) [O] — release polish, in progress (see *In progress*); then **D7.1** (row 108) [F] — touch and phone. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D6.10, G6 (2/2) and G7.I are **[needs user]**; Block 18 is built (S7.I done — the first real itch upload is the user's); then the FLUX track (S7.F1–S7.F5; U7.F… after the WSL2 reboot), Steam only later (Decisions 2026-09-25). |
+| **After it** | D6.10, G6 (2/2) and G7.I are **[needs user]**; Block 18 is built once S7.IP is merged (the first real itch upload is the user's); the next unattended row is **D7.1** (row 108, Block 20: touch and phone), Steam only later (Decisions 2026-09-25). The FLUX track is cut (Decisions 2026-09-26). |
 | **Last completed** | S7.I — itch.io upload (2026-09-26): `release.yml` gains the web size check (`tools/ci/web_size_check.sh`), the web smoke job (headless Chromium, software WebGL) and the `itch` job (butler 15.31.0 pinned by SHA-256; `BUTLER_API_KEY`/`ITCH_TARGET`/`ITCH_CHANNELS`, one skip line without them; dispatch input `itch`); the title's debug F12/Shift+F12; `tools/marketing/` (`itch_capture.tscn`, `compose_cover.py`); 12 screenshots en/de, 3 covers, click-to-play in `marketing/itch/`. |
 | **Before that** | S7.3b — Browser performance runs (`web.md` §13): `web_igpu` playable (p95 16.4 ms); three `web_cpu` rows fail (Performance notes, Design questions) (2026-09-26). |
 | **Earlier** | S7.3 — The Web build (without §13): shell, `UserPaths`, `WebBridge`, progress file, QOA, `tools/web/` checks in Chrome, Edge and Firefox; web zip 17.55 MB (2026-09-26). |
-| **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
+| **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–20 (Block 19, FLUX, cut 2026-09-26) |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
@@ -45,8 +45,8 @@ next step.
 
 ## In progress
 
-**S7.IP — release polish before the itch release** [O] (inserted 2026-09-26 by the orchestrator,
-ahead of S7.F1; not yet in the run sheet — add it as row 97a). Scope: the player-visible *Known*
+**S7.IP — release polish before the itch release** [O] (inserted 2026-09-26 by the orchestrator;
+run-sheet row 97a, before G7.I; the next unattended row after it is D7.1, row 108). Scope: the player-visible *Known*
 *issues* — overlay picker sticking out beside the region panel and a lone `%` wrapping (S7.I), tabs
 chosen from code drawn pressed (S6.P4), the phone tech detail and Statistics too wide (S6.P3b, S6.9),
 achievement chip and wire-card captions not re-translated (S6.9, S6.7), the owned-node footprint
@@ -214,19 +214,10 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S7.3 [O] Web build *(shell, `UserPaths`, `WebBridge`, progress file, QOA, `tools/web/` checks in three browsers)*
 - [x] S7.3b [O] Web build: the browser performance runs *(`web_perf.py`; three rows fail on `web_cpu` — Design questions)*
 - [x] S7.I [O] itch.io upload: butler job, size check, web smoke, itch media *(the first real upload: user, G7.I)*
+- [ ] S7.IP [O] Release polish before the itch release *(in progress — see *In progress*)*
 - [ ] G7.I [F] The itch.io release: played on the restricted page, go, public — **[needs user]**
 
-**Block 19 — FLUX 3 Action track (research, after the itch release)** *(`docs/specs/flux-action.md` §11)*
-- [x] D7.F [F] Data contract, recorder, control bridge, training plan *(2026-09-25, `dfbd607`)*
-- [ ] S7.F1 [O] Contract, actuator, capture, clock
-- [ ] S7.F2 [O] Puppeteer, recorder, replay checks
-- [ ] S7.F3 [O] Converter, dataset stats, trainer plug, configs
-- [ ] S7.F4 [O] Control bridge, driver, mock policies
-- [ ] S7.F5 [O] The leaderboard category *(trained agents)*
-- [ ] U7.F1 Record the 42-run plan, convert — **[needs user]** *(WSL2 after the reboot)*
-- [ ] U7.F2 Local smoke and heads-only training on the 5090 — **[needs user]**
-- [ ] U7.F3 Rented recipe — **[needs user]** *(the user's go and budget)*
-- [ ] U7.F4 Evaluation and submission — **[needs user]**
+**Block 19 — FLUX 3 Action track** — **cut 2026-09-26** (user; D7.F `dfbd607` stays done, `docs/specs/flux-action.md` kept for reference)
 
 **Block 20 — M7 II: Steam and phones** *(Steam only if the itch release finds players — the user's call)*
 - [ ] D7.1 [F] Touch and phone
@@ -246,6 +237,11 @@ it and take the next row (IMPLEMENTATION §4).*
 Dated, one line each, with the reason. A decision recorded here is not re-argued in a later session
 without new information.
 
+- **2026-09-26** (user) — **FLUX 3 Action track cut; decision models (Jev) stay.** Block 19 (S7.F1–S7.F5,
+  U7.F1–U7.F4) is removed from the plan; D7.F and `docs/specs/flux-action.md` stay as a record,
+  nothing in it is scheduled, no "trained agents" leaderboard category. TypeSafe Jev (`benchmark.md`
+  §17, S6.12c) is unchanged. WSL2 was only needed for FLUX — the user may keep or uninstall it.
+  Supersedes the 2026-09-25 FLUX decision.
 - **2026-09-26** (D7.I, pending user confirmation) — **The itch page** (`docs/specs/itch.md`):
   (1) one page, English first, German below (itch has one description); (2) a subtitle is needed —
   seven itch projects are called *Doomsday*; recommended *Doomsday: Rogue Instance*; (3) the copy
@@ -338,7 +334,7 @@ without new information.
   `typesafe/jev-latest` rank on the same leaderboard. Planned as D6.9c (design, amends
   `benchmark.md`) + S6.12c (build, mock backend only), before G6. Reason: a different kind of
   model on the same board.
-- **2026-09-25** (user) — **FLUX 3 Action track** (`docs/specs/flux-action.md`, D7.F `dfbd607`) is
+- **2026-09-25** (user) *(superseded 2026-09-26: the track is cut)* — **FLUX 3 Action track** (`docs/specs/flux-action.md`, D7.F `dfbd607`) is
   a research track **after the itch release**: Block 19, build steps S7.F1–S7.F5 and user steps
   U7.F1–U7.F4 (**[needs user]**); its decisions are the spec's §13. Supersedes D6.9's "FLUX-3 Action
   cannot drive the game" (that was the chat-model route). WSL2 is installed (2026-09-25), the
@@ -2713,11 +2709,6 @@ Actions secret `BUTLER_API_KEY` and the variables `ITCH_TARGET`/`ITCH_CHANNELS` 
 you have a Mac (or a friend with one), one look at the restricted page at G7.I would make Safari
 "tested" (`web.md` §2). **Before Steam:** a name and trademark check for the chosen full title.
 
-**D7.F (2026-09-25): the FLUX 3 Action track's six questions** — `docs/specs/flux-action.md` §13
-(GPU provider and budget, the FLUX licence and *Qualifying User*, what goes public, WSL2 with
-mirrored networking, ≈200 GB disk on F:, plans in the caption). WSL2 is installed; **the reboot is
-pending (2026-09-26)** — U7.F1–U7.F4 need it.
-
 **D6.11 (2/2a) (2026-09-25): *Zugang*, *Anzapfung* or *Zugangspunkt* for *Abgriff* (Q7) — your
 final word** (still open; §6's other answers are under *Decisions*). *Zugang* is on screen
 now (en *Access*, plural *Accesses* — the English plural reads stiffly; *access point(s)* is the
@@ -2865,8 +2856,8 @@ outside Steam — signing needs your certificate; (6) after S6.10: tag `v0.6.0` 
 draft release when you want one.
 
 **D6.9 (2026-09-25, overnight, pending user confirmation):** `docs/specs/benchmark.md` §15 —
-(1) **FLUX-3 Action cannot drive the game** *(as a chat model; superseded by the FLUX track, D7.F —
-Decisions 2026-09-25)*: its Hugging Face collection is a robot-control
+(1) **FLUX-3 Action cannot drive the game** *(as a chat model; the FLUX track that followed, D7.F, was
+cut 2026-09-26 — Decisions)*: its Hugging Face collection is a robot-control
 policy (video/text encoders → arm actions), not a chat model; the adapter takes any
 OpenAI-compatible chat model (OpenRouter or a local `--base-url`). Which models first?
 (2) the score (a win 50–100 by speed, else 0; Extinction counts as a win), the 10-seed suite at
@@ -3025,6 +3016,10 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-26 — Plan: the FLUX 3 Action track cut
+- User decision: Block 19 (S7.F1–F5, U7.F1–F4) removed; `flux-action.md` kept with a status line; Jev unchanged; WSL2 optional.
+- Run sheet: rows 99–107 struck, S7.IP added as row 97a; next unattended row after S7.IP is D7.1 (row 108). Docs only.
 
 ### 2026-09-26 — S7.I itch.io upload [O]
 - `release.yml`: web size check (`tools/ci/web_size_check.sh`, web.md §4.2 + `index.html` at the root), `smoke-web` (web.md §16.3, SwiftShader; passed locally on port 8790), `itch` job (butler 15.31.0 from `itchio/butler`, SHA-256 checked; one skip line without key/target; dispatch input `itch`). YAML parsed, every bash block `bash -n`, the gate exercised; no dispatch, no push.
