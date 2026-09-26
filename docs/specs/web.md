@@ -669,8 +669,11 @@ job skips with one clear line (IMPLEMENTATION S7.I).
 
 ### 16.4 Compression on itch — measured by S7.I on the restricted page
 
-Whether itch's servers send the `.wasm` and `.pck` compressed is not documented (the docs page
-refused an automated read on 2026-09-26). S7.I (or G7.I, with the user's key) opens the
+Whether itch's servers send the `.wasm` and `.pck` compressed was not readable here at first (the
+docs page refused an automated read on 2026-09-26). *Amended by D7.I (`itch.md` §0 item 8):* the
+same page's source on GitHub (`itchio/itch.io`, `docs/creators/html5.md`) says the CDN gzips
+`html, js, css, svg, wasm, wav, glb` and `pck` — so it is documented; the measurement below stays
+as the check. S7.I (or G7.I, with the user's key) opens the
 restricted page with DevTools and records the *transferred* size of each file. Compressed →
 §4.5's ~23 MB holds. **Uncompressed (~50 MB)** → recorded as a *Design question*: the answer
 then is §3.4's custom template and/or the loop reductions of §4.4, not something S7.I decides.

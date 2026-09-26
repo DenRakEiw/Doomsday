@@ -14,12 +14,12 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures, **[needs user]**): the user plays the release candidate and judges BALANCE §6.7 — IMPLEMENTATION §4 row 92. **Without the user: D7.I** (row 94) — the itch page copy and briefs; the price model and the downloads stay the user's (*Waiting on the user*), so write the copy to work either way; if that is not possible, S7.3 (row 96) builds from `docs/specs/web.md`. Pass 4's one code item waits for S6.P (row 95). **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
+| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures, **[needs user]**): the user plays the release candidate and judges BALANCE §6.7 — IMPLEMENTATION §4 row 92. **Without the user: S6.P** (row 95) [O] — pass 4's one code item (*Punch list for Opus* → *From G6 (1/2)*: the bots weigh an emergent card's catch); then **S7.3** (row 96) builds from `docs/specs/web.md`. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2 done; D7.I → S6.P, S7.3, S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
-| **Last completed** | D7.2 — The Web build, the main version: `docs/specs/web.md` — desktop browsers only (Chrome/Edge/Firefox tested, Safari best effort, phones gated), single-threaded stock template, no SharedArrayBuffer; **measured web export 20.39 MB zip / 53.10 MB extracted** (wasm 39.5 MB raw, 10.1 gz; `.pck` 13.2 MB, three-quarters sound); budget zip ≤ 25 MB target / 30 hard, illustrations lossy WebP 0.9 and cue WAVs as QOA to stay inside it (≈ 23 MB projected); own HTML shell (loading, phone gate, error/crash screen, `?smoke`); files under `user://doomsday/` (itch's `/userfs` is shared by every Godot game); progress export/import in the title's settings; embed 1280 × 720; 22 strings (2026-09-26). |
-| **Before that** | G6 (1/2) — Balance pass 4: `docs/BALANCE.md` §6 — the Task Force's stalemate ended by data (`tf_switch_off` 30 d / `control_decay` 0.005, `tf_raid` 0.005; 0 timeouts in 16 800 runs), the five emergent windfalls got a catch (the false choice, option 1), The Inheritance's governments `harm` ×6; closing baseline 200 seeds × 12 setups × 7 bots; canary regenerated (2026-09-26). |
-| **Earlier** | S6.12c — The Jev backend, mock only: `BenchChoice` (plan over legal moves, reader, combiner), `MockChoiceBackend`, `tools/bench/typesafe_backend.gd`, the tool's TypeSafe rules and dry run, cache basis (chat keys unchanged), `model_version`/`model_versions`, the `choice`/`typesafe` config keys; `tools/bench/set_api_key.ps1` (key dialog for the user); no request to TypeSafe (2026-09-26). |
+| **After it** | D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2, D7.I done; S6.P, S7.3, S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
+| **Last completed** | D7.I — The itch.io page: `docs/specs/itch.md` — one page, English first and German below; title variants (*Doomsday: Rogue Instance* recommended — seven itch projects are already called *Doomsday*), taglines, short description, the long description en/de with switches (TITLE, LANG, PRICE, DOWNLOADS, PICTURES, BOARD, STATUS); the privacy sentence; the generative-AI disclosure (all four kinds ticked, no image/audio model yet); itch settings checklist (HTML, 1280 × 720, tags, metadata); cover and screenshot briefs (S7.I captures and composes); the butler job's inputs; G7.I's twelve-step checklist; itch's CDN gzips `wasm`/`pck` (web.md §16.4 amended) (2026-09-26). |
+| **Before that** | D7.2 — The Web build, the main version: `docs/specs/web.md` — desktop browsers only (Chrome/Edge/Firefox tested, Safari best effort, phones gated), single-threaded stock template, no SharedArrayBuffer; **measured web export 20.39 MB zip / 53.10 MB extracted** (wasm 39.5 MB raw, 10.1 gz; `.pck` 13.2 MB, three-quarters sound); budget zip ≤ 25 MB target / 30 hard, illustrations lossy WebP 0.9 and cue WAVs as QOA to stay inside it (≈ 23 MB projected); own HTML shell (loading, phone gate, error/crash screen, `?smoke`); files under `user://doomsday/` (itch's `/userfs` is shared by every Godot game); progress export/import in the title's settings; embed 1280 × 720; 22 strings (2026-09-26). |
+| **Earlier** | G6 (1/2) — Balance pass 4: `docs/BALANCE.md` §6 — the Task Force's stalemate ended by data (`tf_switch_off` 30 d / `control_decay` 0.005, `tf_raid` 0.005; 0 timeouts in 16 800 runs), the five emergent windfalls got a catch (the false choice, option 1), The Inheritance's governments `harm` ×6; closing baseline 200 seeds × 12 setups × 7 bots; canary regenerated (2026-09-26). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -199,7 +199,7 @@ it and take the next row (IMPLEMENTATION §4).*
 
 **Block 18 — M7 I: the itch.io release** *(user 2026-09-25: itch first, the browser build is the main version)*
 - [x] D7.2 [F] The Web build — the main version *(was: web demo; `docs/specs/web.md`)*
-- [ ] D7.I [F] itch.io page: copy en/de, cover and screenshot briefs, AI disclosure, privacy sentence
+- [x] D7.I [F] itch.io page: copy en/de, cover and screenshot briefs, AI disclosure, privacy sentence *(`docs/specs/itch.md`)*
 - [ ] S6.P [O] Punch list from G6 *(skip if empty)*
 - [ ] S7.3 [O] Web build
 - [ ] S7.I [O] itch.io upload: butler job, size check, itch web settings *(the itch project and `BUTLER_API_KEY`: user)*
@@ -234,6 +234,21 @@ it and take the next row (IMPLEMENTATION §4).*
 
 Dated, one line each, with the reason. A decision recorded here is not re-argued in a later session
 without new information.
+
+- **2026-09-26** (D7.I, pending user confirmation) — **The itch page** (`docs/specs/itch.md`):
+  (1) one page, English first, German below (itch has one description); (2) a subtitle is needed —
+  seven itch projects are called *Doomsday*; recommended *Doomsday: Rogue Instance*; (3) the copy
+  has switches (TITLE, LANG, PRICE, DOWNLOADS, PICTURES, BOARD, STATUS) written out in both
+  languages; recommended **"$0 or donate"** (a fixed price fights the browser embed), downloads yes,
+  **In development as `0.7.0`** (`1.0.0` when finished — IMPLEMENTATION G7.I amended), comments on;
+  (4) AI disclosure **yes, all four kinds** — the assistant wrote code, text, the sound recipes and
+  the own icons' geometry; no image or audio model yet; (5) media are real captures; S7.I captures
+  the five screenshots (en + de, 1920 × 1080, *Subtle*) and composes the cover from a title-globe
+  capture (debug-only title F12, `tools/marketing/compose_cover.py`), files in `marketing/itch/`;
+  (6) butler: secret `BUTLER_API_KEY`, variables `ITCH_TARGET`/`ITCH_CHANNELS`, channels `web`,
+  `windows`, `linux`, `--userversion`, on a tag or a dispatch with `itch: true` only; (7) itch's
+  CDN gzips `wasm`/`pck` (its docs) — web.md §16.4 amended, G7.I still measures. Reason: every
+  field has its text and S7.I has nothing to decide, whatever the user picks.
 
 - **2026-09-26** (D7.2, pending user confirmation) — **The web build** (`docs/specs/web.md`):
   (1) **desktop browsers only** — Chrome/Edge (last two), Firefox (current + ESR) tested here,
@@ -2574,13 +2589,17 @@ without new information.
 
 ## Waiting on the user
 
-**itch.io release (2026-09-25, before D7.I/S7.I):** an itch.io account? Free, pay-what-you-want
-or a fixed price? Which platforms besides the browser (Windows, Linux downloads)? *D7.2's
-recommendation (`web.md` §15): yes, both zips as downloads — they exist, are smoke-tested and cost
-nothing; Windows shows SmartScreen's prompt for the unsigned exe.* If you have a Mac (or a friend
-with one), one look at the restricted page at G7.I would make Safari "tested" (`web.md` §2). Then, for S7.I:
-the itch project and a butler API key as the Actions secret `BUTLER_API_KEY`. **Before Steam:** a
-name and trademark check for "Doomsday".
+**itch.io release (2026-09-25; the page is written — `docs/specs/itch.md` §12):** pick (1) the
+**title** — *Doomsday: Rogue Instance* (recommended), *Off-Switch* or *Training Run* — and the URL
+slug; (2) the **price** — *No payments*, **"$0 or donate"** (recommended; a fixed price fights the
+browser embed, itch.md §1) or *Paid*; (3) **downloads** — web only or **+ Windows and Linux**
+(recommended, `web.md` §15; Windows shows SmartScreen's prompt for the unsigned exe); (4) the
+**status** — **In development as `0.7.0`** (recommended) or *Released* as `1.0.0`; (5) the **name**
+for the page and the in-game credits (`made_by`); (6) the AI disclosure — all four kinds ticked
+(recommended) or code and text only. Then **create the itch project as a Draft**, an API key as the
+Actions secret `BUTLER_API_KEY` and the variables `ITCH_TARGET`/`ITCH_CHANNELS` (itch.md §9.1). If
+you have a Mac (or a friend with one), one look at the restricted page at G7.I would make Safari
+"tested" (`web.md` §2). **Before Steam:** a name and trademark check for the chosen full title.
 
 **D7.F (2026-09-25): the FLUX 3 Action track's six questions** — `docs/specs/flux-action.md` §13
 (GPU provider and budget, the FLUX licence and *Qualifying User*, what goes public, WSL2 with
@@ -2863,6 +2882,12 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-26 — D7.I The itch.io page [F]
+- `docs/specs/itch.md`: title variants and taglines, short and long description en/de with seven switches, privacy sentence, AI disclosure (all four kinds), content note, credits line, feature bullets.
+- itch settings checklist (HTML, embed 1280 × 720, tags, metadata, disclosure), media briefs (cover 630 × 500 route A/B, five real screenshots en/de), S7.I's butler inputs, G7.I's checklist.
+- Read itch's docs through their GitHub sources (itch.io itself answers 403): CDN gzips `wasm`/`pck` → web.md §16.4 amended; IMPLEMENTATION S7.I/G7.I amended. No code, no strings.
+- Next unattended: S6.P (row 95), then S7.3.
 
 ### 2026-09-26 — D7.2 The Web build, the main version [F]
 - `docs/specs/web.md`: browsers, single-threaded stock template, size budget with a measured baseline, shell, saves in IndexedDB under `user://doomsday/`, progress file, embed, input, perf, S7.3 tests, S7.I needs.

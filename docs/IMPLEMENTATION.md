@@ -1376,7 +1376,8 @@ sends the player's IP address to GitHub; the setting turns it off); the price mo
 downloads as the user decided; the embed settings S7.I needs (viewport, fullscreen button,
 mobile-friendly or not).
 **Done when:** every field of the itch page has its text in both languages and S7.I has nothing
-to decide.
+to decide. *Done 2026-09-26 (`docs/specs/itch.md`: switches for title, price, downloads, pictures,
+status; S7.I also captures the screenshots and composes the cover, itch.md §8.3).*
 
 ### S6.P — Punch list from G6 **[O]** *(skip if empty)*
 
@@ -1387,19 +1388,23 @@ QOA cues, the `tools/web/` Playwright checks and the browser perf runs — a lar
 runs long, split at `web.md` §13 (performance) into S7.3b and record the split.)*
 **Done when:** the full game loads and plays in a browser within the size budget.
 
-### S7.I — itch.io upload **[O]** · **Read first:** `docs/specs/itch.md` (embed settings) · `docs/specs/web.md` §4.2–§4.3, §16 (size, settings, channels, the web smoke job) · `release.md` (CI) · `.github/workflows/release.yml`
+### S7.I — itch.io upload **[O]** · **Read first:** `docs/specs/itch.md` §7–§9 (settings, media capture, the butler job) · `docs/specs/web.md` §4.2–§4.3, §16 (size, settings, channels, the web smoke job) · `release.md` (CI) · `.github/workflows/release.yml`
 A butler job in `release.yml` pushing the web zip (and the downloads, if the user wants them) to
 the itch project's channels with the Actions secret `BUTLER_API_KEY`; without the secret the job
 is skipped with a clear line, never failed. The web build size check in CI against the spec's
 budget and itch's limits; the itch-specific web export settings. **The itch project and the key
-are the user's** (*Waiting on the user*); no push from an unattended run.
+are the user's** (*Waiting on the user*); no push from an unattended run. *(D7.I: plus the
+debug-only title capture and `tools/marketing/compose_cover.py`, and the five screenshots in en/de
+into `marketing/itch/` — `itch.md` §8.3; the job's inputs `BUTLER_API_KEY`, `ITCH_TARGET`,
+`ITCH_CHANNELS` and the dispatch input `itch` — §9.1.)*
 **Done when:** a dispatch without the key builds, size-checks and skips the upload cleanly; the
 first real upload (to a restricted page) is the user's.
 
 ### G7.I — The itch.io release **[F]** **[needs user]**
 With the user: the restricted itch page played in two browsers (German and English), the page
-text, the AI disclosure and the privacy sentence read; go → tag `v1.0.0` (D6.8: `1.0.0` at the
-first public release), the page public. Findings → a punch list.
+text, the AI disclosure and the privacy sentence read; go → tag `v<version>` (`itch.md` §1
+STATUS: `0.7.0` *In development* recommended, or `1.0.0` *Released* — the user's), the page
+public; the steps are `itch.md` §10. Findings → a punch list.
 **Done when:** the page is public, or the user's change / cut is recorded.
 
 ## Block 19 — FLUX 3 Action track *(research, after the itch release; `docs/specs/flux-action.md`)*
