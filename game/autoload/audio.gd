@@ -42,6 +42,9 @@ const FIELD_HOLD: String = "hold"
 const FIELD_INDEX: String = "index"
 const FIELD_SCREEN: String = "screen"
 const FIELD_TO: String = "to"
+## web.md §6.2: cue files loaded per frame in a browser once the sound is
+## unlocked — the single-threaded build has no loader threads to lend.
+const WEB_CUE_LOADS_PER_FRAME: int = 2
 
 ## §5: admitted cue ids in order, capped at `HISTORY_MAX` — the tests' ear.
 var history: Array[StringName] = []
@@ -65,6 +68,13 @@ var _warned: Dictionary[String, bool] = {}
 ## play loaded its file on the spot, which held a late-game tick up to 12 ms.
 var _requested: Dictionary[String, bool] = {}
 var _unlocked: bool = true
+## web.md §6.2: the browser's cue loading after the unlock. Set at start from the
+## platform; a test sets it to walk the web's path on a desktop.
+var web_cue_loading: bool = false
+## The cue files still to load, in cue-sheet order.
+var _web_cue_queue: Array[String] = []
+## web.md §6.3: the page is in the background; the master bus is muted.
+var _page_hidden: bool = false
 
 ## §6: every moving value — where it is, where it goes, how fast (per second).
 var _layer_gain: Array[float] = []
@@ -92,7 +102,12 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_rng.randomize()
 	_unlocked = not OS.has_feature(FEATURE_WEB)
-	set_process_input(not _unlocked)
+	web_cue_loading = OS.has_feature(FEATURE_WEB)
+	# §5.8 through the window, ahead of every node: the boot takes its skip in
+	# `_input` and marks it handled, and the tree hands `_input` to the scene
+	# before the autoloads — so the first click never reached an `_input` here
+	# and the title stayed silent until a second one (S7.3).
+	get_tree().root.window_input.connect(_on_window_input)
 	sheet = AudioSheet.load_file()
 	_valid = sheet.is_valid()
 	if not _valid:
@@ -115,6 +130,8 @@ func _ready() -> void:
 	EventBus.volume_changed.connect(_on_volume_changed)
 	EventBus.mute_changed.connect(_on_mute_changed)
 	ScreenRouter.screen_changed.connect(_on_screen_changed)
+	EventBus.page_hidden.connect(_on_page_hidden)
+	EventBus.page_shown.connect(_on_page_shown)
 	_request_cue_streams()
 
 
@@ -124,7 +141,7 @@ func _process(delta: float) -> void:
 
 ## §5.8: the first key, click or tap unlocks the web's audio. It is not
 ## consumed — on the boot screen the same input skips to the title.
-func _input(event: InputEvent) -> void:
+func _on_window_input(event: InputEvent) -> void:
 	if _unlocked or not _is_unlock(event):
 		return
 	set_unlocked(true)
@@ -186,8 +203,27 @@ func is_unlocked() -> bool:
 ## but never played; unlocking starts the current screen's loops.
 func set_unlocked(value: bool) -> void:
 	_unlocked = value
-	set_process_input(not _unlocked and OS.has_feature(FEATURE_WEB))
 	_dirty = true
+	if _unlocked and web_cue_loading:
+		_queue_web_cue_loads()
+
+
+## web.md §6.2: the cue files the browser has still to load after the unlock.
+func web_cue_loads_pending() -> int:
+	return _web_cue_queue.size()
+
+
+## A test seam: forgets every loaded stream, so the web's loading has files to
+## load. The next play of a cue loads its file again.
+func forget_streams() -> void:
+	_streams.clear()
+	_requested.clear()
+	_web_cue_queue.clear()
+
+
+## web.md §6.3: whether the page's hiding has muted the sound.
+func is_page_muted() -> bool:
+	return _page_hidden
 
 
 func reset_history() -> void:
@@ -213,6 +249,7 @@ func now_ms() -> int:
 func step(seconds: float) -> void:
 	if not _valid:
 		return
+	_load_web_cues()
 	var moved: bool = _dirty
 	_dirty = false
 	for i: int in _layer_gain.size():
@@ -425,6 +462,29 @@ func _stream(path: String) -> AudioStream:
 	return stream
 
 
+## web.md §6.2: every cue file not loaded yet, in cue-sheet order.
+func _queue_web_cue_loads() -> void:
+	_web_cue_queue.clear()
+	if not _valid:
+		return
+	for id: StringName in sheet.cues:
+		var path: String = sheet.cues[id].path()
+		if not _streams.has(path) and not _web_cue_queue.has(path) 				and ResourceLoader.exists(path):
+			_web_cue_queue.append(path)
+
+
+## Up to `WEB_CUE_LOADS_PER_FRAME` of the queue; a cue played before its turn
+## loaded itself and is skipped.
+func _load_web_cues() -> void:
+	var loaded: int = 0
+	while loaded < WEB_CUE_LOADS_PER_FRAME and not _web_cue_queue.is_empty():
+		var path: String = _web_cue_queue.pop_front()
+		if _streams.has(path):
+			continue
+		_stream(path)
+		loaded += 1
+
+
 ## Every cue's file, loaded off the main thread while the boot and the title
 ## run. Not on the web, whose single-threaded build would load them all here.
 func _request_cue_streams() -> void:
@@ -592,7 +652,7 @@ func _apply_volume(bus: StringName) -> void:
 	if index < 0:
 		return
 	var value: float = volume(bus)
-	var silenced: bool = bus == AudioSheet.BUS_MASTER and Settings.muted
+	var silenced: bool = bus == AudioSheet.BUS_MASTER and (Settings.muted or _page_hidden)
 	AudioServer.set_bus_mute(index, value <= 0.0 or silenced)
 	if value > 0.0:
 		AudioServer.set_bus_volume_db(index, linear_to_db(value))
@@ -707,4 +767,16 @@ func _on_volume_changed(bus: StringName, _value: float) -> void:
 
 
 func _on_mute_changed(_muted: bool) -> void:
+	_apply_volume(AudioSheet.BUS_MASTER)
+
+
+## web.md §6.3: a browser keeps playing looping samples in a background tab
+## while the engine's frames stop — the page's hiding mutes the master bus.
+func _on_page_hidden() -> void:
+	_page_hidden = true
+	_apply_volume(AudioSheet.BUS_MASTER)
+
+
+func _on_page_shown() -> void:
+	_page_hidden = false
 	_apply_volume(AudioSheet.BUS_MASTER)

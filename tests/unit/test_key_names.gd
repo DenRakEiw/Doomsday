@@ -44,3 +44,23 @@ func test_after_assign_the_arg_changes() -> void:
 func test_a_text_without_placeholders_is_unchanged() -> void:
 	assert_eq(KeyNames.format("plain {name}"), "plain {name}")
 	assert_eq(KeyNames.format("open ({key_tree})"), "open (T)")
+
+
+## S7.3 (web.md §9.3): the web's display server has no keyboard layout; there a
+## key is its US legend and the layout is never asked.
+func test_without_the_layout_a_key_is_its_us_name() -> void:
+	var before: bool = KeyNames.use_layout
+	KeyNames.use_layout = false
+	assert_eq(KeyNames.key_label(KEY_Y), "Y")
+	assert_eq(KeyNames.key_label(KEY_F1), OS.get_keycode_string(KEY_F1))
+	KeyNames.use_layout = before
+
+
+func test_the_layout_is_asked_only_off_the_web_and_with_a_display() -> void:
+	assert_false(KeyNames.layout_available(true, "Windows"))
+	assert_false(KeyNames.layout_available(false, KeyNames.HEADLESS))
+	assert_true(KeyNames.layout_available(false, "Windows"))
+
+
+func test_headless_the_layout_is_off() -> void:
+	assert_false(KeyNames.use_layout)

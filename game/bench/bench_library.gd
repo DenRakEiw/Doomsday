@@ -9,7 +9,8 @@ extends RefCounted
 
 const SHOWCASE_DIR: String = "res://benchmark/showcase/"
 const DEV_DIR: String = "res://benchmark/runs/"
-const USER_DIR: String = "user://benchmark/runs/"
+## web.md §7.1: the folder under `UserPaths.root()`.
+const USER_FOLDER: String = "benchmark/runs/"
 const MAX_FILES: int = 200
 const MAX_BYTES: int = 4_000_000
 const EXTENSION: String = "json"
@@ -18,7 +19,7 @@ const EXTENSION: String = "json"
 ## `SaveManager.save_dir`, so the suite never reads or writes the player's runs.
 static var showcase_dir: String = SHOWCASE_DIR
 static var dev_dir: String = DEV_DIR
-static var user_dir: String = USER_DIR
+static var user_dir: String = UserPaths.at(USER_FOLDER)
 
 var entries: Array[BenchEntry] = []
 ## Parallel to `entries`: the file each was read from.

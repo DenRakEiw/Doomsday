@@ -10,6 +10,9 @@ extends Control
 signal closed
 ## Quit was confirmed: the router takes it from here.
 signal quit_requested
+## web.md §7.4: a progress file replaced the profile — the title redraws what it
+## shows from it.
+signal progress_imported
 ## accessibility.md §5.3: the *Controls* modal, over this one.
 signal controls_requested
 
@@ -73,6 +76,18 @@ const KEY_DATA_FOLDER: String = "UI_SETTINGS_DATA_FOLDER"
 ## only, after *Open data folder*, on every platform.
 const KEY_BENCH_ONLINE: String = "UI_SETTINGS_BENCH_ONLINE"
 const USER_DIR: String = "user://"
+## web.md §7.4: the progress file, in a browser's title settings only — where
+## *Open data folder* stands on a desktop.
+const KEY_PROGRESS_EXPORT: String = "UI_SETTINGS_PROGRESS_EXPORT"
+const KEY_PROGRESS_IMPORT: String = "UI_SETTINGS_PROGRESS_IMPORT"
+const KEY_PROGRESS_NOTE: String = "UI_SETTINGS_PROGRESS_NOTE"
+const KEY_PROGRESS_IMPORT_CONFIRM: String = "UI_SETTINGS_PROGRESS_IMPORT_CONFIRM"
+const KEY_PROGRESS_IMPORTED: String = "UI_SETTINGS_PROGRESS_IMPORTED"
+const KEY_PROGRESS_NOT_A_PROFILE: String = "UI_SETTINGS_PROGRESS_NOT_A_PROFILE"
+const KEY_PROGRESS_NEWER: String = "UI_SETTINGS_PROGRESS_NEWER"
+const KEY_PROGRESS_EXPORT_FAILED: String = "UI_SETTINGS_PROGRESS_EXPORT_FAILED"
+## The download's name; `{date}` is the local date, YYYY-MM-DD.
+const PROGRESS_FILE_NAME: String = "doomsday-progress-{date}.json"
 ## The rows in the order they are built. polish-visuals.md §5.1 put *Screen
 ## effects* directly after *Reduced motion*; screens-full.md §6.3's boot row is
 ## the title's only.
@@ -134,6 +149,9 @@ const SLOTS: Array[String] = ["slot_1", "slot_2", "slot_3"]
 ## §7.3: the title opens the settings alone.
 var settings_only: bool = false
 
+## web.md §7.4: a test's way to see the browser's rows on a desktop.
+static var force_progress_rows: bool = false
+
 ## Slot → its two buttons and its caption.
 var _save_buttons: Array[ConsoleButton] = []
 var _load_buttons: Array[ConsoleButton] = []
@@ -144,6 +162,12 @@ var _title_rows: Array[Control] = []
 var _reset: ConsoleButton = null
 var _data_folder: ConsoleButton = null
 var _bench_online: ConsoleButton = null
+## web.md §7.4: the two progress buttons, their note and the last result.
+var _progress_rows: Array[Control] = []
+var _progress_export: ConsoleButton = null
+var _progress_import: ConsoleButton = null
+var _progress_status: Label = null
+var _progress_note: Label = null
 ## accessibility.md §5.3: *Change* on the *Controls* row.
 var _controls: ConsoleButton = null
 
@@ -231,6 +255,8 @@ func _apply_mode() -> void:
 	for row: Control in _title_rows:
 		row.visible = settings_only
 	_data_folder.visible = settings_only and has_data_folder()
+	for row: Control in _progress_rows:
+		row.visible = settings_only and has_progress_rows()
 	# From the title the modal is titled Settings already; the section caption
 	# under it said the same word again (S4.9).
 	_settings_title.visible = not settings_only
@@ -307,6 +333,7 @@ func _build_settings() -> void:
 	_data_folder.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_data_folder.pressed.connect(_on_data_folder_pressed)
 	_settings_rows.add_child(_data_folder)
+	_build_progress_rows()
 	_build_bench_online_row()
 	# §6.3: progress is not a run — the autosave and the slots stay.
 	_reset = ConsoleButton.new()
@@ -324,6 +351,8 @@ func _refresh_settings() -> void:
 			continue
 		var label: Label = (row as Container).get_child(0) as Label
 		label.text = tr(str(label.get_meta(&"key")))
+	if _progress_note != null:
+		_progress_note.text = tr(KEY_PROGRESS_NOTE)
 	for i: int in _setting_buttons.size():
 		var value: String = setting_value(i)
 		_setting_buttons[i].text = Format.caps(value)
@@ -395,6 +424,42 @@ func _build_controls_row() -> void:
 	row.add_child(_controls)
 	row.visible = not OS.has_feature(FEATURE_MOBILE)
 	_settings_rows.add_child(row)
+
+
+## web.md §7.4: *Save progress as a file*, *Load progress from a file*, the note
+## under them and a caption for the last result (empty until there is one).
+func _build_progress_rows() -> void:
+	_progress_export = ConsoleButton.new()
+	_progress_export.name = "ProgressExport"
+	_progress_export.label_key = KEY_PROGRESS_EXPORT
+	_progress_export.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_progress_export.pressed.connect(_on_progress_export_pressed)
+	_progress_import = ConsoleButton.new()
+	_progress_import.name = "ProgressImport"
+	_progress_import.label_key = KEY_PROGRESS_IMPORT
+	_progress_import.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_progress_import.pressed.connect(_on_progress_import_pressed)
+	_progress_note = Label.new()
+	_progress_note.name = "ProgressNote"
+	_progress_note.theme_type_variation = &"LabelCaption"
+	_progress_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_progress_status = Label.new()
+	_progress_status.name = "ProgressStatus"
+	_progress_status.theme_type_variation = &"LabelCaption"
+	_progress_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	for row: Control in [_progress_export, _progress_import, _progress_note, _progress_status]:
+		_settings_rows.add_child(row)
+		_progress_rows.append(row)
+
+
+## The progress rows (buttons, note, status), for the tests.
+func progress_rows() -> Array[Control]:
+	return _progress_rows
+
+
+## The last progress result's caption, for the tests.
+func progress_status() -> Label:
+	return _progress_status
 
 
 ## A label and an On/Off button, like the rows above it; a title row.
@@ -508,6 +573,57 @@ func _on_setting_pressed(index: int) -> void:
 ## release.md §10: a phone and a browser have no folder a player could open.
 static func has_data_folder() -> bool:
 	return not (OS.has_feature(FEATURE_WEB) or OS.has_feature(FEATURE_MOBILE))
+
+
+## web.md §7.4: the progress file is the browser's — a desktop has the folder.
+static func has_progress_rows() -> bool:
+	return force_progress_rows or OS.has_feature(FEATURE_WEB)
+
+
+func _on_progress_export_pressed() -> void:
+	var file_name: String = PROGRESS_FILE_NAME.format(
+		{"date": Time.get_date_string_from_system()})
+	var web: WebBridge = PlatformService.web
+	var sent: bool = web != null and web.download_text(file_name, ProfileManager.export_text())
+	_progress_status.text = "" if sent else tr(KEY_PROGRESS_EXPORT_FAILED)
+
+
+func _on_progress_import_pressed() -> void:
+	var web: WebBridge = PlatformService.web
+	if web == null:
+		return
+	if not web.file_picked.is_connected(on_progress_file_picked):
+		web.file_picked.connect(on_progress_file_picked, CONNECT_ONE_SHOT)
+	web.pick_text_file()
+
+
+## §7.4 steps 1–4: the browser's answer to *Load progress from a file*. Public
+## so a test can hand it a file without a browser.
+func on_progress_file_picked(text: String, reason: String) -> void:
+	if reason == WebBridge.REASON_CANCELLED:
+		return
+	if reason == WebBridge.REASON_TOO_LARGE:
+		_progress_status.text = tr(KEY_PROGRESS_NOT_A_PROFILE)
+		return
+	# Not `JSON.parse_string`: a file that is no JSON at all is the player's
+	# mistake, not an engine error.
+	var json: JSON = JSON.new()
+	var raw: Variant = json.data if json.parse(text) == OK else null
+	var problem: String = ProfileManager.import_reason(raw)
+	if not problem.is_empty():
+		_progress_status.text = tr(_progress_reason_key(problem))
+		return
+	if not await _confirm.ask(KEY_PROGRESS_IMPORT_CONFIRM):
+		return
+	problem = ProfileManager.import_dict(raw)
+	_progress_status.text = tr(KEY_PROGRESS_IMPORTED if problem.is_empty()
+		else _progress_reason_key(problem))
+	if problem.is_empty():
+		progress_imported.emit()
+
+
+static func _progress_reason_key(reason: String) -> String:
+	return KEY_PROGRESS_NEWER if reason == ProfileManager.REASON_NEWER 		else KEY_PROGRESS_NOT_A_PROFILE
 
 
 ## The *Open data folder* button, for the tests.

@@ -53,11 +53,13 @@ func test_cues_are_44100_hz() -> void:
 			assert_eq(stream.mix_rate, RATE, cue.file)
 
 
-func test_cues_are_uncompressed_and_do_not_loop() -> void:
+## web.md §4.4 (S7.3): the cues import as QOA, ~5× smaller than PCM, for the
+## browser's download; the same files play on the desktop.
+func test_cues_are_qoa_and_do_not_loop() -> void:
 	for cue: AudioCueDef in _sheet.cues.values():
 		var stream: AudioStreamWAV = load(_cue_path(cue)) as AudioStreamWAV
 		if stream != null:
-			assert_eq(stream.format, AudioStreamWAV.FORMAT_16_BITS, "%s is PCM" % cue.file)
+			assert_eq(stream.format, AudioStreamWAV.FORMAT_QOA, "%s is QOA" % cue.file)
 			assert_eq(stream.loop_mode, AudioStreamWAV.LOOP_DISABLED, "%s is one-shot" % cue.file)
 
 

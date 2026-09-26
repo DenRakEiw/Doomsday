@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<title>Doomsday — iframe host (local test page)</title>
+<!--
+	web.md §17.2: the game in a cross-origin iframe, as itch.io embeds it. Served
+	from localhost:8766 while the game is served from 127.0.0.1:8765 — two
+	origins. 600 px of text above and below, so the page can scroll. A local test
+	page only; never uploaded. `?game=<address>` points the iframe elsewhere.
+-->
+<style>
+body { margin: 0; background: #1b1b1b; color: #bbb; font-family: sans-serif; }
+.filler { height: 600px; padding: 1rem; box-sizing: border-box; }
+iframe { display: block; width: 1280px; height: 720px; border: 0; margin: 0 auto; background: #000; }
+</style>
+</head>
+<body>
+<div class="filler" id="above">Host page text above the game. Space and the arrows scroll this page until the game has focus.</div>
+<iframe id="game" allow="autoplay; fullscreen *; cross-origin-isolated" allowfullscreen></iframe>
+<div class="filler" id="below">Host page text below the game.</div>
+<script>
+(function () {
+	var query = new URLSearchParams(window.location.search);
+	var port = '8765';
+	var address = query.get('game') || ('//127.0.0.1:' + port + '/index.html');
+	document.getElementById('game').src = address;
+}());
+</script>
+</body>
+</html>

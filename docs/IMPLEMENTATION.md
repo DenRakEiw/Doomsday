@@ -336,6 +336,7 @@ before the *next* row; "—" means stay on the same model.
 | 94 | D7.I itch.io page: copy en/de, cover and screenshot briefs, AI disclosure, privacy sentence | **[F]** | — |
 | 95 | S6.P Punch list from G6 *(skip if empty)* | [O] | — |
 | 96 | S7.3 Web build | [O] | — |
+| 96b | S7.3b Web build: the browser performance runs *(split from S7.3 at `web.md` §13)* | [O] | — |
 | 97 | S7.I itch.io upload: butler job in `release.yml`, size check, itch web settings *(the itch project and `BUTLER_API_KEY`: user)* | [O] | — |
 | 98 | G7.I The itch.io release: played on the restricted page, go, public — **[needs user]** | **[F]** | — |
 | 99 | S7.F1 FLUX: contract, actuator, capture, clock | [O] | — |
@@ -1388,6 +1389,17 @@ a scripted run in a browser. *(D7.2: plus the shell, `UserPaths`, `WebBridge`, t
 QOA cues, the `tools/web/` Playwright checks and the browser perf runs — a large step; if it
 runs long, split at `web.md` §13 (performance) into S7.3b and record the split.)*
 **Done when:** the full game loads and plays in a browser within the size budget.
+*Done 2026-09-26 without §13, which became S7.3b (below).*
+
+### S7.3b — Web build: performance in the browser **[O]** · **Read first:** `docs/specs/web.md` §13, §17.2 item 15 · `release.md` §11 · `tools/perf/` · `tools/web/web_check.py` (the serve and launch helpers)
+*(Split from S7.3 at `web.md` §13, 2026-09-26.)* The `Perf web (local)` preset (preset 4, §13.2),
+`perf_bench.gd`'s web branch (no CSV, the static memory peak, the summary line on the console),
+`tools/web/web_perf.py` (`web_igpu` with the integrated GPU forced for Playwright's Chromium only,
+`web_cpu` at 2.5× CPU throttling, the load times cold and warm under 50 Mbit/s), three runs each,
+recorded under *Performance notes*; a row that fails follows §13.2's rule. `test_export_presets.gd`
+gains the preset.
+**Done when:** every row of §13.1 is measured and recorded, and the game is playable on
+`web_igpu` (p95 frame ≤ 33 ms).
 
 ### S7.I — itch.io upload **[O]** · **Read first:** `docs/specs/itch.md` §7–§9 (settings, media capture, the butler job) · `docs/specs/web.md` §4.2–§4.3, §16 (size, settings, channels, the web smoke job) · `release.md` (CI) · `.github/workflows/release.yml`
 A butler job in `release.yml` pushing the web zip (and the downloads, if the user wants them) to

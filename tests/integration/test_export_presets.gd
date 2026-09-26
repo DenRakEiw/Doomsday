@@ -22,6 +22,21 @@ const PERF: String = "Perf (local)"
 ## §6.2: every shipped preset excludes these.
 const EXCLUDES: Array[String] = ["tests/*", "tools/*", "addons/gut/*", "ui/dev/*", "docs/*",
 	"*.md", "steam_appid.txt", ".github/*"]
+## web.md §3.3: every preset, the local ones too — an old export under `build/`
+## and the page's shell under `web/` are never packed.
+const EXCLUDES_ALL: Array[String] = ["build/*", "web/*"]
+## web.md §3.1: the Web preset's options.
+const WEB_OPTIONS: Dictionary[String, Variant] = {
+	"variant/thread_support": false,
+	"variant/extensions_support": false,
+	"progressive_web_app/enabled": false,
+	"html/custom_html_shell": "res://web/shell.html",
+	"html/head_include": "",
+	"html/canvas_resize_policy": 2,
+	"html/focus_canvas_on_start": true,
+	"html/experimental_virtual_keyboard": false,
+	"html/export_icon": true,
+}
 ## §6.2 plus the vendored icon licences (S6.10, *Deviations*); from S6.13 the
 ## shipped benchmark runs and the shipped copy of the global leaderboard.
 const INCLUDES: Array[String] = ["data/*.json", "assets/licences/*.txt", "assets/fonts/*.txt",
@@ -136,6 +151,33 @@ func test_the_web_preset_is_single_threaded() -> void:
 	var options: String = _sections["Web"] + OPTIONS_SUFFIX
 	assert_false(bool(_config.get_value(options, "variant/thread_support")))
 	assert_false(bool(_config.get_value(options, "progressive_web_app/enabled")))
+
+
+func test_the_web_preset_has_the_spec_s_options() -> void:
+	var options: String = _sections["Web"] + OPTIONS_SUFFIX
+	for key: String in WEB_OPTIONS:
+		assert_eq(_config.get_value(options, key), WEB_OPTIONS[key], key)
+
+
+func test_every_preset_excludes_old_builds_and_the_shell() -> void:
+	for preset_name: String in _sections:
+		var excludes: Array[String] = _filters(preset_name, "exclude_filter")
+		for pattern: String in EXCLUDES_ALL:
+			assert_true(excludes.has(pattern), "%s excludes %s" % [preset_name, pattern])
+
+
+func test_the_shell_exists() -> void:
+	assert_true(FileAccess.file_exists(str(WEB_OPTIONS["html/custom_html_shell"])))
+
+
+func test_build_is_hidden_from_the_importer() -> void:
+	assert_true(FileAccess.file_exists("res://build/.gdignore"))
+
+
+func test_the_web_writes_no_log_file() -> void:
+	var config: ConfigFile = ConfigFile.new()
+	assert_eq(config.load("res://project.godot"), OK)
+	assert_false(bool(config.get_value("debug", "file_logging/enable_file_logging.web", true)))
 
 
 func test_the_desktop_presets_embed_the_pack() -> void:

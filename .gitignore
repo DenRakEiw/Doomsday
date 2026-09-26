@@ -6,8 +6,10 @@
 *.translation
 export_credentials.cfg
 
-# Exported builds
-/build/
+# Exported builds. `build/.gdignore` is committed so the editor never imports
+# an export's files as project resources (web.md §3.3).
+/build/*
+!/build/.gdignore
 /export/
 
 # MCP / AI tooling (local, may contain machine-specific paths)

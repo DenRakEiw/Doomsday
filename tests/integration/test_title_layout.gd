@@ -4,6 +4,7 @@ extends GutTest
 ## column's last row; in the full layout it stays in the corner.
 
 const TITLE: PackedScene = preload("res://ui/screens/title.tscn")
+const TitleScript: GDScript = preload("res://ui/screens/title.gd")
 const PHONE: Vector2i = Vector2i(400, 860)
 const NARROW_DESKTOP: Vector2i = Vector2i(1000, 700)
 const DESKTOP: Vector2i = Vector2i(1920, 1080)
@@ -66,3 +67,11 @@ func test_the_caption_stays_in_the_corner_at_full_width() -> void:
 	var title: Control = await _title_in(DESKTOP)
 	var version: Label = title.call(&"version_label") as Label
 	assert_eq(version.get_parent(), title.get_node("Corner"))
+
+
+## S7.3 (web.md §12): a browser's release build says so; a debug build says it
+## is one wherever it runs.
+func test_the_caption_key_names_the_browser_build() -> void:
+	assert_eq(TitleScript.version_key(false, true), "UI_TITLE_VERSION_WEB")
+	assert_eq(TitleScript.version_key(false, false), "UI_TITLE_VERSION")
+	assert_eq(TitleScript.version_key(true, true), "UI_TITLE_VERSION_DEBUG")

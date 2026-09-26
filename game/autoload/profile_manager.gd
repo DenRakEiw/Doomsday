@@ -1,6 +1,7 @@
 extends Node
 ## What persists between runs (`replayability.md` §6, `screens-full.md` §5):
-## `user://profile.json`, versioned JSON like a save and never a resource.
+## `profile.json` under the user folder (web.md §7.1), versioned JSON like a save
+## and never a resource.
 ##
 ## Counters only. **Unlocks derive, they are not stored**: an architecture's rule
 ## and the directive slot count are computed from the counters, so a hand-edited
@@ -11,7 +12,8 @@ extends Node
 ## The core knows nothing of this file. The autoload name is the global, so no
 ## `class_name`.
 
-const PATH: String = "user://profile.json"
+## web.md §7.1: the file under `UserPaths.root()`.
+const FILE_NAME: String = "profile.json"
 const VERSION: int = 1
 ## `screens-full.md` §5: the history keeps this many runs, newest first.
 const HISTORY_MAX: int = 20
@@ -47,10 +49,13 @@ const CODEX_TABS: Array[String] = [CODEX_REGIONS, "factions", "tech", "character
 const UNLOCK_RUNS: String = "runs_completed"
 const UNLOCK_WINS: String = "wins"
 const UNLOCK_WINS_BY_OUTCOME: String = "wins_by_outcome"
+## web.md §7.4: why a progress file was not taken.
+const REASON_NOT_A_PROFILE: String = "not_a_profile"
+const REASON_NEWER: String = "newer"
 
 ## Where the file lives. The test suite points it elsewhere before it runs, so a
 ## test run never counts into the player's profile (`tests/support/pre_run.gd`).
-var path: String = PATH
+var path: String = UserPaths.at(FILE_NAME)
 var runs_completed: int = 0
 var runs_won: int = 0
 var wins_by_outcome: Dictionary[String, int] = {}
@@ -233,6 +238,48 @@ func reset() -> void:
 	write()
 
 
+## web.md §7.4: the profile as the text of a progress file — the same JSON as
+## the file on disk.
+func export_text() -> String:
+	return JSON.stringify(to_dict(), "	")
+
+
+## web.md §7.4 step 2: "" when `raw` can be taken as a progress file, else the
+## reason it cannot — not a profile, or one from a newer version.
+static func import_reason(raw: Variant) -> String:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return REASON_NOT_A_PROFILE
+	var d: Dictionary = raw
+	var version: Variant = d.get(KEY_VERSION)
+	var type: int = typeof(version)
+	if type != TYPE_INT and type != TYPE_FLOAT:
+		return REASON_NOT_A_PROFILE
+	var number: float = float(version)
+	if number != floorf(number) or number < 1.0 or not d.has(KEY_RUNS):
+		return REASON_NOT_A_PROFILE
+	if int(number) > VERSION:
+		return REASON_NEWER
+	return ""
+
+
+## web.md §7.4 step 4: replaces the profile with a progress file's. Earned
+## achievements are the union of both (they survive *Reset progress*, so an
+## import too); everything else is read as a file on disk is — unknown keys
+## ignored, bad values dropped. "" when it worked, else `import_reason`'s.
+func import_dict(raw: Variant) -> String:
+	var reason: String = import_reason(raw)
+	if not reason.is_empty():
+		return reason
+	var kept: Array[String] = achievements.duplicate()
+	_apply(raw)
+	for id: String in kept:
+		if not achievements.has(id):
+			achievements.append(id)
+	write()
+	earn_at_start()
+	return ""
+
+
 func to_dict() -> Dictionary:
 	var arch: Dictionary = {}
 	for id: String in by_architecture:
@@ -261,6 +308,8 @@ func to_dict() -> Dictionary:
 
 
 func write() -> void:
+	# In a browser the game's folder under `user://` is made by the first write.
+	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		# A read-only user directory is the player's problem, not a crash of ours.

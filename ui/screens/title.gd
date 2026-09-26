@@ -11,6 +11,8 @@ const KEY_LOAD_FAILED: String = "UI_TITLE_LOAD_FAILED"
 const KEY_VERSION: String = "UI_TITLE_VERSION"
 ## release.md §4: a debug export is never mistaken for a release.
 const KEY_VERSION_DEBUG: String = "UI_TITLE_VERSION_DEBUG"
+## web.md §12: a player's report says it came from the browser build.
+const KEY_VERSION_WEB: String = "UI_TITLE_VERSION_WEB"
 ## accessibility.md §5.1: `F1` and the pad's Back.
 const ACTION_HELP: StringName = &"game_help"
 ## accessibility.md §5.3: the key list, over the settings.
@@ -93,6 +95,8 @@ func _ready() -> void:
 	_statistics.connect(&"replay_requested", _on_replay_requested)
 	# The online setting is one of the button's reasons to show.
 	_settings_menu.connect(&"closed", _refresh_benchmark)
+	# web.md §7.4: a progress file brings another history and other unlocks.
+	_settings_menu.connect(&"progress_imported", _on_progress_imported)
 	_controls = CONTROLS_SCENE.instantiate() as Control
 	_host.add_child(_controls)
 	_controls.connect(&"closed", _host.close)
@@ -159,7 +163,7 @@ func primary_button() -> ConsoleButton:
 func _refresh_strings() -> void:
 	_name_label.text = tr(KEY_NAME)
 	_tagline.text = tr(KEY_TAGLINE)
-	_version.text = tr(KEY_VERSION_DEBUG if OS.is_debug_build() else KEY_VERSION).format(
+	_version.text = tr(version_key(OS.is_debug_build(), OS.has_feature(FEATURE_WEB))).format(
 		{PLACEHOLDER_VERSION: str(ProjectSettings.get_setting(SETTING_VERSION, ""))})
 
 
@@ -232,6 +236,20 @@ func _refresh_benchmark() -> void:
 ## The *Benchmark* button, for the tests.
 func benchmark_button() -> ConsoleButton:
 	return _benchmark_button
+
+
+## §3 and web.md §12: a debug build says so, a browser's release build says it
+## is the browser's.
+static func version_key(is_debug: bool, is_web: bool) -> String:
+	if is_debug:
+		return KEY_VERSION_DEBUG
+	return KEY_VERSION_WEB if is_web else KEY_VERSION
+
+
+## Saves are not in a progress file, so *Continue* stays as it is.
+func _on_progress_imported() -> void:
+	_refresh_benchmark()
+	_show_last_run()
 
 
 ## The version caption, for the tests.

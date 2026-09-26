@@ -11,7 +11,8 @@ extends Node
 ## unqualified `load(…)` is GDScript's global resource loader, never the method
 ## below — call it as `self.load(…)` or not at all.
 
-const SAVE_DIR: String = "user://saves/"
+## web.md §7.1: the folder under `UserPaths.root()`.
+const SAVE_FOLDER: String = "saves/"
 const SUFFIX: String = ".json"
 const TMP_SUFFIX: String = ".tmp"
 
@@ -28,7 +29,7 @@ const REASON_READ_FAILED: String = "save_read_failed"
 
 ## Where the slots live. release.md §8: the smoke run points it at a folder of
 ## its own, so a bot run never writes over the player's autosave.
-var save_dir: String = SAVE_DIR
+var save_dir: String = UserPaths.at(SAVE_FOLDER)
 
 
 ## Writes the running simulation to `slot`. "" means it worked, anything else is

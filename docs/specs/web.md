@@ -357,6 +357,12 @@ their current relative parts (`settings.json`, `profile.json`, `saves/`, `benchm
 Debug-only shot paths stay as they are. `UserDataMigration` is already off on the web. No
 migration: nothing was ever released on the web.
 
+*Measured by S7.3 (4.7.2 release export, Chrome/Edge/Firefox):* on the web the engine's `user://`
+is `/userfs/Doomsday` — `custom_user_dir_name` **does** apply there; the IndexedDB database
+`/userfs` is still one per origin, but its paths are per project name. The rule above is kept
+(the game's files sit at `/userfs/Doomsday/doomsday/…`, the engine's shader cache at
+`/userfs/Doomsday/shader_cache/`); whether to drop the extra folder is a *Design question*.
+
 ### 7.2 What persists, and what loses it
 
 | Situation | Progress (profile, settings, saves) |

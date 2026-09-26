@@ -14,19 +14,20 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures, **[needs user]**): the user plays the release candidate and judges BALANCE §6.7 — IMPLEMENTATION §4 row 92. **Without the user: S7.3** (row 96) [O] builds the Web build from `docs/specs/web.md` (split at §13 into S7.3b if long). **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
+| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures, **[needs user]**): the user plays the release candidate and judges BALANCE §6.7 — IMPLEMENTATION §4 row 92. **Without the user: S7.3b** (row 96b) [O] — the browser performance runs of `docs/specs/web.md` §13 (split from S7.3); then S7.I (row 97, the butler job — its push waits for the user's itch project and key). **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2, D7.I, S6.P done; S7.3, S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
-| **Last completed** | S6.P — Punch list from G6: the bots weigh an emergent card's catch — `StatusForecast` (`core/policy/status_forecast.gd`) turns an applied status into the policy weights' units (compute, penetration/control, footprint-months, containment) at today's rates over its days; `unlock_near_node` priced by the node it hands over (`EffectRunner.near_node`); target constants on `ComputeSystem`/`SpreadSystem`/`ContainmentSystem`, `ComputeSystem.region_yield`. Language Model re-check (100 seeds) within noise; 1 440 runs over 12 setups, 0 rejected, 0 timeouts (BALANCE §6.6) (2026-09-26). |
-| **Before that** | D7.I — The itch.io page: `docs/specs/itch.md` — one page, English first and German below; title variants (*Doomsday: Rogue Instance* recommended — seven itch projects are already called *Doomsday*), taglines, short description, the long description en/de with switches (TITLE, LANG, PRICE, DOWNLOADS, PICTURES, BOARD, STATUS); the privacy sentence; the generative-AI disclosure (all four kinds ticked, no image/audio model yet); itch settings checklist (HTML, 1280 × 720, tags, metadata); cover and screenshot briefs (S7.I captures and composes); the butler job's inputs; G7.I's twelve-step checklist; itch's CDN gzips `wasm`/`pck` (web.md §16.4 amended) (2026-09-26). |
-| **Earlier** | D7.2 — The Web build, the main version: `docs/specs/web.md` — desktop browsers only (Chrome/Edge/Firefox tested, Safari best effort, phones gated), single-threaded stock template, no SharedArrayBuffer; **measured web export 20.39 MB zip / 53.10 MB extracted** (wasm 39.5 MB raw, 10.1 gz; `.pck` 13.2 MB, three-quarters sound); budget zip ≤ 25 MB target / 30 hard, illustrations lossy WebP 0.9 and cue WAVs as QOA to stay inside it (≈ 23 MB projected); own HTML shell (loading, phone gate, error/crash screen, `?smoke`); files under `user://doomsday/` (itch's `/userfs` is shared by every Godot game); progress export/import in the title's settings; embed 1280 × 720; 22 strings (2026-09-26). |
+| **After it** | D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2, D7.I, S6.P, S7.3 done; S7.3b, S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
+| **Last completed** | S7.3 — The Web build (without §13 → S7.3b): own page `web/shell.html` (loading, phone notice, error and crash screens, en/de from the `UI_WEB_*` rows, `?smoke` only); `UserPaths` (the game's files under `user://doomsday/` on the web), `WebBridge` (page hidden/shown → `EventBus.page_hidden`/`page_shown`, locale for the shell, persistent storage, progress download and file picker); progress export/import rows in the browser's title settings; page hidden → mute, autosave, pause menu; cue files two per frame after the unlock; `KeyNames.use_layout`; QOA cues; illustrations lossy 0.9 (test + fixture); `build/.gdignore`, `build/*`/`web/*` excluded; no file log on the web. **Web zip 17.55 MB / 48.55 MB extracted** (was 20.39/53.10). `tools/web/` (uv, Playwright 1.63.0): `serve.py`, `iframe_host.html`, `web_check.py` — Chrome 153, Edge 153, Firefox 155 all green, the web smoke's hash equals `sim_run`'s. Bug fixed: the boot ate the first click, so the web's sound never unlocked on it (2026-09-26). |
+| **Before that** | S6.P — Punch list from G6: the bots weigh an emergent card's catch (`StatusForecast`); BALANCE §6.6 (2026-09-26). |
+| **Earlier** | D7.I — The itch.io page: `docs/specs/itch.md` (copy en/de, settings checklist, media briefs, the butler job's inputs, G7.I's checklist) (2026-09-26). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 364 scripts compile (147 judged by the suite), then `tools/check_strings.gd` (2535 rows), 2443 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 367 scripts compile (151 judged by the suite), then `tools/check_strings.gd` (2535 rows), 2495 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
 | **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
+| **Web** | Export `"$GODOT" --headless --path . --export-release "Web" build/web/index.html`; **play it locally:** `uv run --project tools/web python tools/web/serve.py` → `http://127.0.0.1:8765/` (`--dir <export>`). **Checks (S7.3):** `uv run --project tools/web python tools/web/web_check.py [--build <dir>] [--browsers chrome,msedge,firefox] [--checks size,load,phone,focus,keys,run,hidden,persist,settings,online,progress,smoke,debug] [--debug-build <dir>] [--out <dir>]` (all ≈ 25 min; `--smoke [--expect <json>]` alone is §16.3's CI job); browsers once: `uv run --project tools/web playwright install chromium firefox`. Clicks are embed coordinates at the top of `web_check.py`. In the browser the files are IndexedDB `/userfs` → `/userfs/Doomsday/doomsday/…`. A debug web export answers `window.doomsdayDebugCrash()` and `window.doomsdayDebugAudioUnlocked()`. |
 | **Benchmark** | `"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --model=<id> [--suite=quick] [--seeds=a..b] [--dry-run] [--max-cost=<usd>] [--yes]` (OpenRouter; the key from `OPENROUTER_API_KEY` only) · **`--model=typesafe/jev-latest`** (S6.12c: TypeSafe Jev, a decision model; key `TYPESAFE_API_KEY`; `--max-requests=<n>`, chat flags refused; `--dry-run` prints the day-0 request and the size limits, no key) · `--backend=mock-choice:first` (or `idle`, `shuffled`, `broken`) · **keys:** `powershell -ExecutionPolicy Bypass -File tools\bench\set_api_key.ps1 -Name OPENROUTER_API_KEY` (or `TYPESAFE_API_KEY`; a dialog, stored as a user variable, new windows see it) · `--backend=mock:cheapest` (or `wait`, `invalid`, `mixed`; free, no key) · `--bots [--if-missing] [--no-rebuild]` (reference rows, ≈3 min for the standard suite) · `--rebuild` · `--determinism-fixture`. Writes `benchmark/runs/*.json`, `benchmark/leaderboard.json`, `LEADERBOARD.md` (`--out=<dir>` elsewhere; tests use `user://test_bench/`); cache `benchmark/cache/` (ignored). The tool works in `_initialize`, not `_init`: TLS is not ready before the main loop. **Global board (S6.12b):** `"$GODOT" --headless --path . -s tools/bench/verify_runs.gd -- --board=<leaderboard checkout> --game-commit=<40-hex> [--limit=n] [--today=YYYY-MM-DD] [--message=<file>]` (exit 0/1/2/3; a full board of 81 runs ≈80 s); `.github/workflows/leaderboard.yml` (daily + dispatch; no key → gate / read-only dry run). **Whoever changes `data/` regenerates the canary on Windows in the same commit:** `bench_run.gd -- --determinism-fixture` (`test_bench_determinism` fails with that line otherwise). **In the game (S6.13):** title → *Benchmark* (shown when a recorded run exists, the *Online leaderboard* setting is on, or a board on disk has a row): the global board (fetched only when the list opens, ≤ once per 300 s; cache `user://benchmark/online/`, shipped copy `benchmark/global/leaderboard.json`), then the recorded runs (`res://benchmark/showcase/`, `user://benchmark/runs/`, debug builds also `res://benchmark/runs/`); *Watch* replays in the session at 4×. Debug switches: `-- --spectate=<entry.json>`, `-- --global-board=<board.json>` (runs next to it under `runs/`). From godot-mcp: set `local_board_path` on `…/TitleHost/Slot/Benchmark/BoardClient` and call `forget_fetch`; `Game.advance [n]` jumps a watched run ahead. The suite reads `user://test_bench_library/` and `user://test_bench_online/` (`pre_run.gd`). |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
 | **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. **The sound set:** `uv run --project tools/audio python tools/audio/synth.py [--only <id>] [--check]` (≈30 s; environment `uv sync --project tools/audio`) rewrites `assets/audio/**`; after a new file run `--import` and set its `.import` per audio.md §10.3 (`compress/mode=0` / `loop=true`). |
@@ -201,7 +202,8 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] D7.2 [F] The Web build — the main version *(was: web demo; `docs/specs/web.md`)*
 - [x] D7.I [F] itch.io page: copy en/de, cover and screenshot briefs, AI disclosure, privacy sentence *(`docs/specs/itch.md`)*
 - [x] S6.P [O] Punch list from G6 *(the bots weigh an emergent card's catch; `StatusForecast`)*
-- [ ] S7.3 [O] Web build
+- [x] S7.3 [O] Web build *(shell, `UserPaths`, `WebBridge`, progress file, QOA, `tools/web/` checks in three browsers)*
+- [ ] S7.3b [O] Web build: the browser performance runs *(split from S7.3 at `web.md` §13)*
 - [ ] S7.I [O] itch.io upload: butler job, size check, itch web settings *(the itch project and `BUTLER_API_KEY`: user)*
 - [ ] G7.I [F] The itch.io release: played on the restricted page, go, public — **[needs user]**
 
@@ -1495,6 +1497,12 @@ without new information.
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
+- **S7.3 — the web's extra folder.** `web.md` §7.1 moved every file under `user://doomsday/`
+  because `custom_user_dir_name` was thought not to apply on the web; measured in 4.7.2 it does:
+  `user://` is `/userfs/Doomsday`, so the files sit at `/userfs/Doomsday/doomsday/…`. Kept as
+  specified (harmless, and safe should the engine change). Drop the folder (`UserPaths.WEB_ROOT`
+  = `user://`) before the first itch release — after it, a change needs a migration — or keep it?
+
 - **S6.P3b — a key for the mute button?** `M` is the reduced-motion debug key; no free letter
   reads as *mute*, so the action has no key (the button and the pause menu's volumes remain).
   Give it one (and move the debug key), or leave it pointer-only?
@@ -1600,6 +1608,23 @@ without new information.
 **From G6 (1/2)** — item 1 (the bots weigh an emergent card's catch) **done in S6.P** (BALANCE §6.6).
 
 ## Deviations from the plan or a spec
+
+- **2026-09-26** (S7.3) — **Against `web.md`:** (1) §7.4's row order put *Reset progress* before
+  the progress rows; the rows take *Open data folder*'s place instead (§10), after *Controls* and
+  before *Online leaderboard*, and *Reset progress* stays last as on the desktop. (2) `WebBridge`'s
+  page signals reach `Audio` and the session through `EventBus.page_hidden`/`page_shown`, relayed
+  by `PlatformService` (the tests emit them there). (3) The first-input unlock (audio.md §5.8)
+  listens to the root window's `window_input`, not `Audio._input`: the boot takes its skip in
+  `_input` and the tree hands `_input` to the scene before the autoloads, so the first click never
+  unlocked the sound (found by §17.2 item 8). (4) §17.2's debug-only triggers are JS functions a
+  debug web export's `WebBridge` registers (`doomsdayDebugCrash` → `Game.debug_crash()`,
+  `doomsdayDebugAudioUnlocked` prints the state), not keys. (5) Paths: the relative parts are
+  `const`s, the full paths `var`s built from `UserPaths` (`Settings.path`, `SmokeRun.profile_path`
+  …); `Settings.PATH`, `SaveManager.SAVE_DIR`, `BenchLibrary.USER_DIR`,
+  `GlobalBoardClient.CACHE_DIR` are gone. (6) §17.2 item 7 answers the board's address with a
+  one-row fixture around the determinism canary (Playwright route): the real board has no rows
+  yet. (7) Items 8/9 by ear were not done (no listening here; the user may be playing) — they wait
+  for G7.I. (8) §13 (performance, item 15) is S7.3b.
 
 - **2026-09-26** (S6.12c) — **Against `benchmark.md` §17:** (1) TypeSafe's transport reuses the
   OpenRouter backend's static `request`/`parse_base_url` (preloaded) instead of a new
@@ -2408,12 +2433,13 @@ without new information.
 
 ## Known issues and carry-overs
 
-- **D7.2 → S7.3 (found in the first web export):** `KeyNames` calls
-  `DisplayServer.keyboard_get_label_from_physical`, which the web does not implement — eleven
-  `ERROR: Not supported by this display server` lines when the title opens (`web.md` §9.3 fixes
-  it; on the web a German keyboard then sees US key names — for D7.1). And `build/` has no
-  `.gdignore`, so a local web export's three icons were imported and shipped in every `.pck`
-  (`web.md` §3.3).
+- **S7.3 (web):** (1) on the web a German keyboard sees US key names (`web.md` §9.3 — for D7.1).
+  (2) The autosave written as the page hides reaches IndexedDB on the engine's next frame; a
+  browser runs none in a hidden tab, so a tab closed while hidden keeps the save before it. A
+  real second tab never hid the page in headless Chrome, Edge or Firefox — item 10 was checked
+  with a dispatched `visibilitychange`. (3) After the progress import's confirm the focus goes to
+  the settings' first row and the list scrolls to the top. (4) The empty status caption under the
+  progress note leaves a blank line until there is a result.
 - **S6.P4:** a tab row pressed from code (`Codex.show_tab`, `open(tab)` on another tab than the
   last; the tech tree's `open_on`; `Setup.select_difficulty`) leaves the old tab drawn pressed
   too — `set_pressed_no_signal` does not release the group (the scenario row lets the others go
@@ -2583,6 +2609,11 @@ without new information.
   The injected `mcp_interaction_server.gd` is gitignored in case a run crashes.
 
 ## Waiting on the user
+
+**S7.3 (2026-09-26): two checks by ear** (`web.md` §17.2 items 8–9, at G7.I or before): in a
+browser, the title's loops and a few cues (now QOA) play after the first click, and the music
+stems stay in step for three minutes of a run at 4×. Locally: export the Web preset, then
+`uv run --project tools/web python tools/web/serve.py` and open `http://127.0.0.1:8765/`.
 
 **itch.io release (2026-09-25; the page is written — `docs/specs/itch.md` §12):** pick (1) the
 **title** — *Doomsday: Rogue Instance* (recommended), *Off-Switch* or *Training Run* — and the URL
@@ -2815,6 +2846,12 @@ Cyber on Hard/Existential; Research Agent as the reward architecture.
 
 ## Performance notes
 
+**S7.3 (2026-09-26) — the web export's size after QOA** (0.6.0, stock `web_nothreads_release`,
+MB = 10⁶ B): `index.wasm` 39.51 MB (gzip -9 10.05), `index.pck` **8.67 MB (7.36)**, `index.js`
+0.28 (0.07), rest 0.08; **48.55 MB extracted, web zip 17.55 MB** in 9 files (budget ≤ 25 target /
+30 hard) — the cues as QOA took 2.85 MB off the download. No illustrations yet (D6.10: ≈ +5 MB
+lossy). Loading in headless Chrome from `127.0.0.1`: ≈ 3.3 s from navigation to `first screen`.
+
 **D7.2 (2026-09-26) — the web export's size** (0.6.0 at `465c3a6`, stock `web_nothreads_release`,
 MB = 10⁶ B): `index.wasm` 39.51 MB (gzip -9 10.08), `index.pck` 13.24 MB (10.21), `index.js`
 0.28 (0.07), rest 0.07; **53.10 MB extracted, web zip 20.39 MB**. Inside the `.pck`: cue WAVs
@@ -2877,6 +2914,12 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-26 — S7.3 The Web build (without §13) [O]
+- Shell (`web/shell.html`), `UserPaths`, `WebBridge`, progress file rows, page hidden → mute/autosave/menu, web cue loading, `KeyNames.use_layout`, QOA cues, lossy illustrations, `build/.gdignore`, no web log.
+- `tools/web/` (Playwright 1.63.0): Chrome 153, Edge 153, Firefox 155 — load, phone gate, focus, keys, a run, hidden, persistence, settings, online list + Watch, progress file, smoke (hash = `sim_run`), crash screen. Zip 17.55 MB.
+- Bug: the boot ate the first click, the web's sound never unlocked on it → `window_input`. Found: `user://` is `/userfs/Doomsday` on the web (Design question).
+- +52 tests, 2495 green, scratch APPDATA. Split: §13 → S7.3b. No `data/` change, no canary.
 
 ### 2026-09-26 — S6.P Punch list from G6 [O]
 - `StatusForecast`: an applied status in the weights' units at today's rates over its days (standing = longest timed, 90 d);

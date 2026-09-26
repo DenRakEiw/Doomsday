@@ -174,6 +174,7 @@ func _ready() -> void:
 	_codex.add_to_group(CoachRing.group(CoachRing.TARGET_HELP))
 	EventBus.help_requested.connect(open_help)
 	EventBus.platform_overlay_opened.connect(_on_platform_overlay_opened)
+	EventBus.page_hidden.connect(_on_page_hidden)
 	EventBus.speed_changed.connect(_on_speed_changed)
 	EventBus.tick_advanced.connect(_on_tick_advanced)
 	EventBus.text_scale_changed.connect(_on_text_scale_changed)
@@ -537,6 +538,20 @@ func _open_pause_menu() -> void:
 func _on_platform_overlay_opened() -> void:
 	if Game.sim == null or Game.sim.world.outcome != World.Outcome.NONE:
 		return
+	_open_pause_menu()
+
+
+## web.md §6.3: the browser stops a hidden page's frames, and at the return the
+## clock would take many days in one frame — so the player's live run is saved
+## and paused as the menu key pauses it. A watched run, a bot's, a run before
+## its origin or after its outcome goes on untouched.
+func _on_page_hidden() -> void:
+	if Game.sim == null or Game.policy != null:
+		return
+	var world: World = Game.sim.world
+	if world.agent.origin == 0 or world.outcome != World.Outcome.NONE:
+		return
+	_autosave()
 	_open_pause_menu()
 
 

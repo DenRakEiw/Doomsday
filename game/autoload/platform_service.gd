@@ -21,15 +21,20 @@ const BUILD_DEBUG: String = "debug"
 const BUILD_RELEASE: String = "release"
 ## §1.3: the log's first line (§10).
 const START_LINE: String = "Doomsday %s · %s · %s · platform %s"
+const FEATURE_WEB: String = "web"
 
 ## Never null after `_ready`.
 var backend: PlatformBackend = null
+## web.md §1: the browser's bridge — on the web only, null everywhere else.
+var web: WebBridge = null
 
 var _shut_down: bool = false
 
 
 func _ready() -> void:
 	EventBus.achievements_earned.connect(_on_achievements_earned)
+	if OS.has_feature(FEATURE_WEB):
+		_add_web_bridge()
 	use_backend(_choose_backend())
 	print(START_LINE % [str(ProjectSettings.get_setting(VERSION_SETTING, "")),
 		BUILD_DEBUG if OS.is_debug_build() else BUILD_RELEASE, OS.get_name(), backend.id()])
@@ -79,6 +84,19 @@ func stat_api_name(stat: String) -> String:
 ## (S6.14 adds that branch), the null backend otherwise.
 func _choose_backend() -> PlatformBackend:
 	return NullPlatformBackend.new()
+
+
+## web.md §6.3, §7.3: the bridge, its page signals on the bus, the shell told
+## the language, and the storage asked to persist — the settings and the profile
+## have been written by now.
+func _add_web_bridge() -> void:
+	web = WebBridge.new()
+	web.name = "WebBridge"
+	add_child(web)
+	web.page_hidden.connect(EventBus.page_hidden.emit)
+	web.page_shown.connect(EventBus.page_shown.emit)
+	web.remember_locale(Settings.locale)
+	web.request_persistent_storage()
 
 
 ## Unlocks `ids` (those the book knows), sets both stats, one `store()`.

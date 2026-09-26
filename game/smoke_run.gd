@@ -9,10 +9,10 @@ extends Node
 
 ## After `--` on the command line.
 const ARG: String = "--smoke"
-const DIR: String = "user://smoke/"
-const PROFILE_PATH: String = "user://smoke/profile.json"
-const SAVES_DIR: String = "user://smoke/saves/"
-const RESULT_PATH: String = "user://smoke/result.json"
+## web.md §7.1: the files under `UserPaths.root()`.
+const PROFILE_FILE: String = "smoke/profile.json"
+const SAVES_FOLDER: String = "smoke/saves/"
+const RESULT_FILE: String = "smoke/result.json"
 ## §8 item 3: seed 1, the greedy bot, the default setup — `sim_run`'s reference.
 const RUN_SEED: int = 1
 ## Days a frame is worth, on top of the clock's own.
@@ -41,6 +41,11 @@ const KEY_SECONDS: String = "seconds"
 const MS_PER_S: float = 1000.0
 ## What the session answers whether its results are up.
 const RESULTS_OPEN: StringName = &"results_open"
+
+## The smoke's own files, under the game's folder (a browser's `user://` is shared).
+static var profile_path: String = UserPaths.at(PROFILE_FILE)
+static var saves_dir: String = UserPaths.at(SAVES_FOLDER)
+static var result_path: String = UserPaths.at(RESULT_FILE)
 
 
 ## §8 item 2: counts what the engine logs as an error — errors, script and
@@ -98,13 +103,13 @@ func _exit_tree() -> void:
 ## the run is silent. The player's files were read at start as always; nothing
 ## here writes them. Static so a test can run it and put everything back.
 static func isolate() -> void:
-	DirAccess.make_dir_recursive_absolute(SAVES_DIR)
+	DirAccess.make_dir_recursive_absolute(saves_dir)
 	Settings.persist = false
 	for bus: StringName in AudioSheet.BUS_IDS:
 		Settings.set_volume(String(bus), 0.0)
-	ProfileManager.use_path(PROFILE_PATH)
+	ProfileManager.use_path(profile_path)
 	ProfileManager.reset()
-	SaveManager.save_dir = SAVES_DIR
+	SaveManager.save_dir = saves_dir
 
 
 ## §8 item 4: the one line on stdout.
@@ -149,7 +154,7 @@ func _finish(code: int) -> void:
 		KEY_ERRORS: errors,
 		KEY_SECONDS: (Time.get_ticks_msec() - _started_ms) / MS_PER_S,
 	}
-	var file: FileAccess = FileAccess.open(RESULT_PATH, FileAccess.WRITE)
+	var file: FileAccess = FileAccess.open(result_path, FileAccess.WRITE)
 	if file != null:
 		file.store_string(JSON.stringify(result, "\t", false))
 		file.close()

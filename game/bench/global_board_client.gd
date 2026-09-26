@@ -26,7 +26,8 @@ const FAIL_OFFLINE: String = "offline"
 const FAIL_CHANGED: String = "changed"
 const FAIL_UNREADABLE: String = "unreadable"
 const FAIL_OFF: String = "off"
-const CACHE_DIR: String = "user://benchmark/online/"
+## web.md §7.1: the folder under `UserPaths.root()`.
+const CACHE_FOLDER: String = "benchmark/online/"
 const SHIPPED_PATH: String = "res://benchmark/global/leaderboard.json"
 const BOARD_FILE: String = "leaderboard.json"
 const RUNS_DIR: String = "runs"
@@ -42,7 +43,7 @@ var requests_made: int = 0
 var config: BenchConfig = null
 ## Where a new client caches; the suite points it at a folder of its own
 ## (`tests/support/pre_run.gd`), so no test reads or writes the player's cache.
-static var default_cache_dir: String = CACHE_DIR
+static var default_cache_dir: String = UserPaths.at(CACHE_FOLDER)
 
 ## Where the board and the runs are cached.
 var cache_dir: String = default_cache_dir

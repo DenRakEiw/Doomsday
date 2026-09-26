@@ -74,3 +74,9 @@ signal achievements_earned(ids: Array[String])
 ## release.md §1.3: the platform's overlay opened over the game. The session
 ## answers with its pause menu while a run is live.
 signal platform_overlay_opened
+## web.md §6.3: the browser page went to the background (another tab,
+## minimised) — `WebBridge`, relayed by `PlatformService`. The sound mutes and a
+## live run is saved and paused.
+signal page_hidden
+## web.md §6.3: the page is visible again.
+signal page_shown

@@ -1,0 +1,20 @@
+[project]
+name = "doomsday-web"
+version = "1.0.0"
+description = "Serves the Web export locally and drives it in real browsers (docs/specs/web.md §13, §17.2)."
+requires-python = ">=3.12"
+
+# Playwright for Python, pinned exactly (and by the uv.lock next to this file):
+# its browsers are tied to the version and download into Playwright's own cache
+# (`uv run --project tools/web playwright install chromium firefox`), never into
+# the repository. Chrome and Edge are the machine's own, launched with fresh
+# temporary profiles.
+dependencies = [
+    "playwright==1.63.0",
+]
+
+[dependency-groups]
+dev = []
+
+[tool.uv]
+package = false

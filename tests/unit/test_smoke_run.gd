@@ -27,16 +27,16 @@ func after_each() -> void:
 
 func test_isolation_points_the_profile_at_the_smoke_folder() -> void:
 	SmokeRun.isolate()
-	assert_eq(ProfileManager.path, SmokeRun.PROFILE_PATH)
+	assert_eq(ProfileManager.path, SmokeRun.profile_path)
 	assert_ne(ProfileManager.path, _profile_path)
 
 
 func test_isolation_points_the_saves_at_the_smoke_folder() -> void:
 	SmokeRun.isolate()
-	assert_eq(SaveManager.save_dir, SmokeRun.SAVES_DIR)
+	assert_eq(SaveManager.save_dir, SmokeRun.saves_dir)
 	assert_eq(SaveManager.path_for(SaveManager.AUTOSAVE),
-		SmokeRun.SAVES_DIR.path_join(SaveManager.AUTOSAVE + SaveManager.SUFFIX))
-	assert_true(DirAccess.dir_exists_absolute(SmokeRun.SAVES_DIR))
+		SmokeRun.saves_dir.path_join(SaveManager.AUTOSAVE + SaveManager.SUFFIX))
+	assert_true(DirAccess.dir_exists_absolute(SmokeRun.saves_dir))
 
 
 func test_isolation_turns_the_settings_file_off() -> void:
@@ -51,10 +51,10 @@ func test_isolation_silences_every_bus() -> void:
 
 
 func test_a_settings_change_is_not_written_while_persist_is_off() -> void:
-	var before: String = FileAccess.get_file_as_string(Settings.PATH)
+	var before: String = FileAccess.get_file_as_string(Settings.path)
 	Settings.persist = false
 	Settings.set_volume(String(AudioSheet.BUS_MUSIC), 0.25)
-	assert_eq(FileAccess.get_file_as_string(Settings.PATH), before)
+	assert_eq(FileAccess.get_file_as_string(Settings.path), before)
 
 
 func test_the_result_line_reads_ok_with_its_fields() -> void:

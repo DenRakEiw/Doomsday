@@ -585,6 +585,14 @@ func debug_settings(locale: String, text_scale: float, pseudo: bool) -> String:
 	return "%s %.2f pseudo=%s" % [TranslationServer.get_locale(), Settings.text_scale, pseudo]
 
 
+## web.md §17.2 item 12: stops the engine as a crash would, so the web page's
+## crash screen can be looked at. Debug builds only; the debug web export's
+## bridge calls it.
+func debug_crash() -> void:
+	if debug_allowed:
+		OS.crash("debug_crash")
+
+
 ## Announces a discovery the world did not have, so the discovery modal can be
 ## looked at (S4.9's screenshots); the world itself is left as it is.
 func debug_discovery_modal() -> void:

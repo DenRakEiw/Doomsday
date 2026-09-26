@@ -281,7 +281,7 @@ func test_volume_setting_persists() -> void:
 	var after: float = Audio.volume(&"music")
 	assert_eq(after, AudioRules.next_volume(before))
 	var json: JSON = JSON.new()
-	assert_eq(json.parse(FileAccess.get_file_as_string(Settings.PATH)), OK)
+	assert_eq(json.parse(FileAccess.get_file_as_string(Settings.path)), OK)
 	var read: Dictionary = Settings.values_from(json.data, Settings.LOCALE_EN)
 	assert_almost_eq(float((read[Settings.KEY_VOLUMES] as Dictionary)["music"]), after, 1e-6)
 

@@ -63,6 +63,9 @@ gdscript/warnings/unsafe_call_argument=1
 file_logging/enable_file_logging=true
 file_logging/log_path="user://logs/godot.log"
 file_logging/max_log_files=5
+; web.md §3.2: no log in a browser — `/userfs` is shared with every Godot game
+; on the host, and the console has every line.
+file_logging/enable_file_logging.web=false
 
 [editor_plugins]
 

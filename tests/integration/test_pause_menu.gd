@@ -250,3 +250,83 @@ func test_is_hold_change_is_true_only_inside_a_hold_s_speed_change() -> void:
 	EventBus.speed_changed.disconnect(listener)
 	assert_eq(heard, [true, true, false] as Array[bool])
 	assert_false(Game.is_hold_change(), "false outside the signal")
+
+
+## S7.3 (web.md §7.4): the progress rows are the browser's, on the title only.
+func test_the_progress_rows_show_in_the_browser_s_title_settings() -> void:
+	PauseMenu.set(&"force_progress_rows", true)
+	_menu.open_settings_only()
+	var rows: Array[Control] = _menu.progress_rows()
+	PauseMenu.set(&"force_progress_rows", false)
+	assert_eq(rows.size(), 4, "two buttons, the note, the status")
+	for row: Control in rows:
+		assert_true(row.visible, row.name)
+	assert_eq((rows[0] as ConsoleButton).label_key, "UI_SETTINGS_PROGRESS_EXPORT")
+	assert_eq((rows[1] as ConsoleButton).label_key, "UI_SETTINGS_PROGRESS_IMPORT")
+	assert_eq((rows[2] as Label).text, tr("UI_SETTINGS_PROGRESS_NOTE"))
+	assert_eq(_menu.progress_status().text, "", "no result yet")
+
+
+func test_the_progress_rows_are_not_in_a_run_s_menu() -> void:
+	PauseMenu.set(&"force_progress_rows", true)
+	_start()
+	_menu.open_menu()
+	PauseMenu.set(&"force_progress_rows", false)
+	for row: Control in _menu.progress_rows():
+		assert_false(row.visible, row.name)
+
+
+func test_the_progress_rows_are_not_on_the_desktop() -> void:
+	_menu.open_settings_only()
+	for row: Control in _menu.progress_rows():
+		assert_false(row.visible, row.name)
+
+
+func test_a_file_that_is_no_profile_says_so() -> void:
+	_menu.open_settings_only()
+	_menu.on_progress_file_picked("{\"hello\": 1}", "")
+	assert_eq(_menu.progress_status().text, tr("UI_SETTINGS_PROGRESS_NOT_A_PROFILE"))
+
+
+func test_a_newer_file_says_so() -> void:
+	_menu.open_settings_only()
+	_menu.on_progress_file_picked(JSON.stringify({"version": ProfileManager.VERSION + 1,
+		"runs_completed": 1}), "")
+	assert_eq(_menu.progress_status().text, tr("UI_SETTINGS_PROGRESS_NEWER"))
+
+
+func test_a_file_too_large_is_no_profile_and_a_cancel_says_nothing() -> void:
+	_menu.open_settings_only()
+	_menu.on_progress_file_picked("", WebBridge.REASON_CANCELLED)
+	assert_eq(_menu.progress_status().text, "")
+	_menu.on_progress_file_picked("", WebBridge.REASON_TOO_LARGE)
+	assert_eq(_menu.progress_status().text, tr("UI_SETTINGS_PROGRESS_NOT_A_PROFILE"))
+
+
+func test_a_confirmed_progress_file_replaces_the_profile() -> void:
+	var saved: String = FileAccess.get_file_as_string(ProfileManager.path)
+	var doctored: Dictionary = ProfileManager.to_dict()
+	doctored["runs_completed"] = ProfileManager.runs_completed + 1
+	var expected: int = ProfileManager.runs_completed + 1
+	_menu.open_settings_only()
+	watch_signals(_menu)
+	_menu.on_progress_file_picked(JSON.stringify(doctored), "")
+	var confirm: ConfirmModal = _menu.get_node("%PauseConfirm")
+	assert_true(confirm.visible, "asked first")
+	confirm.on_escape()
+	assert_eq(ProfileManager.runs_completed, expected - 1, "no — nothing changes")
+	_menu.on_progress_file_picked(JSON.stringify(doctored), "")
+	confirm.emit_signal("answered", true)
+	assert_eq(ProfileManager.runs_completed, expected)
+	assert_eq(_menu.progress_status().text, tr("UI_SETTINGS_PROGRESS_IMPORTED"))
+	assert_signal_emitted(_menu, "progress_imported")
+	var file: FileAccess = FileAccess.open(ProfileManager.path, FileAccess.WRITE)
+	file.store_string(saved)
+	file.close()
+	ProfileManager.use_path(ProfileManager.path)
+
+
+func test_a_file_that_is_no_json_says_so() -> void:
+	_menu.open_settings_only()
+	_menu.on_progress_file_picked("this is not json", "")
+	assert_eq(_menu.progress_status().text, tr("UI_SETTINGS_PROGRESS_NOT_A_PROFILE"))

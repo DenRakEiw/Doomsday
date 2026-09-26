@@ -39,6 +39,14 @@ const PRINTABLE_FIRST: int = 32
 const ASCII_END: int = 128
 ## The headless display server has no keyboard layout to ask.
 const HEADLESS: String = "headless"
+## web.md §9.3: the web's display server has none either — it prints an error
+## for every key asked.
+const FEATURE_WEB: String = "web"
+
+## Whether the keyboard layout is asked for a key's label. Off in a browser and
+## headless, where a key is named by its US legend; the test seam of web.md §9.3.
+static var use_layout: bool = layout_available(OS.has_feature(FEATURE_WEB),
+	DisplayServer.get_name())
 
 
 ## The action's first key, as the keyboard labels it; "" when it has none.
@@ -53,7 +61,7 @@ static func key_label(physical: Key) -> String:
 	if WORDS.has(physical):
 		return String(TranslationServer.translate(WORDS[physical]))
 	var shown: Key = physical
-	if DisplayServer.get_name() != HEADLESS:
+	if use_layout:
 		var mapped: Key = DisplayServer.keyboard_get_label_from_physical(physical)
 		if mapped != KEY_NONE:
 			shown = mapped
@@ -63,6 +71,11 @@ static func key_label(physical: Key) -> String:
 	if code > PRINTABLE_FIRST and code < int(KEY_SPECIAL):
 		return String.chr(code).to_upper() if code < ASCII_END else String.chr(code)
 	return OS.get_keycode_string(shown)
+
+
+## Whether a display server can name a key by the layout's label.
+static func layout_available(is_web: bool, display_server: String) -> bool:
+	return not is_web and display_server != HEADLESS
 
 
 ## Every key placeholder of §5.3 with the key it stands for right now.

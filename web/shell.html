@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+<title>$GODOT_PROJECT_NAME</title>
+<!--
+	Doomsday's page (docs/specs/web.md §5): the loading screen, the phone
+	notice, the error and crash screens, in English and German. One file, no
+	request to any host but its own folder. Built from Godot 4.7.2's own shell;
+	the exporter fills the $GODOT_* placeholders.
+-->
+<style>
+:root {
+	--ink: #07090C;
+	--bg-2: #101820;
+	--line-1: #2C3D4C;
+	--text-0: #DCE6EE;
+	--text-1: #93A6B5;
+	--accent: #6FE3FF;
+	--mono: ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
+}
+
+html, body, #canvas {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+body {
+	color: var(--text-1);
+	background-color: var(--ink);
+	font-family: var(--mono);
+	overflow: hidden;
+	touch-action: none;
+}
+
+#canvas {
+	display: block;
+}
+
+#canvas:focus {
+	outline: none;
+}
+
+#shell, #crash {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	padding: 0 2rem;
+}
+
+#shell {
+	background-color: var(--ink);
+	transition: opacity 200ms linear;
+	z-index: 1;
+}
+
+#shell.gone {
+	opacity: 0;
+}
+
+#crash {
+	background-color: rgba(7, 9, 12, 0.92);
+	z-index: 2;
+}
+
+[hidden] {
+	display: none !important;
+}
+
+h1 {
+	color: var(--text-0);
+	font-size: 1.5rem;
+	font-weight: 600;
+	letter-spacing: 0.3em;
+	text-transform: uppercase;
+	margin: 0 0 1.5rem;
+}
+
+h2 {
+	color: var(--text-0);
+	font-size: 1.1rem;
+	font-weight: 600;
+	margin: 0 0 1rem;
+}
+
+p {
+	max-width: 36rem;
+	line-height: 1.5;
+	margin: 0 0 1.25rem;
+}
+
+#bar {
+	width: 320px;
+	max-width: 80%;
+	height: 2px;
+	background-color: var(--bg-2);
+	overflow: hidden;
+	margin-bottom: 1rem;
+}
+
+#fill {
+	width: 0;
+	height: 100%;
+	background-color: var(--accent);
+}
+
+#bar.indeterminate #fill {
+	width: 25%;
+	animation: slide 1s linear infinite;
+}
+
+@keyframes slide {
+	from { transform: translateX(-100%); }
+	to { transform: translateX(400%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#bar.indeterminate #fill {
+		width: 100%;
+		animation: none;
+	}
+	#shell {
+		transition: none;
+	}
+}
+
+#line {
+	min-height: 1.5em;
+}
+
+button {
+	font-family: var(--mono);
+	font-size: 0.9rem;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--accent);
+	background-color: var(--bg-2);
+	border: 1px solid var(--accent);
+	padding: 0.6rem 1.4rem;
+	cursor: pointer;
+}
+
+button:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 3px;
+}
+
+details {
+	max-width: 44rem;
+	width: 100%;
+	margin: 0 0 1.25rem;
+	text-align: left;
+}
+
+summary {
+	cursor: pointer;
+	text-align: center;
+}
+
+pre {
+	max-height: 14rem;
+	overflow: auto;
+	white-space: pre-wrap;
+	word-break: break-word;
+	font-size: 0.75rem;
+	color: var(--text-1);
+	background-color: var(--bg-2);
+	border: 1px solid var(--line-1);
+	padding: 0.75rem;
+	user-select: text;
+}
+</style>
+$GODOT_HEAD_INCLUDE
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<noscript>Doomsday needs JavaScript. / Doomsday braucht JavaScript.</noscript>
+
+<div id="shell">
+	<h1>Doomsday</h1>
+	<div id="loading">
+		<div id="bar"><div id="fill"></div></div>
+		<div id="line" role="status"></div>
+	</div>
+	<div id="phone" hidden>
+		<h2 id="phone-title"></h2>
+		<p id="phone-body"></p>
+		<button id="phone-start" type="button"></button>
+	</div>
+	<div id="error" hidden>
+		<h2 id="error-title"></h2>
+		<p id="error-body"></p>
+		<button id="error-reload" type="button" hidden></button>
+	</div>
+</div>
+
+<div id="crash" role="alertdialog" aria-labelledby="crash-title" hidden>
+	<h2 id="crash-title"></h2>
+	<p id="crash-body"></p>
+	<details>
+		<summary id="crash-summary"></summary>
+		<pre id="crash-log"></pre>
+	</details>
+	<button id="crash-reload" type="button"></button>
+</div>
+
+<script src="$GODOT_URL"></script>
+<script>
+const GODOT_CONFIG = $GODOT_CONFIG;
+const GODOT_THREADS_ENABLED = $GODOT_THREADS_ENABLED;
+
+(function () {
+	'use strict';
+
+	// web.md §5.1: exactly the UI_WEB_* rows of data/loc/strings.csv, which is the
+	// source; test_web_shell.gd fails when the two drift.
+	const STRINGS = {
+		"en": {
+			"UI_WEB_LOADING": "Loading — {percent} %",
+			"UI_WEB_LOADING_SIZE": "Loading — {mb} MB",
+			"UI_WEB_STARTING": "Starting …",
+			"UI_WEB_PHONE_TITLE": "Made for a computer",
+			"UI_WEB_PHONE_BODY": "Doomsday needs a mouse and a keyboard for now. Phones and tablets are not supported yet. The download is about {mb} MB.",
+			"UI_WEB_PHONE_START": "Start anyway",
+			"UI_WEB_ERR_TITLE": "The game cannot start",
+			"UI_WEB_ERR_FEATURES": "This browser is missing what the game needs: {features}. Use a current Chrome, Edge, Firefox or Safari on a computer, with hardware acceleration switched on.",
+			"UI_WEB_ERR_LOAD": "The download stopped. Check the connection, then reload the page.",
+			"UI_WEB_CRASH_TITLE": "The game stopped",
+			"UI_WEB_CRASH_BODY": "Something went wrong and the game had to stop. Your progress up to the last autosave is kept in this browser.",
+			"UI_WEB_DETAILS": "Details for a bug report",
+			"UI_WEB_RELOAD": "Reload"
+		},
+		"de": {
+			"UI_WEB_LOADING": "Wird geladen – {percent} %",
+			"UI_WEB_LOADING_SIZE": "Wird geladen – {mb} MB",
+			"UI_WEB_STARTING": "Wird gestartet …",
+			"UI_WEB_PHONE_TITLE": "Für einen Computer gemacht",
+			"UI_WEB_PHONE_BODY": "Doomsday braucht vorerst Maus und Tastatur. Handys und Tablets werden noch nicht unterstützt. Der Download ist etwa {mb} MB groß.",
+			"UI_WEB_PHONE_START": "Trotzdem starten",
+			"UI_WEB_ERR_TITLE": "Das Spiel kann nicht starten",
+			"UI_WEB_ERR_FEATURES": "Diesem Browser fehlt, was das Spiel braucht: {features}. Nimm einen aktuellen Chrome, Edge, Firefox oder Safari auf einem Computer, mit eingeschalteter Hardwarebeschleunigung.",
+			"UI_WEB_ERR_LOAD": "Der Download ist abgebrochen. Prüfe die Verbindung und lade die Seite neu.",
+			"UI_WEB_CRASH_TITLE": "Das Spiel wurde beendet",
+			"UI_WEB_CRASH_BODY": "Etwas ist schiefgegangen, und das Spiel musste anhalten. Dein Fortschritt bis zur letzten automatischen Speicherung bleibt in diesem Browser erhalten.",
+			"UI_WEB_DETAILS": "Details für eine Fehlermeldung",
+			"UI_WEB_RELOAD": "Neu laden"
+		}
+	};
+	const LOCALE_KEY = 'doomsday_locale';
+	const ERROR_LINES = 20;
+	const BYTES_PER_MB = 1000000;
+
+	function chooseLocale() {
+		let stored = null;
+		try {
+			stored = window.localStorage.getItem(LOCALE_KEY);
+		} catch (e) {
+			stored = null;
+		}
+		if (stored === 'en' || stored === 'de') {
+			return stored;
+		}
+		const language = (navigator.language || '').toLowerCase();
+		return language.indexOf('de') === 0 ? 'de' : 'en';
+	}
+
+	const locale = chooseLocale();
+	document.documentElement.lang = locale;
+
+	function tr(key, args) {
+		const text = STRINGS[locale][key];
+		return text.replace(/\{(\w+)\}/g, function (whole, name) {
+			return args && Object.prototype.hasOwnProperty.call(args, name) ? String(args[name]) : whole;
+		});
+	}
+
+	function byId(id) {
+		return document.getElementById(id);
+	}
+
+	const shell = byId('shell');
+	const bar = byId('bar');
+	const fill = byId('fill');
+	const line = byId('line');
+	const errorLines = [];
+	let started = false;
+	let crashed = false;
+
+	function show(part) {
+		byId('loading').hidden = part !== 'loading';
+		byId('phone').hidden = part !== 'phone';
+		byId('error').hidden = part !== 'error';
+	}
+
+	function showError(bodyKey, args, canReload) {
+		show('error');
+		byId('error-title').textContent = tr('UI_WEB_ERR_TITLE');
+		byId('error-body').textContent = tr(bodyKey, args);
+		const reload = byId('error-reload');
+		reload.hidden = !canReload;
+		reload.textContent = tr('UI_WEB_RELOAD');
+	}
+
+	function reload() {
+		window.location.reload();
+	}
+
+	function showCrash(detail) {
+		if (crashed) {
+			return;
+		}
+		crashed = true;
+		const lines = errorLines.slice(-ERROR_LINES);
+		if (detail) {
+			lines.push(String(detail));
+		}
+		byId('crash-title').textContent = tr('UI_WEB_CRASH_TITLE');
+		byId('crash-body').textContent = tr('UI_WEB_CRASH_BODY');
+		byId('crash-summary').textContent = tr('UI_WEB_DETAILS');
+		byId('crash-log').textContent = lines.join('\n');
+		byId('crash-reload').textContent = tr('UI_WEB_RELOAD');
+		byId('crash').hidden = false;
+		byId('crash-reload').focus();
+	}
+
+	function describe(error) {
+		if (error && error.stack) {
+			return String(error.stack);
+		}
+		if (error && error.message) {
+			return String(error.message);
+		}
+		return String(error);
+	}
+
+	function onProgress(current, total) {
+		if (total > 0) {
+			bar.classList.remove('indeterminate');
+			const percent = Math.min(100, Math.floor(current * 100 / total));
+			fill.style.width = percent + '%';
+			line.textContent = current >= total ? tr('UI_WEB_STARTING') : tr('UI_WEB_LOADING', { percent: percent });
+		} else {
+			bar.classList.add('indeterminate');
+			line.textContent = tr('UI_WEB_LOADING_SIZE', { mb: (current / BYTES_PER_MB).toFixed(1) });
+		}
+	}
+
+	function onPrintError() {
+		const text = Array.prototype.slice.call(arguments).join(' ');
+		errorLines.push(text);
+		if (errorLines.length > ERROR_LINES) {
+			errorLines.shift();
+		}
+		console.error(text);
+	}
+
+	// web.md §5.4: onExit 0 is the smoke run quitting; anything else stopped the game.
+	function onExit(code) {
+		if (code !== 0) {
+			showCrash('exit ' + code);
+		}
+	}
+
+	window.addEventListener('error', function (event) {
+		if (started && event.error !== 'unwind') {
+			showCrash(describe(event.error || event.message));
+		}
+	});
+	window.addEventListener('unhandledrejection', function (event) {
+		if (started && event.reason !== 'unwind') {
+			showCrash(describe(event.reason));
+		}
+	});
+
+	byId('error-reload').addEventListener('click', reload);
+	byId('crash-reload').addEventListener('click', reload);
+
+	// web.md §5.5: one key from the address, nothing else.
+	const query = new URLSearchParams(window.location.search);
+	const args = query.has('smoke') ? ['--', '--smoke'] : [];
+
+	function hideShell() {
+		// The engine's first frame follows the start; its own splash is INK too.
+		window.requestAnimationFrame(function () {
+			window.requestAnimationFrame(function () {
+				shell.classList.add('gone');
+				window.setTimeout(function () {
+					shell.remove();
+				}, 250);
+			});
+		});
+	}
+
+	function start() {
+		show('loading');
+		onProgress(0, 1);
+		const engine = new Engine(GODOT_CONFIG);
+		engine.startGame({
+			'args': args,
+			'onProgress': onProgress,
+			'onPrintError': onPrintError,
+			'onExit': onExit,
+		}).then(function () {
+			started = true;
+			hideShell();
+		}, function (error) {
+			console.error(error);
+			showError('UI_WEB_ERR_LOAD', null, true);
+		});
+	}
+
+	function downloadMb() {
+		let bytes = 0;
+		const sizes = GODOT_CONFIG['fileSizes'] || {};
+		Object.keys(sizes).forEach(function (name) {
+			bytes += Number(sizes[name]) || 0;
+		});
+		return Math.round(bytes / BYTES_PER_MB);
+	}
+
+	const missing = Engine.getMissingFeatures({ threads: GODOT_THREADS_ENABLED });
+	if (missing.length !== 0) {
+		showError('UI_WEB_ERR_FEATURES', { features: missing.join('; ') }, false);
+	} else if (!window.matchMedia('(any-pointer: fine)').matches) {
+		// web.md §5.3: no mouse or trackpad at all — a phone or a plain tablet.
+		show('phone');
+		byId('phone-title').textContent = tr('UI_WEB_PHONE_TITLE');
+		byId('phone-body').textContent = tr('UI_WEB_PHONE_BODY', { mb: downloadMb() });
+		const button = byId('phone-start');
+		button.textContent = tr('UI_WEB_PHONE_START');
+		button.addEventListener('click', start, { once: true });
+	} else {
+		start();
+	}
+}());
+</script>
+</body>
+</html>

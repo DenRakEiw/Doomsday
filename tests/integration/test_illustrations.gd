@@ -1,8 +1,8 @@
 extends GutTest
 ## S6.3 — the pictures under `assets/illustrations/` (`docs/specs/illustrations.md`
 ## §4, §7.5, §8.4). Green with none present, so D6.10 only drops files in: each
-## is a known id at 1120 × 840, imported lossless with mipmaps, and named in the
-## *Generated assets* table of `ASSET_LICENCES.md`.
+## is a known id at 1120 × 840, imported lossy (WebP 0.9, web.md §4.4) with
+## mipmaps, and named in the *Generated assets* table of `ASSET_LICENCES.md`.
 
 const ROOT: String = "res://assets/illustrations"
 const EXTENSION: String = "png"
@@ -11,6 +11,12 @@ const HEIGHT: int = 840
 const LICENCES_PATH: String = "res://docs/ASSET_LICENCES.md"
 const GENERATED_HEADING: String = "## Generated assets"
 const ASSET_COLUMN: String = "Asset"
+## web.md §4.4 (amending §4): WebP lossy at 0.9, mipmaps on — the browser's
+## download. A picture whose flat edges ring at 0.9 is raised to 0.95 here.
+const COMPRESS_LOSSY: int = 1
+const LOSSY_QUALITY_DEFAULT: float = 0.9
+const LOSSY_QUALITY: Dictionary[String, float] = {}
+const QUALITY_EPSILON: float = 0.001
 const DiscoveryModal: GDScript = preload("res://ui/modals/discovery_modal.gd")
 ## §10: the 25 briefs. A new illustration id in the data needs its brief first.
 const BRIEFED: Array[String] = ["fc_street", "cm_lockdown", "cm_rationing", "cm_audit",
@@ -97,11 +103,14 @@ func test_every_file_is_1120_by_840() -> void:
 	pass_test("%d pictures" % _files().size())
 
 
-func test_every_file_imports_lossless_with_mipmaps() -> void:
+func test_every_file_imports_lossy_with_mipmaps() -> void:
 	for path: String in _files():
 		var config: ConfigFile = ConfigFile.new()
 		assert_eq(config.load(path + ".import"), OK, "%s has its .import" % path)
-		assert_eq(int(config.get_value("params", "compress/mode", -1)), 0, path)
+		assert_eq(int(config.get_value("params", "compress/mode", -1)), COMPRESS_LOSSY, path)
+		assert_almost_eq(float(config.get_value("params", "compress/lossy_quality", 0.0)),
+			float(LOSSY_QUALITY.get(path.get_file().get_basename(), LOSSY_QUALITY_DEFAULT)),
+			QUALITY_EPSILON, path)
 		assert_true(bool(config.get_value("params", "mipmaps/generate", false)), path)
 		assert_eq(int(config.get_value("params", "mipmaps/limit", 0)), -1, path)
 		assert_true(bool(config.get_value("params", "process/fix_alpha_border", false)), path)

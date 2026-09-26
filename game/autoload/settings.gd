@@ -1,12 +1,14 @@
 extends Node
-## The settings M2 needs, in `user://settings.json` (spec ui-foundation.md §9).
+## The settings M2 needs, in `settings.json` under the user folder (spec
+## ui-foundation.md §9; web.md §7.1 for where that folder is).
 ##
 ## A missing, unreadable or invalid file is not an error: the defaults apply and
 ## the file is rewritten. Reading settings never fails a run.
 ##
 ## An autoload, so no `class_name`.
 
-const PATH: String = "user://settings.json"
+## web.md §7.1: the file under `UserPaths.root()`.
+const FILE_NAME: String = "settings.json"
 const VERSION: int = 1
 
 const LOCALE_EN: String = "en"
@@ -61,6 +63,9 @@ const FEATURE_WEB: String = "web"
 ## After `--` on the command line: start with the pseudo-locale on (UI.md §4).
 const ARG_PSEUDO: String = "--pseudo"
 
+## Where the file lives: `user://settings.json` on a desktop,
+## `user://doomsday/settings.json` in a browser.
+var path: String = UserPaths.at(FILE_NAME)
 var locale: String = LOCALE_EN
 var reduced_motion: bool = DEFAULT_REDUCED_MOTION
 var text_scale: float = DEFAULT_TEXT_SCALE
@@ -241,6 +246,9 @@ func set_locale(value: String) -> void:
 	locale = value
 	TranslationServer.set_locale(locale)
 	write()
+	# web.md §5.1: the page's own loading screen speaks the game's language.
+	if PlatformService.web != null:
+		PlatformService.web.remember_locale(locale)
 	EventBus.locale_changed.emit(locale)
 
 
@@ -431,18 +439,20 @@ func to_dict() -> Dictionary:
 func write() -> void:
 	if not persist:
 		return
-	var file: FileAccess = FileAccess.open(PATH, FileAccess.WRITE)
+	# In a browser the game's folder under `user://` is made by the first write.
+	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
+	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		# A read-only user directory is the player's problem, not a crash of ours.
-		push_warning("settings: cannot write %s (%d)" % [PATH, FileAccess.get_open_error()])
+		push_warning("settings: cannot write %s (%d)" % [path, FileAccess.get_open_error()])
 		return
 	file.store_string(JSON.stringify(to_dict(), "\t", true, true))
 
 
 func _read() -> Variant:
-	if not FileAccess.file_exists(PATH):
+	if not FileAccess.file_exists(path):
 		return null
-	var file: FileAccess = FileAccess.open(PATH, FileAccess.READ)
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file == null:
 		return null
 	var json: JSON = JSON.new()
