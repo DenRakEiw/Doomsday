@@ -1,0 +1,17 @@
+[project]
+name = "doomsday-marketing"
+version = "1.0.0"
+description = "Composes the itch.io cover and click-to-play background from the game's own title capture (docs/specs/itch.md §8.1, §8.3, §8.4)."
+requires-python = ">=3.12"
+
+# Pillow, pinned exactly (and by the uv.lock next to this file). Its wheels
+# bring FreeType, which sets the variable Space Grotesk to SemiBold.
+dependencies = [
+    "pillow==12.0.0",
+]
+
+[dependency-groups]
+dev = []
+
+[tool.uv]
+package = false

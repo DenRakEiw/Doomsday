@@ -749,7 +749,13 @@ nothing important sits there). If it is not made, itch's plain background is fin
 
 | File | Build (commit) | Locale | Setup / seed / day | Captured by, date |
 | --- | --- | --- | --- | --- |
-| *(empty until S7.I)* | | | | |
+| `01_covert_map_{en,de}.png` | S7.I (on `5589ef7`), debug, from source, 1920 × 1080, Subtle | en, de | Language Model · Standard · seed 27, greedy to 15 regions (day 193), then *Continue*; South Korea selected, 1× | S7.I, 2026-09-26 |
+| `02_tech_tree_{en,de}.png` | same | en, de | same moment; Capabilities, *Sovereign Debt Pressure* selected (not affordable, the locked row beside it) | S7.I, 2026-09-26 |
+| `03_counter_move_{en,de}.png` | same | en, de | seed 27, discovered day 344, picked up day 349; *Lockdown order* scheduled on the largest reached region (`debug_schedule_event`), its card open | S7.I, 2026-09-26 |
+| `04_open_phase_{en,de}.png` | same | en, de | seed 27, Open since day 351, picked up day 471 with the Task Force out; *Control* overlay, 1× | S7.I, 2026-09-26 |
+| `05_benchmark_watch_{en,de}.png` | same | en, de | BOARD *only bots*: `bot:greedy` standard seed 1001 (`bench_run.gd --bots`, scratch), watched to day ~232 | S7.I, 2026-09-26 |
+| `06_results_{en,de}.png` | same | en, de | seed 27 picked up on day 802, won on day 805 (Ascendance), results | S7.I, 2026-09-26 |
+| `cover*_1260x1000.png`, `cover*_630x500.png`, `click_to_play_1280x720.png` | same, 2560 × 1440 borderless | — | the title after seed 27's won run (all 61 regions lit), menu and caption hidden, frame 0 of 10 (the globe at rest on the origin); centred type (read better at 315 × 250 than left-aligned) | S7.I, 2026-09-26 |
 
 ---
 

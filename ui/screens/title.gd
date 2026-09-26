@@ -34,6 +34,13 @@ const GLOBE_HEIGHT_SHARE: float = 0.8
 const GLOBE_WIDTH_SHARE: float = 0.55
 const GLOBE_COMPACT_HEIGHT_SHARE: float = 0.45
 
+## itch.md §8.3: where `F12` puts a picture of the title — locale and logical
+## width, `_bare` when the menu and the caption were hidden for it (the cover's
+## source). Debug builds only (release.md §7).
+const SHOT_PATH: String = "user://title_%s_%d%s.png"
+const SHOT_BARE_SUFFIX: String = "_bare"
+const HEADLESS_DISPLAY: String = "headless"
+
 @onready var _layout: BoxContainer = %Layout
 @onready var _side: Control = %Side
 @onready var _indent: Control = %Indent
@@ -153,6 +160,51 @@ func _unhandled_input(event: InputEvent) -> void:
 		_host.close()
 	elif not _host.is_open():
 		_open_modal(_codex)
+
+
+## itch.md §8.3: `F12` writes the view to `user://`, `Shift+F12` without the menu
+## and the caption. A debug key, as the session's: in a release build F12 stays
+## Steam's (release.md §7).
+func _unhandled_key_input(event: InputEvent) -> void:
+	var key: InputEventKey = event as InputEventKey
+	if not Game.debug_allowed or key == null or not key.pressed or key.echo \
+			or key.keycode != KEY_F12:
+		return
+	get_viewport().set_input_as_handled()
+	capture(key.shift_pressed)
+
+
+## Writes one drawn frame of the title to `shot_path` and answers the OS path, or
+## the error. `bare` hides the menu column and the caption for that frame only.
+func capture(bare: bool) -> String:
+	set_chrome_hidden(bare)
+	var image: Image = null
+	# A headless run draws nothing, so the frame it would wait for never comes.
+	if DisplayServer.get_name() != HEADLESS_DISPLAY:
+		await RenderingServer.frame_post_draw
+		image = get_viewport().get_texture().get_image()
+	else:
+		await get_tree().process_frame
+	set_chrome_hidden(false)
+	var path: String = shot_path(TranslationServer.get_locale(),
+		int(get_viewport_rect().size.x), bare)
+	var error: Error = ERR_UNAVAILABLE if image == null else image.save_png(path)
+	var answer: String = ProjectSettings.globalize_path(path) if error == OK \
+		else error_string(error)
+	print("title shot: %s" % answer)
+	return answer
+
+
+## The menu column and the version caption turned transparent — not hidden, so
+## the globe keeps the place and the size it has with them.
+func set_chrome_hidden(hidden: bool) -> void:
+	var alpha: float = 0.0 if hidden else 1.0
+	_side.modulate.a = alpha
+	_corner.modulate.a = alpha
+
+
+static func shot_path(locale: String, width: int, bare: bool) -> String:
+	return SHOT_PATH % [locale, width, SHOT_BARE_SUFFIX if bare else ""]
 
 
 ## The primary button, which is where focus starts (§3).

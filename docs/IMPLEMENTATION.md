@@ -1414,6 +1414,9 @@ into `marketing/itch/` — `itch.md` §8.3; the job's inputs `BUTLER_API_KEY`, `
 `ITCH_CHANNELS` and the dispatch input `itch` — §9.1.)*
 **Done when:** a dispatch without the key builds, size-checks and skips the upload cleanly; the
 first real upload (to a restricted page) is the user's.
+*Done 2026-09-26: size check, web smoke and `itch` job in `release.yml` (validated locally, not
+dispatched — an unattended run may not trigger workflows); media in `marketing/itch/`. The
+dispatch proof and the first push are the user's (`PROGRESS.md` *Waiting on the user*).*
 
 ### G7.I — The itch.io release **[F]** **[needs user]**
 With the user: the restricted itch page played in two browsers (German and English), the page

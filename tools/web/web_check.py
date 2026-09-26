@@ -2,7 +2,7 @@
 
     uv run --project tools/web python tools/web/web_check.py [--build build/web]
         [--debug-build <dir>] [--browsers chrome,msedge,firefox] [--checks a,b,…]
-        [--out <dir>] [--smoke] [--expect <sim_run JSON or result.json>]
+        [--out <dir>] [--smoke] [--expect <sim_run JSON or result.json>] [--port 8765]
 
 Serves the export on 127.0.0.1:8765 and `iframe_host.html` on localhost:8766
 (another origin, as itch.io embeds a game), launches each browser headless with
@@ -45,6 +45,10 @@ GAME_PORT = 8765
 HOST_PORT = 8766
 GAME_URL = f"http://127.0.0.1:{GAME_PORT}/index.html"
 HOST_URL = f"http://localhost:{HOST_PORT}/iframe_host.html"
+# The CI smoke (web.md §16.3) runs on a runner without a GPU: Chromium draws
+# WebGL in software only when told to (SwiftShader is no longer a silent
+# fallback). The smoke compares a hash, not frame times, so it always does.
+SOFTWARE_GL_ARGS = ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"]
 EMBED = (1280, 720)
 # The host page's window: the embed plus some of the text around it, so the
 # page can scroll.
@@ -780,6 +784,16 @@ def reference_run() -> dict:
     return json.loads(line)
 
 
+def use_ports(port: int) -> None:
+    """Moves the two servers off 8765/8766, e.g. while a player uses them."""
+    global GAME_PORT, HOST_PORT, GAME_URL, HOST_URL
+    GAME_PORT = port
+    HOST_PORT = port + 1
+    GAME_URL = f"http://127.0.0.1:{GAME_PORT}/index.html"
+    HOST_URL = (f"http://localhost:{HOST_PORT}/iframe_host.html"
+                f"?game=//127.0.0.1:{GAME_PORT}/index.html")
+
+
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -791,7 +805,10 @@ def main() -> int:
     parser.add_argument("--out", type=Path, default=Path(tempfile.gettempdir()) / "doomsday_web")
     parser.add_argument("--smoke", action="store_true", help="only the smoke (CI)")
     parser.add_argument("--expect", type=Path, default=None)
+    parser.add_argument("--port", type=int, default=GAME_PORT,
+                        help="the game's port; the host page takes the next one")
     args = parser.parse_args()
+    use_ports(args.port)
     checks = ["smoke"] if args.smoke else args.checks.split(",")
     browsers = ["chromium"] if args.smoke and args.browsers == parser.get_default("browsers") \
         else args.browsers.split(",")
@@ -813,7 +830,8 @@ def main() -> int:
         with sync_playwright() as playwright:
             for name in browsers:
                 browser = launch(playwright, name) if name != "chromium" else \
-                    playwright.chromium.launch(headless=True)
+                    playwright.chromium.launch(headless=True,
+                                               args=SOFTWARE_GL_ARGS if args.smoke else [])
                 print(f"web_check: {name} {browser.version}")
                 if any(check in checks for check in ("load", "focus", "keys", "run", "hidden",
                                                      "persist")):

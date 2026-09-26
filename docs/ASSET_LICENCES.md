@@ -59,6 +59,12 @@ discover after a commercial release.
 | `icons_custom` | `assets/icons/custom/*.svg` (24 illustrative, `viewBox 0 0 512 512`), `assets/icons/custom/chrome/*.svg` (3 chrome, `0 0 256 256`) | Drawn for this game in D6.3 (2026-09-25) to the briefs of `docs/specs/icons.md` §9; the geometry is `tools/icons/draw_silhouettes.py`, which reproduces the files byte for byte | **Own work** — no third-party material, not credited (rule 6) | `tech_voluntary_pause.svg` is not drawn (it failed the 24 px read); its stand-in `game-icons/lorc/hourglass.svg` ships under `icons_game_icons` (S6.4) |
 | `app_icon` | `assets/app/icon.svg` (512 × 512) | Drawn for this game in S6.10 (2026-09-25) to `docs/specs/release.md` §5: an `INK` rounded square, an `ACCENT_DIM` ring, the `icons_custom` Language Model silhouette in `ACCENT` at 70 % | **Own work** — no third-party material, not credited (rule 6) | The window, taskbar and exported executable's icon; the Windows export makes the `.ico` sizes from it |
 
+## Marketing (not shipped — `marketing/` has a `.gdignore`)
+
+| Id | Asset | Source | Licence | Notes |
+| --- | --- | --- | --- | --- |
+| `itch_media` | `marketing/itch/0[1-6]_*_{en,de}.png` (12 screenshots, 1920 × 1080), `cover*_1260x1000.png` / `cover*_630x500.png` (TITLE A, B, C), `click_to_play_1280x720.png` | **Own captures** of the game's rendering (S7.I, 2026-09-26, `tools/marketing/itch_capture.gd`); the covers and the background composed from one title capture by `tools/marketing/compose_cover.py` with the shipped fonts (`font_space_grotesk`, `font_jetbrains_mono`, OFL — used as fonts, not redistributed) | **Own work** | itch.md §8; the record of each capture is itch.md §8.5. No generated imagery; a cover cut from key art later inherits the key art's row |
+
 ## Planned — approved, not yet integrated
 
 Verified during research; recorded here so the decision is not re-litigated later.

@@ -120,7 +120,8 @@ func test_perf_keeps_tools_perf_and_drops_the_rest() -> void:
 		assert_true(excludes.has("steam_appid.txt"), preset_name)
 		assert_false(_matches_any("tools/perf/perf_bench.tscn", excludes), preset_name)
 		for path: String in ["tools/sim_run.gd", "tools/map/build_map.py",
-				"tests/unit/test_smoke.gd", "addons/gut/gut.gd", "ui/dev/gallery.tscn"]:
+				"tests/unit/test_smoke.gd", "addons/gut/gut.gd", "ui/dev/gallery.tscn",
+				"tools/marketing/itch_capture.gd"]:
 			assert_true(_matches_any(path, excludes), "%s: %s" % [preset_name, path])
 
 

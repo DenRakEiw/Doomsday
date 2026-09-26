@@ -1,14 +1,22 @@
 name: Release
 
 # docs/specs/release.md §9.2. A `v*` tag exports Windows, Linux and Web,
-# smoke-tests the two desktop builds and attaches the three zips to a **draft**
-# GitHub release — publishing it is the user's. A manual dispatch builds and
-# smoke-tests without a release.
+# smoke-tests all three (the web build in headless Chromium, web.md §16.3),
+# checks the web zip against its size budget (web.md §4.3), attaches the three
+# zips to a **draft** GitHub release — publishing it is the user's — and pushes
+# them to itch.io with butler (itch.md §9.1) when the project's key and target
+# are set. A manual dispatch builds and smoke-tests without a release, and
+# uploads to itch.io only when asked (`itch: true`).
 
 on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      itch:
+        description: 'Also push the builds to itch.io (needs BUTLER_API_KEY and ITCH_TARGET)'
+        type: boolean
+        default: false
 
 concurrency:
   group: release-${{ github.ref }}
@@ -103,6 +111,14 @@ jobs:
           done
           ls -l dist
 
+      - name: The web zip within its budget
+        # web.md §4.2–§4.3: a zip over a hard limit fails here, before it can
+        # become an artifact and reach butler.
+        shell: bash
+        run: |
+          command -v unzip >/dev/null || (apt-get update && apt-get install -y --no-install-recommends unzip)
+          tools/ci/web_size_check.sh "dist/Doomsday-${{ steps.version.outputs.version }}-web.zip"
+
       - name: Upload the zips
         uses: actions/upload-artifact@v4
         with:
@@ -150,9 +166,49 @@ jobs:
           if ($result.errors -ne 0) { throw "the Windows smoke logged $($result.errors) errors" }
           if ($result.outcome -ne $linux.outcome) { throw "Windows and Linux ended differently" }
 
+  smoke-web:
+    name: Smoke test (Web)
+    needs: export
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out
+        # For tools/web: the checker and its pinned Playwright.
+        uses: actions/checkout@v5
+
+      - name: Download the builds
+        uses: actions/download-artifact@v4
+        with:
+          name: doomsday-builds
+          path: dist
+
+      - name: Download the Linux smoke result
+        uses: actions/download-artifact@v4
+        with:
+          name: smoke-linux
+          path: .
+
+      - name: uv
+        uses: astral-sh/setup-uv@v10.2.0
+
+      - name: Headless Chromium
+        run: uv run --project tools/web playwright install --with-deps chromium
+
+      - name: The web build plays the Linux build's run
+        # web.md §16.3: `index.html?smoke` in headless Chromium (software
+        # WebGL); outcome, day and hash must equal the Linux smoke's — the
+        # spectator's Watch on the web depends on it.
+        shell: bash
+        run: |
+          version='${{ needs.export.outputs.version }}'
+          mkdir -p web
+          unzip -q "dist/Doomsday-$version-web.zip" -d web
+          uv run --project tools/web python tools/web/web_check.py --smoke --build web \
+            --expect smoke-linux.json --out web-smoke
+
   release:
     name: Draft release
-    needs: [export, smoke-windows]
+    needs: [export, smoke-windows, smoke-web]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -172,3 +228,87 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft \
             --generate-notes --title "Doomsday ${{ needs.export.outputs.version }}" dist/*.zip
+
+  itch:
+    name: Upload to itch.io
+    # itch.md §9.1: on a tag, or on a dispatch that asks for it. The first real
+    # upload is the user's (G7.I); without the key or the target this job says
+    # so in one line and succeeds.
+    needs: [export, smoke-windows, smoke-web]
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.itch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Pinned: itch's own release of butler on GitHub (itchio/butler), whose
+      # published SHA-256 is checked below. broth.itch.zone serves the same
+      # binary but no checksum to check it against.
+      BUTLER_VERSION: '15.31.0'
+      BUTLER_SHA256: '1e536377187894ef5fe7f35edfb29df256df63e50e7f6b97ebd54bc5aba4c055'
+    steps:
+      - name: The key, the target and the channels
+        id: gate
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+          ITCH_TARGET: ${{ vars.ITCH_TARGET }}
+          ITCH_CHANNELS: ${{ vars.ITCH_CHANNELS }}
+        shell: bash
+        run: |
+          if [ -z "$BUTLER_API_KEY" ] || [ -z "$ITCH_TARGET" ]; then
+            echo "itch upload skipped: BUTLER_API_KEY or ITCH_TARGET is not set"
+            echo "::notice title=itch.io::itch upload skipped: BUTLER_API_KEY or ITCH_TARGET is not set"
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # itch.md §9.1: `web` (the default) or `web,windows,linux`; pushed in
+          # this order, the channel the page embeds first.
+          wanted=",${ITCH_CHANNELS:-web},"
+          wanted="${wanted// /}"
+          for name in $(echo "${wanted//,/ }"); do
+            case "$name" in
+              web|windows|linux) ;;
+              *) echo "ITCH_CHANNELS names an unknown channel: $name (web, windows, linux)"; exit 1 ;;
+            esac
+          done
+          channels=""
+          for name in web windows linux; do
+            case "$wanted" in *",$name,"*) channels="$channels $name" ;; esac
+          done
+          echo "itch target $ITCH_TARGET, channels:$channels"
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+          echo "channels=${channels# }" >> "$GITHUB_OUTPUT"
+
+      - name: Download the builds
+        if: steps.gate.outputs.enabled == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: doomsday-builds
+          path: dist
+
+      - name: butler, pinned and checked
+        if: steps.gate.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          curl -fsSL --max-time 120 -o butler.zip \
+            "https://github.com/itchio/butler/releases/download/v${BUTLER_VERSION}/butler-linux-amd64.zip"
+          echo "${BUTLER_SHA256}  butler.zip" | sha256sum -c -
+          unzip -q -j butler.zip -d "$RUNNER_TEMP/butler"
+          chmod +x "$RUNNER_TEMP/butler/butler"
+          echo "$RUNNER_TEMP/butler" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/butler/butler" -V
+
+      - name: Push to the channels
+        # butler reads the key from BUTLER_API_KEY and never prints it; no
+        # `set -x` here. --if-changed skips a channel whose build is unchanged.
+        if: steps.gate.outputs.enabled == 'true'
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+          ITCH_TARGET: ${{ vars.ITCH_TARGET }}
+          CHANNELS: ${{ steps.gate.outputs.channels }}
+        shell: bash
+        run: |
+          version='${{ needs.export.outputs.version }}'
+          for channel in $CHANNELS; do
+            echo "pushing Doomsday-$version-$channel.zip to $ITCH_TARGET:$channel"
+            butler push "dist/Doomsday-$version-$channel.zip" "$ITCH_TARGET:$channel" \
+              --userversion "$version" --if-changed
+          done
