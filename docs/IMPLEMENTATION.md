@@ -1380,6 +1380,7 @@ to decide. *Done 2026-09-26 (`docs/specs/itch.md`: switches for title, price, do
 status; S7.I also captures the screenshots and composes the cover, itch.md §8.3).*
 
 ### S6.P — Punch list from G6 **[O]** *(skip if empty)*
+*Done 2026-09-26: pass 4's one item (the bots weigh an emergent card's catch, `StatusForecast`); BALANCE §6.6 has the re-check.*
 
 ### S7.3 — Web build **[O]** · **Read first:** `docs/specs/web.md`
 The web preset per the spec (single-threaded), browser saves, the audio unlock, a local serve and

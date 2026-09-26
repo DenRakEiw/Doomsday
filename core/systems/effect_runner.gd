@@ -389,6 +389,15 @@ static func _status_level_add(sim: Simulation, effect: EffectDef, context: Effec
 ## missing prerequisite for free, which makes it available. Ties go to content
 ## order. No such node, nothing happens.
 static func _unlock_near_node(sim: Simulation, events: Array[SimEvent]) -> void:
+	var chosen: TechNodeDef = near_node(sim)
+	if chosen != null:
+		PurchaseNodeCommand.own(sim, chosen, 0, 0.0, events)
+
+
+## The prerequisite `unlock_near_node` would hand over in the world as it stands,
+## or null when it would hand over nothing. A pure query: the bots price the
+## effect by it (G6 1/2, BALANCE §6.6).
+static func near_node(sim: Simulation) -> TechNodeDef:
 	var world: World = sim.world
 	var chosen: TechNodeDef = null
 	var cheapest: float = INF
@@ -414,8 +423,7 @@ static func _unlock_near_node(sim: Simulation, events: Array[SimEvent]) -> void:
 		if cost < cheapest:
 			cheapest = cost
 			chosen = prerequisite
-	if chosen != null:
-		PurchaseNodeCommand.own(sim, chosen, 0, 0.0, events)
+	return chosen
 
 
 ## The mirror of `destroy_assets`: something the world hands over (D4.3).

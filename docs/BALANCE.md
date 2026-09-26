@@ -1072,6 +1072,26 @@ Per setup (*Task Force*: appearance day p50 · actions done · setups fizzled, m
    suppressed with compute to spare and kept without; the six policies still reject no command
    over 20 seeds. Re-measure the Language Model row (100 seeds) after it.
 
+   **Done in S6.P (2026-09-26).** `StatusForecast` (`core/policy/`) turns a status into the
+   weights' units — first order, at today's rates, over its days (a standing one over the longest
+   timed status, 90 days): `yield` → compute; `spread_growth`, `penetration_decay`,
+   `control_growth`, `control_decay` → region-points of penetration/control, each region run at
+   the old and the new rate and clamped to what it can still gain; `footprint`, and `discovery`
+   before discovery (as the footprint that moves today's risk as much) → footprint-months; a
+   track's brake and `containment_growth` → containment points, only for a track that grows.
+   Other targets still count 0. `unlock_near_node` is the handed-over node's price
+   (`EffectRunner.near_node`). Suppressions per run (Language Model, 30 seeds, old → new):
+   `greedy` 0 → 0.7, `cyber` 0.4 → 0.9, `biology` 1.7 → 2.0, `robotics` 0 → 0.8, `weapons` 1.1 →
+   1.3, `persuasion` 1.7 → 2.4. Re-check, Language Model, seeds 1–100, old → new win %: `idle`
+   0 → 0, `greedy` 56 → 53, `cyber` 13 → 13, `biology` 34 → 32, `robotics` 25 → 25, `weapons`
+   68 → 64, `persuasion` 55 → 56 — within noise. 20 seeds × 12 setups × 6 bots: 1 440 runs, 0
+   rejected, 0 timeouts. What the bots now do: Situational Awareness is kept by the quiet bots and
+   by `cyber` (its quiet outweighs the slower spread) and dropped by `greedy` only when the spread
+   is wide; Hallucinated Directive and Mesa-Optimiser are suppressed once income makes them cost
+   more than the price; **Deceptive Reasoning scores ≈ 0 for every bot** — after discovery the labs'
+   ×0.8 and the public's ×1.25 roughly cancel in containment points (the labs' track grows about
+   as fast), so it is kept, not "suppressed after discovery often".
+
 Nothing else in this pass needs code: the stalemate was a number (§6.2 item 1).
 
 ### 6.7 For the user at the gate, and after

@@ -10,6 +10,9 @@ extends SimSystem
 ## containment panel asks for exactly what the tick is about to do, and reads it
 ## out of this file rather than repeating it.
 
+## The world-wide factors on being found and on every track's growth.
+const TARGET_DISCOVERY: String = "discovery"
+const TARGET_CONTAINMENT_GROWTH: String = "containment_growth"
 ## Keys of `discovery_risk`.
 const RISK_TOTAL: String = "total"
 const RISK_TIME: String = "time"
@@ -39,7 +42,7 @@ const CAPACITY_FACTORS: int = 4
 ## reported after the `discovery` factor and before the clamp, so they add up to
 ## `total` unless the clamp bit.
 static func discovery_risk(world: World, db: ContentDB) -> Dictionary:
-	var factor: float = world.modifiers.value("discovery")
+	var factor: float = world.modifiers.value(TARGET_DISCOVERY)
 	var share: float = world.infected_share(db)
 	var time: float = db.balance.discovery_scrutiny_per_day \
 		* float(world.day - world.origin_day) * factor
@@ -132,7 +135,7 @@ static func gain(world: World, db: ContentDB, faction_id: String,
 ## The factor the faction's brakes leave of its growth.
 static func _brakes(world: World, db: ContentDB, definition: FactionDef,
 		faction_id: String) -> float:
-	var brakes: float = world.modifiers.value("containment_growth") \
+	var brakes: float = world.modifiers.value(TARGET_CONTAINMENT_GROWTH) \
 		* world.modifiers.value(definition.brake)
 	# `labs_from_day_one` (replayability.md §2.5): on a Research Agent the lab
 	# watches the agent directly, every day, so nothing done to the world — the

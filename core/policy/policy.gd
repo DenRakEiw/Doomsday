@@ -20,7 +20,9 @@ const SEED_OFFSET: int = 17
 ## is what one unit is worth to the policy, in compute: one compute granted, one
 ## footprint held for `FOOTPRINT_DAYS`, one region seeded, a harm burst of 1, one
 ## point of containment (×4 for all factions), one asset, a counter-move's status
-## endured, one ×1 of penetration.
+## endured, one ×1 of penetration. An applied status is weighed by what it
+## changes over its days in these same units (`StatusForecast`), a node handed
+## over by its price.
 const W_COMPUTE: String = "compute"
 const W_FOOTPRINT: String = "footprint"
 const W_SEED: String = "seed"
@@ -215,7 +217,26 @@ func _effect_score(sim: Simulation, region: int, effect: EffectDef) -> float:
 			return effect.value * _weight(W_PENETRATION)
 		EffectDef.SET_FLAG:
 			return LOST_RUN if _lost_run_flags.has(effect.flag) else 0.0
+		EffectDef.APPLY_STATUS:
+			return status_score(sim, 0 if effect.global else region, effect)
+		EffectDef.UNLOCK_NEAR_NODE:
+			# A node handed over is worth what buying it would cost.
+			var node: TechNodeDef = EffectRunner.near_node(sim)
+			return 0.0 if node == null else sim.node_cost(node.id) * _weight(W_COMPUTE)
 	return 0.0
+
+
+## What a status an option applies is worth to this policy (G6 1/2, BALANCE
+## §6.6): what `StatusForecast` says it changes over its days, through the same
+## weights as every other effect — so a card whose catch outweighs its gain is
+## suppressed when the policy can pay, and kept when it cannot.
+func status_score(sim: Simulation, region: int, effect: EffectDef) -> float:
+	var score: float = 0.0
+	var change: Dictionary[String, float] = StatusForecast.forecast(sim, effect.status, region,
+		effect.level, effect.days)
+	for unit: String in change:
+		score += change[unit] * _weight(unit)
+	return score
 
 
 func _weight(key: String) -> float:

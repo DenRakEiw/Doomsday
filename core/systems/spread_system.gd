@@ -16,6 +16,9 @@ const TARGET_CONTROL_DECAY: String = "control_decay"
 const TARGET_SHUTDOWN_SURVIVAL: String = "shutdown_survival"
 ## `scenarios.md` §8.1: seeding across a closed link, read at the source.
 const TARGET_CLOSED_CROSS: String = "closed_cross"
+## The two rates a status speeds up or slows down (`StatusForecast` reads them too).
+const TARGET_SPREAD_GROWTH: String = "spread_growth"
+const TARGET_CONTROL_GROWTH: String = "control_growth"
 
 
 func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
@@ -53,7 +56,7 @@ func _grow(world: World, db: ContentDB) -> void:
 			# exactly, so there is nothing to read or write (S6.11).
 			continue
 		var growth: float = base_growth \
-			* world.modifiers.value("spread_growth", region.def) * p * (1.0 - p)
+			* world.modifiers.value(TARGET_SPREAD_GROWTH, region.def) * p * (1.0 - p)
 		p = minf(1.0, p + growth)
 		if p >= snap:
 			p = 1.0
@@ -173,7 +176,7 @@ func _control(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 			continue
 		var before: float = region.control
 		var gain: float = rate * (region.penetration - threshold) \
-			/ (1.0 - threshold) * world.modifiers.value("control_growth", region.def)
+			/ (1.0 - threshold) * world.modifiers.value(TARGET_CONTROL_GROWTH, region.def)
 		region.control = minf(1.0, region.control + gain)
 		if before < complete and region.control >= complete:
 			events.append(SimEvent.new(SimEvent.REGION_CONTROLLED, world.day,

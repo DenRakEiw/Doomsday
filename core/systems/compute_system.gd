@@ -12,6 +12,9 @@ extends SimSystem
 ## rolled once per region, so a wide run drowned in them and a narrow one saw
 ## almost none.
 
+## The factor on every region's income (`StatusForecast` reads it too).
+const TARGET_YIELD: String = "yield"
+
 
 func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 	if world.agent.origin == 0:
@@ -31,21 +34,28 @@ func tick(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 ## income is kept on the world for `OutcomeSystem`'s starving count.
 func _income(world: World, db: ContentDB) -> void:
 	var income: float = 0.0
-	var balance: BalanceDef = db.balance
-	var by_tier: Array[float] = balance.compute_hardware_by_tier
 	for i: int in range(1, world.regions.size()):
 		var region: Region = world.regions[i]
 		if region.dark or region.dormant:
 			continue
-		var humans: float = by_tier[region.def.attr(World.ATTR_COMPUTE)] \
-			* SocietalFunctionSystem.yield_mul(region.society, balance)
-		income += (humans + world.modifiers.value("hardware", region.def)) \
-			* region.penetration * world.modifiers.value("yield", region.def)
+		income += region_yield(world, db, i)
 	income *= db.balance.compute_yield_scale
 	world.last_income = income
 	world.agent.compute += income
 	world.agent.compute_earned += income
 
+
+## One region's share of the day's income, before `compute_yield_scale`; 0 for a
+## dark or held region. The tick sums it, and a bot reads it to price a status
+## that changes the yield (`StatusForecast`).
+static func region_yield(world: World, db: ContentDB, region_index: int) -> float:
+	var region: Region = world.regions[region_index]
+	if region.dark or region.dormant:
+		return 0.0
+	var humans: float = db.balance.compute_hardware_by_tier[region.def.attr(World.ATTR_COMPUTE)] \
+		* SocietalFunctionSystem.yield_mul(region.society, db.balance)
+	return (humans + world.modifiers.value("hardware", region.def)) \
+		* region.penetration * world.modifiers.value(TARGET_YIELD, region.def)
 
 func _expire(world: World, db: ContentDB, events: Array[SimEvent]) -> void:
 	var kept: Array[Anomaly] = []
