@@ -45,8 +45,16 @@ next step.
 
 ## In progress
 
-*(empty — if a session stops mid-step, the handover goes here: what is finished, what is left,
-which file was being edited, and anything learned that the files do not show)*
+**S7.IP — release polish before the itch release** [O] (inserted 2026-09-26 by the orchestrator,
+ahead of S7.F1; not yet in the run sheet — add it as row 97a). Scope: the player-visible *Known*
+*issues* — overlay picker sticking out beside the region panel and a lone `%` wrapping (S7.I), tabs
+chosen from code drawn pressed (S6.P4), the phone tech detail and Statistics too wide (S6.P3b, S6.9),
+achievement chip and wire-card captions not re-translated (S6.9, S6.7), the owned-node footprint
+overflow (S6.4), hints back to back on a loaded save (S6.7); then re-capture `marketing/itch/`.
+**Stopped mid-step when the usage ran out.** The unfinished, **untested** edits are on branch
+`wip/s7ip-release-polish` (commit `d934262`; 18 files incl. a new `ui/components/toggle_group.gd`,
+two new tests and a scratch `tools/_ip_probe/` to drop). Next session: check out that branch, run
+the suite, finish and verify each item, merge into `main` as `S7.IP: …` — or discard it and redo.
 
 ---
 
