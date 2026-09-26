@@ -15,10 +15,14 @@ const EXPECTED: Dictionary[String, Array] = {
 	"Linux": ["Linux", "build/linux/Doomsday.x86_64"],
 	"Web": ["Web", "build/web/index.html"],
 	"Perf (local)": ["Windows Desktop", "build/perf/Doomsday-perf.exe"],
+	"Perf web (local)": ["Web", "build/perf-web/index.html"],
 }
 ## The three CI builds.
 const SHIPPED: Array[String] = ["Windows", "Linux", "Web"]
 const PERF: String = "Perf (local)"
+## web.md §13.2: the Web preset's options with the bench as its main scene.
+const PERF_WEB: String = "Perf web (local)"
+const PERF_PRESETS: Array[String] = [PERF, PERF_WEB]
 ## §6.2: every shipped preset excludes these.
 const EXCLUDES: Array[String] = ["tests/*", "tools/*", "addons/gut/*", "ui/dev/*", "docs/*",
 	"*.md", "steam_appid.txt", ".github/*"]
@@ -97,8 +101,10 @@ func test_the_presets_have_their_names_platforms_and_paths() -> void:
 func test_the_shipped_presets_are_runnable_and_perf_is_not() -> void:
 	for preset_name: String in SHIPPED:
 		assert_true(bool(_config.get_value(_sections[preset_name], "runnable")), preset_name)
-	assert_false(bool(_config.get_value(_sections[PERF], "runnable")))
-	assert_eq(str(_config.get_value(_sections[PERF], "custom_features")), "perf")
+	for preset_name: String in PERF_PRESETS:
+		assert_false(bool(_config.get_value(_sections[preset_name], "runnable")), preset_name)
+		assert_eq(str(_config.get_value(_sections[preset_name], "custom_features")), "perf",
+			preset_name)
 
 
 func test_every_shipped_preset_excludes_the_development_files() -> void:
@@ -109,12 +115,21 @@ func test_every_shipped_preset_excludes_the_development_files() -> void:
 
 
 func test_perf_keeps_tools_perf_and_drops_the_rest() -> void:
-	var excludes: Array[String] = _filters(PERF, "exclude_filter")
-	assert_true(excludes.has("steam_appid.txt"))
-	assert_false(_matches_any("tools/perf/perf_bench.tscn", excludes))
-	for path: String in ["tools/sim_run.gd", "tools/map/build_map.py", "tests/unit/test_smoke.gd",
-			"addons/gut/gut.gd", "ui/dev/gallery.tscn"]:
-		assert_true(_matches_any(path, excludes), path)
+	for preset_name: String in PERF_PRESETS:
+		var excludes: Array[String] = _filters(preset_name, "exclude_filter")
+		assert_true(excludes.has("steam_appid.txt"), preset_name)
+		assert_false(_matches_any("tools/perf/perf_bench.tscn", excludes), preset_name)
+		for path: String in ["tools/sim_run.gd", "tools/map/build_map.py",
+				"tests/unit/test_smoke.gd", "addons/gut/gut.gd", "ui/dev/gallery.tscn"]:
+			assert_true(_matches_any(path, excludes), "%s: %s" % [preset_name, path])
+
+
+func test_the_perf_web_preset_has_the_web_preset_s_options() -> void:
+	var web: String = _sections["Web"] + OPTIONS_SUFFIX
+	var perf_web: String = _sections[PERF_WEB] + OPTIONS_SUFFIX
+	for key: String in _config.get_section_keys(web):
+		assert_eq(_config.get_value(perf_web, key), _config.get_value(web, key), key)
+	assert_eq(_config.get_section_keys(perf_web).size(), _config.get_section_keys(web).size())
 
 
 func test_every_preset_includes_the_runtime_files() -> void:

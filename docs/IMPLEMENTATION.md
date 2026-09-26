@@ -1400,6 +1400,8 @@ recorded under *Performance notes*; a row that fails follows §13.2's rule. `tes
 gains the preset.
 **Done when:** every row of §13.1 is measured and recorded, and the game is playable on
 `web_igpu` (p95 frame ≤ 33 ms).
+*Done 2026-09-26: playable (`web_igpu` p95 16.4 ms); three `web_cpu` rows fail (tick frame, sim
+tick, *Continue*) — `PROGRESS.md` Performance notes and Design questions.*
 
 ### S7.I — itch.io upload **[O]** · **Read first:** `docs/specs/itch.md` §7–§9 (settings, media capture, the butler job) · `docs/specs/web.md` §4.2–§4.3, §16 (size, settings, channels, the web smoke job) · `release.md` (CI) · `.github/workflows/release.yml`
 A butler job in `release.yml` pushing the web zip (and the downloads, if the user wants them) to

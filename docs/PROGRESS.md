@@ -14,20 +14,20 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures, **[needs user]**): the user plays the release candidate and judges BALANCE §6.7 — IMPLEMENTATION §4 row 92. **Without the user: S7.3b** (row 96b) [O] — the browser performance runs of `docs/specs/web.md` §13 (split from S7.3); then S7.I (row 97, the butler job — its push waits for the user's itch project and key). **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
+| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures, **[needs user]**): the user plays the release candidate and judges BALANCE §6.7 — IMPLEMENTATION §4 row 92. **Without the user: S7.I** (row 97) [O] — the butler job, size check and itch web settings (its first real push waits for the user's itch project and key). **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2, D7.I, S6.P, S7.3 done; S7.3b, S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
-| **Last completed** | S7.3 — The Web build (without §13 → S7.3b): own page `web/shell.html` (loading, phone notice, error and crash screens, en/de from the `UI_WEB_*` rows, `?smoke` only); `UserPaths` (the game's files under `user://doomsday/` on the web), `WebBridge` (page hidden/shown → `EventBus.page_hidden`/`page_shown`, locale for the shell, persistent storage, progress download and file picker); progress export/import rows in the browser's title settings; page hidden → mute, autosave, pause menu; cue files two per frame after the unlock; `KeyNames.use_layout`; QOA cues; illustrations lossy 0.9 (test + fixture); `build/.gdignore`, `build/*`/`web/*` excluded; no file log on the web. **Web zip 17.55 MB / 48.55 MB extracted** (was 20.39/53.10). `tools/web/` (uv, Playwright 1.63.0): `serve.py`, `iframe_host.html`, `web_check.py` — Chrome 153, Edge 153, Firefox 155 all green, the web smoke's hash equals `sim_run`'s. Bug fixed: the boot ate the first click, so the web's sound never unlocked on it (2026-09-26). |
-| **Before that** | S6.P — Punch list from G6: the bots weigh an emergent card's catch (`StatusForecast`); BALANCE §6.6 (2026-09-26). |
-| **Earlier** | D7.I — The itch.io page: `docs/specs/itch.md` (copy en/de, settings checklist, media briefs, the butler job's inputs, G7.I's checklist) (2026-09-26). |
+| **After it** | D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2, D7.I, S6.P, S7.3, S7.3b done; S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
+| **Last completed** | S7.3b — Browser performance runs (`web.md` §13): preset 4 `Perf web (local)`, `perf_bench.gd`'s web branch (label `web`, no files, `static_memory_peak_mb`, Subtle screen effects), `tools/web/web_perf.py` (`web_igpu`, `web_cpu`, `load`). **Playable:** `web_igpu` p95 16.4 ms. **Failing:** on `web_cpu` the tick-frame p99 (159 ms / 33), the sim tick (10.2 / 17.1 ms against 4 / 12) and *Continue* (8.0 s / 3) — Performance notes, two Design questions (2026-09-26). |
+| **Before that** | S7.3 — The Web build (without §13): shell, `UserPaths`, `WebBridge`, progress file, QOA, `tools/web/` checks in Chrome, Edge and Firefox; web zip 17.55 MB (2026-09-26). |
+| **Earlier** | S6.P — Punch list from G6: the bots weigh an emergent card's catch (`StatusForecast`); BALANCE §6.6 (2026-09-26). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 367 scripts compile (151 judged by the suite), then `tools/check_strings.gd` (2535 rows), 2495 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 367 scripts compile (151 judged by the suite), then `tools/check_strings.gd` (2535 rows), 2496 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
 | **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
-| **Web** | Export `"$GODOT" --headless --path . --export-release "Web" build/web/index.html`; **play it locally:** `uv run --project tools/web python tools/web/serve.py` → `http://127.0.0.1:8765/` (`--dir <export>`). **Checks (S7.3):** `uv run --project tools/web python tools/web/web_check.py [--build <dir>] [--browsers chrome,msedge,firefox] [--checks size,load,phone,focus,keys,run,hidden,persist,settings,online,progress,smoke,debug] [--debug-build <dir>] [--out <dir>]` (all ≈ 25 min; `--smoke [--expect <json>]` alone is §16.3's CI job); browsers once: `uv run --project tools/web playwright install chromium firefox`. Clicks are embed coordinates at the top of `web_check.py`. In the browser the files are IndexedDB `/userfs` → `/userfs/Doomsday/doomsday/…`. A debug web export answers `window.doomsdayDebugCrash()` and `window.doomsdayDebugAudioUnlocked()`. |
+| **Web** | Export `"$GODOT" --headless --path . --export-release "Web" build/web/index.html`; **play it locally:** `uv run --project tools/web python tools/web/serve.py` → `http://127.0.0.1:8765/` (`--dir <export>`). **Checks (S7.3):** `uv run --project tools/web python tools/web/web_check.py [--build <dir>] [--browsers chrome,msedge,firefox] [--checks size,load,phone,focus,keys,run,hidden,persist,settings,online,progress,smoke,debug] [--debug-build <dir>] [--out <dir>]` (all ≈ 25 min; `--smoke [--expect <json>]` alone is §16.3's CI job); browsers once: `uv run --project tools/web playwright install chromium firefox`. Clicks are embed coordinates at the top of `web_check.py`. In the browser the files are IndexedDB `/userfs` → `/userfs/Doomsday/doomsday/…`. A debug web export answers `window.doomsdayDebugCrash()` and `window.doomsdayDebugAudioUnlocked()`. **Perf (S7.3b):** export `"Perf web (local)"` → `build/perf-web/index.html` and `"Web"`, then `uv run --project tools/web python tools/web/web_perf.py [--modes web_igpu,web_cpu,load] [--runs 3] [--out <dir>] [--vsync] [--cpu-throttle 2.5]` (≈ 20 min; port 8767; Playwright's Chromium in the new headless mode draws on the real GPU; `web_igpu` sets and removes the GPU preference for Playwright's `chrome.exe` only). **Exports need the real `APPDATA`** (the templates live there); only the suite runs with a scratch one. |
 | **Benchmark** | `"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --model=<id> [--suite=quick] [--seeds=a..b] [--dry-run] [--max-cost=<usd>] [--yes]` (OpenRouter; the key from `OPENROUTER_API_KEY` only) · **`--model=typesafe/jev-latest`** (S6.12c: TypeSafe Jev, a decision model; key `TYPESAFE_API_KEY`; `--max-requests=<n>`, chat flags refused; `--dry-run` prints the day-0 request and the size limits, no key) · `--backend=mock-choice:first` (or `idle`, `shuffled`, `broken`) · **keys:** `powershell -ExecutionPolicy Bypass -File tools\bench\set_api_key.ps1 -Name OPENROUTER_API_KEY` (or `TYPESAFE_API_KEY`; a dialog, stored as a user variable, new windows see it) · `--backend=mock:cheapest` (or `wait`, `invalid`, `mixed`; free, no key) · `--bots [--if-missing] [--no-rebuild]` (reference rows, ≈3 min for the standard suite) · `--rebuild` · `--determinism-fixture`. Writes `benchmark/runs/*.json`, `benchmark/leaderboard.json`, `LEADERBOARD.md` (`--out=<dir>` elsewhere; tests use `user://test_bench/`); cache `benchmark/cache/` (ignored). The tool works in `_initialize`, not `_init`: TLS is not ready before the main loop. **Global board (S6.12b):** `"$GODOT" --headless --path . -s tools/bench/verify_runs.gd -- --board=<leaderboard checkout> --game-commit=<40-hex> [--limit=n] [--today=YYYY-MM-DD] [--message=<file>]` (exit 0/1/2/3; a full board of 81 runs ≈80 s); `.github/workflows/leaderboard.yml` (daily + dispatch; no key → gate / read-only dry run). **Whoever changes `data/` regenerates the canary on Windows in the same commit:** `bench_run.gd -- --determinism-fixture` (`test_bench_determinism` fails with that line otherwise). **In the game (S6.13):** title → *Benchmark* (shown when a recorded run exists, the *Online leaderboard* setting is on, or a board on disk has a row): the global board (fetched only when the list opens, ≤ once per 300 s; cache `user://benchmark/online/`, shipped copy `benchmark/global/leaderboard.json`), then the recorded runs (`res://benchmark/showcase/`, `user://benchmark/runs/`, debug builds also `res://benchmark/runs/`); *Watch* replays in the session at 4×. Debug switches: `-- --spectate=<entry.json>`, `-- --global-board=<board.json>` (runs next to it under `runs/`). From godot-mcp: set `local_board_path` on `…/TitleHost/Slot/Benchmark/BoardClient` and call `forget_fetch`; `Game.advance [n]` jumps a watched run ahead. The suite reads `user://test_bench_library/` and `user://test_bench_online/` (`pre_run.gd`). |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
 | **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. **The sound set:** `uv run --project tools/audio python tools/audio/synth.py [--only <id>] [--check]` (≈30 s; environment `uv sync --project tools/audio`) rewrites `assets/audio/**`; after a new file run `--import` and set its `.import` per audio.md §10.3 (`compress/mode=0` / `loop=true`). |
@@ -203,7 +203,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] D7.I [F] itch.io page: copy en/de, cover and screenshot briefs, AI disclosure, privacy sentence *(`docs/specs/itch.md`)*
 - [x] S6.P [O] Punch list from G6 *(the bots weigh an emergent card's catch; `StatusForecast`)*
 - [x] S7.3 [O] Web build *(shell, `UserPaths`, `WebBridge`, progress file, QOA, `tools/web/` checks in three browsers)*
-- [ ] S7.3b [O] Web build: the browser performance runs *(split from S7.3 at `web.md` §13)*
+- [x] S7.3b [O] Web build: the browser performance runs *(`web_perf.py`; three rows fail on `web_cpu` — Design questions)*
 - [ ] S7.I [O] itch.io upload: butler job, size check, itch web settings *(the itch project and `BUTLER_API_KEY`: user)*
 - [ ] G7.I [F] The itch.io release: played on the restricted page, go, public — **[needs user]**
 
@@ -1497,6 +1497,25 @@ without new information.
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
+- **S7.3b — the web's CPU rows fail by 2.5–5× on `web_cpu`** (Performance notes, S7.3b): tick-frame
+  p99 159 ms (33), sim tick mean/max 10.2/17.1 ms (4/12). Nothing per *frame* is left to fix
+  (frame p95 6.4 ms; release.md §11.4 items 1–2 are per-frame); the cost is per *tick*: the sim
+  (≈ 10–16 ms), the greedy bot (≈ 2 ms, bench only), the tick handlers (≈ 11 ms: link layer 2.8,
+  tree 1.6, map view 1.6, readouts ≈ 1 each) and the frame's layout and text work after them
+  (typical tick frame 50–60 ms; the tree opening on a tick frame 165–184 ms). WebAssembly here runs
+  the sim ≈ 1.8× slower than native, and CDP's 2.5 throttle makes it ≈ 3.7× slower again. Which way:
+  (a) judge the web CPU rows at G7.I in Chrome on a real low-end laptop instead; (b) let the
+  interface refresh on a tick spread over the next frames (tree, link layer, analysis — what may lag
+  a frame is a design call); (c) accept for the itch release. No code placeholder.
+- **S7.3b — *Continue* on the web takes 8.0 s on `web_cpu` (3 s; 2.1–2.5 s unthrottled).** 5.4 s of it is
+  the first `load()` of `session.tscn`: compiling the session's scripts (`session.gd` and what it
+  pulls in ≈ 2.7 s, `marker_layer.gd` 0.4, `region_panel.gd` 0.4 …) and decoding the map masks
+  (`land_mask` 0.46 s, `border_mask` 0.30, `id_map` 0.09); the save's parse and adoption take 0.2 s,
+  instancing 0.6 s. The single-threaded web cannot load in the background: warming the session
+  during the boot or the title moves a multi-second stall there — or the button shows a loading
+  line. Which, or accept? (The map-texture half is S6.11's question on the four 4096 × 2048 masks.)
+  No code placeholder.
+
 - **S7.3 — the web's extra folder.** `web.md` §7.1 moved every file under `user://doomsday/`
   because `custom_user_dir_name` was thought not to apply on the web; measured in 4.7.2 it does:
   `user://` is `/userfs/Doomsday`, so the files sit at `/userfs/Doomsday/doomsday/…`. Kept as
@@ -1608,6 +1627,20 @@ without new information.
 **From G6 (1/2)** — item 1 (the bots weigh an emergent card's catch) **done in S6.P** (BALANCE §6.6).
 
 ## Deviations from the plan or a spec
+
+- **2026-09-26** (S7.3b) — **Against `web.md` §13.2:** (1) Playwright's Chromium runs as
+  `channel="chromium"` (the new headless mode): it draws on the real GPU, the default headless shell
+  gets SwiftShader only. (2) The browser's frame-rate limit is lifted by default
+  (`--disable-gpu-vsync --disable-frame-rate-limit`), so a frame's time is its work; `--vsync`
+  keeps it. (3) The memory row: `OS.get_static_memory_peak_usage()` is 0 in a release template
+  (the engine counts it in debug builds only); the bench still reports it and the runner reads the
+  page's WebAssembly memory (it only grows) as the peak. (4) The engine's adapter name is the
+  browser's masked *WebKit WebGL*; the runner reads the unmasked WebGL renderer in the same browser
+  and judges `web_igpu` by it. (5) Cold load = a fresh persistent profile, warm = a second navigation
+  in it: a plain Playwright context is off the record and its memory cache refuses the 39.5 MB
+  `.wasm`, so its "warm" load downloaded everything again (9.0 s). (6) Port 8767 (8765/8766 belong
+  to `serve.py`/`web_check.py`, and the orchestrator served a play build on 8765). (7) The local
+  server does not gzip: the cold load moves 46.3 MB where itch's CDN would move ≈ 17.5 MB.
 
 - **2026-09-26** (S7.3) — **Against `web.md`:** (1) §7.4's row order put *Reset progress* before
   the progress rows; the rows take *Open data folder*'s place instead (§10), after *Controls* and
@@ -2846,6 +2879,31 @@ Cyber on Hard/Existential; Research Agent as the reward architecture.
 
 ## Performance notes
 
+**S7.3b (2026-09-26) — `web.md` §13.1 in Chromium 153 (Playwright 1.63.0, headless, frame-rate
+limit lifted)** on this PC (Ryzen 9 7900X3D, RTX 5090 and the CPU's Radeon, Windows 11). Build
+0.6.0 at `9d3b39d` + the S7.3b tooling, `web_nothreads_release`; three runs per mode, the run with
+the median p95 frame counts (other runs in brackets). The machine was shared: the user's own
+Chrome, Edge and a served play build were open during the runs.
+
+| Measure | Budget | `web_igpu` (Radeon, 1920 × 1080 canvas) | `web_cpu` (RTX, 1280 × 720, CDP ×2.5) |
+| --- | --- | --- | --- |
+| Frame p95 / p99 / max outside a change | 16.7 / 33 / 100 ms | **16.40 / 19.30 / 78.0 ✓** (16.3–16.7) | 6.40 / 20.5 / 278 |
+| Tick-frame p99 | 33 ms on `web_cpu` | 33.1 (35.2, 38.4) | **158.7 ✗** (158.3, 164.2) |
+| Sim tick mean / max, days 300–358 (the run ends day 358) | 4 / 12 ms on `web_cpu` | 2.74 / 4.8 | **10.21 / 17.1 ✗** |
+| Process-step p95 | 16.7 ms on `web_cpu` | 1.0 | **1.70 ✓** |
+| Draw calls max | 1 000 | 309 ✓ | 309 ✓ |
+| Memory peak (static: 0 in release; WebAssembly memory) | 768 MB | 231–278 MB ✓ | 231 MB ✓ |
+| *Continue* → session drawn | 3 s on `web_cpu` | 2.45 (2.09, 2.31) | **7.96 s ✗** (8.01, 8.20) |
+| *Run game* → `first screen`, 50/10 Mbit/s, 20 ms, cold | 15 s | | **11.84 s ✓** (11.81, 12.12; 46.3 MB unzipped) |
+| The same, warm | 5 s | | **0.81 s ✓** (0.0 MB over the network) |
+
+**Playable** (`web_igpu` p95 ≤ 33 ms): yes. **Nothing fixed:** release.md §11.4 items 1–2 are
+per-frame work, and the frame rows pass; item 3 (the map masks) is S6.11's open art question;
+item 4 (the screen pass) — `web_igpu` passes at Subtle. What fails is per-tick and first-load
+work — the breakdown is in the two *Design questions* (measured with temporary instrumentation
+in the web bench, not committed). The desktop bench is unchanged but for Full now coming from
+`Settings.default_screen_effects()` (same value on a desktop).
+
 **S7.3 (2026-09-26) — the web export's size after QOA** (0.6.0, stock `web_nothreads_release`,
 MB = 10⁶ B): `index.wasm` 39.51 MB (gzip -9 10.05), `index.pck` **8.67 MB (7.36)**, `index.js`
 0.28 (0.07), rest 0.08; **48.55 MB extracted, web zip 17.55 MB** in 9 files (budget ≤ 25 target /
@@ -2914,6 +2972,12 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-26 — S7.3b Browser performance runs [O]
+- Preset 4 `Perf web (local)` (+ `test_export_presets`), `perf_bench.gd` web branch, `tools/web/web_perf.py` (Chromium new headless on the real GPU; iGPU via per-exe GPU preference, removed after).
+- `web_igpu` p95 16.4 ms ✓ (playable); `web_cpu`: tick-frame p99 159 ✗, sim tick 10.2/17.1 ✗, *Continue* 8.0 s ✗, process p95 1.7 ✓; loads cold 11.8 s ✓ warm 0.8 s ✓; wasm memory ≤ 278 MB.
+- Nothing fixed (per-frame rows pass; the rest is per-tick/first-load work) → two Design questions with the breakdown. Deviations: memory row, masked adapter, persistent profile for the warm load.
+- +1 test (`test_export_presets`), 2496 green, scratch APPDATA. No `data/` change, no canary.
 
 ### 2026-09-26 — S7.3 The Web build (without §13) [O]
 - Shell (`web/shell.html`), `UserPaths`, `WebBridge`, progress file rows, page hidden → mute/autosave/menu, web cue loading, `KeyNames.use_layout`, QOA cues, lossy illustrations, `build/.gdignore`, no web log.

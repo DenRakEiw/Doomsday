@@ -8,6 +8,10 @@ extends Control
 ## `-- --label=<name>` names the output: `user://perf/<label>.csv` (one row per
 ## frame) and `user://perf/<label>.json` (the summary), and one `perf:` line on
 ## stdout. The player's files are read by the autoloads as always, never written.
+## In a browser (web.md §13.2, the `Perf web (local)` export) the label is `web`,
+## no file is written (it would sit in the page's IndexedDB), the engine's static
+## memory peak stands in for the working set, and the `perf:` line on the console
+## is the result — `tools/web/web_perf.py` reads it.
 ##
 ## A tool, so no `class_name`. It stands in for `game/main.gd`: the backdrop, the
 ## slot the router fills, the theme and the logical scale are set up the same way.
@@ -17,6 +21,9 @@ const PerfStats := preload("res://tools/perf/perf_stats.gd")
 ## After `--` on the command line.
 const ARG_LABEL: String = "--label="
 const DEFAULT_LABEL: String = "bench"
+## web.md §13.2: the runner names the run; the bench only says where it ran.
+const WEB_LABEL: String = "web"
+const FEATURE_WEB: String = "web"
 const DIR: String = "user://perf/"
 const PROFILE_PATH: String = "user://perf/profile.json"
 const SAVES_DIR: String = "user://perf/saves/"
@@ -109,7 +116,7 @@ var _screen_change: PackedByteArray = PackedByteArray()
 
 func _ready() -> void:
 	_boot_ms = Time.get_ticks_msec()
-	_label = _label_from(OS.get_cmdline_user_args())
+	_label = WEB_LABEL if OS.has_feature(FEATURE_WEB) else _label_from(OS.get_cmdline_user_args())
 	print("perf: adapter=%s driver=%s window=%s" % [RenderingServer.get_video_adapter_name(),
 		RenderingServer.get_current_rendering_driver_name(), get_window().size])
 	_isolate()
@@ -141,14 +148,15 @@ func _process(_delta: float) -> void:
 
 ## §11.3 step 1's isolation, as the smoke's (§8 step 1): the profile and the
 ## saves go to `user://perf/`, the settings file is not written, and the bench
-## is silent. Screen effects Full, reduced motion off, text 100 %.
+## is silent. Screen effects at the platform's default (Full on a desktop,
+## Subtle in a browser — web.md §13.1), reduced motion off, text 100 %.
 func _isolate() -> void:
 	DirAccess.make_dir_recursive_absolute(SAVES_DIR)
 	Settings.persist = false
 	for bus: StringName in AudioSheet.BUS_IDS:
 		Settings.set_volume(String(bus), 0.0)
 	Settings.set_locale(Settings.LOCALE_EN)
-	Settings.set_screen_effects(UiTokens.FX_INTENSITY_DESKTOP)
+	Settings.set_screen_effects(Settings.default_screen_effects())
 	Settings.set_reduced_motion(false)
 	Settings.set_text_scale(Settings.DEFAULT_TEXT_SCALE)
 	# The heavier case: the tree open while the days still run (the phone's
@@ -358,6 +366,8 @@ func _summary() -> Dictionary:
 		"tick_max_ms": PerfStats.maximum(_tick_us) / USEC_PER_MS,
 		"draw_calls_max": draw_max,
 		"video_mem_max_mb": float(video_max) / BYTES_PER_MB,
+		# web.md §13.1's memory row; the engine counts it in debug templates only.
+		"static_memory_peak_mb": float(OS.get_static_memory_peak_usage()) / BYTES_PER_MB,
 		"boot_ms": _boot_ms,
 		"load_ms": _load_ms,
 		"end_day": _end_day,
@@ -385,11 +395,12 @@ func _finish(code: int) -> void:
 	Game.set_speed(0)
 	var summary: Dictionary = _summary()
 	summary["exit"] = code
-	_write_csv()
-	var file: FileAccess = FileAccess.open(SUMMARY_PATH % _label, FileAccess.WRITE)
-	if file != null:
-		file.store_string(JSON.stringify(summary, "\t", false))
-		file.close()
+	if not OS.has_feature(FEATURE_WEB):
+		_write_csv()
+		var file: FileAccess = FileAccess.open(SUMMARY_PATH % _label, FileAccess.WRITE)
+		if file != null:
+			file.store_string(JSON.stringify(summary, "\t", false))
+			file.close()
 	print("perf: %s" % JSON.stringify(summary, "", false))
 	get_tree().quit(code)
 
