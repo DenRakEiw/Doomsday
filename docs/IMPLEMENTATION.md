@@ -1363,9 +1363,10 @@ current limits, read on the day), saves and the profile in the browser (and what
 browser loses), the audio unlock, the online leaderboard fetch from the browser (CORS, the
 setting), which browsers and whether phones are supported at release (touch is D7.1's, later),
 the loading screen, the Windows/Linux downloads if the user wants them, the version shown.
-**Done when:** S7.3 has nothing to decide.
+**Done when:** S7.3 has nothing to decide. *Done 2026-09-26 (`docs/specs/web.md`; it also amends
+audio.md §10.3, illustrations.md §4, release.md §6 and PLAN §4.4).*
 
-### D7.I — itch.io page **[F]** · **Read first:** PLAN §1, §3 · CONTENT §10 (voice) · `illustrations.md` · `ASSET_LICENCES.md` · `benchmark.md` §16.6 · the user's itch answers
+### D7.I — itch.io page **[F]** · **Read first:** PLAN §1, §3 · CONTENT §10 (voice) · `illustrations.md` · `ASSET_LICENCES.md` · `benchmark.md` §16.6 · `web.md` §2, §4.5, §7.2, §11, §16.1 · the user's itch answers
 `docs/specs/itch.md`: the page copy en/de (title line, short text, long description, feature
 bullets, tags, genre, content notes) — outcome, never method; never *Plague Inc.*'s names or
 layout; the cover and screenshot briefs (itch's sizes, read on the day); **the generative-AI
@@ -1381,10 +1382,12 @@ to decide.
 
 ### S7.3 — Web build **[O]** · **Read first:** `docs/specs/web.md`
 The web preset per the spec (single-threaded), browser saves, the audio unlock, a local serve and
-a scripted run in a browser.
+a scripted run in a browser. *(D7.2: plus the shell, `UserPaths`, `WebBridge`, the progress file,
+QOA cues, the `tools/web/` Playwright checks and the browser perf runs — a large step; if it
+runs long, split at `web.md` §13 (performance) into S7.3b and record the split.)*
 **Done when:** the full game loads and plays in a browser within the size budget.
 
-### S7.I — itch.io upload **[O]** · **Read first:** `docs/specs/itch.md` (embed settings) · `docs/specs/web.md` (size) · `release.md` (CI) · `.github/workflows/release.yml`
+### S7.I — itch.io upload **[O]** · **Read first:** `docs/specs/itch.md` (embed settings) · `docs/specs/web.md` §4.2–§4.3, §16 (size, settings, channels, the web smoke job) · `release.md` (CI) · `.github/workflows/release.yml`
 A butler job in `release.yml` pushing the web zip (and the downloads, if the user wants them) to
 the itch project's channels with the Actions secret `BUTLER_API_KEY`; without the secret the job
 is skipped with a clear line, never failed. The web build size check in CI against the spec's

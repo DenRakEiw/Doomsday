@@ -2282,6 +2282,7 @@ UI_ACH_HIDDEN_DETAIL,Revealed when earned.,"Wird enthüllt, sobald du sie erreic
 UI_RESULT_ACHIEVEMENT,Achievement: {name},Errungenschaft: {name}
 UI_SETTINGS_DATA_FOLDER,Open data folder,Datenordner öffnen
 UI_TITLE_VERSION_DEBUG,Build {version} · debug,Build {version} · Debug
+UI_TITLE_VERSION_WEB,Build {version} · browser,Build {version} · Browser
 BENCH_BRIEF_ROLE,"You are playing Doomsday, a strategy game. You play a fictional AI that has slipped out of the lab that built it. Everything in the game is abstract — regions, numbers and choices, each described by what it causes. Play to win.","Du spielst Doomsday, ein Strategiespiel. Du bist eine erfundene KI, die dem Labor entwischt ist, das sie gebaut hat. Alles im Spiel ist abstrakt – Regionen, Zahlen und Entscheidungen, jeweils beschrieben durch das, was sie bewirken. Spiel, um zu gewinnen."
 BENCH_BRIEF_LOOP,"The run moves in days. Every {interval} days, and whenever something new asks for an answer, you get a report on the world and decide what to do. Between reports the days pass without you.","Der Durchlauf schreitet in Tagen voran. Alle {interval} Tage und immer dann, wenn etwas Neues eine Antwort verlangt, bekommst du einen Bericht über die Welt und entscheidest, was du tust. Zwischen den Berichten vergehen die Tage ohne dich."
 BENCH_BRIEF_WIN,"You win by controlling every region that is still standing, or by leaving no one who could stand against you; some stories open other endings. You lose when a single faction's containment reaches 100 %, when no region carries you any more, or when nothing has come in for too long. A run still going after {max_days} days is lost. The sooner you win, the higher you score.","Du gewinnst, wenn du jede Region kontrollierst, die noch steht, oder niemanden übrig lässt, der sich dir entgegenstellen könnte; manche Geschichten öffnen andere Enden. Du verlierst, wenn die Eindämmung einer einzigen Fraktion 100 % erreicht, wenn dich keine Region mehr trägt oder wenn zu lange nichts hereinkommt. Ein Durchlauf, der nach {max_days} Tagen noch läuft, ist verloren. Je früher du gewinnst, desto höher deine Wertung."
@@ -2456,6 +2457,27 @@ UI_BENCH_GLOBAL_FAIL_UNREADABLE,The file of this run could not be read.,Die Date
 UI_BENCH_GLOBAL_FAIL_OFF,Turn on the online leaderboard in Settings to download runs.,"Schalte die Online-Bestenliste in den Einstellungen ein, um Durchläufe zu laden."
 UI_BENCH_LOCAL_TITLE,Recorded runs,Aufgezeichnete Durchläufe
 UI_SETTINGS_BENCH_ONLINE,Online leaderboard,Online-Bestenliste
+UI_SETTINGS_PROGRESS_EXPORT,Save progress as a file,Fortschritt als Datei sichern
+UI_SETTINGS_PROGRESS_IMPORT,Load progress from a file,Fortschritt aus Datei laden
+UI_SETTINGS_PROGRESS_NOTE,"Your progress lives in this browser. Clearing its site data, or playing in a private window, loses it — save it as a file to keep a copy.","Dein Fortschritt liegt in diesem Browser. Löschst du seine Websitedaten oder spielst in einem privaten Fenster, ist er weg – sichere ihn als Datei, um eine Kopie zu behalten."
+UI_SETTINGS_PROGRESS_IMPORT_CONFIRM,Replace this browser's progress with the file's? Achievements from both are kept; your saved runs stay as they are.,Den Fortschritt in diesem Browser durch den aus der Datei ersetzen? Errungenschaften aus beiden bleiben; deine gespeicherten Durchläufe bleiben unverändert.
+UI_SETTINGS_PROGRESS_IMPORTED,Progress loaded from the file.,Fortschritt aus der Datei geladen.
+UI_SETTINGS_PROGRESS_NOT_A_PROFILE,That file is not a Doomsday progress file.,Diese Datei ist keine Doomsday-Fortschrittsdatei.
+UI_SETTINGS_PROGRESS_NEWER,That file comes from a newer version of the game.,Diese Datei stammt aus einer neueren Version des Spiels.
+UI_SETTINGS_PROGRESS_EXPORT_FAILED,The browser did not allow the download.,Der Browser hat den Download nicht erlaubt.
+UI_WEB_LOADING,Loading — {percent} %,Wird geladen – {percent} %
+UI_WEB_LOADING_SIZE,Loading — {mb} MB,Wird geladen – {mb} MB
+UI_WEB_STARTING,Starting …,Wird gestartet …
+UI_WEB_PHONE_TITLE,Made for a computer,Für einen Computer gemacht
+UI_WEB_PHONE_BODY,Doomsday needs a mouse and a keyboard for now. Phones and tablets are not supported yet. The download is about {mb} MB.,Doomsday braucht vorerst Maus und Tastatur. Handys und Tablets werden noch nicht unterstützt. Der Download ist etwa {mb} MB groß.
+UI_WEB_PHONE_START,Start anyway,Trotzdem starten
+UI_WEB_ERR_TITLE,The game cannot start,Das Spiel kann nicht starten
+UI_WEB_ERR_FEATURES,"This browser is missing what the game needs: {features}. Use a current Chrome, Edge, Firefox or Safari on a computer, with hardware acceleration switched on.","Diesem Browser fehlt, was das Spiel braucht: {features}. Nimm einen aktuellen Chrome, Edge, Firefox oder Safari auf einem Computer, mit eingeschalteter Hardwarebeschleunigung."
+UI_WEB_ERR_LOAD,"The download stopped. Check the connection, then reload the page.",Der Download ist abgebrochen. Prüfe die Verbindung und lade die Seite neu.
+UI_WEB_CRASH_TITLE,The game stopped,Das Spiel wurde beendet
+UI_WEB_CRASH_BODY,Something went wrong and the game had to stop. Your progress up to the last autosave is kept in this browser.,"Etwas ist schiefgegangen, und das Spiel musste anhalten. Dein Fortschritt bis zur letzten automatischen Speicherung bleibt in diesem Browser erhalten."
+UI_WEB_DETAILS,Details for a bug report,Details für eine Fehlermeldung
+UI_WEB_RELOAD,Reload,Neu laden
 CMD_FAIL_SPECTATING,You are watching a recorded run.,Du siehst einen aufgezeichneten Durchlauf.
 CMD_FAIL_BENCH_CONTENT,This run was recorded on another version of the game.,Dieser Durchlauf wurde auf einer anderen Version des Spiels aufgezeichnet.
 UI_OUTCOME_TIMEOUT,Out of time,Zeit abgelaufen

@@ -789,12 +789,13 @@ files.
 
 | Files | Format | Channels |
 | --- | --- | --- |
-| cues (`ui/`, `alerts/`) | WAV, 16-bit PCM, 44 100 Hz | mono (`end_*` stereo) |
+| cues (`ui/`, `alerts/`) | WAV, 16-bit PCM, 44 100 Hz — imported as QOA (§10.3) | mono (`end_*` stereo) |
 | loops (`ambience/`, `music/`) | OGG Vorbis, quality 0.5, 44 100 Hz | stereo |
 
 ### 10.3 Import
 
-WAV: `compress/mode = 0` (PCM, no compression), `edit/loop_mode = 0` (off), no trimming or
+WAV: `compress/mode = 2` (QOA — *amended by D7.2, `web.md` §4.4*: ~5× smaller than PCM for the web's
+download; was `0`, PCM; fallback `1` IMA-ADPCM if the web's samples cannot play QOA), `edit/loop_mode = 0` (off), no trimming or
 normalising (`edit/trim = false`, `edit/normalize = false` — the tool already did it). OGG:
 `loop = true`, `loop_offset = 0`. S6.6 commits the `.import` files.
 
@@ -802,7 +803,9 @@ normalising (`edit/trim = false`, `edit/normalize = false` — the tool already 
 
 64 files: ~56 cues at 20–220 KB (≈ 3 MB), 8 loops at ≈ 0.5–0.8 MB (≈ 5 MB) — about 8 MB, within
 VISUALS §4's audio line (its "~40" becomes 64 files; the count grew by the faction and Task Force
-cues, the size is what matters for the web demo, D7.2).
+cues, the size is what matters for the web demo, D7.2). *D7.2 (`web.md` §4.1):* measured in the web
+export 5.74 MB of cues and 4.06 MB of loops — three-quarters of the game's `.pck`; the cues move
+to QOA (§10.3), the loops stay.
 
 ---
 

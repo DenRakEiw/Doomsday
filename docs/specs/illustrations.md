@@ -188,15 +188,18 @@ style holds without any figure, at night, with the accent mostly gone.
   rest as Godot's defaults, which `globe_ids.png.import` shows):
 
   ```ini
-  compress/mode=0
+  compress/mode=1
+  compress/lossy_quality=0.9
   mipmaps/generate=true
   mipmaps/limit=-1
   process/fix_alpha_border=true
   process/size_limit=0
   ```
 
-  Lossless (`compress/mode=0`) because VRAM compression bands the six flat steps and the web
-  export would need two compressed formats; mipmaps because every draw is a downscale (§1). Godot's
+  *Amended by D7.2 (`web.md` §4.4):* **WebP lossy at 0.9** instead of lossless — lossless would
+  add ~30–40 MB to the browser download, lossy ~4–6 MB; D6.10 checks each picture at 0.9 on its
+  contact sheet and raises that picture to 0.95 if a flat edge rings. Still not VRAM compression,
+  which bands the six flat steps and would need two compressed formats on the web; mipmaps because every draw is a downscale (§1). Godot's
   default import has `mipmaps/generate=false`, so an unedited `.import` is a defect the test finds
   (§8.4). No project-wide import default is changed (the map textures must keep theirs).
 - **Key art** lives outside the game: `marketing/key_art/key_art.png` (3840 × 2160, RGB), with a

@@ -417,7 +417,8 @@ for a pure-logic core, gdUnit4 has richer CI reporting. Run headless in GitHub A
 - **Android:** JDK 17, SDK Platform 35, Build-Tools 35.0.1, NDK r28b, Gradle build for the AAB.
   Verify Google Play's current target-API and closed-testing requirements before submission.
 - **iOS:** requires macOS, Xcode and the Apple Developer Program.
-- **Web:** single-threaded Compatibility build; a demo channel, not a primary target.
+- **Web:** single-threaded Compatibility build — **the main version since 2026-09-25** (user decision:
+  itch.io in the browser first, Steam later), the whole game, no demo limits; `docs/specs/web.md` (D7.2).
 
 ---
 

@@ -14,18 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures, **[needs user]**): the user plays the release candidate and judges BALANCE §6.7 — IMPLEMENTATION §4 row 92. **Without the user: D7.2** (row 93). Pass 4's one code item waits for S6.P (row 95). **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
+| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures, **[needs user]**): the user plays the release candidate and judges BALANCE §6.7 — IMPLEMENTATION §4 row 92. **Without the user: D7.I** (row 94) — the itch page copy and briefs; the price model and the downloads stay the user's (*Waiting on the user*), so write the copy to work either way; if that is not possible, S7.3 (row 96) builds from `docs/specs/web.md`. Pass 4's one code item waits for S6.P (row 95). **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2, D7.I → S7.3, S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
-| **Last completed** | G6 (1/2) — Balance pass 4: `docs/BALANCE.md` §6 — the Task Force's stalemate ended by data (`tf_switch_off` 30 d / `control_decay` 0.005, `tf_raid` 0.005; 0 timeouts in 16 800 runs), the five emergent windfalls got a catch (the false choice, option 1), The Inheritance's governments `harm` ×6; closing baseline 200 seeds × 12 setups × 7 bots; canary regenerated (2026-09-26). |
-| **Before that** | S6.12c — The Jev backend, mock only: `BenchChoice` (plan over legal moves, reader, combiner), `MockChoiceBackend`, `tools/bench/typesafe_backend.gd`, the tool's TypeSafe rules and dry run, cache basis (chat keys unchanged), `model_version`/`model_versions`, the `choice`/`typesafe` config keys; `tools/bench/set_api_key.ps1` (key dialog for the user); no request to TypeSafe (2026-09-26). |
-| **Earlier** | D6.9c — Decision-model backend (TypeSafe Jev): `benchmark.md` §17 — one request of choice questions per decision over legal moves only, rankings by probability, the combiner, cache basis, `model_version`, the published price and a request cap, `MockChoiceBackend`; 21 `BENCH_CHOICE_*` strings (2026-09-26). |
+| **After it** | D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2 done; D7.I → S6.P, S7.3, S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
+| **Last completed** | D7.2 — The Web build, the main version: `docs/specs/web.md` — desktop browsers only (Chrome/Edge/Firefox tested, Safari best effort, phones gated), single-threaded stock template, no SharedArrayBuffer; **measured web export 20.39 MB zip / 53.10 MB extracted** (wasm 39.5 MB raw, 10.1 gz; `.pck` 13.2 MB, three-quarters sound); budget zip ≤ 25 MB target / 30 hard, illustrations lossy WebP 0.9 and cue WAVs as QOA to stay inside it (≈ 23 MB projected); own HTML shell (loading, phone gate, error/crash screen, `?smoke`); files under `user://doomsday/` (itch's `/userfs` is shared by every Godot game); progress export/import in the title's settings; embed 1280 × 720; 22 strings (2026-09-26). |
+| **Before that** | G6 (1/2) — Balance pass 4: `docs/BALANCE.md` §6 — the Task Force's stalemate ended by data (`tf_switch_off` 30 d / `control_decay` 0.005, `tf_raid` 0.005; 0 timeouts in 16 800 runs), the five emergent windfalls got a catch (the false choice, option 1), The Inheritance's governments `harm` ×6; closing baseline 200 seeds × 12 setups × 7 bots; canary regenerated (2026-09-26). |
+| **Earlier** | S6.12c — The Jev backend, mock only: `BenchChoice` (plan over legal moves, reader, combiner), `MockChoiceBackend`, `tools/bench/typesafe_backend.gd`, the tool's TypeSafe rules and dry run, cache basis (chat keys unchanged), `model_version`/`model_versions`, the `choice`/`typesafe` config keys; `tools/bench/set_api_key.ps1` (key dialog for the user); no request to TypeSafe (2026-09-26). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 361 scripts compile (147 judged by the suite), then `tools/check_strings.gd` (2513 rows), 2427 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 361 scripts compile (147 judged by the suite), then `tools/check_strings.gd` (2535 rows), 2427 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
 | **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
 | **Benchmark** | `"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --model=<id> [--suite=quick] [--seeds=a..b] [--dry-run] [--max-cost=<usd>] [--yes]` (OpenRouter; the key from `OPENROUTER_API_KEY` only) · **`--model=typesafe/jev-latest`** (S6.12c: TypeSafe Jev, a decision model; key `TYPESAFE_API_KEY`; `--max-requests=<n>`, chat flags refused; `--dry-run` prints the day-0 request and the size limits, no key) · `--backend=mock-choice:first` (or `idle`, `shuffled`, `broken`) · **keys:** `powershell -ExecutionPolicy Bypass -File tools\bench\set_api_key.ps1 -Name OPENROUTER_API_KEY` (or `TYPESAFE_API_KEY`; a dialog, stored as a user variable, new windows see it) · `--backend=mock:cheapest` (or `wait`, `invalid`, `mixed`; free, no key) · `--bots [--if-missing] [--no-rebuild]` (reference rows, ≈3 min for the standard suite) · `--rebuild` · `--determinism-fixture`. Writes `benchmark/runs/*.json`, `benchmark/leaderboard.json`, `LEADERBOARD.md` (`--out=<dir>` elsewhere; tests use `user://test_bench/`); cache `benchmark/cache/` (ignored). The tool works in `_initialize`, not `_init`: TLS is not ready before the main loop. **Global board (S6.12b):** `"$GODOT" --headless --path . -s tools/bench/verify_runs.gd -- --board=<leaderboard checkout> --game-commit=<40-hex> [--limit=n] [--today=YYYY-MM-DD] [--message=<file>]` (exit 0/1/2/3; a full board of 81 runs ≈80 s); `.github/workflows/leaderboard.yml` (daily + dispatch; no key → gate / read-only dry run). **Whoever changes `data/` regenerates the canary on Windows in the same commit:** `bench_run.gd -- --determinism-fixture` (`test_bench_determinism` fails with that line otherwise). **In the game (S6.13):** title → *Benchmark* (shown when a recorded run exists, the *Online leaderboard* setting is on, or a board on disk has a row): the global board (fetched only when the list opens, ≤ once per 300 s; cache `user://benchmark/online/`, shipped copy `benchmark/global/leaderboard.json`), then the recorded runs (`res://benchmark/showcase/`, `user://benchmark/runs/`, debug builds also `res://benchmark/runs/`); *Watch* replays in the session at 4×. Debug switches: `-- --spectate=<entry.json>`, `-- --global-board=<board.json>` (runs next to it under `runs/`). From godot-mcp: set `local_board_path` on `…/TitleHost/Slot/Benchmark/BoardClient` and call `forget_fetch`; `Game.advance [n]` jumps a watched run ahead. The suite reads `user://test_bench_library/` and `user://test_bench_online/` (`pre_run.gd`). |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
@@ -198,7 +198,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [ ] G6 (2/2) [F] M6 gate: the release candidate (browser and desktop) — **[needs user]**
 
 **Block 18 — M7 I: the itch.io release** *(user 2026-09-25: itch first, the browser build is the main version)*
-- [ ] D7.2 [F] The Web build — the main version *(was: web demo)*
+- [x] D7.2 [F] The Web build — the main version *(was: web demo; `docs/specs/web.md`)*
 - [ ] D7.I [F] itch.io page: copy en/de, cover and screenshot briefs, AI disclosure, privacy sentence
 - [ ] S6.P [O] Punch list from G6 *(skip if empty)*
 - [ ] S7.3 [O] Web build
@@ -235,6 +235,25 @@ it and take the next row (IMPLEMENTATION §4).*
 Dated, one line each, with the reason. A decision recorded here is not re-argued in a later session
 without new information.
 
+- **2026-09-26** (D7.2, pending user confirmation) — **The web build** (`docs/specs/web.md`):
+  (1) **desktop browsers only** — Chrome/Edge (last two), Firefox (current + ESR) tested here,
+  Safari 17+ best effort; **phones out** until D7.1 (a notice before the download, *Start anyway*);
+  (2) **stock single-threaded template**, no SharedArrayBuffer (itch's option off — it would also
+  break the leaderboard fetch's CORS), no PWA; a custom template (−5 MB) not made; (3) **size
+  budget** web zip ≤ 25 MB target / 30 MB hard, extracted ≤ 80 MB — measured 20.39 / 53.10 MB;
+  to stay inside after the 24 pictures: **illustrations import WebP lossy 0.9** (amends
+  illustrations.md §4; lossless would add 30–40 MB) and **cue WAVs import as QOA** (amends
+  audio.md §10.3; −2.4 MB, fallback IMA-ADPCM); loops, fonts, wasm unchanged; (4) **own HTML shell**
+  — loading bar, phone gate, feature check, friendly error/crash screen with *Reload*, en/de from
+  `strings.csv`, no external request, `?smoke` the only query key; (5) **all files under
+  `user://doomsday/` on the web** — itch's origin gives every Godot game one shared `/userfs`
+  (measured); (6) **progress export/import** (the profile as JSON; achievements merged) in the
+  title's settings, web only; (7) **embed 1280 × 720**, fullscreen button on, click to launch,
+  compact rule unchanged; (8) **page hidden** → autosave, pause menu, mute; (9) web performance
+  budgets judged in Playwright's Chromium on the iGPU and under 2.5× CPU throttling; no analytics.
+  Also: `build/*` and `web/*` excluded (the last web export's icons shipped in every `.pck`), no
+  file log on the web, `UI_TITLE_VERSION_WEB`. CLAUDE.md's "Windows/Steam first" line is stale
+  since 2026-09-25 — left to the user; PLAN §4.4 updated.
 - **2026-09-26** (G6 1/2, pending user confirmation) — **Balance pass 4** (`BALANCE.md` §6):
   (1) **the Task Force's blows heal** — `tf_switch_off` 30 d (was 60) and `control_decay` +0.005
   (was 0.02), `tf_raid` +0.005: at L3 it switched a region's whole control off every ~35 days, so
@@ -2379,6 +2398,12 @@ without new information.
 
 ## Known issues and carry-overs
 
+- **D7.2 → S7.3 (found in the first web export):** `KeyNames` calls
+  `DisplayServer.keyboard_get_label_from_physical`, which the web does not implement — eleven
+  `ERROR: Not supported by this display server` lines when the title opens (`web.md` §9.3 fixes
+  it; on the web a German keyboard then sees US key names — for D7.1). And `build/` has no
+  `.gdignore`, so a local web export's three icons were imported and shipped in every `.pck`
+  (`web.md` §3.3).
 - **S6.P4:** a tab row pressed from code (`Codex.show_tab`, `open(tab)` on another tab than the
   last; the tech tree's `open_on`; `Setup.select_difficulty`) leaves the old tab drawn pressed
   too — `set_pressed_no_signal` does not release the group (the scenario row lets the others go
@@ -2550,7 +2575,10 @@ without new information.
 ## Waiting on the user
 
 **itch.io release (2026-09-25, before D7.I/S7.I):** an itch.io account? Free, pay-what-you-want
-or a fixed price? Which platforms besides the browser (Windows, Linux downloads)? Then, for S7.I:
+or a fixed price? Which platforms besides the browser (Windows, Linux downloads)? *D7.2's
+recommendation (`web.md` §15): yes, both zips as downloads — they exist, are smoke-tested and cost
+nothing; Windows shows SmartScreen's prompt for the unsigned exe.* If you have a Mac (or a friend
+with one), one look at the restricted page at G7.I would make Safari "tested" (`web.md` §2). Then, for S7.I:
 the itch project and a butler API key as the Actions secret `BUTLER_API_KEY`. **Before Steam:** a
 name and trademark check for "Doomsday".
 
@@ -2773,6 +2801,13 @@ Cyber on Hard/Existential; Research Agent as the reward architecture.
 
 ## Performance notes
 
+**D7.2 (2026-09-26) — the web export's size** (0.6.0 at `465c3a6`, stock `web_nothreads_release`,
+MB = 10⁶ B): `index.wasm` 39.51 MB (gzip -9 10.08), `index.pck` 13.24 MB (10.21), `index.js`
+0.28 (0.07), rest 0.07; **53.10 MB extracted, web zip 20.39 MB**. Inside the `.pck`: cue WAVs
+5.74 MB, loops 4.06, scripts 1.26, fonts 0.53, textures 0.44, translations 0.33, icons 0.09.
+Headless Chrome on SwiftShader: `first screen` 3.6 s after engine start (cold), 0.7 s warm.
+Budget and reductions: `web.md` §4; the browser frame budget: `web.md` §13.
+
 **S6.11 (2026-09-25) — the budget of `release.md` §11.2 on this PC** (Ryzen 9 7900X3D, RTX 5090
 and the CPU's integrated Radeon, Windows 11). Build 0.6.0, the S6.11 commit, release exports;
 bench `tools/perf/perf_bench.tscn` via `tools/perf/run_perf.ps1`, three runs per row, the run with
@@ -2828,6 +2863,12 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-26 — D7.2 The Web build, the main version [F]
+- `docs/specs/web.md`: browsers, single-threaded stock template, size budget with a measured baseline, shell, saves in IndexedDB under `user://doomsday/`, progress file, embed, input, perf, S7.3 tests, S7.I needs.
+- Exported the Web preset to scratch and booted it in headless Chrome (CDP): runs; found the `KeyNames` web errors and the `build/` icon leak; `/userfs` confirmed shared.
+- Amended audio.md §10.3 (QOA), illustrations.md §4 (WebP 0.9), release.md §6, PLAN §4.4. 22 strings en/de; suite green (2427, 2535 rows).
+- Next unattended: D7.I (price and downloads stay the user's), else S7.3.
 
 ### 2026-09-26 — G6 (1/2) Balance pass 4 [F]
 - Start (100 seeds × 12 setups × 7 bots): Cyber 0–16 %, 1–26 % of runs soft-locked — the Task Force at L3 reset a region's control every ~35 d. Fix: `tf_switch_off` 30 d/`control_decay` 0.005, `tf_raid` 0.005.

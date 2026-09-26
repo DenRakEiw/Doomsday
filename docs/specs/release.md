@@ -358,7 +358,7 @@ at 16, 32 and 256 px; if the eye closes up at 16 px the ring goes at that size o
 | --- | --- | --- | --- | --- |
 | 0 | `Windows` | Windows Desktop | `build/windows/Doomsday.exe` | x86_64 · `binary_format/embed_pck=true` · `application/modify_resources=true` (icon, version, `product_name` "Doomsday", `file_description` "Doomsday"; `company_name` and `copyright` empty until the user answers D6.2's *Made by*) · `debug/export_console_wrapper=0` (no) · `codesign/enable=false` |
 | 1 | `Linux` | Linux | `build/linux/Doomsday.x86_64` | x86_64 · `binary_format/embed_pck=true` |
-| 2 | `Web` | Web | `build/web/index.html` | `variant/thread_support=false` (single-threaded, PLAN §4.4) · `vram_texture_compression/for_desktop=true`, `for_mobile=false` · `progressive_web_app/enabled=false` · `html/export_icon=true` · `html/canvas_resize_policy=2` (adaptive) |
+| 2 | `Web` | Web | `build/web/index.html` | `variant/thread_support=false` (single-threaded, PLAN §4.4) · `vram_texture_compression/for_desktop=true`, `for_mobile=false` · `progressive_web_app/enabled=false` · `html/export_icon=true` · `html/canvas_resize_policy=2` (adaptive) · *D7.2:* `html/custom_html_shell="res://web/shell.html"` and the rest of `web.md` §3 |
 | 3 | `Perf (local)` | Windows Desktop | `build/perf/Doomsday-perf.exe` | preset 0's options + `custom_features="perf"`; **not built by CI**; the only preset that keeps `tools/perf/` (§11.3) |
 | — | `Android` · `iOS` | | | named here, created in S7.2 / S7.4 |
 | — | `Windows (Steam)` · `Linux (Steam)` | | | S6.14: presets 0/1 + `custom_features="steam"` + GodotSteam's GDExtension |
@@ -370,6 +370,7 @@ at 16, 32 and 256 px; if the eye closes up at 16 px the ring goes at that size o
 
 - **`exclude_filter`** (presets 0–2; preset 3 the same minus `tools/perf/*`):
   `tests/*, tools/*, addons/gut/*, ui/dev/*, docs/*, *.md, steam_appid.txt, .github/*`
+  — *D7.2 adds `build/*, web/*`* (`web.md` §3.3: the last web export's icons were shipping)
 - **`include_filter`** (the non-resource files the game reads with `FileAccess` at run time):
   `data/*.json, assets/licences/*.txt, assets/fonts/*.txt`
   — and, from S6.13, `benchmark/showcase/*.json` (the watchable benchmark runs that ship;
