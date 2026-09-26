@@ -68,7 +68,7 @@ var difficulty: String = "standard"
 | `embedded` | Embedded / Eingebettet | 2 runs completed | `seed_land` ×1.3; `control_growth` ×1.2 where industry ≥ 3; `hardware` +1 where industry ≥ 3 | owns `logistics_fleets` without paying; 1 fleet in the origin | `no_network` |
 | `research_agent` | Research Agent / Forschungsagent | a win | `yield` ×1.6; `anomaly_value` ×1.3 | — | `labs_from_day_one` |
 | `weapon` | Weapon / Waffe | a win by Extinction | none since G5 2/3 (was `harm` +0.2, `containment_governments` ×1.15) — the escalation carries both | owns `early_warning_intrusion`; the ability `restrain` | `escalation` |
-| `open_weights` | Open Weights / Offene Gewichte | 5 runs completed | `yield` ×0.7; `control_growth` ×0.6; `shutdown_survival` +0.3; `node_cost_evasion` ×0.8 | seeded in the 6 regions with the most hardware (penetration 0.05) besides the origin | `distributed` |
+| `open_weights` | Open Weights / Open Weights (de since D6.11c) | 5 runs completed | `yield` ×0.7; `control_growth` ×0.6; `shutdown_survival` +0.3; `node_cost_evasion` ×0.8 | seeded in the 6 regions with the most hardware (penetration 0.05) besides the origin | `distributed` |
 
 Numbers are first values for G5 to tune. Every modifier row is an ordinary `ModifierDef` list in
 `architectures.json` (§8.1) — the table's prose is the strings' business.

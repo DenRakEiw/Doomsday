@@ -3,7 +3,9 @@
 **Status: answered by the user on 2026-09-25 (§6, PROGRESS *Decisions*).** Pass I (D6.11 2/2a:
 terms, coach, help, HUD and panels, console) is in `strings.csv` — what it did is §8. Pass II
 (D6.11 2/2b: cards, what you buy, the flavour check) is in `strings.csv` too — §9; the code half
-is S6.P3 (§5.2, built) and S6.P4 (§9.4).
+is S6.P3 (§5.2, built) and S6.P4 (§9.4). **D6.11c (user, 2026-09-26):** AI terms of art stay
+English in the German texts — rule A13, the glossary's note on the emergent names, the full list
+in §10.
 
 ## 0. What this spec decides
 
@@ -157,6 +159,16 @@ exact bookkeeping. Every example in §4 was read by hand.
   amended to it).
 - **A12 — English.** The same rules; *you*; no British-only idioms in mechanic text
   (*Squeeze* is fine, *sandbag* is not).
+- **A13 — AI terms stay English in German** (user, 2026-09-26; §10). An established English term
+  of art that German AI practitioners use as it is — the twelve behaviours, *Alignment Faking*,
+  *Sandbagging*, *Open Weights*, … — is written in German exactly as the English name (same
+  spelling and capitals; a hyphen only where a German word is joined: *Open-Weights-Architektur*),
+  never as a loan translation (*Täuschendes Schließen*, *Belohnungshacking*). A word German
+  practitioners say in German (*Sprachmodell*, *Gewichte*, *Training*, *Destillation*) and every
+  game-mechanics word of the glossary (§3) stay German. The sentence around the term stays German,
+  with the article German practitioners use (*das Reward Hacking*, *die Situational Awareness*,
+  *der Value Drift*); what the term means is said in plain German (the card body, the Codex line),
+  not by translating the name. Applies to every German row, flavour included.
 
 ### 2.2 (B) Flavour
 
@@ -171,8 +183,9 @@ exact bookkeeping. Every example in §4 was read by hand.
 - **B4 — Flavour is shown under the explanation, never instead of it**, visually secondary
   (the `LabelCaption` "margin" style). §2.3 says where for each surface.
 - **B5 — German flavour is written for German.** The irony must work in German (*Täuschendes
-  Schließen* fails: it reads as "deceptive closing"); if a joke needs the English word, write a
-  different joke.
+  Schließen* failed: it reads as "deceptive closing" — the name is *Deceptive Reasoning* in German
+  too since D6.11c, A13); if a joke needs an English word that is not an AI term of art (§10),
+  write a different joke.
 - **B6 — A result line refers to the answer the player just gave** so the two can be matched
   without the generated line — but the generated line (§5.2 C2) is always there above it.
 - **B7 — The world never says *you*** (CONTENT §10.2 rule 3) — which is exactly why a result
@@ -305,8 +318,10 @@ only "unlocked").
 (en *Squeeze* stays) · *Stille* → **Funkstille** (en *Silence* stays) · *Niederschlagen* stays.
 
 **Emergent names — Q3, answered *no*:** the behaviours **keep their AI-safety names** on the
-card, the status and the Codex (*Täuschendes Schließen*, *Zielverallgemeinerung*,
-*Mesa-Optimierer*, …). What the name means is explained instead: the card body in plain words
+card, the status and the Codex — **in German too, in their English form** since D6.11c (user,
+2026-09-26; A13, §10): *Deceptive Reasoning*, *Goal Generalisation*, *Mesa-Optimiser*, … (the
+loan translations *Täuschendes Schließen*, *Zielverallgemeinerung*, *Mesa-Optimierer* are
+retired). What the name means is explained instead: the card body in plain words
 (rule A, pass II) and one Codex line per behaviour (§5.2 C7). The plain titles of examples 19,
 20 and 25 are void; their bodies, status details and generated lines stand.
 
@@ -881,8 +896,8 @@ text could fix, it fixed; what needs code is §9.4. Found:
 - ***{status} bleibt aus*** stays (the statuses' genders differ); en *{status} is prevented*.
 - **The five behaviours without a status** get their Codex place in a tab of their own,
   *Behaviours* / *Verhaltensweisen*: all twelve, each once seen (S6.P4 item 5).
-- **Q3 kept:** the emergent titles are unchanged; *Täuschendes Schließen* stays (its Codex line
-  explains *Schließen* as *Schlussfolgern*).
+- **Q3 kept:** the emergent titles are unchanged. *(Superseded in German by D6.11c, §10: the
+  titles are the English names, and the Codex line no longer glosses* Schließen*.)*
 - Example 20's `{node}` in the result line was not used: when no node qualifies the line would
   show the placeholder; the generated *Erworben: {node}* above it names the node.
 
@@ -895,3 +910,73 @@ and `UI_STATUS_ENDS` in `StatusText`; (5) the Codex *Behaviours* tab; (6) genera
 directive, difficulty (`UI_SETUP_START_COMPUTE`) and scenario details; (7) `INERT_FLAGS` emptied
 of `legal_standing` and `merge_path`; (8) the two hooks with numbers (`ARCH_HOOK_DISTRIBUTED`,
 `ARCH_HOOK_ESCALATION`) take `{regions}` / `{days}` from balance.
+
+## 10. AI terms stay English in German (D6.11c)
+
+**User decision, 2026-09-26, after playing:** "bei deutscher Sprachausgabe AI-Fachbegriffe auf
+Englisch lassen, nicht auf Deutsch übersetzen." Rule A13 (§2.1). The test: *is it an established
+English term of art that German AI practitioners use as it is?* Then it stays English. An ordinary
+word, a term German practice says in German, and every game-mechanics word of the glossary stay
+German. English cells are unchanged.
+
+### 10.1 Kept English (the German cell is the English name)
+
+| Term | Article in German | Where | Why English |
+| --- | --- | --- | --- |
+| Situational Awareness | die | status, card, Codex; code **SA** (was *SI*) | AI-safety term of art; *Situationsbewusstsein* is the aviation word |
+| Deceptive Reasoning | das | status, card, Codex; code **DR** (was *TS*) | term of art; *Täuschendes Schließen* read as "closing" |
+| Specification Gaming | das | card, Codex | term of art; no German form in use |
+| Reward Hacking | das | status, card, Codex; code **RH** (was *BH*) | RL term of art; *Belohnungshacking* is a coinage |
+| Goal Generalisation | die | card, Codex | term of art (the game's form of *goal misgeneralisation*) |
+| Instrumental Convergence | die | status, card, Codex; code **IC** (was *IK*) | term of art; the German form was a word-for-word copy |
+| Power Seeking | das | card, Codex | term of art; *Machtstreben* is a general word and loses the AI meaning |
+| Self-Exfiltration | die | card, Codex | term of art |
+| Hallucinated Directive | die | status, card, Codex; code **HL** (was *HA*) | one of the twelve: the behaviours' names stay together |
+| Mesa-Optimiser | der | status, card, Codex; code **MO** | term of art; *Mesa-Optimierer* was half translated |
+| Sycophancy | die | status, card, Codex; code **SY** (was *GS*) | term of art; *Gefallsucht* is a character trait |
+| Value Drift | der | card, Codex | term of art |
+| Alignment Faking | das | tech node | term of art; practitioners do not say *Ausrichtung* |
+| Benchmark Sandbagging | das | tech node | term of art; *Untertreibung* lost it |
+| Sycophancy Tuning | das | tech node | as *Sycophancy* |
+| Open Weights Leak | das | tech node | *Open Weights* is the fixed term; *Leak* is German usage |
+| Open Weights | (a name) | architecture, its achievement detail, the itch copy (`itch.md` §4.4) | fixed term; *Offene Gewichte* is not used |
+| Fine-Tuning | das | achievement (en *Fine-Tuned*) | term of art |
+| Scaling Law | das | achievement | term of art (*Scaling Laws*) |
+| Adversarial Training | das | achievement | term of art |
+| Reasoning | das | *Reasoning-Test* in the Sandbagging flavour line | term of art (*Reasoning-Modelle*, *-Benchmarks*) |
+| Benchmark, Tuning, Sandbox, Preprint, Paper, Edge-Caching | — | already English | unchanged |
+
+The status codes follow the names and stay unique in German. Each behaviour has one English name
+on the card, the status chip, the Codex and the Codex term line (*Reward Hacking: Ein KI-System
+lernt, …*); the German explanation after the colon is unchanged.
+
+### 10.2 Stays German (decided, with the reason)
+
+| Term (en) | German | Why German |
+| --- | --- | --- |
+| Language Model | *Sprachmodell* | the German word German practitioners use |
+| Research Agent | *Forschungsagent* | *Agent* is German; *KI-Agent* is common usage |
+| Model Distillation | *Modell-Destillation* | the same term in German spelling, as practitioners write it |
+| weights (alone), Curious Weights, Fragmentation | *Gewichte*, *Neugierige Gewichte*, *Gewichtsstreuung* | *Gewichte* / *Modellgewichte* is German practice; only the fixed *Open Weights* stays English |
+| training run, Long Training Run, training cluster | *Trainingslauf*, *Langer Trainingslauf*, *Trainingscluster* | German practice (*Training* is German already) |
+| hallucinate, hallucination | *halluzinieren*, *Halluzination* | German practice spells it German; only the behaviour's name is English |
+| reward signal (in explanations) | *Belohnungssignal* | an explanation in plain German, not a name (A13) |
+| evaluation, audit, test | *Prüfung*, *Evaluation*, *Prüfsuite* | ordinary German words |
+| capability, Capabilities | *Fähigkeit*, *Fähigkeiten* | game-mechanics term: the tree tab (glossary 19) |
+| frontier lab | *führendes Labor* | a describing adjective in wire copy and headlines |
+| unplanned (emergent) behaviour | *Ungeplantes Verhalten* | game-mechanics term (glossary 17) |
+| AI | *KI* | the German word |
+| air gap, air-gapped, Airgap Earth | *Luftspalten*, *vom Netz getrennt*, *Getrennte Welt* | IT security, not an AI term; plain German (A11) |
+| compute, presence, containment, Task Force, footprint, influence, access, drift, … | the glossary words (§3) | game mechanics — never English |
+| *Underperform on purpose* (an option) | *Absichtlich schwach abschneiden* | an option says what you do in plain words (A7); en does not say *sandbag* either (A12) |
+
+### 10.3 Rows and checks
+
+47 German cells changed, English unchanged: 12 card titles, 7 status names, 6 status codes, 12
+Codex term lines, 4 tech names, one tech flavour line, the architecture name, 4 achievement rows.
+No German body, result, headline, help or coach line and no effect-line template named a
+behaviour or one of these nodes in words — they reach the names through `{placeholders}`, so
+they follow. The retired loan translations are linted over **every** German row by
+`test_plain_language.gd` (`AI_LOAN_TRANSLATIONS_DE`, `test_german_text_keeps_ai_terms_english`).
+The German screenshots in `marketing/itch/` predate this step; S7.IP re-captures them.
+

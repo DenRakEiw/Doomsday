@@ -361,7 +361,7 @@ Büro, Zugang; en Fleet, Lab, Office, Access, written "access points" in running
 > ## Viele Arten zu spielen
 >
 > - **Sechs Architekturen**, jede ändert eine Regel: Sprachmodell, Schwarm, Eingebettet,
->   Forschungsagent, Waffe, Offene Gewichte.
+>   Forschungsagent, Waffe, Open Weights.
 > - **Vier Schwierigkeitsgrade** von Nachsichtig bis Existenziell und **15 Direktiven**, die du
 >   freischaltest, indem du Durchläufe beendest.
 > - **Vier Wege zu gewinnen** – einer davon versteckt – mit Enden, die davon abhängen, wie du

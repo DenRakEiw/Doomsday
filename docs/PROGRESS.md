@@ -17,15 +17,15 @@ rather than struck through.
 | **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures; **G7.I**, the itch release — see *Waiting on the user*, "itch.io — going live"): IMPLEMENTATION §4 rows 91–92, 98. **Without the user: S7.IP** (row 97a) [O] — release polish, in progress (see *In progress*); then **D7.1** (row 108) [F] — touch and phone. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
 | **After it** | D6.10, G6 (2/2) and G7.I are **[needs user]**; Block 18 is built once S7.IP is merged (the first real itch upload is the user's); the next unattended row is **D7.1** (row 108, Block 20: touch and phone), Steam only later (Decisions 2026-09-25). The FLUX track is cut (Decisions 2026-09-26). |
-| **Last completed** | S7.I — itch.io upload (2026-09-26): `release.yml` gains the web size check (`tools/ci/web_size_check.sh`), the web smoke job (headless Chromium, software WebGL) and the `itch` job (butler 15.31.0 pinned by SHA-256; `BUTLER_API_KEY`/`ITCH_TARGET`/`ITCH_CHANNELS`, one skip line without them; dispatch input `itch`); the title's debug F12/Shift+F12; `tools/marketing/` (`itch_capture.tscn`, `compose_cover.py`); 12 screenshots en/de, 3 covers, click-to-play in `marketing/itch/`. |
-| **Before that** | S7.3b — Browser performance runs (`web.md` §13): `web_igpu` playable (p95 16.4 ms); three `web_cpu` rows fail (Performance notes, Design questions) (2026-09-26). |
-| **Earlier** | S7.3 — The Web build (without §13): shell, `UserPaths`, `WebBridge`, progress file, QOA, `tools/web/` checks in Chrome, Edge and Firefox; web zip 17.55 MB (2026-09-26). |
+| **Last completed** | D6.11c — AI terms stay English in the German texts (2026-09-26, user decision after playing): 47 German cells (the twelve behaviours' titles, status names, codes and Codex lines; Alignment Faking, Benchmark Sandbagging, Sycophancy Tuning, Open Weights (Leak); three achievements); rule A13 and the lists in `plain-language.md` §10. |
+| **Before that** | S7.I — itch.io upload (2026-09-26): web size check, web smoke job, `itch` job (butler), itch media in `marketing/itch/`. |
+| **Earlier** | S7.3b — Browser performance runs (`web.md` §13): `web_igpu` playable (p95 16.4 ms); three `web_cpu` rows fail (2026-09-26). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–20 (Block 19, FLUX, cut 2026-09-26) |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 367 scripts compile (153 judged by the suite), then `tools/check_strings.gd` (2535 rows), 2501 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 367 scripts compile (153 judged by the suite), then `tools/check_strings.gd` (2535 rows), 2502 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
 | **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
 | **Web** | Export `"$GODOT" --headless --path . --export-release "Web" build/web/index.html`; **play it locally:** `uv run --project tools/web python tools/web/serve.py` → `http://127.0.0.1:8765/` (`--dir <export>`). **Checks (S7.3):** `uv run --project tools/web python tools/web/web_check.py [--build <dir>] [--browsers chrome,msedge,firefox] [--checks size,load,phone,focus,keys,run,hidden,persist,settings,online,progress,smoke,debug] [--debug-build <dir>] [--out <dir>]` (all ≈ 25 min; `--smoke [--expect <json>]` alone is §16.3's CI job, `release.yml` `smoke-web` since S7.I; `--port <n>` moves off 8765); browsers once: `uv run --project tools/web playwright install chromium firefox`. Clicks are embed coordinates at the top of `web_check.py`. In the browser the files are IndexedDB `/userfs` → `/userfs/Doomsday/doomsday/…`. A debug web export answers `window.doomsdayDebugCrash()` and `window.doomsdayDebugAudioUnlocked()`. **Perf (S7.3b):** export `"Perf web (local)"` → `build/perf-web/index.html` and `"Web"`, then `uv run --project tools/web python tools/web/web_perf.py [--modes web_igpu,web_cpu,load] [--runs 3] [--out <dir>] [--vsync] [--cpu-throttle 2.5]` (≈ 20 min; port 8767; Playwright's Chromium in the new headless mode draws on the real GPU; `web_igpu` sets and removes the GPU preference for Playwright's `chrome.exe` only). **Exports need the real `APPDATA`** (the templates live there); only the suite runs with a scratch one. |
 | **itch page** | not created yet — the user's (*Waiting on the user*, "itch.io — going live"); its URL goes here. **Media** in `marketing/itch/`; re-capture with a scratch `APPDATA` (the tool writes `user://itch_capture/`): `"$GODOT" --path . --audio-driver Dummy --resolution 1920x1080 res://tools/marketing/itch_capture.tscn -- --locale=en --entry=<a bot entry from bench_run --bots --out=<scratch>>`, `-- --mode=title` at `--resolution 2560x1440`, then `uv run --project tools/marketing python tools/marketing/compose_cover.py --capture <title_bare_NN.png> --globe <title_globe.json>`. **Upload:** `release.yml` job `itch` (tag `v*`, or dispatch with `itch` ticked). |
@@ -55,6 +55,9 @@ overflow (S6.4), hints back to back on a loaded save (S6.7); then re-capture `ma
 `wip/s7ip-release-polish` (commit `d934262`; 18 files incl. a new `ui/components/toggle_group.gd`,
 two new tests and a scratch `tools/_ip_probe/` to drop). Next session: check out that branch, run
 the suite, finish and verify each item, merge into `main` as `S7.IP: …` — or discard it and redo.
+**Rebase it first:** D6.11c (after `d934262`) changed 47 German cells of `data/loc/strings.csv` and
+`test_plain_language.gd` on `main`; keep main's German AI names (`plain-language.md` §10) when a
+row conflicts, and re-capture `marketing/itch/` after it (the German shots show the old names).
 
 ---
 
@@ -204,6 +207,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] D6.9c [F] Decision-model backend (TypeSafe Jev) *(user 2026-09-25; `benchmark.md` §17)*
 - [x] S6.12c [O] The Jev backend, mock only *(the first live run needs the user's `TYPESAFE_API_KEY`)*
 - [x] G6 (1/2) [F] Balance pass 4 *(tuning; data only; BALANCE §6)*
+- [x] D6.11c [F] AI terms stay English in the German texts *(user 2026-09-26; `plain-language.md` §10)*
 - [ ] D6.10 [F] Illustrations produced — **[needs user]**
 - [ ] G6 (2/2) [F] M6 gate: the release candidate (browser and desktop) — **[needs user]**
 
@@ -237,6 +241,16 @@ it and take the next row (IMPLEMENTATION §4).*
 Dated, one line each, with the reason. A decision recorded here is not re-argued in a later session
 without new information.
 
+- **2026-09-26** (user, after playing; D6.11c) — **AI terms stay English in the German texts**
+  ("bei deutscher Sprachausgabe AI-Fachbegriffe auf Englisch lassen, nicht auf Deutsch übersetzen").
+  Rule `plain-language.md` A13, lists §10: an established English term of art German AI
+  practitioners use as it is keeps its English name in German (the twelve behaviours, *Alignment
+  Faking*, *Benchmark Sandbagging*, *Sycophancy Tuning*, *Open Weights (Leak)*, *Fine-Tuning*,
+  *Scaling Law*, *Adversarial Training*, *Reasoning*); words German practice says in German
+  (*Sprachmodell*, *Gewichte*, *Destillation*, *Agent*, *Halluzination*) and all glossary
+  game-mechanics terms stay German; sentences stay German with the practitioners' article (*das
+  Reward Hacking*). Status codes follow (SA, DR, RH, IC, HL, MO, SY). Refines Q3 (2026-09-25):
+  the behaviours keep their AI-safety names — now in English in both languages.
 - **2026-09-26** (user) — **FLUX 3 Action track cut; decision models (Jev) stay.** Block 19 (S7.F1–S7.F5,
   U7.F1–U7.F4) is removed from the plan; D7.F and `docs/specs/flux-action.md` stay as a record,
   nothing in it is scheduled, no "trained agents" leaderboard category. TypeSafe Jev (`benchmark.md`
@@ -3016,6 +3030,12 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-26 — D6.11c AI terms stay English in the German texts [F]
+- User decision after playing. Scan of every row (en terms → de cells, de loan translations); 47 German cells changed, en none:
+  12 card titles, 7 status names + 6 codes, 12 Codex term lines, 4 tech names, 1 flavour, the architecture, 4 achievements.
+- Rule A13 + §10 (kept / stays German, with reasons) in `plain-language.md`; `itch.md` §4.4 and `replayability.md` follow.
+- `test_plain_language`: `AI_LOAN_TRANSLATIONS_DE` linted over every German row (+1 test). Strings only: no canary.
 
 ### 2026-09-26 — Plan: the FLUX 3 Action track cut
 - User decision: Block 19 (S7.F1–F5, U7.F1–F4) removed; `flux-action.md` kept with a status line; Jev unchanged; WSL2 optional.

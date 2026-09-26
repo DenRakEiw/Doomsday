@@ -82,6 +82,16 @@ const RENAMED_DE: Array[String] = [
 	"Signatur", "Durchdring", "Ertr[aä]g", "Kapazität", "Enttarn", "Ausweich", "Umleitung",
 	"\\bZange\\b", "\\bStille\\b", "Abgriff", "\\bMeldung\\b",
 ]
+## D6.11c (user, 2026-09-26): AI terms of art stay English in German (§10). The
+## loan translations they replaced, retired from every German row, flavour included.
+const AI_LOAN_TRANSLATIONS_DE: Array[String] = [
+	"Situationsbewusstsein", "Täuschende[sn]? Schließen", "Spezifikationsausnutzung",
+	"Belohnungshacking", "Zielverallgemeinerung", "Instrumentelle Konvergenz", "Machtstreben",
+	"Selbstexfiltration", "Halluzinierte Anweisung", "Mesa-Optimierer", "Gefallsucht",
+	"Wertedrift", "Vorgetäuschte Ausrichtung", "Untertreibung", "Gefälligkeits-Tuning",
+	"Offengelegte Gewichte", "Offene Gewichte", "Feinabgestimmt", "Skalierungsgesetz",
+	"Adversariale[sn]? Training",
+]
 
 var _table: Dictionary[String, PackedStringArray] = {}
 
@@ -113,6 +123,11 @@ func test_rewritten_text_uses_no_retired_word() -> void:
 
 func test_rule_a_text_uses_no_renamed_term() -> void:
 	var hits: Array[String] = _hits(_table, RULE_A, RENAMED_EN, RENAMED_DE)
+	assert_eq(hits, [] as Array[String])
+
+
+func test_german_text_keeps_ai_terms_english() -> void:
+	var hits: Array[String] = _hits(_table, ["^"], [], AI_LOAN_TRANSLATIONS_DE)
 	assert_eq(hits, [] as Array[String])
 
 
