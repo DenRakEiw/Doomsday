@@ -1331,7 +1331,8 @@ change, so no canary.
 **Done when:** §17.10's *Done when*: a mock-backed Jev suite run is reproducible, its entries
 verify and rank beside the chat-model and bot rows, the dry run prints the request without a
 key; `tools/test.sh` green. **The first live run needs `TYPESAFE_API_KEY` from the user** — it is
-under *Waiting on the user* (§17.11 has the command).
+under *Waiting on the user* (§17.11 has the command). *Done 2026-09-26 (mock only; the key helper
+`tools/bench/set_api_key.ps1` added for the user).*
 
 ### G6 (1/2) — Balance pass 4 **[F]** · **Read first:** `docs/BALANCE.md` §5 · *Balance baselines*
 Re-baseline everything on the M6 tree (every architecture, scenario and difficulty), tune data

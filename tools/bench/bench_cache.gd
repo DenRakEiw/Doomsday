@@ -1,8 +1,9 @@
 extends RefCounted
-## The benchmark's answer cache (docs/specs/benchmark.md §9): request → *parsed*
-## answer, one file per answer, so a repeated run costs nothing and never keeps a
-## model's text. Written to `<name>.tmp` and renamed, so parallel shards never
-## corrupt one another. Local and git-ignored.
+## The benchmark's answer cache (docs/specs/benchmark.md §9, §17.7): request →
+## *parsed* (or, for a decision model, combined) answer, one file per answer, so
+## a repeated run costs nothing and never keeps a model's text. Written to
+## `<name>.tmp` and renamed, so parallel shards never corrupt one another. Local
+## and git-ignored.
 ##
 ## A tool, so no `class_name`; `bench_run.gd` and the tests preload it.
 
@@ -10,7 +11,6 @@ const FIELD_MODEL: String = "model"
 const FIELD_PARAMS: String = "params"
 const FIELD_PROMPT_VERSION: String = "prompt_version"
 const FIELD_PARSER_VERSION: String = "parser_version"
-const FIELD_MESSAGES: String = "messages"
 const SHARD_LENGTH: int = 2
 const EXTENSION: String = ".json"
 const TEMP_SUFFIX: String = ".tmp"
@@ -23,17 +23,26 @@ func _init(p_root: String) -> void:
 
 
 ## SHA-256 (hex) of the sorted JSON of everything that decides an answer: a
-## changed parameter, prompt or parser version, or a retry's extra message is a
-## different key.
+## changed parameter, prompt or parser version, or a different request is a
+## different key. The request is its `basis` (§9, §17.7): a chat request's is
+## `{"messages": …}` — so the object, and every chat key, is what it was before
+## decision models — a choice request's its plan's state and questions, plus the
+## attempt of a retry.
 static func key(model: String, params: Dictionary, prompt_version: int, parser_version: int,
-		messages: Array[Dictionary]) -> String:
-	return JSON.stringify({
+		basis: Dictionary) -> String:
+	var object: Dictionary = {
 		FIELD_MODEL: model,
 		FIELD_PARAMS: params,
 		FIELD_PROMPT_VERSION: prompt_version,
 		FIELD_PARSER_VERSION: parser_version,
-		FIELD_MESSAGES: messages,
-	}, "", true).sha256_text()
+	}
+	object.merge(basis)
+	return JSON.stringify(object, "", true).sha256_text()
+
+
+## A chat request's basis: its messages.
+static func chat_basis(messages: Array[Dictionary]) -> Dictionary:
+	return {ModelPolicy.BASIS_MESSAGES: messages}
 
 
 ## `<root>/<model slug>/<key[0..2]>/<key>.json`.
@@ -79,8 +88,8 @@ func write(model: String, cache_key: String, value: Dictionary) -> bool:
 ## `read_enabled` false is `--fresh`: nothing is read, everything is written.
 func hooks(model: String, params: Dictionary, prompt_version: int, parser_version: int,
 		read_enabled: bool) -> Dictionary:
-	var reader: Callable = func(messages: Array[Dictionary]) -> Dictionary:
-		return read(model, key(model, params, prompt_version, parser_version, messages))
-	var writer: Callable = func(messages: Array[Dictionary], value: Dictionary) -> void:
-		write(model, key(model, params, prompt_version, parser_version, messages), value)
+	var reader: Callable = func(basis: Dictionary) -> Dictionary:
+		return read(model, key(model, params, prompt_version, parser_version, basis))
+	var writer: Callable = func(basis: Dictionary, value: Dictionary) -> void:
+		write(model, key(model, params, prompt_version, parser_version, basis), value)
 	return {"read": reader if read_enabled else Callable(), "write": writer}

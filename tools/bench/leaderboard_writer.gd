@@ -20,6 +20,7 @@ const FIELD_ROWS: String = "rows"
 const FIELD_CONTENT_HASH: String = "content_hash"
 const FIELD_GENERATED: String = "generated"
 const NONE_MARK: String = "—"
+const FIELD_MODEL_VERSIONS: String = "model_versions"
 
 
 ## Every readable entry in `<dir>/runs/*.json`, by file name, each with its
@@ -183,7 +184,7 @@ static func _table_row(row: Dictionary, rank: int) -> String:
 	var mean_days: int = int(row["mean_win_days"])
 	var cells: PackedStringArray = [
 		str(rank) if rank > 0 else NONE_MARK,
-		_cell(str(row["model"])),
+		_cell(_model_cell(row)),
 		_params_cell(row["params"]),
 		_number(float(row["score"])),
 		"%d/%d" % [int(row["wins"]), int(row["runs"])],
@@ -196,10 +197,29 @@ static func _table_row(row: Dictionary, rank: int) -> String:
 	return "| " + " | ".join(cells) + " |"
 
 
+## The model, and the versions its service reported when there are any (§17.7):
+## `typesafe/jev-latest (jev-1.13.0)`.
+static func _model_cell(row: Dictionary) -> String:
+	var model: String = str(row["model"])
+	if typeof(row.get(FIELD_MODEL_VERSIONS)) != TYPE_ARRAY \
+			or (row[FIELD_MODEL_VERSIONS] as Array).is_empty():
+		return model
+	return "%s (%s)" % [model, ", ".join(PackedStringArray(row[FIELD_MODEL_VERSIONS]))]
+
+
 static func _params_cell(params: Variant) -> String:
 	if typeof(params) != TYPE_DICTIONARY or (params as Dictionary).is_empty():
 		return NONE_MARK
 	var d: Dictionary = params
+	# A decision model's row (§17.7): its combination rules, not a temperature.
+	if d.has(BenchChoice.PARAM_CHOICE_VERSION):
+		var picks: Dictionary = d.get(BenchChoice.PARAM_MAX_PICKS, {}) \
+			if typeof(d.get(BenchChoice.PARAM_MAX_PICKS)) == TYPE_DICTIONARY else {}
+		var counts: PackedStringArray = []
+		for question: String in BenchChoice.MULTI_PICK:
+			counts.append(str(int(picks.get(question, 0))))
+		return "choice v%d, picks %s" % [int(d[BenchChoice.PARAM_CHOICE_VERSION]),
+			"/".join(counts)]
 	var parts: PackedStringArray = ["temperature %s" % _number(float(d.get("temperature", 0.0)))]
 	if not str(d.get("reasoning", "")).is_empty():
 		parts.append("reasoning %s" % _cell(str(d["reasoning"])))

@@ -1,10 +1,17 @@
 extends GutTest
 ## S6.12 — the benchmark tool end to end (docs/specs/benchmark.md §11, §14.1) on
 ## the real content with the `mock:cheapest` backend: the quick suite at 300 days,
-## into a board of its own under `user://`. Nothing is asked of any service.
+## into a board of its own under `user://`. S6.12c: the same for a decision model
+## (`mock-choice:first`, §17.10) and the tool's rules for TypeSafe (§17.9).
+## Nothing is asked of any service: every TypeSafe case here stops before a
+## request (a refused flag, a missing key under a variable no one sets, a dry run).
 
 const Tool := preload("res://tools/bench/bench_run.gd")
 const Writer := preload("res://tools/bench/leaderboard_writer.gd")
+const Verifier := preload("res://tools/bench/bench_verifier.gd")
+const COMMIT: String = "0123456789abcdef0123456789abcdef01234567"
+## A variable no one sets, so a key check can never find a real key.
+const UNSET_KEY_ENV: String = "DOOMSDAY_TEST_KEY_THAT_IS_NEVER_SET"
 const BOARD: String = "user://test_bench/run_board"
 const CACHE: String = "user://test_bench/run_cache"
 const MAX_DAYS: int = 300
@@ -155,3 +162,108 @@ func test_a_fatal_reason_maps_to_its_exit_code() -> void:
 	assert_eq(Tool.exit_for("bad_request: 404 model not found"), Tool.EXIT_REFUSED)
 	assert_eq(Tool.exit_for("unavailable"), Tool.EXIT_UNAVAILABLE)
 	assert_eq(Tool.exit_for("cost_cap"), Tool.EXIT_COST_CAP)
+
+
+func _choice_args() -> Dictionary[String, String]:
+	return {"model": "mock", "backend": "mock-choice:first", "suite": "quick", "out": BOARD,
+		"cache": CACHE}
+
+
+func _typesafe_args() -> Dictionary[String, String]:
+	return {"model": "typesafe/jev-latest", "suite": "quick", "seeds": "1001", "out": BOARD,
+		"cache": CACHE, "key-env": UNSET_KEY_ENV}
+
+
+func test_a_mock_decision_model_run_replays_repeats_ranks_and_verifies() -> void:
+	assert_eq(Tool.run(_choice_args(), _config), Tool.EXIT_OK)
+	var first: Dictionary[String, String] = _runs()
+	assert_eq(first.size(), 3, "one entry per seed")
+	for file_name: String in first:
+		var entry: BenchEntry = BenchEntry.from_json(first[file_name])
+		assert_not_null(entry, BenchEntry.last_error)
+		assert_eq(entry.backend, "mock-choice:first")
+		assert_eq(entry.model_version, MockChoiceBackend.MODEL_VERSION)
+		assert_eq(entry.params_id, BenchEntry.params_id_of(BenchChoice.params_of(_config)))
+		assert_gt(entry.decisions.size(), 10)
+		var replayed: Simulation = Simulation.replay(_db, entry.seed_value, entry.commands,
+			entry.end_day, entry.setup)
+		assert_eq(replayed.state_hash(), entry.state_hash, file_name + " replays to its hash")
+		var record: Variant = Verifier.check(first[file_name].to_utf8_buffer(), file_name, _config,
+			_db, {Verifier.CONTEXT_COMMIT: COMMIT, Verifier.CONTEXT_VERSION: "0.6.0",
+			Verifier.CONTEXT_CHECKED: "2026-09-26"})
+		assert_true(bool(record.verified), "%s: %s" % [file_name, record.detail])
+	assert_eq(Tool.run(_choice_args(), _config), Tool.EXIT_OK)
+	var second: Dictionary[String, String] = _runs()
+	for file_name: String in first:
+		assert_eq(_unrecorded(second[file_name]), _unrecorded(first[file_name]), file_name)
+	var chat: Dictionary[String, String] = _mock_args()
+	chat["seeds"] = "1001"
+	assert_eq(Tool.run(chat, _config), Tool.EXIT_OK)
+	assert_eq(Tool.run({"bots": "true", "suite": "quick", "seeds": "1001", "out": BOARD}, _config),
+		Tool.EXIT_OK)
+	var board: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(BOARD.path_join(Writer.LEADERBOARD_JSON)))
+	var backends: Array[String] = []
+	for row: Variant in board["rows"]:
+		backends.append(str((row as Dictionary)["backend"]))
+		if str((row as Dictionary)["backend"]) == "mock-choice:first":
+			assert_eq((row as Dictionary)["model_versions"], [MockChoiceBackend.MODEL_VERSION])
+			assert_eq(int((row as Dictionary)["runs"]), 3)
+	assert_true(backends.has("mock-choice:first"))
+	assert_true(backends.has("mock:cheapest"))
+	assert_true(backends.has(BenchEntry.BACKEND_BOT))
+	assert_string_contains(FileAccess.get_file_as_string(BOARD.path_join(Writer.LEADERBOARD_MD)),
+		"mock (mock-choice-1)")
+	assert_false(DirAccess.dir_exists_absolute(CACHE), "a mock never touches the cache")
+
+
+func test_a_typesafe_model_id_picks_the_typesafe_backend() -> void:
+	assert_eq(Tool.backend_for({"model": "typesafe/jev-latest"}, _config), "typesafe")
+	assert_eq(Tool.backend_for({"model": "vendor/model"}, _config), "openrouter")
+	assert_eq(Tool.backend_for({"model": "typesafe/jev-latest", "backend": "mock-choice:idle"},
+		_config), "mock-choice:idle")
+
+
+func test_the_typesafe_backend_refuses_another_model_and_the_chat_flags() -> void:
+	var other: Dictionary[String, String] = _typesafe_args()
+	other["model"] = "vendor/model"
+	other["backend"] = "typesafe"
+	assert_eq(Tool.run(other, _config), Tool.EXIT_BAD_INPUT)
+	for flag: String in Tool.CHAT_FLAGS:
+		var args: Dictionary[String, String] = _typesafe_args()
+		args[flag] = "1"
+		assert_eq(Tool.run(args, _config), Tool.EXIT_BAD_INPUT, flag)
+	var mock: Dictionary[String, String] = _choice_args()
+	mock["temperature"] = "0.5"
+	assert_eq(Tool.run(mock, _config), Tool.EXIT_BAD_INPUT, "a mock decision model too")
+	var requests: Dictionary[String, String] = _typesafe_args()
+	requests["max-requests"] = "0"
+	assert_eq(Tool.run(requests, _config), Tool.EXIT_BAD_INPUT)
+	assert_false(DirAccess.dir_exists_absolute(BOARD))
+
+
+func test_a_missing_typesafe_key_stops_before_anything_is_played() -> void:
+	assert_eq(Tool.run(_typesafe_args(), _config), Tool.EXIT_BAD_INPUT)
+	assert_false(DirAccess.dir_exists_absolute(BOARD))
+	assert_false(DirAccess.dir_exists_absolute(CACHE))
+
+
+func test_a_typesafe_dry_run_needs_no_key_and_prints_the_request() -> void:
+	var args: Dictionary[String, String] = _typesafe_args()
+	args["dry-run"] = "true"
+	assert_eq(Tool.run(args, _config), Tool.EXIT_OK)
+	assert_false(DirAccess.dir_exists_absolute(BOARD))
+	var request: Dictionary = Tool.measure_choice(_db, _config, RunSetup.from_dict(_config.setup),
+		1001, "en", "jev-latest")
+	var body: Dictionary = request["body"]
+	assert_eq(str(body["model"]), "jev-latest")
+	assert_eq((body["questions"] as Dictionary).keys(), ["stance", "origin"])
+	assert_eq((body["state"] as Dictionary).keys(), ["rules", "situation"])
+	var lines: PackedStringArray = Tool.limit_lines(request, _config)
+	assert_eq(lines.size(), 1, "today's request is within the service's limits")
+	assert_string_contains(lines[0], "(limit 32000)")
+	assert_gt(int(request["state_tokens"]), 1000)
+
+
+func test_a_request_cap_maps_to_the_cost_cap_exit() -> void:
+	assert_eq(Tool.exit_for("request_cap"), Tool.EXIT_COST_CAP)

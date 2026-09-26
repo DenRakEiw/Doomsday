@@ -136,6 +136,7 @@ runs (a watched run is a bot run: nothing counts — release.md §2.2).
 | `game/bench/bench_choice_plan.gd` · `bench_choice_read.gd` | 6.12c | `class_name BenchChoicePlan` / `BenchChoiceRead` (§17.3, §17.5) |
 | `game/bench/mock_choice_backend.gd` | 6.12c | `class_name MockChoiceBackend` (§17.10) |
 | `tools/bench/typesafe_backend.gd` | 6.12c | `extends ModelBackend`, no `class_name`, preloaded (§17.8); the shared transport may move to `tools/bench/bench_http.gd` |
+| `tools/bench/set_api_key.ps1` | 6.12c | the user's helper: a small dialog that stores `OPENROUTER_API_KEY` or `TYPESAFE_API_KEY` as a user environment variable (§11.4) |
 
 **Why `game/bench/` and not `core/`:** the digest reads translated strings and the interface's
 static text helpers (`TechText`, `EventView`, `RunLogText`, `TaskForceText`, `TechNode.state_for`,
@@ -816,6 +817,13 @@ tokens ≈ 8–12 M input tokens, a few hundred thousand output. What that costs
 model and on whether its provider caches the unchanging brief; `--suite=quick` (3 seeds) and
 `--dry-run` are the cheap ways to look first. Wall clock is dominated by the model's latency
 (≈ 800 calls × its seconds per answer); shards (`--seeds`) run in parallel processes.
+
+**The key** is a user environment variable. The easy way to set it (Windows):
+`powershell -ExecutionPolicy Bypass -File tools\bench\set_api_key.ps1 -Name OPENROUTER_API_KEY`
+(or `-Name TYPESAFE_API_KEY`) opens a small dialog — paste with Ctrl+V, *Show key* to check it —
+and stores the key for the user. It prints only that it was saved, the key's length and whether
+it starts with the service's known prefix, never the key. Only processes started afterwards see
+it: open a new PowerShell window before running the tool.
 
 **At the 2 USD default** (D6.9b) a standard suite of a mid-priced model stops at the pre-flight
 (§11.5's example: ≈ 11 USD); that is the point — the user raises `--max-cost` for a run they
@@ -2117,8 +2125,9 @@ invocation backs it; tests use `MockChoiceBackend` only.
 
 **Waiting on the user:**
 
-1. **`TYPESAFE_API_KEY`** — in the environment, entered the same way as the OpenRouter key. Then,
-   in PowerShell from `F:\Doomsday`, a free look first and a one-seed run (≈ 0.05 USD):
+1. **`TYPESAFE_API_KEY`** — in the environment, entered the same way as the OpenRouter key: with
+   the helper, `powershell -ExecutionPolicy Bypass -File tools\bench\set_api_key.ps1 -Name TYPESAFE_API_KEY` (§11.4), then a new
+   PowerShell window. Then, from `F:\Doomsday`, a free look first and a one-seed run (≈ 0.05 USD):
    `& $env:GODOT --headless --path . -s tools/bench/bench_run.gd -- --model=typesafe/jev-latest --suite=quick --seeds=1001 --dry-run`,
    then the same without `--dry-run`.
 2. *(A recommendation, the default unless the user says otherwise.)* The ranked Jev row is the

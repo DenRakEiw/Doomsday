@@ -205,3 +205,27 @@ func test_the_page_names_its_generator_first_and_ranks_only_the_standard_suite()
 	assert_string_contains(text, "| 1 | standard_one |")
 	assert_string_contains(text, "| — | quick_one |")
 	assert_true(text.find("## Standard suite") < text.find("## Quick suite"))
+
+
+func test_a_row_lists_its_model_versions_only_when_a_run_has_one() -> void:
+	var plain: Array[BenchEntry] = _quick("vendor/model", [["win_merge", 400]])
+	assert_false(BenchScore.rows(plain, _config, "now")[0].has("model_versions"))
+	var jev: Array[BenchEntry] = _quick("typesafe/jev-latest", [["win_merge", 400],
+		["lose_contained", 300], ["win_merge", 500]])
+	jev[0].model_version = "jev-1.13.0"
+	jev[1].model_version = "jev-1.12.0"
+	jev[2].model_version = "jev-1.13.0"
+	var row: Dictionary = BenchScore.rows(jev, _config, "now")[0]
+	assert_eq(row["model_versions"], ["jev-1.12.0", "jev-1.13.0"] as Array[String])
+	var keys: Array = row.keys()
+	assert_eq(keys.find("model_versions"), keys.find("backend") + 1)
+
+
+func test_the_page_shows_the_versions_and_a_choice_rows_params() -> void:
+	var params: Dictionary = BenchChoice.params_of(_config)
+	var entry: BenchEntry = _entry("typesafe/jev-latest", 1001, "win_merge", 400, "standard",
+		"now", params)
+	entry.model_version = "jev-1.13.0"
+	var text: String = Writer.markdown(BenchScore.rows([entry] as Array[BenchEntry], _config,
+		"now"), _config, Writer.GENERATOR_LOCAL)
+	assert_string_contains(text, "| 1 | typesafe/jev-latest (jev-1.13.0) | choice v1, picks 3/2/2/2 |")

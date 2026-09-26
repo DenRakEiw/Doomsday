@@ -227,7 +227,7 @@ func test_a_cache_hit_counts_as_a_call_and_costs_nothing() -> void:
 	var sim: Simulation = Fixtures.sim_with_origin("fx_alder")
 	var backend: Recorder = Recorder.new(MockBackend.MODE_WAIT)
 	var policy: ModelPolicy = _policy(backend, sim)
-	policy.cache_read = func(_messages: Array[Dictionary]) -> Dictionary:
+	policy.cache_read = func(_basis: Dictionary) -> Dictionary:
 		return {"answer": {"stance": "hide", "actions": [], "dropped": []}}
 	_play(sim, policy, 11)
 	assert_eq(policy.calls, 2)
@@ -235,3 +235,127 @@ func test_a_cache_hit_counts_as_a_call_and_costs_nothing() -> void:
 	assert_eq(backend.days.size(), 0, "the backend was never asked")
 	assert_true(policy.decisions[0].cached)
 	assert_eq(policy.decisions[0].stance, "hide")
+
+
+# --- S6.12c: a decision model (benchmark.md §17) ---
+
+
+## A decision model that always sends the same body.
+class FixedChoice:
+	extends ModelBackend
+	var body: Dictionary = {}
+	var digests: Array[BenchDigest] = []
+	var plans: Array[BenchChoicePlan] = []
+
+	func _init(p_body: Dictionary) -> void:
+		body = p_body
+
+	func kind() -> String:
+		return KIND_CHOICE
+
+	func choose(plan: BenchChoicePlan, digest: BenchDigest, _params: Dictionary) -> ModelReply:
+		digests.append(digest)
+		plans.append(plan)
+		return ModelReply.choice(body.duplicate(true), "fixed-1")
+
+	func backend_id() -> String:
+		return "fixed-choice"
+
+
+## A mock decision model that writes down when it was asked.
+class ChoiceRecorder:
+	extends MockChoiceBackend
+	var days: Array[int] = []
+
+	func choose(plan: BenchChoicePlan, digest: BenchDigest, params: Dictionary) -> ModelReply:
+		days.append(digest.day)
+		return super(plan, digest, params)
+
+
+func _choice_policy(backend: ModelBackend, sim: Simulation) -> ModelPolicy:
+	var policy: ModelPolicy = ModelPolicy.new(backend, _config, BenchChoice.params_of(_config),
+		"en")
+	policy.setup(sim.db, Policy.seed_for(1))
+	return policy
+
+
+func test_a_decision_model_decides_on_the_same_days_as_a_chat_model() -> void:
+	var sim: Simulation = Simulation.create(quiet_db(), 1)
+	var backend: ChoiceRecorder = ChoiceRecorder.new(MockChoiceBackend.MODE_FIRST)
+	var policy: ModelPolicy = _choice_policy(backend, sim)
+	assert_eq(_play(sim, policy, 45), 0)
+	assert_eq(backend.days, [0, 10, 20, 30, 40] as Array[int])
+	assert_ne(sim.world.agent.origin, 0, "the first decision chose the origin")
+	assert_eq(policy.model_versions, [MockChoiceBackend.MODEL_VERSION] as Array[String])
+	assert_eq(policy.decisions[0].stance, "spread")
+
+
+func test_an_unreadable_reply_is_retried_once_then_does_nothing() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin("fx_alder")
+	var backend: FixedChoice = FixedChoice.new({"model": "fixed-1"})
+	var policy: ModelPolicy = _choice_policy(backend, sim)
+	var commands_before: int = sim.command_log.size()
+	assert_eq(_play(sim, policy, 11), 0)
+	assert_eq(policy.calls, 4, "two decisions, each retried once")
+	assert_eq(policy.invalid_answers, 2)
+	for decision: BenchDecision in policy.decisions:
+		assert_true(decision.retried)
+		assert_eq(decision.invalid, BenchChoice.ERROR_BAD_REPLY)
+	for command: Command in sim.command_log.slice(commands_before):
+		assert_true(command is CollectAnomalyCommand, "nothing but the housekeeping")
+
+
+func test_broken_retries_the_unreadable_call_and_plays_on() -> void:
+	var sim: Simulation = Fixtures.sim(3)
+	var broken: MockChoiceBackend = MockChoiceBackend.new(MockChoiceBackend.MODE_BROKEN)
+	var policy: ModelPolicy = _choice_policy(broken, sim)
+	assert_eq(_play(sim, policy, 60), 0)
+	var retried: int = 0
+	for decision: BenchDecision in policy.decisions:
+		retried += 1 if decision.retried else 0
+	assert_gt(retried, 0, "every third reply is unreadable, and retried")
+	assert_gt(policy.rejected_actions, 0,
+		"every fourth leaves out buy and names an unknown stance")
+
+
+func test_a_problem_counts_as_rejected_and_is_fed_back_under_its_question() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin("fx_alder")
+	var backend: FixedChoice = FixedChoice.new({"model": "fixed-1", "answers": {
+		"stance": {"choice": "nuke", "probabilities": {}}}})
+	var policy: ModelPolicy = _choice_policy(backend, sim)
+	assert_eq(_play(sim, policy, 11), 0)
+	var first: BenchDecision = policy.decisions[0]
+	assert_eq(first.invalid, "")
+	assert_eq(first.stance, "")
+	assert_true(first.refused.has({"action": "stance",
+		"reason": BenchChoice.PROBLEM_UNKNOWN_CHOICE}))
+	assert_eq(policy.rejected_actions, first.refused.size() + policy.decisions[1].refused.size())
+	assert_eq(backend.digests[1].feedback, first)
+	var text: String = BenchPrompt.digest_text(backend.digests[1], sim.db, false)
+	assert_string_contains(text, BenchChoice.PROBLEM_UNKNOWN_CHOICE)
+	assert_false(text.contains(TechText.tr_key(BenchPrompt.KEY_ASK)),
+		"no JSON is asked of a decision model")
+
+
+func test_the_harness_never_sees_a_rejected_command_in_any_choice_mode() -> void:
+	for mode: String in MockChoiceBackend.MODES:
+		var sim: Simulation = Fixtures.sim(3)
+		var policy: ModelPolicy = _choice_policy(MockChoiceBackend.new(mode), sim)
+		assert_eq(_play(sim, policy, 120), 0, mode)
+
+
+func test_a_cached_choice_answer_counts_as_a_call_and_keeps_its_version() -> void:
+	var sim: Simulation = Fixtures.sim_with_origin("fx_alder")
+	var backend: ChoiceRecorder = ChoiceRecorder.new(MockChoiceBackend.MODE_FIRST)
+	var policy: ModelPolicy = _choice_policy(backend, sim)
+	var bases: Array[Dictionary] = []
+	policy.cache_read = func(basis: Dictionary) -> Dictionary:
+		bases.append(basis)
+		return {"answer": {"stance": "hide", "actions": [], "dropped": []},
+			"model_version": "jev-9"}
+	_play(sim, policy, 1)
+	assert_eq(policy.cached_calls, 1)
+	assert_eq(backend.days.size(), 0, "the backend was never asked")
+	assert_eq(policy.model_versions, ["jev-9"] as Array[String])
+	assert_true(bases[0].has("state") and bases[0].has("questions"))
+	assert_false(bases[0].has("attempt"), "a first answer has no attempt")

@@ -64,7 +64,10 @@ static func _row(members: Array[BenchEntry], config: BenchConfig,
 	var cost: float = 0.0
 	var files: Array[String] = []
 	var seeds: Array[Dictionary] = []
+	var versions: Array[String] = []
 	for entry: BenchEntry in members:
+		if not entry.model_version.is_empty() and not versions.has(entry.model_version):
+			versions.append(entry.model_version)
 		played[entry.seed_value] = true
 		var run: float = run_score(entry.outcome, entry.days, entry.max_days, config)
 		total += run
@@ -92,9 +95,16 @@ static func _row(members: Array[BenchEntry], config: BenchConfig,
 	for outcome: Variant in outcome_ids:
 		sorted_outcomes[outcome] = outcomes[outcome]
 	var runs: int = members.size()
-	return {
+	versions.sort()
+	var row: Dictionary = {
 		"model": first.model,
 		"backend": first.backend,
+	}
+	# §17.7: only a row whose runs report a version has the key, so every other
+	# board stays byte for byte what it was.
+	if not versions.is_empty():
+		row["model_versions"] = versions
+	row.merge({
 		"params": first.params.duplicate(true),
 		"params_id": first.params_id,
 		"prompt_version": first.prompt_version,
@@ -120,7 +130,8 @@ static func _row(members: Array[BenchEntry], config: BenchConfig,
 		"budget_exhausted": sums["budget_exhausted"],
 		"entries": files,
 		"seeds": seeds,
-	}
+	})
+	return row
 
 
 static func _before(a: Dictionary, b: Dictionary) -> bool:

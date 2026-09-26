@@ -91,3 +91,28 @@ func test_a_suite_that_is_not_a_list_of_whole_numbers_is_an_error() -> void:
 func test_a_missing_file_is_one_error_and_no_crash() -> void:
 	var config: BenchConfig = BenchConfig.load_file("res://tests/fixtures/bench/none.json")
 	assert_eq(config.errors.size(), 1)
+
+
+func test_the_decision_model_keys_are_read() -> void:
+	var config: BenchConfig = BenchConfig.load_file()
+	assert_eq(config.choice_version, 1)
+	assert_eq(config.max_options, 255)
+	assert_eq(config.max_picks, {"buy": 3, "use": 2, "wake": 2, "sleep": 2} \
+		as Dictionary[String, int])
+	assert_eq(config.typesafe_model_prefix, "typesafe/")
+	assert_eq(config.typesafe_base_url + config.typesafe_path,
+		"https://api.typesafe.ai/v1/systemone")
+	assert_eq(config.typesafe_key_env, "TYPESAFE_API_KEY")
+	assert_almost_eq(config.typesafe_price_input, 0.042, 0.000001)
+	assert_eq(config.typesafe_price_output, 0.0)
+	assert_eq(config.typesafe_max_requests, 3000)
+	assert_eq(config.typesafe_question_tokens, 1500)
+	assert_eq(config.typesafe_state_limit, 32000)
+	assert_eq(config.typesafe_request_limit, 64000)
+
+
+func test_a_pick_limit_below_one_is_an_error() -> void:
+	assert_false(BenchConfig.from_dict(_with("choice.max_picks.buy", 0)).ok())
+	assert_false(BenchConfig.from_dict(_with("choice.max_options", 1)).ok())
+	assert_true(BenchConfig.from_dict(_with("typesafe.price_input_usd_per_mtok", -1.0)).ok(),
+		"a negative price is an unknown one, not an error")

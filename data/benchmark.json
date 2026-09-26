@@ -1,5 +1,5 @@
 {
-	"_comment": "docs/specs/benchmark.md §3: the benchmark's configuration — the model policy's rhythm and limits, the seed suites, the score, the defaults sent to the model, the HTTP settings. `prompt_version` / `parser_version` are bumped by any change to the prompt text or format / the parsing rules (benchmark.md §5–§7); both go into the cache key and every entry. The key is never here: it is read from the environment variable `http.key_env`. `estimate` feeds the tool's pre-flight cost estimate (§11.5); `global` is the global leaderboard's addresses and limits (§16), read by the game's online list and by the verifier. Presentation data, not loaded by the core (SCHEMA §10); read by BenchConfig (S6.12).",
+	"_comment": "docs/specs/benchmark.md §3: the benchmark's configuration — the model policy's rhythm and limits, the seed suites, the score, the defaults sent to the model, the HTTP settings. `prompt_version` / `parser_version` are bumped by any change to the prompt text or format / the parsing rules (benchmark.md §5–§7); both go into the cache key and every entry. The key is never here: it is read from the environment variable `http.key_env`. `estimate` feeds the tool's pre-flight cost estimate (§11.5); `global` is the global leaderboard's addresses and limits (§16), read by the game's online list and by the verifier. `choice` and `typesafe` are the decision-model backend (§17): the combination rules that go into a choice run's params, and TypeSafe's endpoint, key variable, published price (USD per million tokens; negative = unknown) and caps. Presentation data, not loaded by the core (SCHEMA §10); read by BenchConfig (S6.12).",
 	"version": 1,
 	"prompt_version": 1,
 	"parser_version": 1,
@@ -37,5 +37,22 @@
 		"min_refetch_s": 300,
 		"cache_runs_max": 50,
 		"verify_limit": 100
+	},
+	"choice": {
+		"choice_version": 1,
+		"max_options": 255,
+		"max_picks": {"buy": 3, "use": 2, "wake": 2, "sleep": 2}
+	},
+	"typesafe": {
+		"model_prefix": "typesafe/",
+		"base_url": "https://api.typesafe.ai/v1",
+		"path": "/systemone",
+		"key_env": "TYPESAFE_API_KEY",
+		"price_input_usd_per_mtok": 0.042,
+		"price_output_usd_per_mtok": 0.0,
+		"max_requests": 3000,
+		"question_tokens_per_call": 1500,
+		"state_limit_tokens": 32000,
+		"request_limit_tokens": 64000
 	}
 }

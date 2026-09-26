@@ -86,3 +86,28 @@ func test_the_models_list_reader_gives_nothing_it_cannot_trust() -> void:
 func test_only_openrouter_is_asked_for_a_price() -> void:
 	assert_eq(Estimate.fetch_prices("http://localhost:1/v1", "vendor/mid", _config), {},
 		"a local server has no price list, and nothing is requested")
+
+
+func test_the_decision_model_worked_example() -> void:
+	# §17.9: rules 10 000 tokens, day-0 situation 2 000 → 10 000 + 3 000 + 1 500 a call.
+	var standard: Dictionary = Estimate.choice_figures(10000, 2000, 10, _config)
+	assert_true(bool(standard["known"]))
+	assert_eq(int(standard["input_tokens"]), 800 * 14500)
+	assert_almost_eq(float(standard["likely"]), 0.4872, 0.00001)
+	assert_almost_eq(float(standard["at_most"]), 1.5225, 0.00001)
+	assert_false(Estimate.preflight_blocks(standard, _config.max_cost_usd, false), "it runs")
+	assert_eq(Estimate.choice_line(standard, 10, "typesafe/jev-latest", 2.0, 3000, _config),
+		"benchmark: estimate for 10 runs of typesafe/jev-latest: ≈0.49 USD, at most 1.52 USD (cap 2.00 USD)")
+	var one: Dictionary = Estimate.choice_figures(10000, 2000, 1, _config)
+	assert_almost_eq(float(one["likely"]), 0.04872, 0.00001)
+	assert_almost_eq(float(one["at_most"]), 0.15225, 0.00001)
+
+
+func test_a_negative_price_is_unknown_and_never_blocks() -> void:
+	_config.typesafe_price_input = -1.0
+	var estimate: Dictionary = Estimate.choice_figures(10000, 2000, 10, _config)
+	assert_false(bool(estimate["known"]))
+	assert_false(Estimate.preflight_blocks(estimate, 0.0, false))
+	assert_eq(Estimate.choice_line(estimate, 10, "typesafe/jev-latest", 2.0, 3000, _config),
+		("benchmark: estimate for 10 runs of typesafe/jev-latest: price unknown (≈800 calls,"
+		+ " ≈11600000 input tokens) — only the request cap (3000) and 250 calls a run guard this run"))

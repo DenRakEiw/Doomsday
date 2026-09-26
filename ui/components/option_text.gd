@@ -100,11 +100,10 @@ static func _told(db: ContentDB, def: EventDef, option: EventOptionDef,
 		parts.append(drift)
 	# §9.3: an answer whose only consequence is a route says that the story goes
 	# on — never *no other effect*.
-	# DESIGN? §9.4 item 2 says the same for an answer that only sets story flags
-	# with no name. The one such answer today (*Stay on Earth*, `escape_declined`)
-	# leads nowhere and its flag is read by nothing, so "another card follows"
-	# would be false: it keeps *Nothing happens* (PROGRESS, Design questions for
-	# Fable, S6.P4).
+	# An answer that only sets a story flag with no name is not said to go on: the
+	# one such answer today (*Stay on Earth*, `escape_declined`) leads nowhere and
+	# its flag is read by nothing, so "another card follows" would be false — it
+	# keeps *Nothing happens* (D6.9c, PROGRESS Decisions 2026-09-26).
 	if parts.is_empty() and not option.next.is_empty():
 		parts.append(TechText.tr_key(KEY_STORY))
 	return parts

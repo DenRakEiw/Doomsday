@@ -47,6 +47,10 @@ const UTF8_MAX: int = 0x10FFFF
 var version: int = VERSION
 var model: String = ""
 var backend: String = ""
+## The version a decision model's service reported (§17.7), several joined with
+## `+`; "" for everything else — and then not written, so every other entry is
+## byte for byte what it was.
+var model_version: String = ""
 var params: Dictionary = {}
 var params_id: String = ""
 var prompt_version: int = 1
@@ -127,7 +131,8 @@ func is_win() -> bool:
 	return outcome.begins_with(BenchScore.WIN_PREFIX)
 
 
-## Exactly §10.2's keys, in its order.
+## Exactly §10.2's keys, in its order; `model_version` after `backend` only when
+## it is not empty (§17.7).
 func to_dict() -> Dictionary:
 	var command_rows: Array[Dictionary] = []
 	for command: Command in commands:
@@ -135,10 +140,14 @@ func to_dict() -> Dictionary:
 	var decision_rows: Array[Dictionary] = []
 	for decision: BenchDecision in decisions:
 		decision_rows.append(decision.to_dict())
-	return {
+	var head: Dictionary = {
 		"version": version,
 		"model": model,
 		"backend": backend,
+	}
+	if not model_version.is_empty():
+		head["model_version"] = model_version
+	head.merge({
 		"params": params.duplicate(true),
 		"params_id": params_id,
 		"prompt_version": prompt_version,
@@ -168,7 +177,8 @@ func to_dict() -> Dictionary:
 		"budget_exhausted": budget_exhausted,
 		"commands": command_rows,
 		"decisions": decision_rows,
-	}
+	})
+	return head
 
 
 ## The file's text: tab-indented, the keys in `to_dict`'s order.
@@ -199,6 +209,8 @@ static func from_dict(d: Dictionary) -> BenchEntry:
 			return _fail("%s: missing or not a number" % key)
 	if typeof(d.get("budget_exhausted")) != TYPE_BOOL:
 		return _fail("budget_exhausted: missing or not true/false")
+	if d.has("model_version") and typeof(d["model_version"]) != TYPE_STRING:
+		return _fail("model_version: not a string")
 	for key: String in ["params", "setup"]:
 		if typeof(d.get(key)) != TYPE_DICTIONARY:
 			return _fail("%s: missing or not an object" % key)
@@ -227,6 +239,7 @@ static func from_dict(d: Dictionary) -> BenchEntry:
 		entry.decisions.append(decision)
 	entry.model = str(d["model"])
 	entry.backend = str(d["backend"])
+	entry.model_version = str(d.get("model_version", ""))
 	entry.params = (d["params"] as Dictionary).duplicate(true)
 	entry.params_id = str(d["params_id"])
 	entry.prompt_version = int(d["prompt_version"])

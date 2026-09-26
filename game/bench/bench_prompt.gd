@@ -95,6 +95,8 @@ const KEY_FEEDBACK_INVALID: String = "BENCH_DIGEST_FEEDBACK_INVALID"
 const KEY_ASK: String = "BENCH_DIGEST_ASK"
 const KEY_RETRY: String = "BENCH_RETRY"
 const KEY_STANCE_NONE: String = "BENCH_STANCE_NONE"
+## A decision model's last rules paragraph (§17.2).
+const KEY_CHOICE_RULES: String = "BENCH_CHOICE_RULES"
 
 ## Built at run time from an id, so the string scan cannot see them: the strings
 ## test reads this list (as it reads `RunLogText.KEYS`).
@@ -159,23 +161,25 @@ const BRIEF_SEED: int = 0
 ## §5: the system message, identical for every call of a run and across runs of
 ## the same setup.
 static func brief(db: ContentDB, setup: RunSetup, config: BenchConfig) -> String:
-	var sections: PackedStringArray = []
-	sections.append(_tr(KEY_ROLE))
-	sections.append(_tr(KEY_LOOP).format({"interval": config.interval_days}))
-	sections.append(_tr(KEY_WIN).format({"max_days": config.max_days}))
-	for key: String in KEYS_RULES:
-		sections.append(_tr(key))
-	sections.append(_run_section(db, setup))
-	sections.append(_world_section(db))
-	sections.append(_tree_section(db, setup))
-	sections.append(_abilities_section(db))
+	var sections: PackedStringArray = _rule_sections(db, setup, config)
 	sections.append(_stances_section())
 	sections.append(_format_section(config))
 	return SECTION_GAP.join(sections)
 
 
-## §6.3: the user message of one decision, in the run's locale.
-static func digest_text(d: BenchDigest, db: ContentDB) -> String:
+## §17.2: a decision model's `rules` — the brief's items 1–8, then
+## `BENCH_CHOICE_RULES`. No stances (they are a question's options) and no answer
+## format (it writes none). Built once a run.
+static func rules(db: ContentDB, setup: RunSetup, config: BenchConfig) -> String:
+	var sections: PackedStringArray = _rule_sections(db, setup, config)
+	sections.append(_tr(KEY_CHOICE_RULES))
+	return SECTION_GAP.join(sections)
+
+
+## §6.3: the user message of one decision, in the run's locale. `ask` false leaves
+## out the last paragraph, which asks for JSON — a decision model's `situation`
+## (§17.2).
+static func digest_text(d: BenchDigest, db: ContentDB, ask: bool = true) -> String:
 	var sections: PackedStringArray = []
 	sections.append(_tr(KEY_HEAD).format({"day": d.day, "decision": d.decision,
 		"phase": _tr(PREFIX_PHASE + d.phase.to_upper())}))
@@ -193,7 +197,8 @@ static func digest_text(d: BenchDigest, db: ContentDB) -> String:
 		sections.append(_log_section(d))
 	if d.feedback != null:
 		sections.append(_feedback_section(d))
-	sections.append(_tr(KEY_ASK))
+	if ask:
+		sections.append(_tr(KEY_ASK))
 	return SECTION_GAP.join(sections)
 
 
@@ -322,6 +327,23 @@ static func _abilities_section(db: ContentDB) -> String:
 			"detail": _tr(AbilityDef.detail_key(ability.id)),
 		}))
 	return LINE.join(lines)
+
+
+## §5 items 1–8: role, loop, win, the rule paragraphs, the run, the world, the
+## tree, the abilities.
+static func _rule_sections(db: ContentDB, setup: RunSetup,
+		config: BenchConfig) -> PackedStringArray:
+	var sections: PackedStringArray = []
+	sections.append(_tr(KEY_ROLE))
+	sections.append(_tr(KEY_LOOP).format({"interval": config.interval_days}))
+	sections.append(_tr(KEY_WIN).format({"max_days": config.max_days}))
+	for key: String in KEYS_RULES:
+		sections.append(_tr(key))
+	sections.append(_run_section(db, setup))
+	sections.append(_world_section(db))
+	sections.append(_tree_section(db, setup))
+	sections.append(_abilities_section(db))
+	return sections
 
 
 static func _stances_section() -> String:

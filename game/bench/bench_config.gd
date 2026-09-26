@@ -2,8 +2,9 @@ class_name BenchConfig
 extends RefCounted
 ## `data/benchmark.json` read and checked (docs/specs/benchmark.md §3): the model
 ## policy's rhythm and limits, the seed suites, the score, the defaults sent to a
-## model, the HTTP settings, the pre-flight estimate and the global board's
-## addresses. Presentation data — the core never reads it.
+## model, the HTTP settings, the pre-flight estimate, the global board's
+## addresses, and the decision-model backend (§17: the combination rules and
+## TypeSafe's endpoint, price and caps). Presentation data — the core never reads it.
 ##
 ## A bad file never crashes: `errors` names every key that is missing or of the
 ## wrong type, and the tool exits 1 naming them.
@@ -59,6 +60,26 @@ var global_max_rows: int = 500
 var global_min_refetch_s: int = 300
 var global_cache_runs_max: int = 50
 var global_verify_limit: int = 100
+
+## §17: bumped by any change to how a choice run is asked and combined; goes into
+## its params.
+var choice_version: int = 1
+## Options per question, the control key included (TypeSafe's limit).
+var max_options: int = 255
+## Picks per decision of each multi-pick question (`BenchChoice.MULTI_PICK`).
+var max_picks: Dictionary[String, int] = {}
+var typesafe_model_prefix: String = ""
+var typesafe_base_url: String = ""
+var typesafe_path: String = ""
+var typesafe_key_env: String = ""
+## USD per million tokens, as published; negative = unknown.
+var typesafe_price_input: float = 0.0
+var typesafe_price_output: float = 0.0
+## HTTP requests per invocation, retries included.
+var typesafe_max_requests: int = 3000
+var typesafe_question_tokens: int = 1500
+var typesafe_state_limit: int = 32000
+var typesafe_request_limit: int = 64000
 
 
 ## The file at `path`, read; a file that is missing or not a JSON object is one
@@ -144,6 +165,27 @@ func _read(d: Dictionary) -> void:
 	global_min_refetch_s = _int(global, "min_refetch_s", 0, "global.")
 	global_cache_runs_max = _int(global, "cache_runs_max", 0, "global.")
 	global_verify_limit = _int(global, "verify_limit", 1, "global.")
+	var choice: Dictionary = _object(d, "choice")
+	choice_version = _int(choice, "choice_version", 1, "choice.")
+	max_options = _int(choice, "max_options", 2, "choice.")
+	var picks: Dictionary = {}
+	if typeof(choice.get("max_picks")) == TYPE_DICTIONARY:
+		picks = choice["max_picks"]
+	else:
+		errors.append("choice.max_picks: missing or not an object")
+	for question: String in BenchChoice.MULTI_PICK:
+		max_picks[question] = _int(picks, question, 1, "choice.max_picks.")
+	var typesafe: Dictionary = _object(d, "typesafe")
+	typesafe_model_prefix = _string(typesafe, "model_prefix", "typesafe.")
+	typesafe_base_url = _string(typesafe, "base_url", "typesafe.")
+	typesafe_path = _string(typesafe, "path", "typesafe.")
+	typesafe_key_env = _string(typesafe, "key_env", "typesafe.")
+	typesafe_price_input = _float(typesafe, "price_input_usd_per_mtok", "typesafe.")
+	typesafe_price_output = _float(typesafe, "price_output_usd_per_mtok", "typesafe.")
+	typesafe_max_requests = _int(typesafe, "max_requests", 1, "typesafe.")
+	typesafe_question_tokens = _int(typesafe, "question_tokens_per_call", 0, "typesafe.")
+	typesafe_state_limit = _int(typesafe, "state_limit_tokens", 1, "typesafe.")
+	typesafe_request_limit = _int(typesafe, "request_limit_tokens", 1, "typesafe.")
 
 
 func _read_suites(d: Dictionary) -> void:

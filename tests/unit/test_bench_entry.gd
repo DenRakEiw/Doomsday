@@ -152,3 +152,28 @@ func test_bytes_read_as_an_entry_and_broken_bytes_as_null() -> void:
 	assert_null(BenchEntry.from_bytes(PackedByteArray([0x7B, 0xFF, 0x7D])))
 	assert_eq(BenchEntry.last_error, "not UTF-8 text")
 	assert_engine_error_count(0)
+
+
+func test_a_model_version_round_trips_after_the_backend() -> void:
+	var entry: BenchEntry = _entry()
+	entry.model = "typesafe/jev-latest"
+	entry.backend = "typesafe"
+	entry.model_version = "jev-1.13.0"
+	var read: BenchEntry = BenchEntry.from_dict(_as_file(entry))
+	assert_not_null(read, BenchEntry.last_error)
+	assert_eq(read.model_version, "jev-1.13.0")
+	var keys: Array = entry.to_dict().keys()
+	assert_eq(keys.find("model_version"), keys.find("backend") + 1)
+
+
+func test_an_entry_without_a_model_version_reads_empty_and_writes_no_such_key() -> void:
+	var entry: BenchEntry = _entry()
+	var read: BenchEntry = BenchEntry.from_dict(_as_file(entry))
+	assert_eq(read.model_version, "")
+	assert_false(entry.to_dict().has("model_version"))
+	assert_false(entry.to_json().contains("model_version"))
+	var ill: Dictionary = _as_file(entry)
+	ill["model_version"] = 3
+	assert_null(BenchEntry.from_dict(ill))
+	assert_string_contains(BenchEntry.last_error, "model_version")
+

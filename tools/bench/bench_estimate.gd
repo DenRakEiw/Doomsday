@@ -7,9 +7,12 @@ extends RefCounted
 ## key; not reachable, not listed or not a number means "unknown", and an unknown
 ## price never blocks.
 ##
+## A decision model's estimate (§17.9) asks nothing: its price is data.
+##
 ## A tool, so no `class_name`; `bench_run.gd` and the tests preload it.
 
 const Backend := preload("res://tools/bench/open_router_backend.gd")
+const TypeSafe := preload("res://tools/bench/typesafe_backend.gd")
 
 ## The one host whose price list is asked for.
 const PRICE_HOST: String = "openrouter.ai"
@@ -90,6 +93,43 @@ static func fetch_prices(base_url: String, model: String, config: BenchConfig) -
 	if int(result["status"]) != Backend.STATUS_OK:
 		return {}
 	return read_prices(str(result["body"]), model)
+
+
+## §17.9: a decision model's figures for `runs` seeds. Per call the input is its
+## `rules`, the day-0 `situation` grown by `digest_growth`, and the questions'
+## allowance; only input is priced (output is free today). A negative price in
+## the data is an unknown one.
+static func choice_figures(rules_tokens: int, situation_tokens: int, runs: int,
+		config: BenchConfig) -> Dictionary:
+	var input: float = float(rules_tokens) + float(situation_tokens) * config.digest_growth \
+		+ float(config.typesafe_question_tokens)
+	var calls: int = runs * config.calls_per_run
+	var price: float = config.typesafe_price_input / TypeSafe.TOKENS_PER_MTOK
+	var out: Dictionary = {
+		FIELD_KNOWN: config.typesafe_price_input >= 0.0 and config.typesafe_price_output >= 0.0,
+		FIELD_CALLS: calls,
+		FIELD_INPUT_TOKENS: roundi(float(calls) * input),
+		FIELD_PROMPT_PRICE: price,
+		FIELD_COMPLETION_PRICE: config.typesafe_price_output / TypeSafe.TOKENS_PER_MTOK,
+		FIELD_LIKELY: 0.0,
+		FIELD_AT_MOST: 0.0,
+	}
+	if bool(out[FIELD_KNOWN]):
+		out[FIELD_LIKELY] = float(calls) * input * price
+		out[FIELD_AT_MOST] = float(runs * config.max_calls) * input * price
+	return out
+
+
+## §17.9's line: as §11.5's when the price is known; when it is not, what guards
+## the run instead.
+static func choice_line(estimate: Dictionary, runs: int, model: String, cap: float,
+		max_requests: int, config: BenchConfig) -> String:
+	if bool(estimate[FIELD_KNOWN]):
+		return line(estimate, runs, model, cap)
+	return ("benchmark: estimate for %d runs of %s: price unknown (≈%d calls, ≈%d input tokens)"
+		+ " — only the request cap (%d) and %d calls a run guard this run") % [runs, model,
+		int(estimate[FIELD_CALLS]), int(estimate[FIELD_INPUT_TOKENS]), max_requests,
+		config.max_calls]
 
 
 ## §11.5 step 4's line.

@@ -3,31 +3,36 @@ extends SceneTree
 ## suite headless, each run is written as an entry and the leaderboard is rebuilt.
 ##
 ##     "$GODOT" --headless --path . -s tools/bench/bench_run.gd -- \
-##         --model=<id> [--backend=openrouter|mock:cheapest|mock:wait|mock:invalid|mock:mixed]
+##         --model=<id> [--backend=openrouter|typesafe|mock:cheapest|mock:wait|mock:invalid
+##             |mock:mixed|mock-choice:first|mock-choice:idle|mock-choice:shuffled
+##             |mock-choice:broken]
 ##         [--suite=standard|quick] [--seeds=a..b] [--locale=en|de]
 ##         [--temperature=<f>] [--max-tokens=<n>] [--json-mode=true|false]
 ##         [--reasoning=low|medium|high] [--top-p=<f>]
-##         [--base-url=<url>] [--key-env=<VAR>] [--max-cost=<usd>] [--yes]
+##         [--base-url=<url>] [--key-env=<VAR>] [--max-cost=<usd>] [--max-requests=<n>] [--yes]
 ##         [--out=<dir=res://benchmark>] [--cache=<dir=res://benchmark/cache>] [--fresh]
 ##         [--data=<root=res://data>] [--dry-run]
 ##     … -- --bots [--suite=…] [--seeds=a..b] [--out=<dir>] [--if-missing] [--no-rebuild]
 ##     … -- --rebuild [--out=<dir>]
 ##     … -- --determinism-fixture
 ##
-## The key comes from the environment only (`OPENROUTER_API_KEY`, or the variable
-## `--key-env` names) and is never printed. Before the first request the tool
-## prints what the invocation will likely cost and stops when that is above the
-## cap, unless `--yes` (§11.5).
+## A model id beginning with `typesafe/` is a decision model (§17): TypeSafe's
+## backend, one request of choice questions per decision, the chat-only flags
+## refused. The key comes from the environment only (`OPENROUTER_API_KEY` or
+## `TYPESAFE_API_KEY`, or the variable `--key-env` names) and is never printed.
+## Before the first request the tool prints what the invocation will likely cost
+## and stops when that is above the cap, unless `--yes` (§11.5, §17.9).
 ##
 ## Exit codes: 0 finished · 1 bad arguments, content or config errors, missing key
 ## · 3 a replay did not reproduce its run · 4 the service refused (auth, credits,
 ## forbidden, bad request) · 5 the service was unavailable after the retries · 6
-## the cost cap was reached · 7 the estimate is above the cap and `--yes` was not
-## given (nothing was requested).
+## the cost cap (or TypeSafe's request cap) was reached · 7 the estimate is above
+## the cap and `--yes` was not given (nothing was requested).
 
 const Harness := preload("res://tools/sim_harness.gd")
 const Cache := preload("res://tools/bench/bench_cache.gd")
 const Backend := preload("res://tools/bench/open_router_backend.gd")
+const TypeSafe := preload("res://tools/bench/typesafe_backend.gd")
 const Estimate := preload("res://tools/bench/bench_estimate.gd")
 const Writer := preload("res://tools/bench/leaderboard_writer.gd")
 
@@ -42,6 +47,13 @@ const EXIT_ESTIMATE: int = 7
 const DEFAULT_OUT: String = "res://benchmark"
 const DEFAULT_CACHE: String = "res://benchmark/cache"
 const BACKEND_OPENROUTER: String = "openrouter"
+const BACKEND_TYPESAFE: String = "typesafe"
+## A decision model takes none of these (§17.7).
+const CHAT_FLAGS: Array[String] = ["temperature", "max-tokens", "json-mode", "reasoning",
+	"top-p"]
+## Several versions within one run are joined with this (§17.7).
+const VERSION_JOIN: String = "+"
+const VERSION_ARROW: String = " → "
 const REASONING_LEVELS: Array[String] = ["low", "medium", "high"]
 const LOCALES: Array[String] = ["en", "de"]
 const SEED_RANGE: String = ".."
@@ -121,6 +133,16 @@ static func seeds_in(range_text: String, suite_seeds: Array[int]) -> Array[int]:
 		if value >= low and value <= high:
 			out.append(value)
 	return out
+
+
+## The backend an invocation plays with (§17.9): `--backend` when given, else
+## TypeSafe's for a model id with its prefix, else OpenRouter's.
+static func backend_for(args: Dictionary[String, String], config: BenchConfig) -> String:
+	if args.has("backend"):
+		return args["backend"]
+	var model: String = args.get("model", "")
+	return BACKEND_TYPESAFE if model.begins_with(config.typesafe_model_prefix) \
+		else BACKEND_OPENROUTER
 
 
 ## The run's parameters (§10.2) from the flags and the config's defaults:
@@ -224,6 +246,7 @@ static func make_entry(sim: Simulation, config: BenchConfig, model: String, back
 		entry.cost_usd = policy.cost_usd
 		entry.budget_exhausted = policy.budget_exhausted
 		entry.decisions = policy.decisions.duplicate()
+		entry.model_version = VERSION_JOIN.join(policy.model_versions)
 	return entry
 
 
@@ -251,7 +274,7 @@ static func write_text(path: String, text: String) -> String:
 static func exit_for(fatal: String) -> int:
 	if fatal.begins_with(Backend.FATAL_UNAVAILABLE):
 		return EXIT_UNAVAILABLE
-	if fatal.begins_with(Backend.FATAL_COST_CAP):
+	if fatal.begins_with(Backend.FATAL_COST_CAP) or fatal.begins_with(TypeSafe.FATAL_REQUEST_CAP):
 		return EXIT_COST_CAP
 	return EXIT_REFUSED
 
@@ -270,28 +293,89 @@ static func measure(db: ContentDB, config: BenchConfig, setup: RunSetup, seed_va
 	return {"brief": brief, "digest": digest}
 
 
+## A decision model's day-0 request of a seed (§17.9): its `rules` and
+## `situation`, the request body for `model`, and the three token measures the
+## dry run checks against the service's limits.
+static func measure_choice(db: ContentDB, config: BenchConfig, setup: RunSetup, seed_value: int,
+		locale: String, model: String) -> Dictionary:
+	var previous: String = TranslationServer.get_locale()
+	TranslationServer.set_locale(locale)
+	var rules: String = BenchPrompt.rules(db, setup, config)
+	var sim: Simulation = Simulation.create(db, seed_value, setup)
+	var digest: BenchDigest = BenchDigest.build(sim, BenchDigest.new_memory(), config)
+	var situation: String = BenchPrompt.digest_text(digest, db, false)
+	var plan: BenchChoicePlan = BenchChoice.plan(sim, digest, rules, situation, config)
+	TranslationServer.set_locale(previous)
+	var body: Dictionary = plan.body(model)
+	var longest: int = 0
+	for question: Variant in plan.questions:
+		longest = maxi(longest, Estimate.tokens(JSON.stringify(plan.questions[question]).length(),
+			config))
+	return {
+		"rules": rules,
+		"situation": situation,
+		"body": body,
+		"state_tokens": Estimate.tokens(JSON.stringify(plan.state).length(), config),
+		"question_tokens": longest,
+		"request_tokens": Estimate.tokens(JSON.stringify(body).length(), config),
+	}
+
+
+## The lines the dry run prints after a decision model's request (§17.9).
+static func limit_lines(measured: Dictionary, config: BenchConfig) -> PackedStringArray:
+	var state: int = int(measured["state_tokens"])
+	var question: int = int(measured["question_tokens"])
+	var request: int = int(measured["request_tokens"])
+	var out: PackedStringArray = [("benchmark: state ≈%d + longest question ≈%d = ≈%d tokens"
+		+ " (limit %d); request ≈%d tokens (limit %d)") % [state, question, state + question,
+		config.typesafe_state_limit, request, config.typesafe_request_limit]]
+	if state + question > config.typesafe_state_limit or request > config.typesafe_request_limit:
+		out.append("benchmark: above the service's limit")
+	return out
+
+
 static func _models(args: Dictionary[String, String], db: ContentDB, config: BenchConfig,
 		setup: RunSetup, suite: String, seeds: Array[int], out: String) -> int:
 	var model: String = args.get("model", "")
 	if model.is_empty() or model == ARG_TRUE:
 		print("benchmark: --model=<id> is required (or --bots, --rebuild, --determinism-fixture)")
 		return EXIT_BAD_INPUT
-	var backend_name: String = args.get("backend", BACKEND_OPENROUTER)
+	# §17.9: the backend follows the model id unless `--backend` says otherwise.
+	var typesafe_model: bool = model.begins_with(config.typesafe_model_prefix)
+	var backend_name: String = backend_for(args, config)
 	var mock_mode: String = MockBackend.mode_of(backend_name)
-	if backend_name != BACKEND_OPENROUTER and mock_mode.is_empty():
+	var choice_mode: String = MockChoiceBackend.mode_of(backend_name)
+	var typesafe: bool = backend_name == BACKEND_TYPESAFE
+	if backend_name != BACKEND_OPENROUTER and not typesafe and mock_mode.is_empty() \
+			and choice_mode.is_empty():
 		print("benchmark: unknown backend \"%s\"" % backend_name)
 		return EXIT_BAD_INPUT
-	var built: Dictionary = build_params(args, config)
-	if not str(built["error"]).is_empty():
-		print("benchmark: %s" % built["error"])
+	if typesafe and not typesafe_model:
+		print("benchmark: the typesafe backend takes %s<model>" % config.typesafe_model_prefix)
 		return EXIT_BAD_INPUT
-	var params: Dictionary = built["params"]
+	var choosing: bool = typesafe or not choice_mode.is_empty()
+	var mock: bool = not mock_mode.is_empty() or not choice_mode.is_empty()
+	var params: Dictionary = {}
+	if choosing:
+		for flag: String in CHAT_FLAGS:
+			if args.has(flag):
+				print("benchmark: --%s is for chat models; a decision model takes no such parameter"
+					% flag)
+				return EXIT_BAD_INPUT
+		params = BenchChoice.params_of(config)
+	else:
+		var built: Dictionary = build_params(args, config)
+		if not str(built["error"]).is_empty():
+			print("benchmark: %s" % built["error"])
+			return EXIT_BAD_INPUT
+		params = built["params"]
 	var locale: String = args.get("locale", config.locale)
 	if not LOCALES.has(locale):
 		print("benchmark: --locale is en or de")
 		return EXIT_BAD_INPUT
-	var base_url: String = args.get("base-url", config.base_url)
-	if mock_mode.is_empty() and Backend.parse_base_url(base_url).is_empty():
+	var base_url: String = args.get("base-url",
+		config.typesafe_base_url if typesafe else config.base_url)
+	if not mock and Backend.parse_base_url(base_url).is_empty():
 		print("benchmark: --base-url is not an https URL (or http to this machine)")
 		return EXIT_BAD_INPUT
 	var cap_text: String = args.get("max-cost", str(config.max_cost_usd))
@@ -299,49 +383,81 @@ static func _models(args: Dictionary[String, String], db: ContentDB, config: Ben
 		print("benchmark: --max-cost is not a number of 0 or more")
 		return EXIT_BAD_INPUT
 	var cap: float = cap_text.to_float()
+	var requests_text: String = args.get("max-requests", str(config.typesafe_max_requests))
+	if not requests_text.is_valid_int() or requests_text.to_int() < 1:
+		print("benchmark: --max-requests is not a whole number above 0")
+		return EXIT_BAD_INPUT
 	var dry_run: bool = args.has("dry-run")
-	var key_env: String = args.get("key-env", config.key_env)
+	var key_env: String = args.get("key-env",
+		config.typesafe_key_env if typesafe else config.key_env)
 	var key: String = ""
-	if mock_mode.is_empty() and not dry_run:
+	if not mock and not dry_run:
 		key = OS.get_environment(key_env)
 		if key.is_empty():
 			print("benchmark: set %s in the environment" % key_env)
 			return EXIT_BAD_INPUT
-	var measured: Dictionary = measure(db, config, setup, seeds[0], locale)
-	var brief_tokens: int = Estimate.tokens(str(measured["brief"]).length(), config)
-	var digest_tokens: int = Estimate.tokens(str(measured["digest"]).length(), config)
+	# What is sent as `model`: a decision model's id after its prefix (§17.7).
+	var sent_model: String = model.trim_prefix(config.typesafe_model_prefix) if typesafe \
+		else model
 	var estimate: Dictionary = {}
-	if dry_run:
-		print(measured["brief"])
-		print("≈%d tokens" % brief_tokens)
-		print("")
-		print(measured["digest"])
-		print("≈%d tokens" % digest_tokens)
-	if mock_mode.is_empty():
-		var prices: Dictionary = Estimate.fetch_prices(base_url, model, config)
-		estimate = Estimate.figures(brief_tokens, digest_tokens, seeds.size(),
-			float(prices.get(Estimate.FIELD_PROMPT, Backend.NO_PRICE)),
-			float(prices.get(Estimate.FIELD_COMPLETION, Backend.NO_PRICE)), config)
-		print(Estimate.line(estimate, seeds.size(), model, cap))
-		if Estimate.preflight_blocks(estimate, cap, args.has("yes")):
-			print(Estimate.block_line(estimate))
-			if not dry_run:
-				return EXIT_ESTIMATE
+	if choosing:
+		var request: Dictionary = measure_choice(db, config, setup, seeds[0], locale, sent_model)
+		var rules_tokens: int = Estimate.tokens(str(request["rules"]).length(), config)
+		var situation_tokens: int = Estimate.tokens(str(request["situation"]).length(), config)
+		if dry_run:
+			print(request["rules"])
+			print("≈%d tokens" % rules_tokens)
+			print("")
+			print(request["situation"])
+			print("≈%d tokens" % situation_tokens)
+			print("")
+			print(JSON.stringify(request["body"], "\t", false))
+			for text: String in limit_lines(request, config):
+				print(text)
+		if typesafe:
+			estimate = Estimate.choice_figures(rules_tokens, situation_tokens, seeds.size(), config)
+			print(Estimate.choice_line(estimate, seeds.size(), model, cap, requests_text.to_int(),
+				config))
+	else:
+		var measured: Dictionary = measure(db, config, setup, seeds[0], locale)
+		var brief_tokens: int = Estimate.tokens(str(measured["brief"]).length(), config)
+		var digest_tokens: int = Estimate.tokens(str(measured["digest"]).length(), config)
+		if dry_run:
+			print(measured["brief"])
+			print("≈%d tokens" % brief_tokens)
+			print("")
+			print(measured["digest"])
+			print("≈%d tokens" % digest_tokens)
+		if not mock:
+			var prices: Dictionary = Estimate.fetch_prices(base_url, model, config)
+			estimate = Estimate.figures(brief_tokens, digest_tokens, seeds.size(),
+				float(prices.get(Estimate.FIELD_PROMPT, Backend.NO_PRICE)),
+				float(prices.get(Estimate.FIELD_COMPLETION, Backend.NO_PRICE)), config)
+			print(Estimate.line(estimate, seeds.size(), model, cap))
+	if not estimate.is_empty() and Estimate.preflight_blocks(estimate, cap, args.has("yes")):
+		print(Estimate.block_line(estimate))
+		if not dry_run:
+			return EXIT_ESTIMATE
 	if dry_run:
 		return EXIT_OK
 	var live: ModelBackend = null
 	var hooks: Dictionary = {}
-	if mock_mode.is_empty():
+	if typesafe:
+		live = TypeSafe.new(sent_model, key, base_url, config, cap, requests_text.to_int())
+	elif not mock:
 		var service: Backend = Backend.new(model, key, base_url, config, cap)
 		service.prompt_price = float(estimate[Estimate.FIELD_PROMPT_PRICE])
 		service.completion_price = float(estimate[Estimate.FIELD_COMPLETION_PRICE])
 		live = service
+	if live != null:
 		hooks = Cache.new(args.get("cache", DEFAULT_CACHE)).hooks(model, params,
 			config.prompt_version, config.parser_version, not args.has("fresh"))
 	var touched: Array[String] = []
 	for seed_value: int in seeds:
 		# A mock answers each run afresh, so a shard plays what the whole suite would.
-		var backend: ModelBackend = live if live != null else MockBackend.new(mock_mode)
+		var backend: ModelBackend = live
+		if backend == null:
+			backend = MockChoiceBackend.new(choice_mode) if choosing else MockBackend.new(mock_mode)
 		var played: Dictionary = play_model(db, config, setup, seed_value, backend, params,
 			locale, hooks)
 		var policy: ModelPolicy = played["policy"]
@@ -355,6 +471,9 @@ static func _models(args: Dictionary[String, String], db: ContentDB, config: Ben
 			return EXIT_REPLAY_MISMATCH
 		var entry: BenchEntry = make_entry(sim, config, model, backend.backend_id(), params,
 			locale, suite, config.max_days, policy)
+		if policy.model_versions.size() > 1:
+			print("benchmark: the service changed the model version during the run (%s)"
+				% VERSION_ARROW.join(policy.model_versions))
 		var path: String = write_entry(out, entry)
 		if path.is_empty():
 			print("benchmark: could not write %s" % entry.file_name())
@@ -455,9 +574,10 @@ static func _rebuild(out: String, config: BenchConfig, db: ContentDB,
 	return EXIT_OK
 
 
-## §11.2: one JSON line per finished run.
+## §11.2: one JSON line per finished run; a decision model's also names the
+## version its service reported (§17.9).
 static func _print_run(entry: BenchEntry) -> void:
-	print(JSON.stringify({
+	var line: Dictionary = {
 		"model": entry.model,
 		"seed": entry.seed_value,
 		"outcome": entry.outcome,
@@ -469,4 +589,7 @@ static func _print_run(entry: BenchEntry) -> void:
 		"rejected_actions": entry.rejected_actions,
 		"cost_usd": entry.cost_usd,
 		"file": entry.file_name(),
-	}))
+	}
+	if not entry.model_version.is_empty():
+		line["model_version"] = entry.model_version
+	print(JSON.stringify(line))

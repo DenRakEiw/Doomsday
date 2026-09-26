@@ -29,6 +29,10 @@ const FIELD_INVALID: String = "invalid"
 const FIELD_DROPPED: String = "dropped"
 const FIELD_INDEX: String = "index"
 const FIELD_REASON: String = "reason"
+## A decision model's dropped entry names the question it came from (§17.6).
+const FIELD_QUESTION: String = "question"
+## The `index` of a dropped entry that stands for no action in a list.
+const NO_INDEX: int = -1
 const FENCE: String = "```"
 const FENCE_TAG: String = "json"
 
@@ -36,7 +40,8 @@ var valid: bool = false
 var error: String = ""
 var stance: String = ""
 var actions: Array[BenchAction] = []
-## `{"index": int (in the answer's list), "reason": String}`.
+## `{"index": int (in the answer's list), "reason": String}`; a decision model's
+## also `"question": String`, with index −1 when it stands for no action (§17.6).
 var dropped: Array[Dictionary] = []
 
 
@@ -74,6 +79,12 @@ static func parse(text: String, max_actions: int) -> BenchAnswer:
 	return answer
 
 
+## An answer that could not be read, for `reason` — a decision model's
+## unreadable reply (§17.5) takes the same path as a chat model's (§7.4).
+static func unreadable(reason: String) -> BenchAnswer:
+	return BenchAnswer.new()._fail(reason)
+
+
 ## `{"invalid": error}`, or the stance, the actions and what was dropped.
 func to_cache() -> Dictionary:
 	if not valid:
@@ -83,7 +94,11 @@ func to_cache() -> Dictionary:
 		rows.append(action.to_dict())
 	var drops: Array[Dictionary] = []
 	for row: Dictionary in dropped:
-		drops.append({FIELD_INDEX: int(row[FIELD_INDEX]), FIELD_REASON: str(row[FIELD_REASON])})
+		var drop: Dictionary = {FIELD_INDEX: int(row[FIELD_INDEX]),
+			FIELD_REASON: str(row[FIELD_REASON])}
+		if row.has(FIELD_QUESTION):
+			drop[FIELD_QUESTION] = str(row[FIELD_QUESTION])
+		drops.append(drop)
 	return {FIELD_STANCE: stance, FIELD_ACTIONS: rows, FIELD_DROPPED: drops}
 
 
@@ -115,8 +130,13 @@ static func from_cache(d: Dictionary) -> BenchAnswer:
 		var drop: Dictionary = row
 		if not _is_whole(drop.get(FIELD_INDEX)) or typeof(drop.get(FIELD_REASON)) != TYPE_STRING:
 			return null
-		answer.dropped.append({FIELD_INDEX: int(drop[FIELD_INDEX]),
-			FIELD_REASON: str(drop[FIELD_REASON])})
+		var kept: Dictionary = {FIELD_INDEX: int(drop[FIELD_INDEX]),
+			FIELD_REASON: str(drop[FIELD_REASON])}
+		if drop.has(FIELD_QUESTION):
+			if typeof(drop[FIELD_QUESTION]) != TYPE_STRING:
+				return null
+			kept[FIELD_QUESTION] = str(drop[FIELD_QUESTION])
+		answer.dropped.append(kept)
 	return answer
 
 

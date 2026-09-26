@@ -152,3 +152,43 @@ func test_every_key_built_at_run_time_exists_in_both_languages_alike() -> void:
 				key)
 			assert_eq(StringTable.placeholders(row[StringTable.COLUMN_EN]),
 				StringTable.placeholders(row[StringTable.COLUMN_DE]), key)
+
+
+func test_a_decision_models_rules_are_the_brief_without_stances_and_format() -> void:
+	var rules: String = BenchPrompt.rules(_db, _setup, _config)
+	var brief: String = BenchPrompt.brief(_db, _setup, _config)
+	assert_false(rules.contains(BenchPrompt.EXAMPLE), "no answer format")
+	assert_false(rules.contains(TechText.tr_key(BenchPrompt.KEY_STANCES)), "no stance list")
+	assert_true(rules.ends_with(TechText.tr_key(BenchPrompt.KEY_CHOICE_RULES)))
+	var shared: String = rules.trim_suffix(TechText.tr_key(BenchPrompt.KEY_CHOICE_RULES))
+	assert_true(brief.begins_with(shared), "items 1–8 are the brief's own")
+	for locale: String in ["en", "de"]:
+		TranslationServer.set_locale(locale)
+		assert_eq(_unfilled(BenchPrompt.rules(_db, _setup, _config)), PackedStringArray(), locale)
+
+
+func test_the_situation_is_the_digest_without_the_json_ask() -> void:
+	var sim: Simulation = _sim_mid_run()
+	var digest: BenchDigest = BenchDigest.build(sim, _memory_with_feedback(), _config)
+	var full: String = BenchPrompt.digest_text(digest, _db)
+	var situation: String = BenchPrompt.digest_text(digest, _db, false)
+	var ask: String = TechText.tr_key(BenchPrompt.KEY_ASK)
+	assert_true(full.ends_with(ask))
+	assert_false(situation.contains(ask))
+	assert_eq(situation + BenchPrompt.SECTION_GAP + ask, full)
+
+
+func test_every_question_text_fills_its_placeholders_in_both_languages() -> void:
+	var sim: Simulation = _sim_mid_run()
+	Fixtures.grant(sim, 500.0)
+	for locale: String in ["en", "de"]:
+		TranslationServer.set_locale(locale)
+		for plan: BenchChoicePlan in [
+				BenchChoice.plan(Simulation.create(_db, 1001, _setup), BenchDigest.build(
+					Simulation.create(_db, 1001, _setup), BenchDigest.new_memory(), _config),
+					"r", "s", _config),
+				BenchChoice.plan(sim, BenchDigest.build(sim, _memory_with_feedback(), _config),
+					"r", "s", _config)]:
+			var text: String = JSON.stringify(plan.questions)
+			assert_eq(_unfilled(text), PackedStringArray(), locale)
+			assert_false(text.contains("BENCH_CHOICE_"), locale + ": every key translated")

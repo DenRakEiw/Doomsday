@@ -14,20 +14,20 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.12c — The Jev backend, mock only** [O]: build `benchmark.md` §17 — IMPLEMENTATION §4 row 89g; tests on `MockChoiceBackend` only, never a request to TypeSafe. |
+| **Next step** | **G6 (1/2) — Balance pass 4** [F]: `docs/BALANCE.md` §5 · *Balance baselines* — IMPLEMENTATION §4 row 90; data only. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | **G6 (1/2) — Balance pass 4** [F]: `docs/BALANCE.md` §5 · *Balance baselines*; **whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2, D7.I → S7.3, S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
-| **Last completed** | D6.9c — Decision-model backend (TypeSafe Jev): `benchmark.md` §17 — one request of choice questions per decision over legal moves only, rankings by probability, the combiner, cache basis, `model_version`, the published price and a request cap, `MockChoiceBackend`; the `choice`/`typesafe` config keys specified (§3 — they enter `benchmark.json` with their reader in S6.12c); 21 `BENCH_CHOICE_*` strings (2026-09-26). |
-| **Before that** | S6.P4 — Punch list from D6.11 (2/2b): option flags named, the story roll, *all your Labs*, what *Captured* does, the Codex *Behaviours* tab, generated lines under difficulty/directive/scenario, `INERT_FLAGS` emptied, hooks with numbers; overflow shots de 150 % at 1920 and 400 px (2026-09-26). |
-| **Earlier** | D6.11 (2/2b) — Plain-language pass II: cards, what you buy, the flavour check; the S6.P3 placeholders worded, story flags that decide a run named, the twelve Codex terms (2026-09-26). |
+| **After it** | D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2, D7.I → S7.3, S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
+| **Last completed** | S6.12c — The Jev backend, mock only: `BenchChoice` (plan over legal moves, reader, combiner), `MockChoiceBackend`, `tools/bench/typesafe_backend.gd`, the tool's TypeSafe rules and dry run, cache basis (chat keys unchanged), `model_version`/`model_versions`, the `choice`/`typesafe` config keys; `tools/bench/set_api_key.ps1` (key dialog for the user); no request to TypeSafe (2026-09-26). |
+| **Before that** | D6.9c — Decision-model backend (TypeSafe Jev): `benchmark.md` §17 — one request of choice questions per decision over legal moves only, rankings by probability, the combiner, cache basis, `model_version`, the published price and a request cap, `MockChoiceBackend`; 21 `BENCH_CHOICE_*` strings (2026-09-26). |
+| **Earlier** | S6.P4 — Punch list from D6.11 (2/2b): option flags named, the story roll, *all your Labs*, what *Captured* does, the Codex *Behaviours* tab, generated lines under difficulty/directive/scenario, `INERT_FLAGS` emptied, hooks with numbers (2026-09-26). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 353 scripts compile (147 judged by the suite), then `tools/check_strings.gd` (2513 rows), 2357 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 361 scripts compile (147 judged by the suite), then `tools/check_strings.gd` (2513 rows), 2427 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
 | **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
-| **Benchmark** | `"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --model=<id> [--suite=quick] [--seeds=a..b] [--dry-run] [--max-cost=<usd>] [--yes]` (OpenRouter; the key from `OPENROUTER_API_KEY` only) · `--backend=mock:cheapest` (or `wait`, `invalid`, `mixed`; free, no key) · `--bots [--if-missing] [--no-rebuild]` (reference rows, ≈3 min for the standard suite) · `--rebuild` · `--determinism-fixture`. Writes `benchmark/runs/*.json`, `benchmark/leaderboard.json`, `LEADERBOARD.md` (`--out=<dir>` elsewhere; tests use `user://test_bench/`); cache `benchmark/cache/` (ignored). The tool works in `_initialize`, not `_init`: TLS is not ready before the main loop. **Global board (S6.12b):** `"$GODOT" --headless --path . -s tools/bench/verify_runs.gd -- --board=<leaderboard checkout> --game-commit=<40-hex> [--limit=n] [--today=YYYY-MM-DD] [--message=<file>]` (exit 0/1/2/3; a full board of 81 runs ≈80 s); `.github/workflows/leaderboard.yml` (daily + dispatch; no key → gate / read-only dry run). **Whoever changes `data/` regenerates the canary on Windows in the same commit:** `bench_run.gd -- --determinism-fixture` (`test_bench_determinism` fails with that line otherwise). **In the game (S6.13):** title → *Benchmark* (shown when a recorded run exists, the *Online leaderboard* setting is on, or a board on disk has a row): the global board (fetched only when the list opens, ≤ once per 300 s; cache `user://benchmark/online/`, shipped copy `benchmark/global/leaderboard.json`), then the recorded runs (`res://benchmark/showcase/`, `user://benchmark/runs/`, debug builds also `res://benchmark/runs/`); *Watch* replays in the session at 4×. Debug switches: `-- --spectate=<entry.json>`, `-- --global-board=<board.json>` (runs next to it under `runs/`). From godot-mcp: set `local_board_path` on `…/TitleHost/Slot/Benchmark/BoardClient` and call `forget_fetch`; `Game.advance [n]` jumps a watched run ahead. The suite reads `user://test_bench_library/` and `user://test_bench_online/` (`pre_run.gd`). |
+| **Benchmark** | `"$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --model=<id> [--suite=quick] [--seeds=a..b] [--dry-run] [--max-cost=<usd>] [--yes]` (OpenRouter; the key from `OPENROUTER_API_KEY` only) · **`--model=typesafe/jev-latest`** (S6.12c: TypeSafe Jev, a decision model; key `TYPESAFE_API_KEY`; `--max-requests=<n>`, chat flags refused; `--dry-run` prints the day-0 request and the size limits, no key) · `--backend=mock-choice:first` (or `idle`, `shuffled`, `broken`) · **keys:** `powershell -ExecutionPolicy Bypass -File tools\bench\set_api_key.ps1 -Name OPENROUTER_API_KEY` (or `TYPESAFE_API_KEY`; a dialog, stored as a user variable, new windows see it) · `--backend=mock:cheapest` (or `wait`, `invalid`, `mixed`; free, no key) · `--bots [--if-missing] [--no-rebuild]` (reference rows, ≈3 min for the standard suite) · `--rebuild` · `--determinism-fixture`. Writes `benchmark/runs/*.json`, `benchmark/leaderboard.json`, `LEADERBOARD.md` (`--out=<dir>` elsewhere; tests use `user://test_bench/`); cache `benchmark/cache/` (ignored). The tool works in `_initialize`, not `_init`: TLS is not ready before the main loop. **Global board (S6.12b):** `"$GODOT" --headless --path . -s tools/bench/verify_runs.gd -- --board=<leaderboard checkout> --game-commit=<40-hex> [--limit=n] [--today=YYYY-MM-DD] [--message=<file>]` (exit 0/1/2/3; a full board of 81 runs ≈80 s); `.github/workflows/leaderboard.yml` (daily + dispatch; no key → gate / read-only dry run). **Whoever changes `data/` regenerates the canary on Windows in the same commit:** `bench_run.gd -- --determinism-fixture` (`test_bench_determinism` fails with that line otherwise). **In the game (S6.13):** title → *Benchmark* (shown when a recorded run exists, the *Online leaderboard* setting is on, or a board on disk has a row): the global board (fetched only when the list opens, ≤ once per 300 s; cache `user://benchmark/online/`, shipped copy `benchmark/global/leaderboard.json`), then the recorded runs (`res://benchmark/showcase/`, `user://benchmark/runs/`, debug builds also `res://benchmark/runs/`); *Watch* replays in the session at 4×. Debug switches: `-- --spectate=<entry.json>`, `-- --global-board=<board.json>` (runs next to it under `runs/`). From godot-mcp: set `local_board_path` on `…/TitleHost/Slot/Benchmark/BoardClient` and call `forget_fetch`; `Game.advance [n]` jumps a watched run ahead. The suite reads `user://test_bench_library/` and `user://test_bench_online/` (`pre_run.gd`). |
 | **Icons** | `data/icons.json` maps every id to `assets/icons/`; after a map change run `python tools/icons/vendor_icons.py` (downloads the two pinned archives into the ignored `tools/icons/.cache/`, stops on a hash mismatch) and commit the SVGs and their `.import`; `--check` verifies. PNG fallback: `"$GODOT" --headless --path . -s tools/build_icon_atlas.gd -- [--out=<dir>]` + setting `doomsday/icons/use_atlas` (not committed, not shipped by default). |
 | **Audio** | `Audio` autoload (`game/autoload/audio.gd`) + `ui/audio/`. `Audio.history` is what was admitted (the tests' ear); test seams `clock_override_ms`, `step(seconds)`, `set_unlocked`, `reset_ledger()`. The dummy driver under `--headless` plays nothing. Captions: *Sound captions* in the pause menu, the stack at the bottom of the HUD's left column. **The sound set:** `uv run --project tools/audio python tools/audio/synth.py [--only <id>] [--check]` (≈30 s; environment `uv sync --project tools/audio`) rewrites `assets/audio/**`; after a new file run `--import` and set its `.import` per audio.md §10.3 (`compress/mode=0` / `loop=true`). |
 | **Theme** | `"$GODOT" --headless --path . -s tools/build_theme.gd` rewrites `ui/theme/doomsday.tres` — **run it after every change to `UiTokens` or `ThemeBuilder`** and commit the result. |
@@ -192,7 +192,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] D6.11 (2/2b) [F] Plain-language pass II: cards, what you buy, the flavour check *(`plain-language.md` §9)*
 - [x] S6.P4 [O] Punch list from D6.11 (2/2b) *(items 1–8, the overflow shots)*
 - [x] D6.9c [F] Decision-model backend (TypeSafe Jev) *(user 2026-09-25; `benchmark.md` §17)*
-- [ ] S6.12c [O] The Jev backend, mock only *(the first live run needs the user's `TYPESAFE_API_KEY`)*
+- [x] S6.12c [O] The Jev backend, mock only *(the first live run needs the user's `TYPESAFE_API_KEY`)*
 - [ ] G6 (1/2) [F] Balance pass 4 *(tuning; data only)*
 - [ ] D6.10 [F] Illustrations produced — **[needs user]**
 - [ ] G6 (2/2) [F] M6 gate: the release candidate (browser and desktop) — **[needs user]**
@@ -1552,6 +1552,17 @@ without new information.
 
 ## Deviations from the plan or a spec
 
+- **2026-09-26** (S6.12c) — **Against `benchmark.md` §17:** (1) TypeSafe's transport reuses the
+  OpenRouter backend's static `request`/`parse_base_url` (preloaded) instead of a new
+  `bench_http.gd` — §17.8 allows either; OpenRouter unchanged. (2) A `bad_request` reason is
+  `bad_request: <status> <message>` (status always, the body's `message`/`detail`/`error.message`
+  when there is one). (3) `ModelReply.invalid` exists and the policy honours it, but no backend sets
+  it today (the reader's `bad_reply` covers every case). (4) `dropped` order: the reader's problems
+  (plan order), then the combiner's, then `over_limit`; an unanswered site/target question is
+  counted once. (5) A `mock-choice` dry run prints the request but no estimate (mocks have none).
+  (6) Helpers the spec does not name: `BenchChoice.params_of`, `bench_run.gd`'s `backend_for`,
+  `measure_choice`, `limit_lines`. (7) `set_api_key.ps1` checks OpenRouter's `sk-or-` prefix only —
+  TypeSafe publishes no key format (its API page, read on the day), so it says *not checked*.
 - **2026-09-26** (S6.P4) — **Against `plain-language.md` §9.4 / §5.3 item 4:** (1) item 2's
   "hidden flags only" case keeps *Nothing happens* (*Design questions*). (2) The *Behaviours*
   entry names the status through the *Keep* answer's line (it is `StatusText.line`), not a second
@@ -2536,18 +2547,20 @@ alternative). Two things to weigh: three node names already use the word in anot
 (the coach's losing condition) is corrected as the spec proposed. Changing the word again touches
 the nine rows in `plain-language.md` §8 only.
 
-**D6.9c (2026-09-26): TypeSafe API key — enter it with the same helper as the OpenRouter key**
-(the environment variable `TYPESAFE_API_KEY`; never an argument or a file). Usable once S6.12c is
-built. In PowerShell from `F:\Doomsday`, free look first, then one seed (≈ 0.05 USD, at most
-0.15): `& $env:GODOT --headless --path . -s tools/bench/bench_run.gd -- --model=typesafe/jev-latest --suite=quick --seeds=1001 --dry-run`,
+**D6.9c / S6.12c (2026-09-26): TypeSafe API key — the backend is built (mock-tested only).** Store
+the key with the helper (a small dialog, Ctrl+V pastes, nothing is printed but its length):
+`powershell -ExecutionPolicy Bypass -File tools\bench\set_api_key.ps1 -Name TYPESAFE_API_KEY` — then open a **new** PowerShell window. From `F:\Doomsday`, free look first,
+then one seed (≈ 0.05 USD, at most 0.15): `& $env:GODOT --headless --path . -s tools/bench/bench_run.gd -- --model=typesafe/jev-latest --suite=quick --seeds=1001 --dry-run`,
 then the same without `--dry-run`. Also (default unless you object): the ranked row is the alias
 `jev-latest` with the served version recorded, and Jev may make up to 3 purchases / 2 abilities /
 2 wakes / 2 sleeps per report (`benchmark.md` §17.11).
 
 **S6.12 (2026-09-25): the first live benchmark run** needs `OPENROUTER_API_KEY` in the
-environment (never an argument or a file). A cheap first try — one seed of `openai/gpt-4o-mini`,
-estimated ≈0.15 USD, the 2 USD cap guarding it — in PowerShell from `F:\Doomsday`:
-`$env:OPENROUTER_API_KEY = "<key>"; & $env:GODOT --headless --path . -s tools/bench/bench_run.gd -- --model=openai/gpt-4o-mini --suite=quick --seeds=1001`
+environment (never an argument or a file). Store it with the helper (S6.12c; a dialog, Ctrl+V
+pastes): `powershell -ExecutionPolicy Bypass -File tools\bench\set_api_key.ps1 -Name OPENROUTER_API_KEY`,
+then open a new PowerShell window. A cheap first try — one seed of `openai/gpt-4o-mini`,
+estimated ≈0.15 USD, the 2 USD cap guarding it — from `F:\Doomsday`:
+`& $env:GODOT --headless --path . -s tools/bench/bench_run.gd -- --model=openai/gpt-4o-mini --suite=quick --seeds=1001`
 (`--dry-run` first shows the prompt and the estimate for free). It writes `benchmark/runs/…json`
 and rebuilds `benchmark/leaderboard.json` / `LEADERBOARD.md`; add the bot rows once
 (`… -- --bots`, ≈3 min) to rank against. Commit the files you want to keep.
@@ -3057,6 +3070,13 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-26 — S6.12c The Jev backend, mock only [O]
+- `BenchChoice`/`Plan`/`Read`, `MockChoiceBackend`, `typesafe_backend.gd`, policy choice branch, cache basis (chat key pinned),
+  `model_version(s)`, `choice`/`typesafe` config, tool rules + dry run; `set_api_key.ps1` (not run). `# DESIGN?` in `OptionText` → comment.
+- Standard mock-choice suite twice: identical; ranks beside chat mock and bots; copies verified and pass `validate.py`.
+  +70 tests, 2427 green. Suite run with `APPDATA` pointed at a scratch folder (the player's `%APPDATA%\Doomsday` untouched).
+  No request to TypeSafe; no `data/` content change, canary unchanged.
 
 ### 2026-09-26 — D6.9c Decision-model backend (TypeSafe Jev) [F]
 - `benchmark.md` §17 (+ touch-ups §0, §1, §3, §8.1, §9, §10.2–3, §11, §13): legal-only choice questions per decision,
