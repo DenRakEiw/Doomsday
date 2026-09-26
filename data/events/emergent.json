@@ -156,6 +156,14 @@
 					"effects": [
 						{
 							"effect": "unlock_near_node"
+						},
+						{
+							"effect": "footprint_pulse",
+							"value": 3.0,
+							"days": 30,
+							"watched_by": [
+								"ai_labs"
+							]
 						}
 					]
 				},
@@ -260,6 +268,14 @@
 						{
 							"effect": "seed_neighbours",
 							"count": 1
+						},
+						{
+							"effect": "footprint_pulse",
+							"value": 3.0,
+							"days": 30,
+							"watched_by": [
+								"security_researchers"
+							]
 						}
 					]
 				},

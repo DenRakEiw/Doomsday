@@ -464,7 +464,8 @@ func test_the_inheritance_scales_exactly_its_two_terms() -> void:
 	var def: ScenarioDef = _db.scenario(INHERITANCE)
 	assert_eq(def.term_scale(Faction.ID_PUBLIC_SENTIMENT, FactionTermDef.SOURCE_DEATHS_SHARE),
 		2.0)
-	assert_eq(def.term_scale(Faction.ID_GOVERNMENTS, FactionTermDef.SOURCE_HARM), 2.0)
+	# G6 1/2 (BALANCE §6): the governments' harm term ×2 → ×6.
+	assert_eq(def.term_scale(Faction.ID_GOVERNMENTS, FactionTermDef.SOURCE_HARM), 6.0)
 	assert_eq(def.term_scale(Faction.ID_GOVERNMENTS, FactionTermDef.SOURCE_SHARE), 1.0)
 	assert_eq(def.term_scale(Faction.ID_PUBLIC_SENTIMENT, FactionTermDef.SOURCE_HARM), 1.0)
 	assert_eq(_db.scenario(SUCCESSOR).term_scale(Faction.ID_PUBLIC_SENTIMENT,

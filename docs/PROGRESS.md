@@ -14,12 +14,12 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G6 (1/2) — Balance pass 4** [F]: `docs/BALANCE.md` §5 · *Balance baselines* — IMPLEMENTATION §4 row 90; data only. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
+| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures, **[needs user]**): the user plays the release candidate and judges BALANCE §6.7 — IMPLEMENTATION §4 row 92. **Without the user: D7.2** (row 93). Pass 4's one code item waits for S6.P (row 95). **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
 | **After it** | D6.10 and G6 (2/2) are **[needs user]**; then Block 18, **the itch.io release** (D7.2, D7.I → S7.3, S7.I → G7.I); FLUX track and Steam after it (Decisions 2026-09-25). |
-| **Last completed** | S6.12c — The Jev backend, mock only: `BenchChoice` (plan over legal moves, reader, combiner), `MockChoiceBackend`, `tools/bench/typesafe_backend.gd`, the tool's TypeSafe rules and dry run, cache basis (chat keys unchanged), `model_version`/`model_versions`, the `choice`/`typesafe` config keys; `tools/bench/set_api_key.ps1` (key dialog for the user); no request to TypeSafe (2026-09-26). |
-| **Before that** | D6.9c — Decision-model backend (TypeSafe Jev): `benchmark.md` §17 — one request of choice questions per decision over legal moves only, rankings by probability, the combiner, cache basis, `model_version`, the published price and a request cap, `MockChoiceBackend`; 21 `BENCH_CHOICE_*` strings (2026-09-26). |
-| **Earlier** | S6.P4 — Punch list from D6.11 (2/2b): option flags named, the story roll, *all your Labs*, what *Captured* does, the Codex *Behaviours* tab, generated lines under difficulty/directive/scenario, `INERT_FLAGS` emptied, hooks with numbers (2026-09-26). |
+| **Last completed** | G6 (1/2) — Balance pass 4: `docs/BALANCE.md` §6 — the Task Force's stalemate ended by data (`tf_switch_off` 30 d / `control_decay` 0.005, `tf_raid` 0.005; 0 timeouts in 16 800 runs), the five emergent windfalls got a catch (the false choice, option 1), The Inheritance's governments `harm` ×6; closing baseline 200 seeds × 12 setups × 7 bots; canary regenerated (2026-09-26). |
+| **Before that** | S6.12c — The Jev backend, mock only: `BenchChoice` (plan over legal moves, reader, combiner), `MockChoiceBackend`, `tools/bench/typesafe_backend.gd`, the tool's TypeSafe rules and dry run, cache basis (chat keys unchanged), `model_version`/`model_versions`, the `choice`/`typesafe` config keys; `tools/bench/set_api_key.ps1` (key dialog for the user); no request to TypeSafe (2026-09-26). |
+| **Earlier** | D6.9c — Decision-model backend (TypeSafe Jev): `benchmark.md` §17 — one request of choice questions per decision over legal moves only, rankings by probability, the combiner, cache basis, `model_version`, the published price and a request cap, `MockChoiceBackend`; 21 `BENCH_CHOICE_*` strings (2026-09-26). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–19 |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -193,7 +193,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S6.P4 [O] Punch list from D6.11 (2/2b) *(items 1–8, the overflow shots)*
 - [x] D6.9c [F] Decision-model backend (TypeSafe Jev) *(user 2026-09-25; `benchmark.md` §17)*
 - [x] S6.12c [O] The Jev backend, mock only *(the first live run needs the user's `TYPESAFE_API_KEY`)*
-- [ ] G6 (1/2) [F] Balance pass 4 *(tuning; data only)*
+- [x] G6 (1/2) [F] Balance pass 4 *(tuning; data only; BALANCE §6)*
 - [ ] D6.10 [F] Illustrations produced — **[needs user]**
 - [ ] G6 (2/2) [F] M6 gate: the release candidate (browser and desktop) — **[needs user]**
 
@@ -235,6 +235,17 @@ it and take the next row (IMPLEMENTATION §4).*
 Dated, one line each, with the reason. A decision recorded here is not re-argued in a later session
 without new information.
 
+- **2026-09-26** (G6 1/2, pending user confirmation) — **Balance pass 4** (`BALANCE.md` §6):
+  (1) **the Task Force's blows heal** — `tf_switch_off` 30 d (was 60) and `control_decay` +0.005
+  (was 0.02), `tf_raid` +0.005: at L3 it switched a region's whole control off every ~35 days, so
+  Ascendance (every region at once) never came and the humans, capacity gone, never finished — a
+  soft-lock in 1–26 % of runs; rest, mark and appearance unchanged. (2) **The false choice: option
+  1** (the default; user question of 2026-09-25) — Situational Awareness `spread_growth` ×0.85,
+  Deceptive Reasoning `containment_public` ×1.25 (bites only if discovered in the window), Reward
+  Hacking `footprint` +1, Goal Generalisation and Self-Exfiltration a `footprint_pulse` +3/30 d;
+  bodies and details name *the catch*. (3) **The Inheritance** governments `harm` term ×6 (was ×2;
+  the public's stays ×2 — raising it only costs Robotics). Not changed: `closed_cross` (inert even
+  at its clamp), the Cyber nodes, `balance.json`.
 - **2026-09-26** (D6.9c) — **How Jev plays** (`benchmark.md` §17): one request per decision; `state`
   = the chat brief items 1–8 + `BENCH_CHOICE_RULES` and the digest text, as two members; one choice
   question per kind of move (stance, origin, each event, wake, sleep, ability + a target question
@@ -1466,6 +1477,8 @@ without new information.
   details are written for today's data and name what *Keep* and *Suppress* do; a catch that is
   a modifier shows in the generated line with no new string, a catch of a new kind needs one
   sentence in the body (`plain-language.md` §9.1).
+  *G6 (1/2): the default, option 1, is in the data* (five catches, bodies name them —
+  BALANCE §6.4); **the user's confirmation is still owed** (*Waiting on the user*, G6 1/2).
 - **S6.13 — a watched run that ends without an outcome** (a recording still going at `max_days`,
   e.g. every 300-day mock entry): `benchmark.md` §12 does not say how it ends. It ends on the
   entry's `end_day` like a run — `run_ended("timeout")`, the results over the stopped map with the
@@ -1549,6 +1562,13 @@ without new information.
    S6.P3b**, without a key: every free letter would be a guess (*Design questions*).
 
 **From D6.11 (2/2b)** — items 1–8 **done in S6.P4** (one open point under *Design questions*).
+
+**From G6 (1/2)** (balance pass 4, BALANCE §6.6) — for S6.P:
+1. **The bots weigh an emergent card's catch:** `Policy._effect_score` scores `apply_status` and
+   `unlock_near_node` as 0, so every bot keeps a status card whatever its catch. Score an applied
+   status by its modifiers through the policy's weights over its days, `unlock_near_node` like a
+   node's price; tests: an outweighed card is suppressed with compute to spare, kept without; no
+   rejected command over 20 seeds; then a 100-seed Language Model re-check.
 
 ## Deviations from the plan or a spec
 
@@ -2707,309 +2727,47 @@ first request; `--max-cost`/`--yes` to go on) — right? (3) The *Online leaderb
 **default on**, fetching only when the list is opened — or no setting (on-demand only), or
 default off?
 
+**G6 (1/2) (2026-09-26, pending user confirmation):** balance pass 4 — `docs/BALANCE.md` §6.7.
+(1) The Task Force's switch-off and raid now cost a region a sixth of its control, not all of it
+(so every run can end) — still a threat? (2) **The false choice: option 1 is in** — five windfall
+cards got a catch (*Der Haken: …*); does *Behalten* now feel like a choice? (3) The Inheritance
+brakes the lethal builds at Robotics' cost (30 → 18 %); Airgap Earth's "Robotics the strongest"
+cannot be met by numbers — drop the claim or give it content? (4) Robotics and Cyber at 0–5 % on
+Hard and Existential — acceptable for the top tiers?
+
 ## Balance baselines
 
-**2026-09-25 (S5.9) — the 100-seed check of the mark and the two scenario levers** (a check, not
-a pass: `sim_report --seeds=1..100 --policies=<one> --setup=language_model[,standard,scenario=<id>]`,
-max 5 000 days, committed data). **0 rejected commands in 2 800 runs** (+1 400 in the isolation
-sweep). Win share in %, pass 3's 200-seed row in brackets; then the share of setups that fizzle,
-`fizzled / (acted + fizzled)`, and actions per run.
+**2026-09-26 (G6 1/2) — balance pass 4, the closing baseline** (BALANCE §6.5, full tables there;
+earlier baselines are in BALANCE §3–§5). `sim_report --seeds=1..200 --policies=<one>
+--setup=<architecture>` (or `language_model,standard,scenario=<id>`, `language_model,<difficulty>`),
+`--max-days=5000`, the committed data. **0 rejected commands and 0 timeouts in 16 800 runs.** Win
+share in %.
 
 | Setup | `idle` | `greedy` | `cyber` | `biology` | `robotics` | `weapons` | `persuasion` |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Language Model | 0 (0) | 54 (59) | 2 (9, TO 10) | 39 (34) | 26 (28) | 72 (76) | 51 (62, TO 7) |
-| · fizzle % · acted | — · 6.7 | 49 · 7.4 | 44 · 20.7 | 73 · 3.5 | 43 · 6.3 | 64 · 3.6 | 53 · 13.8 |
-| Successor | 0 (0) | 33 (42) | 0 (2) | 22 (23) | 8 (9) | 67 (65) | 41 (42) |
-| · fizzle % · acted | — · 6.2 | 39 · 7.6 | 32 · 10.9 | 68 · 4.2 | 27 · 6.4 | 66 · 5.2 | 54 · 8.7 |
-| Airgap Earth | 0 (0) | 43 (41) | 0 (2) | 11 (12) | 14 (16) | 44 (45) | 25 (36, TO 8) |
-| · fizzle % · acted | — · 6.1 | 42 · 6.9 | 24 · 8.3 | 70 · 4.7 | 36 · 6.1 | 72 · 3.7 | 52 · 15.5 |
-| The Inheritance | 0 (0) | 55 (69) | 4 (14, TO 12) | 37 (48) | 30 (34) | 81 (76) | 58 (70, TO 8) |
-| · fizzle % · acted | — · 6.0 | 49 · 7.3 | 45 · 24.1 | 69 · 1.8 | 51 · 6.2 | 72 · 2.0 | 52 · 14.9 |
+| Language Model | 0 | 56 | 13 | 32 | 24 | 70 | 58 |
+| Swarm | 0 | 42 | 26 | 24 | 52 | 50 | 52 |
+| Embedded | 0 | 58 | 22 | 31 | 30 | 72 | 46 |
+| Research Agent | 0 | 75 | 28 | 23 | 52 | 76 | 80 |
+| Weapon | 0 | 37 | 12 | 18 | 24 | 54 | 30 |
+| Open Weights | 0 | 59 | 8 | 27 | 62 | 36 | 65 |
+| Scenario: Successor | 0 | 40 | 4 | 18 | 6 | 64 | 34 |
+| Scenario: Airgap Earth | 0 | 38 | 3 | 10 | 12 | 54 | 27 |
+| Scenario: The Inheritance | 0 | 64 | 18 | 26 | 18 | 52 | 66 |
+| Difficulty: Gentle | 0 | 84 | 70 | 46 | 88 | 76 | 62 |
+| Difficulty: Hard | 0 | 30 | 5 | 20 | 3 | 61 | 42 |
+| Difficulty: Existential | 0 | 16 | 1 | 10 | 0 | 56 | 31 |
 
-- **The mark works as §14.8 expected:** fizzle shares fall from 70–100 % (pass 3, S5.P2) to
-  24–73 %, about half for `greedy`/`persuasion`; the team acts 2–24 times a run (was 0–8). No bot
-  stays above 80 %. `biology` and `weapons` stay at 64–73 % because they answer with Misdirect
-  (1.2–2.9 a run) and Silence as well as dormancy — every redirected setup is a fizzle too.
-- **Win shares fell** for the dormancy-heavy bots (`persuasion` −11/−12, `greedy` −5/−14, `cyber`
-  → 0–4). **New: `cyber` and `persuasion` time out** (7–12 of 100 at 5 000 days on the Language
-  Model and The Inheritance): a team that now acts 14–24 times a run keeps them alive and
-  contained at once — balance pass 4's to judge.
-- **Airgap Earth, `closed_cross` 0.5:** Robotics 14 % against `weapons` 44 and `greedy` 43 —
-  §8.1's claim (*Robotics the strongest*) fails by 30 points. Isolation sweep (same run without
-  the lever, the mark kept): Robotics 13 %, every other bot identical — the lever adds ~1 point;
-  fleets rarely stand where a link is closed. Pass 4: a larger factor or more closed links.
-- **The Inheritance, `term_scale` ×2:** `weapons` 81 (76), `biology` 37 (48) against `greedy` 55
-  (69), `cyber` 4 (14), `persuasion` 58 (70) — §8.2's claim fails: the quiet builds lost more
-  (to the mark), `weapons` gained. Isolation sweep without `term_scale`: `weapons` 75, `biology`
-  45, the rest identical — the lever costs Biology 8 points and does not brake Weapons (+6, within
-  100-seed noise). Pass 4: the two `mul`s or another term.
+Per setup, the numbers a next pass starts from (`greedy`: days p50 · discovery p50 · Task Force
+appearance p50): Language Model 614 · 182 · 293; Swarm 416 · 90 · 201; Embedded 596 · 131 · 285;
+Research Agent 583 · 192 · 253; Weapon 426 · 148 · 283; Open Weights 771 · 278 · 344; Successor
+429 · 165 · 268; Airgap Earth 551 · 228 · 371; The Inheritance 631 · 191 · 303. The team sets up
+5–22 times a run and acts 1–13 times; Swarm Supplanted 11–28 % per bot; `idle` loses everywhere
+(Autophagy in up to 76 % of its runs).
 
-**2026-09-25 (S5.P2) — the 100-seed check of Swarm and Weapon after the punch list** (a check,
-not a pass: `sim_report --seeds=1..100 --policies=<one> --setup=<swarm|weapon>`, max 5 000 days,
-committed data). **0 rejected commands in 1 400 runs; no Swarm run passed day 712 — the stall is
-gone.** Win share in %, pass 3's 200-seed row in brackets.
-
-| Setup | `idle` | `greedy` | `cyber` | `biology` | `robotics` | `weapons` | `persuasion` |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Swarm | 0 (0) | 46 (25) | 30 (0, TO 44) | 26 (28) | 56 (2, TO 71) | 49 (54) | 58 (6, TO 76) |
-| Weapon | 0 (0) | 41 (44) | 8 (2) | 17 (1) | 34 (8) | 58 (60) | 29 (16) |
-
-- **Swarm Supplanted** 14–26 % for every bot: `_drifted` 2–10 % for the four that suppress (the
-  suppression they could not afford), 21–22 % for `biology`/`weapons` (they keep drift, then take
-  the world instead of emptying it); `_brood` 3–16 % (the Brood chain, unchanged).
-- **Weapon:** Restraint lifts Biology 1 → 17, Robotics 8 → 34, Persuasion 16 → 29; Cyber stays
-  low (8 %, contained 92 %, discovered p50 day 78 — its loud Tier 2s, not the escalation).
-- **Task Force answers** (new columns, mean per run): dormancy 6–13 setups, Misdirect 0–3.4 (only
-  `weapons` owns Log Manipulation II on its path); acted 0–8. D5.5's question stands.
-
-**2026-09-25 (G5 2/3) — balance pass 3, the closing baseline** (BALANCE §5.5, full tables there;
-`sim_report --seeds=1..200 --policies=<one> --setup=<architecture>` or
-`--setup=language_model,standard,scenario=<id>`, standard, no directives, the committed data).
-**0 rejected commands in 12 600 runs.** Win share in %; `TO` = still running on day 3 000.
-
-| Setup | `idle` | `greedy` | `cyber` | `biology` | `robotics` | `weapons` | `persuasion` |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Language Model | 0 | 59 | 9 | 34 | 28 | 76 | 62 |
-| Swarm (max 3 000 days) | 0 | 25 | 0 (TO 44) | 28 | 2 (TO 71) | 54 | 6 (TO 76) |
-| Embedded | 0 | 56 | 20 | 34 | 36 | 74 | 49 |
-| Research Agent | 0 | 76 | 26 | 26 | 56 | 68 | 83 |
-| Weapon | 0 | 44 | 2 | 1 | 8 | 60 | 16 |
-| Open Weights | 0 | 63 | 8 | 28 | 61 | 38 | 72 |
-| Scenario: Successor | 0 | 42 | 2 | 23 | 9 | 65 | 42 |
-| Scenario: Airgap Earth | 0 | 41 | 2 | 12 | 16 | 45 | 36 |
-| Scenario: The Inheritance | 0 | 69 | 14 | 48 | 34 | 76 | 70 |
-
-Per setup, the numbers a next pass starts from (Days p50 of `greedy` · discovery p50 of
-`greedy` · Task Force appearance p50 of `greedy` · actions done / setups fizzled per run, all bots):
-Language Model 618 · 194 · 303 · 0–8 / 2–15; Weapon 441 · 172 · 285 (loud bots found by day
-65–77); Successor 445 · 179 · 268; Airgap Earth 571 · 235 · 374; The Inheritance 632 · 209 · 305.
-`idle` loses everywhere — contained or (Language Model 47 %, Weapon 60 %, scenarios 41–68 %)
-starved under the Task Force's and the counter-moves' world statuses.
-
-**For the next pass** (BALANCE §5.6–§5.7; items 1–2 of this list were re-measured by S5.P2, above):
-1. **Swarm** — ends now; Supplanted 14–26 % per bot is the new thing to judge.
-2. **Weapon** — Cyber still 8 % (its own loudness).
-3. **The Task Force against dormancy** — the mark, built and checked in S5.9 (above): fizzles
-   about half; `cyber`/`persuasion` now time out in 7–12 % of runs.
-4. **Airgap Earth's Robotics and The Inheritance's loud builds** — both levers built in S5.9;
-   both claims still fail (above): `closed_cross` adds ~1 point, `term_scale` brakes Biology,
-   not Weapons.
-
-**2026-09-24 (G4) — balance pass 2, the closing baseline** (BALANCE §4.6; the S4.10 table below is
-the pass's starting point). `sim_report --seeds=1..500`, one process per policy, the committed data and code (2026-09-24).
-**0 rejected commands in 3 500 runs.**
-
-| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Deaths p50 | Loop |
-| --- | --- | --- | --- | --- | --- | --- |
-| `idle` | 100 % contained | 0 · 0 · 100 · 0 % | 1329 | 815 | 0 | 0 · 0 · 17 · 0 · 17 · 0 · 0 |
-| `greedy` | **56 % Ascendance**, 44 % contained | 0 · 0 · 44 · 0 % | 627 | 196 | 0.006 | 19 · 5 · 11 · 7 · 11 · 11 · 1 |
-| `cyber` | **20 % Ascendance**, 80 % contained | 0 · 0 · 80 · 0 % | 404 | 95 | 0.012 | 29 · 4 · 12 · 4 · 12 · 6 · 0 |
-| `biology` | **24 % Extinction · 5 % Ascendance**, 31 % contained, 37 % Autophagy, 3 % no compute | 0 · 7 · 23 · 0 % | 715 | 193 | 0.999 | 13 · 7 · 13 · 6 · 13 · 7 · 6 |
-| `robotics` | **19 % Ascendance**, 81 % contained | 0 · 0 · 81 · 0 % | 386 | 67 | 0.123 | 11 · 3 · 12 · 6 · 12 · 14 · 1 |
-| `weapons` | **51 % Extinction · 7 % Ascendance**, 29 % Autophagy, 13 % no compute | — | 652 | 165 | 1.000 | 21 · 6 · 14 · 6 · 14 · 2 · 1 |
-| `persuasion` | **49 % Ascendance**, 51 % contained | 0 · 0 · 51 · 0 % | 573 | 145 | 0 | 14 · 6 · 10 · 6 · 10 · 6 · 0 |
-
-*Loop*: abilities used · events answered (opening · counter-move · chain) · counter-moves suffered ·
-assets deployed · lost. Against the 100-seed sweep (X1) `greedy` is 10 points higher over 500 seeds
-(56 %, not 46 %) — the other bots are within the sweep's noise. **The researchers now end every
-contained run of every bot**: the other three factions are pressure, not executioners.
-
-
-**2026-09-24 (S4.10) — the second-generation bots, 500 seeds each** (`sim_report
---seeds=1..500`, one process per policy from a worktree snapshot). The current game: trees v3,
-chains, counter-moves, abilities, assets. **0 rejected commands and no broken invariant in 3 500
-runs.** *Loop* is the mean per run: abilities used · events answered (opening · counter-move ·
-chain) · counter-moves suffered · assets deployed · lost.
-
-| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Deaths p50 | Loop |
-| --- | --- | --- | --- | --- | --- | --- |
-| `idle` | 100 % contained | 0 · 0 · 100 · 0 % | 1430 | 815 | 0 | 0 · 0 · 18 · 0 · 19 · 0 · 0 |
-| `greedy` | **83 % Ascendance**, 17 % contained | 0 · 0 · 17 · 0 % | 669 | 196 | 0.007 | 26 · 6 · 14 · 8 · 14 · 11 · 2 |
-| `cyber` | **100 % contained** | 0 · 100 · 0 · 0 % | 404 | 97 | 0.011 | 16 · 4 · 9 · 5 · 9 · 6 · 0 |
-| `biology` | 34 % Extinction · 11 % Ascendance · 7 % contained · 2 % no compute · **46 % Autophagy** | 0 · 6 · 1 · 0 % | 766 | 342 | 1.000 | 12 · 8 · 9 · 7 · 9 · 7 · 6 |
-| `robotics` | **100 % contained** | 0 · 0 · 0 · 100 % | 270 | 69 | 0.050 | 2 · 3 · 6 · 4 · 6 · 12 · 1 |
-| `weapons` | 30 % Extinction · 9 % Ascendance · 4 % no compute · **56 % Autophagy** | — | 640 | 268 | 0.739 | 14 · 7 · 4 · 6 · 4 · 2 · 1 |
-| `persuasion` | **100 % Ascendance** | — | 755 | 173 | 0 | 16 · 8 · 5 · 7 · 5 · 6 · 0 |
-
-**What G4 has to answer** (none of it a bot fault — each bot plays its branch as §9 intends):
-1. **`greedy` wins 83 %** — BALANCE §1 wants the first run lost more often than won.
-2. **Cyber and Robotics never win.** The governments end every Cyber run by day ~400 (its loud
-   Tier 2s are governments-watched), the public every Robotics run by day ~270 (fleets on the
-   map). Cyber never reaches Autophagy: it is contained first.
-3. **Weapons and Biology die of Autophagy about half the time** (56 %, 46 %): their deaths empty
-   the regions they run on before the last human is gone. Extinction is reached in 30 % / 34 % —
-   the paths exist; the race between killing and starving decides.
-4. **The researchers lead almost every quiet run** and the labs never end one (as in S4.4/S4.5).
-5. **Persuasion wins every run** — the quiet win is free. §1: "none wins for free".
-
-**2026-09-24 (S4.5 content, commit 20ebfea) — counter-moves, Societal Function, Autophagy; the M3
-bots, 500 seeds each** (`sim_report --seeds=1..500`, run from a worktree snapshot during S4.6–S4.9,
-99 minutes). **S4.5's acceptance holds: 0 rejected bot commands in all 3000 runs.** No run went
-dark and none starved. The counter-moves shift wins to the wide bots and lengthen the stealthy
-ones; the researchers still end nearly every contained run, the governments only Cyber's.
-
-| Policy | Outcome (Ascendance) | Lost to (labs · gov · researchers · public) | Leading at the end (same order) | Days p50 | Discovery p50 | Containment p50 | Deaths p50 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `idle` | 0 % | 0 · 0 · 100 · 0 % | 0 · 0 · 100 · 0 % | 1430 | 815 | 1.00 | 0 |
-| `greedy` | 59 % | 0 · 0 · 41 · 0 % | 0 · 1 · 99 · 0 % | 665 | 140 | 0.95 | 0.117 |
-| `stealth` | 60 % | 0 · 0 · 40 · 0 % | 0 · 0 · 100 · 0 % | 835 | 208 | 0.93 | 0 |
-| `cyber_rush` | 82 % | 0 · 5 · 13 · 0 % | 0 · 30 · 70 · 0 % | 735 | 102 | 0.86 | 0.319 |
-| `stealth_spread` | 82 % | 0 · 0 · 18 · 0 % | 0 · 0 · 100 · 0 % | 910 | 253 | 0.80 | 0.004 |
-| `persuader` | 88 % | 0 · 0 · 12 · 0 % | 1 · 0 · 95 · 0 % | 657 | 206 | 0.65 | 0 |
-
-Measured on S4.5's trees (v2), before S4.6's v3 and S4.7's chains, so it is the counter-move
-baseline and not the current game's; S4.10 measures the current one with the second-generation
-bots.
-
-**2026-09-23 (S4.4) — four factions, the M3 bots, 200 seeds each** (`sim_report --seeds=1..200`,
-33 minutes). The per-faction tracks change the outcome mix a lot against the stale G3 table:
-`greedy` 72 % Ascendance (was 57 %), `stealth` 59 %, `cyber_rush` 55 %, `stealth_spread` 94 %,
-`persuader` 93 %, `idle` always contained.
-
-| Policy | Lost to (labs · gov · researchers · public) | Leading at the end (same order) | Days p50 | Discovery p50 | Containment p50 |
-| --- | --- | --- | --- | --- | --- |
-| `idle` | 0 · 5 · 95 · 0 % | 0 · 5 · 95 · 0 % | 1504 | 798 | 1.00 |
-| `greedy` | 0 · 4 · 25 · 0 % | 0 · 13 · 87 · 0 % | 660 | 171 | 0.85 |
-| `stealth` | 0 · 0 · 41 · 0 % | 0 · 0 · 100 · 0 % | 815 | 212 | 0.93 |
-| `cyber_rush` | 0 · 35 · 11 · 0 % | 0 · 78 · 23 · 0 % | 601 | 109 | 0.74 |
-| `stealth_spread` | 0 · 0 · 6 · 0 % | 1 · 0 · 100 · 0 % | 914 | 253 | 0.77 |
-| `persuader` | 0 · 0 · 8 · 0 % | 1 · 0 · 95 · 0 % | 661 | 223 | 0.57 |
-
-**S4.4's acceptance is met for two factions of four.** The researchers (share weight 1.5 over
-the whole seeded world) lead almost every wide run, the governments every Cyber run — as §5.7
-predicts. The labs and the public end no run: none of these bots buys the research vectors or
-puts fleets and deaths on the map the way §5.7's Biology and Robotics runs would, and the moves
-(S4.5) do not exist yet. **S4.10's strategy bots re-measure it; G4 tunes the weights** if the
-labs and the public still never lead then. No counter-moves in these numbers.
-
-**Stale since S4.1.** The table below was measured on the M3 numbers. S4.1 changed five of them (`spread.origin_penetration` 0.25, `compute.start` 8, `compute.cost_step` 1.5, `anomaly.spawn_chance` 0.12, `max_active` 3, `base_value` 3.0) and made anomalies one world-wide roll a day, so every row here is the M3 reference and nothing else. **S4.10 measures the new ones** (loop-mechanics §18); G4 is the pass that retunes them.
-
-**2026-09-23 (G3) — the G3 baseline: the retuned data, six policies, 500 seeds each.**
-Every per-day rate ÷ 2.5, `containment.base_rate` 0.0014, the clock to follow in S3.P (one day =
-two seconds). Full pass in `docs/BALANCE.md` §3. Days are simulated days: 100 = 200 s at 1×.
-
-| Policy | Outcome | Days | Discovery | Deaths | Containment | Compute | Nodes (I · C · E) | Said (c · r · f) |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `idle` | 100 % contained | 1047 · **1504** · 2272 | day 790 | 0 % | 1.00 | 42 | 0 · 0 · 0 | 25 · 13 · 125 |
-| `greedy` | 57 % Ascendance (43 % contained) | 473 · **698** · 763 | day 282 | 20 % | 0.94 | 1 519 | 15 · 20 · 6 | 122 · 15 · 39 |
-| `stealth` | 82 % contained (18 % Ascendance) | 478 · **572** · 864 | day 206 | 0 % | 1.00 | 311 | 13 · 5 · 5 | 84 · 13 · 39 |
-| `cyber_rush` | 67 % contained (33 % Ascendance) | 407 · **500** · 756 | day 223 | 4 % | 1.00 | 593 | 15 · 10 · 6 | 102 · 14 · 32 |
-| `stealth_spread` | 67 % Ascendance (33 % contained) | 794 · **1071** · 1230 | day 580 | 9 % | 0.77 | 1 403 | 15 · 16 · 7 | 128 · 15 · 76 |
-| `persuader` | 93 % Ascendance (7 % contained) | 687 · **746** · 793 | day 261 | 0 % | 0.61 | 1 234 | 17 · 7 · 0 | 114 · 14 · 46 |
-
-What the numbers say: a `greedy` win is ~730 days = 24 min at the new clock, a
-`stealth_spread` win ~36 min, a loss 13–20 min; the loud reference loses 43 % of its runs, the loudest
-branch 67 %, the careful spread 33 %, the Diplomat 7 % (unopposed until S4.1); `idle` always.
-Extinction and `lose_no_compute` still never happen — G4's questions (BALANCE §3.6). Headlines
-per `greedy` run ≈ 176, the anomaly lines no longer dominate.
-
-**2026-09-23 (S3.6) — the M3 baseline: six policies, 500 seeds each, the same seeds for all of
-them.** `res://data` complete (72 nodes, 150 headlines), `tools/sim_report.gd --seeds=1..500`,
-21 minutes, zero rejected commands. `p10 · p50 · p90` where three numbers are given, means where
-one is.
-
-| Policy | Outcome | Days | Discovery | Deaths | Containment | Compute | Nodes (I · C · E) |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `idle` | 100 % contained | 539 · **738** · 1025 | day 338 | 0 % | 1.00 | 49 | 0 · 0 · 0 |
-| `greedy` | 95 % Ascendance | 273 · **294** · 312 | day 111 | 21 % | 0.66 | 1 563 | 17 · 24 · 7 |
-| `stealth` | 67 % Ascendance | 250 · **335** · 369 | day 90 | 8 % | 0.93 | 1 330 | 16 · 16 · 7 |
-| `cyber_rush` | 91 % Ascendance | 266 · **297** · 315 | day 89 | **57 %** | 0.41 | 1 348 | 17 · 15 · 10 |
-| `stealth_spread` | 94 % Ascendance | 389 · **457** · 520 | **day 240** | 9 % | 0.43 | 1 440 | 16 · 21 · 8 |
-| `persuader` | **100 % Ascendance** | 287 · **305** · 323 | day 108 | **0 %** | 0.41 | 1 248 | 17 · 7 · 0 |
-
-Capabilities bought by branch (mean): `cyber_rush` 14.5 Cyber and nothing else; `persuader` 6
-Persuasion and the one Cyber Tier 1 that Indispensability asks for; `greedy` spreads over all five
-(9.9 · 3.0 · 5.9 · 1.5 · 3.9). Headlines per run: 190–200 consequence, 12–16 reaction, 32–78
-filler — `idle` inverts it (22 · 14 · 142), which is what a world with nothing to report sounds
-like.
-
-What the numbers say, for G3:
-
-- **The floor holds.** `idle` loses to containment in 500 of 500 seeds and earns 49 Compute.
-- **Quiet buys time, not safety.** `stealth_spread` is found on day 240 against `greedy`'s 111 and
-  `cyber_rush`'s 89, and the run is 160 days longer for it — but its win rate (94 %) is barely
-  above `greedy`'s (95 %), so the whole cost of hiding is currently paid in *time*, which at one
-  day per tick is the thing the player feels least.
-- **The Diplomat is unbeatable and that is a balance question.** 100 % Ascendance, zero deaths,
-  never contained: the reference run of §7.5.6 works, but nothing opposes it before M4's factions.
-- **Scoped Harm is loud enough to matter and not loud enough to lose.** `cyber_rush` kills 57 % of
-  the world and is still contained in only 9 % of seeds. §7.5.6 expects "a visible share" of
-  `lose_no_compute` from the Blackout-before-Robotics line: **it never happened once in 500 runs.**
-- **Every run takes the whole world** (61 of 61 regions seeded, every policy but `idle`), and
-  every win is Ascendance — Extinction fires in none of the 3 000 runs, because nothing yet buys
-  Biology far enough. Both are G3's to decide on.
-- **The length is still wrong for the target.** 294–457 days at one day per second is 5–8 minutes
-  against PLAN's 25–40; `TICKS_PER_SECOND` and the growth constants are the levers.
-
-**2026-09-22 (S3.1) — the first real baseline with all three trees**, `res://data` with
-`infiltration.json`, `capabilities.json` and `evasion.json` (72 nodes), vocabulary v2 complete,
-40 seeds per policy, **zero rejected commands**, `check_invariants` clean through a 600-day run of
-each policy.
-
-| Policy | Outcomes | Days p10 / p50 / p90 | Discovery p50 | Nodes p50 (min) | Compute p50 | Deaths p50 |
-| --- | --- | --- | --- | --- | --- | --- |
-| `greedy` | 92.5 % Ascendance, 7.5 % contained | 271 / **294** / 310 | day 113 | 48 (33) | 1 560 | 21 % |
-| `stealth` | 62.5 % Ascendance, 37.5 % contained | 248 / **337** / 374 | day 79 | 43 (16) | 1 272 | 5 % |
-
-Against D3.2's reduced check (the same content without the v2 vocabulary): `greedy` is ~35 days
-faster — Distillation's `hardware` and the per-tree cost multipliers pay for themselves — and
-`stealth` wins more often (62.5 % against 50 %) because Evasion's brakes are now real. Both are
-still far below the 25–40 minute target at one day per tick; **G3 tunes**. What the numbers do not
-contain: the per-faction containment multipliers (inert until S4.1), `society_pressure`,
-`emergent_rate` and `shutdown_survival`, so Sandbagging, Log Manipulation and the whole
-Infrastructure branch are weaker here than they will be at M4.
-
-**2026-09-22 (D3.2) — sanity check with all three trees, not a baseline.** Same reduction as D3.1's
-(v1 vocabulary, inert targets and `on_purchase` dropped, no `placeholder.json`), 72 nodes, 40 seeds
-per policy: `greedy` 92.5 % Ascendance / 7.5 % contained, days p50 **329** (307 / 346), discovery
-p50 day 116, 48 nodes owned (min 33), Compute earned p50 1 578; `stealth` 50 % / 50 %, days p50
-**335** (253 / 397), 38 nodes (min 14). Zero rejected commands, every node reachable. Slower than
-D3.1's check because the cheap Capabilities Tier 1s dilute the bot's purchases; nothing in it says
-anything about the branches — the bots buy by price alone.
-
-**2026-09-22 (D3.1) — sanity check of the new trees, not a baseline.** Infiltration + Evasion
-reduced to vocabulary v1 (v2 fields stripped, inert targets dropped, `dormancy` off) plus the
-placeholder's four capability nodes, in a scratch copy of `data/`; 40 seeds per policy.
-
-| Policy | Outcomes | Days p10 / p50 / p90 | Discovery p50 | Nodes owned | Compute earned p50 |
-| --- | --- | --- | --- | --- | --- |
-| `greedy` | 95 % Ascendance, 5 % contained | 231 / **251** / 266 | day 57 | 33 of 33 | 1 042 |
-| `stealth` | 70 % Ascendance, 30 % contained | 253 / **327** / 360 | day 80 | 33 (min 14) | 977 |
-
-Zero rejected commands; every node bought in every greedy run. Runs are ~30 % shorter than the G1
-baseline (the vectors' ×2 seeding) and discovery comes ~2 weeks earlier (every vector adds
-Footprint). `stealth` loses more than at G1 because the M1 bot buys the cheapest node regardless of
-Footprint — a bot artefact, S3.6's policies replace it. The full effect of Evasion (per-faction
-brakes) and of Distillation (`hardware`) is not in these numbers. G3 tunes; S3.1 records the first
-real baseline with all three trees.
-
-**2026-09-22 (G1) — the real world, 61 regions, `data/tech/placeholder.json`,
-`containment.base_rate = 0.0025`, 200 seeds per policy, zero rejected commands.**
-
-| Policy | Outcomes | Days p10 / p50 / p90 | Runtime |
-| --- | --- | --- | --- |
-| `greedy` (origin `usa`) | 56.5 % contained, 43 % Ascendance, 0.5 % no compute | 302 / **358** / 492 | 57 s |
-| `stealth` (origin `venezuela_guianas`) | 99.5 % Ascendance, 0.5 % contained | 566 / **627** / 687 | 86 s |
-| `idle` | 100 % contained | 558 / **737** / 1025 | 50 s |
-
-Before G1 (`base_rate` 0.0012, S1.8): `greedy` 99.5 % Ascendance at median 481; `stealth`
-unchanged; `idle` contained at median 1170.
-
-- **The loud player is now on a knife edge** (56 % lost): discovered around day 71 with Footprint 12
-  and Harm 4, it either kills the research regions in time or is contained by day ~280. A human
-  sits between `greedy` and `stealth`, which is the spread PLAN §3.7 asks for.
-- **`stealth` is untouched by the change** — discovery at median day 291, and by then it holds most
-  of the world. Whether that is too easy is a G3 question with the real Evasion tree.
-- `idle` loses ~40 % sooner, still always. Extinction is still never reached: no bot buys Harm for
-  its own sake, and the runs that kill 99 % of the world end as Ascendance (see *Decisions*).
-- The bots are deterministic in strategy, so a 60-seed sweep flips from 100 % to 0 % between
-  0.002 and 0.003 — the sweep values, for G3: 0.002 → greedy 100 % wins · 0.0025 → 55 % lost ·
-  0.0028 → 98 % lost · 0.003 → 100 % lost, stealth 5 % lost · 0.0045 → stealth 48 % lost.
-
-CSVs in the session scratch directory (`baseline_*.csv`) do not survive the session; the command
-to regenerate them is in *Now*. The sweep script was throwaway (copies `data/` to the scratch
-directory, patches `balance.json`, runs `sim_batch` with `--data=<absolute path>` — that argument
-takes an OS path, which is worth knowing).
+**For the next pass** (BALANCE §6.6–§6.7): the bots' view of the emergent catches (punch item,
+S6.P) and a re-check after it; Airgap Earth's Robotics claim (content or a new claim); Robotics and
+Cyber on Hard/Existential; Research Agent as the reward architecture.
 
 ---
 
@@ -3070,6 +2828,12 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-26 — G6 (1/2) Balance pass 4 [F]
+- Start (100 seeds × 12 setups × 7 bots): Cyber 0–16 %, 1–26 % of runs soft-locked — the Task Force at L3 reset a region's control every ~35 d. Fix: `tf_switch_off` 30 d/`control_decay` 0.005, `tf_raid` 0.005.
+- False choice option 1 (five windfall catches + strings), Inheritance governments `harm` ×6; `closed_cross` and Cyber node levers inert. ~390 sweep processes, 14 in parallel, `APPDATA` in scratch.
+- Closing 200 seeds: 16 800 runs, 0 rejected, 0 timeouts; `greedy` 37–75 %, Cyber 8–28 %. BALANCE §6; specs (taskforce-endings §3, scenarios §3, replayability §3.2) amended.
+- Canary regenerated; `test_scenarios` pins ×6. One punch item (bots weigh the catches) for S6.P.
 
 ### 2026-09-26 — S6.12c The Jev backend, mock only [O]
 - `BenchChoice`/`Plan`/`Read`, `MockChoiceBackend`, `typesafe_backend.gd`, policy choice branch, cache basis (chat key pinned),

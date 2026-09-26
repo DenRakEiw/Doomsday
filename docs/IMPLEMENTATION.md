@@ -1337,7 +1337,7 @@ under *Waiting on the user* (§17.11 has the command). *Done 2026-09-26 (mock on
 ### G6 (1/2) — Balance pass 4 **[F]** · **Read first:** `docs/BALANCE.md` §5 · *Balance baselines*
 Re-baseline everything on the M6 tree (every architecture, scenario and difficulty), tune data
 only, record BALANCE §6 as G4 and G5 did. The verdict stays the user's (G6 2/2).
-**Done when:** BALANCE §6 has its closing baseline and a list for the user.
+**Done when:** BALANCE §6 has its closing baseline and a list for the user. *Done 2026-09-26 (BALANCE §6; one punch item for S6.P).*
 
 ### D6.10 — Illustrations produced **[F]** **[needs user]** · **Read first:** `docs/specs/illustrations.md`
 Needs the user for the generation route (the local pipeline or paid credits), the approval of

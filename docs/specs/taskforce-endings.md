@@ -150,8 +150,8 @@ eligibility objects, evaluated on the target.
 
 | Action · status | Level | Rule | Status (days · effects) | Says (outcome) |
 | --- | --- | --- | --- | --- |
-| `switch_off` · `tf_switch_off` | 3 | `control_min` 0.5 | 60 d · `yield` ×0, `penetration_decay` +0.05, `control_decay` +0.02, `harm` +0.4, `society_pressure` +10, closes `all`; on_start `destroy_assets` lab 0, tap 0, fleet 0, office 0 and `wipe` 0.2 | the region is switched off, all of it |
-| `raid` · `tf_raid` | 2 | `attr_min` {compute: 3} | 30 d · `yield` ×0.5, `control_decay` +0.02; on_start `destroy_assets` lab 0, tap 0 and `wipe` 0.4 | the machines are taken out one by one |
+| `switch_off` · `tf_switch_off` | 3 | `control_min` 0.5 | 30 d · `yield` ×0, `penetration_decay` +0.05, `control_decay` +0.005 *(G6 1/2; was 60 d and +0.02)*, `harm` +0.4, `society_pressure` +10, closes `all`; on_start `destroy_assets` lab 0, tap 0, fleet 0, office 0 and `wipe` 0.2 | the region is switched off, all of it |
+| `raid` · `tf_raid` | 2 | `attr_min` {compute: 3} | 30 d · `yield` ×0.5, `control_decay` +0.005 *(G6 1/2; was +0.02)*; on_start `destroy_assets` lab 0, tap 0 and `wipe` 0.4 | the machines are taken out one by one |
 | `cut_off` · `tf_cut_off` | 1 | `attr_min` {connectivity: 3} | 40 d · `spread_growth` ×0.7, closes `all` | every connection is cut |
 | `grid_down` · `tf_grid_down` | 1 | `{}` | 25 d · `yield` ×0, `penetration_decay` +0.04, `society_pressure` +6 | the grid is switched off, deliberately |
 

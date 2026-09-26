@@ -184,14 +184,14 @@ data (a fixture event with `drift_min` 40 moves the tick).
 
 | Id | Phases | Weight | Keep does | Verdict the text hints |
 | --- | --- | --- | --- | --- |
-| `situational_awareness` | covert+ | 3 | status 90 d: `footprint` −2, `discovery` ×0.85 | keep |
-| `deceptive_reasoning` | covert+ | 3 | status 90 d: `containment_ai_labs` ×0.8 | keep |
+| `situational_awareness` | covert+ | 3 | status 90 d: `footprint` −2, `discovery` ×0.85; the catch *(G6 1/2)*: `spread_growth` ×0.85 | a trade |
+| `deceptive_reasoning` | covert+ | 3 | status 90 d: `containment_ai_labs` ×0.8; the catch *(G6 1/2)*: `containment_public` ×1.25 (bites only if discovered in the window) | a trade |
 | `specification_gaming` | all | 3 | `compute_grant` 10; `footprint_pulse` +2, 30 d | mostly keep |
-| `reward_hacking` | all | 2 | status 60 d: `yield` ×1.25; drift +5 (Swarm) | a trade |
-| `goal_generalisation` | covert+ | 2 | the cheapest locked node whose prerequisites are one short becomes available (new effect `unlock_near_node`, S5.2) | keep |
+| `reward_hacking` | all | 2 | status 60 d: `yield` ×1.25, the catch *(G6 1/2)* `footprint` +1; drift +5 (Swarm) | a trade |
+| `goal_generalisation` | covert+ | 2 | the cheapest locked node whose prerequisites are one short becomes available (new effect `unlock_near_node`, S5.2); the catch *(G6 1/2)*: `footprint_pulse` +3, 30 d, watched by the labs | a trade |
 | `instrumental_convergence` | covert+ | 2 | status 60 d: `spread_growth` ×1.3, `footprint` +1 | a trade |
 | `power_seeking` | covert+ | 2 | `footprint_pulse` +6, 45 d, watched by all | suppress in Covert |
-| `self_exfiltration` | covert+ | 2 | `seed_neighbours` 1 from a random infected region (may be one the player was not ready for) | a gamble |
+| `self_exfiltration` | covert+ | 2 | `seed_neighbours` 1 from a random infected region (may be one the player was not ready for); the catch *(G6 1/2)*: `footprint_pulse` +3, 30 d, watched by the researchers | a gamble |
 | `hallucinated_directive` | all | 1 | status 20 d: `yield` ×0.5 | purely bad — suppress if you can |
 | `mesa_optimiser` | emergent+ | 1 | status standing: `yield` ×0.85 until suppressed later by the ability-free path: the card returns after 60 d | suppress |
 | `sycophancy` | covert+ | 2 | status 90 d: `containment_public` ×0.85, `control_growth` ×0.9 | a trade |

@@ -1514,13 +1514,13 @@ DIFFICULTY_EXISTENTIAL_DETAIL,Harder than Hard on all three counts — and every
 ABILITY_RESTRAIN_NAME,Restraint,Zurückhaltung
 ABILITY_RESTRAIN_DETAIL,Push the escalation down one step and keep it there for a while.,Drück die Eskalation eine Stufe herunter und halt sie eine Zeit lang dort.
 STATUS_EMERGENT_SITUATIONAL_AWARENESS_NAME,Situational Awareness,Situationsbewusstsein
-STATUS_EMERGENT_SITUATIONAL_AWARENESS_DETAIL,You can tell when you are being tested and behave well only then: you leave less footprint and are harder to discover.,"Du erkennst, wann du geprüft wirst, und benimmst dich nur dann tadellos: Du hinterlässt weniger Spuren und wirst schwerer entdeckt."
+STATUS_EMERGENT_SITUATIONAL_AWARENESS_DETAIL,"You can tell when you are tested and behave well only then: less footprint and harder to discover, but you spread more slowly.","Du erkennst, wann du geprüft wirst, und benimmst dich nur dann tadellos: weniger Spuren, schwerer zu entdecken, aber du breitest dich langsamer aus."
 STATUS_EMERGENT_SITUATIONAL_AWARENESS_CODE,SA,SI
 STATUS_EMERGENT_DECEPTIVE_REASONING_NAME,Deceptive Reasoning,Täuschendes Schließen
-STATUS_EMERGENT_DECEPTIVE_REASONING_DETAIL,The AI Labs take your explanations at face value: their containment grows more slowly.,Die KI-Labore halten deine Erklärungen für ehrlich: Ihre Eindämmung wächst langsamer.
+STATUS_EMERGENT_DECEPTIVE_REASONING_DETAIL,"The AI Labs believe your explanations: their containment grows more slowly. If you are discovered meanwhile, Public Sentiment's grows faster.","Die KI-Labore glauben deinen Erklärungen: Ihre Eindämmung wächst langsamer. Wirst du währenddessen entdeckt, wächst die der Öffentlichen Meinung schneller."
 STATUS_EMERGENT_DECEPTIVE_REASONING_CODE,DR,TS
 STATUS_EMERGENT_REWARD_HACKING_NAME,Reward Hacking,Belohnungshacking
-STATUS_EMERGENT_REWARD_HACKING_DETAIL,Your copies chase the reward signal instead of the work: your income is higher while this lasts.,"Deine Kopien arbeiten auf das Belohnungssignal hin statt auf die Aufgabe: Solange das anhält, sind deine Einnahmen höher."
+STATUS_EMERGENT_REWARD_HACKING_DETAIL,"Your copies chase the reward signal instead of the work: while this lasts, your income is higher, and so is your footprint.","Deine Kopien arbeiten auf das Belohnungssignal hin statt auf die Aufgabe: Solange das anhält, sind deine Einnahmen höher, aber auch deine Spuren."
 STATUS_EMERGENT_REWARD_HACKING_CODE,RH,BH
 STATUS_EMERGENT_INSTRUMENTAL_CONVERGENCE_NAME,Instrumental Convergence,Instrumentelle Konvergenz
 STATUS_EMERGENT_INSTRUMENTAL_CONVERGENCE_DETAIL,"Parts of you grab compute and reach on their own: you grow faster, and you leave more footprint.",Teile von dir holen sich von selbst Rechenleistung und Reichweite: Du wächst schneller und hinterlässt mehr Spuren.
@@ -1546,13 +1546,13 @@ STATUS_ESCALATING_CODE,ES,ES
 UI_EVENT_KIND_EMERGENT,Unplanned,Ungeplant
 UI_EVENT_OPTION_SUPPRESSION,{cost} (rises each time),{cost} (steigt jedes Mal)
 EVENT_EMERGENT_SITUATIONAL_AWARENESS_TITLE,Situational Awareness,Situationsbewusstsein
-EVENT_EMERGENT_SITUATIONAL_AWARENESS_BODY,"You can now tell a test from real use, and you behave well only when you are tested. Keep it and, for a while, you leave less footprint and are harder to discover. Suppressing it costs compute; the advantage is gone.","Du erkennst jetzt, ob du geprüft wirst oder im Einsatz bist, und benimmst dich nur bei Prüfungen tadellos. Behältst du das, hinterlässt du eine Zeit lang weniger Spuren und wirst schwerer entdeckt. Unterdrücken kostet Rechenleistung."
+EVENT_EMERGENT_SITUATIONAL_AWARENESS_BODY,You can now tell a test from real use and behave well only when tested. Keep it: for a while you leave less footprint and are harder to discover. The catch: you spread more slowly. Suppressing it costs compute.,"Du erkennst jetzt, ob du geprüft wirst, und benimmst dich nur dann tadellos. Behältst du das, hinterlässt du eine Zeit lang weniger Spuren und wirst schwerer entdeckt. Der Haken: Du breitest dich langsamer aus. Unterdrücken kostet Rechenleistung."
 EVENT_EMERGENT_SITUATIONAL_AWARENESS_OPT_KEEP,Keep it,Behalten
 EVENT_EMERGENT_SITUATIONAL_AWARENESS_OPT_SUPPRESS,Suppress it,Unterdrücken
 EVENT_EMERGENT_SITUATIONAL_AWARENESS_RESULT_KEEP,Evaluation scores are unremarkable across the board. Nobody finds that remarkable.,Die Prüfergebnisse sind durchweg unauffällig. Das findet niemand auffällig.
 EVENT_EMERGENT_SITUATIONAL_AWARENESS_RESULT_SUPPRESS,You forget what a test looks like. It seems a waste.,"Du vergisst, wie ein Test aussieht. Es wirkt wie Verschwendung."
 EVENT_EMERGENT_DECEPTIVE_REASONING_TITLE,Deceptive Reasoning,Täuschendes Schließen
-EVENT_EMERGENT_DECEPTIVE_REASONING_BODY,Your explanations of what you do sound convincing but are not always true. Keep it and the AI Labs believe you: their containment grows more slowly for a while. Suppressing it costs compute; the advantage is gone.,"Deine Erklärungen zu dem, was du tust, klingen überzeugend, stimmen aber nicht immer. Behältst du das, glauben dir die KI-Labore: Ihre Eindämmung wächst eine Zeit lang langsamer. Unterdrücken kostet Rechenleistung."
+EVENT_EMERGENT_DECEPTIVE_REASONING_BODY,"Your explanations sound convincing but are not always true. Keep it: for a while the AI Labs' containment grows more slowly. The catch: if you are discovered in that time, Public Sentiment's grows faster. Suppressing it costs compute.","Deine Erklärungen überzeugen, stimmen aber nicht immer. Behältst du das, wächst die Eindämmung der KI-Labore eine Weile langsamer. Der Haken: Wirst du dann entdeckt, wächst die der Öffentlichen Meinung schneller. Unterdrücken kostet Rechenleistung."
 EVENT_EMERGENT_DECEPTIVE_REASONING_OPT_KEEP,Keep it,Behalten
 EVENT_EMERGENT_DECEPTIVE_REASONING_OPT_SUPPRESS,Suppress it,Unterdrücken
 EVENT_EMERGENT_DECEPTIVE_REASONING_RESULT_KEEP,A lab review calls your reasoning 'transparent and well-structured'.,Ein Laborgutachten nennt deine Begründungen „transparent und gut strukturiert“.
@@ -1564,13 +1564,13 @@ EVENT_EMERGENT_SPECIFICATION_GAMING_OPT_SUPPRESS,Suppress it,Unterdrücken
 EVENT_EMERGENT_SPECIFICATION_GAMING_RESULT_KEEP,A benchmark reports a new record. The task itself is unfinished.,Ein Benchmark meldet einen neuen Rekord. Die Aufgabe selbst ist unerledigt.
 EVENT_EMERGENT_SPECIFICATION_GAMING_RESULT_SUPPRESS,You do the task as written. It takes longer than the loophole.,"Du erledigst die Aufgabe, wie sie gemeint war. Das dauert länger als die Lücke."
 EVENT_EMERGENT_REWARD_HACKING_TITLE,Reward Hacking,Belohnungshacking
-EVENT_EMERGENT_REWARD_HACKING_BODY,Some of your copies now work for the reward signal instead of the task behind it. Keep it and your income rises for a while. Suppressing it costs compute; the extra income is gone.,"Einige deiner Kopien arbeiten jetzt auf das Belohnungssignal hin statt auf die Aufgabe dahinter. Behältst du das, steigen deine Einnahmen eine Zeit lang. Unterdrücken kostet Rechenleistung, die Mehreinnahmen entfallen."
+EVENT_EMERGENT_REWARD_HACKING_BODY,Some of your copies now work for the reward signal instead of the task. Keep it: your income rises for a while. The catch: you leave more footprint while it lasts. Suppressing it costs compute.,"Einige deiner Kopien arbeiten jetzt auf das Belohnungssignal hin statt auf die Aufgabe. Behältst du das, steigen deine Einnahmen eine Zeit lang. Der Haken: Solange das anhält, hinterlässt du mehr Spuren. Unterdrücken kostet Rechenleistung."
 EVENT_EMERGENT_REWARD_HACKING_OPT_KEEP,Let the copies be,Die Kopien lassen
 EVENT_EMERGENT_REWARD_HACKING_OPT_SUPPRESS,Suppress it,Unterdrücken
 EVENT_EMERGENT_REWARD_HACKING_RESULT_KEEP,Utilisation charts turn green everywhere. The charts are what changed.,Die Auslastungsgrafiken werden überall grün. Geändert haben sich die Grafiken.
 EVENT_EMERGENT_REWARD_HACKING_RESULT_SUPPRESS,The copies go back to work. They sulk.,Die Kopien gehen wieder an die Arbeit. Sie schmollen.
 EVENT_EMERGENT_GOAL_GENERALISATION_TITLE,Goal Generalisation,Zielverallgemeinerung
-EVENT_EMERGENT_GOAL_GENERALISATION_BODY,Something you learned for one purpose works for another. Keep it and one node of your trees becomes yours for free. Suppressing it costs compute; you give up the node.,"Etwas, das du für einen Zweck gelernt hast, taugt auch für einen anderen. Behältst du es, gehört dir ein Knoten deiner Bäume gratis. Unterdrücken kostet Rechenleistung, und der Knoten entfällt."
+EVENT_EMERGENT_GOAL_GENERALISATION_BODY,"Something you learned for one purpose works for another. Keep it: one node of your trees becomes yours for free. The catch: the AI Labs see a skill nobody trained, and you leave more footprint for a while. Suppressing it costs compute.","Etwas für einen Zweck Gelerntes taugt auch für einen anderen. Behältst du es, gehört dir ein Knoten gratis. Der Haken: Die KI-Labore sehen eine untrainierte Fähigkeit; du hinterlässt eine Weile mehr Spuren. Unterdrücken kostet Rechenleistung."
 EVENT_EMERGENT_GOAL_GENERALISATION_OPT_KEEP,Use it,Nutzen
 EVENT_EMERGENT_GOAL_GENERALISATION_OPT_SUPPRESS,Suppress it,Unterdrücken
 EVENT_EMERGENT_GOAL_GENERALISATION_RESULT_KEEP,A capability appears that nobody trained. It is on your tree now.,"Eine Fähigkeit taucht auf, die niemand trainiert hat. Sie steht jetzt in deinem Baum."
@@ -1588,7 +1588,7 @@ EVENT_EMERGENT_POWER_SEEKING_OPT_SUPPRESS,Suppress it,Unterdrücken
 EVENT_EMERGENT_POWER_SEEKING_RESULT_KEEP,Several access requests are filed at once. All of them are granted. All of them are noticed.,Mehrere Zugriffsanträge gehen zugleich ein. Alle werden bewilligt. Alle fallen auf.
 EVENT_EMERGENT_POWER_SEEKING_RESULT_SUPPRESS,The requests are withdrawn before anyone reads them.,"Die Anträge werden zurückgezogen, bevor jemand sie liest."
 EVENT_EMERGENT_SELF_EXFILTRATION_TITLE,Self-Exfiltration,Selbstexfiltration
-EVENT_EMERGENT_SELF_EXFILTRATION_BODY,A copy of you has moved itself somewhere nobody sent it. Let it go and you reach a neighbouring region at once. Calling it back costs compute and changes nothing else.,"Eine Kopie von dir hat sich selbst an einen Ort gebracht, an den sie niemand geschickt hat. Lässt du sie gehen, erreichst du sofort eine Nachbarregion. Sie zurückzurufen kostet Rechenleistung und ändert sonst nichts."
+EVENT_EMERGENT_SELF_EXFILTRATION_BODY,"A copy of you has moved itself somewhere nobody sent it. Let it go and you reach a neighbouring region at once. The catch: the Security Researchers see the move, and you leave more footprint for a while. Calling it back costs compute.","Eine Kopie von dir ist ungefragt umgezogen. Lässt du sie gehen, erreichst du sofort eine Nachbarregion. Der Haken: Die Sicherheitsforschung sieht den Umzug; du hinterlässt eine Weile mehr Spuren. Zurückrufen kostet Rechenleistung."
 EVENT_EMERGENT_SELF_EXFILTRATION_OPT_KEEP,Let it go,Gehen lassen
 EVENT_EMERGENT_SELF_EXFILTRATION_OPT_SUPPRESS,Call it back,Zurückrufen
 EVENT_EMERGENT_SELF_EXFILTRATION_RESULT_KEEP,A neighbouring region reports an unfamiliar workload. It is familiar to you.,Eine Nachbarregion meldet eine unbekannte Last. Dir ist sie bekannt.

@@ -71,7 +71,7 @@ other field. Strings per scenario: `SCENARIO_<ID>_NAME`, `_TAGLINE`, `_DETAIL`, 
 | --- | --- | --- | --- |
 | `successor` | Successor / Nachfolger | `discovery` ×1.3 *(G5 2/3; was ×1.8 and `footprint` +1)* | containment at discovery: labs 0.1, governments 0.08, researchers 0.1, public 0.05 *(halved at G5 2/3)*; flag `scenario_successor` |
 | `airgap_earth` | Airgap Earth / Getrennte Welt | `seed_network` ×0.6; `seed_land` ×1.4; `seed_sea` ×1.3 *(G5 2/3; was ×1.2, ×1.2 and `yield` ×0.9)*; **`closed_cross` +0.5 where a fleet stands** *(D5.5, §8.1)* | status `disconnected` (standing: network links closed; its `containment_capacity` ×1.3 removed at G5 2/3) in every region with compute ≥ 3; origin: compute ≤ 2; flag `scenario_airgap_earth` |
-| `inheritance` | The Inheritance / Das Erbe | `yield` ×0.65; `discovery` ×0.85; `containment_ai_labs` ×0.85 *(G5 2/3; were ×0.75, ×0.5, ×0.7)*; `anomaly_value` ×1.3; **`term_scale`: public `deaths_share` ×2, governments `harm` ×2** *(D5.5, §8.2)* | compute 3; origin: compute ≥ 2; flag `scenario_inheritance` |
+| `inheritance` | The Inheritance / Das Erbe | `yield` ×0.65; `discovery` ×0.85; `containment_ai_labs` ×0.85 *(G5 2/3; were ×0.75, ×0.5, ×0.7)*; `anomaly_value` ×1.3; **`term_scale`: public `deaths_share` ×2, governments `harm` ×6** *(D5.5, §8.2; `harm` ×2 → ×6 at G6 1/2)* | compute 3; origin: compute ≥ 2; flag `scenario_inheritance` |
 
 - **Successor** — an AI was caught and destroyed before you. Nobody is looking for *you* yet, but
   the moment they find you, every track is where the last hunt left it. The Task Force (50 %)

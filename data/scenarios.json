@@ -37,7 +37,7 @@
 			],
 			"term_scale": [
 				{"faction": "public_sentiment", "source": "deaths_share", "mul": 2.0},
-				{"faction": "governments", "source": "harm", "mul": 2.0}
+				{"faction": "governments", "source": "harm", "mul": 6.0}
 			],
 			"start": {
 				"compute": 3.0,

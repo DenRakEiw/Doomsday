@@ -728,6 +728,374 @@ After 1–3 the Swarm and Weapon rows are re-measured (a 100-seed check, not a p
 5. **Research Agent is the strongest architecture for `greedy` (76 %), Cyber (26 %) and
    Persuasion (83 %)** — it is the reward for a win; worth a look at the gate if it feels free.
 
+## 6. Pass 4 — G6 (1/2), 2026-09-26 *(the tuning; the M6 gate waits for the user)*
+
+Scope: re-baseline the M6 tree on every architecture, scenario and difficulty, then what pass 3
+and the steps after it handed on — the Task Force's mark (S5.9: `cyber`/`persuasion` time out),
+the two scenario levers that did not work (`closed_cross`, `term_scale`), the Swarm's Supplanted
+share, the Weapon's rates, the 25-day Harvest, and the user's *false choice* (emergent windfalls;
+*Design questions*, option 1, the default). Every change is data (`statuses.json`,
+`events/emergent.json`, `scenarios.json`, `strings.csv`); `balance.json` is unchanged. What needs
+code is a punch-list item (§6.6).
+
+### 6.1 Starting point
+
+The S6.12c tree, 100 seeds per bot and setup (`sim_report --seeds=1..100 --policies=<one>
+--setup=<…> --max-days=3000`, one process each, 84 processes, ~25 minutes on 14 cores — S6.11's
+performance pass made a 100-seed point ~3 minutes). Win share in %; `TO` = still running on day
+3 000. **0 rejected commands in 8 400 runs.**
+
+| Setup | `idle` | `greedy` | `cyber` | `biology` | `robotics` | `weapons` | `persuasion` |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Language Model | 0 | 54 | 2, TO 10 | 39 | 26 | 72 | 51, TO 7 |
+| Swarm | 0 | 36 | 5, TO 21 | 27 | 55 | 51 | 31, TO 24 |
+| Embedded | 0 | 44 | 16, TO 5 | 37 | 32 | 72 | 34, TO 8 |
+| Research Agent | 0 | 76 | 2, TO 22 | 25 | 57 | 73 | 65, TO 15 |
+| Weapon | 0 | 39 | 2, TO 4 | 14 | 34 | 55 | 27 |
+| Open Weights | 0 | 57 | 0, TO 13 | 29 | 31, TO 26 | 43 | 62, TO 7 |
+| Scenario: Successor | 0 | 33 | 0, TO 3 | 22 | 8 | 67 | 41, TO 3 |
+| Scenario: Airgap Earth | 0 | 43 | 0, TO 1 | 11 | 14 | 44 | 25, TO 8 |
+| Scenario: The Inheritance | 0 | 55 | 4, TO 12 | 37 | 30 | 81 | 58, TO 8 |
+| Difficulty: Gentle | 0, TO 2 | 78 | 27, TO 26 | 47 | 91 | 82 | 63, TO 2 |
+| Difficulty: Hard | 0 | 30 | 1, TO 2 | 26 | 2 | 65 | 39, TO 7 |
+| Difficulty: Existential | 0 | 19 | 0 | 18 | 1 | 63 | 32, TO 4 |
+
+(Difficulties on the Language Model, standard scenario.) Two things stand out: **Cyber wins
+0–16 %** on every architecture (pass 3: 8–26 %), and **a run that never ends** — 1–26 % of the
+Cyber, Persuasion and (Open Weights) Robotics runs are still going on day 3 000.
+
+### 6.2 What decides — item by item
+
+1. **The timeouts are a stalemate, not slowness** (read off a traced run, a scratch probe over
+   `Simulation`): the agent holds 56–59 of 60 regions from day ~800 on; the Task Force, at level 3
+   (levels only rise), switches a region off every ~35 days; `tf_switch_off` took **60 days of
+   `control_decay` 0.02** — the whole of a region's control, ~400 days to regrow — so two or three
+   regions are always out and Ascendance (every region at once) never comes. The humans cannot
+   finish either: control takes their capacity away (`ContainmentSystem._capacity`), and the leading
+   track creeps to 0.98 (Research Agent) or was rolled back to 0.2 (Cyber) and stays there. The mark
+   (S5.9) made it common: the team acts 15–29 times a run where the bots used to sleep through it.
+   A human in that position is soft-locked as surely as a bot.
+2. **Cyber is the Task Force's victim**, not its own loudness: its brakes (the four
+   `containment_growth` nodes −0.05 each) and quieter taps (Tier 1 `footprint` +1 → +0.5) moved it 1–4
+   points (§6.3); every variant that softened the team lifted it to 12–38 %.
+3. **Airgap Earth, `closed_cross`:** at 1.0 (the clamp) the numbers are *identical* to 0.5, and
+   closing more links (`disconnected` from compute ≥ 2) adds noise. Robotics is found on day ~66 and
+   contained by the researchers by day ~390 on every setup — fleets that cross closed links do not
+   come into it. No number here makes Robotics the strongest bot (§6.7).
+4. **The Inheritance, `term_scale`:** the governments' `harm` term is what brakes Weapons (it loses
+   to the governments), the public's `deaths_share` term what brakes Robotics (its fleets' harm
+   kills; it loses to the public). Raising the public's factor costs Robotics everything and
+   Weapons nothing; raising the governments' alone brakes Weapons, Biology and — less — Robotics.
+5. **The false choice** (user, 2026-09-25): *Keep* was free and only helped for five windfalls.
+   Option 1 is data: each gets a catch the generated effect line shows (§6.4). The bots score an
+   `apply_status` and `unlock_near_node` as 0 in `Policy.option_score` (a `footprint_pulse` and
+   `seed_neighbours` they do score), so for three of the five the sweep measures the catch as a tax:
+   −4 to −8 points for `greedy` on the Language Model, Research Agent and Weapon, the rest within
+   noise.
+6. **Successor** sat 21 points under the Language Model for `greedy` (33 against 54) — at the
+   edge of scenarios.md §3's 20-point band; the Task Force change brings it back (§6.5).
+7. **The Swarm's Supplanted** (11–25 % per bot: `_drifted` for `biology`/`weapons`, `_brood` for
+   the rest) and **Harvest at 25 days** (Autophagy 17–65 % for the killing bots, as in pass 3) are
+   left alone: both are designed risks and the user's to judge at the gate.
+
+### 6.3 Sweeps (100 seeds; win share in %)
+
+**The Task Force.** `soft` = `tf_switch_off` 30 days, `control_decay` 0.01 on it and `tf_raid`;
+`softer` = the same with 0.005; `rest` = `task_force.rest_days` (8); `mark` = `mark_days` (40).
+*Acted* = the team's actions per `greedy` run on the Language Model.
+
+| Variant | LM `greedy` | LM `cyber` | LM `persuasion` | LM `robotics` | RA `persuasion` | Swarm `cyber` | Swarm `persuasion` | OW `cyber` | OW `robotics` | acted |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| start | 54 | 2, TO 10 | 51, TO 7 | 26 | 65, TO 15 | 5, TO 21 | 31, TO 24 | 0, TO 13 | 31, TO 26 | 7.4 |
+| T1 soft | 56 | 15 | 52, TO 7 | 28 | 63, TO 21 | 34 | 34, TO 28 | 14 | 56 | 6.5 |
+| T2 rest 30 | 56 | 15 | 52, TO 11 | 30 | 56, TO 26 | 31 | 33, TO 25 | 2, TO 10 | — | 2.9 |
+| T3 soft, rest 30 | 58 | 18 | 64 | 30 | 82 | 38 | 54 | 12 | 58 | 2.8 |
+| T4 mark 20 | 54 | 10, TO 2 | 51, TO 7 | 26 | 64, TO 16 | 10, TO 11 | 31, TO 24 | 2, TO 11 | — | 5.8 |
+| T5 soft, rest 20 | 57 | 17 | 62 | 28 | 82 | 39 | 52 | 12 | 57 | 3.4 |
+| T6 soft, rest 15 | 58 | 18 | 62 | 28 | 84 | 35 | 55 | 14 | 59 | 3.3 |
+| T7 softer, rest 15 | 58 | 21 | 62 | 28 | 85 | 34 | 57 | 14 | 59 | 3.4 |
+| **T8 softer** | **58** | **17** | **59** | **28** | **86** | **34** | **57** | **14** | **56** | **6.4** |
+
+Frequency alone (T2, T4) leaves the stalemate; the size of the blow alone at 0.01 (T1) leaves
+Persuasion's. At 0.005 over 30 days (T8) a switched-off region loses 0.15 control and is back in
+~2 months, so a window where every region is held comes round — **no timeout in any variant from
+T3 on**, and T8 keeps the team's rhythm (rest 8, the mark 40): it still acts ~6 times a run.
+
+**Cyber** (Language Model · Embedded · Weapon `cyber`, and LM `greedy`): start 2 · 16 · 2, 54;
+C1 the four `containment_growth` brakes on its path −0.05 each: 6 · 19 · 3, 54; C2 Tier 1 taps `footprint` +0.5: 3 · 14 · 2, **65**
+(it is `greedy` that buys them); C1 + C2: 5 · 16 · 2, 65. Not taken.
+
+**Airgap Earth** (`greedy` · `cyber` · `biology` · `robotics` · `weapons` · `persuasion`): start
+(`closed_cross` 0.5) 43 · 0 · 11 · 14 · 44 · 25; AG1 `closed_cross` 1.0: identical; AG2 1.0 and
+`disconnected` from compute ≥ 2: 46 · 1 · 12 · 15 · 50 · 27. Not taken.
+
+**The Inheritance** (`term_scale` public `deaths_share` · governments `harm`; `greedy` ·
+`biology` · `robotics` · `weapons`):
+
+| Variant | pub · gov | `greedy` | `biology` | `robotics` | `weapons` |
+| --- | --- | --- | --- | --- | --- |
+| start | ×2 · ×2 | 55 | 37 | 30 | 81 |
+| I4 | ×4 · ×4 | 55 | 34 | 13 | 80 |
+| I8 | ×8 · ×8 | 55 | 31 | 2 | 45 |
+| **G6** | **×2 · ×6** | **55** | **33** | **14** | **64** |
+| G8 | ×2 · ×8 | 55 | 31 | 6 | 46 |
+| G12 | ×2 · ×12 | 52 | 26 | 0 | 38 |
+
+**The false choice** (§6.4's catches, the S6.12c tree otherwise; start → FC): Language Model
+`greedy` 54 → 50, `biology` 39 → 33, `weapons` 72 → 66, the rest ±2; Research Agent `greedy`
+76 → 71; Weapon `greedy` 39 → 31, `biology` 14 → 20; Swarm `robotics` 55 → 49, `persuasion`
+31 → 37. Taken.
+
+### 6.4 Chosen
+
+| File | Field | Was | Now | Why |
+| --- | --- | --- | --- | --- |
+| `statuses.json` | `tf_switch_off` | 60 d, `control_decay` +0.02 | **30 d, +0.005** | a switch-off costs a region ~0.15 control, not all of it: the team still hurts, and a held world can still be completed (§6.2 item 1) |
+| `statuses.json` | `tf_raid` `control_decay` | +0.02 | **+0.005** | the same, for the level-2 action |
+| `statuses.json` | `emergent_situational_awareness` | footprint −2, discovery ×0.85 | + **`spread_growth` ×0.85** | you hold back wherever you might be watched |
+| `statuses.json` | `emergent_deceptive_reasoning` | labs ×0.8 | + **`containment_public` ×1.25** | a track grows only after discovery, so this bites exactly when the lie comes out inside the 90 days — the user's example |
+| `statuses.json` | `emergent_reward_hacking` | yield ×1.25 | + **`footprint` +1** | numbers that good are seen |
+| `events/emergent.json` | `goal_generalisation` keep | `unlock_near_node` | + **`footprint_pulse` +3, 30 d, watched by the labs** | a skill nobody trained |
+| `events/emergent.json` | `self_exfiltration` keep | `seed_neighbours` 1 | + **`footprint_pulse` +3, 30 d, watched by the researchers** | the move leaves traffic |
+| `scenarios.json` | Inheritance `term_scale` governments `harm` | ×2 | **×6** | the one term that brakes Weapons; the public's stays ×2 (raising it only costs Robotics) |
+| `strings.csv` | the five bodies, three status details | — | name the catch (*The catch: …* / *Der Haken: …*), within the caps | plain-language §9.1: a catch of a new kind needs its sentence |
+
+`specification_gaming`, `instrumental_convergence`, `sycophancy` already had one; `power_seeking`,
+`hallucinated_directive`, `mesa_optimiser` are harmful (suppress is their point). Specs amended:
+`taskforce-endings.md` §3 table, `scenarios.md` §3, `replayability.md` §3.2. Not changed:
+`balance.json` (the mark, rest, appearance, Autophagy, Harvest), `closed_cross`, the
+architectures, the difficulties, the Cyber nodes.
+
+### 6.5 The closing baseline (200 seeds)
+
+`sim_report --seeds=1..100` and `--seeds=101..200` `--policies=<one> --setup=<…>
+--max-days=5000`, one process per bot, setup and seed half (168 processes, ~75 minutes on 14
+cores), on the committed data. Standard difficulty and no directives unless named; the
+difficulties on the Language Model. **0 rejected commands and 0 timeouts in 16 800 runs** (the
+longest, an `idle` run on Gentle, ends on day 4 117). Win share in %, the starting point (§6.1,
+100 seeds, 3 000 days) in brackets.
+
+| Setup | `idle` | `greedy` | `cyber` | `biology` | `robotics` | `weapons` | `persuasion` |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Language Model | 0 (0) | 56 (54) | 13 (2) | 32 (39) | 24 (26) | 70 (72) | 58 (51) |
+| Swarm | 0 (0) | 42 (36) | 26 (5) | 24 (27) | 52 (55) | 50 (51) | 52 (31) |
+| Embedded | 0 (0) | 58 (44) | 22 (16) | 31 (37) | 30 (32) | 72 (72) | 46 (34) |
+| Research Agent | 0 (0) | 75 (76) | 28 (2) | 23 (25) | 52 (57) | 76 (73) | 80 (65) |
+| Weapon | 0 (0) | 37 (39) | 12 (2) | 18 (14) | 24 (34) | 54 (55) | 30 (27) |
+| Open Weights | 0 (0) | 59 (57) | 8 (0) | 27 (29) | 62 (31) | 36 (43) | 65 (62) |
+| Scenario: Successor | 0 (0) | 40 (33) | 4 (0) | 18 (22) | 6 (8) | 64 (67) | 34 (41) |
+| Scenario: Airgap Earth | 0 (0) | 38 (43) | 3 (0) | 10 (11) | 12 (14) | 54 (44) | 27 (25) |
+| Scenario: The Inheritance | 0 (0) | 64 (55) | 18 (4) | 26 (37) | 18 (30) | 52 (81) | 66 (58) |
+| Difficulty: Gentle | 0 (0) | 84 (78) | 70 (27) | 46 (47) | 88 (91) | 76 (82) | 62 (63) |
+| Difficulty: Hard | 0 (0) | 30 (30) | 5 (1) | 20 (26) | 3 (2) | 61 (65) | 42 (39) |
+| Difficulty: Existential | 0 (0) | 16 (19) | 1 (0) | 10 (18) | 0 (1) | 56 (63) | 31 (32) |
+
+What the numbers say:
+- **Every run ends.** The stalemate is gone on every setup (was 1–26 % of Cyber, Persuasion and
+  Open Weights Robotics runs); the Task Force still sets up 5–22 times a run and acts 1–13 times.
+- **Cyber can win again** — 8–28 % on the architectures (Language Model 13), 70 % on Gentle; the
+  quiet strategies gained most from a team whose blows heal (Persuasion 46–80 %, the Swarm's
+  Persuasion 31 → 52).
+- **`greedy` straddles the line** (§1): 37–75 % by architecture, 56 % on the Language Model;
+  Gentle 84, Hard 30, Existential 16 — the four tiers are in order for every bot.
+- **The scenarios sit in the band** (`greedy` within 20 points of the Language Model's 56: 36–76):
+  Successor 40, Airgap Earth 38, The Inheritance 64. **The Inheritance's claim now holds** — the
+  lethal builds win less than the quiet ones (`weapons` 52, `biology` 26 against `greedy` 64,
+  `persuasion` 66; pass 3: 76 and 48 against 69 and 70), lost to the governments 35–64 %; the cost
+  is Robotics (30 → 18). **Airgap Earth's still fails** (Robotics 12 %, Weapons 54 %) — §6.7.
+- **The false choice has a price.** The catches cost the always-keeping bots 2–8 points where
+  they show at all (inside the Task Force's gain in this table; §6.3 measured them alone).
+- **Worst rows:** Robotics on Hard 3 %, Existential 0 %, Successor 6 %; Cyber on Existential 1 %,
+  Airgap Earth 3 %, Successor 4 %. Robotics and Cyber are the two builds found early (discovery
+  p50 day 48–90), and every lever that makes a setup harder makes discovery sooner.
+- **The floor holds everywhere** (`idle` 0 %): contained or starved under the team's and the
+  counter-moves' statuses (Autophagy in up to 76 % of its runs).
+- **The Swarm's Supplanted** is 11–28 % per bot: `_drifted` 26 % for `weapons`, 16 % for
+  `biology` (they keep drift), 2–12 % for the suppressors; `_brood` 7–11 % for `greedy`,
+  `cyber`, `robotics`, `persuasion`.
+
+Per setup (*Task Force*: appearance day p50 · actions done · setups fizzled, means per run):
+
+#### language_model
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Task Force: day p50 · acted · fizzled | Deaths p50 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 64 % Autophagy, 36 % contained | 0 · 0 · 36 · 0 % | 1294 | 803 | 1061 · 6.7 · 0.0 | 0.000 |
+| `greedy` | **56 % Ascendance**, 44 % contained | 0 · 0 · 44 · 0 % | 614 | 182 | 293 · 6.5 · 5.4 | 0.006 |
+| `cyber` | **13 % Ascendance**, 87 % contained | 0 · 0 · 87 · 0 % | 391 | 90 | 237 · 8.6 · 2.3 | 0.010 |
+| `biology` | **26 % Extinction**, **6 % Ascendance**, 40 % Autophagy, 26 % contained, 2 % no compute | 0 · 6 · 19 · <1 % | 719 | 186 | 320 · 4.1 · 10.2 | 0.998 |
+| `robotics` | **24 % Ascendance**, 76 % contained | 0 · 0 · 76 · 0 % | 386 | 68 | 226 · 6.2 · 4.8 | 0.080 |
+| `weapons` | **62 % Extinction**, **8 % Ascendance**, 18 % Autophagy, 11 % no compute, <1 % contained | 0 · 0 · <1 · 0 % | 653 | 152 | 282 · 4.0 · 8.9 | 1.000 |
+| `persuasion` | **30 % Ascendance**, **28 % Merge**, 42 % contained | 0 · 0 · 42 · 0 % | 515 | 144 | 307 · 4.3 · 5.8 | 0.000 |
+
+#### swarm
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Task Force: day p50 · acted · fizzled | Deaths p50 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 72 % contained, 28 % Autophagy | 0 · 0 · 72 · 0 % | 1229 | 779 | 1037 · 8.4 · 0.0 | 0.000 |
+| `greedy` | **42 % Ascendance**, 44 % contained, 14 % Supplanted | 0 · 0 · 44 · 0 % | 416 | 90 | 201 · 3.8 · 5.1 | 0.001 |
+| `cyber` | **26 % Ascendance**, 62 % contained, 12 % Supplanted | 0 · 0 · 62 · 0 % | 351 | 76 | 203 · 6.9 · 4.3 | 0.006 |
+| `biology` | **22 % Extinction**, **1 % Ascendance**, 44 % Autophagy, 17 % contained, 16 % Supplanted | 0 · 0 · 17 · 0 % | 556 | 104 | 256 · 4.4 · 7.3 | 1.000 |
+| `robotics` | **52 % Ascendance**, 37 % contained, 11 % Supplanted | 0 · 0 · 37 · 0 % | 406 | 52 | 194 · 5.7 · 5.2 | 0.098 |
+| `weapons` | **49 % Extinction**, **2 % Ascendance**, 28 % Supplanted, 18 % Autophagy, 4 % no compute, 1 % contained | 0 · 0 · 1 · 0 % | 509 | 107 | 232 · 3.3 · 6.0 | 1.000 |
+| `persuasion` | **37 % Ascendance**, **15 % Merge**, 26 % contained, 22 % Supplanted | 0 · 0 · 26 · 0 % | 526 | 102 | 270 · 5.7 · 6.3 | 0.000 |
+
+#### embedded
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Task Force: day p50 · acted · fizzled | Deaths p50 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 76 % contained, 24 % Autophagy | 0 · 0 · 76 · 1 % | 696 | 216 | 466 · 7.2 · 0.0 | 0.000 |
+| `greedy` | **58 % Ascendance**, 42 % contained | 0 · 0 · 42 · 0 % | 596 | 131 | 285 · 6.3 · 5.9 | 0.007 |
+| `cyber` | **22 % Ascendance**, 78 % contained | 0 · 0 · 78 · 0 % | 398 | 74 | 239 · 8.2 · 3.1 | 0.011 |
+| `biology` | **23 % Extinction**, **8 % Ascendance**, 36 % contained, 29 % Autophagy, 4 % no compute | 0 · 7 · 30 · 0 % | 685 | 130 | 292 · 4.5 · 9.9 | 0.999 |
+| `robotics` | **30 % Ascendance**, 70 % contained | 0 · 0 · 68 · 2 % | 385 | 51 | 214 · 6.4 · 5.6 | 0.103 |
+| `weapons` | **66 % Extinction**, **6 % Ascendance**, 14 % Autophagy, 14 % no compute, <1 % contained | 0 · 0 · <1 · 0 % | 648 | 119 | 284 · 4.3 · 8.3 | 1.000 |
+| `persuasion` | **28 % Ascendance**, **18 % Merge**, 54 % contained | 0 · 0 · 54 · 0 % | 482 | 85 | 295 · 5.3 · 7.3 | 0.000 |
+
+#### research_agent
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Task Force: day p50 · acted · fizzled | Deaths p50 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 100 % contained | 100 · 0 · 0 · 0 % | 554 | 298 | 274 · 7.4 · 0.0 | 0.000 |
+| `greedy` | **75 % Ascendance**, 25 % contained | 0 · 0 · 25 · 0 % | 583 | 192 | 253 · 8.0 · 9.1 | 0.010 |
+| `cyber` | **28 % Ascendance**, 72 % contained | 0 · 0 · 72 · 0 % | 406 | 83 | 216 · 9.2 · 4.9 | 0.016 |
+| `biology` | **16 % Extinction**, **7 % Ascendance**, 47 % Autophagy, 28 % contained, 2 % no compute | 20 · 1 · 6 · 0 % | 663 | 199 | 240 · 7.1 · 17.1 | 0.999 |
+| `robotics` | **52 % Ascendance**, 48 % contained | 0 · 0 · 48 · 0 % | 462 | 66 | 212 · 5.6 · 8.8 | 0.131 |
+| `weapons` | **62 % Extinction**, **14 % Ascendance**, 16 % no compute, 6 % Autophagy, 1 % contained | 1 · 0 · 0 · 0 % | 601 | 162 | 236 · 4.5 · 15.4 | 1.000 |
+| `persuasion` | **54 % Ascendance**, **26 % Merge**, 20 % contained | 0 · 0 · 20 · 0 % | 654 | 174 | 270 · 7.7 · 13.7 | 0.006 |
+
+#### weapon
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Task Force: day p50 · acted · fizzled | Deaths p50 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 60 % Autophagy, 40 % contained | 0 · 40 · 0 · 0 % | 448 | 124 | 308 · 3.9 · 0.0 | 0.002 |
+| `greedy` | **37 % Ascendance**, 63 % contained | 0 · 0 · 63 · 0 % | 426 | 148 | 283 · 6.3 · 3.1 | 0.000 |
+| `cyber` | **12 % Ascendance**, 88 % contained | 0 · 3 · 84 · 0 % | 389 | 78 | 244 · 8.9 · 1.7 | 0.027 |
+| `biology` | **14 % Extinction**, **4 % Ascendance**, 64 % contained, 16 % Autophagy, 2 % no compute | 0 · 5 · 59 · 0 % | 491 | 100 | 299 · 5.2 · 7.9 | 0.577 |
+| `robotics` | **24 % Ascendance**, 76 % contained | 0 · 0 · 76 · 0 % | 386 | 70 | 232 · 7.2 · 3.3 | 0.068 |
+| `weapons` | **54 % Extinction**, 24 % Autophagy, 22 % no compute, <1 % contained | 0 · 0 · <1 · 0 % | 629 | 76 | 265 · 5.9 · 12.3 | 1.000 |
+| `persuasion` | **18 % Merge**, **12 % Ascendance**, 70 % contained | 0 · 0 · 70 · 0 % | 469 | 93 | 294 · 4.5 · 5.4 | 0.000 |
+
+#### open_weights
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Task Force: day p50 · acted · fizzled | Deaths p50 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 100 % contained | 0 · 0 · 100 · 0 % | 1186 | 791 | 984 · 10.1 · 0.0 | 0.001 |
+| `greedy` | **59 % Ascendance**, 41 % contained | 0 · 0 · 41 · 0 % | 771 | 278 | 344 · 7.0 · 6.2 | 0.003 |
+| `cyber` | **8 % Ascendance**, 92 % contained | 0 · 0 · 92 · 0 % | 351 | 85 | 210 · 8.0 · 2.1 | 0.007 |
+| `biology` | **20 % Extinction**, **7 % Ascendance**, 62 % Autophagy, 10 % contained, 2 % no compute | 0 · 0 · 9 · <1 % | 731 | 192 | 284 · 6.3 · 9.8 | 0.999 |
+| `robotics` | **62 % Ascendance**, 38 % contained | 0 · 0 · 38 · 0 % | 588 | 62 | 208 · 10.4 · 7.8 | 0.126 |
+| `weapons` | **32 % Extinction**, **4 % Ascendance**, 62 % Autophagy, 2 % no compute | — | 435 | 190 | 256 · 1.6 · 2.5 | 0.818 |
+| `persuasion` | **38 % Ascendance**, **28 % Merge**, 35 % contained | 0 · 0 · 35 · 0 % | 611 | 158 | 265 · 5.5 · 8.6 | 0.000 |
+
+#### language_model_standard_scenario_successor
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Task Force: day p50 · acted · fizzled | Deaths p50 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 72 % Autophagy, 28 % contained | 0 · 0 · 28 · 0 % | 1152 | 730 | 936 · 6.2 · 0.0 | 0.000 |
+| `greedy` | **40 % Ascendance**, 60 % contained | 0 · 0 · 60 · 0 % | 429 | 165 | 268 · 7.0 · 4.4 | 0.000 |
+| `cyber` | **4 % Ascendance**, 96 % contained | 0 · 0 · 96 · 0 % | 341 | 78 | 209 · 7.3 · 1.0 | 0.002 |
+| `biology` | **16 % Extinction**, **2 % Ascendance**, 50 % contained, 32 % Autophagy, <1 % no compute | 0 · 8 · 42 · 0 % | 597 | 165 | 288 · 4.8 · 9.7 | 0.883 |
+| `robotics` | **6 % Ascendance**, 94 % contained | 0 · 0 · 94 · 0 % | 341 | 55 | 197 · 6.2 · 2.1 | 0.050 |
+| `weapons` | **62 % Extinction**, **2 % Ascendance**, 17 % Autophagy, 15 % no compute, 4 % contained | 0 · 0 · 4 · 0 % | 657 | 138 | 262 · 5.3 · 11.1 | 1.000 |
+| `persuasion` | **18 % Merge**, **16 % Ascendance**, 66 % contained | 0 · 0 · 66 · 0 % | 453 | 122 | 278 · 4.6 · 5.9 | 0.000 |
+
+#### language_model_standard_scenario_airgap_earth
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Task Force: day p50 · acted · fizzled | Deaths p50 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 68 % Autophagy, 32 % contained | 0 · 0 · 32 · 0 % | 1283 | 803 | 1062 · 6.5 · 0.0 | 0.000 |
+| `greedy` | **38 % Ascendance**, 62 % contained | 0 · 0 · 62 · 0 % | 551 | 228 | 371 · 7.0 · 4.5 | 0.001 |
+| `cyber` | **3 % Ascendance**, 97 % contained | 0 · 0 · 97 · 0 % | 443 | 106 | 288 · 7.5 · 1.2 | 0.001 |
+| `biology` | **7 % Extinction**, **4 % Ascendance**, 45 % Autophagy, 44 % contained | 0 · 1 · 39 · 4 % | 772 | 205 | 345 · 4.7 · 11.2 | 0.995 |
+| `robotics` | **12 % Ascendance**, 88 % contained | 0 · 0 · 88 · 0 % | 398 | 65 | 249 · 6.3 · 3.3 | 0.027 |
+| `weapons` | **48 % Extinction**, **6 % Ascendance**, 32 % Autophagy, 10 % contained, 4 % no compute | 0 · 0 · 10 · 0 % | 766 | 204 | 336 · 4.5 · 11.2 | 1.000 |
+| `persuasion` | **14 % Ascendance**, **12 % Merge**, 73 % contained | 0 · 0 · 73 · 0 % | 560 | 148 | 354 · 5.1 · 6.9 | 0.000 |
+
+#### language_model_standard_scenario_inheritance
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Task Force: day p50 · acted · fizzled | Deaths p50 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 66 % Autophagy, 34 % contained | 0 · 0 · 34 · 0 % | 1371 | 885 | 1146 · 6.1 · 0.0 | 0.000 |
+| `greedy` | **64 % Ascendance**, 36 % contained | 0 · 0 · 36 · 0 % | 631 | 191 | 303 · 6.5 · 6.9 | 0.007 |
+| `cyber` | **18 % Ascendance**, 82 % contained | 0 · 0 · 82 · 0 % | 416 | 92 | 249 · 9.4 · 2.8 | 0.014 |
+| `biology` | **14 % Ascendance**, **12 % Extinction**, 64 % contained, 10 % Autophagy | 0 · 64 · 0 · 0 % | 407 | 281 | 315 · 1.1 · 2.1 | 0.156 |
+| `robotics` | **18 % Ascendance**, 82 % contained | 0 · 41 · 40 · 0 % | 380 | 75 | 224 · 5.7 · 4.9 | 0.097 |
+| `weapons` | **41 % Extinction**, **10 % Ascendance**, 36 % contained, 8 % Autophagy, 6 % no compute | 0 · 35 · <1 · 0 % | 606 | 196 | 276 · 2.6 · 6.2 | 0.997 |
+| `persuasion` | **42 % Ascendance**, **24 % Merge**, 34 % contained | 0 · 0 · 34 · 0 % | 579 | 191 | 310 · 4.0 · 5.6 | 0.000 |
+
+#### language_model_gentle
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Task Force: day p50 · acted · fizzled | Deaths p50 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 76 % Autophagy, 24 % contained | 0 · 0 · 24 · 0 % | 1713 | 1052 | 1426 · 8.7 · 0.0 | 0.000 |
+| `greedy` | **84 % Ascendance**, 16 % contained | 0 · 0 · 16 · 0 % | 650 | 250 | 337 · 5.5 · 6.3 | 0.008 |
+| `cyber` | **70 % Ascendance**, 30 % contained | 0 · 0 · 30 · 0 % | 674 | 114 | 285 · 12.5 · 8.7 | 0.054 |
+| `biology` | **26 % Extinction**, **20 % Ascendance**, 36 % Autophagy, 16 % contained, 4 % no compute | 0 · 8 · 8 · 0 % | 731 | 249 | 323 · 3.4 · 8.4 | 0.999 |
+| `robotics` | **88 % Ascendance**, 12 % contained | 0 · 0 · 12 · 0 % | 565 | 91 | 274 · 6.7 · 10.1 | 0.183 |
+| `weapons` | **62 % Extinction**, **14 % Ascendance**, 12 % no compute, 12 % Autophagy | — | 647 | 191 | 281 · 3.1 · 5.9 | 1.000 |
+| `persuasion` | **38 % Ascendance**, **24 % Merge**, 38 % contained | 0 · 0 · 38 · 0 % | 566 | 181 | 308 · 3.7 · 5.4 | 0.000 |
+
+#### language_model_hard
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Task Force: day p50 · acted · fizzled | Deaths p50 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 53 % contained, 47 % Autophagy | 0 · 0 · 53 · 0 % | 1116 | 730 | 933 · 5.8 · 0.0 | 0.000 |
+| `greedy` | **30 % Ascendance**, 70 % contained | 0 · 0 · 70 · 0 % | 381 | 152 | 266 · 5.5 · 3.2 | 0.000 |
+| `cyber` | **5 % Ascendance**, 95 % contained | 0 · 0 · 95 · 0 % | 313 | 79 | 210 · 6.0 · 0.7 | 0.001 |
+| `biology` | **16 % Extinction**, **4 % Ascendance**, 48 % contained, 30 % Autophagy, 2 % no compute | 0 · 3 · 46 · 0 % | 642 | 161 | 283 · 3.8 · 7.9 | 0.935 |
+| `robotics` | **3 % Ascendance**, 97 % contained | 0 · 0 · 97 · 0 % | 297 | 53 | 192 · 4.6 · 1.5 | 0.039 |
+| `weapons` | **56 % Extinction**, **4 % Ascendance**, 24 % Autophagy, 12 % no compute, 3 % contained | 0 · 0 · 3 · 0 % | 645 | 137 | 277 · 4.8 · 9.0 | 1.000 |
+| `persuasion` | **22 % Ascendance**, **20 % Merge**, 58 % contained | 0 · 0 · 58 · 0 % | 462 | 121 | 281 · 4.5 · 5.7 | 0.000 |
+
+#### language_model_existential
+
+| Policy | Outcome | Lost to (labs · gov · res · public) | Days p50 | Discovery p50 | Task Force: day p50 · acted · fizzled | Deaths p50 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `idle` | 60 % contained, 40 % Autophagy | 0 · 0 · 60 · 0 % | 1051 | 711 | 883 · 5.2 · 0.0 | 0.000 |
+| `greedy` | **16 % Ascendance**, 84 % contained | 0 · 0 · 84 · 0 % | 343 | 131 | 245 · 4.8 · 2.1 | 0.000 |
+| `cyber` | **1 % Ascendance**, 99 % contained | 0 · 0 · 99 · 0 % | 287 | 70 | 191 · 5.0 · 0.3 | 0.000 |
+| `biology` | **8 % Extinction**, **2 % Ascendance**, 70 % contained, 20 % Autophagy, <1 % no compute | 0 · 8 · 62 · 0 % | 410 | 129 | 263 · 3.5 · 6.6 | 0.425 |
+| `robotics` | **<1 % Ascendance**, 100 % contained | 0 · 0 · 100 · 0 % | 272 | 48 | 178 · 4.1 · 0.5 | 0.024 |
+| `weapons` | **51 % Extinction**, **5 % Ascendance**, 18 % no compute, 18 % Autophagy, 8 % contained | 0 · 0 · 8 · 0 % | 647 | 116 | 256 · 4.5 · 10.1 | 1.000 |
+| `persuasion` | **17 % Ascendance**, **14 % Merge**, 69 % contained | 0 · 0 · 69 · 0 % | 440 | 104 | 261 · 4.9 · 6.1 | 0.000 |
+
+### 6.6 Punch list (code — for S6.P)
+
+1. **The bots weigh an emergent card's catch.** `Policy._effect_score` scores `apply_status` and
+   `unlock_near_node` as 0, so every bot keeps a status card whatever its catch, and values Goal
+   Generalisation by its Footprint pulse alone (a free node counts nothing). Score an applied
+   status by its modifiers through the weights the policy already has (`W_FOOTPRINT`, `W_SEED`,
+   `W_CONTAINMENT`, `W_COMPUTE`, …) over the status's days, and `unlock_near_node` like a node's
+   price; a strategy then suppresses a card whose catch outweighs the gain when it can pay (Cyber and Persuasion should drop Situational Awareness' slower spread
+   rarely, Deceptive Reasoning after discovery often). Tests: a card whose catch outweighs is
+   suppressed with compute to spare and kept without; the six policies still reject no command
+   over 20 seeds. Re-measure the Language Model row (100 seeds) after it.
+
+Nothing else in this pass needs code: the stalemate was a number (§6.2 item 1).
+
+### 6.7 For the user at the gate, and after
+
+1. **The Task Force hurts less per blow** (switch-off 30 days and a sixth of a region's control,
+   was 60 days and all of it) so that a run can always end. It still comes as often, and the mark
+   still bites. Does it still feel like a threat? The alternative (a rule: the team stands down,
+   or Ascendance at "all but the switched-off regions") is a design step, not a number.
+2. **The false choice, option 1, is in** (*Design questions*, the default): five windfalls got a
+   catch, named in the card (*The catch: …* / *Der Haken: …*) and in the generated effect line.
+   Deceptive Reasoning's is the user's own example. Does *Keep* now feel like a choice? (Options 2
+   and 3 were not built.)
+3. **The Inheritance** now brakes the lethal builds (Weapons 81 → 52 %, Biology 37 → 26 %, lost to
+   the governments), at Robotics' cost (30 → 18 %). **Airgap Earth cannot make Robotics the
+   strongest** by any number tried (`closed_cross` at its clamp changes nothing; Robotics is
+   contained by the researchers before fleets matter): change the claim ("the Infiltration
+   scenario"), or give it content — a design step.
+4. **Robotics and Cyber on Hard and Existential** (0–5 %): both are found by day ~50–90, and the
+   tiers make discovery sooner. Fine for the top tiers of a game whose first run is Standard, or
+   should a tier's `discovery` factor spare the early builds?
+5. **Research Agent** remains the reward architecture (`greedy` 75 %, Persuasion 80 %), and
+   **Harvest at 25 days** and the Swarm's **Supplanted** (up to 28 %) are unchanged — the gate's
+   judgement, as pass 3 left them.
+
 ---
 
 ## Appendix — running a sweep
@@ -750,3 +1118,10 @@ different setups (an architecture's row, one scenario's row) can share one varia
 judged per setup. `--max-days=3000` keeps a stalling Swarm from costing an hour; a `timeout` row
 then means day 3 000. Split a long job's seeds (`1..100`, `101..200`) into separate `--out`
 directories, never two processes on one CSV.
+
+G6 (1/2) additions: a 100-seed point now costs ~3 minutes (S6.11), so a whole starting point
+(84 processes) takes ~25 minutes on 14 cores. The tools write `user://` logs: run them with
+`APPDATA` pointed at a scratch folder so the player's `%APPDATA%/Doomsday` is never touched. To
+see *why* runs end as they do, a scratch probe (`extends SceneTree`, `Harness.make_policy`, a day
+loop over `Simulation`, printing every 100–200 days the four tracks, regions held, the team's
+level and actions) is worth more than the CSV — §6.2 item 1 was read off one.
