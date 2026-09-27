@@ -2681,10 +2681,12 @@ without new information.
 Not suitable: the Lyria music models, `nemotron-3.5-content-safety`, the `openrouter/free` router
 (no fixed model identity), **`inkling:free` and `inkling-small:free`** (403: "only available on
 agentic harnesses", checked 2026-09-27). `qwen3.8-27b:free`: 429 upstream (shared pool) on
-2026-09-27, the run stopped before its first answer — retry another day. **Started 2026-09-27
-(evening), in parallel:** `nemotron-3-super-120b-a12b:free` and `laguna-s-2.1:free` (high, quick,
-`-Parallel 3` each); the day's cap will likely stop them part-way — re-run the same command after
-00:00 UTC, the cache replays the answers already given. **Limits:** OpenRouter's free tier shares one daily request cap per
+2026-09-27, the run stopped before its first answer — retry another day. **`nemotron-3-super-120b-a12b:free`
+done (2026-09-28, high, quick): 22.1, 1/3 wins** (s1001 lose_contained d804 · 136 calls · 3
+unreadable; s1002 win_merge d1343, 66.4 · 225 calls · 2; s1003 lose_contained d448 · 71 calls),
+0 USD, in `%APPDATA%\Doomsday\benchmark\runs`; `submit_runs.ps1` dry run: 3 new files, validate 0
+problems — **publishing (`-Push -VerifyLocally`) is the user's.** `laguna-s-2.1:free` stopped twice
+"unavailable" upstream (35 answers cached) — re-run the same command; the cache replays them. **Limits:** OpenRouter's free tier shares one daily request cap per
 account (≈1 000/day with credits bought; a quick suite needed ≈300–450 requests) and ≈20 req/min,
 so `-Parallel` helps only up to that rate — about two quick suites a day. Command: `toolsench\
 run_models.ps1 -Models <a>,<b> -Effort high -Suite quick -Parallel 3 -MaxTotal 0`, then
