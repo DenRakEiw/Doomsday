@@ -6,7 +6,9 @@ extends RefCounted
 ## crashes and keeps only what it can show safely.
 
 const VERSION: int = 1
-const SUITE_STANDARD: String = "standard"
+## The suites the list shows (S6.12e): the standard one ranked first, the
+## quick one in its own section under it. Any other suite is skipped.
+const SUITES: Array[String] = [BenchConfig.SUITE_STANDARD, BenchConfig.SUITE_QUICK]
 ## `validate.py`'s rule for a model name: printable ASCII without spaces.
 const MODEL_MAX_LENGTH: int = 200
 const PRINTABLE_FIRST: int = 0x21
@@ -20,7 +22,8 @@ const DATE_LENGTH: int = 10
 ## The file's ISO time; "" when unusable (or when the file gave none).
 var generated: String = ""
 var content_hash: String = ""
-## Standard-suite rows only, in file order.
+## Standard- and quick-suite rows, in file order (`GlobalBoardRow.suite` says
+## which).
 var rows: Array[GlobalBoardRow] = []
 ## Rows or runs refused by the rules below.
 var dropped: int = 0
@@ -33,8 +36,8 @@ static var _sha256: RegEx = null
 
 ## The board in `text`, checked (§16.6): `version` 1, `generated` and
 ## `content_hash` strings, `rows` a list, at most `config.global_max_rows` rows
-## read. A row or a run that breaks a rule is dropped and counted; a row of
-## another suite is skipped silently (practice, not an error).
+## read. A row or a run that breaks a rule is dropped and counted; a row of a
+## suite outside `SUITES` is skipped silently (not an error).
 static func parse(text: String, config: BenchConfig) -> GlobalBoard:
 	var board: GlobalBoard = GlobalBoard.new()
 	var json: JSON = JSON.new()
@@ -107,7 +110,7 @@ func _read_row(value: Variant) -> void:
 	if typeof(d.get("suite")) != TYPE_STRING:
 		dropped += 1
 		return
-	if str(d["suite"]) != SUITE_STANDARD:
+	if not SUITES.has(str(d["suite"])):
 		return
 	if typeof(d.get("model")) != TYPE_STRING or not is_model_name(str(d["model"])):
 		dropped += 1
@@ -125,6 +128,7 @@ func _read_row(value: Variant) -> void:
 		return
 	var row: GlobalBoardRow = GlobalBoardRow.new()
 	row.model = str(d["model"])
+	row.suite = str(d["suite"])
 	row.params_id = str(d["params_id"]) if typeof(d.get("params_id")) == TYPE_STRING else ""
 	row.content_hash = str(d["content_hash"])
 	row.complete = bool(d["complete"])

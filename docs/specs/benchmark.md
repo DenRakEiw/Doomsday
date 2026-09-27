@@ -1501,7 +1501,7 @@ class_name GlobalBoard
 extends RefCounted
 var generated: String = ""                  # the file's ISO time; "" when unusable
 var content_hash: String = ""
-var rows: Array[GlobalBoardRow] = []        # standard-suite rows only, in file order
+var rows: Array[GlobalBoardRow] = []        # standard- and quick-suite rows, in file order (S6.12e)
 var dropped: int = 0                        # rows or runs refused by the rules below
 var last_error: String = ""                 # non-empty → the file is unusable
 static func parse(text: String, config: BenchConfig) -> GlobalBoard
@@ -1535,7 +1535,7 @@ func cancel() -> void
 **Parsing (`GlobalBoard.parse`)** — never crashes, whatever the text: `version` must be 1,
 `generated` and `content_hash` strings, `rows` an array; at most `global.max_rows` rows read.
 A row is kept only with a `model` of 1–200 printable ASCII characters without spaces, `suite`
-`"standard"` (other suites are practice — skipped silently, not `dropped`), whole `runs`, `of`,
+`"standard"` or, since S6.12e, `"quick"` (any other suite is skipped silently, not `dropped`), whole `runs`, `of`,
 `wins` ≥ 0, a number `score` in 0–100, bool `complete`, a string `content_hash`. `seeds` missing →
 empty; a seed is kept only with a whole `seed`, a `file` matching `^runs/[a-z0-9._-]+\.json$`, a
 64-hex `sha256`, a string `outcome`, a whole `days` and a number `score`. Everything refused
@@ -1598,6 +1598,11 @@ preset — S7.2 sets it (D7.1/S7.2 carry-over). Steam changes nothing.
 4. **Rows for other content**, under `CapsLabel` `UI_BENCH_GLOBAL_OTHER_TITLE`: model and
    `UI_BENCH_GLOBAL_ROW` with `UI_BENCH_OTHER_VERSION` (existing); no *Runs* button (they cannot
    be replayed here).
+3a. **Quick-suite rows for this content** (S6.12e, user decision 2026-09-27), after item 3's rows,
+   under `CapsLabel` `UI_BENCH_GLOBAL_QUICK_TITLE` and `LabelCaption` `UI_BENCH_GLOBAL_QUICK_NOTE`
+   (both hidden without such a row): as item 3, with their own `{rank}` from 1 — a quick score
+   never ranks against a standard one. In item 4, `{rank}` counts per suite and a quick row adds
+   `UI_BENCH_GLOBAL_QUICK_TITLE` as a caption.
 5. **Recorded runs** (§12.7's rows, unchanged) under `CapsLabel` `UI_BENCH_LOCAL_TITLE`, only when
    `BenchLibrary` found any.
 6. Compact: buttons drop under their text (§12.7). Accessible names: *Runs*/*Hide* =

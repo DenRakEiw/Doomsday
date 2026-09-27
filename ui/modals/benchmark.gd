@@ -2,6 +2,9 @@ extends Control
 ## The *Benchmark* list (spec benchmark.md §12.7, §16.6): the global leaderboard
 ## first — fetched only now, when the list opens, and only with the *Online
 ## leaderboard* setting on — then the recorded runs this game found on disk.
+## The board's standard-suite rows come first; its quick-suite rows follow in
+## their own section with their own ranks (S6.12e), since the two scores do not
+## compare.
 ## Every run with a *Watch* button replays in the session. Every row says the
 ## model's effort level (§18); bots and decision models show the dash.
 ##
@@ -31,6 +34,8 @@ const KEY_GLOBAL_EMPTY: String = "UI_BENCH_GLOBAL_EMPTY"
 const KEY_GLOBAL_ROW: String = "UI_BENCH_GLOBAL_ROW"
 const KEY_GLOBAL_PARTIAL: String = "UI_BENCH_GLOBAL_PARTIAL"
 const KEY_GLOBAL_OTHER_TITLE: String = "UI_BENCH_GLOBAL_OTHER_TITLE"
+const KEY_GLOBAL_QUICK_TITLE: String = "UI_BENCH_GLOBAL_QUICK_TITLE"
+const KEY_GLOBAL_QUICK_NOTE: String = "UI_BENCH_GLOBAL_QUICK_NOTE"
 const KEY_GLOBAL_RUNS: String = "UI_BENCH_GLOBAL_RUNS"
 const KEY_GLOBAL_HIDE: String = "UI_BENCH_GLOBAL_HIDE"
 const KEY_GLOBAL_DOWNLOADING: String = "UI_BENCH_GLOBAL_DOWNLOADING"
@@ -70,6 +75,9 @@ var _has_spoken: bool = false
 var _status: Label = null
 var _note: Label = null
 var _global_rows: VBoxContainer = null
+var _quick_title: CapsLabel = null
+var _quick_note: Label = null
+var _quick_rows: VBoxContainer = null
 var _other_title: CapsLabel = null
 var _other_rows: VBoxContainer = null
 var _local_box: VBoxContainer = null
@@ -171,6 +179,14 @@ func _build_global() -> void:
 	_global_rows.name = "GlobalRows"
 	_global_rows.theme_type_variation = &"StackTight"
 	box.add_child(_global_rows)
+	_quick_title = CapsLabel.new()
+	_quick_title.label_key = KEY_GLOBAL_QUICK_TITLE
+	box.add_child(_quick_title)
+	_quick_note = _caption(box, tr(KEY_GLOBAL_QUICK_NOTE))
+	_quick_rows = VBoxContainer.new()
+	_quick_rows.name = "QuickRows"
+	_quick_rows.theme_type_variation = &"StackTight"
+	box.add_child(_quick_rows)
 	_other_title = CapsLabel.new()
 	_other_title.label_key = KEY_GLOBAL_OTHER_TITLE
 	box.add_child(_other_title)
@@ -243,7 +259,7 @@ func _render_board() -> void:
 		_live.say(status_text)
 	_spoken_status = status_text
 	_has_spoken = true
-	for box: VBoxContainer in [_global_rows, _other_rows]:
+	for box: VBoxContainer in [_global_rows, _quick_rows, _other_rows]:
 		for child: Node in box.get_children():
 			box.remove_child(child)
 			child.queue_free()
@@ -254,21 +270,34 @@ func _render_board() -> void:
 	_pairs = kept
 	_run_buttons.clear()
 	_pending_caption = null
+	# Ranks count per section and, among other versions, per suite: a quick
+	# score never ranks against a standard one.
 	var current: int = 0
+	var quick: int = 0
 	var other: int = 0
+	var other_quick: int = 0
 	var content_hash: String = _content_hash()
 	if _board != null:
 		for row: GlobalBoardRow in _board.rows:
-			if row.content_hash == content_hash:
-				current += 1
-				_add_global_row(row, current)
+			if row.content_hash != content_hash:
+				if row.is_quick():
+					other_quick += 1
+					_add_other_row(row, other_quick)
+				else:
+					other += 1
+					_add_other_row(row, other)
+			elif row.is_quick():
+				quick += 1
+				_add_global_row(_quick_rows, row, quick)
 			else:
-				other += 1
-				_add_other_row(row, other)
+				current += 1
+				_add_global_row(_global_rows, row, current)
 		if _board.rows.is_empty():
 			_caption(_global_rows, tr(KEY_GLOBAL_EMPTY))
-	_note.visible = current + other > 0
-	_other_title.visible = other > 0
+	_note.visible = current + quick + other + other_quick > 0
+	_quick_title.visible = quick > 0
+	_quick_note.visible = quick > 0
+	_other_title.visible = other + other_quick > 0
 	_apply_compact()
 
 
@@ -284,7 +313,7 @@ func _status_line() -> String:
 	return tr(KEY_GLOBAL_OFFLINE if Settings.bench_online else KEY_GLOBAL_DISABLED).format(args)
 
 
-func _add_global_row(row: GlobalBoardRow, rank: int) -> void:
+func _add_global_row(into: VBoxContainer, row: GlobalBoardRow, rank: int) -> void:
 	var lines: VBoxContainer = _lines()
 	_model_label(lines, row.model)
 	_caption(lines, _global_row_text(row, rank))
@@ -294,7 +323,7 @@ func _add_global_row(row: GlobalBoardRow, rank: int) -> void:
 	var toggle: ConsoleButton = ConsoleButton.new()
 	toggle.label_key = KEY_GLOBAL_RUNS
 	toggle.compact = true
-	var box: VBoxContainer = _pair(_global_rows, lines, toggle)
+	var box: VBoxContainer = _pair(into, lines, toggle)
 	var runs: VBoxContainer = VBoxContainer.new()
 	runs.theme_type_variation = &"StackTight"
 	runs.visible = false
@@ -305,11 +334,14 @@ func _add_global_row(row: GlobalBoardRow, rank: int) -> void:
 	_name_toggle(toggle, row.model)
 
 
-## §16.6 item 4: no *Runs* button — they cannot be replayed here.
+## §16.6 item 4: no *Runs* button — they cannot be replayed here. A quick-suite
+## row says so, since it ranks among its own suite only.
 func _add_other_row(row: GlobalBoardRow, rank: int) -> void:
 	var lines: VBoxContainer = _lines()
 	_model_label(lines, row.model)
 	_caption(lines, _global_row_text(row, rank))
+	if row.is_quick():
+		_caption(lines, tr(KEY_GLOBAL_QUICK_TITLE))
 	_caption(lines, BenchEffort.line(row.effort))
 	_caption(lines, tr(KEY_OTHER_VERSION))
 	_other_rows.add_child(lines)

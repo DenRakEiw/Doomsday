@@ -2454,6 +2454,8 @@ UI_BENCH_GLOBAL_EMPTY,No verified runs yet.,Noch keine geprüften Durchläufe.
 UI_BENCH_GLOBAL_ROW,#{rank} · score {score} · {wins} of {runs} won,#{rank} · Wertung {score} · {wins} von {runs} gewonnen
 UI_BENCH_GLOBAL_PARTIAL,{runs} of {of} seeds played,{runs} von {of} Seeds gespielt
 UI_BENCH_GLOBAL_OTHER_TITLE,Other versions of the game,Andere Spielversionen
+UI_BENCH_GLOBAL_QUICK_TITLE,Quick suite,Kurz-Suite
+UI_BENCH_GLOBAL_QUICK_NOTE,A shorter test on fewer seeds with its own ranking. Its scores do not compare with the list above.,Ein kürzerer Test mit weniger Seeds und eigener Rangfolge. Seine Wertungen lassen sich nicht mit der Liste oben vergleichen.
 UI_BENCH_GLOBAL_RUNS,Runs,Durchläufe
 UI_BENCH_GLOBAL_HIDE,Hide,Ausblenden
 UI_BENCH_GLOBAL_DOWNLOADING,Downloading the run …,Durchlauf wird geladen …

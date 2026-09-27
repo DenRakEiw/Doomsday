@@ -16,6 +16,7 @@ const ROOT: String = "user://test_benchmark_list"
 const GENERATED: String = "2026-09-26T04:12:00"
 const DATE: String = "2026-09-26"
 const MODEL: String = "vendor/model-a"
+const QUICK_MODEL: String = "vendor/quick-a"
 const RUN_FILE: String = "runs/vendor--model-a__321ae4fb__p1__standard__s1001.json"
 
 var _online: bool = true
@@ -210,6 +211,89 @@ func test_a_bot_row_reads_as_a_bot() -> void:
 	modal.call(&"open")
 	assert_has(_texts(modal), tr("UI_BENCH_BOT").format({"policy": "greedy"}))
 	assert_does_not_have(_texts(modal), "bot:greedy")
+
+
+# ------------------------------------------------------------- quick suite
+
+
+## S6.12e: a quick-suite row for this content with one run, one for another
+## content, and — unless `quick_only` — the standard row of `_board_text`.
+func _quick_board_text(quick_only: bool = false) -> String:
+	var d: Dictionary = JSON.parse_string(_board_text(not quick_only))
+	var current: String = Game.content().content_hash
+	var rows: Array = d["rows"]
+	rows.append({"model": QUICK_MODEL, "suite": "quick", "content_hash": current,
+		"effort": "high", "complete": false, "runs": 1, "of": 3, "wins": 0, "score": 39.2,
+		"seeds": [{"seed": 1001, "file": RUN_FILE,
+			"sha256": GlobalBoardClient.sha256_hex(_canary_bytes()), "outcome": "timeout",
+			"days": 300, "score": 0.0}]})
+	rows.append({"model": "vendor/quick-old", "suite": "quick", "content_hash": "older",
+		"complete": true, "runs": 3, "of": 3, "wins": 1, "score": 30.0, "seeds": []})
+	return JSON.stringify(d)
+
+
+func _rank_text(rank: int, score: float, wins: int, runs: int) -> String:
+	return tr("UI_BENCH_GLOBAL_ROW").format({"rank": rank, "score": Format.decimal(score, 1),
+		"wins": wins, "runs": runs})
+
+
+func test_quick_rows_have_their_own_section_and_ranks() -> void:
+	Settings.bench_online = false
+	var modal: Control = _modal(_quick_board_text())
+	modal.call(&"open")
+	var quick: Node = modal.find_child("QuickRows", true, false)
+	assert_not_null(quick)
+	assert_has(_texts(quick), QUICK_MODEL)
+	assert_has(_texts(quick), _rank_text(1, 39.2, 0, 1), "ranked among its own suite")
+	assert_eq(_buttons(quick, "UI_BENCH_GLOBAL_RUNS").size(), 1)
+	var standard: Node = modal.find_child("GlobalRows", true, false)
+	assert_does_not_have(_texts(standard), QUICK_MODEL)
+	assert_has(_texts(standard), _rank_text(1, 0.0, 0, 1), "the standard ranks are unchanged")
+	assert_true((modal.get(&"_quick_title") as Control).visible)
+	assert_has(_texts(modal), tr("UI_BENCH_GLOBAL_QUICK_NOTE"))
+
+
+func test_a_quick_row_of_other_content_says_its_suite() -> void:
+	Settings.bench_online = false
+	var modal: Control = _modal(_quick_board_text())
+	modal.call(&"open")
+	var other: Node = modal.find_child("OtherRows", true, false)
+	assert_eq(other.get_child_count(), 2)
+	assert_has(_texts(other), "vendor/quick-old")
+	assert_has(_texts(other), tr("UI_BENCH_GLOBAL_QUICK_TITLE"))
+	assert_eq(_texts(other).count(_rank_text(1, 30.0, 1, 3)), 1, "ranked within its suite")
+
+
+func test_without_quick_rows_the_quick_section_hides() -> void:
+	Settings.bench_online = false
+	var modal: Control = _modal(_board_text())
+	modal.call(&"open")
+	assert_false((modal.get(&"_quick_title") as Control).visible)
+	assert_false((modal.get(&"_quick_note") as Control).visible)
+	assert_eq(modal.find_child("QuickRows", true, false).get_child_count(), 0)
+
+
+func test_a_board_of_quick_rows_only_is_not_empty() -> void:
+	Settings.bench_online = false
+	var modal: Control = _modal(_quick_board_text(true))
+	modal.call(&"open")
+	assert_does_not_have(_texts(modal), tr("UI_BENCH_GLOBAL_EMPTY"))
+	assert_has(_texts(modal.find_child("QuickRows", true, false)), QUICK_MODEL)
+	assert_has(_texts(modal), tr("UI_BENCH_GLOBAL_NOTE"))
+
+
+func test_a_quick_run_is_watched() -> void:
+	Settings.bench_online = true
+	var modal: Control = _modal("", _quick_board_text(true))
+	modal.call(&"open")
+	var quick: Node = modal.find_child("QuickRows", true, false)
+	_buttons(quick, "UI_BENCH_GLOBAL_RUNS")[0].pressed.emit()
+	var watch: Array[ConsoleButton] = _buttons(quick, "UI_BENCH_WATCH")
+	assert_eq(watch.size(), 1)
+	watch_signals(modal)
+	watch[0].pressed.emit()
+	assert_true(Game.is_spectating(), "the downloaded run plays")
+	assert_signal_emitted(modal, "closed")
 
 
 func test_runs_open_and_a_listed_run_is_watched() -> void:

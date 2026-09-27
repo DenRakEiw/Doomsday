@@ -26,7 +26,7 @@ func _fixture() -> Dictionary:
 	return Fixtures.read_json(FIXTURE)
 
 
-func test_the_fixture_parses_its_rows_seeds_and_the_standard_filter() -> void:
+func test_the_fixture_parses_its_rows_seeds_and_both_suites() -> void:
 	var board: GlobalBoard = GlobalBoard.parse(_text, _config)
 	assert_true(board.is_usable(), board.last_error)
 	assert_eq(board.generated, "2026-09-26T04:12:00")
@@ -35,8 +35,8 @@ func test_the_fixture_parses_its_rows_seeds_and_the_standard_filter() -> void:
 	var models: Array[String] = []
 	for row: GlobalBoardRow in board.rows:
 		models.append(row.model)
-	assert_eq(models, ["vendor/model-a", "bot:greedy", "vendor/old-content"] as Array[String],
-		"the quick row is skipped, the broken ones dropped, the order kept")
+	assert_eq(models, ["vendor/model-a", "bot:greedy", "vendor/model-b", "vendor/old-content"]
+		as Array[String], "the broken rows dropped, the order kept")
 	var first: GlobalBoardRow = board.rows[0]
 	assert_eq(first.params_id, "321ae4fb")
 	assert_false(first.complete)
@@ -49,6 +49,10 @@ func test_the_fixture_parses_its_rows_seeds_and_the_standard_filter() -> void:
 	assert_true(board.rows[1].is_bot())
 	assert_false(first.is_bot())
 	assert_eq(board.dropped, 7, "four seeds and three rows")
+	assert_eq(board.rows[0].suite, BenchConfig.SUITE_STANDARD)
+	assert_false(board.rows[0].is_quick())
+	assert_true(board.rows[2].is_quick(), "S6.12e: the quick row is kept")
+	assert_eq(board.rows[2].of, 3)
 
 
 func test_a_missing_or_ill_typed_key_drops_the_row() -> void:
@@ -58,10 +62,10 @@ func test_a_missing_or_ill_typed_key_drops_the_row() -> void:
 		var row: Dictionary = d["rows"][1]
 		row.erase(key)
 		var board: GlobalBoard = _board(d)
-		assert_eq(board.rows.size(), 2, "%s missing" % key)
+		assert_eq(board.rows.size(), 3, "%s missing" % key)
 		d = _fixture()
 		d["rows"][1][key] = {"not": "right"}
-		assert_eq(_board(d).rows.size(), 2, "%s ill-typed" % key)
+		assert_eq(_board(d).rows.size(), 3, "%s ill-typed" % key)
 
 
 func test_a_bad_model_name_is_dropped() -> void:
@@ -69,7 +73,7 @@ func test_a_bad_model_name_is_dropped() -> void:
 		var d: Dictionary = _fixture()
 		d["rows"][1]["model"] = model
 		var board: GlobalBoard = _board(d)
-		assert_eq(board.rows.size(), 2, "%s is refused" % model)
+		assert_eq(board.rows.size(), 3, "%s is refused" % model)
 	assert_true(GlobalBoard.is_model_name("x".repeat(200)))
 
 
@@ -130,3 +134,13 @@ func test_an_effort_is_read_and_anything_odd_is_left_empty() -> void:
 	assert_eq(board.rows[0].effort, "ultra")
 	assert_eq(board.rows[1].effort, "", "shown as the dash, the row kept")
 	assert_eq(_board(_fixture()).rows[0].effort, "", "a board from before the levels")
+
+
+func test_a_row_of_another_suite_is_skipped_without_counting_as_dropped() -> void:
+	var d: Dictionary = _fixture()
+	d["rows"][2]["suite"] = "marathon"
+	var board: GlobalBoard = _board(d)
+	assert_eq(board.rows.size(), 3)
+	for row: GlobalBoardRow in board.rows:
+		assert_ne(row.model, "vendor/model-b")
+	assert_eq(board.dropped, 7, "the same as with the quick row kept")

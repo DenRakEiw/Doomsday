@@ -14,18 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures; **G7.I**, the itch release — see *Waiting on the user*, "itch.io — going live"): IMPLEMENTATION §4 rows 91–92, 98. **Without the user: S6.12e** [O] — the in-game online list shows the **quick suite** too, as its own section under the standard rows (user decision 2026-09-27; `GlobalBoard._read_row` drops quick rows today, so the published nemotron row is invisible in the game); then D7.1 (row 108) [F] — touch and phone. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
+| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures; **G7.I**, the itch release — see *Waiting on the user*, "itch.io — going live"): IMPLEMENTATION §4 rows 91–92, 98. **Without the user: D7.1** (row 108) [F] — touch and phone. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
 | **After it** | D6.10, G6 (2/2) and G7.I are **[needs user]**; Block 18 is built (the first real itch upload is the user's); the next unattended row is **D7.1** (row 108, Block 20: touch and phone), Steam only later (Decisions 2026-09-25). The FLUX track is cut (Decisions 2026-09-26). |
-| **Last completed** | S7.IP — release polish before the itch release (2026-09-27): the overlay picker steps aside under the region panel, no-break space before German `%`, tabs chosen from code (`ToggleGroup`), phone tech detail and Statistics, results and wire card re-translate, owned-footprint cards checked, hints rest 6 s between each other (pending design), a tall event card opens on its heading, `marketing/itch/` re-captured. |
-| **Before that** | S6.12d review fixes (2026-09-27): 10 of 12 findings fixed; S6.12d — effort levels, `models.ps1`, `run_models.ps1`, `submit_runs.ps1` (`benchmark.md` §18.9–18.10). The live runs are the user's (*Waiting on the user*, "Model runs"). |
-| **Earlier** | D6.11c — AI terms stay English in the German texts (2026-09-26); S7.I — itch.io upload (2026-09-26). |
+| **Last completed** | S6.12e — the in-game online list shows the quick suite as its own section under the standard rows, ranked on its own (2026-09-27; user decision). |
+| **Before that** | S7.IP — release polish before the itch release (2026-09-27): the overlay picker steps aside under the region panel, no-break space before German `%`, tabs chosen from code (`ToggleGroup`), phone tech detail and Statistics, results and wire card re-translate, owned-footprint cards checked, hints rest 6 s between each other (pending design), a tall event card opens on its heading, `marketing/itch/` re-captured. |
+| **Earlier** | S6.12d review fixes (2026-09-27): 10 of 12 findings fixed; S6.12d — effort levels, `models.ps1`, `run_models.ps1`, `submit_runs.ps1` (`benchmark.md` §18.9–18.10). The live runs are the user's (*Waiting on the user*, "Model runs"). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–20 (Block 19, FLUX, cut 2026-09-26) |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 374 scripts compile (155 judged by the suite), then `tools/check_strings.gd` (2541 rows), 2572 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 374 scripts compile (155 judged by the suite), then `tools/check_strings.gd` (2543 rows), 2578 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
 | **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
 | **Web** | Export `"$GODOT" --headless --path . --export-release "Web" build/web/index.html`; **play it locally:** `uv run --project tools/web python tools/web/serve.py` → `http://127.0.0.1:8765/` (`--dir <export>`). **Checks (S7.3):** `uv run --project tools/web python tools/web/web_check.py [--build <dir>] [--browsers chrome,msedge,firefox] [--checks size,load,phone,focus,keys,run,hidden,persist,settings,online,progress,smoke,debug] [--debug-build <dir>] [--out <dir>]` (all ≈ 25 min; `--smoke [--expect <json>]` alone is §16.3's CI job, `release.yml` `smoke-web` since S7.I; `--port <n>` moves off 8765); browsers once: `uv run --project tools/web playwright install chromium firefox`. Clicks are embed coordinates at the top of `web_check.py`. In the browser the files are IndexedDB `/userfs` → `/userfs/Doomsday/doomsday/…`. A debug web export answers `window.doomsdayDebugCrash()` and `window.doomsdayDebugAudioUnlocked()`. **Perf (S7.3b):** export `"Perf web (local)"` → `build/perf-web/index.html` and `"Web"`, then `uv run --project tools/web python tools/web/web_perf.py [--modes web_igpu,web_cpu,load] [--runs 3] [--out <dir>] [--vsync] [--cpu-throttle 2.5]` (≈ 20 min; port 8767; Playwright's Chromium in the new headless mode draws on the real GPU; `web_igpu` sets and removes the GPU preference for Playwright's `chrome.exe` only). **Exports need the real `APPDATA`** (the templates live there); only the suite runs with a scratch one. |
 | **itch page** | not created yet — the user's (*Waiting on the user*, "itch.io — going live"); its URL goes here. **Media** in `marketing/itch/`; re-capture with a scratch `APPDATA` (the tool writes `user://itch_capture/`): `"$GODOT" --path . --audio-driver Dummy --resolution 1920x1080 res://tools/marketing/itch_capture.tscn -- --locale=en --entry=<a bot entry from bench_run --bots --out=<scratch>>`, `-- --mode=title` at `--resolution 2560x1440`, then `uv run --project tools/marketing python tools/marketing/compose_cover.py --capture <title_bare_NN.png> --globe <title_globe.json>`. **Upload:** `release.yml` job `itch` (tag `v*`, or dispatch with `itch` ticked). |
@@ -208,6 +208,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S7.I [O] itch.io upload: butler job, size check, web smoke, itch media *(the first real upload: user, G7.I)*
 - [x] S6.12d [O] Ready for the user's model runs, with effort levels *(user requests 2026-09-26; inserted by the orchestrator; `benchmark.md` §18; the live runs: user)*
 - [x] S7.IP [O] Release polish before the itch release *(inserted by the orchestrator; the re-captured media in `marketing/itch/`)*
+- [x] S6.12e [O] The quick suite in the in-game online list *(user decision 2026-09-27; `benchmark.md` §16.6)*
 - [ ] G7.I [F] The itch.io release: played on the restricted page, go, public — **[needs user]**
 
 **Block 19 — FLUX 3 Action track** — **cut 2026-09-26** (user; D7.F `dfbd607` stays done, `docs/specs/flux-action.md` kept for reference)
@@ -1515,6 +1516,11 @@ without new information.
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
+- **S6.12e — wording of the quick section** (`strings.csv` `UI_BENCH_GLOBAL_QUICK_TITLE`, `_NOTE`):
+  written in the build step, the structure being the user's decision. Title "Quick suite" /
+  "Kurz-Suite"; note "A shorter test on fewer seeds with its own ranking. Its scores do not compare
+  with the list above." An other-version quick row carries the title as a caption. Keep or reword.
+
 - **S7.IP — hints back to back on a loaded save** (`coach.gd` `HINT_REST_MS`, `# DESIGN?`):
   `first-run.md` §6.2 queues the hints with no gap, so a mid-run save meets every hint whose moment
   already holds in a row. Placeholder: a hint that follows a hint waits 6 s of real time (the
@@ -2698,8 +2704,8 @@ levels, the caps).
 `%APPDATA%\Doomsday\benchmark\runs` (the game lists them); the leaderboard clone has one local,
 unpushed commit `8dc955d` (bot rows, quick + standard, verified). Publishing to the public board
 was stopped by the permission check — yours: `… submit_runs.ps1 -Push -VerifyLocally` (or drop the
-commit: `git -C ..\doomsday-leaderboard reset --hard origin/main`). **Note:** the in-game online
-list shows standard-suite rows only (`GlobalBoard._read_row`), so a quick row never shows there.
+commit: `git -C ..\doomsday-leaderboard reset --hard origin/main`). Since S6.12e the in-game
+online list shows quick rows too, in their own section.
 Free-model findings: the Gemma 4 `:free` models (the only ones without default reasoning) were
 429 upstream all day; `dots-3-note-preview`, `nemotron-3.5-lightning`, `north-mini-code` reason
 although the list says `yes` (dots at normal: every answer cut at 1 200 tokens, empty).
@@ -3056,6 +3062,11 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-27 — S6.12e The quick suite in the in-game online list [O]
+- `GlobalBoard` keeps `standard` and `quick` rows (`SUITES`; others skipped silently), `GlobalBoardRow.suite`/`is_quick()`. The list: quick rows of this content under `UI_BENCH_GLOBAL_QUICK_TITLE` + `_NOTE` (`QuickRows`), ranked on their own, *Runs*/*Watch* as standard; other-version quick rows ranked per suite, captioned.
+- Looked at in the game (de, 1920 px) against the public board: nemotron-ultra #8 of the quick section (partial rows sort last in the file). +6 tests (2578 green), 2 strings; no `data/` content change, no canary.
+- Free runs 2026-09-27: `nemotron-3-super` running; `laguna-s-2.1` stopped twice "unavailable" (35 answers cached); `qwen3.8-27b` 429 upstream; `inkling(-small)` 403 (agentic harnesses only).
 
 ### 2026-09-27 — Benchmark: first live run (free model) [O]
 - `gemma-4-31b-it:free`, then `gemma-4-26b-a4b-it:free` (normal): 429 upstream on the first call, no run. `dots-3-note-preview:free` (normal): answers empty (reasoning cut at 1 200), stopped.
