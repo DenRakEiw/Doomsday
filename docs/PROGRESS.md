@@ -2880,7 +2880,8 @@ invocation — *the cap: see D6.9b below*); (4) which recorded runs, if any, shi
 The first live run (S6.12 builds it) needs `OPENROUTER_API_KEY`; `--dry-run` shows the prompt free.
 
 **D6.9b (2026-09-25, pending user confirmation):** `docs/specs/benchmark.md` §16, §11.5 —
-(1) **create the deploy key and the secret** so the leaderboard workflow can publish (§16.5):
+(1) **create the deploy key and the secret** so the leaderboard workflow can publish (§16.5) —
+*optional since S6.12d:* `submit_runs.ps1 -Push -VerifyLocally` publishes without it (§18.9):
 `ssh-keygen -t ed25519 -N "" -C "doomsday-leaderboard verifier" -f leaderboard_deploy_key`; the
 `.pub` as a deploy key **with write access** on `doomsday-leaderboard`; the private half as the
 Actions secret `LEADERBOARD_DEPLOY_KEY` on `Doomsday`; delete both files; then *Actions* →
