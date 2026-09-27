@@ -14,7 +14,7 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures; **G7.I**, the itch release — see *Waiting on the user*, "itch.io — going live"): IMPLEMENTATION §4 rows 91–92, 98. **Without the user: D7.1** (row 108) [F] — touch and phone. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
+| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures; **G7.I**, the itch release — see *Waiting on the user*, "itch.io — going live"): IMPLEMENTATION §4 rows 91–92, 98. **Without the user: S6.12e** [O] — the in-game online list shows the **quick suite** too, as its own section under the standard rows (user decision 2026-09-27; `GlobalBoard._read_row` drops quick rows today, so the published nemotron row is invisible in the game); then D7.1 (row 108) [F] — touch and phone. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
 | **After it** | D6.10, G6 (2/2) and G7.I are **[needs user]**; Block 18 is built (the first real itch upload is the user's); the next unattended row is **D7.1** (row 108, Block 20: touch and phone), Steam only later (Decisions 2026-09-25). The FLUX track is cut (Decisions 2026-09-26). |
 | **Last completed** | S7.IP — release polish before the itch release (2026-09-27): the overlay picker steps aside under the region panel, no-break space before German `%`, tabs chosen from code (`ToggleGroup`), phone tech detail and Statistics, results and wire card re-translate, owned-footprint cards checked, hints rest 6 s between each other (pending design), a tall event card opens on its heading, `marketing/itch/` re-captured. |
@@ -2665,6 +2665,20 @@ without new information.
   The injected `mcp_interaction_server.gd` is gitignored in case a run crashes.
 
 ## Waiting on the user
+
+**Benchmark — free models to run next (2026-09-27).** The online board is live: 91 bot runs plus
+`nvidia/nemotron-3-ultra-550b-a55b:free` (high, quick, 39.2, 1/2 wins) published and verified
+(leaderboard `dec5d19`). Free candidates from `models.ps1 -Free`, all 0 USD, run at `-Effort high`
+(they reason by default): `qwen/qwen3.8-27b:free`, `thinkingmachines/inkling:free`,
+`thinkingmachines/inkling-small:free`, `nvidia/nemotron-3-super-120b-a12b:free`,
+`poolside/laguna-s-2.1:free`, `google/gemma-4-31b-it:free` (429 upstream on 2026-09-27).
+Not suitable: the Lyria music models, `nemotron-3.5-content-safety`, the `openrouter/free` router
+(no fixed model identity). **Limits:** OpenRouter's free tier shares one daily request cap per
+account (≈1 000/day with credits bought; a quick suite needed ≈300–450 requests) and ≈20 req/min,
+so `-Parallel` helps only up to that rate — about two quick suites a day. Command: `toolsench\
+run_models.ps1 -Models <a>,<b> -Effort high -Suite quick -Parallel 3 -MaxTotal 0`, then
+`submit_runs.ps1 -Push -VerifyLocally`. The user chooses the models.
+
 
 **Model runs (S6.12d, 2026-09-27) — everything is ready; you pick the models.** Guide:
 `benchmark.md` §18.9. From `F:\Doomsday` in PowerShell: (1) key once —
