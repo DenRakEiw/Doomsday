@@ -177,3 +177,40 @@ func test_an_entry_without_a_model_version_reads_empty_and_writes_no_such_key() 
 	assert_null(BenchEntry.from_dict(ill))
 	assert_string_contains(BenchEntry.last_error, "model_version")
 
+
+
+func test_an_effort_round_trips_after_the_backend() -> void:
+	var entry: BenchEntry = _entry()
+	entry.params["effort"] = "ultra"
+	entry.params["reasoning"] = "xhigh"
+	entry.params_id = BenchEntry.params_id_of(entry.params)
+	entry.effort = "ultra"
+	var read: BenchEntry = BenchEntry.from_dict(_as_file(entry))
+	assert_not_null(read, BenchEntry.last_error)
+	assert_eq(read.effort, "ultra")
+	assert_eq(read.params_id, entry.params_id)
+	var keys: Array = entry.to_dict().keys()
+	assert_eq(keys.find("effort"), keys.find("backend") + 1)
+
+
+func test_an_old_entry_without_an_effort_reads_as_normal_and_writes_no_such_key() -> void:
+	var entry: BenchEntry = _entry()
+	var file: Dictionary = _as_file(entry)
+	assert_false(file.has("effort"), "a normal run writes no effort")
+	var read: BenchEntry = BenchEntry.from_dict(file)
+	assert_eq(read.effort, "")
+	assert_eq(BenchEffort.of_entry(read), BenchEffort.NORMAL)
+	assert_eq(read.to_dict().keys(), entry.to_dict().keys(), "the same keys, in the same order")
+
+
+func test_a_written_normal_reads_as_normal_and_an_unknown_effort_is_null() -> void:
+	var file: Dictionary = _as_file(_entry())
+	file["effort"] = "normal"
+	var read: BenchEntry = BenchEntry.from_dict(file)
+	assert_not_null(read, BenchEntry.last_error)
+	assert_eq(read.effort, "")
+	file["effort"] = "insane"
+	assert_null(BenchEntry.from_dict(file))
+	assert_string_contains(BenchEntry.last_error, "effort")
+	file["effort"] = 2
+	assert_null(BenchEntry.from_dict(file))

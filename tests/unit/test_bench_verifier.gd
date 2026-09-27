@@ -208,3 +208,18 @@ func test_the_canary_is_judged_under_its_own_name_with_its_own_max_days() -> voi
 	var record: VerifyRecord = Verifier.check_canary(_bytes(_entry), _config, _db, _context())
 	assert_true(record.verified, record.detail)
 	assert_eq(_config.max_days, BenchConfig.load_file().max_days, "the config is left as it was")
+
+
+func test_an_effort_that_is_not_the_one_in_params_breaks_the_rules() -> void:
+	var d: Dictionary = _copy()
+	d["effort"] = "ultra"
+	assert_eq(_judge(d).reason, Verifier.REASON_RULES, "an effort claimed without its params")
+	var params: Dictionary = d["params"]
+	params["effort"] = "ultra"
+	params["reasoning"] = "xhigh"
+	d["params_id"] = BenchEntry.params_id_of(params)
+	var record: VerifyRecord = _judge(d)
+	assert_true(record.verified, "effort and params agree: " + record.detail)
+	d.erase("effort")
+	assert_eq(Verifier.rules_broken(BenchEntry.from_dict(d), _config),
+		"the effort is not the one in params")

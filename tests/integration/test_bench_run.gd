@@ -9,6 +9,7 @@ extends GutTest
 const Tool := preload("res://tools/bench/bench_run.gd")
 const Writer := preload("res://tools/bench/leaderboard_writer.gd")
 const Verifier := preload("res://tools/bench/bench_verifier.gd")
+const VerifyRecord := preload("res://tools/bench/verify_record.gd")
 const COMMIT: String = "0123456789abcdef0123456789abcdef01234567"
 ## A variable no one sets, so a key check can never find a real key.
 const UNSET_KEY_ENV: String = "DOOMSDAY_TEST_KEY_THAT_IS_NEVER_SET"
@@ -267,3 +268,60 @@ func test_a_typesafe_dry_run_needs_no_key_and_prints_the_request() -> void:
 
 func test_a_request_cap_maps_to_the_cost_cap_exit() -> void:
 	assert_eq(Tool.exit_for("request_cap"), Tool.EXIT_COST_CAP)
+
+
+func test_an_effort_run_is_a_row_of_its_own_and_verifies() -> void:
+	var args: Dictionary[String, String] = _mock_args()
+	args["seeds"] = "1001"
+	assert_eq(Tool.run(args, _config), Tool.EXIT_OK)
+	args["effort"] = "ultra"
+	assert_eq(Tool.run(args, _config), Tool.EXIT_OK)
+	var runs: Dictionary[String, String] = _runs()
+	assert_eq(runs.size(), 2, "normal and ultra are two files")
+	var efforts: Array[String] = []
+	for file_name: String in runs:
+		var entry: BenchEntry = BenchEntry.from_json(runs[file_name])
+		assert_not_null(entry, BenchEntry.last_error)
+		efforts.append(BenchEffort.of_entry(entry))
+		var record: VerifyRecord = Verifier.check(runs[file_name].to_utf8_buffer(), file_name,
+			_config, _db, {Verifier.CONTEXT_COMMIT: COMMIT, Verifier.CONTEXT_VERSION: "0.6.0",
+				Verifier.CONTEXT_CHECKED: "2026-09-27"})
+		assert_true(record.verified, record.detail)
+		if entry.effort == "ultra":
+			assert_eq(entry.params["reasoning"], "max", "the model's efforts are unknown to a mock")
+			assert_true(runs[file_name].contains("\"effort\": \"ultra\""))
+		else:
+			assert_false(runs[file_name].contains("\"effort\""), "normal writes no effort")
+	efforts.sort()
+	assert_eq(efforts, ["normal", "ultra"] as Array[String])
+	var board: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		BOARD.path_join(Writer.LEADERBOARD_JSON)))
+	var shown: Array[String] = []
+	for row: Dictionary in board["rows"]:
+		shown.append(str(row["effort"]))
+	shown.sort()
+	assert_eq(shown, ["normal", "ultra"] as Array[String], "each row says its effort")
+	var page: String = FileAccess.get_file_as_string(BOARD.path_join(Writer.LEADERBOARD_MD))
+	assert_string_contains(page, "| Effort |")
+	assert_string_contains(page, "| Ultra |")
+
+
+func test_bad_effort_arguments_exit_one() -> void:
+	for bad: Dictionary in [{"effort": "extreme"}, {"effort": "high", "reasoning": "low"}]:
+		var args: Dictionary[String, String] = _mock_args()
+		for key: Variant in bad:
+			args[str(key)] = str(bad[key])
+		assert_eq(Tool.run(args, _config), Tool.EXIT_BAD_INPUT, str(bad))
+	var choice: Dictionary[String, String] = _choice_args()
+	choice["effort"] = "high"
+	assert_eq(Tool.run(choice, _config), Tool.EXIT_BAD_INPUT, "a decision model has no effort")
+	assert_false(DirAccess.dir_exists_absolute(BOARD))
+
+
+func test_no_rebuild_leaves_the_board_to_the_last_shard() -> void:
+	var args: Dictionary[String, String] = _mock_args()
+	args["seeds"] = "1001"
+	args["no-rebuild"] = "true"
+	assert_eq(Tool.run(args, _config), Tool.EXIT_OK)
+	assert_eq(_runs().size(), 1)
+	assert_false(FileAccess.file_exists(BOARD.path_join(Writer.LEADERBOARD_JSON)))

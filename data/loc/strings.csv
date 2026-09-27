@@ -2428,7 +2428,7 @@ UI_SPECTATOR_TICKER_START,Recorded run: {model} plays seed {seed}.,Aufgezeichnet
 UI_SPECTATOR_RESULT_VERIFIED,The replay matches the recording. {model} scored {score}.,Die Wiedergabe stimmt mit der Aufzeichnung überein. {model} erzielte {score} Punkte.
 UI_SPECTATOR_RESULT_DIVERGED,The replay left the recording on day {day}; this ending is not the one that was recorded.,Die Wiedergabe wich an Tag {day} von der Aufzeichnung ab; dieses Ende ist nicht das aufgezeichnete.
 UI_SPECTATOR_WATCH_AGAIN,Watch again,Noch einmal ansehen
-UI_A11Y_SPECTATOR,"{model}, seed {seed}, decision {decision} of {total}, stance: {stance}","{model}, Seed {seed}, Entscheidung {decision} von {total}, Haltung: {stance}"
+UI_A11Y_SPECTATOR,"{model}, effort: {effort}, seed {seed}, decision {decision} of {total}, stance: {stance}","{model}, Aufwand: {effort}, Seed {seed}, Entscheidung {decision} von {total}, Haltung: {stance}"
 UI_TITLE_BENCHMARK,Benchmark,Benchmark
 UI_BENCH_TITLE,Benchmark,Benchmark
 UI_BENCH_INTRO,"Language models played these runs from a written report of the world, deciding at set intervals. Watch one to see what it did.","Sprachmodelle haben diese Durchläufe anhand eines schriftlichen Berichts über die Welt gespielt und in festen Abständen entschieden. Sieh dir einen an, um zu sehen, was es getan hat."
@@ -2437,6 +2437,11 @@ UI_BENCH_WATCH,Watch,Ansehen
 UI_BENCH_OTHER_VERSION,Recorded on another version of the game; it cannot be replayed here.,Auf einer anderen Version des Spiels aufgezeichnet; hier nicht abspielbar.
 UI_BENCH_BOT,Built-in bot: {policy},Eingebauter Bot: {policy}
 UI_BENCH_SKIPPED,{count} files could not be read.,{count} Dateien ließen sich nicht lesen.
+UI_BENCH_EFFORT,Effort: {effort},Aufwand: {effort}
+BENCH_EFFORT_NORMAL,Normal,Normal
+BENCH_EFFORT_HIGH,High,Hoch
+BENCH_EFFORT_ULTRA,Ultra,Ultra
+BENCH_EFFORT_NONE,—,—
 UI_BENCH_GLOBAL_TITLE,Global leaderboard,Globale Bestenliste
 UI_BENCH_GLOBAL_NOTE,Every score here was replayed and checked. Model names are as submitted.,Jede Wertung hier wurde nachgespielt und geprüft. Modellnamen wie eingereicht.
 UI_BENCH_GLOBAL_LOADING,Loading the global leaderboard …,Globale Bestenliste wird geladen …

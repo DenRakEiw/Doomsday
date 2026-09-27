@@ -109,9 +109,9 @@ static func markdown(rows: Array[Dictionary], config: BenchConfig, generator: St
 			lines.append("## %s suite%s" % [suite.capitalize(),
 				"" if current else " — older content"])
 			lines.append("")
-			lines.append("| Rank | Model | Params | Score | Wins | Outcomes | Mean win day | Calls"
-				+ " | Unreadable | Cost (USD) |")
-			lines.append("| ---: | --- | --- | ---: | ---: | --- | ---: | ---: | ---: | ---: |")
+			lines.append("| Rank | Model | Effort | Params | Score | Wins | Outcomes | Mean win day"
+				+ " | Calls | Unreadable | Cost (USD) |")
+			lines.append("| ---: | --- | --- | --- | ---: | ---: | --- | ---: | ---: | ---: | ---: |")
 			var ranked: bool = suite == BenchConfig.SUITE_STANDARD
 			for i: int in group.size():
 				lines.append(_table_row(group[i], i + 1 if ranked else 0))
@@ -185,6 +185,7 @@ static func _table_row(row: Dictionary, rank: int) -> String:
 	var cells: PackedStringArray = [
 		str(rank) if rank > 0 else NONE_MARK,
 		_cell(_model_cell(row)),
+		_effort_cell(row),
 		_params_cell(row["params"]),
 		_number(float(row["score"])),
 		"%d/%d" % [int(row["wins"]), int(row["runs"])],
@@ -205,6 +206,15 @@ static func _model_cell(row: Dictionary) -> String:
 			or (row[FIELD_MODEL_VERSIONS] as Array).is_empty():
 		return model
 	return "%s (%s)" % [model, ", ".join(PackedStringArray(row[FIELD_MODEL_VERSIONS]))]
+
+
+## §18: the row's effort in English (the page is English), a `--reasoning` run's
+## raw value, or the dash for a bot, a decision model and an old board's row.
+static func _effort_cell(row: Dictionary) -> String:
+	var effort: String = str(row.get(BenchEffort.PARAM, ""))
+	if effort.is_empty():
+		return NONE_MARK
+	return _cell(effort.capitalize() if BenchEffort.is_level(effort) else effort)
 
 
 static func _params_cell(params: Variant) -> String:

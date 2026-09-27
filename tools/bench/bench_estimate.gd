@@ -25,6 +25,19 @@ const FIELD_PROMPT_PRICE: String = "prompt_price"
 const FIELD_COMPLETION_PRICE: String = "completion_price"
 const FIELD_PROMPT: String = "prompt"
 const FIELD_COMPLETION: String = "completion"
+## `read_model`'s fields (§18.2): whether the list names the model, whether it
+## takes a reasoning parameter, the efforts it lists, whether it always reasons.
+const FIELD_LISTED: String = "listed"
+const FIELD_REASONING: String = "reasoning"
+const FIELD_EFFORTS: String = "efforts"
+const FIELD_MANDATORY: String = "mandatory"
+const LIST_DATA: String = "data"
+const LIST_ID: String = "id"
+const LIST_PRICING: String = "pricing"
+const LIST_SUPPORTED: String = "supported_parameters"
+const LIST_REASONING: String = "reasoning"
+const LIST_SUPPORTED_EFFORTS: String = "supported_efforts"
+const LIST_MANDATORY: String = "mandatory"
 const USD_FORMAT: String = "%.2f"
 
 
@@ -36,8 +49,13 @@ static func tokens(characters: int, config: BenchConfig) -> int:
 ## The two figures for `runs` seeds (§11.5 step 3); per call, the input is the
 ## brief plus the day-0 digest grown by `digest_growth`. A negative price is an
 ## unknown one: then only the calls and the input tokens are known.
+## `output_tokens` and `max_tokens` (−1: the config's) are an effort level's
+## (§18.3): a model that reasons writes far more than one that does not.
 static func figures(brief_tokens: int, digest_tokens: int, runs: int, prompt_price: float,
-		completion_price: float, config: BenchConfig) -> Dictionary:
+		completion_price: float, config: BenchConfig, output_tokens: int = -1,
+		max_tokens: int = -1) -> Dictionary:
+	var per_call_out: int = config.output_tokens_per_call if output_tokens < 0 else output_tokens
+	var limit: int = config.max_completion_tokens if max_tokens < 0 else max_tokens
 	var input: float = float(brief_tokens) + float(digest_tokens) * config.digest_growth
 	var calls: int = runs * config.calls_per_run
 	var out: Dictionary = {
@@ -51,9 +69,9 @@ static func figures(brief_tokens: int, digest_tokens: int, runs: int, prompt_pri
 	}
 	if bool(out[FIELD_KNOWN]):
 		out[FIELD_LIKELY] = float(calls) * (input * prompt_price
-			+ float(config.output_tokens_per_call) * completion_price)
+			+ float(per_call_out) * completion_price)
 		out[FIELD_AT_MOST] = float(runs * config.max_calls) * (input * prompt_price
-			+ float(config.max_completion_tokens) * completion_price)
+			+ float(limit) * completion_price)
 	return out
 
 
@@ -61,38 +79,91 @@ static func figures(brief_tokens: int, digest_tokens: int, runs: int, prompt_pri
 ## body of `GET /models`, or {} when the body is not the list, the model is not
 ## in it, or a price is not a number string.
 static func read_prices(body: String, model: String) -> Dictionary:
+	var info: Dictionary = read_model(body, model)
+	if not info.has(FIELD_PROMPT) or not info.has(FIELD_COMPLETION):
+		return {}
+	return {FIELD_PROMPT: info[FIELD_PROMPT], FIELD_COMPLETION: info[FIELD_COMPLETION]}
+
+
+## What the public list says about `model` (§18.2): {} when the body is not the
+## list; `{"listed": false}` when the model is not in it; else `listed`,
+## `reasoning`, `efforts`, `mandatory` and — when both parse — the two prices.
+static func read_model(body: String, model: String) -> Dictionary:
+	var items: Array = list_items(body)
+	if items.is_empty() and not _is_list(body):
+		return {}
+	for item: Variant in items:
+		if typeof(item) == TYPE_DICTIONARY and str((item as Dictionary).get(LIST_ID, "")) == model:
+			return model_info(item)
+	return {FIELD_LISTED: false}
+
+
+## The entries of a `GET /models` body; [] when it is not the list.
+static func list_items(body: String) -> Array:
 	var json: JSON = JSON.new()
 	if json.parse(body) != OK or typeof(json.data) != TYPE_DICTIONARY:
-		return {}
-	var data: Variant = (json.data as Dictionary).get("data")
-	if typeof(data) != TYPE_ARRAY:
-		return {}
-	for item: Variant in data:
-		if typeof(item) != TYPE_DICTIONARY or str((item as Dictionary).get("id", "")) != model:
-			continue
-		var pricing: Variant = (item as Dictionary).get("pricing")
-		if typeof(pricing) != TYPE_DICTIONARY:
-			return {}
+		return []
+	var data: Variant = (json.data as Dictionary).get(LIST_DATA)
+	return data if typeof(data) == TYPE_ARRAY else []
+
+
+## One entry of the list read: prices only when both are number strings; a
+## model takes reasoning when it names the parameter or carries a reasoning
+## object (OpenRouter's reasoning-tokens guide: "non-reasoning models … omit the
+## `reasoning` field").
+static func model_info(item: Dictionary) -> Dictionary:
+	var info: Dictionary = {FIELD_LISTED: true}
+	var pricing: Variant = item.get(LIST_PRICING)
+	if typeof(pricing) == TYPE_DICTIONARY:
 		var prompt: Variant = (pricing as Dictionary).get(FIELD_PROMPT)
 		var completion: Variant = (pricing as Dictionary).get(FIELD_COMPLETION)
-		if typeof(prompt) != TYPE_STRING or typeof(completion) != TYPE_STRING \
-				or not str(prompt).is_valid_float() or not str(completion).is_valid_float():
-			return {}
-		return {FIELD_PROMPT: str(prompt).to_float(), FIELD_COMPLETION: str(completion).to_float()}
-	return {}
+		if typeof(prompt) == TYPE_STRING and typeof(completion) == TYPE_STRING 				and str(prompt).is_valid_float() and str(completion).is_valid_float():
+			info[FIELD_PROMPT] = str(prompt).to_float()
+			info[FIELD_COMPLETION] = str(completion).to_float()
+	var supported: Variant = item.get(LIST_SUPPORTED)
+	var reasoning: Variant = item.get(LIST_REASONING)
+	var efforts: Array[String] = []
+	var mandatory: bool = false
+	if typeof(reasoning) == TYPE_DICTIONARY:
+		var listed: Variant = (reasoning as Dictionary).get(LIST_SUPPORTED_EFFORTS)
+		if typeof(listed) == TYPE_ARRAY:
+			for value: Variant in listed:
+				if typeof(value) == TYPE_STRING:
+					efforts.append(str(value))
+		mandatory = (reasoning as Dictionary).get(LIST_MANDATORY) == true
+	info[FIELD_REASONING] = typeof(reasoning) == TYPE_DICTIONARY 		or (typeof(supported) == TYPE_ARRAY and (supported as Array).has(LIST_REASONING))
+	info[FIELD_EFFORTS] = efforts
+	info[FIELD_MANDATORY] = mandatory
+	return info
+
+
+static func _is_list(body: String) -> bool:
+	var json: JSON = JSON.new()
+	return json.parse(body) == OK and typeof(json.data) == TYPE_DICTIONARY 		and typeof((json.data as Dictionary).get(LIST_DATA)) == TYPE_ARRAY
 
 
 ## The public price list, asked once without the key (§11.5 step 2). {} for any
 ## host but openrouter.ai, and for any failure — the price is then unknown.
 static func fetch_prices(base_url: String, model: String, config: BenchConfig) -> Dictionary:
+	return read_prices(fetch_list(base_url, config), model)
+
+
+## `read_model` of the public list (§18.2); {} when it cannot be asked.
+static func fetch_model(base_url: String, model: String, config: BenchConfig) -> Dictionary:
+	return read_model(fetch_list(base_url, config), model)
+
+
+## The body of the public model list — no key, one try; "" for any host but
+## openrouter.ai and for any failure.
+static func fetch_list(base_url: String, config: BenchConfig) -> String:
 	var base: Dictionary = Backend.parse_base_url(base_url)
 	if base.is_empty() or str(base["host"]) != PRICE_HOST:
-		return {}
+		return ""
 	var result: Dictionary = Backend.request(base, HTTPClient.METHOD_GET,
 		str(base["prefix"]) + config.models_path, PackedStringArray(), "", config.timeout_s)
 	if int(result["status"]) != Backend.STATUS_OK:
-		return {}
-	return read_prices(str(result["body"]), model)
+		return ""
+	return str(result["body"])
 
 
 ## §17.9: a decision model's figures for `runs` seeds. Per call the input is its

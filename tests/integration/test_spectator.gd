@@ -141,3 +141,19 @@ func _count_until(day: int) -> int:
 		if command.day < day:
 			count += 1
 	return count
+
+
+func test_the_strip_says_how_hard_the_model_was_asked_to_think() -> void:
+	var entry: BenchEntry = BenchEntry.from_json(_entry.to_json())
+	entry.params["effort"] = "high"
+	entry.effort = "high"
+	assert_eq(Game.start_spectating(entry), "")
+	var strip: Control = (load("res://ui/hud/spectator_strip.tscn") as PackedScene).instantiate()
+	add_child_autofree(strip)
+	assert_true(strip.visible)
+	var label: Label = strip.find_child("SpectatorEffort", true, false)
+	assert_eq(label.text, BenchEffort.line("high"))
+	Game.stop_run()
+	assert_eq(Game.start_spectating(_entry), "")
+	strip.call(&"refresh")
+	assert_eq(label.text, BenchEffort.line("normal"), "a run without an effort was a normal one")

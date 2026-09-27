@@ -3,8 +3,10 @@ extends RefCounted
 ## `data/benchmark.json` read and checked (docs/specs/benchmark.md §3): the model
 ## policy's rhythm and limits, the seed suites, the score, the defaults sent to a
 ## model, the HTTP settings, the pre-flight estimate, the global board's
-## addresses, and the decision-model backend (§17: the combination rules and
-## TypeSafe's endpoint, price and caps). Presentation data — the core never reads it.
+## addresses, the decision-model backend (§17: the combination rules and
+## TypeSafe's endpoint, price and caps) and the effort levels (§18: what `high`
+## and `ultra` send and what they likely cost). Presentation data — the core
+## never reads it.
 ##
 ## A bad file never crashes: `errors` names every key that is missing or of the
 ## wrong type, and the tool exits 1 naming them.
@@ -80,6 +82,14 @@ var typesafe_max_requests: int = 3000
 var typesafe_question_tokens: int = 1500
 var typesafe_state_limit: int = 32000
 var typesafe_request_limit: int = 64000
+
+## §18: per effort level above normal (`BenchEffort.HIGH`, `ULTRA`) — the
+## OpenRouter reasoning efforts to try, best first; the completion limit; the
+## likely output of one call; the request timeout.
+var effort_reasoning: Dictionary[String, Array] = {}
+var effort_max_tokens: Dictionary[String, int] = {}
+var effort_output_tokens: Dictionary[String, int] = {}
+var effort_timeout_s: Dictionary[String, int] = {}
 
 
 ## The file at `path`, read; a file that is missing or not a JSON object is one
@@ -186,6 +196,34 @@ func _read(d: Dictionary) -> void:
 	typesafe_question_tokens = _int(typesafe, "question_tokens_per_call", 0, "typesafe.")
 	typesafe_state_limit = _int(typesafe, "state_limit_tokens", 1, "typesafe.")
 	typesafe_request_limit = _int(typesafe, "request_limit_tokens", 1, "typesafe.")
+	var effort: Dictionary = _object(d, "effort")
+	for level: String in [BenchEffort.HIGH, BenchEffort.ULTRA]:
+		_read_effort(effort, level)
+
+
+## One level of `effort` (§18): every key required, `reasoning` a non-empty
+## list of OpenRouter effort names.
+func _read_effort(d: Dictionary, level: String) -> void:
+	var prefix: String = "effort.%s." % level
+	var entry: Dictionary = {}
+	if typeof(d.get(level)) == TYPE_DICTIONARY:
+		entry = d[level]
+	else:
+		errors.append("effort.%s: missing or not an object" % level)
+	var names: Array[String] = []
+	if typeof(entry.get("reasoning")) != TYPE_ARRAY or (entry["reasoning"] as Array).is_empty():
+		errors.append(prefix + "reasoning: missing or not a list of effort names")
+	else:
+		for value: Variant in entry["reasoning"]:
+			if typeof(value) != TYPE_STRING or str(value).is_empty():
+				errors.append(prefix + "reasoning: missing or not a list of effort names")
+				names.clear()
+				break
+			names.append(str(value))
+	effort_reasoning[level] = names
+	effort_max_tokens[level] = _int(entry, "max_completion_tokens", 1, prefix)
+	effort_output_tokens[level] = _int(entry, "output_tokens_per_call", 1, prefix)
+	effort_timeout_s[level] = _int(entry, "timeout_s", 1, prefix)
 
 
 func _read_suites(d: Dictionary) -> void:

@@ -104,6 +104,11 @@ static func _row(members: Array[BenchEntry], config: BenchConfig,
 	# board stays byte for byte what it was.
 	if not versions.is_empty():
 		row["model_versions"] = versions
+	# §18: a chat row says how hard its model was asked to think; bots and
+	# decision models have no such thing, and their rows no such key.
+	var effort: String = BenchEffort.of_entry(first)
+	if not effort.is_empty():
+		row[BenchEffort.PARAM] = effort
 	row.merge({
 		"params": first.params.duplicate(true),
 		"params_id": first.params_id,

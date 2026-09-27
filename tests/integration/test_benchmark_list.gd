@@ -79,7 +79,7 @@ func _board_text(with_rows: bool = true) -> String:
 	var rows: Array[Dictionary] = []
 	if with_rows:
 		rows.append({"model": MODEL, "suite": "standard", "content_hash": current,
-			"complete": false, "runs": 1, "of": 10, "wins": 0, "score": 0.0,
+			"effort": "high", "complete": false, "runs": 1, "of": 10, "wins": 0, "score": 0.0,
 			"seeds": [{"seed": 1001, "file": RUN_FILE,
 				"sha256": GlobalBoardClient.sha256_hex(_canary_bytes()), "outcome": "timeout",
 				"days": 300, "score": 0.0}]})
@@ -329,7 +329,8 @@ func test_the_strip_is_one_named_readout() -> void:
 	var decision: BenchDecision = Game.spectator().decision_at(Game.sim.world.day)
 	var index: int = Game.spectator().decision_index(Game.sim.world.day)
 	assert_eq(strip.accessibility_name, A11y.label_value(tr("UI_SPECTATOR_WATCHING"),
-		tr("UI_A11Y_SPECTATOR").format({"model": "mock", "seed": 1001, "decision": index,
+		tr("UI_A11Y_SPECTATOR").format({"model": "mock", "seed": 1001,
+			"effort": BenchEffort.label(BenchEffort.NORMAL), "decision": index,
 			"total": entry.decisions.size(),
 			"stance": BenchPrompt.stance_name(decision.stance)})))
 	assert_has(_texts(strip), "mock")
@@ -365,3 +366,15 @@ func test_the_results_say_where_a_replay_left_the_recording() -> void:
 	results.call(&"show_result", Game.sim)
 	assert_false(line.visible, "a player's results have no such line")
 	assert_eq((results.call(&"again_button") as ConsoleButton).label_key, "UI_RESULT_AGAIN")
+
+
+func test_every_row_says_its_effort_and_a_bot_shows_the_dash() -> void:
+	Settings.bench_online = false
+	_write(BenchLibrary.user_dir.path_join("mock.json"), _canary_bytes())
+	var modal: Control = _modal(_board_text())
+	modal.call(&"open")
+	var rows: Node = modal.find_child("GlobalRows", true, false)
+	var texts: Array[String] = _texts(rows)
+	assert_has(texts, BenchEffort.line("high"))
+	assert_has(texts, BenchEffort.line(""), "the bot row")
+	assert_has(_texts(modal.find_child("LocalRuns", true, false)), BenchEffort.line("normal"))

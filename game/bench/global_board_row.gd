@@ -11,6 +11,9 @@ var runs: int = 0
 var of: int = 0
 var wins: int = 0
 var score: float = 0.0
+## §18: how hard the model was asked to think — a level, a raw reasoning value,
+## or "" (a bot, a decision model, a board from before the levels).
+var effort: String = ""
 var seeds: Array[GlobalBoardRun] = []
 
 

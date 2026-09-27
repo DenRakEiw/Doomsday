@@ -111,6 +111,9 @@ static func rules_broken(entry: BenchEntry, config: BenchConfig) -> String:
 		return "parser_version %d is above %d" % [entry.parser_version, config.parser_version]
 	if entry.params_id != BenchEntry.params_id_of(entry.params):
 		return "params_id is not the hash of params"
+	# §18: the effort a list shows is the one the run was played with.
+	if entry.effort != str(entry.params.get(BenchEffort.PARAM, "")):
+		return "the effort is not the one in params"
 	if entry.model.begins_with(BenchEntry.MODEL_BOT_PREFIX) != entry.is_bot():
 		return "a bot model needs the bot backend, and only a bot model has it"
 	if entry.end_day > config.max_days:

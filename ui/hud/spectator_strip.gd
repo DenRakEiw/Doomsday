@@ -1,6 +1,7 @@
 extends PanelContainer
 ## The strip over a watched benchmark run (spec benchmark.md §12.5): who is
-## playing, which seed, the stance the model last took and which of its
+## playing, which seed, how hard the model was asked to think (§18; a dash for
+## a bot or a decision model), the stance the model last took and which of its
 ## decisions the replay has reached.
 ##
 ## Shown only while `Game.is_spectating()`. One line at full width; in compact
@@ -21,10 +22,12 @@ const PLACEHOLDER_DECISION: String = "decision"
 const PLACEHOLDER_TOTAL: String = "total"
 const PLACEHOLDER_COUNT: String = "count"
 const PLACEHOLDER_MODEL: String = "model"
+const PLACEHOLDER_EFFORT: String = "effort"
 
 @onready var _watching: CapsLabel = %SpectatorWatching
 @onready var _model: Label = %SpectatorModel
 @onready var _seed_label: Label = %SpectatorSeed
+@onready var _effort: Label = %SpectatorEffort
 @onready var _stance: Chip = %SpectatorStance
 @onready var _decision: Label = %SpectatorDecision
 @onready var _unreadable: Label = %SpectatorUnreadable
@@ -58,6 +61,8 @@ func refresh() -> void:
 	var has_decisions: bool = total > 0
 	_model.text = entry.model
 	_seed_label.text = tr(KEY_SEED).format({PLACEHOLDER_SEED: entry.seed_value})
+	var effort: String = BenchEffort.label(BenchEffort.of_entry(entry))
+	_effort.text = BenchEffort.line(BenchEffort.of_entry(entry))
 	_stance.visible = has_decisions
 	_stance.set_label(KEY_STANCE, {PLACEHOLDER_STANCE: stance})
 	_decision.visible = has_decisions
@@ -68,6 +73,7 @@ func refresh() -> void:
 	A11y.readout(self, tr(KEY_WATCHING), tr(KEY_A11Y).format({
 		PLACEHOLDER_MODEL: entry.model,
 		PLACEHOLDER_SEED: entry.seed_value,
+		PLACEHOLDER_EFFORT: effort,
 		PLACEHOLDER_DECISION: index,
 		PLACEHOLDER_TOTAL: total,
 		PLACEHOLDER_STANCE: stance,

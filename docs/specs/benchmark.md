@@ -17,6 +17,12 @@ S6.13 (§16.6–§16.7).
 choice questions per decision, each offering only legal moves) and touches §0 item 14, §1, §3,
 §8.1, §9, §10.2–§10.3, §11, §11.3 and §13. Builds from it: **S6.12c** (mock only).
 
+**S6.12d (2026-09-27)** adds **§18, effort levels** (*normal / high / ultra*, shown on every
+entry and row), **the model catalogue, `run_models.ps1` and `submit_runs.ps1`** (with a local
+verification while the deploy key is missing) and the user guide *Running your own models*
+(§18.9); it touches §3, §8.3, §10.2–§10.3, §11, §12.5, §12.7, §13 and §16.6. Its choices are
+pending user confirmation (§18.10).
+
 ---
 
 ## 0. What this spec decides
@@ -211,6 +217,7 @@ naming the reasons).
 | `typesafe.max_requests` | int ≥ 1 | 3000 | HTTP requests per invocation, retries included (§17.8); `--max-requests` overrides |
 | `typesafe.question_tokens_per_call` | int ≥ 0 | 1500 | the estimate's allowance for the questions (§17.9) |
 | `typesafe.state_limit_tokens` · `typesafe.request_limit_tokens` | int | 32000 · 64000 | the service's limits, checked in the dry run (§17.9) |
+| `effort.high` · `effort.ultra` | object | `reasoning` ["high"] · ["max", "xhigh", "high"]; `max_completion_tokens` 16000 · 32000; `output_tokens_per_call` 3000 · 8000; `timeout_s` 600 · 900 | S6.12d, §18.1: what a level sends and what it likely costs |
 
 ---
 
@@ -611,7 +618,8 @@ truncated to 200 characters with the key string replaced by `***` as a belt-and-
 ```
 
 `response_format` only when `json_mode`; `reasoning: {"effort": "<low|medium|high>"}` only
-when `--reasoning` is given; `top_p` only when `--top-p` is given. `seed` always (providers that
+when `--reasoning` is given (or the effort level's, §18.1: `high`, or `max`/`xhigh`/`high` for
+`ultra`); `top_p` only when `--top-p` is given. `seed` always (providers that
 ignore it ignore it). No `stream`, no `tools`, no `provider` block.
 
 **Reading:** status 200 → `choices[0].message.content` (null → `""`), `choices[0].finish_reason`,
@@ -744,6 +752,7 @@ rule (`World.WIN_OUTCOMES`); the row's outcome counts show *how* a model won.
 - **Since D6.9b** every row also carries `seeds` (per run: seed, file, SHA-256, outcome, days,
   score), the writer takes an optional map of verification records (verified runs only) and does
   not rewrite unchanged files — §16.3.
+- **Since S6.12d** a chat row carries `effort` and `LEADERBOARD.md` an *Effort* column (§18.2).
 - **Since D6.9c** a row whose runs report a `model_version` also carries `model_versions` (sorted,
   distinct; absent otherwise), and `LEADERBOARD.md` shows a choice row's params its own way —
   §17.7.
@@ -764,10 +773,10 @@ rows are missing).
 "$GODOT" --headless --path . -s tools/bench/bench_run.gd -- \
     --model=<id> [--backend=openrouter|typesafe|mock:cheapest|mock:wait|mock:invalid|mock:mixed|mock-choice:<mode>]
     [--suite=standard|quick] [--seeds=a..b] [--locale=en|de]
-    [--temperature=<f>] [--max-tokens=<n>] [--json-mode=true|false] [--reasoning=low|medium|high] [--top-p=<f>]
+    [--temperature=<f>] [--max-tokens=<n>] [--json-mode=true|false] [--effort=normal|high|ultra | --reasoning=low|medium|high] [--top-p=<f>]
     [--base-url=<url>] [--key-env=<VAR>] [--max-cost=<usd>] [--yes]
     [--out=<dir=res://benchmark>] [--cache=<dir=res://benchmark/cache>] [--fresh]
-    [--data=<root=res://data>] [--dry-run]
+    [--data=<root=res://data>] [--dry-run] [--no-rebuild]
 "$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --bots [--suite=…] [--out=<dir>] [--if-missing] [--no-rebuild]
 "$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --rebuild
 "$GODOT" --headless --path . -s tools/bench/bench_run.gd -- --determinism-fixture
@@ -971,6 +980,8 @@ and on ready). Content, one `HFlowContainer` (so compact wraps to two lines, nev
 3. `LabelCaption` `UI_SPECTATOR_SEED` (`{seed}`), `TEXT_1`;
 4. `Chip` `UI_SPECTATOR_STANCE` (`{stance}` = `BENCH_STANCE_<ID>` or `BENCH_STANCE_NONE`);
 5. `LabelCaption` `UI_SPECTATOR_DECISION` (`{decision}`, `{total}` = `decisions.size()`);
+   *(S6.12d: after the seed, a `LabelCaption` `UI_BENCH_EFFORT` — the model's effort level, a
+   dash for a bot or a decision model, §18.8.)*
 6. `LabelCaption` `UI_SPECTATOR_UNREADABLE` (`{count}`) — only when `invalid_answers > 0`.
 
 Refreshed on `tick_advanced` (from `ReplayPolicy.decision_at(day)` / `decision_index`) and on
@@ -2137,3 +2148,219 @@ invocation backs it; tests use `MockChoiceBackend` only.
    `typesafe/jev-1.13.0`; and the per-report limits 3 / 2 / 2 / 2 — enough that Jev is not
    handicapped against chat models, few enough that one report on a flat distribution cannot spend
    everything at once.
+
+---
+
+## 18. Effort levels, the model catalogue, running and submitting (S6.12d)
+
+S6.12d (2026-09-27, a build step that also wrote this section; its choices are recorded as
+*pending user confirmation*, §18.10). The user's requests (2026-09-26): *"wir brauchen das
+AI-Modell-Leaderboard, OpenRouter-Verbindung und AI-Testläufe; ich würde die Testmodelle
+auswählen, wenn alles fertig ist"* and *"schreibe auch den Aufwand dazu, also normal / hoch /
+ultra"* — every entry and every leaderboard row shows the model's **effort level**.
+
+### 18.1 The three levels
+
+| Level | What is sent to OpenRouter (§8.3's body) | `max_completion_tokens` | Timeout | Output a call, for the estimate |
+| --- | --- | --- | --- | --- |
+| `normal` | no `reasoning` member — the provider's default (a model that always reasons, `mandatory`, reasons at its `default_effort`) | 1 200 (`defaults`) | 180 s | 300 |
+| `high` | `"reasoning": {"effort": "high"}` | 16 000 | 600 s | 3 000 |
+| `ultra` | `"reasoning": {"effort": <the first of max, xhigh, high that the model's public list names>}` | 32 000 | 900 s | 8 000 |
+
+The numbers are `data/benchmark.json` → `effort.high` / `effort.ultra` (`reasoning` the efforts
+to try, best first; `max_completion_tokens`; `output_tokens_per_call`; `timeout_s`), read by
+`BenchConfig.effort_*`. A larger `--max-tokens` given by hand stays.
+
+**From OpenRouter's documentation** (read 2026-09-27):
+- *Reasoning tokens* (`https://openrouter.ai/docs/use-cases/reasoning-tokens`): `reasoning.effort`
+  takes `"max"`, `"xhigh"`, `"high"`, `"medium"`, `"low"`, `"minimal"`, `"none"` (`none` switches
+  reasoning off). "When a model doesn't support a specific effort level: OpenRouter will map your
+  requested effort to the nearest supported level." "Reasoning tokens are considered output
+  tokens and charged accordingly"; "on most providers they also count against the request's
+  `max_tokens`", and a limit spent on reasoning ends with `finish_reason: "length"` and empty
+  content, still billed — hence the larger limits above (at 1 200 a reasoning model would often
+  answer nothing). For models with a token budget (Anthropic, Gemini) the effort becomes
+  `max(min(max_tokens × ratio, 128 000), 1 024)` with ratio 0.95 for `max`/`xhigh` and 0.8 for
+  `high` — so the limit also sets how long such a model thinks.
+- The public model list (`GET https://openrouter.ai/api/v1/models`, no key) carries per model a
+  `reasoning` object (`supported_efforts`, `default_effort`, `mandatory`, …); non-reasoning models
+  omit it and do not list `reasoning` in `supported_parameters`. The live list of 2026-09-27: 458
+  models, 326 with that object; efforts range from `["high"]` to `["max", "xhigh", "high",
+  "medium", "low", "none"]`.
+- *Provider routing* (`https://openrouter.ai/docs/features/provider-routing`): "providers that
+  don't support all the LLM parameters specified in your request can still receive the request,
+  but will ignore unknown parameters" (unless `provider.require_parameters`, which we do not
+  send). **So a model without reasoning would silently play a "High" run as a normal one.**
+
+**Therefore:**
+- `ultra` resolves per model from that list: `max` where listed, else `xhigh`, else `high`
+  (`BenchEffort.reasoning_for`). The params record **what was sent**, so a row says it
+  (`reasoning xhigh`). The list unreachable or the model not in it → the first of the list
+  (`max`), which OpenRouter maps down; the tool prints so.
+- `high` and `ultra` are **refused** (exit 1) for a model the list names without reasoning
+  support: `benchmark: <model> takes no reasoning parameter (OpenRouter's model list) — play it
+  with --effort=normal`. An unlisted model is not refused.
+- A decision model (`typesafe/…`) and the bots have no effort: `--effort` is one of the chat flags
+  a choice backend refuses (§17.7); their lists show a dash.
+
+### 18.2 Params, entry, row
+
+- **Params** (§10.2): `normal` changes nothing — the params, `params_id`, file name and cache key
+  of a normal run are exactly those before S6.12d (the canary's params id is the test). `high` and
+  `ultra` add `"effort": "<level>"` and set `reasoning` and `max_completion_tokens` as above. So
+  each level is a row of its own (§10.3 groups by `params_id`), a file of its own and a cache key
+  of its own.
+- **`--reasoning=low|medium|high`** stays the low-level form: that effort as given, no `effort`
+  key, the default limit. It cannot be combined with `--effort` (exit 1). Its runs show the raw
+  value (`low`) where a level would stand.
+- **Entry** (§10.2): one optional key more, **`effort`**, written after `backend` (and after
+  `model_version`) **only for `high` and `ultra`**; read as optional — missing (every older entry)
+  or `"normal"` → normal; another value or type → `from_dict` null (`effort: not normal, high or
+  ultra`). `BenchEffort.of_entry` says what a list shows: `""` for a bot or a decision model, the
+  level, or a `--reasoning` run's raw value.
+- **Verifier** (§16.4, `rules`): an entry's `effort` must equal its params' `effort` (`the effort
+  is not the one in params`).
+- **Row** (§10.3): chat rows gain `"effort": "normal" | "high" | "ultra" | <raw>` after `backend`
+  (and `model_versions`); bot and choice rows have no such key, so the published board of bot rows
+  stays byte-identical. `LEADERBOARD.md` gains an **Effort** column after *Model* (`Normal`,
+  `High`, `Ultra`, a raw value, or `—`). A public `LEADERBOARD.md` is regenerated only when its
+  rows change (§16.3), so it shows the new column from its next change.
+- **`GlobalBoard.parse`** (§16.6) reads `effort` as optional: a string that is a level or a short
+  lower-case word (`^[a-z]{1,16}$`) is kept, anything else is left empty (shown as the dash) —
+  never a reason to drop the row.
+- **The public `validate.py`** (read 2026-09-27) checks the required keys by type and ignores keys
+  it does not know; `params` is any object. An entry with `effort` passes unchanged — **no change
+  is needed there** (the smoke run in §18.7 proves it on a clone).
+
+### 18.3 The estimate per level
+
+§11.5's figures take the level's numbers: *likely* uses `effort.<level>.output_tokens_per_call`
+(3 000 / 8 000 instead of 300), *at most* the level's `max_completion_tokens`. The model list is
+asked once per invocation (`Estimate.fetch_model`: prices, `listed`, `reasoning`, `efforts`,
+`mandatory`), so the price and the effort come from the same request. Example (§11.5's model, 1 /
+4 USD per million, 13 000 input tokens a call, standard suite): normal ≈ 11.36 USD, high ≈ 20.00
+USD (10 × 80 × (0.013 + 0.012)), ultra ≈ 36.00 USD.
+
+### 18.4 The catalogue — `tools/bench/models.ps1`
+
+`models.ps1` runs `tools/bench/model_list.gd` (the parsing and the figures are
+`tools/bench/model_catalogue.gd`, preloaded, pure): OpenRouter's public list, asked without a key,
+one row per model — id (`*` = free: a `:free` id or both prices zero), context, input and output
+price per million tokens, reasoning (`—`, `yes` or `always`, and the highest listed effort), and
+the likely cost of the quick and the standard suite at normal and of the standard suite at high
+and ultra (`—` where the level does not apply, `?` where the price is unknown), by §11.5's rule
+measured on the real brief and day-0 digest. `typesafe/jev-latest` is listed first at its
+published price (§17.9's estimate). Filters: `-Search <text>` (id or name), `-Free`,
+`-MaxCost <usd>` (likely cost of `-Suite` at `-Effort`; unknown prices are left out), `-Effort
+<level>` (both suites at that level). `--json --models=a,b` gives `run_models.ps1` one line per
+model.
+
+### 18.5 Running — `tools/bench/run_models.ps1`
+
+`-Models a,b [-Effort normal|high|ultra] [-Suite quick|standard] [-Parallel N] [-MaxTotal usd]
+[-Yes] [-Mock]`:
+
+1. **Estimate** per model from `model_list.gd --json` (the same rule as the tool's pre-flight),
+   printed with the reasoning each level sends and the total; a model the list says cannot reason
+   at the chosen level stops the batch before anything starts.
+2. **Keys** from the process environment, else from the user's (`HKCU\Environment`, where
+   `set_api_key.ps1` stores them) — handed to the child processes, never printed.
+3. **One confirmation** (`-Yes` skips it). `-MaxTotal` refuses a batch whose likely total is above
+   it (exit 7) and scales the caps below so that together they stay within it.
+4. **Caps:** each model gets `max(1 USD, likely × 1.5)` (the tool's default cap when the price is
+   unknown); its shards share it. `bench_run.gd` gets `--yes` and that `--max-cost`, so its
+   pre-flight never stops a confirmed run and its cap still does (exit 6).
+5. **Runs** `bench_run.gd` per model, one after the other; `-Parallel N` starts N processes, each
+   with its own `--seeds` range and `--no-rebuild` (new in S6.12d: parallel shards must not write
+   the board at once). Output goes to **`user://benchmark`** (`%APPDATA%\Doomsday\benchmark\`), so
+   the runs show in the game under *Benchmark → Recorded runs*. Each process's output is kept in a
+   log folder under `%TEMP%` (`-LogDir`).
+6. **Stops at the first fatal error:** a shard exiting non-zero stops its siblings, and no later
+   model starts; runs finished before are kept (§11.3).
+7. **Rebuilds** the local board once (`--rebuild`) and prints a summary: model, effort, runs,
+   score, wins, cost.
+
+`-Mock` plays `mock:cheapest` under the given model ids with the fixture price list: no key, no
+request — the whole flow, for tests and for a look.
+
+### 18.6 Submitting — `tools/bench/submit_runs.ps1`
+
+`[-Model id] [-Push] [-VerifyLocally] [-SkipBots] [-NoDispatch] [-Board <clone>] [-Runs <dir>]`:
+pulls the leaderboard clone (default `..\doomsday-leaderboard`; it must be clean), copies the model
+runs from `%APPDATA%\Doomsday\benchmark\runs` into its `runs\` (bot and mock runs left out —
+`-IncludeMock` is for tests), runs its own `tools/validate.py --all` (`uv run --no-project
+python`), and shows what would be committed. **Without `-Push` it takes the copies back** — a dry
+run leaves the clone as it was. With `-Push` it commits the runs and pushes them to `main` of the
+public repository (the owner's direct push, instead of §16.2's pull request), then either:
+
+- **(default) dispatches the private workflow** `leaderboard.yml` with `gh workflow run` (or says
+  how to start it by hand). It verifies and publishes **only when the secret
+  `LEADERBOARD_DEPLOY_KEY` exists** (§16.5); without it a dispatch is a read-only dry run and the
+  runs wait. `-NoDispatch` leaves them to the daily run.
+- **`-VerifyLocally`** — new, because the deploy key does not exist yet: this machine does the
+  workflow's work — the bot reference rows (`bench_run.gd --bots --suite=standard --if-missing
+  --no-rebuild`, ≈ 3 minutes; `-SkipBots` leaves them out), the verifier (`verify_runs.gd
+  --board=<clone> --game-commit=<HEAD> --message=<file>`, with a scratch `APPDATA`), then commits
+  `runs verified leaderboard.json LEADERBOARD.md` with the verifier's message and pushes (a
+  rejected push: one `pull --rebase`, then again). It warns when the game checkout is not
+  `origin/main` or `data/` has uncommitted changes — the verdicts are only as good as the checkout.
+  The user's own GitHub credentials push; no deploy key is involved.
+
+### 18.7 Tests
+
+`test_bench_effort` (levels, what they send, params ids, labels in both languages),
+`test_model_catalogue` (the fixture `tests/fixtures/bench/openrouter_models.json`: parsing, free,
+reasoning, estimates per level, filters, `model_list.gd`'s arguments and JSON line), additions to
+`test_bench_entry` (round trip, old entries, bad values), `test_bench_verifier` (effort ≠ params),
+`test_bench_score` (row key, Effort column), `test_global_board`, `test_bench_run` (an ultra run is
+its own row and verifies; bad arguments; `--no-rebuild`), `test_benchmark_list` and
+`test_spectator` (the lines), and `test_bench_scripts` (every `tools/bench/*.ps1` parses — where
+PowerShell exists; CI's Linux container has none). **`tools/bench/smoke_scripts.ps1`** (by hand,
+≈ 30 s): parses the scripts, `models.ps1` on the fixture, `run_models.ps1 -Mock` (two models,
+effort high, quick, `-Parallel 2`), then a bare clone of the leaderboard repository as a stand-in
+origin and `submit_runs.ps1` against a clone of it — dry run (clone unchanged), then `-Push
+-VerifyLocally -SkipBots` (the stand-in receives the runs, six verified records and rows with
+`"effort": "high"`). No model is asked, no key used.
+
+### 18.8 Strings (en/de)
+
+`UI_BENCH_EFFORT` (`{effort}`) *Effort: {effort}* / *Aufwand: {effort}* — a caption under every
+row of the list (global, other versions, recorded runs) and a caption in the spectator strip after
+the seed; `BENCH_EFFORT_NORMAL` / `_HIGH` / `_ULTRA` *Normal / High / Ultra* — *Normal / Hoch /
+Ultra* (the user's words); `BENCH_EFFORT_NONE` *—* (bots, decision models, a board from before the
+levels). `UI_A11Y_SPECTATOR` gains `{effort}` (*…, effort: {effort}, …* / *…, Aufwand: {effort},
+…*).
+
+### 18.9 Running your own models — the guide
+
+Everything from `F:\Doomsday` in PowerShell. Nothing here costs money until step 4.
+
+1. **Keys, once** (a dialog; stored for your Windows user; open a new window afterwards):
+   `powershell -ExecutionPolicy Bypass -File tools\bench\set_api_key.ps1 -Name OPENROUTER_API_KEY`
+   (and `-Name TYPESAFE_API_KEY` for Jev).
+2. **Choose models:** `powershell -ExecutionPolicy Bypass -File tools\bench\models.ps1 -Search claude`
+   (or `-Free`, or `-MaxCost 5 -Effort high`). The columns are the likely cost of a whole suite.
+   A model marked `always` reasons whatever you ask; at *normal* its 1 200-token limit may cut its
+   answers short — prefer `-Effort high` for it.
+3. **Look first, free:** `powershell -ExecutionPolicy Bypass -File tools\bench\run_models.ps1
+   -Models <id> -Suite quick -Mock -Yes` plays the whole flow with a mock (no key, no cost).
+4. **Play:** `powershell -ExecutionPolicy Bypass -File tools\bench\run_models.ps1 -Models
+   <id>,<id> -Effort high -Suite quick` — read the estimate, answer `y`. The ranked suite is
+   `-Suite standard` (10 seeds); `-Parallel 5` plays five seeds at once; `-MaxTotal 20` refuses a
+   batch likely above 20 USD. The runs appear in the game: title → *Benchmark* → *Recorded runs* →
+   *Watch*.
+5. **Publish:** `powershell -ExecutionPolicy Bypass -File tools\bench\submit_runs.ps1` (a dry run:
+   validated, nothing committed), then `… submit_runs.ps1 -Push -VerifyLocally` (verified on this
+   PC and published — standard-suite rows rank; quick rows are listed as practice). With the deploy
+   key set up (§16.5) `-Push` alone lets GitHub verify them.
+
+### 18.10 Decisions (pending user confirmation)
+
+The three levels as in §18.1 (ultra = the model's highest listed effort, max over xhigh over
+high); the limits 16 000 / 32 000 tokens and the timeouts 600 / 900 s; the estimate's 3 000 /
+8 000 output tokens a call (a guess until the first live runs — to be corrected from their
+`tokens_out`); refusing high and ultra for a model the list names without reasoning; normal writes
+no `effort` (older entries and boards stay byte-identical); `--reasoning` kept as the low-level
+form, exclusive with `--effort`; run_models' caps `max(1, likely × 1.5)` per model;
+`submit_runs.ps1` pushes to the public `main` directly (the owner) and `-VerifyLocally` stands in
+for the missing deploy key.

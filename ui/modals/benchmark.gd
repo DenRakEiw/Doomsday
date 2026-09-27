@@ -2,7 +2,8 @@ extends Control
 ## The *Benchmark* list (spec benchmark.md §12.7, §16.6): the global leaderboard
 ## first — fetched only now, when the list opens, and only with the *Online
 ## leaderboard* setting on — then the recorded runs this game found on disk.
-## Every run with a *Watch* button replays in the session.
+## Every run with a *Watch* button replays in the session. Every row says the
+## model's effort level (§18); bots and decision models show the dash.
 ##
 ## Model names are data from outside: they go into plain `Label`s, never into
 ## rich text.
@@ -216,6 +217,7 @@ func _add_local_row(entry: BenchEntry, content_hash: String) -> void:
 	var lines: VBoxContainer = _lines()
 	_model_label(lines, entry.model)
 	_caption(lines, _row_text(entry.seed_value, entry.outcome, entry.days, entry.score))
+	_caption(lines, BenchEffort.line(BenchEffort.of_entry(entry)))
 	var current: bool = entry.content_hash == content_hash
 	if not current:
 		_caption(lines, tr(KEY_OTHER_VERSION))
@@ -286,6 +288,7 @@ func _add_global_row(row: GlobalBoardRow, rank: int) -> void:
 	var lines: VBoxContainer = _lines()
 	_model_label(lines, row.model)
 	_caption(lines, _global_row_text(row, rank))
+	_caption(lines, BenchEffort.line(row.effort))
 	if not row.complete:
 		_caption(lines, tr(KEY_GLOBAL_PARTIAL).format({"runs": row.runs, "of": row.of}))
 	var toggle: ConsoleButton = ConsoleButton.new()
@@ -307,6 +310,7 @@ func _add_other_row(row: GlobalBoardRow, rank: int) -> void:
 	var lines: VBoxContainer = _lines()
 	_model_label(lines, row.model)
 	_caption(lines, _global_row_text(row, rank))
+	_caption(lines, BenchEffort.line(row.effort))
 	_caption(lines, tr(KEY_OTHER_VERSION))
 	_other_rows.add_child(lines)
 

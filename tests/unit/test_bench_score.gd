@@ -228,4 +228,27 @@ func test_the_page_shows_the_versions_and_a_choice_rows_params() -> void:
 	entry.model_version = "jev-1.13.0"
 	var text: String = Writer.markdown(BenchScore.rows([entry] as Array[BenchEntry], _config,
 		"now"), _config, Writer.GENERATOR_LOCAL)
-	assert_string_contains(text, "| 1 | typesafe/jev-latest (jev-1.13.0) | choice v1, picks 3/2/2/2 |")
+	assert_string_contains(text,
+		"| 1 | typesafe/jev-latest (jev-1.13.0) | — | choice v1, picks 3/2/2/2 |")
+
+
+func test_a_chat_row_says_its_effort_and_a_bot_or_choice_row_has_no_such_key() -> void:
+	var high: Dictionary = {"temperature": 0.0, "effort": "high", "reasoning": "high"}
+	var entry: BenchEntry = _entry("vendor/model", 1001, "win_merge", 400, "standard", "now", high)
+	entry.effort = "high"
+	var row: Dictionary = BenchScore.rows([entry] as Array[BenchEntry], _config, "now")[0]
+	assert_eq(row["effort"], "high")
+	var plain: Dictionary = BenchScore.rows(_quick("vendor/model", [["win_merge", 400]]), _config,
+		"now")[0]
+	assert_eq(plain["effort"], "normal")
+	var bot: BenchEntry = _entry("bot:greedy", 1001, "win_merge", 400, "standard", "now", {})
+	bot.backend = BenchEntry.BACKEND_BOT
+	assert_false(BenchScore.rows([bot] as Array[BenchEntry], _config, "now")[0].has("effort"))
+	var jev: BenchEntry = _entry("typesafe/jev-latest", 1001, "win_merge", 400, "standard", "now",
+		BenchChoice.params_of(_config))
+	assert_false(BenchScore.rows([jev] as Array[BenchEntry], _config, "now")[0].has("effort"))
+	var text: String = Writer.markdown(BenchScore.rows([entry, bot] as Array[BenchEntry], _config,
+		"now"), _config, Writer.GENERATOR_LOCAL)
+	assert_string_contains(text, "| Rank | Model | Effort | Params |")
+	assert_string_contains(text, "| vendor/model | High | temperature 0, reasoning high |")
+	assert_string_contains(text, "| bot:greedy | — | — |")

@@ -51,6 +51,11 @@ var backend: String = ""
 ## `+`; "" for everything else — and then not written, so every other entry is
 ## byte for byte what it was.
 var model_version: String = ""
+## How hard a chat model was asked to think (§18): `high` or `ultra` — the same
+## as `params`' `effort`; "" for normal (never written, so every entry from
+## before the levels is byte for byte what it was) and for bots and decision
+## models. `BenchEffort.of_entry` says what a list shows.
+var effort: String = ""
 var params: Dictionary = {}
 var params_id: String = ""
 var prompt_version: int = 1
@@ -132,7 +137,7 @@ func is_win() -> bool:
 
 
 ## Exactly §10.2's keys, in its order; `model_version` after `backend` only when
-## it is not empty (§17.7).
+## it is not empty (§17.7), then `effort` only when it is not normal (§18).
 func to_dict() -> Dictionary:
 	var command_rows: Array[Dictionary] = []
 	for command: Command in commands:
@@ -147,6 +152,8 @@ func to_dict() -> Dictionary:
 	}
 	if not model_version.is_empty():
 		head["model_version"] = model_version
+	if not effort.is_empty() and effort != BenchEffort.NORMAL:
+		head[BenchEffort.PARAM] = effort
 	head.merge({
 		"params": params.duplicate(true),
 		"params_id": params_id,
@@ -211,6 +218,9 @@ static func from_dict(d: Dictionary) -> BenchEntry:
 		return _fail("budget_exhausted: missing or not true/false")
 	if d.has("model_version") and typeof(d["model_version"]) != TYPE_STRING:
 		return _fail("model_version: not a string")
+	if d.has(BenchEffort.PARAM) and (typeof(d[BenchEffort.PARAM]) != TYPE_STRING
+			or not BenchEffort.is_level(str(d[BenchEffort.PARAM]))):
+		return _fail("effort: not normal, high or ultra")
 	for key: String in ["params", "setup"]:
 		if typeof(d.get(key)) != TYPE_DICTIONARY:
 			return _fail("%s: missing or not an object" % key)
@@ -240,6 +250,9 @@ static func from_dict(d: Dictionary) -> BenchEntry:
 	entry.model = str(d["model"])
 	entry.backend = str(d["backend"])
 	entry.model_version = str(d.get("model_version", ""))
+	# An old entry has no effort: it was a normal run. A written "normal" reads the same.
+	var level: String = str(d.get(BenchEffort.PARAM, ""))
+	entry.effort = "" if level == BenchEffort.NORMAL else level
 	entry.params = (d["params"] as Dictionary).duplicate(true)
 	entry.params_id = str(d["params_id"])
 	entry.prompt_version = int(d["prompt_version"])

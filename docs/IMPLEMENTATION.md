@@ -338,6 +338,7 @@ before the *next* row; "—" means stay on the same model.
 | 96 | S7.3 Web build | [O] | — |
 | 96b | S7.3b Web build: the browser performance runs *(split from S7.3 at `web.md` §13)* | [O] | — |
 | 97 | S7.I itch.io upload: butler job in `release.yml`, size check, itch web settings *(the itch project and `BUTLER_API_KEY`: user)* | [O] | — |
+| 97′ | S6.12d Ready for the user's model runs, with effort levels *(user requests 2026-09-26; inserted 2026-09-27 by the orchestrator; the live runs are the user's)* | [O] | — |
 | 97a | S7.IP Release polish before the itch release *(inserted 2026-09-26 by the orchestrator)* | [O] | — |
 | 98 | G7.I The itch.io release: played on the restricted page, go, public — **[needs user]** | **[F]** | — |
 | 99–107 | ~~S7.F1–S7.F5, U7.F1–U7.F4 FLUX 3 Action track~~ — **cut 2026-09-26** (user; numbers kept so later rows do not move) | — | — |
@@ -1327,6 +1328,21 @@ verify and rank beside the chat-model and bot rows, the dry run prints the reque
 key; `tools/test.sh` green. **The first live run needs `TYPESAFE_API_KEY` from the user** — it is
 under *Waiting on the user* (§17.11 has the command). *Done 2026-09-26 (mock only; the key helper
 `tools/bench/set_api_key.ps1` added for the user).*
+
+### S6.12d — Ready for the user's model runs, with effort levels **[O]** *(user requests 2026-09-26; inserted 2026-09-27 by the orchestrator)* · **Read first:** `benchmark.md` §3, §8, §10, §11 (§11.4, §11.5), §16, §17, then `tools/bench/*`
+The user: "wir brauchen das AI-Modell-Leaderboard, OpenRouter-Verbindung und AI-Testläufe; ich
+würde die Testmodelle auswählen, wenn alles fertig ist" and "schreibe auch den Aufwand dazu,
+also normal / hoch / ultra". Build — and specify, as §18 of `benchmark.md` — the three effort
+levels (`--effort`, into params and the entry, shown in the leaderboard writer, `LEADERBOARD.md`,
+the in-game list and the spectator strip, en/de), the model catalogue `tools/bench/models.ps1`,
+the test starter `tools/bench/run_models.ps1`, the submitter `tools/bench/submit_runs.ps1` (with a
+local verification while the deploy key is missing) and the user guide. OpenRouter's current
+reasoning documentation decides what each level sends (§18.1 cites it). Tests: GDScript units, the
+scripts parse, a mock run of `run_models` and a submission to a scratch clone
+(`smoke_scripts.ps1`). **No live model call and no key use.**
+**Done when:** `tools/test.sh` and `smoke_scripts.ps1` green, CI green; the user can pick models
+and run them with the §18.9 commands. *Done 2026-09-27 (`benchmark.md` §18; the live runs wait
+for the user — Waiting on the user, "Model runs").*
 
 ### G6 (1/2) — Balance pass 4 **[F]** · **Read first:** `docs/BALANCE.md` §5 · *Balance baselines*
 Re-baseline everything on the M6 tree (every architecture, scenario and difficulty), tune data

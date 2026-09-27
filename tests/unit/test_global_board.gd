@@ -120,3 +120,13 @@ func test_newer_picks_by_generated_and_ignores_an_unusable_board() -> void:
 	assert_eq(GlobalBoard.newer(older, null), older)
 	assert_null(GlobalBoard.newer(broken, null))
 	assert_null(GlobalBoard.newer(null, null))
+
+
+func test_an_effort_is_read_and_anything_odd_is_left_empty() -> void:
+	var d: Dictionary = _fixture()
+	d["rows"][0]["effort"] = "ultra"
+	d["rows"][1]["effort"] = "<b>loud</b>"
+	var board: GlobalBoard = _board(d)
+	assert_eq(board.rows[0].effort, "ultra")
+	assert_eq(board.rows[1].effort, "", "shown as the dash, the row kept")
+	assert_eq(_board(_fixture()).rows[0].effort, "", "a board from before the levels")
