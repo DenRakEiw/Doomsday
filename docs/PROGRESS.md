@@ -2675,6 +2675,15 @@ tools\bench\run_models.ps1 -Models <id>,<id> -Effort high -Suite quick` (estimat
 in the game under *Benchmark*); (4) publish — `… tools\bench\submit_runs.ps1` (dry run), then
 `… submit_runs.ps1 -Push -VerifyLocally`. Also confirm or change §18.10's choices (the three
 levels, the caps).
+**First live run done (2026-09-27, *Balance baselines*), not published:** the two runs are in
+`%APPDATA%\Doomsday\benchmark\runs` (the game lists them); the leaderboard clone has one local,
+unpushed commit `8dc955d` (bot rows, quick + standard, verified). Publishing to the public board
+was stopped by the permission check — yours: `… submit_runs.ps1 -Push -VerifyLocally` (or drop the
+commit: `git -C ..\doomsday-leaderboard reset --hard origin/main`). **Note:** the in-game online
+list shows standard-suite rows only (`GlobalBoard._read_row`), so a quick row never shows there.
+Free-model findings: the Gemma 4 `:free` models (the only ones without default reasoning) were
+429 upstream all day; `dots-3-note-preview`, `nemotron-3.5-lightning`, `north-mini-code` reason
+although the list says `yes` (dots at normal: every answer cut at 1 200 tokens, empty).
 
 **S7.3 (2026-09-26): two checks by ear** (`web.md` §17.2 items 8–9, at G7.I or before): in a
 browser, the title's loops and a few cues (now QOA) play after the first click, and the music
@@ -2924,6 +2933,12 @@ Research Agent 583 · 192 · 253; Weapon 426 · 148 · 283; Open Weights 771 · 
 re-check within noise; Deceptive Reasoning scores ≈ 0 for every bot); Airgap Earth's Robotics claim (content or a new claim); Robotics and
 Cyber on Hard/Existential; Research Agent as the reward architecture.
 
+**2026-09-27 — first live model run (benchmark, game `d6525ec`).** `nvidia/nemotron-3-ultra-550b-a55b:free`,
+effort **high** (reasoning high, 16 000 tokens), quick suite, `-Parallel 3`, cost **0 USD** (key usage 0 before and
+after): s1002 lose_contained d604 · 100 calls · 5 unreadable; s1003 **win_merge d862, 78.4** · 150 calls · 6
+unreadable; s1001 stopped by hand after ≈185 calls (≈6 h; answers kept in `benchmark/cache/`). Row 39.2, 1/2 wins,
+3.7/0.97 M tokens in/out. Verifies (scratch copy of the board). Not published — see *Waiting on the user*.
+
 ---
 
 ## Performance notes
@@ -3021,6 +3036,11 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-27 — Benchmark: first live run (free model) [O]
+- `gemma-4-31b-it:free`, then `gemma-4-26b-a4b-it:free` (normal): 429 upstream on the first call, no run. `dots-3-note-preview:free` (normal): answers empty (reasoning cut at 1 200), stopped.
+- `nemotron-3-ultra-550b-a55b:free`, high, quick, `-Parallel 3`: s1002 lose, s1003 win_merge 78.4, s1001 stopped after ≈6 h. 0 USD. Verified in a scratch copy of the board.
+- Bot rows (quick + standard) verified and committed locally in the leaderboard clone (`8dc955d`); the push to the public board was refused by the permission check — the user's (*Waiting on the user*).
 
 ### 2026-09-27 — S7.IP Release polish before the itch release [O]
 - The wip branch (`d934262`) cherry-picked onto main; `strings.csv` kept main's (D6.11c) and got the no-break space before `%` again (26 cells; `UI_WEB_LOADING`, `BENCH_BRIEF_WIN` exempt). Probe dropped.
