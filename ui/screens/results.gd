@@ -75,6 +75,18 @@ var _values: Array[Label] = []
 var _illustration: IllustrationSlot = null
 ## §12.6: under the verdict, shown for a watched run only.
 var _spectator_line: Label = null
+## What the screen was filled from, so that a locale switch can write it again:
+## the outcome, the rows and a chip's arguments are text translated when they
+## were made (S7.IP; the chips seen in S6.9).
+var _result_sim: Simulation = null
+var _spectator_entry: BenchEntry = null
+var _spectator_verified: bool = false
+var _spectator_diverged_day: int = -1
+var _has_unlocks: bool = false
+var _unlock_architectures: Array[String] = []
+var _unlock_slots: Array[String] = []
+var _unlock_codex_new: int = 0
+var _unlock_achievements: Array[String] = []
 
 
 func _ready() -> void:
@@ -111,6 +123,11 @@ func _ready() -> void:
 	visible = false
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED and _result_sim != null:
+		_retranslate.call_deferred()
+
+
 ## Fills the screen from the world that just ended.
 ## accessibility.md §3.4: what is spoken when the modal opens.
 func a11y_summary() -> String:
@@ -118,6 +135,21 @@ func a11y_summary() -> String:
 
 
 func show_result(sim: Simulation) -> void:
+	_result_sim = sim
+	_spectator_entry = null
+	_has_unlocks = false
+	_write_result(sim)
+	visible = true
+	_fit_scroll()
+	# The wrapped lines only know their height once they have their width, so
+	# the fit is taken again after the layout pass this filling caused.
+	_fit_scroll.call_deferred()
+	_again.grab_focus.call_deferred()
+
+
+## Everything `show_result` writes, without the focus: a locale switch writes it
+## again in the new language.
+func _write_result(sim: Simulation) -> void:
 	var world: World = sim.world
 	var won: bool = World.WIN_OUTCOMES.has(world.outcome)
 	_kicker.text = tr(_kicker_key(world.outcome))
@@ -140,18 +172,28 @@ func show_result(sim: Simulation) -> void:
 	_seed_label.text = tr(KEY_SEED).format({PLACEHOLDER_SEED: Game.run_seed()})
 	_unlocked.visible = false
 	_fill_rows(sim)
-	visible = true
-	_fit_scroll()
-	# The wrapped lines only know their height once they have their width, so
-	# the fit is taken again after the layout pass this filling caused.
+
+
+## The screen written again in the language just chosen, while it is up.
+func _retranslate() -> void:
+	if _result_sim == null or not visible or not is_inside_tree():
+		return
+	_write_result(_result_sim)
+	if _spectator_entry != null:
+		show_spectator(_spectator_entry, _spectator_verified, _spectator_diverged_day)
+	if _has_unlocks:
+		show_unlocks(_unlock_architectures.duplicate(), _unlock_slots.duplicate(),
+			_unlock_codex_new, _unlock_achievements.duplicate())
 	_fit_scroll.call_deferred()
-	_again.grab_focus.call_deferred()
 
 
 ## benchmark.md §12.6: a watched run says whether the replay reached the
 ## recording — the model's score when it did, the day it left it when not (the
 ## end day when only the final state differs). Called after `show_result`.
 func show_spectator(entry: BenchEntry, verified: bool, diverged_day: int) -> void:
+	_spectator_entry = entry
+	_spectator_verified = verified
+	_spectator_diverged_day = diverged_day
 	if verified:
 		_spectator_line.text = tr(KEY_SPECTATOR_VERIFIED).format({
 			PLACEHOLDER_MODEL: entry.model,
@@ -200,6 +242,11 @@ func _show_illustration(world: World, db: ContentDB) -> void:
 ## hides the block. Called after `show_result`.
 func show_unlocks(architectures: Array[String], slots: Array[String], codex_new: int,
 		achievements: Array[String] = []) -> void:
+	_has_unlocks = true
+	_unlock_architectures = architectures.duplicate()
+	_unlock_slots = slots.duplicate()
+	_unlock_codex_new = codex_new
+	_unlock_achievements = achievements.duplicate()
 	for child: Node in _unlocked_chips.get_children():
 		_unlocked_chips.remove_child(child)
 		child.queue_free()

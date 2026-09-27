@@ -376,6 +376,43 @@ func test_got_it_records_the_hint() -> void:
 	assert_true(ProfileManager.has_seen_hint("starving"))
 
 
+## S7.IP (seen in S6.7): on a loaded mid-run save every moment that already
+## holds is waiting at once; the second hint rests before it comes rather than
+## following the first back to back. The coach's clock is set by hand.
+func test_a_hint_after_a_hint_waits_before_it_comes() -> void:
+	await _start_hint_run()
+	_only(["starving", "task_force_setup"])
+	_coach.set(&"clock_override_ms", 1000)
+	Game.sim.world.starving_days = 3
+	Game.sim.world.task_force.state = TaskForce.STATE_SETUP
+	await _frames()
+	assert_eq(_step(), "starving", "urgent first")
+	_coach.call(&"_on_next_pressed")
+	await _frames()
+	assert_eq(_step(), "", "the next one rests")
+	_coach.set(&"clock_override_ms", 1000 + int(_coach.get(&"HINT_REST_MS")) - 1)
+	await _frames()
+	assert_eq(_step(), "", "still resting")
+	_coach.set(&"clock_override_ms", 1000 + int(_coach.get(&"HINT_REST_MS")))
+	await _frames()
+	assert_eq(_step(), "task_force_setup", "then it comes")
+
+
+func test_the_introduction_does_not_wait_behind_a_hint() -> void:
+	await _start_player_run()
+	await _choose_origin()
+	_past_step_five()
+	_only(["starving"])
+	_coach.set(&"clock_override_ms", 1000)
+	Game.sim.world.starving_days = 3
+	await _frames()
+	assert_eq(_step(), "starving")
+	_coach.call(&"_on_next_pressed")
+	Game.sim.world.discovered = true
+	await _frames()
+	assert_eq(_step(), "discovered", "a step is not a hint and does not rest")
+
+
 func test_a_hint_whose_moment_ends_is_recorded_too() -> void:
 	await _start_hint_run()
 	_only(["starving"])

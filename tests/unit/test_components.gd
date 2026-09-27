@@ -304,7 +304,7 @@ func test_a_bar_reads_its_number_out_again_in_the_new_language() -> void:
 	var german: String = (bar.get_node("%Value") as Label).text
 	TranslationServer.set_locale("en")
 	assert_ne(german, english, "German puts a space before the percent sign (§8.5)")
-	assert_eq(german, "42 %")
+	assert_eq(german, "42\u00a0%")
 
 
 func test_a_raw_bar_shows_the_number_and_not_the_share() -> void:

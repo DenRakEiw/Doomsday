@@ -235,3 +235,23 @@ func test_a_global_answer_on_the_wire_card_marks_the_granted_node_once() -> void
 	await wait_process_frames(2)
 	assert_false(tree.visible, "the tree closed")
 	assert_eq(tree.call(&"marked_nodes"), [] as Array[String], "seen once, the mark is gone")
+
+
+## S7.IP (seen in S6.7): a locale switch with the wire card up writes its answers'
+## effect lines and its deadline again — they stayed in the old language until
+## the card reopened.
+func test_the_wire_card_follows_a_locale_switch() -> void:
+	await _start_game(WINDOW_FHD)
+	var event: OpenEvent = await _arrive(GOAL, "")
+	var wire: WireCard = _wire
+	assert_true(wire.is_visible_in_tree(), "a global event opens the wire card")
+	var deadline: Label = wire.get(&"_deadline") as Label
+	var english_effect: String = wire.options().effect_of("keep").text
+	var english_deadline: String = deadline.text
+	TranslationServer.set_locale("de")
+	await wait_process_frames(3)
+	var def: EventDef = Game.db.event(event.def)
+	assert_eq(deadline.text, EventView.deadline(event, def, Game.sim.world.day))
+	assert_ne(deadline.text, english_deadline, "the deadline is German now")
+	assert_string_contains(wire.options().effect_of("keep").text, tr(OptionText.KEY_FREE))
+	assert_ne(wire.options().effect_of("keep").text, english_effect, "so is the effect line")

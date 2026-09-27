@@ -46,6 +46,7 @@ const VARIATION_LOCKED: StringName = &"LabelCaption"
 const DASH: String = "—"
 ## §6.2's by-architecture table: name, runs, wins, fastest win.
 const ARCH_COLUMNS: int = 4
+const ARCH_HEADERS: Array[String] = [KEY_COL_RUNS, KEY_COL_WINS, KEY_FASTEST]
 ## accessibility.md §8.2: the name column against each header column.
 const NAME_STRETCH: float = 2.0
 
@@ -91,6 +92,7 @@ func refresh() -> void:
 		child.queue_free()
 	if _db == null:
 		return
+	_compact = get_viewport_rect().size.x < float(UiTokens.COMPACT_WIDTH)
 	_build_totals()
 	_build_architectures()
 	_build_achievements()
@@ -131,27 +133,57 @@ func _build_totals() -> void:
 
 func _build_architectures() -> void:
 	_section(KEY_BY_ARCH)
+	if _compact:
+		_build_architectures_compact()
+		return
 	var grid: GridContainer = _grid(ARCH_COLUMNS)
 	_value_cell(grid, "")
 	# accessibility.md §8.2: at 150 % in German the three caps headers squeezed
 	# the names until they broke inside the word. The headers wrap; the name does
 	# not, and takes twice their share of the spare width.
-	for key: String in [KEY_COL_RUNS, KEY_COL_WINS, KEY_FASTEST]:
+	for key: String in ARCH_HEADERS:
 		_caps_cell(grid, key, true)
-	for def: ArchitectureDef in _db.architectures:
-		if not ProfileManager.is_unlocked(def):
-			continue
-		var row: Dictionary = ProfileManager.by_architecture.get(def.id, {})
-		var best: int = int(row.get(ProfileManager.ARCH_BEST_DAYS, 0))
+	for def: ArchitectureDef in _unlocked_architectures():
 		var name_label: Label = _value_cell(grid, tr(ArchitectureDef.name_key(def.id)))
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		name_label.size_flags_stretch_ratio = NAME_STRETCH
 		name_label.autowrap_mode = TextServer.AUTOWRAP_OFF
-		_value_cell(grid, Format.number(float(row.get(ProfileManager.ARCH_RUNS, 0)),
-			Format.Kind.DAYS))
-		_value_cell(grid, Format.number(float(row.get(ProfileManager.ARCH_WINS, 0)),
-			Format.Kind.DAYS))
-		_value_cell(grid, DASH if best <= 0 else Format.number(float(best), Format.Kind.DAYS))
+		for value: String in _architecture_values(def):
+			_value_cell(grid, value)
+
+
+## S7.IP (seen in S6.9): on a phone the name took the row and the three headers
+## were left a letter or two wide (*FAST / EST / WIN*). Each architecture gets
+## the totals' two columns instead: its name, then caption and figure per line.
+func _build_architectures_compact() -> void:
+	for def: ArchitectureDef in _unlocked_architectures():
+		var name_label: Label = _label(_content, tr(ArchitectureDef.name_key(def.id)),
+			&"ValueLabel")
+		name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		var grid: GridContainer = _grid(2)
+		var values: Array[String] = _architecture_values(def)
+		for i: int in ARCH_HEADERS.size():
+			_caps_cell(grid, ARCH_HEADERS[i], true)
+			_value_cell(grid, values[i])
+
+
+func _unlocked_architectures() -> Array[ArchitectureDef]:
+	var out: Array[ArchitectureDef] = []
+	for def: ArchitectureDef in _db.architectures:
+		if ProfileManager.is_unlocked(def):
+			out.append(def)
+	return out
+
+
+## Runs, wins and the fastest win, in the order of `ARCH_HEADERS`.
+func _architecture_values(def: ArchitectureDef) -> Array[String]:
+	var row: Dictionary = ProfileManager.by_architecture.get(def.id, {})
+	var best: int = int(row.get(ProfileManager.ARCH_BEST_DAYS, 0))
+	return [
+		Format.number(float(row.get(ProfileManager.ARCH_RUNS, 0)), Format.Kind.DAYS),
+		Format.number(float(row.get(ProfileManager.ARCH_WINS, 0)), Format.Kind.DAYS),
+		DASH if best <= 0 else Format.number(float(best), Format.Kind.DAYS),
+	]
 
 
 ## release.md §2.4: section 4 — the count, then one row per achievement in
@@ -168,7 +200,6 @@ func _build_achievements() -> void:
 			earned += 1
 	_label(_content, tr(KEY_ACHIEVEMENTS_COUNT).format({"earned": earned,
 		"total": book.defs.size()}), &"LabelCaption")
-	_compact = get_viewport_rect().size.x < float(UiTokens.COMPACT_WIDTH)
 	for def: AchievementDef in book.defs:
 		_content.add_child(_achievement_row(def, book, profile, codex_totals))
 
@@ -196,7 +227,8 @@ func _achievement_row(def: AchievementDef, book: AchievementBook, profile: Dicti
 	text.theme_type_variation = &"StackTight"
 	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(text)
-	_label(text, name_text, &"")
+	# A long German name at 150 % is wider than a phone (S6.9): it wraps.
+	_label(text, name_text, &"").autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var detail: Label = _label(text, detail_text, &"LabelCaptionHint")
 	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	# In compact the state drops under the detail (§2.4).
@@ -242,8 +274,13 @@ func _run_block(entry: Dictionary) -> Control:
 	_label(head, tr(KEY_RUN_NUMBER).format({"n": int(entry.get("n", 0))}), &"ValueLabel")
 	var architecture: Label = _label(head, _setup_text(entry), &"")
 	architecture.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# An architecture with a scenario is wider than a phone's row (S6.9).
+	architecture.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var outcome: String = str(entry.get("outcome", ""))
-	var outcome_label: Label = _label(head, tr(PREFIX_OUTCOME + outcome.to_upper()), &"")
+	# On a phone the outcome squeezed the architecture's name until it broke
+	# inside the word (S7.IP): it takes the line under the head there.
+	var outcome_label: Label = _label(block if _compact else head,
+		tr(PREFIX_OUTCOME + outcome.to_upper()), &"")
 	var variant: String = str(entry.get("variant", outcome))
 	var line: Label = _label(block, tr(EndingLineDef.verdict_key(variant)), &"LabelCaption")
 	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -271,7 +308,13 @@ func _run_block(entry: Dictionary) -> Control:
 	replay.compact = true
 	replay.disabled = seed_value <= 0
 	replay.pressed.connect(_on_replay_pressed.bind(entry))
-	foot.add_child(replay)
+	if _compact:
+		# Days, seed and the button are wider than a phone (S6.9): the button
+		# takes a line of its own under them, and wraps at 150 % in German.
+		replay.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		block.add_child(replay)
+	else:
+		foot.add_child(replay)
 	var rule: HSeparator = HSeparator.new()
 	rule.theme_type_variation = &"PanelRule"
 	block.add_child(rule)

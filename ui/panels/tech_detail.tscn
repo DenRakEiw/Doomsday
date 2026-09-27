@@ -113,6 +113,7 @@ autowrap_mode = 3
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"LabelHeading"
+autowrap_mode = 3
 
 [node name="Effects" type="VBoxContainer" parent="Scroll/Content/Body"]
 unique_name_in_owner = true
@@ -128,6 +129,7 @@ theme_type_variation = &"StackTight"
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"LabelHeading"
+autowrap_mode = 3
 
 [node name="Requires" type="VBoxContainer" parent="Scroll/Content/Body/RequiresBlock"]
 unique_name_in_owner = true
@@ -143,6 +145,7 @@ theme_type_variation = &"StackTight"
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"LabelHeading"
+autowrap_mode = 3
 
 [node name="RequiresAnyHint" type="Label" parent="Scroll/Content/Body/RequiresAnyBlock"]
 unique_name_in_owner = true
@@ -192,6 +195,7 @@ theme_type_variation = &"StackTight"
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"ConsoleButtonPrimary"
+autowrap_mode = 3
 script = ExtResource("3_console_button")
 primary = true
 

@@ -78,6 +78,7 @@ func _process(_delta: float) -> void:
 	if not line.is_empty():
 		_announce_live.say(line)
 	_fit_prompt_row()
+	_fit_overlay_picker()
 
 
 ## The prompt's row shows exactly while the prompt does (a visible empty row
@@ -99,6 +100,16 @@ func _fit_prompt_row() -> void:
 	_prompt_spacer.custom_minimum_size.x = maxf(inset, 0.0)
 	var used: float = inset + separation if inset > 0.0 else 0.0
 	_site_prompt.set(&"room", maxf(_prompt_row.size.x - used, 0.0))
+
+
+## The overlay picker steps aside while an open left-edge panel overlaps it —
+## four toggles are wider than the region panel (S7.I). Measured against the
+## picker's place in the column, which hiding it does not move.
+func _fit_overlay_picker() -> void:
+	var covered: bool = not _compact and side_panel != null and side_panel.is_open \
+		and side_panel.edge == SlidePanel.Edge.LEFT \
+		and side_panel.covered_rect().intersects(_overlay_picker.get_global_rect())
+	_overlay_picker.set(&"covered", covered)
 
 
 ## accessibility.md §3.4: the three spoken lines of the HUD live on its root, a

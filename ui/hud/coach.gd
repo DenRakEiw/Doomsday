@@ -70,6 +70,12 @@ const GAP: float = 12.0
 ## accessibility.md §8.2: on a phone the card takes at most this share of the
 ## view's height; a longer body scrolls inside it.
 const COACH_MAX_HEIGHT_SHARE: float = 0.4
+## S7.IP: a hint that follows another hint waits this long, in real time — on a
+## loaded mid-run save every moment that already holds came back to back.
+# DESIGN? first-run.md §6.2 queues without a gap; the length (and whether the
+# introduction's steps should rest too) is Fable's (PROGRESS.md *Design
+# questions for Fable*, S7.IP).
+const HINT_REST_MS: int = 6000
 
 ## The ring the card moves; the session gives it one on its own layer.
 var ring: CoachRing = null
@@ -80,6 +86,8 @@ var modals: ModalHost = null
 ## The safe area's top margin in logical pixels, which the session keeps up to
 ## date: on a phone with a modal up the card sits just under it.
 var safe_top: float = 0.0
+## Test seam: the clock `HINT_REST_MS` is measured on; negative = the engine's.
+var clock_override_ms: int = -1
 
 var _step: String = ""
 var _done: Dictionary[String, bool] = {}
@@ -90,6 +98,8 @@ var _event_id: int = NO_EVENT
 ## The ability hint ends when an ability is used after it was shown: the
 ## cooldowns as they stood then.
 var _cooldowns_at_show: Dictionary[String, int] = {}
+## No hint comes before this moment (`HINT_REST_MS`), in `_now_ms` time.
+var _hint_rest_until_ms: int = 0
 
 var _counter: Label = null
 var _title: Label = null
@@ -336,11 +346,23 @@ func _offer_next() -> void:
 			if not ProfileManager.has_seen_hint(hint) and not _queue.has(hint) \
 					and _has_come(hint):
 				_queue.append(hint)
-	while not _queue.is_empty():
-		var next: String = _queue.pop_front()
-		if not _is_stale(next):
+	var resting: bool = _now_ms() < _hint_rest_until_ms
+	var i: int = 0
+	while i < _queue.size():
+		var next: String = _queue[i]
+		if _is_stale(next):
+			_queue.remove_at(i)
+		elif resting and is_hint(next):
+			# A hint right after a hint waits its turn; a step still comes.
+			i += 1
+		else:
+			_queue.remove_at(i)
 			_show(next)
 			return
+
+
+func _now_ms() -> int:
+	return clock_override_ms if clock_override_ms >= 0 else Time.get_ticks_msec()
 
 
 ## A card ends: a step is done for this run, a hint for the profile — whichever
@@ -348,6 +370,7 @@ func _offer_next() -> void:
 func _finish(step: String) -> void:
 	if is_hint(step):
 		ProfileManager.mark_hint_seen(step)
+		_hint_rest_until_ms = _now_ms() + HINT_REST_MS
 		_show("")
 		return
 	_done[step] = true
@@ -545,5 +568,6 @@ func _on_skip_pressed() -> void:
 func _on_run_started(_seed_value: int) -> void:
 	_done.clear()
 	_queue.clear()
+	_hint_rest_until_ms = 0
 	_discovered_day = -1
 	_show("")

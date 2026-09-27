@@ -514,7 +514,8 @@ func _is_world_status(status: Status) -> bool:
 
 ## §16.3.2: a tap on an event marker opens the panel on that region and brings
 ## its card into view. The card is laid out on the next frame, so the scroll
-## waits for it.
+## waits for it. A card taller than the view starts at its heading (S7.IP: the
+## scroll to its end hid the title, seen on the itch capture).
 func scroll_to_event() -> void:
 	if not _event_card.visible:
 		return
@@ -522,8 +523,13 @@ func scroll_to_event() -> void:
 	if not is_inside_tree():
 		return
 	var scroll: ScrollContainer = get_node("Panel/Scroll") as ScrollContainer
-	if scroll != null:
+	if scroll == null:
+		return
+	if _event_card.size.y <= scroll.size.y:
 		scroll.ensure_control_visible(_event_card)
+		return
+	var top: float = _event_card.get_global_rect().position.y 		- scroll.get_global_rect().position.y + float(scroll.scroll_vertical)
+	scroll.scroll_vertical = int(top)
 
 
 func _on_event_card_requested(region_index: int) -> void:

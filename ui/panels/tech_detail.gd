@@ -202,13 +202,17 @@ func _fill_rows(block: Control, into: VBoxContainer, ids: Array[String], tree: S
 		into.add_child(_prerequisite_row(node_id, tree, sim))
 
 
-## A flat button, because pressing it goes somewhere (§3.6 item 6).
+## A flat button, because pressing it goes somewhere (§3.6 item 6). The row
+## flows and the name wraps: on a 400-px phone the name, the state chip and
+## *in {tab}* are wider than the screen (S6.P3b), so the chip and the caption go
+## to the next line and a long name takes two.
 func _prerequisite_row(node_id: String, tree: String, sim: Simulation) -> Control:
 	var definition: TechNodeDef = sim.db.tech(node_id)
-	var row: HBoxContainer = HBoxContainer.new()
-	row.theme_type_variation = &"Row"
+	var row: HFlowContainer = HFlowContainer.new()
+	row.theme_type_variation = &"Flow"
 	var button: ConsoleButton = ConsoleButton.new()
 	button.list_row = true
+	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	button.text = TechText.node_name(node_id)
 	button.accessibility_name = button.text
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -219,10 +223,13 @@ func _prerequisite_row(node_id: String, tree: String, sim: Simulation) -> Contro
 	# The excluded and closed states name a group or a node (S4.9 screenshots).
 	state.set_label(STATE_KEY[node_state], TechNode.state_args(definition, sim))
 	state.kind = Chip.Kind.ACCENT if STATE_IS_ACCENT[node_state] else Chip.Kind.DEFAULT
+	# Beside a name on two lines the chip keeps its own height.
+	state.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(state)
 	if definition.tree != tree:
 		var elsewhere: Label = Label.new()
 		elsewhere.theme_type_variation = &"LabelCaption"
+		elsewhere.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		elsewhere.text = tr(KEY_IN_TAB).format({"tab": tr(TAB_KEY[definition.tree])})
 		row.add_child(elsewhere)
 	return row

@@ -141,7 +141,7 @@ func select_architecture(id: String) -> bool:
 	architecture = id
 	var card: ArchitectureCard = _card_by_id.get(id)
 	if card != null:
-		card.set_pressed_no_signal(true)
+		ToggleGroup.press(card)
 		if card.is_new():
 			card.set_new(false)
 			ProfileManager.mark_unlock_seen(id)
@@ -156,7 +156,7 @@ func select_difficulty(id: String) -> void:
 	difficulty = id
 	var button: ConsoleButton = _difficulty_buttons.get(id)
 	if button != null:
-		button.set_pressed_no_signal(true)
+		ToggleGroup.press(button)
 	_refresh_difficulty_detail()
 
 
@@ -187,7 +187,7 @@ func select_directive(slot: String, id: String) -> void:
 	directives[slot] = id
 	var buttons: Dictionary = _directive_buttons.get(slot, {})
 	if buttons.has(id):
-		(buttons[id] as ConsoleButton).set_pressed_no_signal(true)
+		ToggleGroup.press(buttons[id] as ConsoleButton)
 	_refresh_directive_detail(slot)
 
 

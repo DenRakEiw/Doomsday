@@ -1435,6 +1435,9 @@ wire-card captions not re-translated (S6.9, S6.7), the owned-node footprint over
 back to back on a loaded save (S6.7); then re-capture `marketing/itch/`.
 **Done when:** each item is fixed and verified (suite green, a look at desktop and compact width),
 the media re-captured, and the fixed rows removed from *Known issues*.
+*Done 2026-09-27: all items fixed and tested through the main scene; the hints' gap between each
+other is a placeholder (`PROGRESS.md` *Design questions for Fable*); phone leftovers seen on the way
+went to *Known issues* for D7.1; `marketing/itch/` re-captured.*
 
 ### G7.I — The itch.io release **[F]** **[needs user]**
 With the user: the restricted itch page played in two browsers (German and English), the page

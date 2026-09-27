@@ -123,7 +123,11 @@ func show_tab(id: String) -> void:
 	if _db == null or not CodexEntries.TABS.has(id):
 		return
 	tab = id
-	_tab_buttons[id].set_pressed_no_signal(true)
+	ToggleGroup.press(_tab_buttons[id])
+	# A tab chosen by the code takes the focus ring along from the tab before it.
+	var focus: Control = get_viewport().gui_get_focus_owner() if is_inside_tree() else null
+	if focus is ConsoleButton and _tab_buttons.values().has(focus):
+		_tab_buttons[id].grab_focus()
 	if _compact and _tab_scroll != null:
 		_tab_scroll.ensure_control_visible.call_deferred(_tab_buttons[id])
 	var ids: Array[String] = CodexEntries.ids(tab, _db)

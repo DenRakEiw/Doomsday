@@ -301,6 +301,12 @@ func _size_tabs() -> void:
 func _show_tab(index: int) -> void:
 	_tab = index
 	_tab_buttons[index].button_pressed = true
+	# `open` puts the focus on the tab it opens on; a tab chosen by the code
+	# (`open_on`, a prerequisite's jump) takes the ring along, or the old tab
+	# reads as still chosen beside the new one (S6.P4).
+	var focus: Control = get_viewport().gui_get_focus_owner() if is_inside_tree() else null
+	if focus is ConsoleButton and _tab_buttons.has(focus):
+		_tab_buttons[index].grab_focus()
 	_board.show_tree(TABS[index], Game.db, Game.sim)
 	_board.set_marked(_marked)
 	var remembered: String = _selection.get(index, "")

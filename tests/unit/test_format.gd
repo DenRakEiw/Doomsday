@@ -84,7 +84,7 @@ func test_percent_has_no_space_in_english() -> void:
 
 func test_percent_has_a_space_in_german() -> void:
 	_german()
-	assert_eq(Format.percent(0.423), "42 %")
+	assert_eq(Format.percent(0.423), "42\u00a0%")
 
 
 func test_percent_at_the_ends() -> void:
@@ -107,7 +107,7 @@ func test_a_negative_number_uses_the_minus_sign() -> void:
 
 func test_a_negative_percent_keeps_its_sign() -> void:
 	_german()
-	assert_eq(Format.percent(-0.12), Format.MINUS + "12 %")
+	assert_eq(Format.percent(-0.12), Format.MINUS + "12\u00a0%")
 
 
 func test_caps_spells_the_capital_of_the_sharp_s() -> void:
@@ -137,7 +137,7 @@ func test_percent_fine_keeps_the_first_decimal() -> void:
 	_english()
 	assert_eq(Format.percent_fine(0.0042), "0.4%")
 	_german()
-	assert_eq(Format.percent_fine(0.0042), "0,4 %")
+	assert_eq(Format.percent_fine(0.0042), "0,4\u00a0%")
 
 
 func test_percent_fine_drops_a_decimal_that_is_zero() -> void:
@@ -160,7 +160,7 @@ func test_change_reads_a_factor_above_one_as_a_positive_percentage() -> void:
 
 func test_change_puts_the_german_unit_gap() -> void:
 	_german()
-	assert_eq(Format.change(0.85), "−15 %")
+	assert_eq(Format.change(0.85), "−15\u00a0%")
 
 
 func test_change_reads_zero_as_minus_one_hundred() -> void:
@@ -170,7 +170,7 @@ func test_change_reads_zero_as_minus_one_hundred() -> void:
 
 func test_change_keeps_a_decimal_that_would_round_away() -> void:
 	_german()
-	assert_eq(Format.change(0.925), "−7,5 %")
+	assert_eq(Format.change(0.925), "−7,5\u00a0%")
 
 
 func test_change_from_two_on_is_a_factor() -> void:

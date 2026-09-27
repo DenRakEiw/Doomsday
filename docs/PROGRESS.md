@@ -14,18 +14,18 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures; **G7.I**, the itch release — see *Waiting on the user*, "itch.io — going live"): IMPLEMENTATION §4 rows 91–92, 98. **Without the user: S7.IP** (row 97a) [O] — release polish, in progress (see *In progress*); then **D7.1** (row 108) [F] — touch and phone. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
+| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures; **G7.I**, the itch release — see *Waiting on the user*, "itch.io — going live"): IMPLEMENTATION §4 rows 91–92, 98. **Without the user: D7.1** (row 108) [F] — touch and phone. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D6.10, G6 (2/2) and G7.I are **[needs user]**; Block 18 is built once S7.IP is merged (the first real itch upload is the user's); the next unattended row is **D7.1** (row 108, Block 20: touch and phone), Steam only later (Decisions 2026-09-25). The FLUX track is cut (Decisions 2026-09-26). |
-| **Last completed** | S6.12d review fixes (2026-09-27): 10 of 12 findings fixed (two were duplicates), see the session log and `benchmark.md` §18.10. Before them: S6.12d — ready for the user's model runs, with effort levels (2026-09-27, user requests): `--effort=normal\|high\|ultra` shown on every entry and row (list, strip, `LEADERBOARD.md`), `models.ps1`, `run_models.ps1`, `submit_runs.ps1` (+ `-VerifyLocally`), guide `benchmark.md` §18.9. The live runs are the user's (*Waiting on the user*, "Model runs"). |
-| **Before that** | D6.11c — AI terms stay English in the German texts (2026-09-26): 47 German cells; rule A13, `plain-language.md` §10. |
-| **Earlier** | S7.I — itch.io upload (2026-09-26): web size check, web smoke job, `itch` job (butler), itch media in `marketing/itch/`. |
+| **After it** | D6.10, G6 (2/2) and G7.I are **[needs user]**; Block 18 is built (the first real itch upload is the user's); the next unattended row is **D7.1** (row 108, Block 20: touch and phone), Steam only later (Decisions 2026-09-25). The FLUX track is cut (Decisions 2026-09-26). |
+| **Last completed** | S7.IP — release polish before the itch release (2026-09-27): the overlay picker steps aside under the region panel, no-break space before German `%`, tabs chosen from code (`ToggleGroup`), phone tech detail and Statistics, results and wire card re-translate, owned-footprint cards checked, hints rest 6 s between each other (pending design), a tall event card opens on its heading, `marketing/itch/` re-captured. |
+| **Before that** | S6.12d review fixes (2026-09-27): 10 of 12 findings fixed; S6.12d — effort levels, `models.ps1`, `run_models.ps1`, `submit_runs.ps1` (`benchmark.md` §18.9–18.10). The live runs are the user's (*Waiting on the user*, "Model runs"). |
+| **Earlier** | D6.11c — AI terms stay English in the German texts (2026-09-26); S7.I — itch.io upload (2026-09-26). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–20 (Block 19, FLUX, cut 2026-09-26) |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 373 scripts compile (153 judged by the suite), then `tools/check_strings.gd` (2541 rows), 2549 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 374 scripts compile (155 judged by the suite), then `tools/check_strings.gd` (2541 rows), 2572 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
 | **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
 | **Web** | Export `"$GODOT" --headless --path . --export-release "Web" build/web/index.html`; **play it locally:** `uv run --project tools/web python tools/web/serve.py` → `http://127.0.0.1:8765/` (`--dir <export>`). **Checks (S7.3):** `uv run --project tools/web python tools/web/web_check.py [--build <dir>] [--browsers chrome,msedge,firefox] [--checks size,load,phone,focus,keys,run,hidden,persist,settings,online,progress,smoke,debug] [--debug-build <dir>] [--out <dir>]` (all ≈ 25 min; `--smoke [--expect <json>]` alone is §16.3's CI job, `release.yml` `smoke-web` since S7.I; `--port <n>` moves off 8765); browsers once: `uv run --project tools/web playwright install chromium firefox`. Clicks are embed coordinates at the top of `web_check.py`. In the browser the files are IndexedDB `/userfs` → `/userfs/Doomsday/doomsday/…`. A debug web export answers `window.doomsdayDebugCrash()` and `window.doomsdayDebugAudioUnlocked()`. **Perf (S7.3b):** export `"Perf web (local)"` → `build/perf-web/index.html` and `"Web"`, then `uv run --project tools/web python tools/web/web_perf.py [--modes web_igpu,web_cpu,load] [--runs 3] [--out <dir>] [--vsync] [--cpu-throttle 2.5]` (≈ 20 min; port 8767; Playwright's Chromium in the new headless mode draws on the real GPU; `web_igpu` sets and removes the GPU preference for Playwright's `chrome.exe` only). **Exports need the real `APPDATA`** (the templates live there); only the suite runs with a scratch one. |
 | **itch page** | not created yet — the user's (*Waiting on the user*, "itch.io — going live"); its URL goes here. **Media** in `marketing/itch/`; re-capture with a scratch `APPDATA` (the tool writes `user://itch_capture/`): `"$GODOT" --path . --audio-driver Dummy --resolution 1920x1080 res://tools/marketing/itch_capture.tscn -- --locale=en --entry=<a bot entry from bench_run --bots --out=<scratch>>`, `-- --mode=title` at `--resolution 2560x1440`, then `uv run --project tools/marketing python tools/marketing/compose_cover.py --capture <title_bare_NN.png> --globe <title_globe.json>`. **Upload:** `release.yml` job `itch` (tag `v*`, or dispatch with `itch` ticked). |
@@ -45,19 +45,7 @@ next step.
 
 ## In progress
 
-**S7.IP — release polish before the itch release** [O] (inserted 2026-09-26 by the orchestrator;
-run-sheet row 97a, before G7.I; the next unattended row after it is D7.1, row 108). Scope: the player-visible *Known*
-*issues* — overlay picker sticking out beside the region panel and a lone `%` wrapping (S7.I), tabs
-chosen from code drawn pressed (S6.P4), the phone tech detail and Statistics too wide (S6.P3b, S6.9),
-achievement chip and wire-card captions not re-translated (S6.9, S6.7), the owned-node footprint
-overflow (S6.4), hints back to back on a loaded save (S6.7); then re-capture `marketing/itch/`.
-**Stopped mid-step when the usage ran out.** The unfinished, **untested** edits are on branch
-`wip/s7ip-release-polish` (commit `d934262`; 18 files incl. a new `ui/components/toggle_group.gd`,
-two new tests and a scratch `tools/_ip_probe/` to drop). Next session: check out that branch, run
-the suite, finish and verify each item, merge into `main` as `S7.IP: …` — or discard it and redo.
-**Rebase it first:** D6.11c (after `d934262`) changed 47 German cells of `data/loc/strings.csv` and
-`test_plain_language.gd` on `main`; keep main's German AI names (`plain-language.md` §10) when a
-row conflicts, and re-capture `marketing/itch/` after it (the German shots show the old names).
+Nothing.
 
 ---
 
@@ -219,7 +207,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S7.3b [O] Web build: the browser performance runs *(`web_perf.py`; three rows fail on `web_cpu` — Design questions)*
 - [x] S7.I [O] itch.io upload: butler job, size check, web smoke, itch media *(the first real upload: user, G7.I)*
 - [x] S6.12d [O] Ready for the user's model runs, with effort levels *(user requests 2026-09-26; inserted by the orchestrator; `benchmark.md` §18; the live runs: user)*
-- [ ] S7.IP [O] Release polish before the itch release *(in progress — see *In progress*)*
+- [x] S7.IP [O] Release polish before the itch release *(inserted by the orchestrator; the re-captured media in `marketing/itch/`)*
 - [ ] G7.I [F] The itch.io release: played on the restricted page, go, public — **[needs user]**
 
 **Block 19 — FLUX 3 Action track** — **cut 2026-09-26** (user; D7.F `dfbd607` stays done, `docs/specs/flux-action.md` kept for reference)
@@ -1527,6 +1515,11 @@ without new information.
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
+- **S7.IP — hints back to back on a loaded save** (`coach.gd` `HINT_REST_MS`, `# DESIGN?`):
+  `first-run.md` §6.2 queues the hints with no gap, so a mid-run save meets every hint whose moment
+  already holds in a row. Placeholder: a hint that follows a hint waits 6 s of real time (the
+  clock may be paused); the introduction's steps never wait. Is 6 s right, should it be game days
+  instead, or should a loaded save hold only the most urgent hint for a while?
 - **S7.3b — the web's CPU rows fail by 2.5–5× on `web_cpu`** (Performance notes, S7.3b): tick-frame
   p99 159 ms (33), sim tick mean/max 10.2/17.1 ms (4/12). Nothing per *frame* is left to fix
   (frame p95 6.4 ms; release.md §11.4 items 1–2 are per-frame); the cost is per *tick*: the sim
@@ -2513,11 +2506,16 @@ without new information.
 
 ## Known issues and carry-overs
 
-- **S7.I (seen on the itch captures):** (1) from Emergent on, the overlay picker (four modes,
-  ~550 px) is wider than the region panel (480 px) that opens over it, so its last button peeks
-  out beside the panel (*…IETY* / *…ESELLSCHAFT*, `03_counter_move_*.png`). (2) An effect line
-  can wrap between a number and its `%` (*-100* / *%*, German counter-move card) — a plain space
-  where a no-break space belongs. Both left as the captures show them (nothing faked).
+- **S7.IP → D7.1 (phone, seen while checking S7.IP):** (1) on a 400-px phone the tree's compact
+  cards clip a one-word name wider than the card (*MARKTMIKROSTRUKTUR*, *NETZLASTAUSGLEICH* in
+  German) and the tree's heading shows *Techno…* beside the compute; (2) at 150 % text in German
+  the tech detail's heading breaks inside a long compound (*Verfassun/gsrang*, *Herstellung*) —
+  wider than any phone; soft hyphens or a smaller phone heading are D7.1's call
+  (`test_release_polish` leaves the heading out of its word check). (3) A toast shown before a
+  locale switch (*Die Prüfsuite – 15 Tage.*) keeps its language until it fades.
+- **S7.IP: the overlay picker hides while the region panel is open** (desktop): its four toggles
+  are wider than the panel, and hiding it whole was the fix — the overlay cannot be switched with
+  the panel open (it could not before either: the panel covered most of it).
 
 - **S7.3 (web):** (1) on the web a German keyboard sees US key names (`web.md` §9.3 — for D7.1).
   (2) The autosave written as the page hides reaches IndexedDB on the engine's next frame; a
@@ -2526,14 +2524,6 @@ without new information.
   with a dispatched `visibilitychange`. (3) After the progress import's confirm the focus goes to
   the settings' first row and the list scrolls to the top. (4) The empty status caption under the
   progress note leaves a blank line until there is a result.
-- **S6.P4:** a tab row pressed from code (`Codex.show_tab`, `open(tab)` on another tab than the
-  last; the tech tree's `open_on`; `Setup.select_difficulty`) leaves the old tab drawn pressed
-  too — `set_pressed_no_signal` does not release the group (the scenario row lets the others go
-  by hand). Clicks are fine. Seen in the S6.P4 shots; small, for the next Opus punch list.
-- **S6.P3b → D7.1/S7:** on a 400 px phone the tech detail sheet runs off the right edge for a node
-  whose prerequisite lives in another tab — the row (name, state chip, *in {tab}*) is wider than
-  the screen (seen on *Distributed Synthesis*; before S6.P3 too; S6.P4: *Constitutional
-  Integration* in German at 150 %). The phone layout's step.
 - **D6.9b → S7.2:** the Android preset needs the `INTERNET` permission for the benchmark list's
   download (`benchmark.md` §16.6); without it the list shows its cached or shipped copy.
 
@@ -2544,38 +2534,18 @@ without new information.
   pixel, §5.7), whose column is taller than 600 px — the menu reaches the bottom edge, the version
   line and the globe are out of view. By the rule, not a release bug; a short desktop window
   under 1100 px is G6's to judge.
-- **S6.9: Statistics on a phone is wider than the window** (older than S6.9, measured then): a
-  *Recent runs* block's foot row (days, seed, *Play this seed again*) has a 424 px minimum at 400 px
-  wide, so the panel clips on the right. The achievement rows are ≤ 250 px and drop their state
-  under the detail as §2.4 says.
-- **S6.9: an achievement chip on the results keeps its name's language** after a locale switch
-  (the name is formatted into the chip, like the directive-slot chip's).
-
 - **S6.8: a dead key has no legend of its own.** On a German layout the physical key of the US
   `=` (zoom in) is the dead `´`; `DisplayServer.keyboard_get_label_from_physical` gives `=` back,
   so *Steuerung* and the help say `=`. The key works; only its name is the US one.
 - **S6.8: the pad-only run was not made** (no controller on the build machine): the pad events are
   in `[input]` and every screen reads actions, which the tests drive; a real pad run is G6's.
 
-- **The wire card does not re-translate its answer captions on a locale switch** (seen in S6.7,
-  older than it): after `de` → `en` with a card up, the cost chips and the deadline line stayed
-  German until the card reopened.
-- **Hints come back to back** on a loaded mid-run save (S6.7): every moment that already holds
-  queues, so a player's first contact with an old save meets several cards in a row — by §6.2's
-  design (each once per profile); worth a look at G6.
-- **An owned tech node with a footprint overflows its compact cell** (seen in S6.4, older than
-  it): *Erworben* + *Sig. ▲ +2* + ✓ is ~155 px in the 136 px the 160-px cell leaves, so the
-  footer pushes past the node's left padding. Belongs with the S6.4 design question on the footer.
 - **The pass at a 400-px *desktop* window** (S6.1): `px_scale` = 400 / 1080, so the scanline
   pitch sits at its floor of 2 px and reads denser than at 1920. A phone's physical width is
   ~1080 px, so it is a desktop-review artefact; no device in S6.11 — G6 (2/2) looks at it.
 - **Bash-tool heredocs mangle a backslash before a newline** (S6.1): a Python edit script sent
   through a heredoc turned GDScript line continuations into tabs or a literal `\n`. Write the
   script to the scratch directory with the Write tool, or use the Edit tool.
-- **`set_pressed_no_signal(true)` does not release the other buttons of a `ButtonGroup`** (seen in
-  S5.8): a toggle chosen from code is drawn next to the one before it. The setup's scenario row
-  sets every button of the row by hand; the difficulty and directive rows are only ever set from
-  code once, on an empty group, so they have not shown it — use the same loop if that changes.
 - **The player's `settings.json` locale reaches the tests** — S5.8 found `test_the_timestamps_…`
   red after the game had been switched to German; that test now sets `en` itself. Any other test
   that formats a number without setting a locale can do the same.
@@ -3051,6 +3021,11 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-27 — S7.IP Release polish before the itch release [O]
+- The wip branch (`d934262`) cherry-picked onto main; `strings.csv` kept main's (D6.11c) and got the no-break space before `%` again (26 cells; `UI_WEB_LOADING`, `BENCH_BRIEF_WIN` exempt). Probe dropped.
+- Finished: Statistics' by-architecture table and run head on a phone, results re-translate whole (and no stale chips), coach hint rest (Design question), owned-footprint test through the main scene, a tall event card opens on its heading (seen on capture 03); each looked at en/de, 1920/400 px, 150 %.
+- Media: `marketing/itch/` re-captured (screens en/de, covers; itch.md §8.5). +23 tests; no `data/` content change, no canary.
 
 ### 2026-09-27 — S6.12d review fixes [O]
 - Fixed: effort resolved once per batch (`--effort-reasoning`, live list unreadable → exit 1); levels never below a model's `default_effort` (reasons by default: `default_enabled`/`mandatory`, catalogue `default`, warning + estimate at normal);

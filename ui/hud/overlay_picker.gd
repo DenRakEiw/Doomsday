@@ -27,6 +27,16 @@ var compact: bool = false:
 ## The mode the map is drawing, as a `MapView.Overlay`.
 var mode: int = int(MapView.Overlay.PENETRATION)
 
+## Whether an open side panel lies over the picker. From Emergent on its four
+## toggles are wider than the region panel, and the last one peeked out beside
+## it (S7.I's captures); a picker under a panel is hidden, as a whole.
+var covered: bool = false:
+	set(value):
+		if value == covered:
+			return
+		covered = value
+		_apply_visibility()
+
 @onready var _row: HBoxContainer = %Row
 @onready var _cycle: ConsoleButton = %Cycle
 
@@ -64,7 +74,7 @@ func _build_buttons() -> void:
 ## longer offered falls back to penetration.
 func apply_reveal(phase: World.Phase) -> void:
 	_allowed = _modes_for(phase)
-	visible = _allowed > 0
+	_apply_visibility()
 	for i: int in _buttons.size():
 		_buttons[i].visible = i < _allowed
 	if mode >= _allowed:
@@ -81,13 +91,17 @@ static func _modes_for(phase: World.Phase) -> int:
 			return MODE_KEYS.size()
 
 
+func _apply_visibility() -> void:
+	visible = _allowed > 0 and not covered
+
+
 func _apply_compact() -> void:
 	_row.visible = not compact
 	_cycle.visible = compact
 
 
 func _apply_mode() -> void:
-	_buttons[mode].set_pressed_no_signal(true)
+	ToggleGroup.press(_buttons[mode])
 	_cycle.label_key = MODE_KEYS[mode]
 
 

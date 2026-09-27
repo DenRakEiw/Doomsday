@@ -28,8 +28,10 @@ const GROUP_EN: String = ","
 const DECIMAL_EN: String = "."
 const GROUP_DE: String = "."
 const DECIMAL_DE: String = ","
-## German puts a space between the number and the unit; English does not.
-const UNIT_GAP_DE: String = " "
+## German puts a space between the number and the unit; English does not. A
+## no-break space (U+00A0), so a line never breaks between *−100* and *%* (S7.I's
+## counter-move card).
+const UNIT_GAP_DE: String = " "
 const UNIT_GAP_EN: String = ""
 const GROUP_SIZE: int = 3
 ## How many places `_decimal` keeps, and the step `factor` asks one against.

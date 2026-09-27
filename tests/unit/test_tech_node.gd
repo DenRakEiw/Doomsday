@@ -168,3 +168,29 @@ func test_compact_footer_fits_icon() -> void:
 				assert_true(node.shows_icon(), "%s: the icon has room" % case)
 			_root.remove_child(node)
 			node.queue_free()
+
+
+## S7.IP (seen in S6.4): an owned node with a footprint showed *Acquired*, the
+## footprint and the check in the compact cell, and its footer ran past the
+## cell's padding. Every node with a footprint, owned, in both languages.
+func test_an_owned_node_with_a_footprint_fits_the_compact_cell() -> void:
+	var cell: Vector2 = UiTokens.TECH_CELL_COMPACT
+	var room: float = cell.x - float(UiTokens.SPACE_3) * 2.0
+	var too_wide: Array[String] = []
+	for locale: String in LOCALES:
+		TranslationServer.set_locale(locale)
+		for definition: TechNodeDef in _db.tech_nodes:
+			var node: TechNode = TECH_NODE.instantiate()
+			node.custom_minimum_size = cell
+			_root.add_child(node)
+			node.bind(definition, 99.0, TechNode.State.OWNED, false)
+			node.size = cell
+			await get_tree().process_frame
+			var footprint: Control = node.get_node("%Footprint") as Control
+			var footer: Control = node.get_node("Content/Column/Footer") as Control
+			if footprint.visible and footer.get_combined_minimum_size().x > room:
+				too_wide.append("%s %s %d" % [locale, definition.id,
+					int(footer.get_combined_minimum_size().x)])
+			_root.remove_child(node)
+			node.queue_free()
+	assert_eq(too_wide, [] as Array[String], "the footer fits in %d px" % int(room))

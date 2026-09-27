@@ -61,6 +61,22 @@ func _ready() -> void:
 	_apply_layout()
 
 
+## A locale switch with the card up: the answers' cost and effect captions and
+## the deadline are formatted text, so the card is written again (S6.7).
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		_refresh_open.call_deferred()
+
+
+## The open event written again, while the card still asks.
+func _refresh_open() -> void:
+	if not visible or _answered or Game.sim == null:
+		return
+	var event: OpenEvent = Game.sim.world.event_by_id(_event_id)
+	if event != null:
+		_refresh(event, Game.sim)
+
+
 ## Shows the open event with this id. False when there is no such event.
 func show_event(event_id: int) -> bool:
 	_build()
@@ -288,11 +304,7 @@ func _show_changed(lines: PackedStringArray) -> void:
 
 
 func _on_tick_advanced(_day: int) -> void:
-	if not visible or _answered or Game.sim == null:
-		return
-	var event: OpenEvent = Game.sim.world.event_by_id(_event_id)
-	if event != null:
-		_refresh(event, Game.sim)
+	_refresh_open()
 
 
 ## The event closed under the card — its deadline, or an answer elsewhere: the
