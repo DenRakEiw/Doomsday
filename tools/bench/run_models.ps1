@@ -8,7 +8,9 @@ Plays the benchmark with one or more models, one after the other (docs/specs/ben
 2. One confirmation for everything (skip it with -Yes).
 3. Runs tools/bench/bench_run.gd per model - with -Parallel N in N processes, each playing
    its own seeds (--seeds) - writing into user://benchmark (%APPDATA%\Doomsday\benchmark),
-   so the runs show in the game under Benchmark -> Recorded runs.
+   so the runs show in the game under Benchmark -> Recorded runs. What -Effort high or ultra
+   sends is resolved once, in step 1, and given to every process (--effort-reasoning), so
+   all shards of a model record the same params and make one leaderboard row.
 4. Stops at the first fatal error (a refused key, no credits, the service down, a cost cap,
    a replay that does not reproduce): the other shards of that model are stopped, no later
    model starts. Runs finished before it are kept.
@@ -17,16 +19,20 @@ Plays the benchmark with one or more models, one after the other (docs/specs/ben
 
 Keys come from this window's environment or, if it was opened before set_api_key.ps1 ran,
 from the user's (HKCU\Environment). They are handed to the child processes only and never
-printed. -Mock plays the mock backend: no key, no request, prices from a fixture list.
+printed. -Mock plays the mock backend: no key, no request, prices from a fixture list, and -
+unless -Out says otherwise - its runs go to a scratch folder under %TEMP%, never into the
+game's list (mock runs under a real model id would look like that model's).
 
 Each model gets its own cost cap: the likely cost x 1.5, at least 1 USD (the tool's default
 cap when the price is unknown); -MaxTotal refuses a batch whose likely total is above it and
-scales the caps down so that together they stay within it. Shards share their model's cap.
+scales the caps down so that together they stay within it. Shards share their model's cap. A
+free model plays under any cap, 0 included; a batch where a paid (or unknown-price) model's
+share rounds to 0.00 USD per process is refused before anything starts.
 
 .EXAMPLE
 powershell -ExecutionPolicy Bypass -File tools\bench\run_models.ps1 -Models openai/gpt-6-luna,anthropic/claude-opus-5.5 -Effort high -Suite quick
 .EXAMPLE
-powershell -ExecutionPolicy Bypass -File tools\bench\run_models.ps1 -Models deepseek/deepseek-v4.1-flash -Suite standard -Parallel 5 -MaxTotal 10 -Yes
+powershell -ExecutionPolicy Bypass -File tools\bench\run_models.ps1 -Models deepseek/deepseek-v4.1-flash -Effort high -Suite standard -Parallel 5 -MaxTotal 10 -Yes
 #>
 param(
 	# Model ids as OpenRouter names them (or typesafe/jev-latest), comma-separated.
@@ -43,7 +49,7 @@ param(
 	[switch]$Yes,
 	# The mock backend: no key, no request (tests and a dry run of the whole flow).
 	[switch]$Mock,
-	# Where the runs go (bench_run.gd --out).
+	# Where the runs go (bench_run.gd --out); with -Mock a scratch folder unless given.
 	[string]$Out = "user://benchmark",
 	# Where each process's output is kept (default: a new folder under %TEMP%).
 	[string]$LogDir = "",
@@ -90,6 +96,13 @@ function Join-Arguments([string[]]$Items) {
 
 $root = Get-BenchRoot
 $godotExe = Resolve-BenchGodot $Godot
+if (-not $LogDir) {
+	$LogDir = Join-Path $env:TEMP ("doomsday-bench\" + (Get-Date -Format "yyyyMMdd-HHmmss"))
+}
+# A rehearsal never lands in the game's list: mock runs under a real model id score 0.
+if ($Mock -and -not $PSBoundParameters.ContainsKey("Out")) {
+	$Out = (Join-Path $LogDir "benchmark").Replace("\", "/")
+}
 $ids = @($Models | ForEach-Object { $_ -split "," } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 if ($ids.Count -eq 0) { Write-Output "run_models: -Models names no model"; exit 1 }
 
@@ -122,6 +135,17 @@ if (-not $Mock) {
 	}
 }
 
+# Warnings, not refusals: the user decides.
+foreach ($plan in $plans) {
+	if ($plan.typesafe) { continue }
+	if ($Effort -eq "normal" -and $plan.reasons_by_default) {
+		Write-Output ("run_models: warning - $($plan.id) reasons by default: at normal its limit of $($plan.max_completion_tokens) tokens may cut answers short (still billed); -Effort high gives it room")
+	}
+	if ($Effort -ne "normal" -and -not $plan.listed) {
+		Write-Output ("run_models: warning - OpenRouter's list does not name $($plan.id) (or could not be read): -Effort $Effort sends reasoning $($plan.reasoning_sent), which OpenRouter maps to the model's nearest effort")
+	}
+}
+
 $totalLikely = 0.0
 $unknown = 0
 foreach ($plan in $plans) {
@@ -144,6 +168,19 @@ if ($MaxTotal -ge 0) {
 		foreach ($plan in $plans) { $plan.run_cap = [Math]::Floor($plan.run_cap * $MaxTotal / $capSum * 100) / 100 }
 	}
 }
+# Each process gets its share of its model's cap. A share of 0.00 would stop a paid model's
+# first request (bench_run.gd exit 6); only a free model plays under it.
+$zeroCaps = @()
+foreach ($plan in $plans) {
+	$shards = [Math]::Min($Parallel, @($plan.seeds).Count)
+	$shardCap = [Math]::Floor($plan.run_cap / $shards * 100) / 100
+	$plan | Add-Member -NotePropertyName shard_cap -NotePropertyValue $shardCap
+	if ($shardCap -le 0 -and -not $plan.free) { $zeroCaps += $plan.id }
+}
+if ($zeroCaps.Count -gt 0) {
+	Write-Output ("run_models: the cap per process of " + ($zeroCaps -join ", ") + " rounds to 0.00 USD - raise -MaxTotal or lower -Parallel; nothing started")
+	exit 1
+}
 
 Write-Output ""
 Write-Output ("{0,-48} {1,-7} {2,-10} {3,10} {4,10} {5,8}" -f "Model", "Effort", "Reasoning", "Likely", "At most", "Cap")
@@ -164,9 +201,6 @@ if (-not $Yes) {
 	if ($answer -notmatch "^(y|yes|j|ja)$") { Write-Output "run_models: nothing started"; exit 0 }
 }
 
-if (-not $LogDir) {
-	$LogDir = Join-Path $env:TEMP ("doomsday-bench\" + (Get-Date -Format "yyyyMMdd-HHmmss"))
-}
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 Write-Output "run_models: logs in $LogDir"
 
@@ -177,7 +211,7 @@ foreach ($plan in $plans) {
 	$seeds = @($plan.seeds)
 	$shards = [Math]::Min($Parallel, $seeds.Count)
 	$per = [Math]::Ceiling($seeds.Count / $shards)
-	$shardCap = [Math]::Floor($plan.run_cap / $shards * 100) / 100
+	$shardCap = $plan.shard_cap
 	$slug = Get-BenchSlug $plan.id
 	$processes = @()
 	$logs[$plan.id] = @()
@@ -189,7 +223,11 @@ foreach ($plan in $plans) {
 		$arguments = @("--headless", "--path", $root, "-s", "tools/bench/bench_run.gd", "--",
 			"--model=$($plan.id)", "--suite=$Suite", "--seeds=$range", "--out=$Out",
 			("--max-cost=" + $shardCap.ToString($Invariant)), "--yes", "--no-rebuild")
-		if (-not $plan.typesafe -and $Effort -ne "normal") { $arguments += "--effort=$Effort" }
+		if (-not $plan.typesafe -and $Effort -ne "normal") {
+			$arguments += "--effort=$Effort"
+			# Resolved once for all shards: one params_id, one row (benchmark.md section 18.2).
+			if ($plan.reasoning_sent) { $arguments += "--effort-reasoning=$($plan.reasoning_sent)" }
+		}
 		if ($Mock) { $arguments += "--backend=$MockBackend" }
 		$log = Join-Path $LogDir "$slug`__s$($seeds[$first])-$($seeds[$last]).log"
 		$logs[$plan.id] += $log

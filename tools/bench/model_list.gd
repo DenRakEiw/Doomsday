@@ -170,6 +170,8 @@ static func json_line(row: Dictionary, options: Dictionary, config: BenchConfig,
 		"free": row[Catalogue.FIELD_FREE],
 		"reasoning": row[Catalogue.FIELD_REASONING],
 		"mandatory": row[Catalogue.FIELD_MANDATORY],
+		"reasons_by_default": row[Catalogue.FIELD_DEFAULT_ON],
+		"default_effort": row[Catalogue.FIELD_DEFAULT_EFFORT],
 		"effort": "" if typesafe else level,
 		"reasoning_sent": Catalogue.reasoning_sent(row, level, config),
 		"max_completion_tokens": 0 if typesafe else max_tokens,
@@ -234,9 +236,12 @@ static func table(rows: Array[Dictionary], options: Dictionary, config: BenchCon
 	out.append("")
 	out.append(("%d models. Costs are likely USD for a whole suite (quick %d seeds, standard %d)"
 		+ " by the pre-flight rule; ? = price unknown, — = the level does not apply."
-		+ " * = free. The tool's cap is %s USD per invocation.") % [rows.size(),
+		+ " * = free. Reasoning \"default\" or \"always\": the model reasons at normal too,"
+		+ " where its limit of %d tokens may cut answers short — prefer -Effort high."
+		+ " The tool's cap is %s USD per invocation.") % [rows.size(),
 		config.suite_seeds(BenchConfig.SUITE_QUICK).size(),
-		config.suite_seeds(BenchConfig.SUITE_STANDARD).size(), Estimate.usd(config.max_cost_usd)])
+		config.suite_seeds(BenchConfig.SUITE_STANDARD).size(), config.max_completion_tokens,
+		Estimate.usd(config.max_cost_usd)])
 	return out
 
 

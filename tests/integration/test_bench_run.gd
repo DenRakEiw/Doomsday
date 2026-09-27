@@ -318,6 +318,34 @@ func test_bad_effort_arguments_exit_one() -> void:
 	assert_false(DirAccess.dir_exists_absolute(BOARD))
 
 
+func test_shards_given_the_same_pinned_reasoning_make_one_row() -> void:
+	# run_models.ps1 resolves what ultra sends once and gives every shard the same.
+	for seed_text: String in ["1001", "1002"]:
+		var args: Dictionary[String, String] = _mock_args()
+		args["seeds"] = seed_text
+		args["effort"] = "ultra"
+		args["effort-reasoning"] = "high"
+		args["no-rebuild"] = "true"
+		assert_eq(Tool.run(args, _config), Tool.EXIT_OK)
+	var ids: Array[String] = []
+	for text: String in _runs().values():
+		var entry: BenchEntry = BenchEntry.from_json(text)
+		assert_eq(entry.params["reasoning"], "high", "the pinned effort, not a guess")
+		if not ids.has(entry.params_id):
+			ids.append(entry.params_id)
+	assert_eq(ids.size(), 1, "both shards share one params_id")
+
+
+func test_a_live_level_whose_list_cannot_be_read_stops_before_anything_is_played() -> void:
+	# A base URL other than OpenRouter's has no public list to read, and nothing is
+	# requested before the refusal; PATH stands in for a key that is set.
+	var args: Dictionary[String, String] = {"model": "vendor/model", "suite": "quick",
+		"out": BOARD, "cache": CACHE, "key-env": "PATH", "base-url": "http://127.0.0.1:9/v1",
+		"effort": "ultra", "yes": "true"}
+	assert_eq(Tool.run(args, _config), Tool.EXIT_BAD_INPUT)
+	assert_false(DirAccess.dir_exists_absolute(BOARD))
+
+
 func test_no_rebuild_leaves_the_board_to_the_last_shard() -> void:
 	var args: Dictionary[String, String] = _mock_args()
 	args["seeds"] = "1001"

@@ -252,3 +252,16 @@ func test_a_chat_row_says_its_effort_and_a_bot_or_choice_row_has_no_such_key() -
 	assert_string_contains(text, "| Rank | Model | Effort | Params |")
 	assert_string_contains(text, "| vendor/model | High | temperature 0, reasoning high |")
 	assert_string_contains(text, "| bot:greedy | — | — |")
+
+
+func test_a_reasoning_run_is_never_shown_as_the_level_it_shares_a_word_with() -> void:
+	# --reasoning=high: the default limit, no `effort` key — not an --effort=high run.
+	var raw: Dictionary = {"temperature": 0.0, "reasoning": "high"}
+	var entry: BenchEntry = _entry("vendor/model", 1001, "win_merge", 400, "standard", "now", raw)
+	var row: Dictionary = BenchScore.rows([entry] as Array[BenchEntry], _config, "now")[0]
+	assert_eq(row["effort"], "reasoning-high")
+	var text: String = Writer.markdown([row] as Array[Dictionary], _config,
+		Writer.GENERATOR_LOCAL)
+	assert_string_contains(text, "| vendor/model | reasoning high | temperature 0, reasoning high |")
+	var board: Dictionary = {"effort": "reasoning-high"}
+	assert_true(BenchEffort.label_is_safe(str(board["effort"])), "the global list keeps it")

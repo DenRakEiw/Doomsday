@@ -2163,9 +2163,9 @@ ultra"* — every entry and every leaderboard row shows the model's **effort lev
 
 | Level | What is sent to OpenRouter (§8.3's body) | `max_completion_tokens` | Timeout | Output a call, for the estimate |
 | --- | --- | --- | --- | --- |
-| `normal` | no `reasoning` member — the provider's default (a model that always reasons, `mandatory`, reasons at its `default_effort`) | 1 200 (`defaults`) | 180 s | 300 |
-| `high` | `"reasoning": {"effort": "high"}` | 16 000 | 600 s | 3 000 |
-| `ultra` | `"reasoning": {"effort": <the first of max, xhigh, high that the model's public list names>}` | 32 000 | 900 s | 8 000 |
+| `normal` | no `reasoning` member — the provider's default (a model that reasons by default, `mandatory` or `default_enabled`, reasons at its `default_effort`) | 1 200 (`defaults`) | 180 s | 300; 1 200 (the limit) for a model that reasons by default |
+| `high` | `"reasoning": {"effort": "high"}` — or the model's `default_effort` when it reasons by default at a higher one | 16 000 | 600 s | 3 000 |
+| `ultra` | `"reasoning": {"effort": <the first of max, xhigh, high that the model's public list names>}` — never below its default either | 32 000 | 900 s | 8 000 |
 
 The numbers are `data/benchmark.json` → `effort.high` / `effort.ultra` (`reasoning` the efforts
 to try, best first; `max_completion_tokens`; `output_tokens_per_call`; `timeout_s`), read by
@@ -2195,8 +2195,28 @@ to try, best first; `max_completion_tokens`; `output_tokens_per_call`; `timeout_
 **Therefore:**
 - `ultra` resolves per model from that list: `max` where listed, else `xhigh`, else `high`
   (`BenchEffort.reasoning_for`). The params record **what was sent**, so a row says it
-  (`reasoning xhigh`). The list unreachable or the model not in it → the first of the list
-  (`max`), which OpenRouter maps down; the tool prints so.
+  (`reasoning xhigh`). The model not in the list → the first of the list (`max`), which
+  OpenRouter maps down; the tool prints so.
+- **Normal ≤ high ≤ ultra for every model** (review of S6.12d, 2026-09-27): the list's
+  `reasoning.default_effort` is what a model that reasons by default (`mandatory` or
+  `default_enabled`; 100 non-mandatory models on the live list of 2026-09-27) thinks at when
+  nothing is sent — 21 models have `xhigh` or `max` there. A level never sends less than that
+  (`reasoning_for`'s `floor`, compared by OpenRouter's order `none < minimal < low < medium <
+  high < xhigh < max`, `BenchEffort.EFFORT_ORDER`). So `high` for such a model sends its
+  default, and may equal `ultra` apart from the limit.
+- **Resolved once per batch** (same review): a live `high`/`ultra` whose list cannot be read
+  **stops** (exit 1: `OpenRouter's model list could not be read, so what --effort=… sends …
+  is unknown — try again, or pin it with --effort-reasoning=<effort>`) instead of guessing —
+  a guess in one shard would give its seeds another `params_id` than its siblings'.
+  `--effort-reasoning=<effort>` pins the value (an effort at or above the lowest the level
+  lists; only with `--effort=high|ultra`); `run_models.ps1` resolves it once from
+  `model_list.gd`'s `reasoning_sent` and gives it to every shard, `-Mock` included (so a
+  rehearsal records what the live run would). A mock run without the pin still takes the
+  first of the list.
+- At **normal**, a model that reasons by default is **warned about, not refused**
+  (`bench_run.gd`, `run_models.ps1`): its 1 200-token limit may end answers with
+  `finish_reason: length` and empty content, still billed. Normal itself stays unchanged
+  (no parameter, the old `params_id`).
 - `high` and `ultra` are **refused** (exit 1) for a model the list names without reasoning
   support: `benchmark: <model> takes no reasoning parameter (OpenRouter's model list) — play it
   with --effort=normal`. An unlisted model is not refused.
@@ -2212,22 +2232,28 @@ to try, best first; `max_completion_tokens`; `output_tokens_per_call`; `timeout_
   of its own.
 - **`--reasoning=low|medium|high`** stays the low-level form: that effort as given, no `effort`
   key, the default limit. It cannot be combined with `--effort` (exit 1). Its runs show the raw
-  value (`low`) where a level would stand.
+  value marked, so `--reasoning=high` is never read as the level High: `BenchEffort.of_run`
+  gives `reasoning-high`, the row's `effort` is that, lists show *reasoning high* / *Reasoning
+  high* (`BENCH_EFFORT_RAW`), `LEADERBOARD.md` `reasoning high`. An unmarked word from a board
+  written before the marker is still shown as it is.
 - **Entry** (§10.2): one optional key more, **`effort`**, written after `backend` (and after
   `model_version`) **only for `high` and `ultra`**; read as optional — missing (every older entry)
   or `"normal"` → normal; another value or type → `from_dict` null (`effort: not normal, high or
   ultra`). `BenchEffort.of_entry` says what a list shows: `""` for a bot or a decision model, the
   level, or a `--reasoning` run's raw value.
 - **Verifier** (§16.4, `rules`): an entry's `effort` must equal its params' `effort` (`the effort
-  is not the one in params`).
+  is not the one in params`), and for `high`/`ultra` the params must be what the level sends
+  (`BenchEffort.params_broken`): `reasoning` an effort at or above the lowest the level lists
+  (`effort ultra does not send that reasoning`), `max_completion_tokens` at least the level's
+  (`effort ultra needs max_completion_tokens of at least 32000`).
 - **Row** (§10.3): chat rows gain `"effort": "normal" | "high" | "ultra" | <raw>` after `backend`
   (and `model_versions`); bot and choice rows have no such key, so the published board of bot rows
   stays byte-identical. `LEADERBOARD.md` gains an **Effort** column after *Model* (`Normal`,
   `High`, `Ultra`, a raw value, or `—`). A public `LEADERBOARD.md` is regenerated only when its
   rows change (§16.3), so it shows the new column from its next change.
-- **`GlobalBoard.parse`** (§16.6) reads `effort` as optional: a string that is a level or a short
-  lower-case word (`^[a-z]{1,16}$`) is kept, anything else is left empty (shown as the dash) —
-  never a reason to drop the row.
+- **`GlobalBoard.parse`** (§16.6) reads `effort` as optional: a string that is a level, a marked
+  raw value (`reasoning-` + a short word) or a short lower-case word (`^[a-z]{1,16}$`) is kept,
+  anything else is left empty (shown as the dash) — never a reason to drop the row.
 - **The public `validate.py`** (read 2026-09-27) checks the required keys by type and ignores keys
   it does not know; `params` is any object. An entry with `effort` passes unchanged — **no change
   is needed there** (the smoke run in §18.7 proves it on a clone).
@@ -2246,14 +2272,15 @@ USD (10 × 80 × (0.013 + 0.012)), ultra ≈ 36.00 USD.
 `models.ps1` runs `tools/bench/model_list.gd` (the parsing and the figures are
 `tools/bench/model_catalogue.gd`, preloaded, pure): OpenRouter's public list, asked without a key,
 one row per model — id (`*` = free: a `:free` id or both prices zero), context, input and output
-price per million tokens, reasoning (`—`, `yes` or `always`, and the highest listed effort), and
+price per million tokens, reasoning (`—`, `yes`, `default` — it reasons when nothing is sent,
+`default_enabled` — or `always` — `mandatory` —, and the highest listed effort), and
 the likely cost of the quick and the standard suite at normal and of the standard suite at high
 and ultra (`—` where the level does not apply, `?` where the price is unknown), by §11.5's rule
 measured on the real brief and day-0 digest. `typesafe/jev-latest` is listed first at its
 published price (§17.9's estimate). Filters: `-Search <text>` (id or name), `-Free`,
 `-MaxCost <usd>` (likely cost of `-Suite` at `-Effort`; unknown prices are left out), `-Effort
 <level>` (both suites at that level). `--json --models=a,b` gives `run_models.ps1` one line per
-model.
+model (with `reasoning_sent`, `reasons_by_default`, `default_effort`).
 
 ### 18.5 Running — `tools/bench/run_models.ps1`
 
@@ -2269,19 +2296,26 @@ model.
    it (exit 7) and scales the caps below so that together they stay within it.
 4. **Caps:** each model gets `max(1 USD, likely × 1.5)` (the tool's default cap when the price is
    unknown); its shards share it. `bench_run.gd` gets `--yes` and that `--max-cost`, so its
-   pre-flight never stops a confirmed run and its cap still does (exit 6).
+   pre-flight never stops a confirmed run and its cap still does (exit 6). A **free** model
+   (both list prices 0) plays under any cap, 0 included (`-MaxTotal 0` = spend nothing; the
+   backend's `cap_reached`); a batch where a paid or unknown-price model's share per process
+   rounds to 0.00 USD is refused before anything starts (exit 1).
 5. **Runs** `bench_run.gd` per model, one after the other; `-Parallel N` starts N processes, each
    with its own `--seeds` range and `--no-rebuild` (new in S6.12d: parallel shards must not write
-   the board at once). Output goes to **`user://benchmark`** (`%APPDATA%\Doomsday\benchmark\`), so
-   the runs show in the game under *Benchmark → Recorded runs*. Each process's output is kept in a
-   log folder under `%TEMP%` (`-LogDir`).
+   the board at once) and, at high or ultra, the same `--effort-reasoning` (§18.1). Output goes
+   to **`user://benchmark`** (`%APPDATA%\Doomsday\benchmark\`), so the runs show in the game
+   under *Benchmark → Recorded runs*. Each process's output is kept in a log folder under
+   `%TEMP%` (`-LogDir`).
 6. **Stops at the first fatal error:** a shard exiting non-zero stops its siblings, and no later
    model starts; runs finished before are kept (§11.3).
 7. **Rebuilds** the local board once (`--rebuild`) and prints a summary: model, effort, runs,
    score, wins, cost.
 
 `-Mock` plays `mock:cheapest` under the given model ids with the fixture price list: no key, no
-request — the whole flow, for tests and for a look.
+request — the whole flow, for tests and for a look. Its runs go to `<log folder>\benchmark`
+unless `-Out` is given — never into the game's list, where mock runs under a real model id would
+read as that model's (score 0) and, at another effort than the live run, would stay as a row
+of their own.
 
 ### 18.6 Submitting — `tools/bench/submit_runs.ps1`
 
@@ -2289,7 +2323,8 @@ request — the whole flow, for tests and for a look.
 pulls the leaderboard clone (default `..\doomsday-leaderboard`; it must be clean), copies the model
 runs from `%APPDATA%\Doomsday\benchmark\runs` into its `runs\` (bot and mock runs left out —
 `-IncludeMock` is for tests), runs its own `tools/validate.py --all` (`uv run --no-project
-python`), and shows what would be committed. **Without `-Push` it takes the copies back** — a dry
+python`, else `python`; neither on `PATH` → exit 1 — the check fails closed), and shows what
+would be committed. **Without `-Push` it takes the copies back** — a dry
 run leaves the clone as it was. With `-Push` it commits the runs and pushes them to `main` of the
 public repository (the owner's direct push, instead of §16.2's pull request), then either:
 
@@ -2301,10 +2336,18 @@ public repository (the owner's direct push, instead of §16.2's pull request), t
   workflow's work — the bot reference rows (`bench_run.gd --bots --suite=standard --if-missing
   --no-rebuild`, ≈ 3 minutes; `-SkipBots` leaves them out), the verifier (`verify_runs.gd
   --board=<clone> --game-commit=<HEAD> --message=<file>`, with a scratch `APPDATA`), then commits
-  `runs verified leaderboard.json LEADERBOARD.md` with the verifier's message and pushes (a
-  rejected push: one `pull --rebase`, then again). It warns when the game checkout is not
-  `origin/main` or `data/` has uncommitted changes — the verdicts are only as good as the checkout.
-  The user's own GitHub credentials push; no deploy key is involved.
+  `runs verified leaderboard.json LEADERBOARD.md` with the verifier's message and pushes. It warns
+  when the game checkout is not `origin/main` or `data/` has uncommitted changes — the verdicts
+  are only as good as the checkout. The user's own GitHub credentials push; no deploy key is
+  involved. **With nothing new to copy** it still verifies and publishes whatever runs on the
+  board have no record yet — runs pushed earlier with a plain `-Push`.
+
+**A refused push** (`Publish-BenchBoard`, `bench_common.ps1`): one `pull --rebase`, then once more.
+A rebase that stops on a conflict is **aborted** — nothing is pushed, the clone is left on its own
+commits, not mid-rebase (exit 1). After a clean rebase `-VerifyLocally` verifies again, so the
+published board is built on the new base. **Local commits** that never reached origin (a failed
+verification, a refused push) are pushed by the next `-Push`; without it the script says how many
+there are.
 
 ### 18.7 Tests
 
@@ -2316,11 +2359,16 @@ reasoning, estimates per level, filters, `model_list.gd`'s arguments and JSON li
 its own row and verifies; bad arguments; `--no-rebuild`), `test_benchmark_list` and
 `test_spectator` (the lines), and `test_bench_scripts` (every `tools/bench/*.ps1` parses — where
 PowerShell exists; CI's Linux container has none). **`tools/bench/smoke_scripts.ps1`** (by hand,
-≈ 30 s): parses the scripts, `models.ps1` on the fixture, `run_models.ps1 -Mock` (two models,
-effort high, quick, `-Parallel 2`), then a bare clone of the leaderboard repository as a stand-in
-origin and `submit_runs.ps1` against a clone of it — dry run (clone unchanged), then `-Push
--VerifyLocally -SkipBots` (the stand-in receives the runs, six verified records and rows with
-`"effort": "high"`). No model is asked, no key used.
+≈ 2 min): parses the scripts, `models.ps1` on the fixture, `run_models.ps1 -Mock` (two models,
+effort high, quick, `-Parallel 2`, into the log folder), `fixture/ponder` at ultra in two
+processes (one `params_id`, the plan's reasoning), the default-reasoning warning, the 0.00-cap
+refusal and a free model under `-MaxTotal 0`, then a bare clone of the leaderboard repository as
+a stand-in origin and `submit_runs.ps1` against a clone of it — without uv or python on `PATH`
+(refused, nothing changed), dry run (clone unchanged), `-Push -VerifyLocally -SkipBots` (the
+stand-in receives the runs, six verified records and rows with `"effort": "high"`), runs pushed
+with a plain `-Push` verified by a later `-Push -VerifyLocally`, and `Publish-BenchBoard` after
+someone else's push (a conflicting rebase aborted, a clean one rebuilt and published). No model
+is asked, no key used. The fixture list has `fixture/deep` (reasons by default at `xhigh`).
 
 ### 18.8 Strings (en/de)
 
@@ -2328,7 +2376,8 @@ origin and `submit_runs.ps1` against a clone of it — dry run (clone unchanged)
 row of the list (global, other versions, recorded runs) and a caption in the spectator strip after
 the seed; `BENCH_EFFORT_NORMAL` / `_HIGH` / `_ULTRA` *Normal / High / Ultra* — *Normal / Hoch /
 Ultra* (the user's words); `BENCH_EFFORT_NONE` *—* (bots, decision models, a board from before the
-levels). `UI_A11Y_SPECTATOR` gains `{effort}` (*…, effort: {effort}, …* / *…, Aufwand: {effort},
+levels); `BENCH_EFFORT_RAW` (`{reasoning}`) *reasoning {reasoning}* / *Reasoning {reasoning}* (a
+`--reasoning` run; *Reasoning* stays English, `plain-language.md` §10). `UI_A11Y_SPECTATOR` gains `{effort}` (*…, effort: {effort}, …* / *…, Aufwand: {effort},
 …*).
 
 ### 18.9 Running your own models — the guide
@@ -2340,10 +2389,11 @@ Everything from `F:\Doomsday` in PowerShell. Nothing here costs money until step
    (and `-Name TYPESAFE_API_KEY` for Jev).
 2. **Choose models:** `powershell -ExecutionPolicy Bypass -File tools\bench\models.ps1 -Search claude`
    (or `-Free`, or `-MaxCost 5 -Effort high`). The columns are the likely cost of a whole suite.
-   A model marked `always` reasons whatever you ask; at *normal* its 1 200-token limit may cut its
-   answers short — prefer `-Effort high` for it.
+   A model marked `default` or `always` reasons even at *normal*, where its 1 200-token limit may
+   cut its answers short (still billed) — prefer `-Effort high` for it; `run_models.ps1` warns.
 3. **Look first, free:** `powershell -ExecutionPolicy Bypass -File tools\bench\run_models.ps1
-   -Models <id> -Suite quick -Mock -Yes` plays the whole flow with a mock (no key, no cost).
+   -Models <id> -Effort high -Suite quick -Mock -Yes` plays the whole flow with a mock (no key,
+   no cost); its runs go to a scratch folder (the log folder it prints), not into the game.
 4. **Play:** `powershell -ExecutionPolicy Bypass -File tools\bench\run_models.ps1 -Models
    <id>,<id> -Effort high -Suite quick` — read the estimate, answer `y`. The ranked suite is
    `-Suite standard` (10 seeds); `-Parallel 5` plays five seeds at once; `-MaxTotal 20` refuses a
@@ -2352,7 +2402,9 @@ Everything from `F:\Doomsday` in PowerShell. Nothing here costs money until step
 5. **Publish:** `powershell -ExecutionPolicy Bypass -File tools\bench\submit_runs.ps1` (a dry run:
    validated, nothing committed), then `… submit_runs.ps1 -Push -VerifyLocally` (verified on this
    PC and published — standard-suite rows rank; quick rows are listed as practice). With the deploy
-   key set up (§16.5) `-Push` alone lets GitHub verify them.
+   key set up (§16.5) `-Push` alone lets GitHub verify them. Runs already pushed with a plain
+   `-Push` (no deploy key: the workflow only dry-runs) are published by running `… submit_runs.ps1
+   -Push -VerifyLocally` again — it verifies whatever on the board has no record yet.
 
 ### 18.10 Decisions (pending user confirmation)
 
@@ -2363,4 +2415,10 @@ high); the limits 16 000 / 32 000 tokens and the timeouts 600 / 900 s; the estim
 no `effort` (older entries and boards stay byte-identical); `--reasoning` kept as the low-level
 form, exclusive with `--effort`; run_models' caps `max(1, likely × 1.5)` per model;
 `submit_runs.ps1` pushes to the public `main` directly (the owner) and `-VerifyLocally` stands in
-for the missing deploy key.
+for the missing deploy key. From the S6.12d review (2026-09-27): a level never sends less than
+the model's default effort when it reasons by default (high may then equal ultra's effort);
+normal stays parameter-free and only warns for such models, whose normal estimate counts the
+whole 1 200-token limit as output; what a level sends is resolved once per batch and a live run
+without the list stops rather than guessing; the verifier checks the params against the level;
+`--reasoning` runs are shown as *reasoning <value>*; a free model plays under a cap of 0;
+`-Mock` runs stay out of the game's list.

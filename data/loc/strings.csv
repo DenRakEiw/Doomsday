@@ -2442,6 +2442,7 @@ BENCH_EFFORT_NORMAL,Normal,Normal
 BENCH_EFFORT_HIGH,High,Hoch
 BENCH_EFFORT_ULTRA,Ultra,Ultra
 BENCH_EFFORT_NONE,—,—
+BENCH_EFFORT_RAW,reasoning {reasoning},Reasoning {reasoning}
 UI_BENCH_GLOBAL_TITLE,Global leaderboard,Globale Bestenliste
 UI_BENCH_GLOBAL_NOTE,Every score here was replayed and checked. Model names are as submitted.,Jede Wertung hier wurde nachgespielt und geprüft. Modellnamen wie eingereicht.
 UI_BENCH_GLOBAL_LOADING,Loading the global leaderboard …,Globale Bestenliste wird geladen …

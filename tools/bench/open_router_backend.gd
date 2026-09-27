@@ -86,11 +86,21 @@ func backend_id() -> String:
 	return ID
 
 
+## Whether the cap stops the next request: the spend has reached it — except for
+## a model the price list says is free while nothing was spent, so that a cap of
+## 0 ("spend nothing", `run_models.ps1 -MaxTotal 0`) still plays a free model.
+func cap_reached() -> bool:
+	var free: bool = prompt_price == 0.0 and completion_price == 0.0
+	if free and spent_usd <= 0.0:
+		return false
+	return spent_usd >= max_cost_usd
+
+
 @warning_ignore("unused_parameter")
 func answer(messages: Array[Dictionary], digest: BenchDigest, params: Dictionary) -> ModelReply:
 	if _base.is_empty():
 		return ModelReply.fatal(FATAL_BAD_BASE_URL)
-	if spent_usd >= max_cost_usd:
+	if cap_reached():
 		return ModelReply.fatal(FATAL_COST_CAP)
 	var body: String = JSON.stringify(_build_body(messages, params))
 	var headers: PackedStringArray = ["Content-Type: application/json",

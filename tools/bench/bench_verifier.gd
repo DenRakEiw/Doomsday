@@ -114,6 +114,11 @@ static func rules_broken(entry: BenchEntry, config: BenchConfig) -> String:
 	# §18: the effort a list shows is the one the run was played with.
 	if entry.effort != str(entry.params.get(BenchEffort.PARAM, "")):
 		return "the effort is not the one in params"
+	# …and the params are what that level sends: a run called Ultra that thought
+	# like a normal one would lie.
+	var level_broken: String = BenchEffort.params_broken(entry.params, entry.effort, config)
+	if not level_broken.is_empty():
+		return level_broken
 	if entry.model.begins_with(BenchEntry.MODEL_BOT_PREFIX) != entry.is_bot():
 		return "a bot model needs the bot backend, and only a bot model has it"
 	if entry.end_day > config.max_days:

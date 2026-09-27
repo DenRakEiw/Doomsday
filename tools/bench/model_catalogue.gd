@@ -20,6 +20,9 @@ const FIELD_FREE: String = "free"
 const FIELD_REASONING: String = "reasoning"
 const FIELD_EFFORTS: String = "efforts"
 const FIELD_MANDATORY: String = "mandatory"
+## Whether the model reasons when nothing is sent, and at which effort (§18.1).
+const FIELD_DEFAULT_ON: String = "reasons_by_default"
+const FIELD_DEFAULT_EFFORT: String = "default_effort"
 const FIELD_TYPESAFE: String = "typesafe"
 const FIELD_LISTED: String = "listed"
 const LIST_NAME: String = "name"
@@ -65,6 +68,8 @@ static func row_of(item: Dictionary) -> Dictionary:
 		FIELD_REASONING: bool(info[Estimate.FIELD_REASONING]),
 		FIELD_EFFORTS: info[Estimate.FIELD_EFFORTS],
 		FIELD_MANDATORY: bool(info[Estimate.FIELD_MANDATORY]),
+		FIELD_DEFAULT_ON: bool(info[Estimate.FIELD_DEFAULT_ON]),
+		FIELD_DEFAULT_EFFORT: str(info[Estimate.FIELD_DEFAULT_EFFORT]),
 		FIELD_TYPESAFE: false,
 		FIELD_LISTED: true,
 	}
@@ -86,6 +91,8 @@ static func typesafe_row(config: BenchConfig) -> Dictionary:
 		FIELD_REASONING: false,
 		FIELD_EFFORTS: efforts,
 		FIELD_MANDATORY: false,
+		FIELD_DEFAULT_ON: false,
+		FIELD_DEFAULT_EFFORT: "",
 		FIELD_TYPESAFE: true,
 		FIELD_LISTED: true,
 	}
@@ -96,8 +103,8 @@ static func unlisted_row(id: String) -> Dictionary:
 	var efforts: Array[String] = []
 	return {FIELD_ID: id, FIELD_NAME: id, FIELD_CONTEXT: 0, FIELD_PROMPT: NO_PRICE,
 		FIELD_COMPLETION: NO_PRICE, FIELD_FREE: false, FIELD_REASONING: false,
-		FIELD_EFFORTS: efforts, FIELD_MANDATORY: false, FIELD_TYPESAFE: false,
-		FIELD_LISTED: false}
+		FIELD_EFFORTS: efforts, FIELD_MANDATORY: false, FIELD_DEFAULT_ON: false,
+		FIELD_DEFAULT_EFFORT: "", FIELD_TYPESAFE: false, FIELD_LISTED: false}
 
 
 ## Whether `row` answers a search: its id or name contains `text`, any case.
@@ -115,7 +122,8 @@ static func matches(row: Dictionary, text: String) -> bool:
 static func takes_effort(row: Dictionary, effort: String) -> bool:
 	if bool(row[FIELD_TYPESAFE]):
 		return effort == BenchEffort.NORMAL
-	return effort == BenchEffort.NORMAL or bool(row[FIELD_REASONING]) 		or not bool(row[FIELD_LISTED])
+	return effort == BenchEffort.NORMAL or bool(row[FIELD_REASONING]) \
+		or not bool(row[FIELD_LISTED])
 
 
 ## The estimate of `runs` seeds of `row` at `effort` (§11.5, §18.3) — the tool's
@@ -132,26 +140,31 @@ static func estimate(row: Dictionary, prompt_tokens: int, digest_tokens: int, ru
 	if effort != BenchEffort.NORMAL:
 		max_tokens = maxi(max_tokens, int(config.effort_max_tokens.get(effort, 0)))
 	return Estimate.figures(prompt_tokens, digest_tokens, runs, float(row[FIELD_PROMPT]),
-		float(row[FIELD_COMPLETION]), config, BenchEffort.output_tokens(effort, config),
-		max_tokens)
+		float(row[FIELD_COMPLETION]), config,
+		BenchEffort.output_tokens(effort, config, bool(row[FIELD_DEFAULT_ON])), max_tokens)
 
 
 ## What the level sends to this model (§18.2), "" for normal and where it does
-## not apply.
+## not apply; never less than the effort it reasons at by default.
 static func reasoning_sent(row: Dictionary, effort: String, config: BenchConfig) -> String:
 	if effort == BenchEffort.NORMAL or not takes_effort(row, effort):
 		return ""
 	var efforts: Array[String] = []
 	efforts.assign(row[FIELD_EFFORTS])
-	return BenchEffort.reasoning_for(effort, config, efforts)
+	return BenchEffort.reasoning_for(effort, config, efforts, Estimate.effort_floor(row))
 
 
-## The reasoning cell: the dash (none), "yes" or "always" (the model cannot
-## switch it off), and the highest effort it lists.
+## The reasoning cell: the dash (none), "yes", "default" (it reasons when
+## nothing is sent — at normal too — but can be switched off) or "always" (it
+## cannot), and the highest effort it lists.
 static func reasoning_text(row: Dictionary) -> String:
 	if not bool(row[FIELD_REASONING]):
 		return NONE_MARK
-	var text: String = "always" if bool(row[FIELD_MANDATORY]) else "yes"
+	var text: String = "yes"
+	if bool(row[FIELD_MANDATORY]):
+		text = "always"
+	elif bool(row[FIELD_DEFAULT_ON]):
+		text = "default"
 	var efforts: Array = row[FIELD_EFFORTS]
 	if not efforts.is_empty():
 		text += ", up to %s" % str(efforts[0])

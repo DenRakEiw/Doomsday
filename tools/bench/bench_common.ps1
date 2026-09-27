@@ -48,6 +48,33 @@ function Invoke-BenchGodot([string]$Godot, [string[]]$Arguments) {
 	return @{ Code = $LASTEXITCODE; Lines = @($lines) }
 }
 
+function Publish-BenchBoard([string]$Board, [scriptblock]$AfterRebase = $null) {
+	# Pushes the leaderboard clone's HEAD to origin's main (benchmark.md section 18.6).
+	# Refused (someone pushed meanwhile): one `pull --rebase`, then once more. A rebase
+	# that stops on a conflict is aborted - the clone is left on its own commits, never
+	# mid-rebase - and nothing is pushed. After a clean rebase $AfterRebase runs (the local
+	# verification rebuilds the board on the new base) and returns "" or why to stop.
+	# Returns @{ Code = 0 | 1; Message = <why not> }.
+	$ErrorActionPreference = "Continue"
+	$null = & git -C $Board push -q origin HEAD:main 2>&1
+	if ($LASTEXITCODE -eq 0) { return @{ Code = 0; Message = "" } }
+	$pulled = @(& git -C $Board pull -q --rebase origin main 2>&1 | ForEach-Object { [string]$_ })
+	if ($LASTEXITCODE -ne 0) {
+		$null = & git -C $Board rebase --abort 2>&1
+		return @{ Code = 1; Message = ("the push was refused and the rebase onto origin's main stopped (" +
+			(($pulled | Select-Object -First 2) -join " ") + ") - it was aborted, nothing was pushed, the commits are local in $Board; pull and resolve by hand, then submit again") }
+	}
+	if ($AfterRebase) {
+		$reason = [string](@(& $AfterRebase) | Select-Object -Last 1)
+		if ($reason) { return @{ Code = 1; Message = $reason } }
+	}
+	$null = & git -C $Board push -q origin HEAD:main 2>&1
+	if ($LASTEXITCODE -ne 0) {
+		return @{ Code = 1; Message = "the push was refused twice - the commits are local in $Board" }
+	}
+	return @{ Code = 0; Message = "" }
+}
+
 function Get-BenchSlug([string]$Model) {
 	# benchmark.md section 10.2's slug: lower-case, `/` -> `--`, anything else outside [a-z0-9._-] -> `-`.
 	$lowered = $Model.ToLowerInvariant().Replace("/", "--")

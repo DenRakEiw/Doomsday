@@ -217,9 +217,28 @@ func test_an_effort_that_is_not_the_one_in_params_breaks_the_rules() -> void:
 	var params: Dictionary = d["params"]
 	params["effort"] = "ultra"
 	params["reasoning"] = "xhigh"
+	params["max_completion_tokens"] = 32000
 	d["params_id"] = BenchEntry.params_id_of(params)
 	var record: VerifyRecord = _judge(d)
 	assert_true(record.verified, "effort and params agree: " + record.detail)
 	d.erase("effort")
 	assert_eq(Verifier.rules_broken(BenchEntry.from_dict(d), _config),
 		"the effort is not the one in params")
+
+
+func test_an_effort_whose_params_are_not_what_it_sends_breaks_the_rules() -> void:
+	# A run published as Ultra that thought like a normal one: no reasoning, a low
+	# one, or the normal limit.
+	for change: Dictionary in [{"reasoning": ""}, {"reasoning": "low"},
+			{"max_completion_tokens": 1200}]:
+		var d: Dictionary = _copy()
+		d["effort"] = "ultra"
+		var params: Dictionary = d["params"]
+		params["effort"] = "ultra"
+		params["reasoning"] = "max"
+		params["max_completion_tokens"] = 32000
+		params.merge(change, true)
+		d["params_id"] = BenchEntry.params_id_of(params)
+		var record: VerifyRecord = _judge(d)
+		assert_eq(record.reason, Verifier.REASON_RULES, str(change))
+		assert_string_contains(record.detail, "effort ultra", str(change))

@@ -137,6 +137,24 @@ func test_the_cost_cap_stops_before_a_request() -> void:
 	assert_eq(reply.error, Backend.FATAL_COST_CAP)
 
 
+func test_a_cap_of_zero_stops_a_paid_model_but_not_a_free_one() -> void:
+	var paid: Backend = Backend.new("vendor/model", SAMPLE_KEY, "https://openrouter.ai/api/v1",
+		_config, 0.0)
+	paid.prompt_price = 0.000001
+	paid.completion_price = 0.000004
+	assert_true(paid.cap_reached(), "a paid model under a cap of 0 asks nothing")
+	var unknown: Backend = Backend.new("vendor/model", SAMPLE_KEY, "https://openrouter.ai/api/v1",
+		_config, 0.0)
+	assert_true(unknown.cap_reached(), "an unknown price is not a free one")
+	var free: Backend = Backend.new("vendor/model:free", SAMPLE_KEY,
+		"https://openrouter.ai/api/v1", _config, 0.0)
+	free.prompt_price = 0.0
+	free.completion_price = 0.0
+	assert_false(free.cap_reached(), "a free model plays under a cap of 0 (-MaxTotal 0)")
+	free.spent_usd = 0.01
+	assert_true(free.cap_reached(), "a free model the service bills after all is stopped")
+
+
 func test_a_base_url_must_be_https_or_this_machine() -> void:
 	assert_eq(Backend.parse_base_url("https://openrouter.ai/api/v1"), {"scheme": "https",
 		"host": "openrouter.ai", "port": 443, "prefix": "/api/v1"})

@@ -38,7 +38,7 @@ func test_every_entry_with_an_id_is_a_row_sorted_by_id() -> void:
 	var ids: Array[String] = []
 	for row: Dictionary in _rows:
 		ids.append(str(row["id"]))
-	assert_eq(ids, ["fixture/broken-price", "fixture/ponder", "fixture/steady",
+	assert_eq(ids, ["fixture/broken-price", "fixture/deep", "fixture/ponder", "fixture/steady",
 		"fixture/steady:free", "fixture/thinker"] as Array[String])
 
 
@@ -94,6 +94,25 @@ func test_what_ultra_sends_follows_the_models_list() -> void:
 	assert_eq(Catalogue.reasoning_sent(_row("fixture/ponder"), BenchEffort.NORMAL, _config), "")
 	assert_eq(Catalogue.reasoning_text(_row("fixture/ponder")), "always, up to high")
 	assert_eq(Catalogue.reasoning_text(_row("fixture/steady")), "—")
+
+
+func test_a_model_that_reasons_by_default_is_marked_and_raised_and_costed() -> void:
+	var deep: Dictionary = _row("fixture/deep")
+	assert_true(deep["reasons_by_default"], "default_enabled without mandatory")
+	assert_eq(deep["default_effort"], "xhigh")
+	assert_false(_row("fixture/thinker")["reasons_by_default"])
+	assert_true(_row("fixture/ponder")["reasons_by_default"], "mandatory reasons by default")
+	assert_eq(Catalogue.reasoning_text(deep), "default, up to xhigh")
+	assert_eq(Catalogue.reasoning_sent(deep, BenchEffort.HIGH, _config), "xhigh",
+		"high never sends less than the model's default")
+	assert_eq(Catalogue.reasoning_sent(deep, BenchEffort.ULTRA, _config), "xhigh")
+	# At normal it reasons until its limit: 13 000 input at 2 USD/M + 1 200 output at 8 USD/M.
+	var normal: Dictionary = Catalogue.estimate(deep, BRIEF, DIGEST, 10, BenchEffort.NORMAL,
+		_config)
+	assert_almost_eq(float(normal["likely"]), 10 * 80 * (0.026 + 0.0096), 0.001)
+	var line: Dictionary = List.json_line(deep, _options({"effort": "high"}), _config, CHAT, CHOICE)
+	assert_true(line["reasons_by_default"])
+	assert_eq(line["reasoning_sent"], "xhigh")
 
 
 func test_the_decision_model_is_priced_from_the_data() -> void:

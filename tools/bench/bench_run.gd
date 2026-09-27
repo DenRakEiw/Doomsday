@@ -8,7 +8,8 @@ extends SceneTree
 ##             |mock-choice:broken]
 ##         [--suite=standard|quick] [--seeds=a..b] [--locale=en|de]
 ##         [--temperature=<f>] [--max-tokens=<n>] [--json-mode=true|false]
-##         [--effort=normal|high|ultra | --reasoning=low|medium|high] [--top-p=<f>]
+##         [--effort=normal|high|ultra [--effort-reasoning=<effort>]
+##             | --reasoning=low|medium|high] [--top-p=<f>]
 ##         [--base-url=<url>] [--key-env=<VAR>] [--max-cost=<usd>] [--max-requests=<n>] [--yes]
 ##         [--out=<dir=res://benchmark>] [--cache=<dir=res://benchmark/cache>] [--fresh]
 ##         [--data=<root=res://data>] [--dry-run] [--no-rebuild]
@@ -32,8 +33,13 @@ extends SceneTree
 ## `--effort` (§18) asks a chat model to think harder: `high` sends OpenRouter's
 ## reasoning effort `high`, `ultra` the highest effort the model's public list
 ## names (`max`, else `xhigh`, else `high`), both with a larger completion limit
-## and timeout. The level goes into the params — a row of its own — and into the
-## entry. `--reasoning` stays the low-level form: that effort as it is, nothing else.
+## and timeout; never below the effort a model reasons at by default. The level
+## goes into the params — a row of its own — and into the entry. What a level
+## sends is read from the list once per process, so a live `high` or `ultra`
+## whose list cannot be read stops (exit 1) instead of guessing;
+## `--effort-reasoning=<effort>` pins it (`run_models.ps1` resolves it once and
+## gives every shard the same, so they share one `params_id`). `--reasoning`
+## stays the low-level form: that effort as it is, nothing else.
 
 const Harness := preload("res://tools/sim_harness.gd")
 const Cache := preload("res://tools/bench/bench_cache.gd")
@@ -56,7 +62,7 @@ const BACKEND_OPENROUTER: String = "openrouter"
 const BACKEND_TYPESAFE: String = "typesafe"
 ## A decision model takes none of these (§17.7).
 const CHAT_FLAGS: Array[String] = ["temperature", "max-tokens", "json-mode", "reasoning",
-	"top-p", "effort"]
+	"top-p", "effort", "effort-reasoning"]
 ## Several versions within one run are joined with this (§17.7).
 const VERSION_JOIN: String = "+"
 const VERSION_ARROW: String = " → "
@@ -152,9 +158,10 @@ static func backend_for(args: Dictionary[String, String], config: BenchConfig) -
 
 
 ## The run's parameters (§10.2) from the flags and the config's defaults:
-## `{"params": Dictionary, "error": String, "effort": String}`. The effort level
-## (§18) is only named here — `BenchEffort.apply` adds it to the params once the
-## model's supported efforts are known.
+## `{"params": Dictionary, "error": String, "effort": String, "pinned": String}`.
+## The effort level (§18) is only named here — `BenchEffort.apply` adds it to the
+## params once the model's supported efforts are known; `pinned` is
+## `--effort-reasoning`'s value ("" without it).
 static func build_params(args: Dictionary[String, String], config: BenchConfig) -> Dictionary:
 	var params: Dictionary = {
 		PARAM_TEMPERATURE: config.temperature,
@@ -189,32 +196,49 @@ static func build_params(args: Dictionary[String, String], config: BenchConfig) 
 	if effort != BenchEffort.NORMAL and args.has("reasoning"):
 		return _bad_params("--effort and --reasoning cannot be given together"
 			+ " (--reasoning is the low-level form of the same thing)")
-	return {"params": params, "error": "", "effort": effort}
+	var pinned: String = args.get("effort-reasoning", "")
+	if args.has("effort-reasoning") and not BenchEffort.sends(effort, pinned, config):
+		return _bad_params("--effort-reasoning names an effort that --effort=%s does not send"
+			% effort)
+	return {"params": params, "error": "", "effort": effort, "pinned": pinned}
 
 
 static func _bad_params(reason: String) -> Dictionary:
-	return {"params": {}, "error": reason, "effort": BenchEffort.NORMAL}
+	return {"params": {}, "error": reason, "effort": BenchEffort.NORMAL, "pinned": ""}
 
 
 ## §18.2: the params with the effort level applied, and the line that says what
 ## it sends — or an error when the model's public list says it takes no
 ## reasoning parameter (a row called "High" that is a normal run would lie).
-## `info` is `Estimate.read_model`'s (empty: unknown).
+## `info` is `Estimate.read_model`'s (empty: unknown); `pinned` is
+## `--effort-reasoning`'s value, sent as it is. At normal the line warns about a
+## model that reasons by default: its answers may be cut short at the limit.
 static func effort_params(params: Dictionary, effort: String, model: String, info: Dictionary,
-		config: BenchConfig) -> Dictionary:
+		config: BenchConfig, pinned: String = "") -> Dictionary:
 	if effort == BenchEffort.NORMAL:
-		return {"params": params, "error": "", "line": ""}
-	if bool(info.get(Estimate.FIELD_LISTED, false)) 			and not bool(info.get(Estimate.FIELD_REASONING, false)):
+		var warning: String = ""
+		if bool(info.get(Estimate.FIELD_DEFAULT_ON, false)):
+			warning = ("benchmark: %s reasons by default (OpenRouter's model list) — at normal its"
+				+ " limit of %d tokens may cut answers short; --effort=high gives it room") % [
+				model, int(params.get(PARAM_MAX_TOKENS, config.max_completion_tokens))]
+		return {"params": params, "error": "", "line": warning}
+	if bool(info.get(Estimate.FIELD_LISTED, false)) \
+			and not bool(info.get(Estimate.FIELD_REASONING, false)):
 		return {"params": {}, "line": "", "error": ("%s takes no reasoning parameter (OpenRouter's"
 			+ " model list) — play it with --effort=normal") % model}
 	var supported: Array[String] = []
 	if typeof(info.get(Estimate.FIELD_EFFORTS)) == TYPE_ARRAY:
 		supported.assign(info[Estimate.FIELD_EFFORTS])
-	var applied: Dictionary = BenchEffort.apply(params, effort, config, supported)
+	var applied: Dictionary = BenchEffort.apply(params, effort, config, supported,
+		Estimate.effort_floor(info), pinned)
+	var note: String = ""
+	if not pinned.is_empty():
+		note = " (pinned by --effort-reasoning)"
+	elif supported.is_empty():
+		note = (" (the model's efforts are unknown; OpenRouter maps an effort a model lacks to"
+			+ " its nearest)")
 	var line: String = "benchmark: effort %s → reasoning %s, max_completion_tokens %d%s" % [
-		effort, applied[PARAM_REASONING], int(applied[PARAM_MAX_TOKENS]),
-		"" if not supported.is_empty() else " (the model's efforts are unknown; OpenRouter maps"
-			+ " an effort a model lacks to its nearest)"]
+		effort, applied[PARAM_REASONING], int(applied[PARAM_MAX_TOKENS]), note]
 	return {"params": applied, "error": "", "line": line}
 
 
@@ -233,7 +257,8 @@ static func play_model(db: ContentDB, config: BenchConfig, setup: RunSetup, seed
 		policy.cache_write = hooks["write"]
 	var problems: Array[String] = []
 	# One day at a time, so a fatal stop ends the run at once.
-	while sim.world.outcome == World.Outcome.NONE and sim.world.day < config.max_days 			and policy.fatal.is_empty():
+	while sim.world.outcome == World.Outcome.NONE and sim.world.day < config.max_days \
+			and policy.fatal.is_empty():
 		Harness.advance(sim, policy, sim.world.day + 1, false, problems)
 	return {"sim": sim, "policy": policy}
 
@@ -398,6 +423,7 @@ static func _models(args: Dictionary[String, String], db: ContentDB, config: Ben
 	var mock: bool = not mock_mode.is_empty() or not choice_mode.is_empty()
 	var params: Dictionary = {}
 	var effort: String = BenchEffort.NORMAL
+	var pinned: String = ""
 	if choosing:
 		for flag: String in CHAT_FLAGS:
 			if args.has(flag):
@@ -412,6 +438,7 @@ static func _models(args: Dictionary[String, String], db: ContentDB, config: Ben
 			return EXIT_BAD_INPUT
 		params = built["params"]
 		effort = str(built["effort"])
+		pinned = str(built["pinned"])
 	var locale: String = args.get("locale", config.locale)
 	if not LOCALES.has(locale):
 		print("benchmark: --locale is en or de")
@@ -474,7 +501,15 @@ static func _models(args: Dictionary[String, String], db: ContentDB, config: Ben
 		# One look at the public list (no key): the price, and what the model does
 		# with an effort level (§18.2).
 		var info: Dictionary = {} if mock else Estimate.fetch_model(base_url, model, config)
-		var leveled: Dictionary = effort_params(params, effort, model, info, config)
+		# §18.2: what a level sends must not hang on whether this one process could
+		# read the list — shards of one suite would record different params.
+		if not mock and not dry_run and info.is_empty() and effort != BenchEffort.NORMAL \
+				and pinned.is_empty():
+			print(("benchmark: OpenRouter's model list could not be read, so what --effort=%s"
+				+ " sends to %s is unknown — try again, or pin it with --effort-reasoning=<effort>")
+				% [effort, model])
+			return EXIT_BAD_INPUT
+		var leveled: Dictionary = effort_params(params, effort, model, info, config, pinned)
 		if not str(leveled["error"]).is_empty():
 			print("benchmark: %s" % leveled["error"])
 			return EXIT_BAD_INPUT
@@ -485,7 +520,9 @@ static func _models(args: Dictionary[String, String], db: ContentDB, config: Ben
 			estimate = Estimate.figures(brief_tokens, digest_tokens, seeds.size(),
 				float(info.get(Estimate.FIELD_PROMPT, Backend.NO_PRICE)),
 				float(info.get(Estimate.FIELD_COMPLETION, Backend.NO_PRICE)), config,
-				BenchEffort.output_tokens(effort, config), int(params[PARAM_MAX_TOKENS]))
+				BenchEffort.output_tokens(effort, config,
+					bool(info.get(Estimate.FIELD_DEFAULT_ON, false))),
+				int(params[PARAM_MAX_TOKENS]))
 			print(Estimate.line(estimate, seeds.size(), model, cap))
 	if not estimate.is_empty() and Estimate.preflight_blocks(estimate, cap, args.has("yes")):
 		print(Estimate.block_line(estimate))

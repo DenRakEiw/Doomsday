@@ -5,8 +5,9 @@ model would likely cost (docs/specs/benchmark.md section 18.4). No key is needed
 
 .DESCRIPTION
 Runs tools/bench/model_list.gd headless. The table shows each model's context, price per
-million input and output tokens, whether it reasons ("always" = it cannot switch reasoning
-off), and the likely cost of the quick (3 seeds) and standard (10 seeds) suites at the
+million input and output tokens, whether it reasons ("default" = it reasons when nothing is
+asked, at normal too; "always" = it cannot switch reasoning off - both are better played at
+-Effort high), and the likely cost of the quick (3 seeds) and standard (10 seeds) suites at the
 effort level normal, and of the standard suite at high and ultra - by the benchmark tool's
 own pre-flight rule. "*" marks a free model; typesafe/jev-latest (the decision model) is
 listed first at its published price.

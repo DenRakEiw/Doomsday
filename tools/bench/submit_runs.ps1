@@ -7,7 +7,8 @@ Puts recorded benchmark runs onto the global leaderboard (docs/specs/benchmark.m
 2. Copies the run files (default: %APPDATA%\Doomsday\benchmark\runs, where run_models.ps1
    writes) into its runs\ - only model runs: bot and mock runs are left out, -Model keeps
    one model's.
-3. Runs the repository's own check, tools/validate.py --all (uv run --no-project python).
+3. Runs the repository's own check, tools/validate.py --all (uv run --no-project python,
+   else python; neither on PATH stops the script - the check fails closed).
 4. Shows what would be committed. Without -Push that is all: the copies are taken back and
    the clone is left as it was.
 
@@ -19,6 +20,13 @@ reference rows (bench_run.gd --bots --if-missing, about 3 minutes; -SkipBots lea
 out), the replay verifier (verify_runs.gd against the clone, with a scratch APPDATA), then
 commits the records and the rebuilt leaderboard.json and LEADERBOARD.md and pushes them. The
 verification is only as good as this checkout: it should be the game's main.
+
+-Push -VerifyLocally also works with nothing new to copy: it verifies whatever runs on the
+board have no record yet (runs pushed earlier with a plain -Push) and publishes them. Local
+commits that never reached origin (a failed verification, a refused push) are pushed by the
+next -Push. A refused push is rebased once onto origin's main; a rebase that stops on a
+conflict is aborted and nothing is pushed; after a clean one -VerifyLocally verifies again,
+so the published board is built on the new base.
 
 .EXAMPLE
 powershell -ExecutionPolicy Bypass -File tools\bench\submit_runs.ps1 -Model anthropic/claude-opus-5.5
@@ -112,7 +120,14 @@ foreach ($file in Get-ChildItem -File -Path $Runs -Filter "*.json" | Sort-Object
 	Copy-Item -LiteralPath $file.FullName -Destination $target -Force
 }
 $names = @($added + $changed)
-if ($names.Count -eq 0) {
+# Commits of an earlier -Push that never reached origin (a failed verification, a refused push).
+$ahead = 0
+$counted = Invoke-Git @("rev-list", "--count", "@{u}..HEAD")
+if ($counted.Code -eq 0 -and $counted.Lines.Count -gt 0) { $ahead = [int]$counted.Lines[0] }
+# -VerifyLocally has work without new runs too: runs pushed earlier without a verification
+# (verify_runs.gd picks up every run on the board that has no current record).
+if ($names.Count -eq 0 -and -not ($Push -and ($VerifyLocally -or $ahead -gt 0))) {
+	if ($ahead -gt 0) { Write-Output "submit_runs: $ahead local commit(s) in $Board are not on origin yet - add -Push to push them" }
 	Stop-Submit ("nothing new to submit from $Runs" + $(if ($Model) { " for $Model" } else { "" })) 0
 }
 
@@ -121,20 +136,40 @@ function Undo-Copies {
 	if ($changed.Count -gt 0) { $null = Invoke-Git (@("checkout", "--") + @($changed | ForEach-Object { "runs/$_" })) }
 }
 
-# 3 - the public repository's own check.
+# 3 - the public repository's own check. It must fail closed: a missing uv is a
+# CommandNotFoundException that leaves $LASTEXITCODE at the last git's 0.
+$validCode = 1
+$validation = @()
+$hasUv = [bool](Get-Command uv -ErrorAction SilentlyContinue)
+$hasPython = [bool](Get-Command python -ErrorAction SilentlyContinue)
+if (-not $hasUv -and -not $hasPython) {
+	Undo-Copies
+	Stop-Submit "neither uv nor python is on PATH, so validate.py cannot run - nothing was committed" 1
+}
 Push-Location $Board
-$validation = & uv run --no-project python tools/validate.py --all 2>&1
-$validCode = $LASTEXITCODE
-Pop-Location
+try {
+	$global:LASTEXITCODE = 1
+	if ($hasUv) {
+		$validation = & uv run --no-project python tools/validate.py --all 2>&1
+	} else {
+		$validation = & python tools/validate.py --all 2>&1
+	}
+	$validCode = $LASTEXITCODE
+} catch {
+	$validation = @([string]$_)
+	$validCode = 1
+} finally {
+	Pop-Location
+}
 $validation | ForEach-Object { Write-Output "  $_" }
 if ($validCode -ne 0) {
 	Undo-Copies
-	Stop-Submit "validate.py refused the runs - nothing was committed" 1
+	Stop-Submit "validate.py refused the runs (or did not run) - nothing was committed" 1
 }
 
 # 4 - what would be committed.
 Write-Output ""
-Write-Output ("submit_runs: $($added.Count) new, $($changed.Count) changed run file(s)" + $(if ($skipped -gt 0) { ", $skipped file(s) with another name ignored" } else { "" }))
+Write-Output ("submit_runs: $($added.Count) new, $($changed.Count) changed run file(s)" + $(if ($skipped -gt 0) { ", $skipped file(s) with another name ignored" } else { "" }) + $(if ($ahead -gt 0) { "; $ahead local commit(s) not on origin yet" } else { "" }))
 (Invoke-Git @("status", "--short", "--", "runs")).Lines | ForEach-Object { Write-Output "  $_" }
 if (-not $Push) {
 	Undo-Copies
@@ -142,12 +177,55 @@ if (-not $Push) {
 	exit 0
 }
 
-$models = @($names | ForEach-Object { Get-Head (Join-Path $Board ("runs\" + $_)) "model" } | Sort-Object -Unique)
-$message = "runs: $($names.Count) run(s) of " + ($models -join ", ")
-$null = Invoke-Git (@("add", "--") + @($names | ForEach-Object { "runs/$_" }))
-$commit = Invoke-Git @("commit", "-q", "-m", $message)
-if ($commit.Code -ne 0) { $commit.Lines | ForEach-Object { Write-Output "  $_" }; Stop-Submit "the commit failed" 1 }
+if ($names.Count -gt 0) {
+	$models = @($names | ForEach-Object { Get-Head (Join-Path $Board ("runs\" + $_)) "model" } | Sort-Object -Unique)
+	$message = "runs: $($names.Count) run(s) of " + ($models -join ", ")
+	$null = Invoke-Git (@("add", "--") + @($names | ForEach-Object { "runs/$_" }))
+	$commit = Invoke-Git @("commit", "-q", "-m", $message)
+	if ($commit.Code -ne 0) { $commit.Lines | ForEach-Object { Write-Output "  $_" }; Stop-Submit "the commit failed" 1 }
+}
 
+function Invoke-Verification {
+	# The workflow's work on this machine: bot rows, the verifier, one commit of its records
+	# and the rebuilt board. Prints with Write-Host (the return value is the problem, "" when
+	# none). The Godot processes get a scratch APPDATA of their own (nothing of the user's
+	# profile is touched); this window's is put back afterwards.
+	$savedAppData = $env:APPDATA
+	$env:APPDATA = Join-Path $env:TEMP "doomsday-verify-appdata"
+	New-Item -ItemType Directory -Force -Path $env:APPDATA | Out-Null
+	$messageFile = Join-Path $env:APPDATA "verify-message.txt"
+	try {
+		if (-not $SkipBots) {
+			Write-Host "submit_runs: the bot reference rows (only those missing on this content) ..."
+			$bots = Invoke-BenchGodot $script:godotExe @("-s", "tools/bench/bench_run.gd", "--", "--bots",
+				"--suite=standard", "--out=$script:boardPath", "--if-missing", "--no-rebuild")
+			if ($bots.Code -ne 0) {
+				$script:problemCode = $bots.Code
+				return "the bot rows failed (exit $($bots.Code)) - nothing pushed; any runs commit is local only"
+			}
+		}
+		Write-Host "submit_runs: verifying ..."
+		$verify = Invoke-BenchGodot $script:godotExe @("-s", "tools/bench/verify_runs.gd", "--",
+			"--board=$script:boardPath", "--game-commit=$script:gameCommit", "--message=$messageFile")
+		$verify.Lines | Where-Object { $_ -match "^verify: " } | ForEach-Object { Write-Host "  $_" }
+		if ($verify.Code -ne 0) {
+			$script:problemCode = $verify.Code
+			return "the verifier failed (exit $($verify.Code)) - nothing pushed; any runs commit is local only"
+		}
+		$null = Invoke-Git @("add", "-A", "--", "runs", "verified", "leaderboard.json", "LEADERBOARD.md")
+		$staged = Invoke-Git @("diff", "--cached", "--name-only")
+		if (($staged.Lines -join "").Trim()) {
+			$published = Invoke-Git @("commit", "-q", "-F", $messageFile)
+			if ($published.Code -ne 0) { $script:problemCode = 1; return "the verification commit failed" }
+		}
+		return ""
+	} finally {
+		$env:APPDATA = $savedAppData
+	}
+}
+
+$problemCode = 1
+$afterRebase = $null
 if ($VerifyLocally) {
 	$godotExe = Resolve-BenchGodot $Godot
 	$gameCommit = (& git -C $root rev-parse HEAD 2>$null | Select-Object -First 1)
@@ -159,59 +237,15 @@ if ($VerifyLocally) {
 		Write-Output "submit_runs: warning - data/ has uncommitted changes; runs are judged against them"
 	}
 	$boardPath = (Resolve-Path $Board).Path
-	# The Godot processes get a scratch APPDATA of their own (nothing of the
-	# user's profile is touched); this window's is put back afterwards.
-	$savedAppData = $env:APPDATA
-	$env:APPDATA = Join-Path $env:TEMP "doomsday-verify-appdata"
-	New-Item -ItemType Directory -Force -Path $env:APPDATA | Out-Null
-	$messageFile = Join-Path $env:APPDATA "verify-message.txt"
-	$problem = ""
-	$problemCode = 0
-	try {
-		if (-not $SkipBots) {
-			Write-Output "submit_runs: the bot reference rows (only those missing on this content) ..."
-			$bots = Invoke-BenchGodot $godotExe @("-s", "tools/bench/bench_run.gd", "--", "--bots",
-				"--suite=standard", "--out=$boardPath", "--if-missing", "--no-rebuild")
-			if ($bots.Code -ne 0) {
-				$problem = "the bot rows failed (exit $($bots.Code)) - nothing pushed; the runs commit is local only"
-				$problemCode = $bots.Code
-			}
-		}
-		if (-not $problem) {
-			Write-Output "submit_runs: verifying ..."
-			$verify = Invoke-BenchGodot $godotExe @("-s", "tools/bench/verify_runs.gd", "--",
-				"--board=$boardPath", "--game-commit=$gameCommit", "--message=$messageFile")
-			$verify.Lines | Where-Object { $_ -match "^verify: " } | ForEach-Object { Write-Output "  $_" }
-			if ($verify.Code -ne 0) {
-				$problem = "the verifier failed (exit $($verify.Code)) - nothing pushed; the runs commit is local only"
-				$problemCode = $verify.Code
-			}
-		}
-		if (-not $problem) {
-			$null = Invoke-Git @("add", "-A", "--", "runs", "verified", "leaderboard.json", "LEADERBOARD.md")
-			$staged = Invoke-Git @("diff", "--cached", "--name-only")
-			if (($staged.Lines -join "").Trim()) {
-				$published = Invoke-Git @("commit", "-q", "-F", $messageFile)
-				if ($published.Code -ne 0) { $problem = "the verification commit failed"; $problemCode = 1 }
-			}
-		}
-	} finally {
-		$env:APPDATA = $savedAppData
-	}
+	$problem = Invoke-Verification
 	if ($problem) { Stop-Submit $problem $problemCode }
+	# A board built before someone else's push is rebuilt on top of it before it is published.
+	$afterRebase = { Invoke-Verification }
 }
 
-$pushed = Invoke-Git @("push", "-q", "origin", "HEAD:main")
-if ($pushed.Code -ne 0) {
-	# Someone pushed meanwhile (a merged pull request, the workflow): once more on top of it.
-	$null = Invoke-Git @("pull", "-q", "--rebase", "origin", "main")
-	$pushed = Invoke-Git @("push", "-q", "origin", "HEAD:main")
-	if ($pushed.Code -ne 0) {
-		$pushed.Lines | ForEach-Object { Write-Output "  $_" }
-		Stop-Submit "the push was refused twice - the commits are local in $Board" 1
-	}
-}
-Write-Output "submit_runs: pushed $($names.Count) run(s) to the leaderboard's main"
+$published = Publish-BenchBoard $Board $afterRebase
+if ($published.Code -ne 0) { Stop-Submit $published.Message 1 }
+Write-Output ("submit_runs: pushed " + $(if ($names.Count -gt 0) { "$($names.Count) run(s)" } else { "the local commits" }) + " to the leaderboard's main")
 
 if ($VerifyLocally) {
 	Write-Output "submit_runs: verified and published from this machine; players see it the next time they open the list"

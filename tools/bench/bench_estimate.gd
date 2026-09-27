@@ -26,11 +26,15 @@ const FIELD_COMPLETION_PRICE: String = "completion_price"
 const FIELD_PROMPT: String = "prompt"
 const FIELD_COMPLETION: String = "completion"
 ## `read_model`'s fields (§18.2): whether the list names the model, whether it
-## takes a reasoning parameter, the efforts it lists, whether it always reasons.
+## takes a reasoning parameter, the efforts it lists, whether it always reasons,
+## whether it reasons when nothing is sent (`mandatory` or `default_enabled`) and
+## at which effort then.
 const FIELD_LISTED: String = "listed"
 const FIELD_REASONING: String = "reasoning"
 const FIELD_EFFORTS: String = "efforts"
 const FIELD_MANDATORY: String = "mandatory"
+const FIELD_DEFAULT_ON: String = "reasons_by_default"
+const FIELD_DEFAULT_EFFORT: String = "default_effort"
 const LIST_DATA: String = "data"
 const LIST_ID: String = "id"
 const LIST_PRICING: String = "pricing"
@@ -38,6 +42,8 @@ const LIST_SUPPORTED: String = "supported_parameters"
 const LIST_REASONING: String = "reasoning"
 const LIST_SUPPORTED_EFFORTS: String = "supported_efforts"
 const LIST_MANDATORY: String = "mandatory"
+const LIST_DEFAULT_ENABLED: String = "default_enabled"
+const LIST_DEFAULT_EFFORT: String = "default_effort"
 const USD_FORMAT: String = "%.2f"
 
 
@@ -87,7 +93,8 @@ static func read_prices(body: String, model: String) -> Dictionary:
 
 ## What the public list says about `model` (§18.2): {} when the body is not the
 ## list; `{"listed": false}` when the model is not in it; else `listed`,
-## `reasoning`, `efforts`, `mandatory` and — when both parse — the two prices.
+## `reasoning`, `efforts`, `mandatory`, `reasons_by_default`, `default_effort`
+## and — when both parse — the two prices.
 static func read_model(body: String, model: String) -> Dictionary:
 	var items: Array = list_items(body)
 	if items.is_empty() and not _is_list(body):
@@ -110,36 +117,58 @@ static func list_items(body: String) -> Array:
 ## One entry of the list read: prices only when both are number strings; a
 ## model takes reasoning when it names the parameter or carries a reasoning
 ## object (OpenRouter's reasoning-tokens guide: "non-reasoning models … omit the
-## `reasoning` field").
+## `reasoning` field"). It reasons by default when that object says `mandatory`
+## or `default_enabled` — then even a normal run, which sends no reasoning
+## parameter, thinks at its `default_effort` (§18.1).
 static func model_info(item: Dictionary) -> Dictionary:
 	var info: Dictionary = {FIELD_LISTED: true}
 	var pricing: Variant = item.get(LIST_PRICING)
 	if typeof(pricing) == TYPE_DICTIONARY:
 		var prompt: Variant = (pricing as Dictionary).get(FIELD_PROMPT)
 		var completion: Variant = (pricing as Dictionary).get(FIELD_COMPLETION)
-		if typeof(prompt) == TYPE_STRING and typeof(completion) == TYPE_STRING 				and str(prompt).is_valid_float() and str(completion).is_valid_float():
+		if typeof(prompt) == TYPE_STRING and typeof(completion) == TYPE_STRING \
+				and str(prompt).is_valid_float() and str(completion).is_valid_float():
 			info[FIELD_PROMPT] = str(prompt).to_float()
 			info[FIELD_COMPLETION] = str(completion).to_float()
 	var supported: Variant = item.get(LIST_SUPPORTED)
 	var reasoning: Variant = item.get(LIST_REASONING)
 	var efforts: Array[String] = []
 	var mandatory: bool = false
+	var by_default: bool = false
+	var default_effort: String = ""
 	if typeof(reasoning) == TYPE_DICTIONARY:
-		var listed: Variant = (reasoning as Dictionary).get(LIST_SUPPORTED_EFFORTS)
+		var object: Dictionary = reasoning
+		var listed: Variant = object.get(LIST_SUPPORTED_EFFORTS)
 		if typeof(listed) == TYPE_ARRAY:
 			for value: Variant in listed:
 				if typeof(value) == TYPE_STRING:
 					efforts.append(str(value))
-		mandatory = (reasoning as Dictionary).get(LIST_MANDATORY) == true
-	info[FIELD_REASONING] = typeof(reasoning) == TYPE_DICTIONARY 		or (typeof(supported) == TYPE_ARRAY and (supported as Array).has(LIST_REASONING))
+		mandatory = object.get(LIST_MANDATORY) == true
+		by_default = mandatory or object.get(LIST_DEFAULT_ENABLED) == true
+		if typeof(object.get(LIST_DEFAULT_EFFORT)) == TYPE_STRING \
+				and BenchEffort.rank(str(object[LIST_DEFAULT_EFFORT])) >= 0:
+			default_effort = str(object[LIST_DEFAULT_EFFORT])
+	info[FIELD_REASONING] = typeof(reasoning) == TYPE_DICTIONARY \
+		or (typeof(supported) == TYPE_ARRAY and (supported as Array).has(LIST_REASONING))
 	info[FIELD_EFFORTS] = efforts
 	info[FIELD_MANDATORY] = mandatory
+	info[FIELD_DEFAULT_ON] = by_default
+	info[FIELD_DEFAULT_EFFORT] = default_effort
 	return info
+
+
+## The effort a level must not go below for this model (`BenchEffort.reasoning_for`'s
+## `floor`): its default effort when it reasons by default, else "".
+static func effort_floor(info: Dictionary) -> String:
+	if not bool(info.get(FIELD_DEFAULT_ON, false)):
+		return ""
+	return str(info.get(FIELD_DEFAULT_EFFORT, ""))
 
 
 static func _is_list(body: String) -> bool:
 	var json: JSON = JSON.new()
-	return json.parse(body) == OK and typeof(json.data) == TYPE_DICTIONARY 		and typeof((json.data as Dictionary).get(LIST_DATA)) == TYPE_ARRAY
+	return json.parse(body) == OK and typeof(json.data) == TYPE_DICTIONARY \
+		and typeof((json.data as Dictionary).get(LIST_DATA)) == TYPE_ARRAY
 
 
 ## The public price list, asked once without the key (§11.5 step 2). {} for any

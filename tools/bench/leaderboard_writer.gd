@@ -209,12 +209,17 @@ static func _model_cell(row: Dictionary) -> String:
 
 
 ## §18: the row's effort in English (the page is English), a `--reasoning` run's
-## raw value, or the dash for a bot, a decision model and an old board's row.
+## raw value as "reasoning low" (never mistaken for a level), or the dash for a
+## bot, a decision model and an old board's row.
 static func _effort_cell(row: Dictionary) -> String:
 	var effort: String = str(row.get(BenchEffort.PARAM, ""))
 	if effort.is_empty():
 		return NONE_MARK
-	return _cell(effort.capitalize() if BenchEffort.is_level(effort) else effort)
+	if BenchEffort.is_level(effort):
+		return _cell(effort.capitalize())
+	if BenchEffort.is_raw(effort):
+		return _cell("%s %s" % [BenchEffort.PARAM_REASONING, BenchEffort.raw_value(effort)])
+	return _cell(effort)
 
 
 static func _params_cell(params: Variant) -> String:

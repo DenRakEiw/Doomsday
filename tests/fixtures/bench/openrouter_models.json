@@ -48,7 +48,8 @@
 					"low",
 					"none"
 				],
-				"default_effort": "medium"
+				"default_effort": "medium",
+				"default_enabled": false
 			}
 		},
 		{
@@ -208,6 +209,56 @@
 				"seed"
 			],
 			"default_parameters": {}
+		},
+		{
+			"id": "fixture/deep",
+			"canonical_slug": "fixture/deep",
+			"name": "Fixture: Deep",
+			"created": 1790000000,
+			"description": "Fixture: reasons by default, at a default effort above high.",
+			"context_length": 128000,
+			"architecture": {
+				"modality": "text->text",
+				"input_modalities": [
+					"text"
+				],
+				"output_modalities": [
+					"text"
+				],
+				"tokenizer": "Other",
+				"instruct_type": null
+			},
+			"pricing": {
+				"prompt": "0.000002",
+				"completion": "0.000008"
+			},
+			"top_provider": {
+				"context_length": 128000,
+				"max_completion_tokens": 32000,
+				"is_moderated": false
+			},
+			"per_request_limits": null,
+			"supported_parameters": [
+				"max_tokens",
+				"temperature",
+				"top_p",
+				"response_format",
+				"seed",
+				"reasoning",
+				"include_reasoning"
+			],
+			"default_parameters": {},
+			"reasoning": {
+				"mandatory": false,
+				"default_enabled": true,
+				"supported_efforts": [
+					"xhigh",
+					"high",
+					"medium",
+					"low"
+				],
+				"default_effort": "xhigh"
+			}
 		},
 		{
 			"name": "no id here"

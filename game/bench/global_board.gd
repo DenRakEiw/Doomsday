@@ -132,9 +132,11 @@ func _read_row(value: Variant) -> void:
 	row.of = int(d["of"])
 	row.wins = int(d["wins"])
 	row.score = float(d["score"])
-	# §18: optional; anything but a level or a short lower-case word is shown as
-	# the dash, never dropped — the row itself is sound.
-	if typeof(d.get(BenchEffort.PARAM)) == TYPE_STRING 			and BenchEffort.label_is_safe(str(d[BenchEffort.PARAM])):
+	# §18: optional; anything but a level, a marked raw value (`reasoning-low`) or
+	# a short lower-case word is shown as the dash, never dropped — the row itself
+	# is sound.
+	if typeof(d.get(BenchEffort.PARAM)) == TYPE_STRING \
+			and BenchEffort.label_is_safe(str(d[BenchEffort.PARAM])):
 		row.effort = str(d[BenchEffort.PARAM])
 	if typeof(d.get("seeds")) == TYPE_ARRAY:
 		for seed_value: Variant in d["seeds"]:
