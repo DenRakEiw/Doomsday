@@ -1,11 +1,13 @@
 """Serves a folder on this machine only (docs/specs/web.md §13.2, §17.2).
 
-    uv run --project tools/web python tools/web/serve.py [--dir build/web] [--port 8765]
+    uv run --project tools/web python tools/web/serve.py [--dir build/web] [--port 8765] [--no-cache]
 
 Python's own file server, bound to 127.0.0.1 (never another interface), with
 the MIME types a Godot web export needs and no caching headers of its own, so a
 browser caches as it would on a plain static host. `web_check.py` and
-`web_perf.py` start it in a thread through `start()`.
+`web_perf.py` start it in a thread through `start()`. `--no-cache` sends
+`Cache-Control: no-store` for playing a fresh export by hand: without it a
+browser may keep an older `index.pck` by heuristic freshness.
 """
 
 from __future__ import annotations
@@ -34,6 +36,12 @@ MIME_TYPES = {
 
 class _Handler(http.server.SimpleHTTPRequestHandler):
     extensions_map = {**http.server.SimpleHTTPRequestHandler.extensions_map, **MIME_TYPES}
+    no_cache = False
+
+    def end_headers(self) -> None:
+        if self.no_cache:
+            self.send_header("Cache-Control", "no-store")
+        super().end_headers()
 
     def log_message(self, format: str, *args: object) -> None:  # noqa: A002 - the base's name
         pass
@@ -56,12 +64,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--dir", type=Path, default=ROOT / "build" / "web")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
+    parser.add_argument("--no-cache", action="store_true", help="send Cache-Control: no-store")
     args = parser.parse_args()
     directory: Path = args.dir.resolve()
     if not (directory / "index.html").is_file():
         print(f"serve: no index.html in {directory} — export the Web preset first")
         return 1
-    handler = functools.partial(_Handler, directory=str(directory))
+    handler_class = type("_NoCacheHandler", (_Handler,), {"no_cache": True}) if args.no_cache else _Handler
+    handler = functools.partial(handler_class, directory=str(directory))
     with _Server((HOST, args.port), handler) as server:
         print(f"serve: http://{HOST}:{args.port}/ ({directory}) — Ctrl+C stops")
         try:
