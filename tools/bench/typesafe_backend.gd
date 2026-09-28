@@ -48,6 +48,8 @@ const HEADER_RETRY_AFTER_MS: String = "retry-after-ms"
 const BODY_MESSAGE: String = "message"
 const BODY_DETAIL: String = "detail"
 const BODY_ERROR: String = "error"
+## OpenRouter's charge for the call, in USD, under `usage`.
+const USAGE_COST: String = "cost"
 
 ## The invocation's spend so far; the cap is checked against it before each request.
 var spent_usd: float = 0.0
@@ -148,8 +150,9 @@ func cap_reason() -> String:
 
 
 ## A 200's body read; null when it is not a JSON object (the caller treats that
-## as a 502). The cost is the published price times the tokens — the service
-## reports none, and output tokens are free today.
+## as a 502). The cost is the published price times the tokens — TypeSafe
+## reports none, and output tokens are free today — or, through OpenRouter,
+## `usage.cost` as charged.
 func read_reply(text: String) -> ModelReply:
 	var json: JSON = JSON.new()
 	if json.parse(text) != OK or typeof(json.data) != TYPE_DICTIONARY:
@@ -164,6 +167,10 @@ func read_reply(text: String) -> ModelReply:
 	reply.tokens_out = _whole(usage.get(BenchChoice.FIELD_OUTPUT_TOKENS))
 	reply.cost_usd = float(reply.tokens_in) * price_input / TOKENS_PER_MTOK \
 		+ float(reply.tokens_out) * price_output / TOKENS_PER_MTOK
+	# Through OpenRouter the charge itself comes back; it wins over the estimate.
+	var charged: Variant = usage.get(USAGE_COST)
+	if typeof(charged) == TYPE_FLOAT or typeof(charged) == TYPE_INT:
+		reply.cost_usd = maxf(float(charged), 0.0)
 	return reply
 
 

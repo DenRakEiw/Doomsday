@@ -65,6 +65,16 @@ func test_a_200_reads_the_body_the_tokens_the_version_and_the_cost() -> void:
 	assert_eq(reply.text, "", "a decision model writes no text")
 
 
+func test_a_charge_reported_through_openrouter_wins_over_the_estimate() -> void:
+	var reply: ModelReply = _backend().read_reply(JSON.stringify({"answers": {},
+		"usage": {"input_tokens": 20000, "output_tokens": 50, "cost": 0.0021}}))
+	assert_almost_eq(reply.cost_usd, 0.0021, 0.0000000001)
+	var odd: ModelReply = _backend().read_reply(JSON.stringify({"answers": {},
+		"usage": {"input_tokens": 20000, "cost": "free"}}))
+	assert_almost_eq(odd.cost_usd, 20000.0 * 0.042 / 1000000.0, 0.0000000001,
+		"a charge that is not a number leaves the estimate")
+
+
 func test_missing_usage_reads_as_nothing() -> void:
 	var reply: ModelReply = _backend().read_reply("{\"answers\": {}}")
 	assert_eq(reply.tokens_in, 0)

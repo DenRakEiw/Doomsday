@@ -2030,6 +2030,12 @@ cache, which serves the recorded answer to the same request.
   `--locale=de` runs (unranked, as for chat models); TypeSafe names English its primary language.
 - **Key:** `TYPESAFE_API_KEY` unset → `benchmark: set TYPESAFE_API_KEY in the environment`,
   exit 1 (not for `--dry-run`, not for a mock).
+- **Through OpenRouter** (added 2026-09-28, user request): OpenRouter serves the same endpoint
+  (`https://openrouter.ai/api/v1/systemone`, ids `typesafe/jev-1.13`, `~typesafe/jev-latest`).
+  `--via-openrouter` takes `base_url` and `key_env` from the chat side (`OPENROUTER_API_KEY`) and
+  sends the model id whole instead of after its prefix; the row's model is the same id.
+  OpenRouter reports the charge as `usage.cost`, which then replaces the price-table cost. With
+  a chat model id → exit 1.
 - **`--dry-run`:** prints `rules` and `situation` with `≈<tokens>` each (§11.1 step 3), then the
   day-0 request as JSON (`BenchChoicePlan.body`, tab-indented — its two questions, `stance` and
   `origin`), then `benchmark: state ≈<s> + longest question ≈<q> = ≈<s+q> tokens (limit 32000);

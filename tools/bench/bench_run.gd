@@ -10,7 +10,8 @@ extends SceneTree
 ##         [--temperature=<f>] [--max-tokens=<n>] [--json-mode=true|false]
 ##         [--effort=normal|high|ultra [--effort-reasoning=<effort>]
 ##             | --reasoning=low|medium|high] [--top-p=<f>]
-##         [--base-url=<url>] [--key-env=<VAR>] [--max-cost=<usd>] [--max-requests=<n>] [--yes]
+##         [--base-url=<url>] [--key-env=<VAR>] [--via-openrouter] [--max-cost=<usd>]
+##         [--max-requests=<n>] [--yes]
 ##         [--out=<dir=res://benchmark>] [--cache=<dir=res://benchmark/cache>] [--fresh]
 ##         [--data=<root=res://data>] [--dry-run] [--no-rebuild]
 ##     … -- --bots [--suite=…] [--seeds=a..b] [--out=<dir>] [--if-missing] [--no-rebuild]
@@ -21,6 +22,9 @@ extends SceneTree
 ## backend, one request of choice questions per decision, the chat-only flags
 ## refused. The key comes from the environment only (`OPENROUTER_API_KEY` or
 ## `TYPESAFE_API_KEY`, or the variable `--key-env` names) and is never printed.
+## `--via-openrouter` asks a decision model through OpenRouter's copy of the same
+## endpoint instead: OpenRouter's address and key, and the id sent whole
+## (`typesafe/jev-1.13`), as OpenRouter names it.
 ## Before the first request the tool prints what the invocation will likely cost
 ## and stops when that is above the cap, unless `--yes` (§11.5, §17.9).
 ##
@@ -87,6 +91,7 @@ const PARAM_TOP_P: String = "top_p"
 const NO_TOP_P: float = -1.0
 const ARG_TRUE: String = "true"
 const ARG_FALSE: String = "false"
+const ARG_VIA_OPENROUTER: String = "via-openrouter"
 
 
 ## Not `_init`: TLS is ready only once the main loop starts, and the price list
@@ -443,8 +448,14 @@ static func _models(args: Dictionary[String, String], db: ContentDB, config: Ben
 	if not LOCALES.has(locale):
 		print("benchmark: --locale is en or de")
 		return EXIT_BAD_INPUT
+	# OpenRouter serves TypeSafe's endpoint under its own address and key.
+	var via_openrouter: bool = typesafe and args.has(ARG_VIA_OPENROUTER)
+	if args.has(ARG_VIA_OPENROUTER) and not typesafe:
+		print("benchmark: --%s is for a decision model (%s<model>)"
+			% [ARG_VIA_OPENROUTER, config.typesafe_model_prefix])
+		return EXIT_BAD_INPUT
 	var base_url: String = args.get("base-url",
-		config.typesafe_base_url if typesafe else config.base_url)
+		config.typesafe_base_url if typesafe and not via_openrouter else config.base_url)
 	if not mock and Backend.parse_base_url(base_url).is_empty():
 		print("benchmark: --base-url is not an https URL (or http to this machine)")
 		return EXIT_BAD_INPUT
@@ -459,16 +470,17 @@ static func _models(args: Dictionary[String, String], db: ContentDB, config: Ben
 		return EXIT_BAD_INPUT
 	var dry_run: bool = args.has("dry-run")
 	var key_env: String = args.get("key-env",
-		config.typesafe_key_env if typesafe else config.key_env)
+		config.typesafe_key_env if typesafe and not via_openrouter else config.key_env)
 	var key: String = ""
 	if not mock and not dry_run:
 		key = OS.get_environment(key_env)
 		if key.is_empty():
 			print("benchmark: set %s in the environment" % key_env)
 			return EXIT_BAD_INPUT
-	# What is sent as `model`: a decision model's id after its prefix (§17.7).
-	var sent_model: String = model.trim_prefix(config.typesafe_model_prefix) if typesafe \
-		else model
+	# What is sent as `model`: a decision model's id after its prefix (§17.7) —
+	# TypeSafe's own name — or whole, OpenRouter's.
+	var sent_model: String = model.trim_prefix(config.typesafe_model_prefix) \
+		if typesafe and not via_openrouter else model
 	var estimate: Dictionary = {}
 	if choosing:
 		var request: Dictionary = measure_choice(db, config, setup, seeds[0], locale, sent_model)
