@@ -355,6 +355,21 @@ func test_the_quick_suite_comes_before_the_standard_suite() -> void:
 	assert_true((modal.get(&"_standard_title") as Control).visible)
 
 
+func test_rows_are_ranked_best_score_first_an_incomplete_one_too() -> void:
+	Settings.bench_online = false
+	var d: Dictionary = JSON.parse_string(_quick_board_text(true))
+	var current: String = Game.content().content_hash
+	var rows: Array = d["rows"]
+	rows.push_front({"model": "vendor/weaker", "suite": "quick", "content_hash": current,
+		"complete": true, "runs": 3, "of": 3, "wins": 1, "score": 22.1, "seeds": []})
+	var modal: Control = _modal(JSON.stringify(d))
+	modal.call(&"open")
+	var texts: Array[String] = _texts(modal.find_child("QuickRows", true, false))
+	assert_has(texts, _rank_text(1, 39.2, 0, 1), "the incomplete row scores best")
+	assert_has(texts, _rank_text(2, 22.1, 1, 3))
+	assert_lt(texts.find(QUICK_MODEL), texts.find("vendor/weaker"))
+
+
 func test_runs_open_and_a_listed_run_is_watched() -> void:
 	Settings.bench_online = true
 	var modal: Control = _modal("", _board_text())

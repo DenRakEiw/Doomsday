@@ -6,6 +6,7 @@ extends Control
 ## *Built-in bots*. Each shows its rows of the quick suite first — the suite
 ## every model plays — then of the standard suite, each ranked on its own, since
 ## the two scores do not compare (S6.12e); then its rows of other versions.
+## Within a section the best score comes first (2026-09-28, user).
 ## Every run with a *Watch* button replays in the session. Every row says the
 ## model's effort level (§18); bots and decision models show the dash.
 ##
@@ -309,7 +310,7 @@ func _render_board() -> void:
 	var content_hash: String = _content_hash()
 	var bots: bool = tab == TAB_BOTS
 	if _board != null:
-		for row: GlobalBoardRow in _board.rows:
+		for row: GlobalBoardRow in _by_score(_board.rows):
 			if row.is_bot() != bots:
 				continue
 			if row.content_hash != content_hash:
@@ -335,6 +336,22 @@ func _render_board() -> void:
 	_standard_title.visible = current > 0
 	_other_title.visible = other + other_quick > 0
 	_apply_compact()
+
+
+## Best score first (2026-09-28, user) — an incomplete row too, which the file
+## (§10.3) puts after the complete ones; ties keep the file's order.
+static func _by_score(rows: Array[GlobalBoardRow]) -> Array[GlobalBoardRow]:
+	var order: Array[int] = []
+	for i: int in rows.size():
+		order.append(i)
+	order.sort_custom(func(a: int, b: int) -> bool:
+		if rows[a].score != rows[b].score:
+			return rows[a].score > rows[b].score
+		return a < b)
+	var out: Array[GlobalBoardRow] = []
+	for i: int in order:
+		out.append(rows[i])
+	return out
 
 
 ## Shows the board's `id` tab (`TAB_MODELS` or `TAB_BOTS`).

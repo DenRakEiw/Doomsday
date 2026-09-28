@@ -231,6 +231,10 @@ it and take the next row (IMPLEMENTATION §4).*
 Dated, one line each, with the reason. A decision recorded here is not re-argued in a later session
 without new information.
 
+- **2026-09-28** (user) — **The benchmark list: best score on top, a satirical voice.** Within each
+  section the list sorts by score, an incomplete row too (the file's §10.3 order puts it last); the
+  heading reads *Doomsday Benchmark*, the list's intro, notes, status and row lines joke (ten
+  `UI_BENCH_*` rows, en/de). The title's button stays *Benchmark*.
 - **2026-09-28** (user) — **AI models get their own leaderboard; the quick suite is theirs.** The
   in-game list has two tabs, *AI models* and *Built-in bots*, the quick suite first in each. AI
   models play the quick suite (3 seeds): one seed is a coin toss (a run scores ≈80 or 0), ten cost
