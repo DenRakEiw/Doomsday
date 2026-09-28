@@ -1371,7 +1371,7 @@ remove, the credential visible under *Generische Anmeldeinformationen*), the std
 exported Windows executable (else §19.4's fallback). Tests: §19.12's S6.12f list. **No live model
 call, no real key.**
 **Done when:** `tools/test.sh` green, CI green; `bench_run.gd` and `run_models.ps1 -Mock` behave as
-before; a mock job from the exported Windows build runs three workers and writes its entries.
+before; a mock job from the exported Windows build runs three workers and writes its entries. *Done 2026-09-28 (PROGRESS: Deviations S6.12f).*
 
 ### S6.12g — Own benchmark II: settings, key dialog, picker, progress, *Submit* **[O]** · **Read first:** `benchmark.md` §19 (all), §12.7, §16.6, §18.4, then `ui/modals/benchmark.gd`, `ui/modals/pause_menu.gd`
 Build §19.6–§19.9: the key row in the settings (desktop only), the key dialog `ui/modals/bench_key`

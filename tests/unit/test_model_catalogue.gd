@@ -4,8 +4,6 @@ extends GutTest
 ## effort level, and the arguments of `model_list.gd`. Nothing is asked of any
 ## service.
 
-const Catalogue := preload("res://tools/bench/model_catalogue.gd")
-const Estimate := preload("res://tools/bench/bench_estimate.gd")
 const List := preload("res://tools/bench/model_list.gd")
 const FIXTURE: String = "res://tests/fixtures/bench/openrouter_models.json"
 ## The §11.5 worked example's measure: brief 10 000 tokens, day-0 digest 2 000.
@@ -20,7 +18,7 @@ var _rows: Array[Dictionary] = []
 
 func before_each() -> void:
 	_config = BenchConfig.load_file()
-	_rows = Catalogue.parse(FileAccess.get_file_as_string(FIXTURE))
+	_rows = ModelCatalogue.parse(FileAccess.get_file_as_string(FIXTURE))
 
 
 func _row(id: String) -> Dictionary:
@@ -58,12 +56,12 @@ func test_free_models_are_marked_and_a_broken_price_is_unknown() -> void:
 	assert_true(_row("fixture/steady:free")["free"])
 	assert_false(_row("fixture/steady")["free"])
 	assert_eq(float(_row("fixture/broken-price")["prompt"]), -1.0)
-	assert_eq(Catalogue.per_million(float(_row("fixture/thinker")["completion"])), "4.00")
-	assert_eq(Catalogue.per_million(-1.0), "—")
+	assert_eq(ModelCatalogue.per_million(float(_row("fixture/thinker")["completion"])), "4.00")
+	assert_eq(ModelCatalogue.per_million(-1.0), "—")
 
 
 func test_the_normal_estimate_is_the_worked_example() -> void:
-	var figures: Dictionary = Catalogue.estimate(_row("fixture/thinker"), BRIEF, DIGEST, 10,
+	var figures: Dictionary = ModelCatalogue.estimate(_row("fixture/thinker"), BRIEF, DIGEST, 10,
 		BenchEffort.NORMAL, _config)
 	assert_almost_eq(float(figures["likely"]), 11.36, 0.001)
 	assert_almost_eq(float(figures["at_most"]), 44.5, 0.001)
@@ -71,29 +69,29 @@ func test_the_normal_estimate_is_the_worked_example() -> void:
 
 func test_a_level_above_normal_costs_its_output_and_its_limit() -> void:
 	# Per call: 13 000 input at 1 USD/M + 3 000 (high) or 8 000 (ultra) output at 4 USD/M.
-	var high: Dictionary = Catalogue.estimate(_row("fixture/thinker"), BRIEF, DIGEST, 10,
+	var high: Dictionary = ModelCatalogue.estimate(_row("fixture/thinker"), BRIEF, DIGEST, 10,
 		BenchEffort.HIGH, _config)
 	assert_almost_eq(float(high["likely"]), 10 * 80 * (0.013 + 0.012), 0.001)
 	assert_almost_eq(float(high["at_most"]), 10 * 250 * (0.013 + 0.064), 0.001)
-	var ultra: Dictionary = Catalogue.estimate(_row("fixture/thinker"), BRIEF, DIGEST, 10,
+	var ultra: Dictionary = ModelCatalogue.estimate(_row("fixture/thinker"), BRIEF, DIGEST, 10,
 		BenchEffort.ULTRA, _config)
 	assert_almost_eq(float(ultra["likely"]), 10 * 80 * (0.013 + 0.032), 0.001)
 
 
 func test_a_model_that_cannot_reason_has_no_estimate_above_normal() -> void:
-	assert_eq(Catalogue.estimate(_row("fixture/steady"), BRIEF, DIGEST, 10, BenchEffort.HIGH,
+	assert_eq(ModelCatalogue.estimate(_row("fixture/steady"), BRIEF, DIGEST, 10, BenchEffort.HIGH,
 		_config), {})
-	assert_eq(Catalogue.likely_text({}), "—")
-	assert_false(Catalogue.estimate(_row("fixture/steady"), BRIEF, DIGEST, 10,
+	assert_eq(ModelCatalogue.likely_text({}), "—")
+	assert_false(ModelCatalogue.estimate(_row("fixture/steady"), BRIEF, DIGEST, 10,
 		BenchEffort.NORMAL, _config).is_empty())
 
 
 func test_what_ultra_sends_follows_the_models_list() -> void:
-	assert_eq(Catalogue.reasoning_sent(_row("fixture/thinker"), BenchEffort.ULTRA, _config), "max")
-	assert_eq(Catalogue.reasoning_sent(_row("fixture/ponder"), BenchEffort.ULTRA, _config), "high")
-	assert_eq(Catalogue.reasoning_sent(_row("fixture/ponder"), BenchEffort.NORMAL, _config), "")
-	assert_eq(Catalogue.reasoning_text(_row("fixture/ponder")), "always, up to high")
-	assert_eq(Catalogue.reasoning_text(_row("fixture/steady")), "—")
+	assert_eq(ModelCatalogue.reasoning_sent(_row("fixture/thinker"), BenchEffort.ULTRA, _config), "max")
+	assert_eq(ModelCatalogue.reasoning_sent(_row("fixture/ponder"), BenchEffort.ULTRA, _config), "high")
+	assert_eq(ModelCatalogue.reasoning_sent(_row("fixture/ponder"), BenchEffort.NORMAL, _config), "")
+	assert_eq(ModelCatalogue.reasoning_text(_row("fixture/ponder")), "always, up to high")
+	assert_eq(ModelCatalogue.reasoning_text(_row("fixture/steady")), "—")
 
 
 func test_a_model_that_reasons_by_default_is_marked_and_raised_and_costed() -> void:
@@ -102,12 +100,12 @@ func test_a_model_that_reasons_by_default_is_marked_and_raised_and_costed() -> v
 	assert_eq(deep["default_effort"], "xhigh")
 	assert_false(_row("fixture/thinker")["reasons_by_default"])
 	assert_true(_row("fixture/ponder")["reasons_by_default"], "mandatory reasons by default")
-	assert_eq(Catalogue.reasoning_text(deep), "default, up to xhigh")
-	assert_eq(Catalogue.reasoning_sent(deep, BenchEffort.HIGH, _config), "xhigh",
+	assert_eq(ModelCatalogue.reasoning_text(deep), "default, up to xhigh")
+	assert_eq(ModelCatalogue.reasoning_sent(deep, BenchEffort.HIGH, _config), "xhigh",
 		"high never sends less than the model's default")
-	assert_eq(Catalogue.reasoning_sent(deep, BenchEffort.ULTRA, _config), "xhigh")
+	assert_eq(ModelCatalogue.reasoning_sent(deep, BenchEffort.ULTRA, _config), "xhigh")
 	# At normal it reasons until its limit: 13 000 input at 2 USD/M + 1 200 output at 8 USD/M.
-	var normal: Dictionary = Catalogue.estimate(deep, BRIEF, DIGEST, 10, BenchEffort.NORMAL,
+	var normal: Dictionary = ModelCatalogue.estimate(deep, BRIEF, DIGEST, 10, BenchEffort.NORMAL,
 		_config)
 	assert_almost_eq(float(normal["likely"]), 10 * 80 * (0.026 + 0.0096), 0.001)
 	var line: Dictionary = List.json_line(deep, _options({"effort": "high"}), _config, CHAT, CHOICE)
@@ -116,20 +114,20 @@ func test_a_model_that_reasons_by_default_is_marked_and_raised_and_costed() -> v
 
 
 func test_the_decision_model_is_priced_from_the_data() -> void:
-	var row: Dictionary = Catalogue.typesafe_row(_config)
+	var row: Dictionary = ModelCatalogue.typesafe_row(_config)
 	assert_eq(row["id"], "typesafe/jev-latest")
-	assert_eq(Catalogue.per_million(float(row["prompt"])), "0.04")
-	assert_true(Catalogue.estimate(row, BRIEF, DIGEST, 10, BenchEffort.HIGH, _config).is_empty())
+	assert_eq(ModelCatalogue.per_million(float(row["prompt"])), "0.04")
+	assert_true(ModelCatalogue.estimate(row, BRIEF, DIGEST, 10, BenchEffort.HIGH, _config).is_empty())
 	# §17.9's worked example: 10 000 + 2 000 × 1.5 + 1 500 = 14 500 a call.
-	var figures: Dictionary = Catalogue.estimate(row, BRIEF, DIGEST, 10, BenchEffort.NORMAL,
+	var figures: Dictionary = ModelCatalogue.estimate(row, BRIEF, DIGEST, 10, BenchEffort.NORMAL,
 		_config)
 	assert_almost_eq(float(figures["likely"]), 0.4872, 0.001)
 
 
 func test_the_search_and_the_filters() -> void:
-	assert_true(Catalogue.matches(_row("fixture/thinker"), "THINK"))
-	assert_true(Catalogue.matches(_row("fixture/thinker"), "Fixture: Th"))
-	assert_false(Catalogue.matches(_row("fixture/thinker"), "steady"))
+	assert_true(ModelCatalogue.matches(_row("fixture/thinker"), "THINK"))
+	assert_true(ModelCatalogue.matches(_row("fixture/thinker"), "Fixture: Th"))
+	assert_false(ModelCatalogue.matches(_row("fixture/thinker"), "steady"))
 	var free: Array[Dictionary] = List.select(_rows, _options({"free": "true"}), _config, CHAT,
 		CHOICE)
 	assert_eq(free.size(), 1)
@@ -158,7 +156,7 @@ func test_the_json_line_refuses_a_level_the_model_cannot_take() -> void:
 		"suite": "quick"})
 	var line: Dictionary = List.json_line(_row("fixture/steady"), options, _config, CHAT, CHOICE)
 	assert_string_contains(str(line["error"]), "takes no reasoning parameter")
-	var unknown: Dictionary = List.json_line(Catalogue.unlisted_row("nope/x"), options, _config,
+	var unknown: Dictionary = List.json_line(ModelCatalogue.unlisted_row("nope/x"), options, _config,
 		CHAT, CHOICE)
 	assert_eq(str(unknown["error"]), "", "an unlisted model is not refused")
 	assert_false(unknown["known"])
@@ -182,13 +180,13 @@ func test_the_arguments_are_checked() -> void:
 
 func test_the_estimate_reads_what_the_list_says_about_one_model() -> void:
 	var body: String = FileAccess.get_file_as_string(FIXTURE)
-	var thinker: Dictionary = Estimate.read_model(body, "fixture/thinker")
+	var thinker: Dictionary = BenchEstimate.read_model(body, "fixture/thinker")
 	assert_true(thinker["listed"])
 	assert_true(thinker["reasoning"])
 	assert_eq(thinker["efforts"][0], "max")
-	assert_eq(Estimate.read_model(body, "nope/x"), {"listed": false})
-	assert_eq(Estimate.read_model("not json", "fixture/thinker"), {})
-	assert_eq(Estimate.read_prices(body, "fixture/broken-price"), {})
+	assert_eq(BenchEstimate.read_model(body, "nope/x"), {"listed": false})
+	assert_eq(BenchEstimate.read_model("not json", "fixture/thinker"), {})
+	assert_eq(BenchEstimate.read_prices(body, "fixture/broken-price"), {})
 
 
 func test_the_table_has_a_column_per_level_and_marks_free_models() -> void:

@@ -1,30 +1,29 @@
+class_name TypeSafeBackend
 extends ModelBackend
 ## TypeSafe's decision model Jev (docs/specs/benchmark.md §17.8): one request of
 ## choice questions per decision, answered with ranked options, never text.
 ## The transport is the OpenRouter backend's `HTTPClient` loop, shared as its
-## static helpers; OpenRouter's own behaviour is unchanged. Never shipped:
-## `tools/*` is left out of every export.
+## static helpers; OpenRouter's own behaviour is unchanged. The game plays it only
+## through OpenRouter (§17.9 `--via-openrouter`, §19.3).
 ##
 ## The key is handed to the constructor and goes into one header. It is never
 ## printed, logged, cached or written, and no error string carries it.
 ##
-## A tool, so no `class_name`; `bench_run.gd` and the tests preload it.
-
-const Http := preload("res://tools/bench/open_router_backend.gd")
+## In `game/bench/` since S6.12f (§19.3); no autoload named.
 
 const ID: String = "typesafe"
 ## The fatal reasons (§17.8); the tool maps them to its exit codes. The shared
 ## ones are the OpenRouter backend's, so `exit_for` reads both alike.
-const FATAL_AUTH: String = Http.FATAL_AUTH
-const FATAL_CREDITS: String = Http.FATAL_CREDITS
-const FATAL_FORBIDDEN: String = Http.FATAL_FORBIDDEN
-const FATAL_BAD_REQUEST: String = Http.FATAL_BAD_REQUEST
-const FATAL_UNAVAILABLE: String = Http.FATAL_UNAVAILABLE
-const FATAL_COST_CAP: String = Http.FATAL_COST_CAP
-const FATAL_BAD_BASE_URL: String = Http.FATAL_BAD_BASE_URL
+const FATAL_AUTH: String = OpenRouterBackend.FATAL_AUTH
+const FATAL_CREDITS: String = OpenRouterBackend.FATAL_CREDITS
+const FATAL_FORBIDDEN: String = OpenRouterBackend.FATAL_FORBIDDEN
+const FATAL_BAD_REQUEST: String = OpenRouterBackend.FATAL_BAD_REQUEST
+const FATAL_UNAVAILABLE: String = OpenRouterBackend.FATAL_UNAVAILABLE
+const FATAL_COST_CAP: String = OpenRouterBackend.FATAL_COST_CAP
+const FATAL_BAD_BASE_URL: String = OpenRouterBackend.FATAL_BAD_BASE_URL
 const FATAL_REQUEST_CAP: String = "request_cap"
-const CLASS_OK: String = Http.CLASS_OK
-const CLASS_RETRY: String = Http.CLASS_RETRY
+const CLASS_OK: String = OpenRouterBackend.CLASS_OK
+const CLASS_RETRY: String = OpenRouterBackend.CLASS_RETRY
 const STATUS_OK: int = 200
 const STATUS_AUTH: int = 401
 const STATUS_CREDITS: int = 402
@@ -35,7 +34,7 @@ const STATUSES_BAD_REQUEST: Array[int] = [400, 404, 413, 422]
 ## 529 is TypeSafe's "overloaded".
 const STATUSES_RETRY: Array[int] = [408, 429, 500, 502, 503, 504, 529]
 const STATUS_BAD_GATEWAY: int = 502
-const STATUS_NONE: int = Http.STATUS_NONE
+const STATUS_NONE: int = OpenRouterBackend.STATUS_NONE
 const SERVER_ERROR_MIN: int = 500
 const ERROR_MAX: int = 200
 const MASK: String = "***"
@@ -75,7 +74,7 @@ func _init(p_model: String, p_key: String, base_url: String, config: BenchConfig
 		p_max_cost_usd: float, p_max_requests: int) -> void:
 	_model = p_model
 	_key = p_key
-	_base = Http.parse_base_url(base_url)
+	_base = OpenRouterBackend.parse_base_url(base_url)
 	_path = config.typesafe_path
 	_timeout_s = config.timeout_s
 	_retries = config.retries
@@ -106,7 +105,7 @@ func choose(plan: BenchChoicePlan, digest: BenchDigest, params: Dictionary) -> M
 		if not capped.is_empty():
 			return ModelReply.fatal(capped)
 		requests_sent += 1
-		var result: Dictionary = Http.request(_base, HTTPClient.METHOD_POST,
+		var result: Dictionary = OpenRouterBackend.request(_base, HTTPClient.METHOD_POST,
 			str(_base["prefix"]) + _path, headers, body, _timeout_s)
 		var status: int = int(result["status"])
 		var reply: ModelReply = null

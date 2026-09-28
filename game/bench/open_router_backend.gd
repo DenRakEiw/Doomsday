@@ -1,13 +1,14 @@
+class_name OpenRouterBackend
 extends ModelBackend
 ## A chat model behind an OpenAI-compatible endpoint — OpenRouter by default
 ## (docs/specs/benchmark.md §8.3). `HTTPClient`, polled in a loop: the headless
-## tool has nothing else to do while it waits. Never shipped: `tools/*` is left
-## out of every export, so the game itself never calls a model.
+## caller has nothing else to do while it waits: the tool, or the game's headless
+## benchmark worker (§19.4) — never the game's own process.
 ##
 ## The key is handed to the constructor and goes into one header. It is never
 ## printed, logged, cached or written, and no error string carries it.
 ##
-## A tool, so no `class_name`; `bench_run.gd` and the tests preload it.
+## In `game/bench/` since S6.12f (§19.3) so an export has it; no autoload named.
 
 const ID: String = "openrouter"
 const CHAT_PATH: String = "/chat/completions"

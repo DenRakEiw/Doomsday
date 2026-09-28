@@ -78,8 +78,10 @@ func test_each_missing_key_gives_a_reason() -> void:
 
 func test_each_ill_typed_key_gives_a_reason() -> void:
 	for path: String in _paths(_raw()):
-		var config: BenchConfig = BenchConfig.from_dict(_with(path, [1, 2]))
-		assert_false(config.ok(), path + " as a list is an error")
+		# The one key that is a list of numbers takes a text as its wrong type.
+		var wrong: Variant = "1, 2" if path == "player.cap_choices" else [1, 2]
+		var config: BenchConfig = BenchConfig.from_dict(_with(path, wrong))
+		assert_false(config.ok(), path + " as %s is an error" % type_string(typeof(wrong)))
 
 
 func test_a_suite_that_is_not_a_list_of_whole_numbers_is_an_error() -> void:
@@ -116,3 +118,31 @@ func test_a_pick_limit_below_one_is_an_error() -> void:
 	assert_false(BenchConfig.from_dict(_with("choice.max_options", 1)).ok())
 	assert_true(BenchConfig.from_dict(_with("typesafe.price_input_usd_per_mtok", -1.0)).ok(),
 		"a negative price is an unknown one, not an error")
+
+
+## S6.12f — §19.10: the player's own benchmark.
+func test_the_player_block_reads_as_written() -> void:
+	var config: BenchConfig = BenchConfig.load_file()
+	assert_eq(config.player_suite, BenchConfig.SUITE_QUICK)
+	assert_eq(config.player_workers_paid, 3)
+	assert_eq(config.player_workers_free, 1)
+	assert_eq(config.player_cap_choices, [0.5, 1.0, 2.0, 5.0, 10.0, 20.0] as Array[float])
+	assert_almost_eq(config.player_default_cap_usd, 2.0, 0.0001)
+	assert_almost_eq(config.player_poll_s, 1.0, 0.0001)
+	assert_eq(config.player_jobs_kept, 5)
+	assert_eq(config.player_models_max_age_s, 86400)
+	assert_eq(config.player_models_shown, 200)
+	assert_eq(config.player_keys_url, "https://openrouter.ai/settings/keys")
+	assert_true(config.player_submit_url.begins_with("https://github.com/"))
+
+
+func test_a_player_block_that_does_not_fit_gives_a_reason() -> void:
+	assert_false(BenchConfig.from_dict(_with("player.suite", "nope")).ok(), "an unknown suite")
+	assert_false(BenchConfig.from_dict(_with("player.cap_choices", [])).ok(), "no cap choice")
+	assert_false(BenchConfig.from_dict(_with("player.cap_choices", [1.0, 0.0])).ok(),
+		"a cap of nothing")
+	assert_false(BenchConfig.from_dict(_with("player.default_cap_usd", 3.0)).ok(),
+		"a default that is not a choice")
+	assert_false(BenchConfig.from_dict(_with("player.workers_paid", 0)).ok(), "no worker")
+	assert_false(BenchConfig.from_dict(_with("player.poll_s", 0.0)).ok(), "no poll")
+	assert_false(BenchConfig.from_dict(_without("player")).ok(), "no block")

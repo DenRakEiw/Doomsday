@@ -1,3 +1,4 @@
+class_name BenchEstimate
 extends RefCounted
 ## The pre-flight cost estimate (docs/specs/benchmark.md §11.5): before the first
 ## request of an invocation, what it will likely cost and what it could cost at
@@ -9,10 +10,7 @@ extends RefCounted
 ##
 ## A decision model's estimate (§17.9) asks nothing: its price is data.
 ##
-## A tool, so no `class_name`; `bench_run.gd` and the tests preload it.
-
-const Backend := preload("res://tools/bench/open_router_backend.gd")
-const TypeSafe := preload("res://tools/bench/typesafe_backend.gd")
+## In `game/bench/` since S6.12f (§19.3): the game's benchmark modal estimates too.
 
 ## The one host whose price list is asked for.
 const PRICE_HOST: String = "openrouter.ai"
@@ -185,12 +183,12 @@ static func fetch_model(base_url: String, model: String, config: BenchConfig) ->
 ## The body of the public model list — no key, one try; "" for any host but
 ## openrouter.ai and for any failure.
 static func fetch_list(base_url: String, config: BenchConfig) -> String:
-	var base: Dictionary = Backend.parse_base_url(base_url)
+	var base: Dictionary = OpenRouterBackend.parse_base_url(base_url)
 	if base.is_empty() or str(base["host"]) != PRICE_HOST:
 		return ""
-	var result: Dictionary = Backend.request(base, HTTPClient.METHOD_GET,
+	var result: Dictionary = OpenRouterBackend.request(base, HTTPClient.METHOD_GET,
 		str(base["prefix"]) + config.models_path, PackedStringArray(), "", config.timeout_s)
-	if int(result["status"]) != Backend.STATUS_OK:
+	if int(result["status"]) != OpenRouterBackend.STATUS_OK:
 		return ""
 	return str(result["body"])
 
@@ -204,13 +202,13 @@ static func choice_figures(rules_tokens: int, situation_tokens: int, runs: int,
 	var input: float = float(rules_tokens) + float(situation_tokens) * config.digest_growth \
 		+ float(config.typesafe_question_tokens)
 	var calls: int = runs * config.calls_per_run
-	var price: float = config.typesafe_price_input / TypeSafe.TOKENS_PER_MTOK
+	var price: float = config.typesafe_price_input / TypeSafeBackend.TOKENS_PER_MTOK
 	var out: Dictionary = {
 		FIELD_KNOWN: config.typesafe_price_input >= 0.0 and config.typesafe_price_output >= 0.0,
 		FIELD_CALLS: calls,
 		FIELD_INPUT_TOKENS: roundi(float(calls) * input),
 		FIELD_PROMPT_PRICE: price,
-		FIELD_COMPLETION_PRICE: config.typesafe_price_output / TypeSafe.TOKENS_PER_MTOK,
+		FIELD_COMPLETION_PRICE: config.typesafe_price_output / TypeSafeBackend.TOKENS_PER_MTOK,
 		FIELD_LIKELY: 0.0,
 		FIELD_AT_MOST: 0.0,
 	}

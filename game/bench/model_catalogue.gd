@@ -1,3 +1,4 @@
+class_name ModelCatalogue
 extends RefCounted
 ## The model catalogue (docs/specs/benchmark.md §18.4): OpenRouter's public model
 ## list read into rows — id, context, prices, whether and how a model reasons —
@@ -5,10 +6,7 @@ extends RefCounted
 ## pre-flight estimate's own rule (§11.5, §18.3). Pure: `model_list.gd` asks for
 ## the list and prints; the tests feed a fixture.
 ##
-## A tool, so no `class_name`; `model_list.gd` and the tests preload it.
-
-const Estimate := preload("res://tools/bench/bench_estimate.gd")
-const TypeSafe := preload("res://tools/bench/typesafe_backend.gd")
+## In `game/bench/` since S6.12f (§19.3): the game's model picker reads it too.
 
 const FREE_SUFFIX: String = ":free"
 const FIELD_ID: String = "id"
@@ -39,11 +37,11 @@ const NONE_MARK: String = "—"
 ## body is not the list.
 static func parse(body: String) -> Array[Dictionary]:
 	var rows: Array[Dictionary] = []
-	for item: Variant in Estimate.list_items(body):
+	for item: Variant in BenchEstimate.list_items(body):
 		if typeof(item) != TYPE_DICTIONARY:
 			continue
 		var d: Dictionary = item
-		if typeof(d.get(Estimate.LIST_ID)) != TYPE_STRING or str(d[Estimate.LIST_ID]).is_empty():
+		if typeof(d.get(BenchEstimate.LIST_ID)) != TYPE_STRING or str(d[BenchEstimate.LIST_ID]).is_empty():
 			continue
 		rows.append(row_of(d))
 	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
@@ -53,10 +51,10 @@ static func parse(body: String) -> Array[Dictionary]:
 
 ## One entry of the list as a row.
 static func row_of(item: Dictionary) -> Dictionary:
-	var info: Dictionary = Estimate.model_info(item)
-	var id: String = str(item[Estimate.LIST_ID])
-	var prompt: float = float(info.get(Estimate.FIELD_PROMPT, NO_PRICE))
-	var completion: float = float(info.get(Estimate.FIELD_COMPLETION, NO_PRICE))
+	var info: Dictionary = BenchEstimate.model_info(item)
+	var id: String = str(item[BenchEstimate.LIST_ID])
+	var prompt: float = float(info.get(BenchEstimate.FIELD_PROMPT, NO_PRICE))
+	var completion: float = float(info.get(BenchEstimate.FIELD_COMPLETION, NO_PRICE))
 	var context: Variant = item.get(LIST_CONTEXT)
 	return {
 		FIELD_ID: id,
@@ -65,11 +63,11 @@ static func row_of(item: Dictionary) -> Dictionary:
 		FIELD_PROMPT: prompt,
 		FIELD_COMPLETION: completion,
 		FIELD_FREE: id.ends_with(FREE_SUFFIX) or (prompt == 0.0 and completion == 0.0),
-		FIELD_REASONING: bool(info[Estimate.FIELD_REASONING]),
-		FIELD_EFFORTS: info[Estimate.FIELD_EFFORTS],
-		FIELD_MANDATORY: bool(info[Estimate.FIELD_MANDATORY]),
-		FIELD_DEFAULT_ON: bool(info[Estimate.FIELD_DEFAULT_ON]),
-		FIELD_DEFAULT_EFFORT: str(info[Estimate.FIELD_DEFAULT_EFFORT]),
+		FIELD_REASONING: bool(info[BenchEstimate.FIELD_REASONING]),
+		FIELD_EFFORTS: info[BenchEstimate.FIELD_EFFORTS],
+		FIELD_MANDATORY: bool(info[BenchEstimate.FIELD_MANDATORY]),
+		FIELD_DEFAULT_ON: bool(info[BenchEstimate.FIELD_DEFAULT_ON]),
+		FIELD_DEFAULT_EFFORT: str(info[BenchEstimate.FIELD_DEFAULT_EFFORT]),
 		FIELD_TYPESAFE: false,
 		FIELD_LISTED: true,
 	}
@@ -83,9 +81,9 @@ static func typesafe_row(config: BenchConfig) -> Dictionary:
 		FIELD_ID: config.typesafe_model_prefix + TYPESAFE_ALIAS,
 		FIELD_NAME: "TypeSafe Jev (decision model)",
 		FIELD_CONTEXT: config.typesafe_request_limit,
-		FIELD_PROMPT: config.typesafe_price_input / TypeSafe.TOKENS_PER_MTOK
+		FIELD_PROMPT: config.typesafe_price_input / TypeSafeBackend.TOKENS_PER_MTOK
 			if config.typesafe_price_input >= 0.0 else NO_PRICE,
-		FIELD_COMPLETION: config.typesafe_price_output / TypeSafe.TOKENS_PER_MTOK
+		FIELD_COMPLETION: config.typesafe_price_output / TypeSafeBackend.TOKENS_PER_MTOK
 			if config.typesafe_price_output >= 0.0 else NO_PRICE,
 		FIELD_FREE: false,
 		FIELD_REASONING: false,
@@ -135,11 +133,11 @@ static func estimate(row: Dictionary, prompt_tokens: int, digest_tokens: int, ru
 	if not takes_effort(row, effort):
 		return {}
 	if bool(row[FIELD_TYPESAFE]):
-		return Estimate.choice_figures(prompt_tokens, digest_tokens, runs, config)
+		return BenchEstimate.choice_figures(prompt_tokens, digest_tokens, runs, config)
 	var max_tokens: int = config.max_completion_tokens
 	if effort != BenchEffort.NORMAL:
 		max_tokens = maxi(max_tokens, int(config.effort_max_tokens.get(effort, 0)))
-	return Estimate.figures(prompt_tokens, digest_tokens, runs, float(row[FIELD_PROMPT]),
+	return BenchEstimate.figures(prompt_tokens, digest_tokens, runs, float(row[FIELD_PROMPT]),
 		float(row[FIELD_COMPLETION]), config,
 		BenchEffort.output_tokens(effort, config, bool(row[FIELD_DEFAULT_ON])), max_tokens)
 
@@ -151,7 +149,7 @@ static func reasoning_sent(row: Dictionary, effort: String, config: BenchConfig)
 		return ""
 	var efforts: Array[String] = []
 	efforts.assign(row[FIELD_EFFORTS])
-	return BenchEffort.reasoning_for(effort, config, efforts, Estimate.effort_floor(row))
+	return BenchEffort.reasoning_for(effort, config, efforts, BenchEstimate.effort_floor(row))
 
 
 ## The reasoning cell: the dash (none), "yes", "default" (it reasons when
@@ -175,7 +173,7 @@ static func reasoning_text(row: Dictionary) -> String:
 static func per_million(price: float) -> String:
 	if price < 0.0:
 		return NONE_MARK
-	return USD_PER_MTOK_FORMAT % (price * TypeSafe.TOKENS_PER_MTOK)
+	return USD_PER_MTOK_FORMAT % (price * TypeSafeBackend.TOKENS_PER_MTOK)
 
 
 ## An estimate's likely figure in USD; the dash when it does not apply, "?"
@@ -183,6 +181,6 @@ static func per_million(price: float) -> String:
 static func likely_text(figures: Dictionary) -> String:
 	if figures.is_empty():
 		return NONE_MARK
-	if not bool(figures[Estimate.FIELD_KNOWN]):
+	if not bool(figures[BenchEstimate.FIELD_KNOWN]):
 		return "?"
-	return Estimate.usd(float(figures[Estimate.FIELD_LIKELY]))
+	return BenchEstimate.usd(float(figures[BenchEstimate.FIELD_LIKELY]))

@@ -20,6 +20,10 @@ const TEST_SAVES: String = "user://test_saves/"
 const TEST_BENCH_RUNS: String = "user://test_bench_library/runs/"
 const TEST_BENCH_DEV: String = "user://test_bench_library/dev/"
 const TEST_BENCH_ONLINE: String = "user://test_bench_online/"
+## The player's own benchmark (S6.12f): job folders, entries and cache of a
+## stray start never land in the player's `benchmark/`, and no test reads the
+## real key store.
+const TEST_BENCH_JOBS: String = "user://test_bench_jobs/"
 
 
 func run() -> void:
@@ -29,6 +33,9 @@ func run() -> void:
 	BenchLibrary.user_dir = TEST_BENCH_RUNS
 	BenchLibrary.dev_dir = TEST_BENCH_DEV
 	GlobalBoardClient.default_cache_dir = TEST_BENCH_ONLINE
+	BenchJobs.out_dir = TEST_BENCH_JOBS
+	BenchJobs.key_store.backend_override = func(_op: String, _key: String) -> Dictionary:
+		return {BenchKeyStore.FIELD_STATUS: BenchKeyStore.STATUS_ERROR}
 	# *Reset progress* keeps the achievements (release.md §2.2); the suite's
 	# profile starts without them all the same.
 	ProfileManager.achievements.clear()

@@ -14,6 +14,9 @@ extends Control
 
 ## release.md §8: `-- --smoke` plays a bot run in place of the boot.
 const SmokeRun: GDScript = preload("res://game/smoke_run.gd")
+## benchmark.md §19.4: `-- --bench-worker=<job dir>` plays a benchmark job
+## headless in place of the boot — the game started by itself as a worker.
+const BenchWorker: GDScript = preload("res://game/bench/bench_worker.gd")
 ## release.md §11.3: the start time, once per process, in every build — the perf
 ## wrapper reads it from the log.
 const FIRST_SCREEN_LINE: String = "first screen %d"
@@ -31,6 +34,10 @@ var _spectate_path: String = ""
 
 
 func _ready() -> void:
+	# A worker draws nothing and routes nothing: it plays its job and quits.
+	if not BenchRunner.worker_job_dir(OS.get_cmdline_user_args()).is_empty():
+		add_child(BenchWorker.new() as Node)
+		return
 	# The title and the session share this theme; the session assigns its own on
 	# top when the palette changes (§6.2).
 	theme = ThemeBuilder.build(ThemeBuilder.VARIANT_COLD, Settings.text_scale)

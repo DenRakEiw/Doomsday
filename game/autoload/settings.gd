@@ -122,6 +122,10 @@ func _ready() -> void:
 		keys[str(action)] = int(stored_keys[action])
 	bench_online = bool(values[KEY_BENCH_ONLINE])
 	TranslationServer.set_locale(locale)
+	# benchmark.md §19.4: a benchmark worker is the game started by itself; it
+	# writes nothing of the player's, not even the file it just read.
+	if not BenchRunner.worker_job_dir(OS.get_cmdline_user_args()).is_empty():
+		persist = false
 	write()
 	apply_args(OS.get_cmdline_user_args())
 

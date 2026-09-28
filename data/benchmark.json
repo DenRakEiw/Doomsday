@@ -1,5 +1,5 @@
 {
-	"_comment": "docs/specs/benchmark.md §3: the benchmark's configuration — the model policy's rhythm and limits, the seed suites, the score, the defaults sent to the model, the HTTP settings. `prompt_version` / `parser_version` are bumped by any change to the prompt text or format / the parsing rules (benchmark.md §5–§7); both go into the cache key and every entry. The key is never here: it is read from the environment variable `http.key_env`. `estimate` feeds the tool's pre-flight cost estimate (§11.5); `global` is the global leaderboard's addresses and limits (§16), read by the game's online list and by the verifier. `choice` and `typesafe` are the decision-model backend (§17): the combination rules that go into a choice run's params, and TypeSafe's endpoint, key variable, published price (USD per million tokens; negative = unknown) and caps. `effort` is the two levels above normal (§18): the OpenRouter reasoning efforts to try, best first (the first the model's public list names, else the first), the completion limit (reasoning tokens count against it), the likely output of one call for the estimate, and the request timeout. Presentation data, not loaded by the core (SCHEMA §10); read by BenchConfig (S6.12).",
+	"_comment": "docs/specs/benchmark.md §3: the benchmark's configuration — the model policy's rhythm and limits, the seed suites, the score, the defaults sent to the model, the HTTP settings. `prompt_version` / `parser_version` are bumped by any change to the prompt text or format / the parsing rules (benchmark.md §5–§7); both go into the cache key and every entry. The key is never here: it is read from the environment variable `http.key_env`. `estimate` feeds the tool's pre-flight cost estimate (§11.5); `global` is the global leaderboard's addresses and limits (§16), read by the game's online list and by the verifier. `choice` and `typesafe` are the decision-model backend (§17): the combination rules that go into a choice run's params, and TypeSafe's endpoint, key variable, published price (USD per million tokens; negative = unknown) and caps. `effort` is the two levels above normal (§18): the OpenRouter reasoning efforts to try, best first (the first the model's public list names, else the first), the completion limit (reasoning tokens count against it), the likely output of one call for the estimate, and the request timeout. `player` is the player's own benchmark in a desktop build (§19): the suite it plays, workers for a paid and a free model, the cost-cap choices and default (USD), how often the progress is read (s), job folders kept, the model list's cache age (s) and row limit, OpenRouter's key page and the upload page *Submit* opens. Presentation data, not loaded by the core (SCHEMA §10); read by BenchConfig (S6.12).",
 	"version": 1,
 	"prompt_version": 1,
 	"parser_version": 1,
@@ -58,5 +58,18 @@
 	"effort": {
 		"high": {"reasoning": ["high"], "max_completion_tokens": 16000, "output_tokens_per_call": 3000, "timeout_s": 600},
 		"ultra": {"reasoning": ["max", "xhigh", "high"], "max_completion_tokens": 32000, "output_tokens_per_call": 8000, "timeout_s": 900}
+	},
+	"player": {
+		"suite": "quick",
+		"workers_paid": 3,
+		"workers_free": 1,
+		"cap_choices": [0.5, 1.0, 2.0, 5.0, 10.0, 20.0],
+		"default_cap_usd": 2.0,
+		"poll_s": 1.0,
+		"jobs_kept": 5,
+		"models_max_age_s": 86400,
+		"models_shown": 200,
+		"keys_url": "https://openrouter.ai/settings/keys",
+		"submit_url": "https://github.com/DenRakEiw/doomsday-leaderboard/upload/main/runs"
 	}
 }

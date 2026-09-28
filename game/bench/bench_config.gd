@@ -4,9 +4,9 @@ extends RefCounted
 ## policy's rhythm and limits, the seed suites, the score, the defaults sent to a
 ## model, the HTTP settings, the pre-flight estimate, the global board's
 ## addresses, the decision-model backend (§17: the combination rules and
-## TypeSafe's endpoint, price and caps) and the effort levels (§18: what `high`
-## and `ultra` send and what they likely cost). Presentation data — the core
-## never reads it.
+## TypeSafe's endpoint, price and caps), the effort levels (§18: what `high`
+## and `ultra` send and what they likely cost) and the player's own benchmark
+## (§19.10). Presentation data — the core never reads it.
 ##
 ## A bad file never crashes: `errors` names every key that is missing or of the
 ## wrong type, and the tool exits 1 naming them.
@@ -90,6 +90,22 @@ var effort_reasoning: Dictionary[String, Array] = {}
 var effort_max_tokens: Dictionary[String, int] = {}
 var effort_output_tokens: Dictionary[String, int] = {}
 var effort_timeout_s: Dictionary[String, int] = {}
+
+## §19.10: the player's own benchmark in a desktop build — the suite it plays,
+## workers for a paid and for a free model, the cost-cap choices and default
+## (USD), the progress poll (s), job folders kept, the model list's cache age (s)
+## and row limit, OpenRouter's key page, the upload page *Submit* opens.
+var player_suite: String = SUITE_QUICK
+var player_workers_paid: int = 3
+var player_workers_free: int = 1
+var player_cap_choices: Array[float] = []
+var player_default_cap_usd: float = 2.0
+var player_poll_s: float = 1.0
+var player_jobs_kept: int = 5
+var player_models_max_age_s: int = 86400
+var player_models_shown: int = 200
+var player_keys_url: String = ""
+var player_submit_url: String = ""
 
 
 ## The file at `path`, read; a file that is missing or not a JSON object is one
@@ -199,6 +215,39 @@ func _read(d: Dictionary) -> void:
 	var effort: Dictionary = _object(d, "effort")
 	for level: String in [BenchEffort.HIGH, BenchEffort.ULTRA]:
 		_read_effort(effort, level)
+	_read_player(_object(d, "player"))
+
+
+## §19.10: every key required; the suite one the file has, the cap choices a
+## non-empty list of amounts above 0, the default among them.
+func _read_player(d: Dictionary) -> void:
+	const PREFIX: String = "player."
+	player_suite = _string(d, "suite", PREFIX)
+	if not player_suite.is_empty() and not suites.has(player_suite):
+		errors.append("player.suite: not a suite of this file")
+	player_workers_paid = _int(d, "workers_paid", 1, PREFIX)
+	player_workers_free = _int(d, "workers_free", 1, PREFIX)
+	player_cap_choices.clear()
+	if typeof(d.get("cap_choices")) != TYPE_ARRAY or (d["cap_choices"] as Array).is_empty():
+		errors.append("player.cap_choices: missing or not a list of amounts")
+	else:
+		for value: Variant in d["cap_choices"]:
+			if typeof(value) not in [TYPE_INT, TYPE_FLOAT] or float(value) <= 0.0:
+				errors.append("player.cap_choices: missing or not a list of amounts")
+				player_cap_choices.clear()
+				break
+			player_cap_choices.append(float(value))
+	player_default_cap_usd = _float(d, "default_cap_usd", PREFIX)
+	if not player_cap_choices.is_empty() and not player_cap_choices.has(player_default_cap_usd):
+		errors.append("player.default_cap_usd: not one of the cap choices")
+	player_poll_s = _float(d, "poll_s", PREFIX)
+	if player_poll_s <= 0.0 and d.has("poll_s"):
+		errors.append("player.poll_s: not above 0")
+	player_jobs_kept = _int(d, "jobs_kept", 1, PREFIX)
+	player_models_max_age_s = _int(d, "models_max_age_s", 0, PREFIX)
+	player_models_shown = _int(d, "models_shown", 1, PREFIX)
+	player_keys_url = _string(d, "keys_url", PREFIX)
+	player_submit_url = _string(d, "submit_url", PREFIX)
 
 
 ## One level of `effort` (§18): every key required, `reasoning` a non-empty

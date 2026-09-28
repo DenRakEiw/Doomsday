@@ -1,3 +1,4 @@
+class_name BenchCache
 extends RefCounted
 ## The benchmark's answer cache (docs/specs/benchmark.md §9, §17.7): request →
 ## *parsed* (or, for a decision model, combined) answer, one file per answer, so
@@ -5,7 +6,8 @@ extends RefCounted
 ## `<name>.tmp` and renamed, so parallel shards never corrupt one another. Local
 ## and git-ignored.
 ##
-## A tool, so no `class_name`; `bench_run.gd` and the tests preload it.
+## In `game/bench/` since S6.12f (§19.3): the tool and the game's worker share it;
+## the root is an argument (`user://benchmark/cache/` for the worker).
 
 const FIELD_MODEL: String = "model"
 const FIELD_PARAMS: String = "params"

@@ -4,7 +4,6 @@ extends GutTest
 ## caps and the error string. **No network**: nothing here opens a connection,
 ## and no request ever goes to TypeSafe from a test.
 
-const TypeSafe := preload("res://tools/bench/typesafe_backend.gd")
 const SAMPLE_KEY: String = "ts-sample-not-a-real-key-0123456789"
 
 var _config: BenchConfig = null
@@ -14,8 +13,8 @@ func before_each() -> void:
 	_config = BenchConfig.load_file()
 
 
-func _backend(max_cost: float = 2.0, max_requests: int = 3000) -> TypeSafe:
-	return TypeSafe.new("jev-latest", SAMPLE_KEY, "https://api.typesafe.ai/v1", _config,
+func _backend(max_cost: float = 2.0, max_requests: int = 3000) -> TypeSafeBackend:
+	return TypeSafeBackend.new("jev-latest", SAMPLE_KEY, "https://api.typesafe.ai/v1", _config,
 		max_cost, max_requests)
 
 
@@ -83,25 +82,25 @@ func test_missing_usage_reads_as_nothing() -> void:
 
 
 func test_a_200_that_is_not_a_json_object_is_retried_as_a_502() -> void:
-	var backend: TypeSafe = _backend()
+	var backend: TypeSafeBackend = _backend()
 	assert_null(backend.read_reply("<html>busy</html>"))
 	assert_null(backend.read_reply("[1]"))
-	assert_eq(TypeSafe.classify(TypeSafe.STATUS_BAD_GATEWAY), TypeSafe.CLASS_RETRY)
+	assert_eq(TypeSafeBackend.classify(TypeSafeBackend.STATUS_BAD_GATEWAY), TypeSafeBackend.CLASS_RETRY)
 
 
 func test_the_status_table() -> void:
-	assert_eq(TypeSafe.classify(200), TypeSafe.CLASS_OK)
-	assert_eq(TypeSafe.classify(401), TypeSafe.FATAL_AUTH)
-	assert_eq(TypeSafe.classify(402), TypeSafe.FATAL_CREDITS)
-	assert_eq(TypeSafe.classify(403), TypeSafe.FATAL_FORBIDDEN)
+	assert_eq(TypeSafeBackend.classify(200), TypeSafeBackend.CLASS_OK)
+	assert_eq(TypeSafeBackend.classify(401), TypeSafeBackend.FATAL_AUTH)
+	assert_eq(TypeSafeBackend.classify(402), TypeSafeBackend.FATAL_CREDITS)
+	assert_eq(TypeSafeBackend.classify(403), TypeSafeBackend.FATAL_FORBIDDEN)
 	for status: int in [400, 404, 413, 422]:
-		assert_eq(TypeSafe.classify(status), TypeSafe.FATAL_BAD_REQUEST, str(status))
-	for status: int in [408, 429, 500, 502, 503, 504, 529, TypeSafe.STATUS_NONE]:
-		assert_eq(TypeSafe.classify(status), TypeSafe.CLASS_RETRY, str(status))
+		assert_eq(TypeSafeBackend.classify(status), TypeSafeBackend.FATAL_BAD_REQUEST, str(status))
+	for status: int in [408, 429, 500, 502, 503, 504, 529, TypeSafeBackend.STATUS_NONE]:
+		assert_eq(TypeSafeBackend.classify(status), TypeSafeBackend.CLASS_RETRY, str(status))
 
 
 func test_the_backoff_doubles_from_two_seconds() -> void:
-	var backend: TypeSafe = _backend()
+	var backend: TypeSafeBackend = _backend()
 	var waits: Array[float] = []
 	for n: int in range(1, 6):
 		waits.append(backend.backoff(n))
@@ -109,44 +108,44 @@ func test_the_backoff_doubles_from_two_seconds() -> void:
 
 
 func test_retry_after_and_retry_after_ms_the_larger_wins() -> void:
-	assert_eq(TypeSafe.retry_after({"Retry-After": "7"}), 7.0)
-	assert_eq(TypeSafe.retry_after({"retry-after-ms": "2500"}), 2.5)
-	assert_eq(TypeSafe.retry_after({"Retry-After": "1", "retry-after-ms": "4000"}), 4.0)
-	assert_eq(TypeSafe.retry_after({"retry-after": "soon"}), 0.0)
-	assert_eq(TypeSafe.retry_after({}), 0.0)
+	assert_eq(TypeSafeBackend.retry_after({"Retry-After": "7"}), 7.0)
+	assert_eq(TypeSafeBackend.retry_after({"retry-after-ms": "2500"}), 2.5)
+	assert_eq(TypeSafeBackend.retry_after({"Retry-After": "1", "retry-after-ms": "4000"}), 4.0)
+	assert_eq(TypeSafeBackend.retry_after({"retry-after": "soon"}), 0.0)
+	assert_eq(TypeSafeBackend.retry_after({}), 0.0)
 
 
 func test_the_cost_cap_and_the_request_cap_stop_before_a_request() -> void:
-	var spent: TypeSafe = _backend()
+	var spent: TypeSafeBackend = _backend()
 	spent.spent_usd = 2.0
 	var reply: ModelReply = spent.choose(_plan(), null, {})
 	assert_true(reply.is_fatal())
-	assert_eq(reply.error, TypeSafe.FATAL_COST_CAP)
-	var counted: TypeSafe = _backend(2.0, 5)
+	assert_eq(reply.error, TypeSafeBackend.FATAL_COST_CAP)
+	var counted: TypeSafeBackend = _backend(2.0, 5)
 	counted.requests_sent = 5
 	reply = counted.choose(_plan(), null, {})
 	assert_true(reply.is_fatal())
-	assert_eq(reply.error, TypeSafe.FATAL_REQUEST_CAP)
+	assert_eq(reply.error, TypeSafeBackend.FATAL_REQUEST_CAP)
 	assert_eq(counted.requests_sent, 5, "nothing was sent")
 
 
 func test_a_bad_base_url_is_fatal_without_a_request() -> void:
-	var bad: TypeSafe = TypeSafe.new("jev-latest", SAMPLE_KEY, "ftp://x", _config, 2.0, 3000)
-	assert_eq(bad.choose(_plan(), null, {}).error, TypeSafe.FATAL_BAD_BASE_URL)
+	var bad: TypeSafeBackend = TypeSafeBackend.new("jev-latest", SAMPLE_KEY, "ftp://x", _config, 2.0, 3000)
+	assert_eq(bad.choose(_plan(), null, {}).error, TypeSafeBackend.FATAL_BAD_BASE_URL)
 	assert_eq(bad.requests_sent, 0)
 
 
 func test_a_bad_request_names_the_services_message_never_the_key() -> void:
-	var backend: TypeSafe = _backend()
-	var text: String = backend.error_text(TypeSafe.FATAL_BAD_REQUEST, 422,
+	var backend: TypeSafeBackend = _backend()
+	var text: String = backend.error_text(TypeSafeBackend.FATAL_BAD_REQUEST, 422,
 		JSON.stringify({"detail": "state too long for " + SAMPLE_KEY}))
 	assert_true(text.begins_with("bad_request: 422 state too long"))
 	assert_false(text.contains(SAMPLE_KEY))
-	assert_string_contains(text, TypeSafe.MASK)
-	assert_string_contains(backend.error_text(TypeSafe.FATAL_BAD_REQUEST, 400,
+	assert_string_contains(text, TypeSafeBackend.MASK)
+	assert_string_contains(backend.error_text(TypeSafeBackend.FATAL_BAD_REQUEST, 400,
 		JSON.stringify({"error": {"message": "no such model"}})), "no such model")
-	assert_eq(backend.error_text(TypeSafe.FATAL_BAD_REQUEST, 404, "<html>"), "bad_request: 404")
+	assert_eq(backend.error_text(TypeSafeBackend.FATAL_BAD_REQUEST, 404, "<html>"), "bad_request: 404")
 	var long: String = JSON.stringify({"message": "x".repeat(500)})
-	assert_lte(backend.error_text(TypeSafe.FATAL_BAD_REQUEST, 400, long).length(),
-		TypeSafe.ERROR_MAX)
-	assert_eq(backend.error_text(TypeSafe.FATAL_AUTH, 401, SAMPLE_KEY), TypeSafe.FATAL_AUTH)
+	assert_lte(backend.error_text(TypeSafeBackend.FATAL_BAD_REQUEST, 400, long).length(),
+		TypeSafeBackend.ERROR_MAX)
+	assert_eq(backend.error_text(TypeSafeBackend.FATAL_AUTH, 401, SAMPLE_KEY), TypeSafeBackend.FATAL_AUTH)

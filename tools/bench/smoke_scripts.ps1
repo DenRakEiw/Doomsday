@@ -132,7 +132,8 @@ try {
 	$clean = -not ((& git -C $board status --porcelain 2>$null) -join "").Trim()
 	Test-Check "submit_runs.ps1 dry run validates and leaves the clone clean" ($dry.Code -eq 0 -and $clean -and $dry.Text.Contains("dry run")) $dry.Text
 
-	# 5b - push, verified here.
+	# 5b - push, verified here. The board may already hold verified runs of its own.
+	$baseRecords = @(Get-ChildItem -Path (Join-Path $board "verified") -Filter "*.json" -ErrorAction SilentlyContinue).Count
 	$push = Invoke-Script "submit_runs.ps1" @("-Board", $board, "-Runs", $runsDir, "-IncludeMock", "-Push",
 		"-VerifyLocally", "-SkipBots", "-Godot", $godotExe)
 	$after = (& git -C $origin rev-parse HEAD 2>$null | Select-Object -First 1)
@@ -140,7 +141,7 @@ try {
 	$verified = @($records | Where-Object { (Get-Content -Raw -Encoding UTF8 $_.FullName) -match '"verified":\s*true' })
 	$boardJson = Get-Content -Raw -Encoding UTF8 (Join-Path $board "leaderboard.json")
 	Test-Check "submit_runs.ps1 -Push -VerifyLocally pushes to the stand-in origin" ($push.Code -eq 0 -and $after -ne $before) $push.Text
-	Test-Check "every submitted run is verified" ($records.Count -eq 6 -and $verified.Count -eq 6) "$($records.Count) records, $($verified.Count) verified"
+	Test-Check "every submitted run is verified" ($records.Count -eq $baseRecords + 6 -and $verified.Count -eq $records.Count) "$($records.Count) records ($baseRecords before), $($verified.Count) verified"
 	Test-Check "the published rows carry the effort" ($boardJson -match '"effort":\s*"high"')
 
 	# 5c - runs pushed without a verification are verified by a later -VerifyLocally.
@@ -150,7 +151,7 @@ try {
 		"-VerifyLocally", "-SkipBots", "-Godot", $godotExe)
 	$records = @(Get-ChildItem -Path (Join-Path $board "verified") -Filter "*.json" -ErrorAction SilentlyContinue)
 	$originLog = (& git -C $origin log -1 --format=%s 2>$null | Select-Object -First 1)
-	Test-Check "submit_runs.ps1 -Push -VerifyLocally verifies runs already on the board" ($plain.Code -eq 0 -and $late.Code -eq 0 -and $records.Count -eq 9 -and $late.Text.Contains("verified and published")) ($plain.Text + "`n---`n" + $late.Text + "`n$($records.Count) records; origin: $originLog")
+	Test-Check "submit_runs.ps1 -Push -VerifyLocally verifies runs already on the board" ($plain.Code -eq 0 -and $late.Code -eq 0 -and $records.Count -eq $baseRecords + 9 -and $late.Text.Contains("verified and published")) ($plain.Text + "`n---`n" + $late.Text + "`n$($records.Count) records; origin: $originLog")
 
 	# 5d - a refused push: a conflicting rebase is aborted, a clean one runs the rebuild.
 	$other = Join-Path $Scratch "other"

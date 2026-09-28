@@ -21,8 +21,6 @@ extends SceneTree
 
 const Harness := preload("res://tools/sim_harness.gd")
 const Tool := preload("res://tools/bench/bench_run.gd")
-const Estimate := preload("res://tools/bench/bench_estimate.gd")
-const Catalogue := preload("res://tools/bench/model_catalogue.gd")
 
 const EXIT_OK: int = 0
 const EXIT_BAD_INPUT: int = 1
@@ -57,20 +55,20 @@ static func run(args: Dictionary[String, String], config: BenchConfig = null,
 		return EXIT_BAD_INPUT
 	if body.is_empty():
 		body = FileAccess.get_file_as_string(str(options["prices"])) \
-			if not str(options["prices"]).is_empty() else Estimate.fetch_list(config.base_url, config)
-	var rows: Array[Dictionary] = Catalogue.parse(body)
+			if not str(options["prices"]).is_empty() else BenchEstimate.fetch_list(config.base_url, config)
+	var rows: Array[Dictionary] = ModelCatalogue.parse(body)
 	var named: Array[String] = options["models"]
 	if rows.is_empty() and named.is_empty():
 		print("models: OpenRouter's public model list could not be read")
 		return EXIT_BAD_INPUT
 	var seed_value: int = config.suite_seeds(BenchConfig.SUITE_STANDARD)[0]
 	var measured: Dictionary = Tool.measure(db, config, setup, seed_value, config.locale)
-	var chat: Vector2i = Vector2i(Estimate.tokens(str(measured["brief"]).length(), config),
-		Estimate.tokens(str(measured["digest"]).length(), config))
+	var chat: Vector2i = Vector2i(BenchEstimate.tokens(str(measured["brief"]).length(), config),
+		BenchEstimate.tokens(str(measured["digest"]).length(), config))
 	var choice_request: Dictionary = Tool.measure_choice(db, config, setup, seed_value,
-		config.locale, Catalogue.TYPESAFE_ALIAS)
-	var choice: Vector2i = Vector2i(Estimate.tokens(str(choice_request["rules"]).length(), config),
-		Estimate.tokens(str(choice_request["situation"]).length(), config))
+		config.locale, ModelCatalogue.TYPESAFE_ALIAS)
+	var choice: Vector2i = Vector2i(BenchEstimate.tokens(str(choice_request["rules"]).length(), config),
+		BenchEstimate.tokens(str(choice_request["situation"]).length(), config))
 	var shown: Array[Dictionary] = select(rows, options, config, chat, choice)
 	if bool(options["json"]):
 		for row: Dictionary in shown:
@@ -117,29 +115,29 @@ static func select(rows: Array[Dictionary], options: Dictionary, config: BenchCo
 		chat: Vector2i, choice: Vector2i) -> Array[Dictionary]:
 	var by_id: Dictionary[String, Dictionary] = {}
 	for row: Dictionary in rows:
-		by_id[str(row[Catalogue.FIELD_ID])] = row
-	var typesafe: Dictionary = Catalogue.typesafe_row(config)
+		by_id[str(row[ModelCatalogue.FIELD_ID])] = row
+	var typesafe: Dictionary = ModelCatalogue.typesafe_row(config)
 	var out: Array[Dictionary] = []
 	var named: Array[String] = options["models"]
 	if not named.is_empty():
 		for id: String in named:
 			if id.begins_with(config.typesafe_model_prefix):
 				var pinned: Dictionary = typesafe.duplicate(true)
-				pinned[Catalogue.FIELD_ID] = id
+				pinned[ModelCatalogue.FIELD_ID] = id
 				out.append(pinned)
 			else:
-				out.append(by_id.get(id, Catalogue.unlisted_row(id)))
+				out.append(by_id.get(id, ModelCatalogue.unlisted_row(id)))
 		return out
 	for row: Dictionary in [typesafe] + rows:
-		if not Catalogue.matches(row, str(options["search"])):
+		if not ModelCatalogue.matches(row, str(options["search"])):
 			continue
-		if bool(options["free"]) and not bool(row[Catalogue.FIELD_FREE]):
+		if bool(options["free"]) and not bool(row[ModelCatalogue.FIELD_FREE]):
 			continue
 		if float(options["max_cost"]) >= 0.0:
 			var figures: Dictionary = _figures(row, str(options["suite"]),
 				str(options["effort"]), config, chat, choice)
-			if figures.is_empty() or not bool(figures[Estimate.FIELD_KNOWN]) \
-					or float(figures[Estimate.FIELD_LIKELY]) > float(options["max_cost"]):
+			if figures.is_empty() or not bool(figures[BenchEstimate.FIELD_KNOWN]) \
+					or float(figures[BenchEstimate.FIELD_LIKELY]) > float(options["max_cost"]):
 				continue
 		out.append(row)
 	return out
@@ -152,34 +150,34 @@ static func json_line(row: Dictionary, options: Dictionary, config: BenchConfig,
 		chat: Vector2i, choice: Vector2i) -> Dictionary:
 	var effort: String = str(options["effort"])
 	var suite: String = str(options["suite"])
-	var typesafe: bool = bool(row[Catalogue.FIELD_TYPESAFE])
+	var typesafe: bool = bool(row[ModelCatalogue.FIELD_TYPESAFE])
 	# A decision model has no effort; run_models plays it at its only one.
 	var level: String = BenchEffort.NORMAL if typesafe else effort
 	var figures: Dictionary = _figures(row, suite, level, config, chat, choice)
 	var error: String = ""
 	if figures.is_empty():
 		error = "%s takes no reasoning parameter (OpenRouter's model list) — play it with -Effort normal" \
-			% row[Catalogue.FIELD_ID]
+			% row[ModelCatalogue.FIELD_ID]
 	var max_tokens: int = config.max_completion_tokens
 	if level != BenchEffort.NORMAL:
 		max_tokens = maxi(max_tokens, int(config.effort_max_tokens.get(level, 0)))
 	return {
-		"id": row[Catalogue.FIELD_ID],
-		"listed": row[Catalogue.FIELD_LISTED],
+		"id": row[ModelCatalogue.FIELD_ID],
+		"listed": row[ModelCatalogue.FIELD_LISTED],
 		"typesafe": typesafe,
-		"free": row[Catalogue.FIELD_FREE],
-		"reasoning": row[Catalogue.FIELD_REASONING],
-		"mandatory": row[Catalogue.FIELD_MANDATORY],
-		"reasons_by_default": row[Catalogue.FIELD_DEFAULT_ON],
-		"default_effort": row[Catalogue.FIELD_DEFAULT_EFFORT],
+		"free": row[ModelCatalogue.FIELD_FREE],
+		"reasoning": row[ModelCatalogue.FIELD_REASONING],
+		"mandatory": row[ModelCatalogue.FIELD_MANDATORY],
+		"reasons_by_default": row[ModelCatalogue.FIELD_DEFAULT_ON],
+		"default_effort": row[ModelCatalogue.FIELD_DEFAULT_EFFORT],
 		"effort": "" if typesafe else level,
-		"reasoning_sent": Catalogue.reasoning_sent(row, level, config),
+		"reasoning_sent": ModelCatalogue.reasoning_sent(row, level, config),
 		"max_completion_tokens": 0 if typesafe else max_tokens,
 		"suite": suite,
 		"seeds": config.suite_seeds(suite),
-		"known": not figures.is_empty() and bool(figures[Estimate.FIELD_KNOWN]),
-		"likely": 0.0 if figures.is_empty() else float(figures[Estimate.FIELD_LIKELY]),
-		"at_most": 0.0 if figures.is_empty() else float(figures[Estimate.FIELD_AT_MOST]),
+		"known": not figures.is_empty() and bool(figures[BenchEstimate.FIELD_KNOWN]),
+		"likely": 0.0 if figures.is_empty() else float(figures[BenchEstimate.FIELD_LIKELY]),
+		"at_most": 0.0 if figures.is_empty() else float(figures[BenchEstimate.FIELD_AT_MOST]),
 		"cap": config.max_cost_usd,
 		"error": error,
 	}
@@ -197,17 +195,17 @@ static func table(rows: Array[Dictionary], options: Dictionary, config: BenchCon
 		headings.append_array(["Quick", "Standard", "Std high", "Std ultra"])
 	var cells: Array[PackedStringArray] = []
 	for row: Dictionary in rows:
-		var id: String = str(row[Catalogue.FIELD_ID])
+		var id: String = str(row[ModelCatalogue.FIELD_ID])
 		if id.length() > ID_WIDTH_MAX:
 			id = id.substr(0, ID_WIDTH_MAX - 1) + "…"
 		var line: PackedStringArray = [
-			id + (" *" if bool(row[Catalogue.FIELD_FREE]) else ""),
-			str(row[Catalogue.FIELD_CONTEXT]) if int(row[Catalogue.FIELD_CONTEXT]) > 0 \
-				else Catalogue.NONE_MARK,
-			Catalogue.per_million(float(row[Catalogue.FIELD_PROMPT])),
-			Catalogue.per_million(float(row[Catalogue.FIELD_COMPLETION])),
-			"decision model" if bool(row[Catalogue.FIELD_TYPESAFE]) \
-				else Catalogue.reasoning_text(row),
+			id + (" *" if bool(row[ModelCatalogue.FIELD_FREE]) else ""),
+			str(row[ModelCatalogue.FIELD_CONTEXT]) if int(row[ModelCatalogue.FIELD_CONTEXT]) > 0 \
+				else ModelCatalogue.NONE_MARK,
+			ModelCatalogue.per_million(float(row[ModelCatalogue.FIELD_PROMPT])),
+			ModelCatalogue.per_million(float(row[ModelCatalogue.FIELD_COMPLETION])),
+			"decision model" if bool(row[ModelCatalogue.FIELD_TYPESAFE]) \
+				else ModelCatalogue.reasoning_text(row),
 		]
 		var levels: Array[Array] = [[BenchConfig.SUITE_QUICK, effort],
 			[BenchConfig.SUITE_STANDARD, effort]]
@@ -217,7 +215,7 @@ static func table(rows: Array[Dictionary], options: Dictionary, config: BenchCon
 				[BenchConfig.SUITE_STANDARD, BenchEffort.HIGH],
 				[BenchConfig.SUITE_STANDARD, BenchEffort.ULTRA]]
 		for level: Array in levels:
-			line.append(Catalogue.likely_text(_figures(row, str(level[0]), str(level[1]), config,
+			line.append(ModelCatalogue.likely_text(_figures(row, str(level[0]), str(level[1]), config,
 				chat, choice)))
 		cells.append(line)
 	var widths: Array[int] = []
@@ -241,15 +239,15 @@ static func table(rows: Array[Dictionary], options: Dictionary, config: BenchCon
 		+ " The tool's cap is %s USD per invocation.") % [rows.size(),
 		config.suite_seeds(BenchConfig.SUITE_QUICK).size(),
 		config.suite_seeds(BenchConfig.SUITE_STANDARD).size(), config.max_completion_tokens,
-		Estimate.usd(config.max_cost_usd)])
+		BenchEstimate.usd(config.max_cost_usd)])
 	return out
 
 
 static func _figures(row: Dictionary, suite: String, effort: String, config: BenchConfig,
 		chat: Vector2i, choice: Vector2i) -> Dictionary:
 	var runs: int = config.suite_seeds(suite).size()
-	var tokens: Vector2i = choice if bool(row[Catalogue.FIELD_TYPESAFE]) else chat
-	return Catalogue.estimate(row, tokens.x, tokens.y, runs, effort, config)
+	var tokens: Vector2i = choice if bool(row[ModelCatalogue.FIELD_TYPESAFE]) else chat
+	return ModelCatalogue.estimate(row, tokens.x, tokens.y, runs, effort, config)
 
 
 static func _joined(cells: PackedStringArray, widths: Array[int]) -> String:

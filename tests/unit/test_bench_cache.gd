@@ -3,24 +3,23 @@ extends GutTest
 ## own under `user://`; S6.12c — the request's basis (§17.7): a chat key is what
 ## it was, a choice key follows its plan and attempt.
 
-const Cache := preload("res://tools/bench/bench_cache.gd")
 const Harness := preload("res://tools/sim_harness.gd")
 const ROOT: String = "user://test_bench/cache"
 const MODEL: String = "vendor/model"
 const PARAMS: Dictionary = {"temperature": 0.0, "max_completion_tokens": 1200}
-## `Cache.key(MODEL, PARAMS, 1, 1, messages("brief", "digest"))` computed before
+## `BenchCache.key(MODEL, PARAMS, 1, 1, messages("brief", "digest"))` computed before
 ## the basis change (S6.12c), with the S6.12 code: every chat cache file keeps
 ## its key.
 const PINNED_CHAT_KEY: String = "75c7ca56418e02ccffc42b75ddfc572501fe39f5096dad87ce7f1a72f7ef7650"
 const CHOICE_PARAMS: Dictionary = {"choice_version": 1,
 	"max_picks": {"buy": 3, "use": 2, "wake": 2, "sleep": 2}}
 
-var _cache: Cache = null
+var _cache: BenchCache = null
 
 
 func before_each() -> void:
 	_clear(ROOT)
-	_cache = Cache.new(ROOT)
+	_cache = BenchCache.new(ROOT)
 
 
 func after_all() -> void:
@@ -42,7 +41,7 @@ func _messages(extra: String = "") -> Array[Dictionary]:
 
 
 func _basis(extra: String = "") -> Dictionary:
-	return Cache.chat_basis(_messages(extra))
+	return BenchCache.chat_basis(_messages(extra))
 
 
 func _plan(situation: String = "situation", instructions: String = "Which?") -> BenchChoicePlan:
@@ -62,7 +61,7 @@ func _value() -> Dictionary:
 
 
 func test_a_miss_then_a_write_then_a_hit() -> void:
-	var key: String = Cache.key(MODEL, PARAMS, 1, 1, _basis())
+	var key: String = BenchCache.key(MODEL, PARAMS, 1, 1, _basis())
 	assert_eq(_cache.read(MODEL, key), {})
 	assert_true(_cache.write(MODEL, key, _value()))
 	var hit: Dictionary = _cache.read(MODEL, key)
@@ -74,24 +73,24 @@ func test_a_miss_then_a_write_then_a_hit() -> void:
 
 
 func test_the_path_is_sharded_by_the_model_slug_and_the_key() -> void:
-	var key: String = Cache.key(MODEL, PARAMS, 1, 1, _basis())
+	var key: String = BenchCache.key(MODEL, PARAMS, 1, 1, _basis())
 	assert_eq(_cache.path_for(MODEL, key), "%s/vendor--model/%s/%s.json" % [ROOT,
 		key.substr(0, 2), key])
 
 
 func test_a_changed_param_prompt_version_or_retry_is_another_key() -> void:
-	var base: String = Cache.key(MODEL, PARAMS, 1, 1, _basis())
-	assert_ne(Cache.key(MODEL, {"temperature": 0.5, "max_completion_tokens": 1200}, 1, 1,
+	var base: String = BenchCache.key(MODEL, PARAMS, 1, 1, _basis())
+	assert_ne(BenchCache.key(MODEL, {"temperature": 0.5, "max_completion_tokens": 1200}, 1, 1,
 		_basis()), base)
-	assert_ne(Cache.key(MODEL, PARAMS, 2, 1, _basis()), base)
-	assert_ne(Cache.key(MODEL, PARAMS, 1, 2, _basis()), base)
-	assert_ne(Cache.key(MODEL, PARAMS, 1, 1, _basis("bad_json")), base)
-	assert_ne(Cache.key("other/model", PARAMS, 1, 1, _basis()), base)
-	assert_eq(Cache.key(MODEL, PARAMS, 1, 1, _basis()), base, "and the same is the same")
+	assert_ne(BenchCache.key(MODEL, PARAMS, 2, 1, _basis()), base)
+	assert_ne(BenchCache.key(MODEL, PARAMS, 1, 2, _basis()), base)
+	assert_ne(BenchCache.key(MODEL, PARAMS, 1, 1, _basis("bad_json")), base)
+	assert_ne(BenchCache.key("other/model", PARAMS, 1, 1, _basis()), base)
+	assert_eq(BenchCache.key(MODEL, PARAMS, 1, 1, _basis()), base, "and the same is the same")
 
 
 func test_a_corrupt_file_is_a_miss() -> void:
-	var key: String = Cache.key(MODEL, PARAMS, 1, 1, _basis())
+	var key: String = BenchCache.key(MODEL, PARAMS, 1, 1, _basis())
 	_cache.write(MODEL, key, _value())
 	var file: FileAccess = FileAccess.open(_cache.path_for(MODEL, key), FileAccess.WRITE)
 	file.store_string("{\"answer\": {\"stance\": 3}}")
@@ -106,7 +105,7 @@ func test_a_corrupt_file_is_a_miss() -> void:
 
 
 func test_the_stored_value_holds_no_text() -> void:
-	var key: String = Cache.key(MODEL, PARAMS, 1, 1, _basis())
+	var key: String = BenchCache.key(MODEL, PARAMS, 1, 1, _basis())
 	_cache.write(MODEL, key, _value())
 	var stored: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string(_cache.path_for(MODEL, key)))
@@ -126,21 +125,21 @@ func test_the_hooks_read_and_write_and_fresh_skips_the_reads() -> void:
 
 
 func test_a_chat_key_is_unchanged_by_the_basis() -> void:
-	assert_eq(Cache.key(MODEL, PARAMS, 1, 1, _basis()), PINNED_CHAT_KEY)
+	assert_eq(BenchCache.key(MODEL, PARAMS, 1, 1, _basis()), PINNED_CHAT_KEY)
 
 
 func test_a_choice_basis_differs_by_state_questions_attempt_and_params() -> void:
-	var base: String = Cache.key(MODEL, CHOICE_PARAMS, 1, 1, _plan().basis())
-	assert_eq(Cache.key(MODEL, CHOICE_PARAMS, 1, 1, _plan().basis()), base, "the same is the same")
-	assert_ne(Cache.key(MODEL, CHOICE_PARAMS, 1, 1, _plan("elsewhere").basis()), base, "state")
-	assert_ne(Cache.key(MODEL, CHOICE_PARAMS, 1, 1, _plan("situation", "Why?").basis()), base,
+	var base: String = BenchCache.key(MODEL, CHOICE_PARAMS, 1, 1, _plan().basis())
+	assert_eq(BenchCache.key(MODEL, CHOICE_PARAMS, 1, 1, _plan().basis()), base, "the same is the same")
+	assert_ne(BenchCache.key(MODEL, CHOICE_PARAMS, 1, 1, _plan("elsewhere").basis()), base, "state")
+	assert_ne(BenchCache.key(MODEL, CHOICE_PARAMS, 1, 1, _plan("situation", "Why?").basis()), base,
 		"questions")
 	var retry: Dictionary = _plan().basis()
 	retry[ModelPolicy.BASIS_ATTEMPT] = 1
-	assert_ne(Cache.key(MODEL, CHOICE_PARAMS, 1, 1, retry), base, "attempt")
+	assert_ne(BenchCache.key(MODEL, CHOICE_PARAMS, 1, 1, retry), base, "attempt")
 	var other: Dictionary = CHOICE_PARAMS.duplicate(true)
 	other["choice_version"] = 2
-	assert_ne(Cache.key(MODEL, other, 1, 1, _plan().basis()), base, "params")
+	assert_ne(BenchCache.key(MODEL, other, 1, 1, _plan().basis()), base, "params")
 
 
 func test_a_choice_value_holds_no_probabilities() -> void:
