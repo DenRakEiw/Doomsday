@@ -2685,7 +2685,13 @@ agentic harnesses", checked 2026-09-27). `qwen3.8-27b:free`: 429 upstream (share
 done (2026-09-28, high, quick): 22.1, 1/3 wins** (s1001 lose_contained d804 · 136 calls · 3
 unreadable; s1002 win_merge d1343, 66.4 · 225 calls · 2; s1003 lose_contained d448 · 71 calls),
 0 USD, in `%APPDATA%\Doomsday\benchmark\runs`; `submit_runs.ps1` dry run: 3 new files, validate 0
-problems — **publishing (`-Push -VerifyLocally`) is the user's.** `laguna-s-2.1:free` stopped twice
+problems — **publishing (`-Push -VerifyLocally`) is the user's.** **`typesafe/jev-1.13` via
+OpenRouter done (2026-09-28, quick, `--via-openrouter`): 52.6, 2/3 wins** (s1001 win_merge d847,
+78.8 · 107 calls; s1002 win_merge d839, 79.0 · 124; s1003 lose_contained d429 · 58; 0 unreadable,
+2 refused moves each), **0.21 USD charged** (the pre-flight said ≈0.04 a seed — it runs ≈2× low
+for Jev). Command: `bench_run.gd -- --model=typesafe/jev-1.13 --via-openrouter --suite=quick
+--seeds=<s>..<s> --out=user://benchmark --max-cost=0.5 --yes --no-rebuild` per seed, then
+`--rebuild --out=user://benchmark`; `run_models.ps1` does not pass `--via-openrouter` yet. `laguna-s-2.1:free` stopped twice
 "unavailable" upstream (35 answers cached) — re-run the same command; the cache replays them. **Limits:** OpenRouter's free tier shares one daily request cap per
 account (≈1 000/day with credits bought; a quick suite needed ≈300–450 requests) and ≈20 req/min,
 so `-Parallel` helps only up to that rate — about two quick suites a day. Command: `toolsench\
