@@ -202,13 +202,14 @@ func test_rows_for_other_content_have_no_runs_button() -> void:
 	assert_eq(other.find_children("*", "Button", true, false).size(), 0)
 	assert_has(_texts(other), "vendor/old")
 	assert_eq(_buttons(modal.find_child("GlobalRows", true, false), "UI_BENCH_GLOBAL_RUNS").size(),
-		2, "each row of this content has one")
+		1, "each model row of this content has one; the bot waits in its tab")
 
 
 func test_a_bot_row_reads_as_a_bot() -> void:
 	Settings.bench_online = false
 	var modal: Control = _modal(_board_text())
 	modal.call(&"open")
+	modal.call(&"show_tab", "bots")
 	assert_has(_texts(modal), tr("UI_BENCH_BOT").format({"policy": "greedy"}))
 	assert_does_not_have(_texts(modal), "bot:greedy")
 
@@ -294,6 +295,64 @@ func test_a_quick_run_is_watched() -> void:
 	watch[0].pressed.emit()
 	assert_true(Game.is_spectating(), "the downloaded run plays")
 	assert_signal_emitted(modal, "closed")
+
+
+# -------------------------------------------------------------------- tabs
+
+
+func test_the_list_opens_on_the_models_and_keeps_the_bots_in_their_tab() -> void:
+	Settings.bench_online = false
+	var modal: Control = _modal(_quick_board_text())
+	modal.call(&"open")
+	assert_eq(str(modal.get(&"tab")), "models")
+	var tabs: Array[ConsoleButton] = _buttons(modal, "UI_BENCH_TAB_MODELS")
+	assert_eq(tabs.size(), 1)
+	assert_true(tabs[0].button_pressed)
+	assert_false(_buttons(modal, "UI_BENCH_TAB_BOTS")[0].button_pressed)
+	assert_does_not_have(_texts(modal), tr("UI_BENCH_BOT").format({"policy": "greedy"}))
+	assert_has(_texts(modal), QUICK_MODEL)
+	assert_has(_texts(modal), MODEL)
+
+
+func test_the_bot_tab_shows_only_bots_ranked_among_themselves() -> void:
+	Settings.bench_online = false
+	var modal: Control = _modal(_quick_board_text())
+	modal.call(&"open")
+	_buttons(modal, "UI_BENCH_TAB_BOTS")[0].pressed.emit()
+	assert_eq(str(modal.get(&"tab")), "bots")
+	assert_true(_buttons(modal, "UI_BENCH_TAB_BOTS")[0].button_pressed)
+	assert_false(_buttons(modal, "UI_BENCH_TAB_MODELS")[0].button_pressed)
+	var texts: Array[String] = _texts(modal.find_child("GlobalRows", true, false))
+	assert_has(texts, tr("UI_BENCH_BOT").format({"policy": "greedy"}))
+	assert_has(texts, _rank_text(1, 41.0, 6, 10), "the bot is first among bots")
+	assert_does_not_have(_texts(modal), MODEL)
+	assert_does_not_have(_texts(modal), QUICK_MODEL)
+	assert_eq(modal.find_child("QuickRows", true, false).get_child_count(), 0)
+	assert_false((modal.get(&"_quick_title") as Control).visible)
+
+
+func test_a_tab_without_rows_says_empty_and_the_tab_survives_a_rebuild() -> void:
+	Settings.bench_online = false
+	var d: Dictionary = JSON.parse_string(_board_text())
+	var rows: Array = d["rows"]
+	rows.remove_at(1)
+	var modal: Control = _modal(JSON.stringify(d))
+	modal.call(&"open")
+	modal.call(&"show_tab", "bots")
+	assert_has(_texts(modal), tr("UI_BENCH_GLOBAL_EMPTY"), "no bot rows on this board")
+	modal.notification(Node.NOTIFICATION_TRANSLATION_CHANGED)
+	assert_eq(str(modal.get(&"tab")), "bots")
+	assert_true(_buttons(modal, "UI_BENCH_TAB_BOTS")[0].button_pressed)
+
+
+func test_the_quick_suite_comes_before_the_standard_suite() -> void:
+	Settings.bench_online = false
+	var modal: Control = _modal(_quick_board_text())
+	modal.call(&"open")
+	var quick: Node = modal.find_child("QuickRows", true, false)
+	var standard: Node = modal.find_child("GlobalRows", true, false)
+	assert_lt(quick.get_index(), standard.get_index())
+	assert_true((modal.get(&"_standard_title") as Control).visible)
 
 
 func test_runs_open_and_a_listed_run_is_watched() -> void:
@@ -458,7 +517,8 @@ func test_every_row_says_its_effort_and_a_bot_shows_the_dash() -> void:
 	var modal: Control = _modal(_board_text())
 	modal.call(&"open")
 	var rows: Node = modal.find_child("GlobalRows", true, false)
-	var texts: Array[String] = _texts(rows)
-	assert_has(texts, BenchEffort.line("high"))
-	assert_has(texts, BenchEffort.line(""), "the bot row")
+	assert_has(_texts(rows), BenchEffort.line("high"))
+	modal.call(&"show_tab", "bots")
+	assert_has(_texts(modal.find_child("GlobalRows", true, false)), BenchEffort.line(""),
+		"the bot row")
 	assert_has(_texts(modal.find_child("LocalRuns", true, false)), BenchEffort.line("normal"))

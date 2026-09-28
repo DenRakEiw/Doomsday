@@ -25,7 +25,7 @@ rather than struck through.
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
 | **Balance** | `docs/BALANCE.md` — targets, method, every pass. Sweep recipe in its appendix: copy `data/`, patch, `sim_report --data=<OS path>`; one process per variant, ten in parallel. |
 | **Map pipeline** | `uv run --project tools/map python tools/map/build_map.py` (8 s; since S5.7 it also writes `assets/map/globe_ids.png`), then `… build_world.py`, `… verify_map.py`. Environment: `uv sync --project tools/map`, wheels only, no system GDAL |
-| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 374 scripts compile (155 judged by the suite), then `tools/check_strings.gd` (2543 rows), 2578 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
+| **Test suite** | `tools/test.sh` (or `tools\test.ps1`) — import, `tools/check_scripts.gd`, GUT 9.7.1; 374 scripts compile (155 judged by the suite), then `tools/check_strings.gd` (2546 rows), 2583 tests, **all green since S4.9**. The same command is all of CI. The suite's profile and saves are `user://test_profile.json` and `user://test_saves/` (`tests/support/pre_run.gd`). |
 | **Release** | User folder `%APPDATA%/Doomsday/` (`~/.local/share/Doomsday/`) since S6.10 — the old `…/Godot/app_userdata/Doomsday/` is left alone. Export: `"$GODOT" --headless --path . --export-release "Windows" build/windows/Doomsday.exe` (also `"Linux"` → `build/linux/Doomsday.x86_64`, `"Web"` → `build/web/index.html`; `build/` is ignored). Templates 4.7.2 are in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. **Smoke:** `<exe> --headless -- --smoke` → exit 0/1/2, `user://smoke/result.json`; `tools/ci/smoke_check.sh <exe>` compares it with `sim_run` (locally `XDG_DATA_HOME="$APPDATA"`). Release CI: `.github/workflows/release.yml` (tag `v*` → draft release; dispatch → build + smoke only). **Perf (S6.11):** export `"Perf (local)"` → `build/perf/Doomsday-perf.exe`, then `tools/perf/run_perf.ps1 -Exe build/perf/Doomsday-perf.exe -Label cpu_4t -Affinity 0xF` (`-IntegratedGpu [-Resolution 1280x800]`; `-StartTime` on the release exe); summaries in `user://perf/`; a day split by system: `"$GODOT" --headless --path . -s tools/perf/tick_profile.gd`. |
 | **Web** | Export `"$GODOT" --headless --path . --export-release "Web" build/web/index.html`; **play it locally:** `uv run --project tools/web python tools/web/serve.py` → `http://127.0.0.1:8765/` (`--dir <export>`). **Checks (S7.3):** `uv run --project tools/web python tools/web/web_check.py [--build <dir>] [--browsers chrome,msedge,firefox] [--checks size,load,phone,focus,keys,run,hidden,persist,settings,online,progress,smoke,debug] [--debug-build <dir>] [--out <dir>]` (all ≈ 25 min; `--smoke [--expect <json>]` alone is §16.3's CI job, `release.yml` `smoke-web` since S7.I; `--port <n>` moves off 8765); browsers once: `uv run --project tools/web playwright install chromium firefox`. Clicks are embed coordinates at the top of `web_check.py`. In the browser the files are IndexedDB `/userfs` → `/userfs/Doomsday/doomsday/…`. A debug web export answers `window.doomsdayDebugCrash()` and `window.doomsdayDebugAudioUnlocked()`. **Perf (S7.3b):** export `"Perf web (local)"` → `build/perf-web/index.html` and `"Web"`, then `uv run --project tools/web python tools/web/web_perf.py [--modes web_igpu,web_cpu,load] [--runs 3] [--out <dir>] [--vsync] [--cpu-throttle 2.5]` (≈ 20 min; port 8767; Playwright's Chromium in the new headless mode draws on the real GPU; `web_igpu` sets and removes the GPU preference for Playwright's `chrome.exe` only). **Exports need the real `APPDATA`** (the templates live there); only the suite runs with a scratch one. |
 | **itch page** | not created yet — the user's (*Waiting on the user*, "itch.io — going live"); its URL goes here. **Media** in `marketing/itch/`; re-capture with a scratch `APPDATA` (the tool writes `user://itch_capture/`): `"$GODOT" --path . --audio-driver Dummy --resolution 1920x1080 res://tools/marketing/itch_capture.tscn -- --locale=en --entry=<a bot entry from bench_run --bots --out=<scratch>>`, `-- --mode=title` at `--resolution 2560x1440`, then `uv run --project tools/marketing python tools/marketing/compose_cover.py --capture <title_bare_NN.png> --globe <title_globe.json>`. **Upload:** `release.yml` job `itch` (tag `v*`, or dispatch with `itch` ticked). |
@@ -231,6 +231,10 @@ it and take the next row (IMPLEMENTATION §4).*
 Dated, one line each, with the reason. A decision recorded here is not re-argued in a later session
 without new information.
 
+- **2026-09-28** (user) — **AI models get their own leaderboard; the quick suite is theirs.** The
+  in-game list has two tabs, *AI models* and *Built-in bots*, the quick suite first in each. AI
+  models play the quick suite (3 seeds): one seed is a coin toss (a run scores ≈80 or 0), ten cost
+  too much for paid models. Jev does not play the standard suite.
 - **2026-09-27** (S6.12d, pending user confirmation) — **Effort levels** (`benchmark.md` §18.10):
   normal = no reasoning parameter; high = `reasoning.effort` high; ultra = the model's highest
   listed effort (max, else xhigh, else high, from OpenRouter's public list); limits 16 000 / 32 000
@@ -1516,10 +1520,11 @@ without new information.
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
-- **S6.12e — wording of the quick section** (`strings.csv` `UI_BENCH_GLOBAL_QUICK_TITLE`, `_NOTE`):
-  written in the build step, the structure being the user's decision. Title "Quick suite" /
-  "Kurz-Suite"; note "A shorter test on fewer seeds with its own ranking. Its scores do not compare
-  with the list above." An other-version quick row carries the title as a caption. Keep or reword.
+- **S6.12e / AI tab — wording of the list** (`strings.csv` `UI_BENCH_GLOBAL_QUICK_TITLE`, `_NOTE`,
+  `UI_BENCH_GLOBAL_STANDARD_TITLE`, `UI_BENCH_TAB_MODELS`, `_BOTS`): written in build work, the
+  structure being the user's decision. Tabs "AI models" / "KI-Modelle", "Built-in bots" /
+  "Eingebaute Bots"; "Quick suite" / "Kurz-Suite" with "The suite every model plays: a short test
+  on a few seeds."; "Standard suite" / "Standard-Suite". Keep or reword.
 
 - **S7.IP — hints back to back on a loaded save** (`coach.gd` `HINT_REST_MS`, `# DESIGN?`):
   `first-run.md` §6.2 queues the hints with no gap, so a mid-run save meets every hint whose moment
@@ -3070,6 +3075,11 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-28 — Jev through OpenRouter; AI-model tab [O]
+- `bench_run.gd --via-openrouter`: a decision model through OpenRouter's System One endpoint (its key, the id sent whole), `usage.cost` as charged. Jev quick: 52.6, 2/3, 0.21 USD.
+- Published 6 runs (nemotron-super, Jev) with `submit_runs.ps1 -Push -VerifyLocally`: 6/6 verified.
+- The Benchmark list: tabs *AI models* / *Built-in bots* (user), quick suite first, ranks per tab (`benchmark.md` §16.6 item 3b). Looked at in German at 1920 and 400 px. +5 tests, 2583 green; 3 strings; no canary.
 
 ### 2026-09-27 — S6.12e The quick suite in the in-game online list [O]
 - `GlobalBoard` keeps `standard` and `quick` rows (`SUITES`; others skipped silently), `GlobalBoardRow.suite`/`is_quick()`. The list: quick rows of this content under `UI_BENCH_GLOBAL_QUICK_TITLE` + `_NOTE` (`QuickRows`), ranked on their own, *Runs*/*Watch* as standard; other-version quick rows ranked per suite, captioned.

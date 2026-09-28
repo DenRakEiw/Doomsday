@@ -1598,11 +1598,17 @@ preset — S7.2 sets it (D7.1/S7.2 carry-over). Steam changes nothing.
 4. **Rows for other content**, under `CapsLabel` `UI_BENCH_GLOBAL_OTHER_TITLE`: model and
    `UI_BENCH_GLOBAL_ROW` with `UI_BENCH_OTHER_VERSION` (existing); no *Runs* button (they cannot
    be replayed here).
-3a. **Quick-suite rows for this content** (S6.12e, user decision 2026-09-27), after item 3's rows,
-   under `CapsLabel` `UI_BENCH_GLOBAL_QUICK_TITLE` and `LabelCaption` `UI_BENCH_GLOBAL_QUICK_NOTE`
-   (both hidden without such a row): as item 3, with their own `{rank}` from 1 — a quick score
-   never ranks against a standard one. In item 4, `{rank}` counts per suite and a quick row adds
+3a. **Quick-suite rows for this content** (S6.12e, user decision 2026-09-27) under `CapsLabel`
+   `UI_BENCH_GLOBAL_QUICK_TITLE` and `LabelCaption` `UI_BENCH_GLOBAL_QUICK_NOTE` (both hidden
+   without such a row): as item 3, with their own `{rank}` from 1 — a quick score never ranks
+   against a standard one. In item 4, `{rank}` counts per suite and a quick row adds
    `UI_BENCH_GLOBAL_QUICK_TITLE` as a caption.
+3b. **Two tabs** (user decision 2026-09-28): under the note a row of two toggle `ConsoleButton`s,
+   `UI_BENCH_TAB_MODELS` (on open) and `UI_BENCH_TAB_BOTS`; the tab chosen stays while the game
+   runs. A tab shows only its rows (`is_bot()`), in this order: 3a's quick rows (the suite every
+   model plays), then item 3's standard rows under `CapsLabel` `UI_BENCH_GLOBAL_STANDARD_TITLE`,
+   then item 4's; every `{rank}` counts within the tab. A tab without rows says
+   `UI_BENCH_GLOBAL_EMPTY`; the tab row shows when the board has any row.
 5. **Recorded runs** (§12.7's rows, unchanged) under `CapsLabel` `UI_BENCH_LOCAL_TITLE`, only when
    `BenchLibrary` found any.
 6. Compact: buttons drop under their text (§12.7). Accessible names: *Runs*/*Hide* =

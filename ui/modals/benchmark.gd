@@ -2,9 +2,10 @@ extends Control
 ## The *Benchmark* list (spec benchmark.md §12.7, §16.6): the global leaderboard
 ## first — fetched only now, when the list opens, and only with the *Online
 ## leaderboard* setting on — then the recorded runs this game found on disk.
-## The board's standard-suite rows come first; its quick-suite rows follow in
-## their own section with their own ranks (S6.12e), since the two scores do not
-## compare.
+## The board has two tabs (2026-09-28, user): *AI models* (on open) and
+## *Built-in bots*. Each shows its rows of the quick suite first — the suite
+## every model plays — then of the standard suite, each ranked on its own, since
+## the two scores do not compare (S6.12e); then its rows of other versions.
 ## Every run with a *Watch* button replays in the session. Every row says the
 ## model's effort level (§18); bots and decision models show the dash.
 ##
@@ -36,6 +37,11 @@ const KEY_GLOBAL_PARTIAL: String = "UI_BENCH_GLOBAL_PARTIAL"
 const KEY_GLOBAL_OTHER_TITLE: String = "UI_BENCH_GLOBAL_OTHER_TITLE"
 const KEY_GLOBAL_QUICK_TITLE: String = "UI_BENCH_GLOBAL_QUICK_TITLE"
 const KEY_GLOBAL_QUICK_NOTE: String = "UI_BENCH_GLOBAL_QUICK_NOTE"
+const KEY_GLOBAL_STANDARD_TITLE: String = "UI_BENCH_GLOBAL_STANDARD_TITLE"
+const KEY_TAB_MODELS: String = "UI_BENCH_TAB_MODELS"
+const KEY_TAB_BOTS: String = "UI_BENCH_TAB_BOTS"
+const TAB_MODELS: String = "models"
+const TAB_BOTS: String = "bots"
 const KEY_GLOBAL_RUNS: String = "UI_BENCH_GLOBAL_RUNS"
 const KEY_GLOBAL_HIDE: String = "UI_BENCH_GLOBAL_HIDE"
 const KEY_GLOBAL_DOWNLOADING: String = "UI_BENCH_GLOBAL_DOWNLOADING"
@@ -63,6 +69,8 @@ const SEPARATOR: String = " "
 
 ## The status line's text as it stands, for the tests.
 var status_text: String = ""
+## The board's tab on show: `TAB_MODELS` or `TAB_BOTS`. Kept while the game runs.
+var tab: String = TAB_MODELS
 
 var _library: BenchLibrary = null
 var _board: GlobalBoard = null
@@ -75,6 +83,10 @@ var _has_spoken: bool = false
 var _status: Label = null
 var _note: Label = null
 var _global_rows: VBoxContainer = null
+var _tab_row: HFlowContainer = null
+var _tab_group: ButtonGroup = ButtonGroup.new()
+var _tab_buttons: Dictionary[String, ConsoleButton] = {}
+var _standard_title: CapsLabel = null
 var _quick_title: CapsLabel = null
 var _quick_note: Label = null
 var _quick_rows: VBoxContainer = null
@@ -175,10 +187,21 @@ func _build_global() -> void:
 	_status = _caption(box, "")
 	_status.name = "GlobalStatus"
 	_note = _caption(box, tr(KEY_GLOBAL_NOTE))
-	_global_rows = VBoxContainer.new()
-	_global_rows.name = "GlobalRows"
-	_global_rows.theme_type_variation = &"StackTight"
-	box.add_child(_global_rows)
+	_tab_row = HFlowContainer.new()
+	_tab_row.name = "BoardTabs"
+	box.add_child(_tab_row)
+	_tab_group = ButtonGroup.new()
+	_tab_buttons.clear()
+	for id: String in [TAB_MODELS, TAB_BOTS]:
+		var button: ConsoleButton = ConsoleButton.new()
+		button.toggle_mode = true
+		button.button_group = _tab_group
+		button.compact = true
+		button.label_key = KEY_TAB_MODELS if id == TAB_MODELS else KEY_TAB_BOTS
+		button.pressed.connect(show_tab.bind(id))
+		_tab_row.add_child(button)
+		_tab_buttons[id] = button
+	ToggleGroup.press(_tab_buttons[tab])
 	_quick_title = CapsLabel.new()
 	_quick_title.label_key = KEY_GLOBAL_QUICK_TITLE
 	box.add_child(_quick_title)
@@ -187,6 +210,13 @@ func _build_global() -> void:
 	_quick_rows.name = "QuickRows"
 	_quick_rows.theme_type_variation = &"StackTight"
 	box.add_child(_quick_rows)
+	_standard_title = CapsLabel.new()
+	_standard_title.label_key = KEY_GLOBAL_STANDARD_TITLE
+	box.add_child(_standard_title)
+	_global_rows = VBoxContainer.new()
+	_global_rows.name = "GlobalRows"
+	_global_rows.theme_type_variation = &"StackTight"
+	box.add_child(_global_rows)
 	_other_title = CapsLabel.new()
 	_other_title.label_key = KEY_GLOBAL_OTHER_TITLE
 	box.add_child(_other_title)
@@ -270,15 +300,18 @@ func _render_board() -> void:
 	_pairs = kept
 	_run_buttons.clear()
 	_pending_caption = null
-	# Ranks count per section and, among other versions, per suite: a quick
-	# score never ranks against a standard one.
+	# Ranks count per tab and section and, among other versions, per suite: a
+	# quick score never ranks against a standard one, a model never against a bot.
 	var current: int = 0
 	var quick: int = 0
 	var other: int = 0
 	var other_quick: int = 0
 	var content_hash: String = _content_hash()
+	var bots: bool = tab == TAB_BOTS
 	if _board != null:
 		for row: GlobalBoardRow in _board.rows:
+			if row.is_bot() != bots:
+				continue
 			if row.content_hash != content_hash:
 				if row.is_quick():
 					other_quick += 1
@@ -292,13 +325,24 @@ func _render_board() -> void:
 			else:
 				current += 1
 				_add_global_row(_global_rows, row, current)
-		if _board.rows.is_empty():
-			_caption(_global_rows, tr(KEY_GLOBAL_EMPTY))
-	_note.visible = current + quick + other + other_quick > 0
+		if current + quick + other + other_quick == 0:
+			_caption(_quick_rows, tr(KEY_GLOBAL_EMPTY))
+	var any: bool = _board != null and not _board.rows.is_empty()
+	_note.visible = any
+	_tab_row.visible = any
 	_quick_title.visible = quick > 0
 	_quick_note.visible = quick > 0
+	_standard_title.visible = current > 0
 	_other_title.visible = other + other_quick > 0
 	_apply_compact()
+
+
+## Shows the board's `id` tab (`TAB_MODELS` or `TAB_BOTS`).
+func show_tab(id: String) -> void:
+	tab = id
+	if _tab_buttons.has(id):
+		ToggleGroup.press(_tab_buttons[id])
+	_render_board()
 
 
 func _status_line() -> String:

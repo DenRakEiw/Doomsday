@@ -341,6 +341,7 @@ before the *next* row; "—" means stay on the same model.
 | 97′ | S6.12d Ready for the user's model runs, with effort levels *(user requests 2026-09-26; inserted 2026-09-27 by the orchestrator; the live runs are the user's)* | [O] | — |
 | 97a | S7.IP Release polish before the itch release *(inserted 2026-09-26 by the orchestrator)* | [O] | — |
 | 97b | S6.12e The quick suite in the in-game online list *(user decision 2026-09-27; `benchmark.md` §16.6)* | [O] | — |
+| 97c | AI-model tab in the Benchmark list; Jev via OpenRouter *(user requests 2026-09-28; `benchmark.md` §16.6 3b, §17.9)* | [O] | — |
 | 98 | G7.I The itch.io release: played on the restricted page, go, public — **[needs user]** | **[F]** | — |
 | 99–107 | ~~S7.F1–S7.F5, U7.F1–U7.F4 FLUX 3 Action track~~ — **cut 2026-09-26** (user; numbers kept so later rows do not move) | — | — |
 | 108 | D7.1 Touch and phone | **[F]** | — |
