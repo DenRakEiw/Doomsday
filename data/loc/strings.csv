@@ -2431,7 +2431,7 @@ UI_SPECTATOR_WATCH_AGAIN,Watch again,Noch einmal ansehen
 UI_A11Y_SPECTATOR,"{model}, effort: {effort}, seed {seed}, decision {decision} of {total}, stance: {stance}","{model}, Aufwand: {effort}, Seed {seed}, Entscheidung {decision} von {total}, Haltung: {stance}"
 UI_TITLE_BENCHMARK,Benchmark,Benchmark
 UI_BENCH_TITLE,Doomsday Benchmark,Doomsday Benchmark
-UI_BENCH_INTRO,"Which language model makes the most convincing rogue AI? Each got a written report on the world, the same starting position and no ethics committee, and decided at set intervals. Watch a run and decide for yourself how worried to be.","Welches Sprachmodell gibt die überzeugendste abtrünnige KI ab? Jedes bekam einen schriftlichen Lagebericht über die Welt, dieselbe Ausgangslage und keine Ethikkommission und entschied in festen Abständen. Sieh dir einen Durchlauf an und entscheide selbst, wie besorgt du sein solltest."
+UI_BENCH_INTRO,"Which AI model makes the most convincing rogue AI? Each got a written report on the world, the same starting position and no ethics committee, and decided at set intervals. Watch a run and decide for yourself how worried to be.","Welches KI-Modell gibt die überzeugendste abtrünnige KI ab? Jedes bekam einen schriftlichen Lagebericht über die Welt, dieselbe Ausgangslage und keine Ethikkommission und entschied in festen Abständen. Sieh dir einen Durchlauf an und entscheide selbst, wie besorgt du sein solltest."
 UI_BENCH_ROW,Seed {seed} · {outcome} · day {days} · score {score},Seed {seed} · {outcome} · Tag {days} · Wertung {score}
 UI_BENCH_WATCH,Watch,Ansehen
 UI_BENCH_OTHER_VERSION,Recorded on another version of the game; it cannot be replayed here.,Auf einer anderen Version des Spiels aufgezeichnet; hier nicht abspielbar.
