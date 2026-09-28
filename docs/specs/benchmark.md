@@ -28,6 +28,11 @@ key in the operating system's credential store, set in the settings; a model pic
 OpenRouter's list; the game as its own headless worker; progress; *Submit*); it amends §0 items 6
 and 7 and *Not in scope* (§19's preamble). Builds from it: **S6.12f** and **S6.12g**.
 
+**D6.9f (2026-09-28)** adds **§20, *Submit* through Supabase** (an anonymous inbox function, a
+collector in the leaderboard workflow that replays every group before publishing, the consent
+line, the group line's *sent / listed* states) and answers S6.12g's design questions (§20.13); it
+amends §16.1, §19's preamble and §19.9.3. Build from it: **S6.12h** (needs the user's project).
+
 ---
 
 ## 0. What this spec decides
@@ -1220,8 +1225,9 @@ seed, reach this outcome on this day with this state hash — the score is real.
 *which model* chose the commands: the model name, the parameters, `decisions`, `calls`, tokens
 and cost are the submitter's claims, and the list says so (`UI_BENCH_GLOBAL_NOTE`).
 
-**Neither the game nor `bench_run.gd` uploads anything.** A run reaches the global board by a
-pull request made by hand (§16.2).
+**`bench_run.gd` uploads nothing, and the game uploads only on *Submit* (§20, D6.9f).** A run
+reaches the global board by a pull request (§16.2) or through the Supabase inbox the workflow
+collects from (§20).
 
 ### 16.2 A run's way onto the board
 
@@ -2465,7 +2471,9 @@ now calls a model — only when the player starts a benchmark with their own key
 process of the game (§19.4). The browser and phone builds do not (§19.1). §0 item 7 (the key from
 the environment only) stays true **for the tool**; the game reads the key from the operating
 system's credential store (§19.2). Uploading from the game stays out of scope: *Submit* prepares
-the files and opens GitHub, the player makes the pull request (§19.9).
+the files and opens GitHub, the player makes the pull request (§19.9). *(Superseded by §20,
+D6.9f: Submit uploads to a Supabase inbox after a consent line; the GitHub route is the
+fallback.)*
 
 ### 19.1 Where it exists
 
@@ -2732,6 +2740,10 @@ access ("File uploads require push access"). The user chose the fork route for n
 `player.submit_url` is the repository's fork page, `UI_BENCH_SUBMIT_STEPS` says fork → upload into
 `runs/` → pull request — and an upload through Supabase later (D6.9f, S6.12h).
 
+**D6.9f:** with the Supabase project configured, §20.6 replaces items 3–4 (consent, then the
+upload; this fork route stays as its fallback) and §20.7 gives the group line its *sent / listed*
+states.
+
 ### 19.10 Data — `data/benchmark.json` gains `player`
 
 Written into the file **by S6.12f**, with `BenchConfig` reading every key (§3's rule) — so the
@@ -2827,3 +2839,576 @@ stops the benchmark; the store reached through PowerShell and `secret-tool` rath
 extension; the tool may read the store too. **Open, for the build to confirm and report:** the
 Windows GUI executable's stdin pipe (else the environment fallback, §19.4); OpenRouter's `/key`
 reply (§19.7.1) and key page URL; GitHub's upload-to-fork for non-collaborators (§19.9.3).
+
+---
+
+## 20. *Submit* through Supabase (D6.9f)
+
+D6.9f (2026-09-28). The user's decision (PROGRESS *Decisions* 2026-09-28): a player's runs reach
+the global board **without a GitHub account** — the game uploads them to a Supabase project, the
+leaderboard workflow collects them. Build from it: **S6.12h** (needs the user's project, §20.10).
+It amends §16.1 ("neither the game nor `bench_run.gd` uploads anything"), §19's preamble and
+§19.9.3, `release.md` §0 and §10, and `itch.md` §3.8/§4.8.
+
+**What stays:** the verifier (§16.4) and its checks, unchanged; the public repository as the one
+published record; pull requests to it (the tool's `submit_runs.ps1`, and anyone by hand); the
+fork route of S6.12g as the **fallback** (§20.6). **What is new:** one database function the game
+may call anonymously, a collector in the leaderboard workflow that replays every submitted group
+before anything reaches the public repository, and a consent step in the *Submit* modal.
+
+### 20.1 The shape, and why
+
+```
+game ──POST rpc/submit_runs (publishable key)──▶ Supabase: private.submissions (status new)
+                                                         │
+leaderboard.yml (daily) ── rpc/take_submissions (secret key) ◀┘
+  collect_submissions.gd: replay each group
+    accepted → <board>/runs/   (then §16.4 as ever, then publish)
+    rejected / held → nothing published
+  after a successful publish: rpc/mark_submission per group
+```
+
+- **A table behind a function, not a storage bucket.** A bucket can limit size and type, but not
+  "one group, not sent before, not more than N an hour" — a function checks all of it in one
+  place and answers with a reason the game can show. The table lives in a schema the Data API
+  does not expose (`private`); the only doors are three functions in `public`, one granted to
+  `anon` (the game's publishable key), two to `service_role` (the workflow's secret key).
+- **The game's door is deliberately `security definer` and anonymous:** it is the one public
+  write endpoint, there is no identity to check (no accounts), and it is guarded by its own
+  checks, `set search_path = ''` and explicit grants (§20.2). It never reads out or returns
+  another submission's content.
+- **Anonymous submissions never reach the public repository unchecked.** A pull request had a
+  person look at it; this route does not. So the collector **replays every file** of a group with
+  the verifier's own `BenchVerifier.check` before writing anything into `runs/`; a group with one
+  failing file is rejected whole. Model names are the other thing a person looked at: a name that
+  is not an id in OpenRouter's public model list is **held** for the owner (§20.4).
+- **No IP address is stored**, and there is no per-address limit. The limits are global (an
+  hourly count and a cap on unprocessed rows, §20.2). A flood can fill the inbox and make every
+  sender wait; it cannot publish anything, and the owner closes the door with one switch
+  (`private.submit_config.open`). A per-address limit would put personal data into the table —
+  not worth it at this game's scale; revisit only if the inbox is actually flooded.
+
+### 20.2 The database — one SQL script (the user runs it once, §20.10)
+
+The build commits it as **`tools/bench/supabase/submissions.sql`** (checked by hand against the
+project, §20.9); this is its content. Postgres ≥ 15 (every Supabase project); `sha256(bytea)` is
+built in.
+
+```sql
+-- Doomsday leaderboard submissions (docs/specs/benchmark.md §20). Run once in the SQL editor.
+-- The tables are in a schema the Data API does not expose; the only doors are the three
+-- functions at the bottom, each granted to exactly one role.
+
+create schema if not exists private;
+revoke all on schema private from public, anon, authenticated;
+
+-- One row. The owner edits it in the Table Editor: open = false closes submissions.
+create table private.submit_config (
+	id boolean primary key default true check (id),
+	open boolean not null default true,
+	max_per_hour integer not null default 60,
+	max_pending integer not null default 300
+);
+insert into private.submit_config default values;
+
+create table private.submissions (
+	id bigint generated always as identity primary key,
+	created_at timestamptz not null default now(),
+	group_sha text not null unique,
+	file_count integer not null,
+	total_bytes integer not null,
+	files jsonb not null,
+	status text not null default 'new'
+		check (status in ('new', 'held', 'approved', 'accepted', 'rejected')),
+	reason text not null default '',
+	checked_at timestamptz
+);
+create index submissions_status_id on private.submissions (status, id);
+create index submissions_created on private.submissions (created_at);
+
+alter table private.submit_config enable row level security;
+alter table private.submissions enable row level security;
+revoke all on all tables in schema private from public, anon, authenticated;
+
+-- The game's door (publishable key → anon). One group of run files per call.
+-- p_files: [{"name": "<§10.2 file name>", "body": "<the file's text>"}, …]
+-- Returns {"status": "received" | "already", "id": <row id>}; refuses with 'submit:<reason>'.
+create or replace function public.submit_runs(p_files jsonb)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+	cfg private.submit_config;
+	f jsonb;
+	body text;
+	parsed jsonb;
+	names text[] := '{}';
+	hashes text[] := '{}';
+	content text := null;
+	total integer := 0;
+	g text;
+	found_id bigint;
+	new_id bigint;
+begin
+	select * into cfg from private.submit_config where id;
+	if cfg is null or not cfg.open then
+		raise exception 'submit:closed';
+	end if;
+	if jsonb_typeof(p_files) is distinct from 'array' then
+		raise exception 'submit:bad_request';
+	end if;
+	if jsonb_array_length(p_files) < 1 or jsonb_array_length(p_files) > 10 then
+		raise exception 'submit:too_many_files';
+	end if;
+	for f in select value from jsonb_array_elements(p_files) loop
+		if jsonb_typeof(f) is distinct from 'object'
+				or jsonb_typeof(f -> 'name') is distinct from 'string'
+				or jsonb_typeof(f -> 'body') is distinct from 'string' then
+			raise exception 'submit:bad_request';
+		end if;
+		if (f ->> 'name') !~ '^[a-z0-9._-]{1,200}\.json$' or (f ->> 'name') = any(names) then
+			raise exception 'submit:bad_name';
+		end if;
+		body := f ->> 'body';
+		if octet_length(body) > 1000000 then
+			raise exception 'submit:too_large';
+		end if;
+		total := total + octet_length(body);
+		begin
+			parsed := body::jsonb;
+		exception when others then
+			raise exception 'submit:bad_json';
+		end;
+		if jsonb_typeof(parsed) is distinct from 'object'
+				or jsonb_typeof(parsed -> 'content_hash') is distinct from 'string' then
+			raise exception 'submit:bad_json';
+		end if;
+		if content is null then
+			content := parsed ->> 'content_hash';
+		elsif content <> parsed ->> 'content_hash' then
+			raise exception 'submit:mixed';
+		end if;
+		names := names || (f ->> 'name');
+		hashes := hashes || encode(sha256(convert_to(body, 'UTF8')), 'hex');
+	end loop;
+	if total > 3000000 then
+		raise exception 'submit:too_large';
+	end if;
+	select encode(sha256(convert_to(string_agg(u.h, E'\n' order by u.h), 'UTF8')), 'hex')
+		into g from unnest(hashes) as u(h);
+	select s.id into found_id from private.submissions s where s.group_sha = g;
+	if found_id is not null then
+		return jsonb_build_object('status', 'already', 'id', found_id);
+	end if;
+	if (select count(*) from private.submissions s
+			where s.created_at > now() - interval '1 hour') >= cfg.max_per_hour then
+		raise exception 'submit:busy';
+	end if;
+	if (select count(*) from private.submissions s
+			where s.status in ('new', 'held', 'approved')) >= cfg.max_pending then
+		raise exception 'submit:full';
+	end if;
+	insert into private.submissions (group_sha, file_count, total_bytes, files)
+		values (g, jsonb_array_length(p_files), total, p_files)
+		on conflict (group_sha) do nothing
+		returning id into new_id;
+	if new_id is null then
+		select s.id into found_id from private.submissions s where s.group_sha = g;
+		return jsonb_build_object('status', 'already', 'id', found_id);
+	end if;
+	return jsonb_build_object('status', 'received', 'id', new_id);
+end;
+$$;
+
+-- The workflow's doors (secret key → service_role).
+create or replace function public.take_submissions(p_limit integer)
+returns table (id bigint, status text, files jsonb)
+language sql
+security definer
+set search_path = ''
+as $$
+	select s.id, s.status, s.files from private.submissions s
+	where s.status in ('new', 'approved')
+	order by s.id
+	limit greatest(p_limit, 0);
+$$;
+
+-- Accepted and rejected rows keep their hash (a resend answers 'already') but drop the files.
+create or replace function public.mark_submission(p_id bigint, p_status text, p_reason text)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+	if p_status not in ('held', 'accepted', 'rejected') then
+		raise exception 'mark:bad_status';
+	end if;
+	update private.submissions s
+		set status = p_status,
+			reason = left(coalesce(p_reason, ''), 200),
+			checked_at = now(),
+			files = case when p_status = 'held' then s.files else '[]'::jsonb end
+		where s.id = p_id;
+end;
+$$;
+
+-- Functions are executable by PUBLIC by default, and Supabase may grant new ones to anon and
+-- authenticated as well: take everything away, then give each door to its one role.
+revoke execute on function public.submit_runs(jsonb) from public, anon, authenticated;
+revoke execute on function public.take_submissions(integer) from public, anon, authenticated;
+revoke execute on function public.mark_submission(bigint, text, text) from public, anon, authenticated;
+grant execute on function public.submit_runs(jsonb) to anon;
+grant execute on function public.take_submissions(integer) to service_role;
+grant execute on function public.mark_submission(bigint, text, text) to service_role;
+
+notify pgrst, 'reload schema';
+```
+
+**The rules it enforces** (the game checks the size rules itself before sending, §20.5):
+
+| Refusal | When |
+| --- | --- |
+| `submit:closed` | `submit_config.open` is false (the owner's switch) |
+| `submit:bad_request` | not an array of `{name, body}` objects with string values |
+| `submit:too_many_files` | fewer than 1 or more than 10 files (the quick suite is 3, the standard 10) |
+| `submit:bad_name` | a name outside `^[a-z0-9._-]{1,200}\.json$`, or twice in one group |
+| `submit:too_large` | one body above 1 000 000 bytes, or all together above 3 000 000 (a quick run is 20–90 KB) |
+| `submit:bad_json` | a body that is not a JSON object with a string `content_hash` |
+| `submit:mixed` | the files name different `content_hash`es |
+| `submit:busy` | `max_per_hour` groups arrived in the last hour (everyone's, not the sender's) |
+| `submit:full` | `max_pending` groups wait (`new`, `held`, `approved`) |
+
+A group received before — **the same file bytes**, whatever its status now — answers `already`
+with its row, before the rate checks (a resend never counts against the hour). Everything deeper
+(the §10.2 name for the contents, one model, a complete suite, the replay) is the collector's
+(§20.4), which has the game.
+
+**The group hash** (`group_sha`; the game computes the same, §20.5): the lower-case hex SHA-256 of
+each file's UTF-8 bytes; those hashes sorted, joined with `"\n"` (no trailing newline); the
+lower-case hex SHA-256 of that text's UTF-8 bytes. A body is kept as the JSON string it arrived
+as, so the collector writes back exactly the bytes the player's file had — and the board's
+`seeds[].sha256` (§16.3) then equals the player's local file hash, which is how the game tells
+*on the leaderboard* (§20.7).
+
+### 20.3 The call
+
+```
+POST <submit.api_url>/rest/v1/rpc/<submit.function>
+apikey: <submit.publishable_key>
+Content-Type: application/json
+Accept: application/json
+
+{"p_files": [{"name": "<file name>", "body": "<file text>"}, …]}
+```
+
+- **The key goes in `apikey` only** — a publishable key (`sb_publishable_…`) is not a JWT and is
+  never sent as `Authorization: Bearer` (Supabase's documentation, read 2026-09-28; the legacy
+  `anon` JWT key is being retired by the end of 2026, so the game ships the publishable one).
+- **200** with `{"status": "received" | "already", "id": <n>}`. **400** with PostgREST's error
+  object whose `message` is `submit:<reason>` (a plain `raise exception` is SQLSTATE `P0001`,
+  which PostgREST answers with 400 — the build confirms both on the user's project). Anything
+  else — another status, no answer within `submit.timeout_s`, a body that does not read — is a
+  network failure for the game.
+- Nothing else goes with it: no cookie, no identifier, no settings; Godot's default headers.
+
+### 20.4 The collector — `tools/bench/collect_submissions.gd`
+
+A headless tool (it works in `_initialize` like `bench_run.gd` — TLS), the judging in
+`tools/bench/submission_check.gd` (preloaded, no `class_name`, pure — as `bench_verifier.gd`). It
+reads `SUPABASE_URL` and `SUPABASE_SECRET_KEY` from the environment only (never an argument, never
+printed).
+
+```
+"$GODOT" --headless --path . -s tools/bench/collect_submissions.gd -- \
+    --board=<leaderboard checkout> --out=<collected.json> [--limit=<n = global.collect_limit>]
+"$GODOT" --headless --path . -s tools/bench/collect_submissions.gd -- --confirm=<collected.json>
+```
+
+**Collect** (before the bot rows and the verifier, §20.8):
+
+1. Load the config and the content (errors → exit 1). Either variable missing →
+   `collect: no Supabase secret — nothing to collect`, an empty `collected.json`, exit 0.
+2. `POST <url>/rest/v1/rpc/take_submissions` with `{"p_limit": <limit>}` and the header
+   `apikey: <secret key>` → the oldest `new` and `approved` groups. No answer or not 200 →
+   `collect: Supabase unreachable (<status>) — nothing taken`, an empty file, **exit 0**: the bot
+   rows and the verifier still run; the groups wait for the next run.
+3. `GET <base_url><models_path>` (OpenRouter's public list, §11.5, no key) → the set of model ids.
+   Unreachable → the set is unknown: `new` groups are **left untouched** (not in the file, taken
+   again next time); `approved` ones go on.
+4. **Per group — the first rule that fails is the verdict:**
+
+   | Verdict · reason | When |
+   | --- | --- |
+   | rejected · `unreadable` | `files` is not an array of `{name, body}` strings, or a body is not an entry `BenchEntry.from_dict` reads |
+   | rejected · `file_name` | a name is not §10.2's name for its entry |
+   | rejected · `backend` | a `bot:` model, `backend` `bot`, or a backend beginning with `mock` |
+   | rejected · `group` | the entries differ in model, `params_id`, `prompt_version`, `suite` or `content_hash`, or their seeds are not exactly the suite's seeds, each once |
+   | rejected · the verifier's reason | `BenchVerifier.check` on each file (§16.4: `rules`, `content`, `refused`, `outcome`, `days`, `score`, `unfinished`, `hash` …) — the first file that is not `verified` rejects the group; `detail` = `<file name>: <the record's detail>` |
+   | held · `model` | status `new` and the model id is not in OpenRouter's list |
+   | accepted | everything above passed (an `approved` group skips the `model` rule — the owner looked) |
+
+   `reason` is `<id>` or `<id> — <detail>`, at most 200 characters, built from ids, numbers and
+   the already-checked file name only — never from a run file's free strings (§16.3's rule).
+5. **Accepted** groups' files are written into `<board>/runs/<name>` (`.tmp`, then rename),
+   overwriting a file of the same name (§10.2: the newest run is the record). The verifier then
+   checks them again like any run — twice the replay, a few seconds a file, and the verifier
+   stays the one writer of records.
+6. Write `--out`: `{"version": 1, "groups": [{"id": 42, "status": "accepted", "reason": ""}, …]}`
+   — the judged groups only, nothing from the files. Print `collect: taken <n>, accepted <a>,
+   rejected <r>, held <h>, waiting <w>` (`waiting` = left for want of the model list). Every line
+   the tool prints starts with `collect:`; values are ids and numbers.
+
+**Confirm** (`--confirm=<file>`, after a successful publish, §20.8): for every group in the file,
+`POST <url>/rest/v1/rpc/mark_submission` with `{"p_id", "p_status", "p_reason"}`. A failed call
+prints `collect: could not mark <id>` and goes on; exit 0, or 1 when the file does not read. A
+group left unmarked is taken again next time — re-judged and re-written byte-identical, so
+nothing changes on the board.
+
+**Why confirm is a separate call:** marking `accepted` drops the files from the database. Were the
+push to fail afterwards, the runs would be gone; marking after the push loses nothing.
+
+**Held groups** stay in the table with their files. The owner opens *Table Editor → schema
+`private` → `submissions`*, reads the model name in `files` and sets `status` to `approved` (taken
+on the next run, the `model` rule skipped) or `rejected`. That is the only hand work, and only for
+a model OpenRouter does not list.
+
+### 20.5 The game — sending
+
+**Data** (`data/benchmark.json`, written by S6.12h; the file is not in the content hash, so no
+canary) — `player` gains:
+
+```json
+"submit": {
+	"api_url": "",
+	"publishable_key": "",
+	"function": "submit_runs",
+	"max_files": 10,
+	"max_file_bytes": 1000000,
+	"max_total_bytes": 3000000,
+	"timeout_s": 30,
+	"not_listed_days": 2
+},
+"model_exclude_suffixes": ["-content-safety", ":batch"],
+"model_exclude_prefixes": ["openrouter/"]
+```
+
+and `global` gains `"collect_limit": 20`. `player.submit_url` (the fork page) stays — the
+fallback. **`api_url` or `publishable_key` empty → the game behaves as S6.12g built it** (the fork
+route only); S6.12h writes the user's values in. Both are public by design: a publishable key is
+meant to ship in a client, and all it can do is §20.2's one function.
+
+**Classes** (`game/bench/`, `class_name` each, no autoload named):
+
+- **`BenchSubmission`** (`RefCounted`, pure): `static func from_group(group: BenchGroup) ->
+  BenchSubmission` reads the group's files as UTF-8 text — `last_error` when one does not read or
+  a size rule of `player.submit` is broken (checked before any network); `body() -> String` (the
+  §20.3 JSON); `group_sha: String` (§20.2's algorithm) and `file_sha: PackedStringArray`;
+  `static func read_answer(code: int, body: PackedByteArray) -> BenchSubmitResult`.
+- **`BenchSubmitResult`** (`RefCounted`): `kind` — `RECEIVED`, `ALREADY`, `BUSY` (`busy`, `full`),
+  `CLOSED`, `REFUSED` (every other `submit:*` reason, any other 4xx), `NETWORK` (no answer,
+  timeout, 5xx, an unreadable body, 200 without a known status) — plus `id: int` and
+  `reason: String` (for the log line only, never shown).
+- **The transport** — an `HTTPRequest` child of the submit modal; a seam `transport: Callable`
+  (`func(url: String, headers: PackedStringArray, body: String, done: Callable) -> void`) for the
+  tests, as the board client has. No retry of its own: *Try again* is the player's.
+- **`BenchSubmitLog`** (`RefCounted`) — `user://benchmark/submitted.json`: `{"version": 1,
+  "sent": [{"group_sha", "files": [<file sha>…], "date": "YYYY-MM-DD", "id"}]}`, appended after
+  `RECEIVED` or `ALREADY`; a file that does not read is an empty log (never a crash) and is
+  rewritten on the next send. It is a note for the list, nothing more — nothing trusts it. The
+  suite's: `user://test_bench_submit_log/` (`pre_run.gd`).
+
+**The *Online leaderboard* setting does not govern *Submit*** (nor the own benchmark, nor
+*Check*): it switches off what the game fetches **by itself** when the list opens and when a run
+is watched (§16.6); *Submit* is an explicit act behind its own consent line (§20.6). This answers
+S6.12g's question; S6.12h narrows the comment in `settings.gd` to say so.
+
+### 20.6 The *Submit* modal (replaces §19.9.3 items 3–4 when `api_url` is set)
+
+1. Title `UI_BENCH_SUBMIT_TITLE`.
+2. The old-version refusal, unchanged (§19.9.3 item 2).
+3. **Consent** — every time, no *don't ask again* (a rare act, and the line is the promise):
+   `UI_BENCH_SUBMIT_CONSENT` (`{count}`), then **`UI_BENCH_SUBMIT_SEND`**, `UI_COMMON_CANCEL` and,
+   as a secondary button, **`UI_BENCH_SUBMIT_GITHUB`** — the fork route (§19.9.3 items 3–4 as
+   S6.12g built them: copy, open the folder and the fork page, `UI_BENCH_SUBMIT_STEPS`).
+4. **Sending:** `UI_BENCH_SUBMIT_SENDING` (live region), every button but *Close* disabled.
+   Closing meanwhile abandons the answer (the request may still land; a later *Submit* answers
+   `already`).
+5. **The answer** (live region), and what the buttons become:
+
+   | Result | Line | Buttons |
+   | --- | --- | --- |
+   | `RECEIVED` | `UI_BENCH_SUBMIT_SENT` | Close |
+   | `ALREADY` | `UI_BENCH_SUBMIT_ALREADY` | Close |
+   | `BUSY` | `UI_BENCH_SUBMIT_BUSY` | `UI_BENCH_SUBMIT_RETRY`, `UI_BENCH_SUBMIT_GITHUB`, Close |
+   | `CLOSED` | `UI_BENCH_SUBMIT_CLOSED` | `UI_BENCH_SUBMIT_GITHUB`, Close |
+   | `REFUSED` | `UI_BENCH_SUBMIT_REFUSED` | `UI_BENCH_SUBMIT_GITHUB`, Close |
+   | `NETWORK` | `UI_BENCH_SUBMIT_NET_FAILED` | `UI_BENCH_SUBMIT_RETRY`, `UI_BENCH_SUBMIT_GITHUB`, Close |
+   | the files do not read (`from_group` fails) | `UI_BENCH_SUBMIT_READ_FAILED` | Close |
+
+   The game's log gets one line per send: `bench_submit: <kind> <reason> <id>` — never a body.
+6. **`UI_BENCH_SUBMIT_FAILED`** (S6.12g's placeholder, "could not be copied") **stays** for the
+   fork route's copy failure.
+
+**`api_url` empty:** items 3–5 are skipped and the modal is S6.12g's, unchanged.
+
+### 20.7 The group line (amends §19.9.3's line)
+
+The line keeps the model, `UI_BENCH_GROUP_ROW` and the effort; its right end depends on the group
+(the log and the board are read when the list opens; the board is whatever §16.6 holds —
+fetched, cached or shipped); the first row that holds decides:
+
+| State | Shown |
+| --- | --- |
+| **Listed** — every one of the group's file hashes is a `seeds[].sha256` of some row of the board | `UI_BENCH_GROUP_LISTED`, no button |
+| **Not listed** — the log has the group's `group_sha`, not listed, and the board's `generated` is at least `submit.not_listed_days` days after the log's `date` | `UI_BENCH_GROUP_NOT_LISTED` (`{date}`) and `UI_BENCH_SUBMIT_GITHUB` (the fork route) |
+| **Sent** — the log has the group's `group_sha`, otherwise | `UI_BENCH_GROUP_SENT` (`{date}`), no button |
+| otherwise | `UI_BENCH_SUBMIT` (the modal, §20.6) |
+
+A re-run that overwrote a file changes the hashes, so the group counts as not sent again — right,
+since the newer runs are the record (§10.2). `{date}` is formatted like the list's other dates.
+*Not listed* covers a rejected or held group without the game asking the server anything: the game
+only knows what the public board shows.
+
+### 20.8 The workflow — `.github/workflows/leaderboard.yml` gains two steps
+
+- The job's `env` gains `HAS_SUBMIT: ${{ secrets.SUPABASE_SECRET_KEY != '' && vars.SUPABASE_URL
+  != '' }}`.
+- **Collect submissions**, after *Clone the public leaderboard* and before *Bot rows*; `if:` the
+  existing condition `&& env.HAS_SUBMIT == 'true'`; `env: SUPABASE_URL: ${{ vars.SUPABASE_URL }}`,
+  `SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}`; between `::stop-commands::<token>`
+  and `::<token>::` like the verifier; `--board="$BOARD" --out="$RUNNER_TEMP/collected.json"`.
+  Exit 1 fails the job (config, as the verifier's).
+- **Confirm submissions**, after *Publish*; `if: env.HAS_KEY == 'true' && env.HAS_SUBMIT ==
+  'true'` (with the default `success()` — a failed publish marks nothing);
+  `--confirm="$RUNNER_TEMP/collected.json"`.
+- A dispatched run without the deploy key collects **read-only**: `take_submissions` only reads,
+  nothing is marked, nothing is pushed; *What would be published* shows the collected runs.
+- The commit message stays the verifier's (numbers and the commit); the collector's counts are in
+  the job's log.
+
+**Why it stays safe** (§16.5's argument, extended): the new secret opens the submissions and
+nothing else; it is passed through `env`, never on a command line, never printed. Submitted bytes
+are data — parsed by `BenchEntry.from_dict`, replayed by the verifier; a file name reaches a path
+only after the regex and §10.2's name check. What reaches the public repository has passed the
+replay. **Keep-alive:** the daily `take_submissions` call is also what keeps a free Supabase
+project from pausing (free projects pause after about a week without requests — confirm on the
+day; a paused project is a `NETWORK` answer in the game, and the fork route remains).
+
+### 20.9 Tests and acceptance (S6.12h)
+
+- **`test_bench_submission`** — the body for a fixture group (names, bodies byte-exact, the JSON
+  shape); `group_sha` against a fixed vector (three short strings, the expected hash written into
+  the test once, computed outside Godot); the size rules refuse before any transport call;
+  `read_answer` for 200 received/already, each `submit:*` reason, another 4xx, 5xx, a timeout
+  (code 0), garbage, 200 without a status.
+- **`test_bench_submit_log`** — write/read, an unreadable file → empty; the four group-line
+  states of §20.7 from a log and a board fixture (listed by hashes; sent; not listed after two
+  days; not sent after a re-run changed a hash).
+- **`test_benchmark_list`** (extended) — with `api_url` set: consent shown; *Send* → a fake
+  transport → each §20.6 line and its buttons; *Try again* sends again; the GitHub button does
+  the fork route (the shell seam); with `api_url` empty the modal is S6.12g's; the *Online
+  leaderboard* switch off does not stop *Send*; the log line never holds a body (a string check).
+  The start refusals of §20.13 item 1.
+- **`test_submission_check`** (the collector's judge, pure) — accepted; held for an unknown model;
+  `approved` skips the model rule; `group` for mixed models and for a missing seed; `backend` for
+  `bot:` and `mock*`; a group with one file that fails the replay is rejected whole with that
+  file's reason; `file_name`; the reason never holds a run file's model string. Fixtures: the mock
+  entries the suite already makes, with `backend` and `model` rewritten and the file name
+  recomputed — the replay reads neither.
+- **`test_collect_submissions`** — the tool against a fake transport: nothing without the secret;
+  Supabase unreachable → exit 0 and an empty file; the model list unreachable → `new` left
+  waiting, `approved` judged; accepted files land in the board byte-exact; `--confirm` marks each
+  group and carries on past a failed mark.
+- **The picker filter** (§20.13 item 4) — the fixture list gains an audio-output model and a
+  `:batch` id; neither is offered.
+- **The SQL, by hand on the user's project** (with `curl`, recorded in `PROGRESS.md`): the
+  publishable key can call `submit_runs` and **cannot** call `take_submissions` or
+  `mark_submission`, nor read `private.submissions` through `/rest/v1/` (each refused); every
+  refusal of §20.2's table reachable (`closed` by switching `open` off and on again); a resend
+  answers `already`; the 400 body carries `submit:<reason>` in `message`; a 3-file group of about
+  90 KB a file goes through (the request size); Supabase's advisors show nothing beyond the
+  intended `security definer` functions.
+- **End to end:** a debug build with `-- --bench-mock` also offers *Submit* for the mock folder's
+  complete groups (debug only — release builds never offer mock runs); one is sent to the user's
+  project, the workflow dispatched **with** the keys collects it, rejects it as `backend` (the
+  expected verdict — mock runs never reach the board) and marks it. Then a real group of the
+  user's (a free-model run on disk if its content is still current, else a new one) is sent and
+  appears on the board after the next workflow run.
+
+**Done when:** `tools/test.sh` green; the SQL checks and the end-to-end run recorded in
+`PROGRESS.md`.
+
+### 20.10 What the user sets up (a checklist, before S6.12h's end-to-end check)
+
+1. **Create the project** at supabase.com (free plan): name e.g. `doomsday-leaderboard`, region
+   **Central EU (Frankfurt)** — the submissions stay in the EU; a strong database password (keep
+   it in a password manager; nothing in the game or the workflow needs it).
+2. **Run the SQL** — *SQL Editor → New query*, paste `tools/bench/supabase/submissions.sql` (the
+   build commits it; §20.2 until then), *Run*. Or let the build session run it through the
+   Supabase MCP server after you sign that in.
+3. **Keys** — *Project Settings → API Keys*: the **publishable key** (`sb_publishable_…`), a
+   **secret key** (`sb_secret_…`, create one if none is listed), and the **project URL**
+   (`https://<ref>.supabase.co`). Give the build session the URL and the publishable key — both
+   go into `data/benchmark.json` and are public by design. **Never paste the secret key into the
+   conversation.**
+4. **GitHub, the private repository `Doomsday`** — *Settings → Secrets and variables → Actions*:
+   a **variable** `SUPABASE_URL` = the project URL, and a **secret** `SUPABASE_SECRET_KEY` = the
+   secret key (pasted there directly).
+5. **The deploy key** of §16.5 (`LEADERBOARD_DEPLOY_KEY`) must exist too — without it the workflow
+   never publishes, so nothing sent ever appears.
+6. Nothing to enable under *Authentication* (no sign-in). Leave the *Data API* on (the functions
+   need it); the tables need no exposure — they sit in `private`.
+7. **Moderation, when it happens:** *Table Editor → schema `private` → `submissions`*, rows with
+   `status` `held`: set `approved` or `rejected`. To close submissions: `submit_config.open` →
+   false.
+
+### 20.11 Promises reworded (done in D6.9f)
+
+- **`release.md` §0 and §10:** the game sends something only when the player asks for it — their
+  own benchmark and *Check* (to OpenRouter, with their key), *Submit* (to the leaderboard's
+  server, after a consent line); no telemetry, no crash upload, nothing in the background.
+- **`itch.md` §3.8 / §4.8:** the privacy paragraph names the explicit acts for the downloads; the
+  browser version still only downloads the board.
+- **§16.1**'s "neither the game nor `bench_run.gd` uploads anything" is amended in place.
+
+### 20.12 Strings (en/de) — in `strings.csv` since D6.9f
+
+`UI_BENCH_SUBMIT_CONSENT` (`{count}`), `UI_BENCH_SUBMIT_SEND`, `UI_BENCH_SUBMIT_GITHUB`,
+`UI_BENCH_SUBMIT_SENDING`, `UI_BENCH_SUBMIT_SENT`, `UI_BENCH_SUBMIT_ALREADY`,
+`UI_BENCH_SUBMIT_BUSY`, `UI_BENCH_SUBMIT_CLOSED`, `UI_BENCH_SUBMIT_REFUSED`,
+`UI_BENCH_SUBMIT_NET_FAILED`, `UI_BENCH_SUBMIT_RETRY`, `UI_BENCH_SUBMIT_READ_FAILED`,
+`UI_BENCH_GROUP_SENT` (`{date}`), `UI_BENCH_GROUP_LISTED`, `UI_BENCH_GROUP_NOT_LISTED`
+(`{date}`); from the S6.12g answers (§20.13): `UI_BENCH_RUN_START_BUSY`,
+`UI_BENCH_RUN_START_FAILED`. Kept: `UI_BENCH_SUBMIT`, `_TITLE`, `_OLD_VERSION`, `_STEPS`,
+`_AGAIN`, `_FAILED`. The consent line is privacy — plain, no joke; the sent and already lines may
+smile.
+
+### 20.13 Decisions (D6.9f) and S6.12g's questions answered
+
+Decided here (the user chose the route, 2026-09-28): a table behind one anonymous function in a
+Supabase project, not a storage bucket; global limits, no IP stored; the collector replays every
+group before anything is published and holds unknown model names for the owner; marking after a
+successful publish; consent every time; the fork route as the fallback and whenever the project
+is not configured; the game learns *listed* from the public board, not from the server (no status
+call).
+
+**S6.12g's design questions:**
+
+1. *A start the jobs refuse* — two lines of their own under *Start*: `BenchJobs.REASON_RUNNING` →
+   `UI_BENCH_RUN_START_BUSY`; every other reason (`unsupported`, `config`, `model`, `folder`) →
+   `UI_BENCH_RUN_START_FAILED` (the reason id goes to the log).
+2. *Files that could not be copied* — `UI_BENCH_SUBMIT_FAILED` kept as written (§20.6 item 6).
+3. *The Online leaderboard switch* — it governs only what the game fetches by itself (the board,
+   a watched run); the player's explicit acts (their benchmark, *Check*, *Submit*) are not under
+   it (§20.5). The row keeps its label; the comment in `settings.gd` is narrowed.
+4. *Which models the picker offers* — tightened and data-driven: a model qualifies when
+   `architecture.output_modalities` is exactly `["text"]` (the Lyria models add audio, image
+   models add image), and the id rules move to `player.model_exclude_suffixes` /
+   `model_exclude_prefixes` (§20.5), which add `:batch` (batch variants do not answer
+   turn by turn).
+5. *The text field's look* — kept (sunken `BG_2`, `LINE_1` border, focus ring, `ACCENT` caret,
+   `TEXT_2` placeholder).
+6. *S6.12e / the AI tab's wording* — kept as written.

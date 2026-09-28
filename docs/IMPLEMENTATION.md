@@ -1396,10 +1396,14 @@ what the database refuses; how the leaderboard workflow collects submissions, ve
 failed / already sent); the release.md §10 promise reworded; what the user must set up (project,
 bucket, policies, keys, a secret for the workflow) as a checklist; strings en/de; tests.
 **Done when:** a spec section (§20) the build can follow without a design decision, and the
-user's setup list under *Waiting on the user*.
+user's setup list under *Waiting on the user*. *Done 2026-09-28 (`benchmark.md` §20; S6.12g's design questions answered in §20.13).*
 
 ### S6.12h — *Submit* through Supabase, built **[O]** **[needs user]** · **Read first:** `benchmark.md` §20 (from D6.9f), §19.9
-Build §20 once the user's project exists; the fork route stays as the fallback §20 names.
+Build §20 once the user's project exists (§20.10); the fork route stays as the fallback §20 names.
+Also §20.13's answers to S6.12g's questions (the start-refusal lines, the picker filter, the
+narrowed `settings.gd` comment) — they remove the two `# DESIGN?` markers in `bench_run.gd` and
+`bench_submit.gd`. Everything but the SQL checks and the end-to-end run can be built and tested
+against the fake transport before the project exists.
 **Done when:** `tools/test.sh` green; one mock group submitted to the user's project end to end.
 
 ### G6 (1/2) — Balance pass 4 **[F]** · **Read first:** `docs/BALANCE.md` §5 · *Balance baselines*

@@ -65,7 +65,7 @@ with it. **Recommended value in bold.**
 | **TITLE** | **A *Rogue Instance*** · B *Off-Switch* · C *Training Run* | the itch title (§2.1), the cover's subtitle (§8.1) |
 | **LANG** | **English first, German below** · German first, English below | the order of §3 and §4 and which short description goes in the field |
 | **PRICE** | *No payments* · **"$0 or donate"** · *Paid* (a fixed price) | §5.1's sentence, itch's pricing field |
-| **DOWNLOADS** | web only · **web + Windows + Linux** | §5.2's paragraph, the requirements (§3.6), the privacy sentence's storage clause (§3.8), the butler channels (§9) |
+| **DOWNLOADS** | web only · **web + Windows + Linux** | §5.2's paragraph, the requirements (§3.6), the privacy sentence's benchmark and storage clauses (§3.8), the butler channels (§9) |
 | **PICTURES** | **without** (today) · with (after D6.10) | the early-version note (§3.7), the AI disclosure (§3.9), itch's disclosure ticks (§7.4) — no change, graphics is ticked either way |
 | **BOARD** | the global board shows **model runs** · shows only the built-in bots (no model run verified yet) | one sentence in §3.4 |
 | **STATUS** | **In development, `0.7.0`** · Released, `1.0.0` | itch's release status, the early-version heading (§3.7), the tag G7.I sets |
@@ -261,11 +261,20 @@ keeps the list under the heading **Known issues** and drops the first sentence's
 >
 > ## Privacy
 >
-> No analytics, no tracking, no account. The game goes online for one thing only: when you open
-> the **Benchmark** list (or watch a run from it), it downloads the public leaderboard file from
-> GitHub. GitHub sees your IP address and the time, as with any download; nothing about you or
-> your runs is sent. You can switch this off under Settings → **Online leaderboard**.
-> {DOWNLOADS storage clause} itch.io's own page has its own privacy policy.
+> No analytics, no tracking, no account. By itself the game goes online for one thing only: when
+> you open the **Benchmark** list (or watch a run from it), it downloads the public leaderboard
+> file from GitHub. GitHub sees your IP address and the time, as with any download; nothing about
+> you is sent. You can switch this off under Settings → **Online leaderboard**.
+> {DOWNLOADS benchmark clause} {DOWNLOADS storage clause} itch.io's own page has its own privacy
+> policy.
+>
+> *{DOWNLOADS benchmark clause}, downloads only (D6.9f):* In the Windows and Linux versions you
+> can also run the benchmark with your own AI model: the game then sends its report of the world
+> to OpenRouter with your OpenRouter key, which stays in your system's credential store. If you
+> press **Submit** and agree, the game sends that benchmark's run files — the model's name, its
+> moves, scores, token use and cost — to the leaderboard's server (Supabase, in the EU); runs that
+> pass the replay check are published on GitHub in the public domain. No name, account or IP
+> address is stored with them.
 
 ### 3.9 How it was made — generative AI
 
@@ -447,12 +456,21 @@ STATUS *Released*: heading **Bekannte Probleme**, the first sentence ends after 
 >
 > ## Datenschutz
 >
-> Keine Analyse, kein Tracking, kein Konto. Online geht das Spiel nur für eines: Wenn du die
-> **Benchmark**-Liste öffnest (oder dort einen Durchlauf ansiehst), lädt es die öffentliche
+> Keine Analyse, kein Tracking, kein Konto. Von sich aus geht das Spiel nur für eines online: Wenn
+> du die **Benchmark**-Liste öffnest (oder dort einen Durchlauf ansiehst), lädt es die öffentliche
 > Bestenliste von GitHub herunter. GitHub sieht dabei, wie bei jedem Download, deine IP-Adresse und
-> die Uhrzeit; über dich oder deine Durchläufe wird nichts gesendet. Abschalten kannst du das unter
-> Einstellungen → **Online-Bestenliste**. {DOWNLOADS-Speichersatz} Für die Seite von itch.io selbst
-> gilt deren eigene Datenschutzerklärung.
+> die Uhrzeit; über dich wird nichts gesendet. Abschalten kannst du das unter Einstellungen →
+> **Online-Bestenliste**. {DOWNLOADS-Benchmarksatz} {DOWNLOADS-Speichersatz} Für die Seite von
+> itch.io selbst gilt deren eigene Datenschutzerklärung.
+>
+> *{DOWNLOADS-Benchmarksatz}, nur mit Downloads (D6.9f):* In der Windows- und der Linux-Version
+> kannst du den Benchmark auch mit deinem eigenen KI-Modell spielen lassen: Das Spiel schickt dann
+> seinen Lagebericht mit deinem OpenRouter-Schlüssel an OpenRouter; der Schlüssel bleibt im
+> Anmeldespeicher deines Systems. Drückst du **Einreichen** und stimmst zu, schickt das Spiel die
+> Durchlaufdateien dieses Benchmarks – Name des Modells, seine Züge, Wertungen, Token-Verbrauch und
+> Kosten – an den Server der Bestenliste (Supabase, in der EU); Durchläufe, die die
+> Nachspiel-Prüfung bestehen, werden gemeinfrei auf GitHub veröffentlicht. Name, Konto oder
+> IP-Adresse werden dabei nicht gespeichert.
 
 ### 4.9 Wie das Spiel entstanden ist – generative KI
 

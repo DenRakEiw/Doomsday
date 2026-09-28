@@ -14,12 +14,12 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **D6.9f — Submit through Supabase, specified** [F] (IMPLEMENTATION §4 row 97g; user decision 2026-09-28: *Submit* uses the fork route for now, a Supabase upload replaces it later). The build after it, **S6.12h**, needs the user's Supabase project (*Waiting on the user*). Open design questions from S6.12g first (*Design questions for Fable*). Still waiting on the user: the first live benchmark from the game, G6 (2/2), D6.10, G7.I. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` and `benchmark.json` are not in the content hash). |
+| **Next step** | **S6.12h — *Submit* through Supabase, built** [O] **once the user has done `benchmark.md` §20.10** (*Waiting on the user*: the project, the SQL, the URL and publishable key for the build, the two GitHub entries). Until then the next unattended row is **D7.1** (row 108, Block 20: touch and phone). Still waiting on the user: the first live benchmark from the game, G6 (2/2), D6.10, G7.I. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` and `benchmark.json` are not in the content hash). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | S6.12h (Supabase submit, **[needs user]** for the project and its keys); D6.10, G6 (2/2) and G7.I are **[needs user]**; the next unattended row after those is **D7.1** (row 108, Block 20: touch and phone), Steam only later (Decisions 2026-09-25). The FLUX track is cut (Decisions 2026-09-26). |
-| **Last completed** | S6.12g — own benchmark II (2026-09-28): the settings' key row, the key dialog (`bench_key`, *Check* against OpenRouter's `/key`), the benchmark modal (`bench_run`: OpenRouter's list, search, free only, effort rules, estimate, cap, confirmation), progress (`BenchJobView`) in the modal and the list, group lines with *Submit* (`bench_submit`, fork route). Checked by hand on Windows in German at 1920 and 400 px. |
-| **Before that** | S6.12f — own benchmark I (2026-09-28): `BenchKeyStore`, the runner in `game/bench/`, the headless worker, `BenchJobs`; D6.9e — your own benchmark specified (`benchmark.md` §19). |
-| **Earlier** | The Benchmark list sorted best-first, the satirical voice, *Doomsday Benchmark* (2026-09-28); S7.IP — release polish before the itch release (2026-09-27); S6.12d — effort levels and the user's scripts (`benchmark.md` §18.9–18.10). |
+| **After it** | D6.10, G6 (2/2) and G7.I are **[needs user]**; then **D7.1** (row 108, Block 20: touch and phone), Steam only later (Decisions 2026-09-25). The FLUX track is cut (Decisions 2026-09-26). |
+| **Last completed** | D6.9f — *Submit* through Supabase, specified (2026-09-28): `benchmark.md` §20 (an anonymous inbox function in a private schema, global limits, no IP stored; a collector in `leaderboard.yml` that replays every group before publishing and holds unknown model names; consent every time; the group line's *sent / listed* states from the public board; the fork route as fallback), the SQL script, the user's checklist (§20.10), 17 strings; S6.12g's six design questions answered (§20.13); `release.md` §0/§10 and the itch privacy text reworded. |
+| **Before that** | S6.12g — own benchmark II (2026-09-28): the key dialog, the benchmark modal, progress, group lines with *Submit* (fork route); S6.12f — own benchmark I; D6.9e — your own benchmark specified (`benchmark.md` §19). |
+| **Earlier** | The Benchmark list sorted best-first, the satirical voice, *Doomsday Benchmark* (2026-09-28); S7.IP — release polish before the itch release (2026-09-27). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–20 (Block 19, FLUX, cut 2026-09-26) |
 | **Branch** | `main` |
 | **One run / a batch** | `"$GODOT" --headless --path . -s tools/sim_run.gd -- --seed=1 --policy=greedy --check --replay [--setup=embedded]` (S5.1: `--setup=<architecture>[,<difficulty>][,<directive>…][,scenario=<id>]` on all three tools; the summary and CSV carry `scenario` after `architecture` since S5.8) · `… sim_batch.gd -- --seeds=1..200 --policy=greedy --out=<csv>` · **every policy in one table:** `… sim_report.gd -- --seeds=1..500 [--policies=a,b] [--out=<dir>]`. `--headlines` on `sim_run` prints every line the run said (day, stream, id, English text); the batch CSV counts them per stream. |
@@ -199,7 +199,7 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] D6.9e [F] Your own benchmark in the game *(user 2026-09-28; `benchmark.md` §19)*
 - [x] S6.12f [O] Own benchmark I: key store, runner in `game/bench/`, worker, `BenchJobs`
 - [x] S6.12g [O] Own benchmark II: settings row, key dialog, picker, progress, *Submit* *(the first live run: user)*
-- [ ] D6.9f [F] *Submit* through Supabase, specified *(user 2026-09-28; replaces the fork route)*
+- [x] D6.9f [F] *Submit* through Supabase, specified *(user 2026-09-28; `benchmark.md` §20)*
 - [ ] S6.12h [O] *Submit* through Supabase, built — **[needs user]** *(the Supabase project and its keys)*
 - [ ] D6.10 [F] Illustrations produced — **[needs user]**
 - [ ] G6 (2/2) [F] M6 gate: the release candidate (browser and desktop) — **[needs user]**
@@ -236,6 +236,14 @@ it and take the next row (IMPLEMENTATION §4).*
 Dated, one line each, with the reason. A decision recorded here is not re-argued in a later session
 without new information.
 
+- **2026-09-28** (D6.9f) — ***Submit* through a Supabase inbox, collected by the leaderboard
+  workflow** (`benchmark.md` §20): one anonymous `security definer` function over a table in a
+  private schema (not a storage bucket); global limits only, no IP stored; the collector replays
+  every group before anything reaches the public repository, holds model names OpenRouter does
+  not list for the owner, and marks groups only after a successful push; consent line on every
+  send; the game knows *listed* from the public board only. The fork route stays as the fallback
+  and whenever the project is not configured. The *Online leaderboard* setting governs only what
+  the game fetches by itself, not the player's explicit acts (own benchmark, *Check*, *Submit*).
 - **2026-09-28** (user, S6.12g) — ***Submit* goes through a fork for now; Supabase later.** GitHub's
   *Upload files* needs write access ("File uploads require push access to this repository"; no
   automatic fork, checked 2026-09-28), so §19.9.3's upload page cannot work for players.
@@ -1543,30 +1551,6 @@ without new information.
 *(Opus records here every design gap it hit while building: the question, where the placeholder is
 (`# DESIGN?` in code), and what it assumed. Every Fable block answers these first.)*
 
-- **S6.12g — a start the jobs refuse** (`ui/modals/bench_run.gd` `start`, `# DESIGN?`): §19.8 has
-  no line for `BenchJobs.start` refusing (one already running, no job folder). Placeholder: the
-  benchmark's own `UI_BENCH_JOB_FAIL_ERROR` under *Start*. A line of its own?
-- **S6.12g — files that could not be copied** (`ui/modals/bench_submit.gd`, `# DESIGN?`): new
-  string `UI_BENCH_SUBMIT_FAILED` ("The files could not be copied. Is the disk full?" / "Die
-  Dateien ließen sich nicht kopieren. Ist der Datenträger voll?"), written in the build. Keep or
-  reword. `UI_BENCH_SUBMIT_STEPS` was reworded for the fork route (user decision, see Decisions).
-- **S6.12g — the *Online leaderboard* switch and the own benchmark**: `settings.gd` promises
-  "Off, the game never touches the network", but the benchmark modal fetches OpenRouter's model
-  list and *Check* asks `/key` whatever the switch says (both are the player's explicit act, and
-  a benchmark cannot run offline). Should the switch cover them, or its wording narrow to the
-  leaderboard?
-- **S6.12g — which models the picker offers**: the *Not suitable* list of 2026-09-27 names the Lyria
-  music models, but they list `text` among their outputs, so §19.8's filter keeps them (and the
-  `:batch` variants). Filter more (a denylist in `benchmark.json` `player`?) or leave them?
-- **S6.12g — the text field's look** (`ThemeBuilder`, `LineEdit`): the game had no text field; the
-  build styled it from the existing tokens (sunken `BG_2`, `LINE_1` border, the focus ring,
-  `ACCENT` caret, `TEXT_2` placeholder). Keep or restyle.
-- **S6.12e / AI tab — wording of the list** (`strings.csv` `UI_BENCH_GLOBAL_QUICK_TITLE`, `_NOTE`,
-  `UI_BENCH_GLOBAL_STANDARD_TITLE`, `UI_BENCH_TAB_MODELS`, `_BOTS`): written in build work, the
-  structure being the user's decision. Tabs "AI models" / "KI-Modelle", "Built-in bots" /
-  "Eingebaute Bots"; "Quick suite" / "Kurz-Suite" with "The suite every model plays: a short test
-  on a few seeds."; "Standard suite" / "Standard-Suite". Keep or reword.
-
 - **S7.IP — hints back to back on a loaded save** (`coach.gd` `HINT_REST_MS`, `# DESIGN?`):
   `first-run.md` §6.2 queues the hints with no gap, so a mid-run save meets every hint whose moment
   already holds in a row. Placeholder: a hint that follows a hint waits 6 s of real time (the
@@ -2765,8 +2749,16 @@ first live benchmark is yours: title → *Settings* → *OpenRouter key* → *Se
 *Check*), then *Benchmark* → *Run your own benchmark*, a **free model first** (e.g. one of the free
 candidates below), then a cheap paid one. For *Submit*: a complete run group shows a *Submit*
 line; it opens the folder and the fork page (fork → upload into `runs/` → pull request).
-**For S6.12h:** a Supabase project for the upload that replaces the fork route (D6.9f specifies
-what it needs: the project URL and a publishable key the game may ship).
+**For S6.12h — the Supabase project (D6.9f, checklist `benchmark.md` §20.10).** (1) Create a
+free project at supabase.com, region **Central EU (Frankfurt)**. (2) *SQL Editor*: run the script
+of §20.2 (or let the build session run it through the Supabase MCP after you sign that in).
+(3) *Project Settings → API Keys*: give the build session the **project URL** and the
+**publishable key** (`sb_publishable_…`, public by design) — **never the secret key**. (4) In the
+private repo *Doomsday → Settings → Secrets and variables → Actions*: variable `SUPABASE_URL`,
+secret `SUPABASE_SECRET_KEY` (`sb_secret_…`). (5) The deploy key `LEADERBOARD_DEPLOY_KEY` (§16.5)
+must exist too, or nothing is ever published. Later, rarely: rows with `status` `held` in
+*Table Editor → private → submissions* → `approved` or `rejected`; `submit_config.open` = false
+closes submissions.
 
 **Benchmark — free models to run next (2026-09-27).** The online board is live: 91 bot runs plus
 `nvidia/nemotron-3-ultra-550b-a55b:free` (high, quick, 39.2, 1/2 wins) published and verified
@@ -3167,6 +3159,10 @@ against D6.8's budget on the target machines.
 
 ## Session log
 
+### 2026-09-28 — D6.9f *Submit* through Supabase, specified [F]
+- `benchmark.md` §20: the SQL (private schema, `submit_runs` for anon, `take_submissions`/`mark_submission` for service_role, limits, group hash), the call, the collector `collect_submissions.gd` + two workflow steps, the modal's consent and answers, the group line's states, tests, the user's checklist.
+- S6.12g's six design questions answered (§20.13): start-refusal lines, copy failure kept, the online switch narrowed, picker filter (`["text"]` only, `:batch`, data lists), text field and tab wording kept.
+- `release.md` §0/§10 and `itch.md` §3.8/§4.8 reworded; §16.1, §19, §19.9.3 point to §20. +17 strings en/de (`check_strings` green). Supabase docs read on the day (publishable key in `apikey`, not Bearer).
 ### 2026-09-28 — S6.12g Own benchmark II [O]
 - Key row in the settings, key dialog (`bench_key`: save/show/check/remove, hint four characters), benchmark modal (`bench_run`: OpenRouter list via `HTTPRequest`, cached a day, search, free only, effort rules, estimate, cap remembered, confirmation for paid), `BenchJobView` in modal and list, group lines + *Submit* (`bench_submit`). `BenchPicker`, `BenchGroup`, `ModelListCache`; `LineEdit` in the theme.
 - GitHub's upload page needs write access → user: fork route now, Supabase later (D6.9f/S6.12h). `/key` reply as the spec expects.

@@ -31,10 +31,12 @@ D6.8 (2026-09-25, overnight). Builds from it: **S6.9** (§1–§3), **S6.10** (�
    the exported Linux and Windows builds with it.
 9. **Release CI:** a `v*` tag (or a manual dispatch) exports all three, smoke-tests them and — for a
    tag — attaches the zips to a **draft** GitHub release. Publishing is the user's (§9).
-10. **Logs:** Godot's file log, five files, nothing ever leaves the machine; a desktop-only
-    *Open data folder* row in the title's settings (§10). **No telemetry.** The game's one
-    network access (D6.9b) is the benchmark list's download of the public global leaderboard
-    when the player opens it — nothing sent, off with a setting (`benchmark.md` §16.6).
+10. **Logs:** Godot's file log, five files, nothing about the player ever leaves the machine; a
+    desktop-only *Open data folder* row in the title's settings (§10). **No telemetry.** By itself
+    the game only downloads the public global leaderboard when the player opens the benchmark
+    list — nothing sent, off with a setting (`benchmark.md` §16.6). It sends something only when
+    the player asks: their own benchmark and the key check (to OpenRouter, desktop, §19) and
+    *Submit* (their run files to the leaderboard's server, after a consent line, §20).
 11. **Low-end target:** Intel Core i5-8250U · Intel UHD Graphics 620 · 8 GB · 1920 × 1080, and the
     Steam Deck at 1280 × 800. The budget and how it is measured on this PC (Ryzen 9 7900X3D, RTX
     5090 **and** its integrated Radeon, which stands in for the low-end GPU) are §11.
@@ -490,12 +492,20 @@ the file's SHA-512 against the release's published sums, and records the path in
 - **Log:** Godot's own file log (§5): `user://logs/godot.log`, the last five runs kept. The start
   line (§1.3) opens every log. The game prints nothing per frame in release builds (`debug_log` is
   only set by debug-key runs).
-- **Crashes:** Godot's crash handler writes its backtrace to the log; no crash reporter, no
-  upload, no telemetry — **nothing about the player leaves the machine**, ever. The one network
-  access (D6.9b) is a download: the public global leaderboard when the player opens the
-  *Benchmark* list, and one run file when they watch it — plain GETs, no identifier, no upload,
-  never at start, off with the *Online leaderboard* setting (`benchmark.md` §16.6). A corrupt profile, settings file or
-  save already reads as empty or reports a reason (never a crash).
+- **Crashes:** Godot's crash handler writes its backtrace to the log; no crash reporter, no crash
+  upload, no telemetry — **nothing about the player leaves the machine**, ever. A corrupt
+  profile, settings file or save already reads as empty or reports a reason (never a crash).
+- **The network — what the game does by itself** (D6.9b): download the public global leaderboard
+  when the player opens the *Benchmark* list, and one run file when they watch it — plain GETs,
+  no identifier, never at start, never in the background, off with the *Online leaderboard*
+  setting (`benchmark.md` §16.6).
+- **The network — only when the player asks** (desktop builds; D6.9e, D6.9f): their own benchmark
+  sends the game's world report to OpenRouter with their key, and *Check* asks OpenRouter about
+  the key (`benchmark.md` §19); *Submit* sends one benchmark's run files — model, moves, scores,
+  tokens, cost, time played; nothing about the player — to the leaderboard's Supabase inbox, after
+  a consent line that says so, every time (`benchmark.md` §20). The *Online leaderboard* setting
+  does not govern these: each is its own button press. No IP address or identifier is stored with
+  a submission.
 - **Open data folder:** a row in the **title's** settings only (as *Reset progress*), hidden on
   mobile and web: `ConsoleButton` `UI_SETTINGS_DATA_FOLDER` →
   `OS.shell_open(ProjectSettings.globalize_path("user://"))`. That is where a player finds the log
