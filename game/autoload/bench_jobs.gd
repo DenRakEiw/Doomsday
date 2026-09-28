@@ -20,6 +20,11 @@ extends Node
 ## the Benchmark list then reads — never mixed with real runs.
 
 signal changed
+## §19.6–§19.7: what is known about the key changed (`key_status`, `key_hint`).
+signal key_changed
+## A key call of the dialog ended: `op` one of `KEY_OP_*`, `ok` whether it did
+## what was asked (a save the store refused is kept for the session: false).
+signal key_done(op: String, ok: bool)
 
 ## Why `start` refused.
 const REASON_RUNNING: String = "running"
@@ -45,6 +50,30 @@ const FEATURE_EDITOR: String = "editor"
 const LINE_END: String = "\n"
 const PIPE_CHUNK: int = 4096
 
+## §19.6: what the settings row and the key dialog say about the key.
+const KEY_UNKNOWN: String = "unknown"
+const KEY_NONE: String = "none"
+const KEY_STORED: String = "stored"
+const KEY_SESSION: String = "session"
+## §19.6's caption for each `key_status`; unknown reads as the look under way.
+const STATE_KEYS: Dictionary[String, String] = {KEY_UNKNOWN: "UI_KEY_CHECKING",
+	KEY_NONE: "UI_KEY_STATE_NONE", KEY_STORED: "UI_KEY_STATE_STORED",
+	KEY_SESSION: "UI_KEY_STATE_SESSION"}
+## The key calls, each off the main thread.
+const KEY_OP_LOAD: String = "load"
+const KEY_OP_SAVE: String = "save"
+const KEY_OP_REMOVE: String = "remove"
+const KEY_OP_CHECK: String = "check"
+## §19.6: a hint is this and the key's last `HINT_LENGTH` characters, never more.
+const HINT_PREFIX: String = "…"
+const HINT_LENGTH: int = 4
+## §19.7.1: OpenRouter's *current API key* endpoint under `http.base_url`.
+const KEY_PATH: String = "/key"
+const HEADER_AUTH: String = "Authorization: Bearer %s"
+## `check_answer`'s fields: the HTTP status (−1: no answer) and the body.
+const FIELD_STATUS: String = "status"
+const FIELD_BODY: String = "body"
+
 ## A key the store could not take, for this session only (§19.2). Never written.
 var session_key: String = ""
 ## The store the key is read from; tests put a fake behind it.
@@ -60,6 +89,19 @@ var out_dir: String = UserPaths.at(OUT_FOLDER)
 var launcher: Callable = Callable()
 var running: Callable = Callable()
 var killer: Callable = Callable()
+## §19.7.1's seam: `func(key: String) -> Dictionary` answering `{"status": int,
+## "body": String}` in place of the request to OpenRouter.
+var key_http: Callable = Callable()
+## Tests: key calls run where they are asked, not on a thread.
+var key_inline: bool = false
+
+## §19.6: stored, for this session only, none — or not known before the first
+## look. Memory only, like `session_key`.
+var key_status: String = KEY_UNKNOWN
+## `hint_of` the key, "" without one.
+var key_hint: String = ""
+## The answer of the last *Check* (`FIELD_STATUS`, `FIELD_BODY`).
+var check_answer: Dictionary = {}
 
 var _config: BenchConfig = null
 var _state: BenchJobState = null
@@ -67,6 +109,9 @@ var _workers: Array[Worker] = []
 var _launch: Thread = null
 var _no_key: bool = false
 var _poll_left: float = 0.0
+var _key_thread: Thread = null
+var _key_op: String = ""
+var _key_result: Dictionary = {}
 
 
 ## One headless worker: its folder, its process and pipe, how far its progress
@@ -99,6 +144,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if _key_thread != null and not _key_thread.is_alive():
+		_finish_key()
 	if _launch != null and not _launch.is_alive():
 		_finish_launch()
 	if _state == null or not _state.is_running() or _launch != null:
@@ -117,6 +164,8 @@ func _notification(what: int) -> void:
 
 func _exit_tree() -> void:
 	wait_started()
+	if _key_thread != null:
+		_finish_key()
 	_kill_all()
 
 
@@ -248,6 +297,43 @@ func poll() -> void:
 		changed.emit()
 
 
+## §19.6: "…" and the key's last four characters.
+static func hint_of(key: String) -> String:
+	return "" if key.is_empty() else HINT_PREFIX + key.right(HINT_LENGTH)
+
+
+## §19.6: the caption of the settings row and the key dialog — never more of
+## the key than its hint.
+func key_state_text() -> String:
+	return tr(STATE_KEYS[key_status]).format({"hint": key_hint})
+
+
+## Whether a key call is under way (the dialog waits with its buttons off).
+func key_busy() -> bool:
+	return _key_thread != null
+
+
+## Looks the key up in the store (a session key counts); `key_changed` after.
+func refresh_key() -> bool:
+	return _key_call(KEY_OP_LOAD, "")
+
+
+## Saves `key` in the store — or, when the store refuses, for the session.
+func save_key(key: String) -> bool:
+	return _key_call(KEY_OP_SAVE, key)
+
+
+## Removes the key from the store and the session.
+func remove_key() -> bool:
+	return _key_call(KEY_OP_REMOVE, "")
+
+
+## §19.7.1: asks OpenRouter about `typed`, or — empty — about the saved key;
+## the answer lands in `check_answer`.
+func check_key(typed: String) -> bool:
+	return _key_call(KEY_OP_CHECK, typed)
+
+
 ## The job folder of worker `index` of the running benchmark ("" none) — for
 ## tests and the hand check.
 func worker_dir(index: int) -> String:
@@ -256,6 +342,95 @@ func worker_dir(index: int) -> String:
 
 func worker_count() -> int:
 	return _workers.size()
+
+
+## One key call: off the main thread (PowerShell takes a second or two), its
+## result taken in `_process`. False when one is already under way.
+func _key_call(op: String, key: String) -> bool:
+	if _key_thread != null:
+		return false
+	_key_op = op
+	if key_inline:
+		_key_result = _key_work(op, key)
+		_apply_key()
+		return true
+	_key_thread = Thread.new()
+	_key_thread.start(func() -> void: _key_result = _key_work(op, key))
+	return true
+
+
+## Off the main thread: the store's answer, and for *Check* OpenRouter's. The
+## key goes into the result only as its hint — and, when the store refused it,
+## as the session's key.
+func _key_work(op: String, key: String) -> Dictionary:
+	var result: Dictionary = {"ok": true, "stored": "", "session": session_key}
+	match op:
+		KEY_OP_SAVE:
+			result["ok"] = key_store.save(key)
+			result["stored"] = key if bool(result["ok"]) else ""
+			result["session"] = "" if bool(result["ok"]) else key
+		KEY_OP_REMOVE:
+			result["ok"] = key_store.remove()
+			result["session"] = ""
+		KEY_OP_CHECK:
+			var stored: String = key_store.load()
+			result["stored"] = stored
+			var asked: String = key
+			if asked.is_empty():
+				asked = session_key if not session_key.is_empty() else stored
+			result["answer"] = _ask_key(asked)
+			result["ok"] = int((result["answer"] as Dictionary)[FIELD_STATUS]) \
+				== OpenRouterBackend.STATUS_OK
+		_:
+			result["stored"] = key_store.load()
+	return result
+
+
+## §19.7.1: one `GET <base_url>/key` with the key, `global.timeout_s` at most.
+func _ask_key(key: String) -> Dictionary:
+	if key.is_empty():
+		return {FIELD_STATUS: OpenRouterBackend.STATUS_AUTH, FIELD_BODY: ""}
+	if key_http.is_valid():
+		var faked: Variant = key_http.call(key)
+		return faked if typeof(faked) == TYPE_DICTIONARY \
+			else {FIELD_STATUS: OpenRouterBackend.STATUS_NONE, FIELD_BODY: ""}
+	var settings: BenchConfig = config()
+	var base: Dictionary = OpenRouterBackend.parse_base_url(settings.base_url)
+	if base.is_empty():
+		return {FIELD_STATUS: OpenRouterBackend.STATUS_NONE, FIELD_BODY: ""}
+	var answer: Dictionary = OpenRouterBackend.request(base, HTTPClient.METHOD_GET,
+		str(base["prefix"]) + KEY_PATH, PackedStringArray([HEADER_AUTH % key]), "",
+		settings.global_timeout_s)
+	return {FIELD_STATUS: int(answer["status"]), FIELD_BODY: str(answer["body"])}
+
+
+func _finish_key() -> void:
+	_key_thread.wait_to_finish()
+	_key_thread = null
+	_apply_key()
+
+
+## On the main thread: the result of the last key call made the state.
+func _apply_key() -> void:
+	var result: Dictionary = _key_result
+	_key_result = {}
+	session_key = str(result.get("session", session_key))
+	var stored: String = str(result.get("stored", ""))
+	if _key_op == KEY_OP_REMOVE:
+		stored = ""
+	if not stored.is_empty():
+		key_status = KEY_STORED
+		key_hint = hint_of(stored)
+	elif not session_key.is_empty():
+		key_status = KEY_SESSION
+		key_hint = hint_of(session_key)
+	else:
+		key_status = KEY_NONE
+		key_hint = ""
+	if _key_op == KEY_OP_CHECK:
+		check_answer = result.get("answer", {})
+	key_changed.emit()
+	key_done.emit(_key_op, bool(result.get("ok", false)))
 
 
 func _backend_for(model: String, settings: BenchConfig) -> String:

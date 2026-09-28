@@ -54,6 +54,10 @@ const KEY_KEYS: String = "keys"
 ## benchmark.md §16.6: the online leaderboard may be fetched when the benchmark
 ## list opens. Off, the game never touches the network.
 const KEY_BENCH_ONLINE: String = "bench_online"
+## benchmark.md §19.8 item 6: the cost cap the player last chose for their own
+## benchmark, in USD; `BENCH_CAP_UNSET` until they chose one.
+const KEY_BENCH_CAP: String = "bench_cap_usd"
+const BENCH_CAP_UNSET: float = 0.0
 ## The key table's own rules decide which stored overrides a build can apply.
 const KeyBindingsScript: GDScript = preload("res://game/autoload/key_bindings.gd")
 ## `DisplayServer.accessibility_should_reduce_animation()` answers this for yes.
@@ -90,6 +94,8 @@ var announce_headlines: bool = true
 var keys: Dictionary[String, int] = {}
 ## benchmark.md §16.6: the benchmark list may download the global leaderboard.
 var bench_online: bool = true
+## §19.8: the benchmark modal resolves `BENCH_CAP_UNSET` to `player.default_cap_usd`.
+var bench_cap_usd: float = BENCH_CAP_UNSET
 ## The overflow check of UI.md §4. A development switch, never written to the file.
 var pseudo_locale: bool = false
 ## release.md §8: false keeps every change in memory — the smoke run's switch, so
@@ -121,6 +127,7 @@ func _ready() -> void:
 	for action: Variant in stored_keys:
 		keys[str(action)] = int(stored_keys[action])
 	bench_online = bool(values[KEY_BENCH_ONLINE])
+	bench_cap_usd = float(values[KEY_BENCH_CAP])
 	TranslationServer.set_locale(locale)
 	# benchmark.md §19.4: a benchmark worker is the game started by itself; it
 	# writes nothing of the player's, not even the file it just read.
@@ -183,6 +190,7 @@ static func values_from(raw: Variant, fallback_locale: String,
 		KEY_ANNOUNCE_HEADLINES: true,
 		KEY_KEYS: {},
 		KEY_BENCH_ONLINE: true,
+		KEY_BENCH_CAP: BENCH_CAP_UNSET,
 	}
 	if typeof(raw) != TYPE_DICTIONARY:
 		return values
@@ -227,6 +235,9 @@ static func values_from(raw: Variant, fallback_locale: String,
 	values[KEY_KEYS] = _keys_from(stored.get(KEY_KEYS))
 	if typeof(stored.get(KEY_BENCH_ONLINE)) == TYPE_BOOL:
 		values[KEY_BENCH_ONLINE] = bool(stored[KEY_BENCH_ONLINE])
+	var cap_type: int = typeof(stored.get(KEY_BENCH_CAP))
+	if (cap_type == TYPE_FLOAT or cap_type == TYPE_INT) and float(stored[KEY_BENCH_CAP]) > 0.0:
+		values[KEY_BENCH_CAP] = float(stored[KEY_BENCH_CAP])
 	return values
 
 
@@ -417,6 +428,13 @@ func set_bench_online(enabled: bool) -> void:
 	write()
 
 
+func set_bench_cap_usd(value: float) -> void:
+	if value == bench_cap_usd or value <= 0.0:
+		return
+	bench_cap_usd = value
+	write()
+
+
 func to_dict() -> Dictionary:
 	var out: Dictionary = {
 		KEY_VERSION: VERSION,
@@ -434,6 +452,7 @@ func to_dict() -> Dictionary:
 		KEY_ANNOUNCE_HEADLINES: announce_headlines,
 		KEY_KEYS: keys.duplicate(),
 		KEY_BENCH_ONLINE: bench_online,
+		KEY_BENCH_CAP: bench_cap_usd,
 	}
 	for bus: String in volumes:
 		out[KEY_VOLUME_PREFIX + bus] = volumes[bus]

@@ -15,6 +15,8 @@ signal quit_requested
 signal progress_imported
 ## accessibility.md §5.3: the *Controls* modal, over this one.
 signal controls_requested
+## benchmark.md §19.6: *Set key* — the key dialog, over this one.
+signal bench_key_requested
 
 const KEY_TITLE: String = "UI_PAUSE_TITLE"
 const KEY_SEED: String = "UI_PAUSE_SEED"
@@ -75,6 +77,10 @@ const KEY_DATA_FOLDER: String = "UI_SETTINGS_DATA_FOLDER"
 ## benchmark.md §16.6: the online leaderboard's switch — the title's settings
 ## only, after *Open data folder*, on every platform.
 const KEY_BENCH_ONLINE: String = "UI_SETTINGS_BENCH_ONLINE"
+## benchmark.md §19.6: the OpenRouter key's row, after *Online leaderboard*,
+## in the title's settings and the pause menu alike — on a desktop build only.
+const KEY_OPENROUTER: String = "UI_SETTINGS_OPENROUTER_KEY"
+const KEY_KEY_SET: String = "UI_KEY_SET"
 const USER_DIR: String = "user://"
 ## web.md §7.4: the progress file, in a browser's title settings only — where
 ## *Open data folder* stands on a desktop.
@@ -162,6 +168,10 @@ var _title_rows: Array[Control] = []
 var _reset: ConsoleButton = null
 var _data_folder: ConsoleButton = null
 var _bench_online: ConsoleButton = null
+## §19.6: the key row, its *Set key* and the caption under it.
+var _key_rows: Array[Control] = []
+var _key_button: ConsoleButton = null
+var _key_state: Label = null
 ## web.md §7.4: the two progress buttons, their note and the last result.
 var _progress_rows: Array[Control] = []
 var _progress_export: ConsoleButton = null
@@ -180,6 +190,7 @@ func _ready() -> void:
 	_quit.pressed.connect(_on_quit_pressed)
 	_build_slots()
 	_build_settings()
+	BenchJobs.key_changed.connect(_refresh_settings)
 	_refresh_strings()
 	# The same fit as the results (G3): a `ScrollContainer` has no height of its
 	# own, and without one the menu opened as an empty strip (S4.9 screenshots).
@@ -240,6 +251,9 @@ func refresh() -> void:
 		var slot: String = tr(KEY_SLOT).format({PLACEHOLDER_SLOT: i + 1})
 		_save_buttons[i].accessibility_name = A11y.label_value(slot, _slot_captions[i].text)
 		_load_buttons[i].accessibility_name = A11y.label_value(slot, _slot_captions[i].text)
+	# §19.6: the caption says what the store holds — asked once, off the main thread.
+	if BenchKeyStore.is_supported() and BenchJobs.key_status == BenchJobs.KEY_UNKNOWN:
+		BenchJobs.refresh_key()
 	_refresh_settings()
 
 
@@ -257,6 +271,8 @@ func _apply_mode() -> void:
 	_data_folder.visible = settings_only and has_data_folder()
 	for row: Control in _progress_rows:
 		row.visible = settings_only and has_progress_rows()
+	for row: Control in _key_rows:
+		row.visible = BenchKeyStore.is_supported()
 	# From the title the modal is titled Settings already; the section caption
 	# under it said the same word again (S4.9).
 	_settings_title.visible = not settings_only
@@ -335,6 +351,7 @@ func _build_settings() -> void:
 	_settings_rows.add_child(_data_folder)
 	_build_progress_rows()
 	_build_bench_online_row()
+	_build_key_row()
 	# §6.3: progress is not a run — the autosave and the slots stay.
 	_reset = ConsoleButton.new()
 	_reset.label_key = KEY_RESET_PROFILE
@@ -368,6 +385,10 @@ func _refresh_settings() -> void:
 		_bench_online.text = Format.caps(online)
 		_bench_online.accessibility_name = tr(KEY_A11Y_LABEL_VALUE).format({
 			"label": tr(KEY_BENCH_ONLINE), "value": online})
+	if _key_button != null:
+		_key_state.text = BenchJobs.key_state_text()
+		_key_button.accessibility_name = tr(KEY_A11Y_LABEL_VALUE).format({
+			"label": tr(KEY_OPENROUTER), "value": _key_state.text})
 
 
 ## The words a settings button shows for row `index`, before they are uppercased.
@@ -479,6 +500,41 @@ func _build_bench_online_row() -> void:
 	row.add_child(_bench_online)
 	_settings_rows.add_child(row)
 	_title_rows.append(row)
+
+
+## §19.6: a label and *Set key*, the key's state under them. Hidden where
+## §19.1 says no (`_apply_mode`).
+func _build_key_row() -> void:
+	var row: HBoxContainer = HBoxContainer.new()
+	row.theme_type_variation = &"Row"
+	row.name = "OpenRouterKeyRow"
+	var label: Label = Label.new()
+	label.theme_type_variation = &"LabelCaption"
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.text = tr(KEY_OPENROUTER)
+	label.set_meta(&"key", KEY_OPENROUTER)
+	row.add_child(label)
+	_key_button = ConsoleButton.new()
+	_key_button.label_key = KEY_KEY_SET
+	_key_button.pressed.connect(bench_key_requested.emit)
+	row.add_child(_key_button)
+	_settings_rows.add_child(row)
+	_key_state = Label.new()
+	_key_state.name = "OpenRouterKeyState"
+	_key_state.theme_type_variation = &"LabelCaption"
+	_key_state.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_settings_rows.add_child(_key_state)
+	_key_rows.append_array([row, _key_state] as Array[Control])
+
+
+## The key row's *Set key* and its caption, for the tests.
+func key_button() -> ConsoleButton:
+	return _key_button
+
+
+func key_state_label() -> Label:
+	return _key_state
 
 
 ## The *Online leaderboard* button, for the tests.

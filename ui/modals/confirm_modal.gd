@@ -26,7 +26,14 @@ func _ready() -> void:
 ## Shows the question and waits for the answer. The caller decides where the
 ## modal lives; this only fills it in and listens.
 func ask(question_key: String) -> bool:
-	_question.text = tr(question_key)
+	return await ask_text(tr(question_key))
+
+
+## `ask` with a question already worded (a placeholder filled in) and, when
+## given, the confirm button's own label (benchmark.md §19.8 item 8: *Start*).
+func ask_text(question: String, confirm_key: String = KEY_CONFIRM) -> bool:
+	_confirm.label_key = confirm_key
+	_question.text = question
 	# accessibility.md §3.4: the question is what a screen reader hears with the
 	# focused *Cancel*, since this one opens inside another modal.
 	_cancel.accessibility_description = _question.text

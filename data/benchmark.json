@@ -70,6 +70,6 @@
 		"models_max_age_s": 86400,
 		"models_shown": 200,
 		"keys_url": "https://openrouter.ai/settings/keys",
-		"submit_url": "https://github.com/DenRakEiw/doomsday-leaderboard/upload/main/runs"
+		"submit_url": "https://github.com/DenRakEiw/doomsday-leaderboard/fork"
 	}
 }

@@ -2727,6 +2727,11 @@ instead and `UI_BENCH_SUBMIT_STEPS` is reworded — a question for the user, not
 the deploy key exists** (§16.5, the user's), merged runs wait for the owner's
 `submit_runs.ps1 -Push -VerifyLocally`.
 
+**Confirmed at S6.12g (2026-09-28):** GitHub's upload page does not fork for a user without write
+access ("File uploads require push access"). The user chose the fork route for now —
+`player.submit_url` is the repository's fork page, `UI_BENCH_SUBMIT_STEPS` says fork → upload into
+`runs/` → pull request — and an upload through Supabase later (D6.9f, S6.12h).
+
 ### 19.10 Data — `data/benchmark.json` gains `player`
 
 Written into the file **by S6.12f**, with `BenchConfig` reading every key (§3's rule) — so the

@@ -203,3 +203,18 @@ func test_the_online_leaderboard_defaults_on_and_persists() -> void:
 	var read_back: Dictionary = _values(JSON.parse_string(JSON.stringify(Settings.to_dict())))
 	assert_false(bool(read_back[SettingsScript.KEY_BENCH_ONLINE]), "and reads it back")
 	Settings.bench_online = before
+
+
+func test_the_benchmark_cap_is_unset_until_chosen_and_persists() -> void:
+	# S6.12g (benchmark.md §19.8 item 6).
+	assert_eq(float(_values(null)[SettingsScript.KEY_BENCH_CAP]), SettingsScript.BENCH_CAP_UNSET)
+	assert_eq(float(_values({"bench_cap_usd": 5})[SettingsScript.KEY_BENCH_CAP]), 5.0)
+	assert_eq(float(_values({"bench_cap_usd": -3.0})[SettingsScript.KEY_BENCH_CAP]),
+		SettingsScript.BENCH_CAP_UNSET, "no cap below zero")
+	assert_eq(float(_values({"bench_cap_usd": "lots"})[SettingsScript.KEY_BENCH_CAP]),
+		SettingsScript.BENCH_CAP_UNSET, "a wrong type is unset")
+	var before: float = Settings.bench_cap_usd
+	Settings.bench_cap_usd = 10.0
+	var read_back: Dictionary = _values(JSON.parse_string(JSON.stringify(Settings.to_dict())))
+	assert_eq(float(read_back[SettingsScript.KEY_BENCH_CAP]), 10.0, "the file holds it")
+	Settings.bench_cap_usd = before

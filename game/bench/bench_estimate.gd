@@ -181,13 +181,15 @@ static func fetch_model(base_url: String, model: String, config: BenchConfig) ->
 
 
 ## The body of the public model list — no key, one try; "" for any host but
-## openrouter.ai and for any failure.
-static func fetch_list(base_url: String, config: BenchConfig) -> String:
+## openrouter.ai and for any failure. `timeout_s` below 1 is `http.timeout_s`
+## (the game's picker waits `global.timeout_s`, §19.8).
+static func fetch_list(base_url: String, config: BenchConfig, timeout_s: int = -1) -> String:
 	var base: Dictionary = OpenRouterBackend.parse_base_url(base_url)
 	if base.is_empty() or str(base["host"]) != PRICE_HOST:
 		return ""
 	var result: Dictionary = OpenRouterBackend.request(base, HTTPClient.METHOD_GET,
-		str(base["prefix"]) + config.models_path, PackedStringArray(), "", config.timeout_s)
+		str(base["prefix"]) + config.models_path, PackedStringArray(), "",
+		timeout_s if timeout_s > 0 else config.timeout_s)
 	if int(result["status"]) != OpenRouterBackend.STATUS_OK:
 		return ""
 	return str(result["body"])

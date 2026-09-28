@@ -243,6 +243,47 @@ static func write_text(path: String, text: String) -> String:
 	return path if DirAccess.rename_absolute(temp, path) == OK else ""
 
 
+## The brief and the day-0 digest of a seed, in the run's language — what
+## `--dry-run` prints and the estimate measures — the tool's and, since S6.12g,
+## the benchmark modal's (§19.8 item 6).
+static func measure(db: ContentDB, config: BenchConfig, setup: RunSetup, seed_value: int,
+		locale: String) -> Dictionary:
+	var previous: String = _use_locale(locale)
+	var brief: String = BenchPrompt.brief(db, setup, config)
+	var sim: Simulation = Simulation.create(db, seed_value, setup)
+	var digest: String = BenchPrompt.digest_text(
+		BenchDigest.build(sim, BenchDigest.new_memory(), config), db)
+	_use_locale(previous)
+	return {"brief": brief, "digest": digest}
+
+
+## A decision model's day-0 request of a seed (§17.9): its `rules` and
+## `situation`, the request body for `model`, and the three token measures the
+## dry run checks against the service's limits.
+static func measure_choice(db: ContentDB, config: BenchConfig, setup: RunSetup, seed_value: int,
+		locale: String, model: String) -> Dictionary:
+	var previous: String = _use_locale(locale)
+	var rules: String = BenchPrompt.rules(db, setup, config)
+	var sim: Simulation = Simulation.create(db, seed_value, setup)
+	var digest: BenchDigest = BenchDigest.build(sim, BenchDigest.new_memory(), config)
+	var situation: String = BenchPrompt.digest_text(digest, db, false)
+	var plan: BenchChoicePlan = BenchChoice.plan(sim, digest, rules, situation, config)
+	_use_locale(previous)
+	var body: Dictionary = plan.body(model)
+	var longest: int = 0
+	for question: Variant in plan.questions:
+		longest = maxi(longest, BenchEstimate.tokens(JSON.stringify(plan.questions[question]).length(),
+			config))
+	return {
+		"rules": rules,
+		"situation": situation,
+		"body": body,
+		"state_tokens": BenchEstimate.tokens(JSON.stringify(plan.state).length(), config),
+		"question_tokens": longest,
+		"request_tokens": BenchEstimate.tokens(JSON.stringify(body).length(), config),
+	}
+
+
 ## The exit code a backend's fatal reason stands for (§11.3).
 static func exit_for(fatal: String) -> int:
 	if fatal.begins_with(OpenRouterBackend.FATAL_UNAVAILABLE):
@@ -283,3 +324,12 @@ static func run_line(entry: BenchEntry) -> Dictionary:
 	if not entry.model_version.is_empty():
 		line["model_version"] = entry.model_version
 	return line
+
+
+## Switches the language to `locale` and answers the one before. Only when it
+## differs: in the game every switch rebuilds every open screen.
+static func _use_locale(locale: String) -> String:
+	var previous: String = TranslationServer.get_locale()
+	if previous != locale:
+		TranslationServer.set_locale(locale)
+	return previous

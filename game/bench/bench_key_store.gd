@@ -139,6 +139,10 @@ const POLL_MS: int = 20
 ## `{"status": "ok" | "none" | "error", "key": String}`. Unset, the real store.
 var backend_override: Callable = Callable()
 
+## The tests' feature seam for §19.1: −1 asks the build, 0 answers no, 1 yes —
+## so a desktop suite can see the web's settings and lists, and the other way.
+static var supported_override: int = -1
+
 ## Set once a call found the store missing or refusing: `kind()` is then
 ## `session` — the key lives in memory only (`BenchJobs.session_key`).
 var _unavailable: bool = false
@@ -147,6 +151,8 @@ var _linux_checked: bool = false
 
 ## §19.1: a desktop build on Windows or Linux.
 static func is_supported() -> bool:
+	if supported_override >= 0:
+		return supported_override == 1
 	return supported_on(OS.has_feature(FEATURE_PC), OS.has_feature(FEATURE_WEB), OS.get_name())
 
 

@@ -34,6 +34,8 @@ const CodexModal: GDScript = preload("res://ui/modals/codex.gd")
 ## accessibility.md §4.5, §5.3: the focusable map and the key list.
 const MapFocusScript: GDScript = preload("res://game/map/map_focus.gd")
 const CONTROLS_SCENE: PackedScene = preload("res://ui/modals/controls.tscn")
+## benchmark.md §19.6–§19.7: the OpenRouter key's dialog, over the pause menu.
+const BENCH_KEY_SCENE: PackedScene = preload("res://ui/modals/bench_key.tscn")
 
 ## The holds of m3-screens §10.2 this screen takes.
 const HOLD_DISCOVERY: StringName = &"discovery"
@@ -97,6 +99,7 @@ const PAD_MOTION_THRESHOLD: float = 0.5
 ## accessibility.md §4.5: the map as one focusable control.
 var map_focus: MapFocusScript = null
 var _controls: Control = null
+var _bench_key: Control = null
 
 ## accessibility.md §4.1: the player is on the keyboard or a pad rather than a
 ## pointer. A key or a pad button sets it, a click or a touch clears it; it
@@ -135,6 +138,10 @@ func _ready() -> void:
 	_modals.add_child(_controls)
 	_controls.connect(&"closed", _close_controls)
 	_pause_menu.connect(&"controls_requested", _open_controls)
+	_bench_key = BENCH_KEY_SCENE.instantiate() as Control
+	_modals.add_child(_bench_key)
+	_bench_key.connect(&"closed", _close_bench_key)
+	_pause_menu.connect(&"bench_key_requested", _open_bench_key)
 	_codex_tracker = CodexTracker.new()
 	_codex_tracker.name = "CodexTracker"
 	add_child(_codex_tracker)
@@ -366,6 +373,18 @@ func _build_map_focus() -> void:
 func _open_controls() -> void:
 	_controls.call(&"open")
 	_modals.open_over(_controls)
+
+
+## benchmark.md §19.6: over the settings, which it goes back to.
+func _open_bench_key() -> void:
+	_bench_key.call(&"open")
+	_modals.open_over(_bench_key)
+
+
+func _close_bench_key() -> void:
+	if _modals.current() == _bench_key:
+		_modals.close()
+	_bench_key.visible = false
 
 
 func _close_controls() -> void:

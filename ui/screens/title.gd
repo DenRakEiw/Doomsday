@@ -17,6 +17,10 @@ const KEY_VERSION_WEB: String = "UI_TITLE_VERSION_WEB"
 const ACTION_HELP: StringName = &"game_help"
 ## accessibility.md §5.3: the key list, over the settings.
 const CONTROLS_SCENE: PackedScene = preload("res://ui/modals/controls.tscn")
+## benchmark.md §19.7–§19.9: the key dialog, the benchmark modal, *Submit*.
+const BENCH_KEY_SCENE: PackedScene = preload("res://ui/modals/bench_key.tscn")
+const BENCH_RUN_SCENE: PackedScene = preload("res://ui/modals/bench_run.tscn")
+const BENCH_SUBMIT_SCENE: PackedScene = preload("res://ui/modals/bench_submit.tscn")
 const PLACEHOLDER_DAY: String = "day"
 const PLACEHOLDER_VERSION: String = "version"
 const SETTING_VERSION: String = "application/config/version"
@@ -74,6 +78,11 @@ const HEADLESS_DISPLAY: String = "headless"
 static var _introduced: bool = false
 
 var _controls: Control = null
+var _bench_key: Control = null
+var _bench_run: Control = null
+var _bench_submit: Control = null
+## The key dialog stands in for the benchmark modal, which comes back after it.
+var _key_from_run: bool = false
 
 
 func _ready() -> void:
@@ -108,6 +117,7 @@ func _ready() -> void:
 	_host.add_child(_controls)
 	_controls.connect(&"closed", _host.close)
 	_settings_menu.connect(&"controls_requested", _open_controls)
+	_build_bench_modals()
 	_quit.visible = not (OS.has_feature(FEATURE_MOBILE) or OS.has_feature(FEATURE_WEB))
 	_spacer.custom_minimum_size.y = float(UiTokens.SPACE_6)
 	_indent.custom_minimum_size.x = float(UiTokens.GUTTER) * INDENT_GUTTERS
@@ -131,6 +141,60 @@ func _introduce() -> void:
 		return
 	_introduced = true
 	live.say(ModalHost.dialog_line(_name_label.text, _tagline.text))
+
+
+## benchmark.md §19.6–§19.9: one level over the settings or the list, like the
+## key list — the key dialog in place of the benchmark modal, which returns.
+func _build_bench_modals() -> void:
+	_bench_key = BENCH_KEY_SCENE.instantiate() as Control
+	_host.add_child(_bench_key)
+	_bench_key.connect(&"closed", _close_bench_key)
+	_settings_menu.connect(&"bench_key_requested", _open_bench_key)
+	_bench_run = BENCH_RUN_SCENE.instantiate() as Control
+	_host.add_child(_bench_run)
+	_bench_run.connect(&"closed", _host.close)
+	_bench_run.connect(&"key_requested", _on_bench_run_key_requested)
+	_benchmark.connect(&"run_requested", _open_bench_run)
+	_bench_submit = BENCH_SUBMIT_SCENE.instantiate() as Control
+	_host.add_child(_bench_submit)
+	_bench_submit.connect(&"closed", _host.close)
+	_benchmark.connect(&"submit_requested", _open_bench_submit)
+
+
+func _open_bench_key() -> void:
+	_bench_key.call(&"open")
+	_host.open_over(_bench_key)
+
+
+func _close_bench_key() -> void:
+	if _host.current() == _bench_key:
+		_host.close()
+	if _key_from_run:
+		_key_from_run = false
+		_open_bench_run()
+
+
+func _open_bench_run() -> void:
+	_bench_run.call(&"open")
+	_host.open_over(_bench_run)
+
+
+func _on_bench_run_key_requested() -> void:
+	if _host.current() == _bench_run:
+		_host.close()
+	_key_from_run = true
+	_open_bench_key()
+
+
+func _open_bench_submit(group: BenchGroup, board_hash: String) -> void:
+	var db: ContentDB = Game.content()
+	_bench_submit.call(&"open", group, board_hash, "" if db == null else db.content_hash)
+	_host.open_over(_bench_submit)
+
+
+## The benchmark's three modals, for the tests.
+func bench_modals() -> Array[Control]:
+	return [_bench_key, _bench_run, _bench_submit]
 
 
 ## accessibility.md §5.3: over the settings, which it goes back to.

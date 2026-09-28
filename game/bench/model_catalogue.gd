@@ -23,6 +23,12 @@ const FIELD_DEFAULT_ON: String = "reasons_by_default"
 const FIELD_DEFAULT_EFFORT: String = "default_effort"
 const FIELD_TYPESAFE: String = "typesafe"
 const FIELD_LISTED: String = "listed"
+## Whether the model answers in text (§19.8 item 4): `architecture.output_modalities`
+## names `text`, or the list says nothing about it.
+const FIELD_TEXT_OUT: String = "text_out"
+const LIST_ARCHITECTURE: String = "architecture"
+const LIST_OUTPUT_MODALITIES: String = "output_modalities"
+const MODALITY_TEXT: String = "text"
 const LIST_NAME: String = "name"
 const LIST_CONTEXT: String = "context_length"
 ## A price the list does not give (Backend.NO_PRICE's value).
@@ -56,6 +62,12 @@ static func row_of(item: Dictionary) -> Dictionary:
 	var prompt: float = float(info.get(BenchEstimate.FIELD_PROMPT, NO_PRICE))
 	var completion: float = float(info.get(BenchEstimate.FIELD_COMPLETION, NO_PRICE))
 	var context: Variant = item.get(LIST_CONTEXT)
+	var text_out: bool = true
+	var architecture: Variant = item.get(LIST_ARCHITECTURE)
+	if typeof(architecture) == TYPE_DICTIONARY:
+		var modalities: Variant = (architecture as Dictionary).get(LIST_OUTPUT_MODALITIES)
+		if typeof(modalities) == TYPE_ARRAY:
+			text_out = (modalities as Array).has(MODALITY_TEXT)
 	return {
 		FIELD_ID: id,
 		FIELD_NAME: str(item[LIST_NAME]) if typeof(item.get(LIST_NAME)) == TYPE_STRING else id,
@@ -70,6 +82,7 @@ static func row_of(item: Dictionary) -> Dictionary:
 		FIELD_DEFAULT_EFFORT: str(info[BenchEstimate.FIELD_DEFAULT_EFFORT]),
 		FIELD_TYPESAFE: false,
 		FIELD_LISTED: true,
+		FIELD_TEXT_OUT: text_out,
 	}
 
 
@@ -93,6 +106,7 @@ static func typesafe_row(config: BenchConfig) -> Dictionary:
 		FIELD_DEFAULT_EFFORT: "",
 		FIELD_TYPESAFE: true,
 		FIELD_LISTED: true,
+		FIELD_TEXT_OUT: true,
 	}
 
 
@@ -102,7 +116,8 @@ static func unlisted_row(id: String) -> Dictionary:
 	return {FIELD_ID: id, FIELD_NAME: id, FIELD_CONTEXT: 0, FIELD_PROMPT: NO_PRICE,
 		FIELD_COMPLETION: NO_PRICE, FIELD_FREE: false, FIELD_REASONING: false,
 		FIELD_EFFORTS: efforts, FIELD_MANDATORY: false, FIELD_DEFAULT_ON: false,
-		FIELD_DEFAULT_EFFORT: "", FIELD_TYPESAFE: false, FIELD_LISTED: false}
+		FIELD_DEFAULT_EFFORT: "", FIELD_TYPESAFE: false, FIELD_LISTED: false,
+		FIELD_TEXT_OUT: true}
 
 
 ## Whether `row` answers a search: its id or name contains `text`, any case.

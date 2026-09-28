@@ -13,9 +13,18 @@ extends Control
 ## Model names are data from outside: they go into plain `Label`s, never into
 ## rich text.
 ##
+## On a desktop build (§19.1) the list also starts the player's own benchmark
+## (§19.8), shows it while it runs or since it ended (§19.9.1), and offers each
+## complete one of the player's own for *Submit* (§19.9.3).
+##
 ## Scene-specific, so no `class_name`.
 
 signal closed
+## §19.8: *Run your own benchmark* — the host opens the benchmark modal.
+signal run_requested
+## §19.9.3: *Submit* on a group; `board_hash` is the known global board's
+## content ("" when no board is known).
+signal submit_requested(group: BenchGroup, board_hash: String)
 
 const KEY_TITLE: String = "UI_BENCH_TITLE"
 const KEY_INTRO: String = "UI_BENCH_INTRO"
@@ -47,6 +56,9 @@ const KEY_GLOBAL_RUNS: String = "UI_BENCH_GLOBAL_RUNS"
 const KEY_GLOBAL_HIDE: String = "UI_BENCH_GLOBAL_HIDE"
 const KEY_GLOBAL_DOWNLOADING: String = "UI_BENCH_GLOBAL_DOWNLOADING"
 const KEY_SEED: String = "UI_SPECTATOR_SEED"
+const KEY_RUN_OPEN: String = "UI_BENCH_RUN_OPEN"
+const KEY_GROUP_ROW: String = "UI_BENCH_GROUP_ROW"
+const KEY_SUBMIT: String = "UI_BENCH_SUBMIT"
 const PREFIX_GLOBAL_FAIL: String = "UI_BENCH_GLOBAL_FAIL_"
 const PREFIX_CMD_FAIL: String = "CMD_FAIL_"
 const PREFIX_OUTCOME: String = "UI_OUTCOME_"
@@ -102,6 +114,15 @@ var _pairs: Array[BoxContainer] = []
 var _run_buttons: Array[ConsoleButton] = []
 ## The run being downloaded, and the caption under it.
 var _pending_caption: Label = null
+var _job: BenchJobView = null
+## The recorded runs the list last read, by finished seeds of the running
+## benchmark: a finished seed is a new file to show.
+var _finished_seen: int = -1
+
+## §19.9.1: the ended benchmark the list has shown once — it is not shown again.
+static var _acknowledged: BenchJobState = null
+## The ended benchmark this opening shows; it stays for the opening.
+var _showing: BenchJobState = null
 
 
 func _ready() -> void:
@@ -114,6 +135,7 @@ func _ready() -> void:
 	_close.pressed.connect(closed.emit)
 	_client.board_changed.connect(_on_client_board_changed)
 	_client.run_ready.connect(_on_client_run_ready)
+	BenchJobs.changed.connect(_on_bench_jobs_changed)
 	if Game.debug_allowed:
 		for arg: String in OS.get_cmdline_user_args():
 			if arg.begins_with(ARG_GLOBAL_BOARD):
@@ -144,6 +166,8 @@ func has_anything() -> bool:
 ## — with the setting on — fetched.
 func open() -> void:
 	_library = BenchLibrary.scan(Game.debug_allowed)
+	_finished_seen = _finished_runs()
+	_showing = null
 	_board = null
 	_source = GlobalBoardClient.SOURCE_NONE
 	_loading = false
@@ -178,9 +202,71 @@ func _rebuild() -> void:
 	_run_buttons.clear()
 	_pending_caption = null
 	_caption(_list, tr(KEY_INTRO))
+	_build_own()
 	_build_global()
 	_build_local()
 	_apply_compact()
+
+
+## §19.8, §19.9.1: the button to the benchmark modal and, while one runs or
+## since it ended, the player's benchmark.
+func _build_own() -> void:
+	if not has_own_benchmark():
+		_job = null
+		return
+	var open_button: ConsoleButton = ConsoleButton.new()
+	open_button.name = "RunOpen"
+	open_button.label_key = KEY_RUN_OPEN
+	open_button.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	open_button.pressed.connect(run_requested.emit)
+	_list.add_child(open_button)
+	_job = BenchJobView.new()
+	_job.name = "JobSection"
+	_job.live = _live
+	_list.add_child(_job)
+	_show_job()
+
+
+## §19.1: only a desktop build runs a benchmark of its own; a debug build's
+## `--bench-mock` too.
+static func has_own_benchmark() -> bool:
+	return BenchKeyStore.is_supported() or BenchJobs.mock
+
+
+## The job section, for the tests.
+func job_section() -> BenchJobView:
+	return _job
+
+
+## §19.9.1: while it runs, or once after it ended.
+func _show_job() -> void:
+	if _job == null or not is_instance_valid(_job):
+		return
+	var state: BenchJobState = BenchJobs.state()
+	_job.refresh()
+	_job.visible = state != null and (state.is_running() or state != _acknowledged
+		or state == _showing)
+	if _job.visible and not state.is_running():
+		_acknowledged = state
+		_showing = state
+
+
+func _finished_runs() -> int:
+	var state: BenchJobState = BenchJobs.state()
+	return -1 if state == null else state.finished_runs()
+
+
+## A finished seed is a new recorded run: the list reads them again.
+func _on_bench_jobs_changed() -> void:
+	if not visible:
+		return
+	var finished: int = _finished_runs()
+	if finished != _finished_seen:
+		_finished_seen = finished
+		_library = BenchLibrary.scan(Game.debug_allowed)
+		_rebuild()
+		return
+	_show_job()
 
 
 func _build_global() -> void:
@@ -235,6 +321,10 @@ func _build_local() -> void:
 	_local_box = _section(KEY_LOCAL_TITLE)
 	_local_box.name = "LocalRuns"
 	var content_hash: String = _content_hash()
+	if has_own_benchmark():
+		for group: BenchGroup in BenchGroup.own_groups(_library, BenchLibrary.user_dir,
+				content_hash, BenchJobs.config()):
+			_add_group_row(group)
 	var order: Array[int] = []
 	for i: int in _library.entries.size():
 		order.append(i)
@@ -258,6 +348,26 @@ static func _local_before(a: BenchEntry, b: BenchEntry, content_hash: String) ->
 	if a.model != b.model:
 		return a.model < b.model
 	return a.seed_value < b.seed_value
+
+
+## §19.9.3: one of the player's complete benchmarks, above the single runs.
+func _add_group_row(group: BenchGroup) -> void:
+	var lines: VBoxContainer = _lines()
+	_model_label(lines, group.model)
+	_caption(lines, tr(KEY_GROUP_ROW).format({"score": Format.decimal(group.score, 1),
+		"wins": group.wins, "runs": group.runs}))
+	_caption(lines, BenchEffort.line(group.effort))
+	var submit: ConsoleButton = ConsoleButton.new()
+	submit.label_key = KEY_SUBMIT
+	submit.compact = true
+	submit.name = "Submit"
+	_pair(_local_box, lines, submit)
+	submit.pressed.connect(_on_submit_pressed.bind(group))
+	_name_toggle(submit, group.model)
+
+
+func _on_submit_pressed(group: BenchGroup) -> void:
+	submit_requested.emit(group, "" if _board == null else _board.content_hash)
 
 
 func _add_local_row(entry: BenchEntry, content_hash: String) -> void:

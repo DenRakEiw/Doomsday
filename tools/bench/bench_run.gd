@@ -235,46 +235,16 @@ static func exit_for(fatal: String) -> int:
 	return BenchRunner.exit_for(fatal)
 
 
-## The brief and the day-0 digest of a seed, in the run's language — what
-## `--dry-run` prints and the estimate measures.
+## The brief and the day-0 digest of a seed (`BenchRunner.measure`, §19.3).
 static func measure(db: ContentDB, config: BenchConfig, setup: RunSetup, seed_value: int,
 		locale: String) -> Dictionary:
-	var previous: String = TranslationServer.get_locale()
-	TranslationServer.set_locale(locale)
-	var brief: String = BenchPrompt.brief(db, setup, config)
-	var sim: Simulation = Simulation.create(db, seed_value, setup)
-	var digest: String = BenchPrompt.digest_text(
-		BenchDigest.build(sim, BenchDigest.new_memory(), config), db)
-	TranslationServer.set_locale(previous)
-	return {"brief": brief, "digest": digest}
+	return BenchRunner.measure(db, config, setup, seed_value, locale)
 
 
-## A decision model's day-0 request of a seed (§17.9): its `rules` and
-## `situation`, the request body for `model`, and the three token measures the
-## dry run checks against the service's limits.
+## A decision model's day-0 request of a seed (`BenchRunner.measure_choice`).
 static func measure_choice(db: ContentDB, config: BenchConfig, setup: RunSetup, seed_value: int,
 		locale: String, model: String) -> Dictionary:
-	var previous: String = TranslationServer.get_locale()
-	TranslationServer.set_locale(locale)
-	var rules: String = BenchPrompt.rules(db, setup, config)
-	var sim: Simulation = Simulation.create(db, seed_value, setup)
-	var digest: BenchDigest = BenchDigest.build(sim, BenchDigest.new_memory(), config)
-	var situation: String = BenchPrompt.digest_text(digest, db, false)
-	var plan: BenchChoicePlan = BenchChoice.plan(sim, digest, rules, situation, config)
-	TranslationServer.set_locale(previous)
-	var body: Dictionary = plan.body(model)
-	var longest: int = 0
-	for question: Variant in plan.questions:
-		longest = maxi(longest, BenchEstimate.tokens(JSON.stringify(plan.questions[question]).length(),
-			config))
-	return {
-		"rules": rules,
-		"situation": situation,
-		"body": body,
-		"state_tokens": BenchEstimate.tokens(JSON.stringify(plan.state).length(), config),
-		"question_tokens": longest,
-		"request_tokens": BenchEstimate.tokens(JSON.stringify(body).length(), config),
-	}
+	return BenchRunner.measure_choice(db, config, setup, seed_value, locale, model)
 
 
 ## The lines the dry run prints after a decision model's request (§17.9).

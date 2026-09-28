@@ -24,6 +24,9 @@ const TEST_BENCH_ONLINE: String = "user://test_bench_online/"
 ## stray start never land in the player's `benchmark/`, and no test reads the
 ## real key store.
 const TEST_BENCH_JOBS: String = "user://test_bench_jobs/"
+## S6.12g: the model list's cache and *Submit*'s folder likewise.
+const TEST_BENCH_MODELS: String = "user://test_bench_models/"
+const TEST_BENCH_SUBMIT: String = "user://test_bench_submit/"
 
 
 func run() -> void:
@@ -34,6 +37,8 @@ func run() -> void:
 	BenchLibrary.dev_dir = TEST_BENCH_DEV
 	GlobalBoardClient.default_cache_dir = TEST_BENCH_ONLINE
 	BenchJobs.out_dir = TEST_BENCH_JOBS
+	ModelListCache.default_dir = TEST_BENCH_MODELS
+	BenchGroup.submit_root = TEST_BENCH_SUBMIT
 	BenchJobs.key_store.backend_override = func(_op: String, _key: String) -> Dictionary:
 		return {BenchKeyStore.FIELD_STATUS: BenchKeyStore.STATUS_ERROR}
 	# *Reset progress* keeps the achievements (release.md §2.2); the suite's

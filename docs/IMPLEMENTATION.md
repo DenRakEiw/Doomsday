@@ -345,6 +345,8 @@ before the *next* row; "—" means stay on the same model.
 | 97d | D6.9e Your own benchmark in the game: the key in the OS store, model picker, worker, *Submit* *(user 2026-09-28; `benchmark.md` §19)* | **[F]** | — |
 | 97e | S6.12f Own benchmark I: the key store, the runner in `game/bench/`, the headless worker, `BenchJobs` *(`benchmark.md` §19.2–§19.5, §19.10)* | [O] | — |
 | 97f | S6.12g Own benchmark II: the settings row, the key dialog, the model picker, progress, *Submit* *(`benchmark.md` §19.6–§19.9; the first live run is the user's)* | [O] | — |
+| 97g | D6.9f *Submit* through Supabase, specified *(user decision 2026-09-28, S6.12g)* | **[F]** | — |
+| 97h | S6.12h *Submit* through Supabase, built — **[needs user]** (the Supabase project) | [O] | — |
 | 98 | G7.I The itch.io release: played on the restricted page, go, public — **[needs user]** | **[F]** | — |
 | 99–107 | ~~S7.F1–S7.F5, U7.F1–U7.F4 FLUX 3 Action track~~ — **cut 2026-09-26** (user; numbers kept so later rows do not move) | — | — |
 | 108 | D7.1 Touch and phone | **[F]** | — |
@@ -1383,7 +1385,22 @@ copied, the folder and GitHub's upload page opened, the old-version refusal). Co
 upload-to-fork for a user without write access (§19.9.3) or ask the user. Tests: §19.12's S6.12g
 list. Look at it in German at 1920 and 400 px.
 **Done when:** `tools/test.sh` green; §19.12's hand checks on Windows done with `--bench-mock`;
-the first live benchmark from the game is under *Waiting on the user*.
+the first live benchmark from the game is under *Waiting on the user*. *Done 2026-09-28 (PROGRESS: Deviations S6.12g; *Submit* via the fork page by user decision).*
+
+### D6.9f — *Submit* through Supabase, specified **[F]** · **Read first:** `benchmark.md` §16 (the verifier and the public board), §19.9, `release.md` §10, PROGRESS *Decisions* 2026-09-28 (fork now, Supabase later)
+The user wants runs to reach the board without a GitHub account (2026-09-28). Specify: what the
+game uploads (the group's entry files only) and where (a Supabase storage bucket or table, insert
+only, anonymous with the publishable key); limits (size, count, rate, one group per upload) and
+what the database refuses; how the leaderboard workflow collects submissions, verifies them
+(§16.5, unchanged) and marks them done; the player's consent line and what *Submit* shows (sent /
+failed / already sent); the release.md §10 promise reworded; what the user must set up (project,
+bucket, policies, keys, a secret for the workflow) as a checklist; strings en/de; tests.
+**Done when:** a spec section (§20) the build can follow without a design decision, and the
+user's setup list under *Waiting on the user*.
+
+### S6.12h — *Submit* through Supabase, built **[O]** **[needs user]** · **Read first:** `benchmark.md` §20 (from D6.9f), §19.9
+Build §20 once the user's project exists; the fork route stays as the fallback §20 names.
+**Done when:** `tools/test.sh` green; one mock group submitted to the user's project end to end.
 
 ### G6 (1/2) — Balance pass 4 **[F]** · **Read first:** `docs/BALANCE.md` §5 · *Balance baselines*
 Re-baseline everything on the M6 tree (every architecture, scenario and difficulty), tune data

@@ -66,6 +66,13 @@ const STYLE_PRESSED: String = "pressed"
 const STYLE_FOCUS: String = "focus"
 const STYLE_DISABLED: String = "disabled"
 const STYLE_SEPARATOR: String = "separator"
+## `LineEdit`'s own names (benchmark.md §19.7: the key field, the model search).
+const STYLE_READ_ONLY: String = "read_only"
+const COLOR_PLACEHOLDER: String = "font_placeholder_color"
+const COLOR_CARET: String = "caret_color"
+const COLOR_SELECTION: String = "selection_color"
+const COLOR_FONT_UNEDITABLE: String = "font_uneditable_color"
+const LINE_EDIT: String = "LineEdit"
 
 const ITEM_FONT: String = "font"
 const ITEM_FONT_SIZE: String = "font_size"
@@ -605,6 +612,20 @@ static func _buttons() -> Theme:
 		UiTokens.accent_wash(), UiTokens.color(&"ALERT"), UiTokens.color(&"ALERT"), UiTokens.color(&"ALERT"))
 	_button_colours(theme, "ChipButton", UiTokens.color(&"ALERT"), UiTokens.color(&"ALERT"),
 		UiTokens.color(&"ALERT"))
+	# benchmark.md §19.7: the game's first text field — a sunken surface with the
+	# button's border, the focus ring every control has.
+	var field_pad: Vector2i = Vector2i(UiTokens.SPACE_3, UiTokens.SPACE_3)
+	theme.set_stylebox(STYLE_NORMAL, LINE_EDIT, _flat(UiTokens.color(&"BG_2"),
+		UiTokens.color(&"LINE_1"), UiTokens.BORDER, UiTokens.RADIUS_S, field_pad))
+	theme.set_stylebox(STYLE_READ_ONLY, LINE_EDIT, _flat(UiTokens.color(&"BG_2"),
+		UiTokens.color(&"LINE_0"), UiTokens.BORDER, UiTokens.RADIUS_S, field_pad))
+	theme.set_stylebox(STYLE_FOCUS, LINE_EDIT, focus_ring(UiTokens.RADIUS_S))
+	theme.set_color(COLOR_FONT, LINE_EDIT, UiTokens.color(&"TEXT_0"))
+	theme.set_color(COLOR_FONT_UNEDITABLE, LINE_EDIT, UiTokens.color(&"TEXT_2"))
+	theme.set_color(COLOR_PLACEHOLDER, LINE_EDIT, UiTokens.color(&"TEXT_2"))
+	theme.set_color(COLOR_CARET, LINE_EDIT, UiTokens.color(&"ACCENT"))
+	theme.set_color(COLOR_SELECTION, LINE_EDIT, UiTokens.accent_wash())
+
 	# §4.5: the frame that says the map has the keys — a focus ring, drawn by
 	# `MapFocus` itself (a plain `Control` draws no focus box of its own).
 	theme.set_stylebox(STYLE_FOCUS, "MapFocus", focus_ring(UiTokens.RADIUS_M))
