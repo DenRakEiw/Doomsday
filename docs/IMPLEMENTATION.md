@@ -342,6 +342,9 @@ before the *next* row; "—" means stay on the same model.
 | 97a | S7.IP Release polish before the itch release *(inserted 2026-09-26 by the orchestrator)* | [O] | — |
 | 97b | S6.12e The quick suite in the in-game online list *(user decision 2026-09-27; `benchmark.md` §16.6)* | [O] | — |
 | 97c | AI-model tab in the Benchmark list; Jev via OpenRouter *(user requests 2026-09-28; `benchmark.md` §16.6 3b, §17.9)* | [O] | — |
+| 97d | D6.9e Your own benchmark in the game: the key in the OS store, model picker, worker, *Submit* *(user 2026-09-28; `benchmark.md` §19)* | **[F]** | — |
+| 97e | S6.12f Own benchmark I: the key store, the runner in `game/bench/`, the headless worker, `BenchJobs` *(`benchmark.md` §19.2–§19.5, §19.10)* | [O] | — |
+| 97f | S6.12g Own benchmark II: the settings row, the key dialog, the model picker, progress, *Submit* *(`benchmark.md` §19.6–§19.9; the first live run is the user's)* | [O] | — |
 | 98 | G7.I The itch.io release: played on the restricted page, go, public — **[needs user]** | **[F]** | — |
 | 99–107 | ~~S7.F1–S7.F5, U7.F1–U7.F4 FLUX 3 Action track~~ — **cut 2026-09-26** (user; numbers kept so later rows do not move) | — | — |
 | 108 | D7.1 Touch and phone | **[F]** | — |
@@ -1345,6 +1348,42 @@ scripts parse, a mock run of `run_models` and a submission to a scratch clone
 **Done when:** `tools/test.sh` and `smoke_scripts.ps1` green, CI green; the user can pick models
 and run them with the §18.9 commands. *Done 2026-09-27 (`benchmark.md` §18; the live runs wait
 for the user — Waiting on the user, "Model runs").*
+
+### D6.9e — Your own benchmark in the game **[F]** *(user 2026-09-28)* · **Read first:** `benchmark.md` §0, §8, §11, §16.1–§16.2, §18
+The user: the OpenRouter key set in the settings and kept in the Windows credential store; a
+benchmark tool in the game where the player picks an OpenRouter model and runs a benchmark
+themselves. The user's answers of the same day: every desktop platform, a *Submit* button in the
+game, an estimate plus a cost cap, this spec before the build.
+**Done when:** `benchmark.md` §19 leaves the builds nothing to decide but the three open checks of
+§19.13; strings en/de in `strings.csv`. *Done 2026-09-28 (§19; 74 strings).*
+
+### S6.12f — Own benchmark I: key store, runner, worker, jobs **[O]** · **Read first:** `benchmark.md` §19 (all), then §8, §9, §11, §18.1, and `tools/bench/bench_run.gd`, `tools/sim_harness.gd`, `game/main.gd`, `game/smoke_run.gd`
+Build §19.2–§19.5 and §19.10: `BenchKeyStore` (Windows through PowerShell and `advapi32`, Linux
+through `secret-tool`, the session fallback, the test seam); move the backend, cache, estimate,
+catalogue and the per-seed loop from `tools/bench/` into `game/bench/` (`BenchRunner`, one day
+loop — `sim_harness.gd` and `bench_run.gd` call it; `bench_run.gd` reads the store when its
+variable is empty); the headless worker (`--bench-worker=<job dir>` in `main.gd`, the job file,
+the key on stdin, `progress.jsonl`); the autoload `BenchJobs` (one benchmark, three workers paid /
+one free, the cap split, stop, kill on close, job folders, `--bench-mock`); the `player` block in
+`data/benchmark.json` with `BenchConfig` reading it — **and the canary regenerated on Windows in
+the same commit**. Check by hand and record in `PROGRESS.md`: the store on Windows (save, load,
+remove, the credential visible under *Generische Anmeldeinformationen*), the stdin pipe of the
+exported Windows executable (else §19.4's fallback). Tests: §19.12's S6.12f list. **No live model
+call, no real key.**
+**Done when:** `tools/test.sh` green, CI green; `bench_run.gd` and `run_models.ps1 -Mock` behave as
+before; a mock job from the exported Windows build runs three workers and writes its entries.
+
+### S6.12g — Own benchmark II: settings, key dialog, picker, progress, *Submit* **[O]** · **Read first:** `benchmark.md` §19 (all), §12.7, §16.6, §18.4, then `ui/modals/benchmark.gd`, `ui/modals/pause_menu.gd`
+Build §19.6–§19.9: the key row in the settings (desktop only), the key dialog `ui/modals/bench_key`
+(save, show, check against `/key` — read OpenRouter's documentation on the day —, remove), the
+benchmark modal `ui/modals/bench_run` (model list with search, free-only, sort; effort rules;
+estimate, cap choices remembered as `bench_cap_usd`; confirmation for paid models), the progress
+section in the Benchmark list and the modal, the group line with *Submit* and its modal (the files
+copied, the folder and GitHub's upload page opened, the old-version refusal). Confirm GitHub's
+upload-to-fork for a user without write access (§19.9.3) or ask the user. Tests: §19.12's S6.12g
+list. Look at it in German at 1920 and 400 px.
+**Done when:** `tools/test.sh` green; §19.12's hand checks on Windows done with `--bench-mock`;
+the first live benchmark from the game is under *Waiting on the user*.
 
 ### G6 (1/2) — Balance pass 4 **[F]** · **Read first:** `docs/BALANCE.md` §5 · *Balance baselines*
 Re-baseline everything on the M6 tree (every architecture, scenario and difficulty), tune data

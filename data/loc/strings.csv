@@ -2468,6 +2468,80 @@ UI_BENCH_GLOBAL_FAIL_UNREADABLE,The file of this run could not be read.,Die Date
 UI_BENCH_GLOBAL_FAIL_OFF,Turn on the online leaderboard in Settings to download runs.,"Schalte die Online-Bestenliste in den Einstellungen ein, um Durchläufe zu laden."
 UI_BENCH_LOCAL_TITLE,Recorded runs,Aufgezeichnete Durchläufe
 UI_SETTINGS_BENCH_ONLINE,Online leaderboard,Online-Bestenliste
+UI_SETTINGS_OPENROUTER_KEY,OpenRouter key,OpenRouter-Schlüssel
+UI_KEY_STATE_NONE,Not set,Nicht gesetzt
+UI_KEY_STATE_STORED,Saved ({hint}),Gespeichert ({hint})
+UI_KEY_STATE_SESSION,This session only ({hint}),Nur diese Sitzung ({hint})
+UI_KEY_SET,Set key,Schlüssel setzen
+UI_KEY_TITLE,OpenRouter key,OpenRouter-Schlüssel
+UI_KEY_INTRO,"With your own OpenRouter key, AI models can play Doomsday on this computer. Their requests are billed to your OpenRouter account.",Mit deinem eigenen OpenRouter-Schlüssel können KI-Modelle Doomsday auf diesem Rechner spielen. Ihre Anfragen werden über dein OpenRouter-Konto abgerechnet.
+UI_KEY_WHERE_WINDOWS,"The key is kept in the Windows Credential Manager, never in the game's files.","Der Schlüssel liegt in der Windows-Anmeldeinformationsverwaltung, nie in den Dateien des Spiels."
+UI_KEY_WHERE_LINUX,"The key is kept in your desktop's keyring, never in the game's files.","Der Schlüssel liegt im Schlüsselbund deines Desktops, nie in den Dateien des Spiels."
+UI_KEY_WHERE_SESSION,"No keyring was found, so the key is kept for this session only and forgotten when the game closes.",Es wurde kein Schlüsselbund gefunden. Der Schlüssel gilt deshalb nur für diese Sitzung und ist nach dem Beenden des Spiels vergessen.
+UI_KEY_TIP,"Tip: give the key a credit limit on OpenRouter. Then no model can spend more than you meant, however ambitious it gets.","Tipp: Gib dem Schlüssel bei OpenRouter ein Guthabenlimit. Dann kann kein Modell mehr ausgeben als gedacht, egal wie ehrgeizig es wird."
+UI_KEY_GET,Create a key at OpenRouter,Schlüssel bei OpenRouter erstellen
+UI_KEY_FIELD,Key,Schlüssel
+UI_KEY_PLACEHOLDER,sk-or-…,sk-or-…
+UI_KEY_SHOW,Show,Anzeigen
+UI_KEY_SAVE,Save,Speichern
+UI_KEY_CHECK,Check,Prüfen
+UI_KEY_REMOVE,Remove,Entfernen
+UI_KEY_FORMAT,This does not look like an OpenRouter key (they start with sk-or-). Saved anyway.,Das sieht nicht nach einem OpenRouter-Schlüssel aus (die beginnen mit sk-or-). Trotzdem gespeichert.
+UI_KEY_SAVED,Saved.,Gespeichert.
+UI_KEY_STORE_FAILED,The key could not be saved in the keyring. It is kept for this session only.,Der Schlüssel ließ sich nicht im Schlüsselbund speichern. Er gilt nur für diese Sitzung.
+UI_KEY_REMOVED,Removed.,Entfernt.
+UI_KEY_CHECKING,Checking …,Wird geprüft …
+UI_KEY_VALID,The key works. Used so far: {usage} USD.,Der Schlüssel funktioniert. Bisher verbraucht: {usage} USD.
+UI_KEY_VALID_LIMIT,The key works. Used so far: {usage} of {limit} USD.,Der Schlüssel funktioniert. Bisher verbraucht: {usage} von {limit} USD.
+UI_KEY_INVALID,OpenRouter does not accept this key.,OpenRouter nimmt diesen Schlüssel nicht an.
+UI_KEY_OFFLINE,OpenRouter could not be reached.,OpenRouter war nicht erreichbar.
+UI_BENCH_RUN_OPEN,Run your own benchmark,Eigenen Benchmark starten
+UI_BENCH_RUN_TITLE,Your own benchmark,Dein eigener Benchmark
+UI_BENCH_RUN_INTRO,"Pick an AI model and let it try to take over the world, three times. It plays the quick suite, like every model on the leaderboard. You pay OpenRouter for its thinking; the apocalypse is free.","Wähle ein KI-Modell und lass es dreimal versuchen, die Welt zu übernehmen. Es spielt die Kurz-Suite, wie jedes Modell in der Bestenliste. Das Denken bezahlst du bei OpenRouter, die Apokalypse ist gratis."
+UI_BENCH_RUN_NO_KEY,"No OpenRouter key yet. Without one, no model gets to play.",Noch kein OpenRouter-Schlüssel. Ohne ihn darf kein Modell spielen.
+UI_BENCH_RUN_SEARCH,Search models,Modelle suchen
+UI_BENCH_RUN_FREE_ONLY,Free models only,Nur kostenlose Modelle
+UI_BENCH_RUN_LOADING,Loading OpenRouter's model list …,OpenRouters Modellliste wird geladen …
+UI_BENCH_RUN_LIST_FAILED,OpenRouter's model list could not be loaded.,OpenRouters Modellliste ließ sich nicht laden.
+UI_BENCH_RUN_PRICE,{in} / {out} USD per million tokens in / out,{in} / {out} USD je Million Tokens rein / raus
+UI_BENCH_RUN_FREE,"Free, with a daily limit","Kostenlos, mit Tageslimit"
+UI_BENCH_RUN_REASONING,Reasoning,Reasoning
+UI_BENCH_RUN_CHOOSE,Choose,Wählen
+UI_BENCH_RUN_NO_MATCH,"No model matches. The world is spared, for now.","Kein Modell passt. Die Welt ist verschont, vorerst."
+UI_BENCH_RUN_EFFORT,Effort,Aufwand
+UI_BENCH_RUN_NO_REASONING,"This model has no reasoning, so it plays at Normal.",Dieses Modell hat kein Reasoning und spielt deshalb auf Normal.
+UI_BENCH_RUN_DEFAULT_REASONING,This model reasons even at Normal and may run out of room for its answers there. High suits it better.,Dieses Modell nutzt Reasoning auch auf Normal und hat dort womöglich zu wenig Platz für seine Antworten. Hoch passt besser.
+UI_BENCH_RUN_ESTIMATE,"Likely cost: {likely} USD, at most {most} USD","Voraussichtlich {likely} USD, höchstens {most} USD"
+UI_BENCH_RUN_ESTIMATE_UNKNOWN,The price is unknown. The cap guards only the cost OpenRouter reports.,"Der Preis ist unbekannt. Die Kostengrenze schützt nur, was OpenRouter als Kosten meldet."
+UI_BENCH_RUN_FREE_NOTE,"Free. OpenRouter limits free requests per day, so a free model may have to stop and try again tomorrow.","Kostenlos. OpenRouter begrenzt kostenlose Anfragen pro Tag, ein kostenloses Modell muss also womöglich anhalten und es morgen weiter versuchen."
+UI_BENCH_RUN_CAP,Cost cap,Kostengrenze
+UI_BENCH_RUN_CAP_VALUE,{usd} USD,{usd} USD
+UI_BENCH_RUN_OVER_CAP,The estimate is above your cap. Raise the cap or pick a cheaper model.,Die Schätzung liegt über deiner Kostengrenze. Heb die Grenze an oder wähle ein günstigeres Modell.
+UI_BENCH_RUN_TIME_NOTE,"A benchmark takes minutes to hours, depending on the model. You can keep playing meanwhile; closing the game stops it.",Ein Benchmark dauert je nach Modell Minuten bis Stunden. Du kannst solange weiterspielen; das Beenden des Spiels hält ihn an.
+UI_BENCH_RUN_PRIVACY,"The model gets the game's report of the world through OpenRouter and its provider. Nothing about you is sent, only the state of a doomed planet.","Das Modell bekommt über OpenRouter und dessen Anbieter den Lagebericht des Spiels. Über dich wird nichts gesendet, nur der Zustand eines dem Untergang geweihten Planeten."
+UI_BENCH_RUN_START,Start,Starten
+UI_BENCH_RUN_CONFIRM,"This will likely cost {likely} USD of your OpenRouter credit, at most {cap} USD. Start?","Das kostet voraussichtlich {likely} USD von deinem OpenRouter-Guthaben, höchstens {cap} USD. Starten?"
+UI_BENCH_JOB_TITLE,Your benchmark,Dein Benchmark
+UI_BENCH_JOB_SEED_WAITING,Seed {seed}: waiting its turn,"Seed {seed}: wartet, bis er dran ist"
+UI_BENCH_JOB_SEED,Seed {seed}: day {day} · {calls} answers,Seed {seed}: Tag {day} · {calls} Antworten
+UI_BENCH_JOB_SEED_DONE,Seed {seed}: {outcome} · score {score},Seed {seed}: {outcome} · Wertung {score}
+UI_BENCH_JOB_COST,{cost} of {cap} USD spent,{cost} von {cap} USD ausgegeben
+UI_BENCH_JOB_STOP,Stop,Anhalten
+UI_BENCH_JOB_DONE,Done. The world survived {survived} of {runs} attempts.,Fertig. Die Welt hat {survived} von {runs} Versuchen überlebt.
+UI_BENCH_JOB_STOPPED,Stopped. Finished runs are kept; starting again reuses the answers already paid for.,Angehalten. Fertige Durchläufe bleiben; ein neuer Start nutzt die schon bezahlten Antworten wieder.
+UI_BENCH_JOB_FAIL_AUTH,OpenRouter refused the key.,OpenRouter hat den Schlüssel abgelehnt.
+UI_BENCH_JOB_FAIL_CREDITS,Your OpenRouter credit has run out.,Dein OpenRouter-Guthaben ist aufgebraucht.
+UI_BENCH_JOB_FAIL_FORBIDDEN,OpenRouter does not let this key use this model.,OpenRouter lässt diesen Schlüssel dieses Modell nicht nutzen.
+UI_BENCH_JOB_FAIL_BAD_REQUEST,The model did not accept the request.,Das Modell hat die Anfrage nicht angenommen.
+UI_BENCH_JOB_FAIL_UNAVAILABLE,"The model could not be reached, even after several tries. Try again later.",Das Modell war auch nach mehreren Versuchen nicht erreichbar. Versuch es später noch einmal.
+UI_BENCH_JOB_FAIL_COST_CAP,The cost cap was reached.,Die Kostengrenze ist erreicht.
+UI_BENCH_JOB_FAIL_ERROR,The benchmark stopped unexpectedly.,Der Benchmark hat unerwartet angehalten.
+UI_BENCH_GROUP_ROW,Score {score} · {wins} of {runs} worlds won,Wertung {score} · {wins} von {runs} Welten gewonnen
+UI_BENCH_SUBMIT,Submit,Einreichen
+UI_BENCH_SUBMIT_TITLE,Submit to the global leaderboard,Bei der globalen Bestenliste einreichen
+UI_BENCH_SUBMIT_OLD_VERSION,"Your game is not the version the leaderboard checks against, so these runs would be rejected. Update the game and play the benchmark again.","Dein Spiel ist nicht die Version, gegen die die Bestenliste prüft, deshalb würden diese Durchläufe abgelehnt. Aktualisiere das Spiel und spiel den Benchmark noch einmal."
+UI_BENCH_SUBMIT_STEPS,"1. Sign in to GitHub (a free account will do). 2. Drag the {count} files from the folder that just opened onto the GitHub page. 3. Choose Propose changes, then Create pull request. Once the runs have been replayed and checked, usually within a day, the model appears on the leaderboard.","1. Melde dich bei GitHub an (ein kostenloses Konto reicht). 2. Zieh die {count} Dateien aus dem gerade geöffneten Ordner auf die GitHub-Seite. 3. Wähle Propose changes, dann Create pull request. Sobald die Durchläufe nachgespielt und geprüft sind, meist innerhalb eines Tages, erscheint das Modell in der Bestenliste."
+UI_BENCH_SUBMIT_AGAIN,Open the folder and the page again,Ordner und Seite erneut öffnen
 UI_SETTINGS_PROGRESS_EXPORT,Save progress as a file,Fortschritt als Datei sichern
 UI_SETTINGS_PROGRESS_IMPORT,Load progress from a file,Fortschritt aus Datei laden
 UI_SETTINGS_PROGRESS_NOTE,"Your progress lives in this browser. Clearing its site data, or playing in a private window, loses it — save it as a file to keep a copy.","Dein Fortschritt liegt in diesem Browser. Löschst du seine Websitedaten oder spielst in einem privaten Fenster, ist er weg – sichere ihn als Datei, um eine Kopie zu behalten."

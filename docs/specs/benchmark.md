@@ -23,6 +23,11 @@ verification while the deploy key is missing) and the user guide *Running your o
 (§18.9); it touches §3, §8.3, §10.2–§10.3, §11, §12.5, §12.7, §13 and §16.6. Its choices are
 pending user confirmation (§18.10).
 
+**D6.9e (2026-09-28)** adds **§19, your own benchmark in the game** (desktop builds: the OpenRouter
+key in the operating system's credential store, set in the settings; a model picker over
+OpenRouter's list; the game as its own headless worker; progress; *Submit*); it amends §0 items 6
+and 7 and *Not in scope* (§19's preamble). Builds from it: **S6.12f** and **S6.12g**.
+
 ---
 
 ## 0. What this spec decides
@@ -55,6 +60,8 @@ pending user confirmation (§18.10).
    **The game's one network access** (since D6.9b) is the global leaderboard's download when the
    player opens the benchmark list, and one run file when they watch it (§16.6) — plain GETs of
    public files, nothing sent, off with a setting.
+   **Since D6.9e** a desktop build also calls a model — only when the player starts their own
+   benchmark with their own key, in a headless child process of the game (§19).
 7. **The key comes from the environment only** (`OPENROUTER_API_KEY`, or the variable
    `--key-env` names): never an argument, never a file in the repo, never a save, never a log
    line, never an entry.
@@ -2439,3 +2446,379 @@ whole 1 200-token limit as output; what a level sends is resolved once per batch
 without the list stops rather than guessing; the verifier checks the params against the level;
 `--reasoning` runs are shown as *reasoning <value>*; a free model plays under a cap of 0;
 `-Mock` runs stay out of the game's list.
+
+---
+
+## 19. Your own benchmark, in the game (D6.9e)
+
+D6.9e (2026-09-28). The user's request (in conversation, 2026-09-28): *"der OpenRouter-Key soll vom
+User in den Einstellungen gesetzt werden können, geht dann in die Windows-Anmeldeinformationen,
+dann Benchmark-Tool, dort kann man das KI-Modell auswählen (OpenRouter-Modelle) und selbst einen
+Benchmark machen"*, and the answers to four questions of the same day: **every desktop platform**,
+**an in-game *Submit* button**, **an estimate plus a cost cap** (free models without asking), and
+**this spec first, the build after**. Builds from it: **S6.12f** (§19.2–§19.5, §19.10: the key
+store, the runner in the game, the worker process, the jobs) and **S6.12g** (§19.6–§19.9: the
+settings row, the key dialog, the model picker, the progress, submitting).
+
+**This reverses §0 item 6 and §0's *Not in scope* in part:** on a desktop build the game itself
+now calls a model — only when the player starts a benchmark with their own key, in a child
+process of the game (§19.4). The browser and phone builds do not (§19.1). §0 item 7 (the key from
+the environment only) stays true **for the tool**; the game reads the key from the operating
+system's credential store (§19.2). Uploading from the game stays out of scope: *Submit* prepares
+the files and opens GitHub, the player makes the pull request (§19.9).
+
+### 19.1 Where it exists
+
+| Build | Key row, own benchmark, *Submit* |
+| --- | --- |
+| Windows (desktop export, debug and release) | yes — the key in the Windows Credential Manager |
+| Linux (desktop export) | yes — the key in the desktop keyring through `secret-tool` (libsecret); without it, for the session only (§19.2) |
+| macOS | not a build target today; the store is left out (a later step: the `security` tool takes a password only as an argument, which other processes can read) |
+| Web, Android, iOS | no — no row, no button; the list stays read-only |
+
+`BenchKeyStore.is_supported()` answers it: `OS.has_feature("pc")`, not `OS.has_feature("web")`,
+and the OS name `Windows` or `Linux` (anything else → false). Every piece of UI in this section
+hides when it is false.
+
+### 19.2 The key store — `game/bench/bench_key_store.gd`
+
+`class_name BenchKeyStore extends RefCounted`. One secret, the OpenRouter key, under a fixed name:
+Windows target **`Doomsday/OpenRouter`** (a *generic* credential, persisted for this user on this
+computer — `CRED_PERSIST_LOCAL_MACHINE`, user name `openrouter`); Linux attributes
+**`application doomsday service openrouter`**, label *Doomsday OpenRouter key*.
+
+```gdscript
+static func is_supported() -> bool
+func load() -> String          # "" when none or on any failure (no log line ever holds the key)
+func save(key: String) -> bool # false: the store refused or is missing → the caller keeps it for the session (§19.7)
+func remove() -> bool
+func kind() -> String          # "windows" | "linux" | "session" — which sentence the dialog shows
+```
+
+**How, without a native extension** (none is shipped; a GDExtension would need builds per
+platform in CI):
+
+- **Windows:** `powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command -`
+  started with `OS.execute_with_pipe`; the **script comes on stdin**, then the key on the next line
+  for `save`. The script is a constant string in `bench_key_store.gd`: `Add-Type` with a small C#
+  class calling `advapi32` `CredWriteW` / `CredReadW` / `CredDeleteW` / `CredFree` (generic type,
+  UTF-16 blob), printing `ok`, `none` or `error <code>` and — for `load` only — the key on its own
+  line. PowerShell 5.1 is part of every supported Windows. **Never on a command line:** the key is
+  never an argument (other processes can read arguments), never in an environment variable of a
+  process that outlives the call, never in a file.
+- **Linux:** `secret-tool store --label="Doomsday OpenRouter key" application doomsday service
+  openrouter` (key on stdin, no newline), `secret-tool lookup application doomsday service
+  openrouter` (key on stdout), `secret-tool clear …`. `secret-tool` not on `PATH`, or a non-zero
+  exit (no Secret Service running) → `save` false, `kind()` `session`.
+- **Calls are asynchronous** for the UI: a call runs in a `Thread` (it blocks for 0.5–2 s while
+  PowerShell compiles the class) and the dialog shows *Checking …* meanwhile; `BenchJobs` (§19.5)
+  reads the key once per start, off the main thread too.
+- **Session keeping:** a key the store could not take is held in `BenchJobs.session_key` (memory
+  only, gone when the game closes).
+- **Nothing else keeps it:** not `settings.json`, not the profile, not a log line, not a crash
+  report, not a job file. `Settings` stores no flag either — the dialog asks the store.
+
+**Tests** use a seam, `backend_override: Callable` (the test's fake), so the suite never touches
+the real store. The build step checks both scripts by hand on Windows (save, load, remove, a key
+with every printable ASCII character) and, if a Linux desktop is at hand, once there; the result
+goes into `PROGRESS.md`.
+
+### 19.3 The runner moves into the game — `game/bench/`
+
+What `tools/bench/` does for one invocation moves to `game/bench/` so an export has it
+(`tools/*` never ships):
+
+| From | To | Note |
+| --- | --- | --- |
+| `tools/bench/open_router_backend.gd` | `game/bench/open_router_backend.gd`, `class_name OpenRouterBackend` | unchanged behaviour (§8.3, §18.1); the key only through the constructor |
+| `tools/bench/bench_cache.gd` | `game/bench/bench_cache.gd`, `class_name BenchCache` | the cache root is an argument (§19.4 gives `user://benchmark/cache/`) |
+| `tools/bench/bench_estimate.gd` | `game/bench/bench_estimate.gd`, `class_name BenchEstimate` | §11.5, §18.3 |
+| `tools/bench/model_catalogue.gd` | `game/bench/model_catalogue.gd`, `class_name ModelCatalogue` | §18.4's parsing and figures, pure |
+| `tools/bench/typesafe_backend.gd` | `game/bench/typesafe_backend.gd`, `class_name TypeSafeBackend` | the game uses only its OpenRouter form (§17.9 `--via-openrouter`) |
+| the per-seed loop of `bench_run.gd` (§11.1 items 4–5: simulation, policy, the day loop, the replay check, writing the entry) | `game/bench/bench_runner.gd`, `class_name BenchRunner` | one seed per call; returns the entry or a stop reason |
+
+The day loop (`Harness.advance`, `tools/sim_harness.gd`) moves with it — into `BenchRunner` or a
+`game/bench/bench_harness.gd` — and `sim_harness.gd` calls the moved code, so there is still one
+day loop. **`bench_run.gd`, `run_models.ps1`, `verify_runs.gd` and every test keep their
+behaviour** (the canary and `test_bench_run` prove it); the tool becomes a wrapper over
+`BenchRunner`. Every moved file keeps §1's rule: no autoload named.
+
+The tool gains one convenience: with its key variable empty, **`bench_run.gd` asks
+`BenchKeyStore.load()`** before giving up — so a key set in the game also serves the tool.
+
+### 19.4 The worker — the game, headless, as a child process
+
+A benchmark never runs in the game's own process: the backends block (§8.1) and a run takes
+minutes to hours. **The game starts itself again, headless, as a worker:**
+
+```
+<the game's executable> --headless [--path <project dir>] -- --bench-worker=<job dir>
+```
+
+(`--path` only when running from the editor — `OS.has_feature("editor")` — so a debug run starts
+the editor's binary on the project.) `game/main.gd` checks `--bench-worker=` before the boot, as it
+checks `--smoke` (release.md §8), and hands over to `game/bench/bench_worker.gd` (scene-specific,
+preloaded, no `class_name`), which runs **in `_ready`**, not earlier (TLS needs the main loop,
+PROGRESS *Benchmark*), and quits with §11.3's exit codes.
+
+- **The job** — `<job dir>/job.json`, written by the parent: `{"version": 1, "model", "backend"
+  ("openrouter" | "typesafe-openrouter" | a mock in debug builds), "effort", "reasoning"
+  (§18.1's resolved value, "" at normal), "suite": "quick", "seeds": [<the seeds this worker
+  plays>], "max_cost_usd", "locale": "en", "out": "user://benchmark", "cache":
+  "user://benchmark/cache"}`. **No key.**
+- **The key** comes on the worker's **stdin**, one line, read once (`OS.read_string_from_stdin`);
+  the parent starts the worker with `OS.execute_with_pipe(…, false)`, writes the key and closes
+  its end. If that pipe cannot carry it on a platform (the build checks the Windows GUI executable
+  first), the fallback is `OS.set_environment("OPENROUTER_API_KEY", …)` in the parent just before
+  `OS.create_process` and `OS.unset_environment` right after — recorded in `PROGRESS.md` if taken.
+- **Progress** — the worker appends JSON lines to `<job dir>/progress.jsonl` (a file, not stdout:
+  a Windows GUI executable's stdout is not dependable, and the list can re-read it after being
+  reopened): `{"event": "decision", "seed", "day", "calls", "cost_usd"}` after every decision,
+  `{"event": "run", …§11.2's line}` after every finished seed, `{"event": "stopped", "reason":
+  "auth" | "credits" | "forbidden" | "bad_request" | "unavailable" | "cost_cap" | "error"}` and
+  `{"event": "done"}` at the end. Never the key, never model text.
+- **Entries** go where the tool's go: `user://benchmark/runs/` (§10.2's names), so the list shows
+  them under *Recorded runs* at once. The cache is `user://benchmark/cache/`: **a stopped
+  benchmark started again replays the answers already paid for**, free.
+- **The worker touches nothing else:** no `settings.json` write, no profile, no statistics, no
+  achievements, no autosave (it never enters the session).
+
+### 19.5 Jobs — `game/autoload/bench_jobs.gd` (autoload `BenchJobs`)
+
+An autoload because a benchmark outlives screens: the player may start one, go back to the title,
+play a run and come back.
+
+- **One benchmark at a time** (one model, one effort). `start(model, effort, cap_usd) -> String`
+  ("" or a reason), `stop()`, `state() -> BenchJobState` (model, effort, cap; per seed: day,
+  calls, finished outcome and score; cost so far; running / done / stopped + reason), signal
+  `changed`.
+- **Workers:** a **paid model plays its three seeds in three workers at once**, each with a third
+  of the cap (the cap is the player's total; §8.3 checks each worker's share before every
+  request); **a free model plays them in one worker**, one after the other (OpenRouter's free tier
+  allows ≈20 requests a minute per account — three workers would mostly wait for 429s). Numbers in
+  `benchmark.json` `player` (§19.10).
+- **Polling:** `_process` reads each job's `progress.jsonl` on from where it stopped, every
+  `player.poll_s` seconds; `OS.is_process_running(pid)` tells a finished or crashed worker (no
+  `done` and no reason in the file → *stopped: error*).
+- **Stop** = `OS.kill` on every worker: the interrupted seed leaves no entry (§11.3), the finished
+  ones stay; the cache keeps every answer.
+- **Closing the game stops the benchmark** (`NOTIFICATION_WM_CLOSE_REQUEST` and `_exit_tree` kill
+  the workers). No worker outlives the game. The next start of the same model and effort reuses
+  the cache.
+- **Job folders:** `user://benchmark/jobs/<n>/`, the last `player.jobs_kept` kept, older ones
+  deleted at the next start.
+- **Debug switch** `-- --bench-mock` (debug builds only, release.md §7): workers get
+  `mock:cheapest` under the chosen model id, no key needed, entries into a scratch
+  `user://benchmark_mock/` so they never mix with real runs (§18.5's rule).
+
+### 19.6 Settings — the key row
+
+In the settings modal (title and pause menu, `pause_menu.gd`), after *Online leaderboard*, **only
+where §19.1 says yes:** a row **`UI_SETTINGS_OPENROUTER_KEY`** with a status caption and one
+button **`UI_KEY_SET`** that opens the key dialog (§19.7). The caption:
+`UI_KEY_STATE_NONE` · `UI_KEY_STATE_STORED` (`{hint}`) · `UI_KEY_STATE_SESSION` (`{hint}`) —
+`{hint}` is `…` plus the key's **last four characters**, never more.
+
+### 19.7 The key dialog — `ui/modals/bench_key.tscn`
+
+A modal (the theme's, no overrides), top to bottom:
+
+1. Title `UI_KEY_TITLE`; `UI_KEY_INTRO`; where the key is kept — `UI_KEY_WHERE_WINDOWS` /
+   `UI_KEY_WHERE_LINUX` / `UI_KEY_WHERE_SESSION` by `kind()`; the tip `UI_KEY_TIP` (a credit limit
+   on the key); a link button `UI_KEY_GET` → `OS.shell_open(player.keys_url)`.
+2. A `LineEdit` (`secret = true`, the caption `UI_KEY_FIELD`, placeholder `UI_KEY_PLACEHOLDER`,
+   paste works), a toggle `UI_KEY_SHOW` (turns `secret` off), and the status caption of §19.6.
+3. Buttons: **`UI_KEY_SAVE`** (trims spaces and line breaks; empty → nothing; not starting with
+   `sk-or-` → the caption `UI_KEY_FORMAT` as a warning, saved anyway), **`UI_KEY_CHECK`**
+   (§19.7.1), **`UI_KEY_REMOVE`** (store and session; `UI_KEY_REMOVED`), `UI_COMMON_CLOSE`.
+4. A result caption (live region): `UI_KEY_SAVED`, `UI_KEY_STORE_FAILED` (kept for the session),
+   `UI_KEY_CHECKING`, the check's lines.
+
+The field is cleared when the dialog closes; the key is never put into a `Label`, a tooltip or an
+accessibility name (the field's name is `UI_KEY_FIELD` only).
+
+**19.7.1 Check.** One `GET <base_url>/key` with `Authorization: Bearer <key>` (OpenRouter's
+*current API key* endpoint — **read its documentation on the day**: the reply is expected to hold
+`data.usage` and `data.limit`, the latter null for no limit). 200 → `UI_KEY_VALID` (`{usage}`) or
+`UI_KEY_VALID_LIMIT` (`{usage}`, `{limit}`), USD with two decimals (`Format.decimal`); 401/403 →
+`UI_KEY_INVALID`; anything else or no answer within `global.timeout_s` → `UI_KEY_OFFLINE`. If the
+endpoint differs from this, the build shows valid/invalid only and says so in `PROGRESS.md`.
+
+### 19.8 The benchmark modal — `ui/modals/bench_run.tscn`
+
+Opened from the Benchmark list by **`UI_BENCH_RUN_OPEN`**, a button under the list's intro (only
+where §19.1 says yes). Top to bottom:
+
+1. Title `UI_BENCH_RUN_TITLE`, intro `UI_BENCH_RUN_INTRO`.
+2. **No key** (store empty, no session key): `UI_BENCH_RUN_NO_KEY` and a button `UI_KEY_SET` that
+   opens the key dialog (§19.7); nothing below is enabled.
+3. **A benchmark is running** (`BenchJobs`): the modal shows its progress (§19.9.1) instead of the
+   picker.
+4. **The picker:** a search field (`UI_BENCH_RUN_SEARCH`, matches id or name, case-insensitive), a
+   toggle `UI_BENCH_RUN_FREE_ONLY`, then the list — OpenRouter's public model list
+   (`GET <base_url><models_path>`, no key — §11.5 item 2), fetched when the modal opens, cached in
+   `user://benchmark/online/models.json` and reused for `player.models_max_age_s`; while loading
+   `UI_BENCH_RUN_LOADING`, failing with no cache `UI_BENCH_RUN_LIST_FAILED`. Rows sorted: free
+   first, then likely cost of the quick suite at the chosen effort ascending, then id. Each row:
+   the model's name (a plain `Label` — data from outside, like the board's names), its id, the
+   price line `UI_BENCH_RUN_PRICE` (`{in}`, `{out}` per million tokens) or `UI_BENCH_RUN_FREE`,
+   `UI_BENCH_RUN_REASONING` when the list names reasoning support, and a *Choose* toggle
+   (`UI_BENCH_RUN_CHOOSE`). At most `player.models_shown` rows; `UI_BENCH_RUN_NO_MATCH` when none.
+   `typesafe/*` ids are listed (they play through §17's choice backend via OpenRouter, effort a
+   dash); left out: ids ending in `-content-safety`, the router ids `openrouter/*`, and models
+   whose `architecture.output_modalities` lacks `text` (the *Not suitable* kinds found on
+   2026-09-27, PROGRESS *Waiting on the user*).
+5. **Effort** (a `ToggleGroup`: `BENCH_EFFORT_NORMAL` / `_HIGH` / `_ULTRA`, caption
+   `UI_BENCH_RUN_EFFORT`). High and Ultra are disabled for a model the list names without
+   reasoning (`UI_BENCH_RUN_NO_REASONING`); a model that reasons by default shows
+   `UI_BENCH_RUN_DEFAULT_REASONING` at Normal and starts on High. What a level sends is resolved
+   from the same list (`BenchEffort.reasoning_for`) once, when *Start* is pressed.
+6. **Cost:** `UI_BENCH_RUN_ESTIMATE` (`{likely}`, `{most}`) by §11.5/§18.3 for the three quick
+   seeds, or `UI_BENCH_RUN_ESTIMATE_UNKNOWN`, or `UI_BENCH_RUN_FREE_NOTE` for a free model. Then
+   the **cap**: `UI_BENCH_RUN_CAP` and a row of toggles over `player.cap_choices` (each
+   `UI_BENCH_RUN_CAP_VALUE`, `{usd}`), the choice remembered in `settings.json` as
+   **`bench_cap_usd`** (default `player.default_cap_usd`). Likely above the cap →
+   `UI_BENCH_RUN_OVER_CAP` and *Start* disabled (the tool's exit 7). A free model ignores the cap.
+7. `UI_BENCH_RUN_TIME_NOTE`, `UI_BENCH_RUN_PRIVACY`.
+8. **Start** (`UI_BENCH_RUN_START`). A paid or unknown-price model first asks: a confirmation
+   (the game's confirm modal) with `UI_BENCH_RUN_CONFIRM` (`{likely}`, `{cap}`) and
+   `UI_BENCH_RUN_START` / `UI_COMMON_CANCEL`. A free one starts at once. `BenchJobs.start` reads the
+   key from the store (or the session). Then the modal shows the progress.
+
+### 19.9 Progress, results, *Submit*
+
+**19.9.1 Progress** — in the benchmark modal while it runs, and as a section at the top of the
+Benchmark list (`UI_BENCH_JOB_TITLE`) while one runs, or ended since the list was last opened: the
+model (plain `Label`), `UI_BENCH_EFFORT`, one line per seed — `UI_BENCH_JOB_SEED_WAITING`
+(`{seed}`) before it starts, `UI_BENCH_JOB_SEED` (`{seed}`, `{day}`, `{calls}`) while it plays,
+`UI_BENCH_JOB_SEED_DONE` (`{seed}`, `{outcome}`, `{score}`) when done — the cost
+`UI_BENCH_JOB_COST` (`{cost}`, `{cap}`; free: not shown), and **`UI_BENCH_JOB_STOP`**. At the end:
+`UI_BENCH_JOB_DONE` (`{survived}`, `{runs}` — the seeds *not* won) or `UI_BENCH_JOB_STOPPED` plus
+the reason line `UI_BENCH_JOB_FAIL_<REASON>` (`AUTH`, `CREDITS`, `FORBIDDEN`, `BAD_REQUEST`,
+`UNAVAILABLE`, `COST_CAP`, `ERROR`). A live region speaks the start, each finished seed and the
+end — not every decision.
+
+**19.9.2 Results** are ordinary entries: *Recorded runs* lists them with *Watch* (§12.7).
+
+**19.9.3 *Submit*.** *Recorded runs* gains, above the single runs, **one line per group** of the
+player's own model runs — same model, `params_id`, prompt version, suite, content hash — that is
+**complete** (every seed of its suite), **current** (this game's content), not a bot and not a
+mock backend: the model, `UI_BENCH_GROUP_ROW` (`{score}`, `{wins}`, `{runs}`), the effort, and
+**`UI_BENCH_SUBMIT`**. Pressing it opens a small modal:
+
+1. Title `UI_BENCH_SUBMIT_TITLE`.
+2. **If the global board is known** (§16.6, fetched or cached) **and its `content_hash` is not
+   this game's:** `UI_BENCH_SUBMIT_OLD_VERSION` and no further steps — the verifier would reject
+   the runs (§16.2). Board unknown → go on.
+3. The game copies the group's files into a clean `user://benchmark/submit/<slug>__<params_id>/`,
+   opens that folder (`OS.shell_show_in_file_manager` on the first file) and opens
+   **`player.submit_url`** — the public repository's upload page for `runs/` — with
+   `OS.shell_open`.
+4. The steps: `UI_BENCH_SUBMIT_STEPS` (`{count}`), a button `UI_BENCH_SUBMIT_AGAIN` (does item 3
+   again), `UI_COMMON_CLOSE`.
+
+GitHub turns an upload by someone without write access into a fork and a pull request; the
+public repository's `validate` check runs on it (§16.1: `runs/*.json` only, at most 20 files, the
+names by §10.2), the owner merges, the workflow verifies (§16.5) — the runs reach the board as
+any other. **To confirm at the build:** that GitHub's upload page offers the fork to a signed-in
+user without write access (a second account, or GitHub's documentation on the day); if it does
+not, `player.submit_url` points at a *How to submit* section of the public repository's README
+instead and `UI_BENCH_SUBMIT_STEPS` is reworded — a question for the user, not a guess. **Until
+the deploy key exists** (§16.5, the user's), merged runs wait for the owner's
+`submit_runs.ps1 -Push -VerifyLocally`.
+
+### 19.10 Data — `data/benchmark.json` gains `player`
+
+Written into the file **by S6.12f**, with `BenchConfig` reading every key (§3's rule) — so the
+canary is regenerated in that commit, not here:
+
+```json
+"player": {
+	"suite": "quick",
+	"workers_paid": 3,
+	"workers_free": 1,
+	"cap_choices": [0.5, 1.0, 2.0, 5.0, 10.0, 20.0],
+	"default_cap_usd": 2.0,
+	"poll_s": 1.0,
+	"jobs_kept": 5,
+	"models_max_age_s": 86400,
+	"models_shown": 200,
+	"keys_url": "https://openrouter.ai/settings/keys",
+	"submit_url": "https://github.com/DenRakEiw/doomsday-leaderboard/upload/main/runs"
+}
+```
+
+`keys_url` is checked on the day (OpenRouter's key page); a wrong one is a data fix.
+
+### 19.11 Strings (en/de) — in `strings.csv` since D6.9e
+
+Settings and key: `UI_SETTINGS_OPENROUTER_KEY`, `UI_KEY_STATE_NONE`, `UI_KEY_STATE_STORED`
+(`{hint}`), `UI_KEY_STATE_SESSION` (`{hint}`), `UI_KEY_SET`, `UI_KEY_TITLE`, `UI_KEY_INTRO`,
+`UI_KEY_WHERE_WINDOWS`, `UI_KEY_WHERE_LINUX`, `UI_KEY_WHERE_SESSION`, `UI_KEY_TIP`, `UI_KEY_GET`,
+`UI_KEY_FIELD`, `UI_KEY_PLACEHOLDER`, `UI_KEY_SHOW`, `UI_KEY_SAVE`, `UI_KEY_CHECK`,
+`UI_KEY_REMOVE`, `UI_KEY_FORMAT`, `UI_KEY_SAVED`, `UI_KEY_STORE_FAILED`, `UI_KEY_REMOVED`,
+`UI_KEY_CHECKING`, `UI_KEY_VALID` (`{usage}`), `UI_KEY_VALID_LIMIT` (`{usage}`, `{limit}`),
+`UI_KEY_INVALID`, `UI_KEY_OFFLINE`.
+Benchmark modal: `UI_BENCH_RUN_OPEN`, `UI_BENCH_RUN_TITLE`, `UI_BENCH_RUN_INTRO`,
+`UI_BENCH_RUN_NO_KEY`, `UI_BENCH_RUN_SEARCH`, `UI_BENCH_RUN_FREE_ONLY`, `UI_BENCH_RUN_LOADING`,
+`UI_BENCH_RUN_LIST_FAILED`, `UI_BENCH_RUN_PRICE` (`{in}`, `{out}`), `UI_BENCH_RUN_FREE`,
+`UI_BENCH_RUN_REASONING`, `UI_BENCH_RUN_CHOOSE`, `UI_BENCH_RUN_NO_MATCH`, `UI_BENCH_RUN_EFFORT`,
+`UI_BENCH_RUN_NO_REASONING`, `UI_BENCH_RUN_DEFAULT_REASONING`, `UI_BENCH_RUN_ESTIMATE`
+(`{likely}`, `{most}`), `UI_BENCH_RUN_ESTIMATE_UNKNOWN`, `UI_BENCH_RUN_FREE_NOTE`,
+`UI_BENCH_RUN_CAP`, `UI_BENCH_RUN_CAP_VALUE` (`{usd}`), `UI_BENCH_RUN_OVER_CAP`,
+`UI_BENCH_RUN_TIME_NOTE`, `UI_BENCH_RUN_PRIVACY`, `UI_BENCH_RUN_START`, `UI_BENCH_RUN_CONFIRM`
+(`{likely}`, `{cap}`).
+Progress: `UI_BENCH_JOB_TITLE`, `UI_BENCH_JOB_SEED_WAITING` (`{seed}`), `UI_BENCH_JOB_SEED`
+(`{seed}`, `{day}`, `{calls}`), `UI_BENCH_JOB_SEED_DONE` (`{seed}`, `{outcome}`, `{score}`),
+`UI_BENCH_JOB_COST` (`{cost}`, `{cap}`), `UI_BENCH_JOB_STOP`, `UI_BENCH_JOB_DONE` (`{survived}`,
+`{runs}`), `UI_BENCH_JOB_STOPPED`, `UI_BENCH_JOB_FAIL_AUTH`, `_CREDITS`, `_FORBIDDEN`,
+`_BAD_REQUEST`, `_UNAVAILABLE`, `_COST_CAP`, `_ERROR`.
+Submit: `UI_BENCH_GROUP_ROW` (`{score}`, `{wins}`, `{runs}`), `UI_BENCH_SUBMIT`,
+`UI_BENCH_SUBMIT_TITLE`, `UI_BENCH_SUBMIT_OLD_VERSION`, `UI_BENCH_SUBMIT_STEPS` (`{count}`),
+`UI_BENCH_SUBMIT_AGAIN`. Reused: `UI_COMMON_CLOSE`, `UI_COMMON_CANCEL`, `UI_BENCH_EFFORT`,
+`BENCH_EFFORT_*`, `UI_OUTCOME_*`.
+
+The voice is the list's since 2026-09-28 (a dry joke where nothing is at stake); **money, key and
+privacy lines stay plain**. *Reasoning* stays English in German (`plain-language.md` §10).
+
+### 19.12 Tests and acceptance
+
+**S6.12f:** `test_bench_key_store` (the fake backend: save/load/remove, the session fallback,
+`is_supported` per feature set; the Windows script never takes the key as an argument — a string
+check); `test_bench_runner` (a mock suite through `BenchRunner` gives the entries and hashes
+`bench_run.gd` gave — the canary and `test_bench_run` unchanged and green); `test_bench_worker`
+(**integration, the real child process:** `--headless … --bench-worker=<dir>` with
+`mock:cheapest` — the job file, the key line on stdin, `progress.jsonl` events in order, entries in
+the scratch `user://`, exit 0; the `broken` mock → `stopped`; skipped with a reason where
+`OS.execute_with_pipe` is unavailable); `test_bench_jobs` (a fake worker writing a progress file:
+state, stop, one at a time, the cap split paid/free, old job folders removed); `test_bench_config`
+(the `player` block). **No live model call, no real key.**
+
+**S6.12g:** `test_bench_key_dialog` (save → the store fake, the hint shows four characters only,
+the field cleared on close, *Check* against a stand-in answer: valid, with limit, invalid,
+offline), `test_bench_run_modal` (the fixture list `tests/fixtures/bench/openrouter_models.json`:
+search, free only, sort, the effort rules, estimate and over-cap, the confirmation for a paid model
+and none for a free one, no key → the key button), `test_benchmark_list` (the job section; the
+group line and *Submit* only for complete, current, own model runs; the old-version refusal
+against a board of another content hash; shell calls through a seam), the settings row hidden on
+web (a feature seam). Looked at in German at 1920 and 400 px.
+
+**Done when (both):** `tools/test.sh` green; on Windows by hand: a key saved in the dialog shows in
+*Anmeldeinformationsverwaltung → Windows-Anmeldeinformationen → Generische Anmeldeinformationen*
+as `Doomsday/OpenRouter`, survives a restart of the game, is gone after *Remove*; a mock benchmark
+(`-- --bench-mock`) runs three workers from the exported Windows build, shows progress, stops on
+*Stop*, and its runs appear under *Recorded runs* (from the mock folder). **The first live
+benchmark from the game is the user's** (a free model first).
+
+### 19.13 Decisions (D6.9e) and questions
+
+Decided with the user (2026-09-28): the desktop platforms (Windows now, Linux through
+`secret-tool`; web and phones without it); the key in the operating system's store; an estimate,
+a cap (default 2 USD, choices 0.5–20 USD) and a confirmation for paid models, none for free ones;
+*Submit* in the game, which prepares the files and opens GitHub. Decided here: the quick suite
+only (the AI models' suite, Decisions 2026-09-28); a child process of the game as the worker,
+progress through a file; three workers for a paid model, one for a free one; closing the game
+stops the benchmark; the store reached through PowerShell and `secret-tool` rather than a native
+extension; the tool may read the store too. **Open, for the build to confirm and report:** the
+Windows GUI executable's stdin pipe (else the environment fallback, §19.4); OpenRouter's `/key`
+reply (§19.7.1) and key page URL; GitHub's upload-to-fork for non-collaborators (§19.9.3).

@@ -14,10 +14,10 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **G6 (2/2) — M6 gate** [F] **[needs user]** (and D6.10, pictures; **G7.I**, the itch release — see *Waiting on the user*, "itch.io — going live"): IMPLEMENTATION §4 rows 91–92, 98. **Without the user: D7.1** (row 108) [F] — touch and phone. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
+| **Next step** | **S6.12f — Own benchmark I** [O] (IMPLEMENTATION §4 row 97e): the key store, the runner in `game/bench/`, the headless worker, `BenchJobs` (`benchmark.md` §19.2–§19.5, §19.10); then **S6.12g** (row 97f). Still waiting on the user: G6 (2/2), D6.10, G7.I (*Waiting on the user*). **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` is not in the content hash). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D6.10, G6 (2/2) and G7.I are **[needs user]**; Block 18 is built (the first real itch upload is the user's); the next unattended row is **D7.1** (row 108, Block 20: touch and phone), Steam only later (Decisions 2026-09-25). The FLUX track is cut (Decisions 2026-09-26). |
-| **Last completed** | S6.12e — the in-game online list shows the quick suite as its own section under the standard rows, ranked on its own (2026-09-27; user decision). |
+| **After it** | **S6.12g** (row 97f), then: D6.10, G6 (2/2) and G7.I are **[needs user]**; Block 18 is built (the first real itch upload is the user's); the next unattended row is **D7.1** (row 108, Block 20: touch and phone), Steam only later (Decisions 2026-09-25). The FLUX track is cut (Decisions 2026-09-26). |
+| **Last completed** | D6.9e — your own benchmark in the game, specified (`benchmark.md` §19, 74 strings; 2026-09-28, user request). Before it the same day: the Benchmark list sorted best-first, the satirical voice, *Doomsday Benchmark*. |
 | **Before that** | S7.IP — release polish before the itch release (2026-09-27): the overlay picker steps aside under the region panel, no-break space before German `%`, tabs chosen from code (`ToggleGroup`), phone tech detail and Statistics, results and wire card re-translate, owned-footprint cards checked, hints rest 6 s between each other (pending design), a tall event card opens on its heading, `marketing/itch/` re-captured. |
 | **Earlier** | S6.12d review fixes (2026-09-27): 10 of 12 findings fixed; S6.12d — effort levels, `models.ps1`, `run_models.ps1`, `submit_runs.ps1` (`benchmark.md` §18.9–18.10). The live runs are the user's (*Waiting on the user*, "Model runs"). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–20 (Block 19, FLUX, cut 2026-09-26) |
@@ -196,6 +196,9 @@ it and take the next row (IMPLEMENTATION §4).*
 - [x] S6.12c [O] The Jev backend, mock only *(the first live run needs the user's `TYPESAFE_API_KEY`)*
 - [x] G6 (1/2) [F] Balance pass 4 *(tuning; data only; BALANCE §6)*
 - [x] D6.11c [F] AI terms stay English in the German texts *(user 2026-09-26; `plain-language.md` §10)*
+- [x] D6.9e [F] Your own benchmark in the game *(user 2026-09-28; `benchmark.md` §19)*
+- [ ] S6.12f [O] Own benchmark I: key store, runner in `game/bench/`, worker, `BenchJobs`
+- [ ] S6.12g [O] Own benchmark II: settings row, key dialog, picker, progress, *Submit* *(the first live run: user)*
 - [ ] D6.10 [F] Illustrations produced — **[needs user]**
 - [ ] G6 (2/2) [F] M6 gate: the release candidate (browser and desktop) — **[needs user]**
 
@@ -231,6 +234,12 @@ it and take the next row (IMPLEMENTATION §4).*
 Dated, one line each, with the reason. A decision recorded here is not re-argued in a later session
 without new information.
 
+- **2026-09-28** (user) — **Players run their own benchmark in the game (desktop).** The OpenRouter key is set in
+  the settings and kept in the OS credential store (Windows Credential Manager; Linux `secret-tool`,
+  else the session); a benchmark modal picks an OpenRouter model, shows an estimate, a cost cap
+  (default 2 USD) and asks before a paid run; *Submit* prepares the files and opens GitHub's
+  upload page. Web and phones: no. Spec `benchmark.md` §19 (D6.9e); it reverses "the game never
+  calls a model" for desktop builds.
 - **2026-09-28** (user) — **The benchmark list: best score on top, a satirical voice.** Within each
   section the list sorts by score, an incomplete row too (the file's §10.3 order puts it last); the
   heading reads *Doomsday Benchmark*, the list's intro, notes, status and row lines joke (ten
@@ -3079,6 +3088,11 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-28 — D6.9e Your own benchmark in the game [F]
+- User request: OpenRouter key in the settings → Windows credential store → an in-game benchmark with an OpenRouter model picker. Answers: all desktop platforms, *Submit* in the game, estimate + cap, spec first.
+- `benchmark.md` §19: key store (PowerShell/`advapi32`, `secret-tool`), the runner moved to `game/bench/`, the game as headless worker (`--bench-worker`), `BenchJobs`, settings row, key dialog, picker, progress, *Submit*; `player` block for S6.12f. 74 strings en/de.
+- Also today: list sorted best-first, satirical voice, *Doomsday Benchmark*, "KI-Modell"; `serve.py --no-cache`; web build refreshed on both local servers.
 
 ### 2026-09-28 — Jev through OpenRouter; AI-model tab [O]
 - `bench_run.gd --via-openrouter`: a decision model through OpenRouter's System One endpoint (its key, the id sent whole), `usage.cost` as charged. Jev quick: 52.6, 2/3, 0.21 USD.
