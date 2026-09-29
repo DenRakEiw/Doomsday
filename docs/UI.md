@@ -232,6 +232,10 @@ Not an afterthought — much of it is free if decided now, and expensive if retr
 2. *Decided at G2 (2026-09-22):* the dock shape stays for M3 — nothing clips at 400 px, but the
    chrome takes 41 % of the height. D3.3 designs the phone's bottom anew (a status strip plus a
    menu sheet for the dock's destinations, `ui-foundation.md` §5.7); M7 judges it on a real device.
+   *Re-judged at D7.1 (2026-09-29) from 400 × 860 shots: the shape stays; the compact top bar's
+   second row takes the view switch, pause, speed, mute and menu, so the strip keeps only its
+   readouts and the overlay island leaves the map (`docs/specs/mobile.md` §5). S7.5 judges it on
+   a device.*
 3. *Decided at D3.3 (2026-09-22):* capped at revealed controls, one palette change (the `open`
    token set) and one ticker register change; the schedule is `m3-screens.md` §6. *D4.0 adds
    rows to the reveal table (threat bar, asset readout, console line, actions row, event markers)

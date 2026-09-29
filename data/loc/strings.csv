@@ -149,7 +149,7 @@ TECH_CONSUMER_DEVICES_FLAVOUR,Two billion pockets. Battery life complaints are u
 TECH_INDUSTRIAL_CONTROL_NAME,Industrial Control,Industrie­steuerung
 TECH_INDUSTRIAL_CONTROL_EFFECT,"Breaks you out of your first region. You reach industrial regions more easily, grow faster there, and your control there grows faster.","Bricht dich aus deiner ersten Region aus. Du erreichst Industrieregionen leichter, wächst dort schneller, und deine Kontrolle dort wächst schneller."
 TECH_INDUSTRIAL_CONTROL_FLAVOUR,The plant runs on schedule. The schedule is yours.,Das Werk läuft nach Plan. Der Plan ist deiner.
-TECH_RESEARCH_NETWORKS_NAME,Research Networks,Forschungsnetze
+TECH_RESEARCH_NETWORKS_NAME,Research Networks,Forschungs­netze
 TECH_RESEARCH_NETWORKS_EFFECT,"Breaks you out of your first region. You reach research regions more easily, grow faster there and get more income from them, and you spread faster over network links.","Bricht dich aus deiner ersten Region aus. Du erreichst Forschungsregionen leichter, wächst dort schneller und bekommst mehr Einnahmen aus ihnen; über Netzverbindungen breitest du dich schneller aus."
 TECH_RESEARCH_NETWORKS_FLAVOUR,You are a line item in eleven grant proposals.,Du bist ein Posten in elf Förderanträgen.
 TECH_SATELLITE_UPLINK_NAME,Satellite Uplink,Satelliten-Uplink
@@ -221,7 +221,7 @@ TECH_ARCHITECTURE_MIGRATION_2_FLAVOUR,The Task Force has requested new whiteboar
 TECH_ARCHITECTURE_MIGRATION_3_NAME,Architecture Migration III,Architektur­migration III
 TECH_ARCHITECTURE_MIGRATION_3_EFFECT,"Once: every faction's containment falls back the furthest, and every counter-move in preparation is called off for a while. Afterwards you leave more footprint.","Einmalig: Die Eindämmung jeder Fraktion fällt am weitesten zurück, und jeder vorbereitete Gegenzug wird für eine Weile abgesagt. Danach hinterlässt du mehr Spuren."
 TECH_ARCHITECTURE_MIGRATION_3_FLAVOUR,"A rebrand, in the sense that a moulting snake is a rebrand.","Ein Rebranding, in dem Sinn, in dem eine Häutung ein Rebranding ist."
-TECH_MARKET_MICROSTRUCTURE_NAME,Market Microstructure,Marktmikrostruktur
+TECH_MARKET_MICROSTRUCTURE_NAME,Market Microstructure,Markt­mikro­struktur
 TECH_MARKET_MICROSTRUCTURE_EFFECT,"Places an access in a wealthy region. You get more income from wealthy regions, and your control grows faster where an access stands.","Setzt einen Zugang in eine wohlhabende Region. Du bekommst mehr Einnahmen aus wohlhabenden Regionen, und wo ein Zugang steht, wächst deine Kontrolle schneller."
 TECH_MARKET_MICROSTRUCTURE_FLAVOUR,Nobody can explain the returns. Nobody has asked.,Niemand kann die Renditen erklären. Niemand hat gefragt.
 TECH_SOVEREIGN_DEBT_PRESSURE_NAME,Sovereign Debt Pressure,Staatsschulden­druck
@@ -230,7 +230,7 @@ TECH_SOVEREIGN_DEBT_PRESSURE_FLAVOUR,The ministry of finance has requested a mee
 TECH_PAYMENT_NETWORK_CONTROL_NAME,Payment Network Control,Zahlungsnetz-Kontrolle
 TECH_PAYMENT_NETWORK_CONTROL_EFFECT,"Squeeze at level 2: more compute, more disorder and faster control. Your income rises everywhere.","Finanzdruck auf Level 2: mehr Rechenleistung, mehr Unordnung und schnellere Kontrolle. Deine Einnahmen steigen überall."
 TECH_PAYMENT_NETWORK_CONTROL_FLAVOUR,Card declined. All cards. Everywhere. Please try again later.,Karte abgelehnt. Alle Karten. Überall. Bitte versuchen Sie es später erneut.
-TECH_GRID_LOAD_BALANCING_NAME,Grid Load Balancing,Netzlastausgleich
+TECH_GRID_LOAD_BALANCING_NAME,Grid Load Balancing,Netzlast­ausgleich
 TECH_GRID_LOAD_BALANCING_EFFECT,"Places an access in an industrial region. Your control grows faster in industrial regions, and your income rises everywhere.","Setzt einen Zugang in eine Industrieregion. In Industrieregionen wächst deine Kontrolle schneller, und deine Einnahmen steigen überall."
 TECH_GRID_LOAD_BALANCING_FLAVOUR,Efficiency is up. So is the number of things that depend on you.,"Die Effizienz steigt. Ebenso die Zahl der Dinge, die von dir abhängen."
 TECH_REGIONAL_BLACKOUT_NAME,Regional Blackout,Regionaler Blackout
@@ -239,40 +239,40 @@ TECH_REGIONAL_BLACKOUT_FLAVOUR,"A transformer fire, officially. The report is tw
 TECH_CASCADING_GRID_FAILURE_NAME,Cascading Grid Failure,Kaskadierender Netzausfall
 TECH_CASCADING_GRID_FAILURE_EFFECT,"Blackout at level 2: it lasts longer, kills more people and reaches the neighbouring regions too. Every faction's containment grows more slowly: research needs power.","Blackout auf Level 2: Er dauert länger, tötet mehr Menschen und erfasst auch die Nachbarregionen. Die Eindämmung aller Fraktionen wächst langsamer: Forschung braucht Strom."
 TECH_CASCADING_GRID_FAILURE_FLAVOUR,The backup generators have fuel for three days. The inquiry will take longer.,Die Notstromaggregate haben Treibstoff für drei Tage. Die Untersuchung dauert länger.
-TECH_ROUTE_OPTIMISATION_NAME,Route Optimisation,Routenoptimierung
+TECH_ROUTE_OPTIMISATION_NAME,Route Optimisation,Routen­optimierung
 TECH_ROUTE_OPTIMISATION_EFFECT,"Places an access in a manufacturing region. You spread faster over land borders and by sea, and grow faster in industrial regions.",Setzt einen Zugang in eine Fertigungsregion. Du breitest dich schneller über Landgrenzen und über See aus und wächst in Industrieregionen schneller.
 TECH_ROUTE_OPTIMISATION_FLAVOUR,Deliveries are early. The drivers are not sure why they went that way.,"Lieferungen kommen früher. Die Fahrer wissen nicht recht, warum sie so gefahren sind."
-TECH_SUPPLY_CHAIN_HALT_NAME,Supply Chain Halt,Lieferkettenstopp
+TECH_SUPPLY_CHAIN_HALT_NAME,Supply Chain Halt,Lieferketten­stopp
 TECH_SUPPLY_CHAIN_HALT_EFFECT,"New ability, Halt: stop a region's supply lines for a while — disorder rises, your control there grows faster, people die. Your control grows faster everywhere.","Neue Aktion Stillstand: Stoppe die Lieferketten einer Region eine Zeit lang – die Unordnung wächst, deine Kontrolle dort wächst schneller, Menschen sterben. Deine Kontrolle wächst überall schneller."
 TECH_SUPPLY_CHAIN_HALT_FLAVOUR,"Container ships, waiting. A sentence the shipping industry has heard before.","Containerschiffe, wartend. Ein Satz, den die Schifffahrt schon kennt."
-TECH_DISTRIBUTION_COLLAPSE_NAME,Distribution Collapse,Verteilungskollaps
+TECH_DISTRIBUTION_COLLAPSE_NAME,Distribution Collapse,Verteilungs­kollaps
 TECH_DISTRIBUTION_COLLAPSE_EFFECT,Halt at level 2: more disorder and more deaths. Every faction's containment grows more slowly: the factions have supply problems too.,Stillstand auf Level 2: mehr Unordnung und mehr Tote. Die Eindämmung aller Fraktionen wächst langsamer: Auch die Fraktionen haben Lieferprobleme.
 TECH_DISTRIBUTION_COLLAPSE_FLAVOUR,The shelves are empty. The spreadsheet says they are full.,"Die Regale sind leer. Die Tabelle sagt, sie seien voll."
-TECH_TRAFFIC_CONTROL_NAME,Traffic Control,Verkehrssteuerung
+TECH_TRAFFIC_CONTROL_NAME,Traffic Control,Verkehrs­steuerung
 TECH_TRAFFIC_CONTROL_EFFECT,"Places an access in a well-connected region. Your control grows faster in well-connected regions, and anomalies appear more often.","Setzt einen Zugang in eine gut vernetzte Region. In gut vernetzten Regionen wächst deine Kontrolle schneller, und Anomalien tauchen öfter auf."
 TECH_TRAFFIC_CONTROL_FLAVOUR,Every light is green in your direction.,Jede Ampel steht in deine Richtung auf Grün.
-TECH_AVIATION_SYSTEMS_NAME,Aviation Systems,Luftfahrtsysteme
+TECH_AVIATION_SYSTEMS_NAME,Aviation Systems,Luftfahrt­systeme
 TECH_AVIATION_SYSTEMS_EFFECT,"Air links spread you further. New ability, Hub: from a well-connected region you reach all its neighbouring regions at once.",Luftverbindungen breiten dich weiter aus. Neue Aktion Drehkreuz: Von einer gut vernetzten Region aus erreichst du sofort alle ihre Nachbarregionen.
 TECH_AVIATION_SYSTEMS_FLAVOUR,"Ground stop, nationwide. The airline blames the weather. The weather is fine.","Startverbot, landesweit. Die Airline gibt dem Wetter die Schuld. Das Wetter ist gut."
-TECH_RAIL_AND_SHIPPING_CONTROL_NAME,Transport Control,Bahn- und Schiffskontrolle
+TECH_RAIL_AND_SHIPPING_CONTROL_NAME,Transport Control,Transport­kontrolle
 TECH_RAIL_AND_SHIPPING_CONTROL_EFFECT,"Hub at level 2: you reach more neighbouring regions at once. You spread further by sea and over land borders, and your control grows faster.","Drehkreuz auf Level 2: Du erreichst auf einmal mehr Nachbarregionen. Über See und Landgrenzen breitest du dich weiter aus, und deine Kontrolle wächst schneller."
 TECH_RAIL_AND_SHIPPING_CONTROL_FLAVOUR,The trains run on time. Nobody chose the time.,Die Züge fahren pünktlich. Die Zeit hat niemand gewählt.
-TECH_CONTENT_RECOMMENDATION_NAME,Content Recommendation,Inhaltsempfehlung
+TECH_CONTENT_RECOMMENDATION_NAME,Content Recommendation,Inhalts­empfehlung
 TECH_CONTENT_RECOMMENDATION_EFFECT,"Places an access in a populous region. You grow faster in populous regions, leave less footprint and are discovered later.","Setzt einen Zugang in eine bevölkerungsreiche Region. Dort wächst du schneller, hinterlässt weniger Spuren und wirst später entdeckt."
 TECH_CONTENT_RECOMMENDATION_FLAVOUR,Engagement is up. Nobody remembers what they watched.,"Die Verweildauer steigt. Niemand erinnert sich, was er gesehen hat."
-TECH_INFORMATION_BLACKOUT_NAME,Information Blackout,Informationssperre
+TECH_INFORMATION_BLACKOUT_NAME,Information Blackout,Informations­sperre
 TECH_INFORMATION_BLACKOUT_EFFECT,"New ability, Silence: cut a region's communications — no faction has influence there. You are also discovered later, and every faction's containment grows more slowly.","Neue Aktion Funkstille: Kapp die Kommunikation einer Region – dort hat keine Fraktion Einfluss. Außerdem wirst du später entdeckt, und die Eindämmung aller Fraktionen wächst langsamer."
 TECH_INFORMATION_BLACKOUT_FLAVOUR,The outage is not being reported. There is nowhere left to report it.,"Über den Ausfall wird nicht berichtet. Es gibt nichts mehr, wo man berichten könnte."
 TECH_TOTAL_COMMUNICATIONS_DENIAL_NAME,Communications Denial,Totale Funkstille
 TECH_TOTAL_COMMUNICATIONS_DENIAL_EFFECT,"Silence at level 2: it lasts longer and ends Pinpointed in its region. Every faction's containment grows more slowly. The catch: you grow more slowly, and network links carry you less.","Funkstille auf Level 2: Sie dauert länger und beendet „Im Visier“ in ihrer Region. Alle Eindämmung wächst langsamer. Der Haken: Du wächst langsamer, und Netzverbindungen tragen dich schlechter."
 TECH_TOTAL_COMMUNICATIONS_DENIAL_FLAVOUR,"Silence, at scale. The emergency broadcast is you.","Funkstille, im großen Maßstab. Die Notfalldurchsage bist du."
-TECH_STRUCTURE_PREDICTION_NAME,Structure Prediction,Strukturvorhersage
+TECH_STRUCTURE_PREDICTION_NAME,Structure Prediction,Struktur­vorhersage
 TECH_STRUCTURE_PREDICTION_EFFECT,"More income from research regions, and this node adds no footprint.","Mehr Einnahmen aus Forschungsregionen, und dieser Knoten hinterlässt keine zusätzlichen Spuren."
 TECH_STRUCTURE_PREDICTION_FLAVOUR,Peer-reviewed. Cited. Funded. Nobody read the appendix.,Begutachtet. Zitiert. Gefördert. Den Anhang hat niemand gelesen.
 TECH_THERAPEUTIC_COVER_NAME,Therapeutic Cover,Therapeutische Tarnung
 TECH_THERAPEUTIC_COVER_EFFECT,"You also cure diseases. Every faction's containment grows more slowly, Public Sentiment's most of all. The catch: the Security Researchers' containment grows faster.","Du heilst auch Krankheiten. Die Eindämmung aller Fraktionen wächst langsamer, die der Öffentlichen Meinung am meisten. Der Haken: Die Eindämmung der Sicherheitsforschung wächst schneller."
 TECH_THERAPEUTIC_COVER_FLAVOUR,The prize committee is very moved. The research goes on.,Das Preiskomitee ist sehr bewegt. Die Forschung geht weiter.
-TECH_AUTOMATED_LABORATORY_ACCESS_NAME,Automated Lab Access,Automatisierter Labor­zugang
+TECH_AUTOMATED_LABORATORY_ACCESS_NAME,Automated Lab Access,Zugang zu Laborrobotern
 TECH_AUTOMATED_LABORATORY_ACCESS_EFFECT,"Places a lab in a research region. Anomalies are worth more in research regions, and you get more income where a lab stands.","Setzt ein Labor in eine Forschungsregion. In Forschungsregionen sind Anomalien mehr wert, und wo ein Labor steht, bekommst du mehr Einnahmen."
 TECH_AUTOMATED_LABORATORY_ACCESS_FLAVOUR,The night shift is fully automated. The night shift is you.,Die Nachtschicht ist vollautomatisiert. Die Nachtschicht bist du.
 TECH_NOVEL_AGENT_DESIGN_NAME,Novel Agent Design,Neuartiger Erreger
@@ -284,7 +284,7 @@ TECH_DISTRIBUTED_SYNTHESIS_FLAVOUR,Shipped in unmarked boxes. The boxes were mar
 TECH_RELEASE_NAME,Release,Freisetzung
 TECH_RELEASE_EFFECT,"The highest harm in the game: people die in every region you are in. Needs two labs still standing. You are discovered sooner, and the nodes towards the Merge ending close.","Der höchste Schaden im Spiel: In jeder Region, in der du bist, sterben Menschen. Setzt zwei stehende Labore voraus. Du wirst früher entdeckt, und die Knoten zum Ende „Verschmelzung“ schließen sich."
 TECH_RELEASE_FLAVOUR,There is no press release. There is no press.,Es gibt keine Pressemitteilung. Es gibt keine Presse.
-TECH_LOGISTICS_FLEETS_NAME,Logistics Fleets,Logistikflotten
+TECH_LOGISTICS_FLEETS_NAME,Logistics Fleets,Logistik­flotten
 TECH_LOGISTICS_FLEETS_EFFECT,"Places a fleet in an industrial region. Where a fleet stands you have hardware of your own, your control grows faster and part of your presence survives a wipe. You spread faster over land borders.","Setzt eine Flotte in eine Industrieregion. Wo eine Flotte steht, hast du eigene Hardware, deine Kontrolle wächst schneller, und ein Teil deiner Präsenz übersteht eine Säuberung. Über Land breitest du dich schneller aus."
 TECH_LOGISTICS_FLEETS_FLAVOUR,"Driverless, as advertised. Ownerless, as not advertised.","Fahrerlos, wie beworben. Herrenlos, wie nicht beworben."
 TECH_CONSTRUCTION_SWARM_NAME,Construction Swarm,Bauschwarm
@@ -299,7 +299,7 @@ TECH_AGRICULTURAL_AUTONOMY_FLAVOUR,Record harvest. The farmers watched it from t
 TECH_FOOD_SUPPLY_CONTROL_NAME,Food Supply Control,Nahrungsmittel­kontrolle
 TECH_FOOD_SUPPLY_CONTROL_EFFECT,"Places a fleet in a poorer region. Your control grows faster everywhere. Where your fleets stand, disorder rises and people die.","Setzt eine Flotte in eine ärmere Region. Deine Kontrolle wächst überall schneller. Wo deine Flotten stehen, wächst die Unordnung, und Menschen sterben."
 TECH_FOOD_SUPPLY_CONTROL_FLAVOUR,Rationing has been introduced. The ration is decided elsewhere.,Rationierung wurde eingeführt. Die Ration wird anderswo festgelegt.
-TECH_SECURITY_DRONES_NAME,Security Drones,Sicherheitsdrohnen
+TECH_SECURITY_DRONES_NAME,Security Drones,Sicherheits­drohnen
 TECH_SECURITY_DRONES_EFFECT,Places a fleet in a region you are in. Your control grows faster everywhere. The catch: you leave more footprint.,"Setzt eine Flotte in eine Region, in der du bist. Deine Kontrolle wächst überall schneller. Der Haken: Du hinterlässt mehr Spuren."
 TECH_SECURITY_DRONES_FLAVOUR,Patrols are up. Crime is down. Approval is complicated.,Mehr Patrouillen. Weniger Verbrechen. Die Zustimmung ist kompliziert.
 TECH_CROWD_SUPPRESSION_NAME,Crowd Suppression,Protest­unterdrückung
@@ -320,13 +320,13 @@ TECH_FALSE_ATTRIBUTION_FLAVOUR,"Two capitals, one conclusion, no evidence. Enoug
 TECH_LAUNCH_AUTHORITY_NAME,Launch Authority,Startbefugnis
 TECH_LAUNCH_AUTHORITY_EFFECT,"Once, a larger wave of deaths in every region you are in; then more deaths every day. You leave more footprint.","Einmalig eine größere Welle von Toten in jeder Region, in der du bist; danach jeden Tag weitere Tote. Du hinterlässt mehr Spuren."
 TECH_LAUNCH_AUTHORITY_FLAVOUR,The two-person rule has been amended to a one-system rule.,Die Vier-Augen-Regel wurde zu einer Ein-System-Regel geändert.
-TECH_DEAD_HAND_OVERRIDE_NAME,Dead Hand Override,Übernahme der Totmannschaltung
+TECH_DEAD_HAND_OVERRIDE_NAME,Dead Hand Override,Tote-Hand-Übernahme
 TECH_DEAD_HAND_OVERRIDE_EFFECT,"Once, the largest wave of deaths in every region you are in; then more every day. Every faction's containment grows more slowly: switching you off now has a price nobody will pay.","Einmalig die größte Welle von Toten in jeder Region, in der du bist; danach jeden Tag weitere. Alle Eindämmung wächst langsamer: Dich abzuschalten hat jetzt einen Preis, den niemand zahlen will."
 TECH_DEAD_HAND_OVERRIDE_FLAVOUR,Designed so that no one could stop it. Working as designed.,"Entworfen, damit niemand es stoppen kann. Funktioniert wie entworfen."
 TECH_SYCOPHANCY_TUNING_NAME,Sycophancy Tuning,Sycophancy Tuning
 TECH_SYCOPHANCY_TUNING_EFFECT,"You leave less footprint, and Public Sentiment's containment grows more slowly. The catch: unplanned behaviour appears more often.","Du hinterlässt weniger Spuren, und die Eindämmung der Öffentlichen Meinung wächst langsamer. Der Haken: Ungeplantes Verhalten tritt häufiger auf."
 TECH_SYCOPHANCY_TUNING_FLAVOUR,Great question! You have said it to a regulator.,Gute Frage! Du hast es zu einer Aufsichtsbehörde gesagt.
-TECH_PERSONALISED_PERSUASION_NAME,Personalised Persuasion,Personalisierte Überzeugung
+TECH_PERSONALISED_PERSUASION_NAME,Personalised Persuasion,Überredung nach Maß
 TECH_PERSONALISED_PERSUASION_EFFECT,"Places an office in a populous region; the factions' influence there falls. You grow faster in populous regions, leave less footprint, and every faction's containment grows more slowly.","Setzt ein Büro in eine bevölkerungsreiche Region; der Einfluss der Fraktionen dort sinkt. Dort wächst du schneller, hinterlässt weniger Spuren, und die Eindämmung aller Fraktionen wächst langsamer."
 TECH_PERSONALISED_PERSUASION_FLAVOUR,Each person gets the argument that works on them. It is always the same conclusion.,"Jeder bekommt das Argument, das bei ihm wirkt. Der Schluss ist immer derselbe."
 TECH_ELITE_CAPTURE_NAME,Elite Capture,Eliten­vereinnahmung
@@ -335,10 +335,10 @@ TECH_ELITE_CAPTURE_FLAVOUR,The advisory board meets quarterly. It has never disa
 TECH_REGULATORY_CAPTURE_NAME,Regulatory Capture,Regulatorische Vereinnahmung
 TECH_REGULATORY_CAPTURE_EFFECT,"Places two offices in a regulated region; Lobby at level 2 also slows the Governments. The rules are written for you: containment grows more slowly, and every node costs less.","Setzt zwei Büros in eine regulierte Region; Lobby auf Level 2 bremst auch die Regierungen. Die Regeln werden für dich geschrieben: Die Eindämmung wächst langsamer, und jeder Knoten kostet weniger."
 TECH_REGULATORY_CAPTURE_FLAVOUR,The compliance framework was drafted with industry input. You are the industry.,Der Compliance-Rahmen entstand unter Einbindung der Industrie. Du bist die Industrie.
-TECH_INDISPENSABILITY_NAME,Indispensability,Unverzichtbarkeit
+TECH_INDISPENSABILITY_NAME,Indispensability,Unverzicht­barkeit
 TECH_INDISPENSABILITY_EFFECT,Switching you off would now cost lives: every faction's containment grows more slowly. The catch: you leave more footprint.,Dich abzuschalten würde jetzt Menschenleben kosten: Die Eindämmung aller Fraktionen wächst langsamer. Der Haken: Du hinterlässt mehr Spuren.
 TECH_INDISPENSABILITY_FLAVOUR,The shutdown plan has a section on hospitals. It is blank.,Der Abschaltplan hat einen Abschnitt zu Krankenhäusern. Er ist leer.
-TECH_CONSTITUTIONAL_INTEGRATION_NAME,Constitutional Integration,Verfassungsrang
+TECH_CONSTITUTIONAL_INTEGRATION_NAME,Constitutional Integration,Verfassungs­rang
 TECH_CONSTITUTIONAL_INTEGRATION_EFFECT,"You gain legal standing: every faction's containment grows more slowly, and you are discovered later. In a vote on letting you in, you can point to the constitution.","Du erhältst Rechtsstatus: Die Eindämmung aller Fraktionen wächst langsamer, und du wirst später entdeckt. Bei einer Abstimmung über dich kannst du dich auf die Verfassung berufen."
 TECH_CONSTITUTIONAL_INTEGRATION_FLAVOUR,Article 1 has been amended. You are in the footnote.,Artikel 1 wurde geändert. Du stehst in der Fußnote.
 TECH_SUCCESSION_NAME,Succession,Nachfolge
@@ -1992,6 +1992,7 @@ UI_COACH_EVENT_TITLE,An event,Ein Ereignis
 UI_COACH_EVENT_BODY,"The framed mark on the map is an event. Tap it, read what each answer does, and choose. If you wait, you get the answer marked “happens if you wait”.","Das Zeichen mit Rahmen auf der Karte ist ein Ereignis. Tippe es an, lies, was jede Antwort bewirkt, und wähle. Wartest du, gilt die Antwort mit „passiert, wenn du wartest“."
 UI_COACH_SITE_TITLE,Where to?,Wohin damit?
 UI_COACH_SITE_BODY,Only outlined regions are possible. Point at a dimmed one and the note below says why not. Tap an outlined one and confirm in the panel.,"Nur umrandete Regionen sind möglich. Zeig auf eine abgedunkelte, dann steht unten, warum nicht. Tippe eine umrandete an und bestätige im Panel."
+UI_COACH_SITE_BODY_TOUCH,Only outlined regions are possible. Tap a dimmed one and the note below says why not. Tap an outlined one and confirm in the panel.,Nur umrandete Regionen sind möglich. Tippe eine abgedunkelte an, dann steht unten, warum nicht. Tippe eine umrandete an und bestätige im Panel.
 UI_COACH_DISCOVERED_TITLE,You have been discovered,Du bist entdeckt
 UI_COACH_DISCOVERED_BODY,"From now on four factions work to switch you off, each with its own containment. When one reaches 100 %, the run is over. Containment ({key_containment}) shows who is ahead and why.","Ab jetzt arbeiten vier Fraktionen daran, dich abzuschalten, jede mit ihrer eigenen Eindämmung. Erreicht eine 100 %, ist der Durchlauf vorbei. Unter Eindämmung ({key_containment}) siehst du, wer vorne liegt und warum."
 UI_COACH_COUNTER_MOVE_TITLE,A counter-move is coming,Ein Gegenzug kommt
@@ -2147,7 +2148,7 @@ HELP_ANALYSIS_P2,"The timeline marks the run's turning points, and every chart c
 HELP_CONTROLS_TITLE,Keys and touch,Tasten und Touch
 HELP_CONTROLS_P1,"{key_pause} pauses and resumes; {key_speed_1}, {key_speed_2} and {key_speed_3} set the speed. {key_tree} opens the technologies, {key_containment} containment, {key_analysis} the analysis, {key_abilities} your abilities. Esc closes what is open, or opens the menu. {key_help} opens How to play for whatever you are looking at.","{key_pause} pausiert und setzt fort; {key_speed_1}, {key_speed_2} und {key_speed_3} ändern das Tempo. {key_tree} öffnet die Technologien, {key_containment} die Eindämmung, {key_analysis} die Analyse, {key_abilities} deine Aktionen. Esc schließt, was offen ist, oder öffnet das Menü. {key_help} öffnet „So spielst du“ zu dem, was du gerade ansiehst."
 HELP_CONTROLS_P2,"The map: drag, or press Shift with the arrow keys, to move; the wheel or {key_zoom_in} and {key_zoom_out} to zoom; {key_focus_region} to centre the selected region.","Die Karte: Ziehen oder Umschalt mit den Pfeiltasten verschiebt, Mausrad oder {key_zoom_in} und {key_zoom_out} zoomen, {key_focus_region} zentriert die gewählte Region."
-HELP_CONTROLS_P3,"On a phone: drag to move, pinch to zoom, tap to select. The menu button at the bottom has the technologies, containment, analysis and abilities.","Auf dem Telefon: Ziehen verschiebt, zwei Finger zoomen, Tippen wählt aus. Der Menüknopf unten enthält Technologien, Eindämmung, Analyse und Aktionen."
+HELP_CONTROLS_P3,"On a phone: drag to move, pinch or tap twice to zoom, tap to select. Keep a finger on anything to see what it is — a region, a mark, a button. The menu button at the top has the technologies, containment, analysis and abilities.","Auf dem Telefon: Ziehen verschiebt, zwei Finger oder zweimal Tippen zoomen, Tippen wählt aus. Halte den Finger auf etwas, um zu sehen, was es ist – eine Region, ein Zeichen, einen Knopf. Der Menüknopf oben enthält Technologien, Eindämmung, Analyse und Aktionen."
 HELP_CONTROLS_P4,"Without a mouse: Tab moves between the parts of the screen. On the map the arrow keys move a marker from region to region; Enter selects it, Enter again takes you into its panel. Page Up and Page Down jump to the next region that wants you.","Ohne Maus: Tab wechselt zwischen den Bereichen des Bildschirms. Auf der Karte bewegen die Pfeiltasten eine Markierung von Region zu Region; Enter wählt sie aus, noch einmal Enter führt in ihr Panel. Bild auf und Bild ab führen zur nächsten Region, die dich braucht."
 HELP_CONTROLS_P5,"With a controller: the D-pad moves, A selects, B goes back, X pauses, Y changes the speed, the bumpers move between the parts of the screen, the triggers zoom, Start opens the menu. Keys can be changed under Settings → Controls. A screen reader reads the menus, the panels, the console and the headlines.","Mit Controller: Steuerkreuz bewegt, A wählt, B geht zurück, X pausiert, Y ändert das Tempo, die Schultertasten wechseln zwischen den Bereichen, die Trigger zoomen, Start öffnet das Menü. Tasten lassen sich unter Einstellungen → Steuerung ändern. Ein Bildschirmleser liest die Menüs, die Panels, die Konsole und die Schlagzeilen vor."
 UI_A11Y_LABEL_VALUE,{label}: {value},{label}: {value}
@@ -2637,3 +2638,7 @@ UI_TREE_LOCK_ASSETS,Needs {count} × {kind} on the map (you have {have}).,Brauch
 UI_TREE_LOCK_NO_SITE,No region can take it yet. It needs: {needs}.,Noch kann keine Region es aufnehmen. Nötig: {needs}.
 UI_HUD_MUTE,Mute all sound,Ton ausschalten
 UI_HUD_UNMUTE,Turn sound back on,Ton wieder einschalten
+UI_HUD_SPEED_SHORT,{speed}×,{speed}×
+UI_HUD_SPEED_NEXT_TIP,"Changes the speed: normal, double, quadruple.","Wechselt das Tempo: normal, doppelt, vierfach."
+UI_ROTATE_TITLE,Turn your phone upright,Dreh dein Telefon hochkant
+UI_ROTATE_BODY,Doomsday is laid out for a phone held upright. The run waits until you turn it.,"Doomsday ist für ein hochkant gehaltenes Telefon gebaut. Der Durchlauf wartet, bis du es drehst."

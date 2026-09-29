@@ -267,6 +267,8 @@ or trackpad at all — phones and plain tablets), show `UI_WEB_PHONE_TITLE`, `UI
 (`{mb}` = the download's size from the loader config's file sizes, rounded) and one button
 `UI_WEB_PHONE_START`. Pressing it starts the normal load; the game then runs with the engine's
 touch-to-mouse emulation, unsupported. A tablet with a keyboard and trackpad passes the gate.
+*D7.1 (2026-09-29): after S7.1 *Start anyway* leads to the touch path of `mobile.md`; the gate
+itself stays until S7.5 has played the web build on a real phone (`mobile.md` §13).*
 
 ### 5.4 Errors
 

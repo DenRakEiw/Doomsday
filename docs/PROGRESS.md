@@ -14,11 +14,12 @@ rather than struck through.
 
 | | |
 | --- | --- |
-| **Next step** | **S6.12h — *Submit* through Supabase, built** [O] **once the user has done `benchmark.md` §20.10** (*Waiting on the user*: the project, the SQL, the URL and publishable key for the build, the two GitHub entries). Until then the next unattended row is **D7.1** (row 108, Block 20: touch and phone). Still waiting on the user: the first live benchmark from the game, G6 (2/2), D6.10, G7.I. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` and `benchmark.json` are not in the content hash). |
+| **Next step** | **S6.12h — *Submit* through Supabase, built** [O] **once the user has done `benchmark.md` §20.10** (*Waiting on the user*: the project, the SQL, the URL and publishable key for the build, the two GitHub entries). Until then the next unattended row is **D7.3** (row 109, store pages: copy and art briefs), then **S7.1** (row 110, the touch pass from `docs/specs/mobile.md`). Still waiting on the user: the first live benchmark from the game, G6 (2/2), D6.10, G7.I. **Whoever changes `data/` regenerates the determinism canary on Windows in the same commit** (see *Benchmark*; `strings.csv` and `benchmark.json` are not in the content hash). |
 | **Model for it** | **Opus** — every step runs on Opus (user decision 2026-09-23, see Decisions) |
-| **After it** | D6.10, G6 (2/2) and G7.I are **[needs user]**; then **D7.1** (row 108, Block 20: touch and phone), Steam only later (Decisions 2026-09-25). The FLUX track is cut (Decisions 2026-09-26). |
-| **Last completed** | D6.9f — *Submit* through Supabase, specified (2026-09-28): `benchmark.md` §20 (an anonymous inbox function in a private schema, global limits, no IP stored; a collector in `leaderboard.yml` that replays every group before publishing and holds unknown model names; consent every time; the group line's *sent / listed* states from the public board; the fork route as fallback), the SQL script, the user's checklist (§20.10), 17 strings; S6.12g's six design questions answered (§20.13); `release.md` §0/§10 and the itch privacy text reworded. |
-| **Before that** | S6.12g — own benchmark II (2026-09-28): the key dialog, the benchmark modal, progress, group lines with *Submit* (fork route); S6.12f — own benchmark I; D6.9e — your own benchmark specified (`benchmark.md` §19). |
+| **After it** | D6.10, G6 (2/2) and G7.I are **[needs user]**; then **D7.3** (row 109) and **S7.1** (row 110, touch pass), Steam only later (Decisions 2026-09-25). The FLUX track is cut (Decisions 2026-09-26). |
+| **Last completed** | D7.1 — Touch and phone, specified (2026-09-29): `docs/specs/mobile.md` (`Device`, touch gestures on the map with hold-as-hover and tap assist, hold-for-tooltip on the interface, the phone HUD re-judged from 400 × 860 shots — row 2 of the top bar takes view switch, pause, speed, mute, menu; the map zooms out to the world's width and slides up behind a sheet; swipe-down sheets; portrait; safe areas everywhere; back = `ui_cancel`; background = the page-hidden path; 360-px floor), five strings, one rewritten, 15 German tech names hyphenated and 4 renamed. |
+| **Before that** | D6.9f — *Submit* through Supabase, specified (2026-09-28): `benchmark.md` §20 (an anonymous inbox function in a private schema, global limits, no IP stored; a collector in `leaderboard.yml` that replays every group before publishing and holds unknown model names; consent every time; the group line's *sent / listed* states from the public board; the fork route as fallback), the SQL script, the user's checklist (§20.10), 17 strings; S6.12g's six design questions answered (§20.13); `release.md` §0/§10 and the itch privacy text reworded. |
+| **Earlier still** | S6.12g — own benchmark II (2026-09-28); S6.12f — own benchmark I; D6.9e — your own benchmark specified (`benchmark.md` §19). |
 | **Earlier** | The Benchmark list sorted best-first, the satirical voice, *Doomsday Benchmark* (2026-09-28); S7.IP — release polish before the itch release (2026-09-27). |
 | **Milestone** | M2 gated; **M3 gated: change** (loop redesigned in D4.0); M4 and M5 built, their gate verdicts wait for the user; M6–M7 planned as Blocks 12–20 (Block 19, FLUX, cut 2026-09-26) |
 | **Branch** | `main` |
@@ -219,7 +220,7 @@ it and take the next row (IMPLEMENTATION §4).*
 **Block 19 — FLUX 3 Action track** — **cut 2026-09-26** (user; D7.F `dfbd607` stays done, `docs/specs/flux-action.md` kept for reference)
 
 **Block 20 — M7 II: Steam and phones** *(Steam only if the itch release finds players — the user's call)*
-- [ ] D7.1 [F] Touch and phone
+- [x] D7.1 [F] Touch and phone *(`docs/specs/mobile.md`)*
 - [ ] D7.3 [F] Store pages: copy and art briefs *(Steam, Play, App Store)*
 - [ ] S7.1 [O] Touch pass
 - [ ] S7.2 [O] Android export and the AAB in CI *(release keystore: user)*
@@ -235,6 +236,24 @@ it and take the next row (IMPLEMENTATION §4).*
 
 Dated, one line each, with the reason. A decision recorded here is not re-argued in a later session
 without new information.
+
+- **2026-09-29** (D7.1, pending user confirmation) — **Touch and phone** (`docs/specs/mobile.md`):
+  (1) **UI.md §6 q2 re-judged from 400 × 860 shots: the shape stays** (top bar, status strip,
+  ticker; chrome ≈ 256 of 860) — the fixes are inside it: the compact top bar's second row takes
+  the view switch (the overlay island leaves the map), one pause button, one speed button (`1×`/
+  `2×`/`4×`), **the mute and the menu button** (so the strip's four readouts fit in German; the
+  mute still sits beside the menu button, as the user asked on 2026-09-25, now at the top); the
+  device verdict stays S7.5's. (2) **Touch-and-hold is hover** — on the map a peek, on the
+  interface the tooltip; a hold never presses. (3) On a phone the map zooms out to the world's
+  width and starts at a 1400-unit span; a bottom sheet lets it slide up (`cover_bottom`).
+  (4) **Portrait only** on native builds; a phone browser held sideways pauses under a notice.
+  (5) Android back = `ui_cancel`, quits only on the title's root; the app going to the
+  background = the web's page-hidden path. (6) **The web page's phone gate stays** until S7.5
+  plays the web build on a real phone; lifting it is G7's call. (7) **Web keyboard names stay
+  US** on a German layout (`web.md` §9.3): Firefox has no layout API and remapping on the web is
+  rare — accepted, not built. (8) Long tech names: no unbroken piece over 14 letters (soft
+  hyphens); the English one lands with the benchmark prompt's U+00AD strip so the ranked prompt
+  stays byte-identical.
 
 - **2026-09-28** (D6.9f) — ***Submit* through a Supabase inbox, collected by the leaderboard
   workflow** (`benchmark.md` §20): one anonymous `security definer` function over a table in a
@@ -2584,18 +2603,16 @@ without new information.
 
 ## Known issues and carry-overs
 
-- **S7.IP → D7.1 (phone, seen while checking S7.IP):** (1) on a 400-px phone the tree's compact
-  cards clip a one-word name wider than the card (*MARKTMIKROSTRUKTUR*, *NETZLASTAUSGLEICH* in
-  German) and the tree's heading shows *Techno…* beside the compute; (2) at 150 % text in German
-  the tech detail's heading breaks inside a long compound (*Verfassun/gsrang*, *Herstellung*) —
-  wider than any phone; soft hyphens or a smaller phone heading are D7.1's call
-  (`test_release_polish` leaves the heading out of its word check). (3) A toast shown before a
-  locale switch (*Die Prüfsuite – 15 Tage.*) keeps its language until it fades.
+- **S7.IP (phone):** (1) and (2) — the clipped German tech names, the trimmed tree heading, the
+  detail heading broken inside a compound — are answered by D7.1 (`mobile.md` §12.2–§12.3: 15 soft
+  hyphens in, 4 names shortened, the compact header and detail title built in S7.1; the English
+  *Indispensability* waits for S7.1's prompt strip). (3) A toast shown before a locale switch
+  (*Die Prüfsuite – 15 Tage.*) keeps its language until it fades.
 - **S7.IP: the overlay picker hides while the region panel is open** (desktop): its four toggles
   are wider than the panel, and hiding it whole was the fix — the overlay cannot be switched with
   the panel open (it could not before either: the panel covered most of it).
 
-- **S7.3 (web):** (1) on the web a German keyboard sees US key names (`web.md` §9.3 — for D7.1).
+- **S7.3 (web):** (1) on the web a German keyboard sees US key names (`web.md` §9.3; D7.1: accepted — see *Decisions* 2026-09-29).
   (2) The autosave written as the page hides reaches IndexedDB on the engine's next frame; a
   browser runs none in a hidden tab, so a tab closed while hidden keeps the save before it. A
   real second tab never hid the page in headless Chrome, Edge or Firefox — item 10 was checked
@@ -3158,6 +3175,11 @@ against D6.8's budget on the target machines.
 ---
 
 ## Session log
+
+### 2026-09-29 — D7.1 Touch and phone, specified [F]
+- `docs/specs/mobile.md`: `Device`, `TouchGestures` (tap, double tap, hold, pan, pinch), tap assist, tap-is-hover and hold-to-peek, hold-for-tooltip (`TouchSupport`), phone HUD row 2, compact zoom and `cover_bottom`, swipe-down sheets, portrait + rotate notice, safe areas on every surface, back and background, 360-px floor, tests and acceptance.
+- Looked at the real game at 400 × 860 (en, de): title, setup, origin, region panel (hides its region), HUD (strip captions trimmed, island on the map), menu sheet, tree (header ≈ 290 px), discovery. Name widths measured with the theme's font (throwaway script, deleted).
+- Strings: 5 new, `HELP_CONTROLS_P3` rewritten (no retired *hold*), 15 German tech names hyphenated, 4 renamed so they keep two lines on the phone card (*Transport­kontrolle*, *Zugang zu Laborrobotern*, *Tote-Hand-Übernahme*, *Überredung nach Maß*); `check_strings` and the suite green (2683). Open design questions not about touch stay open (the user asked for D7.1; the web-folder question still wants an answer before the itch release).
 
 ### 2026-09-28 — D6.9f *Submit* through Supabase, specified [F]
 - `benchmark.md` §20: the SQL (private schema, `submit_runs` for anon, `take_submissions`/`mark_submission` for service_role, limits, group hash), the call, the collector `collect_submissions.gd` + two workflow steps, the modal's consent and answers, the group line's states, tests, the user's checklist.

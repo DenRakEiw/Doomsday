@@ -1521,6 +1521,9 @@ bottom re-judged from 400 × 860 shots (UI q2 — the device verdict is S7.5's),
 notches, the Android back button, app lifecycle (pause and autosave on background), orientation,
 text scale on small screens.
 **Done when:** S7.1 has nothing to decide.
+*Done 2026-09-29: `docs/specs/mobile.md` — S7.1 reads §2–§12, §14–§16; S7.2/S7.4 read §8–§11; the
+phone's HUD re-judged (the shape stays, its second row changes); 15 German tech names hyphenated and 4 renamed,
+five strings added.*
 
 ### D7.3 — Store pages: copy and art briefs **[F]** · **Read first:** PLAN §1, §3 · CONTENT §10 (voice) · `illustrations.md` · `docs/specs/itch.md`
 `docs/specs/store.md`: short and long descriptions, feature bullets, tags, content descriptors
@@ -1574,7 +1577,7 @@ With the user: each platform's candidate played; go / change / cut per platform.
 
 | Question | Decided at |
 | --- | --- |
-| UI q2 — mobile HUD shape | G2 for M3; re-drawn in D7.1, judged on a real device in S7.5 |
+| UI q2 — mobile HUD shape | G2 for M3; re-drawn in D7.1 (the shape stays, the top bar's second row changes — `mobile.md` §5), judged on a real device in S7.5 |
 | UI q1 — tech tree pauses? | D3.3, confirmed at G3 |
 | UI q3 — extent of phase shift | capped in D3.3; D6.1: the cap stands (two sets; the late game escalates in the screen pass) |
 | PLAN §6 — four tracks or two | G3 |

@@ -119,7 +119,7 @@ data, never a constant) and `max row + 1` rows. Every cell is either a `TechNode
 `Control` with the cell's minimum size; the grid's h/v separation is the cell gap. Cell size
 and gap are tokens (§6.3): `TECH_CELL` 200 × 96, gap `SPACE_3` in full; `TECH_CELL_COMPACT`
 160 × 88, gap `SPACE_2` in compact. A German node name is at most two lines of `TYPE_LABEL` in 176
-px (the longest, *Übernahme der Totmannschaltung*, is 30 characters), verified by a test (§12.2).
+px (the longest was *Übernahme der Totmannschaltung*, 30 characters — renamed in D7.1), verified by a test (§12.2).
 
 Switching tabs rebuilds the grid (43 nodes at most — no pooling), keeps the scroll position per
 tab, and re-selects the last selected node of that tab if any.
