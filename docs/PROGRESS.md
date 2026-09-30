@@ -2786,7 +2786,7 @@ closes submissions.
 Not suitable: the Lyria music models, `nemotron-3.5-content-safety`, the `openrouter/free` router
 (no fixed model identity), **`inkling:free` and `inkling-small:free`** (403: "only available on
 agentic harnesses", checked 2026-09-27). `qwen3.8-27b:free`: 429 upstream (shared pool) on
-2026-09-27, the run stopped before its first answer — retry another day. **`nemotron-3-super-120b-a12b:free`
+2026-09-27, the run stopped before its first answer — retry another day. ****`stealth/space-bunny-alpha` done (2026-09-30, high → reasoning max, quick): 52.5, 2/3 wins** (s1001 win_ascendance d823, 79.4 · 132 calls; s1002 win_ascendance d877, 78.1 · 128; s1003 lose_contained d423 · 80), 0 USD, ≈5 answers/min, in `%APPDATA%\Doomsday\benchmark\runs` — an anonymous stealth model: whether it belongs on the public board is the user's call, not published. Same day: `nvidia/nemotron-3.5-lightning:free` queued ≈3 min per answer upstream (stopped after 2), `qwen/qwen3.8-27b:free` answered a tiny prompt but stopped *unavailable* on the real ones, the two Gemma 4 `:free` gave 429. `nemotron-3-super-120b-a12b:free`
 done (2026-09-28, high, quick): 22.1, 1/3 wins** (s1001 lose_contained d804 · 136 calls · 3
 unreadable; s1002 win_merge d1343, 66.4 · 225 calls · 2; s1003 lose_contained d448 · 71 calls),
 0 USD, in `%APPDATA%\Doomsday\benchmark\runs`; `submit_runs.ps1` dry run: 3 new files, validate 0
