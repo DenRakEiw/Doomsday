@@ -37,6 +37,24 @@ func test_the_body_names_the_model_and_the_parameters_and_always_the_seed() -> v
 		assert_false(body.has(absent), absent)
 
 
+func test_an_anthropic_model_marks_the_brief_for_the_cache() -> void:
+	var backend: OpenRouterBackend = OpenRouterBackend.new("anthropic/claude-sonnet-5", SAMPLE_KEY,
+		"https://openrouter.ai/api/v1", _config, 2.0)
+	var messages: Array[Dictionary] = BenchPrompt.messages("brief", "digest")
+	var sent: Array = backend._build_body(messages, _params())["messages"]
+	assert_eq(sent[0], {"role": "system", "content": [{"type": "text", "text": "brief",
+		"cache_control": {"type": "ephemeral"}}]})
+	assert_eq(sent[1], messages[1], "the digest goes as it is")
+	assert_eq(messages[0]["content"], "brief", "the caller's messages are not changed")
+
+
+func test_another_model_sends_the_messages_unmarked() -> void:
+	var messages: Array[Dictionary] = BenchPrompt.messages("brief", "digest")
+	assert_eq(_backend()._build_body(messages, _params())["messages"], messages)
+	assert_false(OpenRouterBackend.marks_cache("openai/gpt-5"))
+	assert_true(OpenRouterBackend.marks_cache("anthropic/claude-opus-5.5"))
+
+
 func test_json_mode_off_sends_no_response_format() -> void:
 	var body: Dictionary = _backend()._build_body([], _params({"json_mode": false}))
 	assert_false(body.has("response_format"))

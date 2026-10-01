@@ -634,6 +634,16 @@ when `--reasoning` is given (or the effort level's, §18.1: `high`, or `max`/`xh
 `ultra`); `top_p` only when `--top-p` is given. `seed` always (providers that
 ignore it ignore it). No `stream`, no `tools`, no `provider` block.
 
+**Prompt cache (2026-10-01, user request):** for a model id beginning with `anthropic/`
+(`OpenRouterBackend.CACHE_MARK_PREFIXES`) the system message goes as one text part with
+`"cache_control": {"type": "ephemeral"}` — the same text, so the prompt, `prompt_version`, the
+params and the cache key are unchanged. Anthropic caches only where a request marks it
+(OpenRouter's prompt-caching guide; OpenAI, Gemini, DeepSeek and others cache on their own); the
+brief is identical for every decision of a run, so after the first write (1.25 × the input price)
+every read costs 0.1 × — measured with Sonnet 5: 0.048 USD for the first decision, 0.010 for the
+next (17 820 tokens read from the cache). `usage.cost` already carries the discount. OpenRouter's
+`:batch` variants are not chat models (404 on `/chat/completions`) and cannot play.
+
 **Reading:** status 200 → `choices[0].message.content` (null → `""`), `choices[0].finish_reason`,
 `usage.prompt_tokens`, `usage.completion_tokens`, `usage.cost` (absent or null → tokens × the
 price the pre-flight found, §11.5, else 0 — and then the tool prints once `benchmark: the service

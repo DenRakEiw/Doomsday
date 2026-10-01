@@ -53,6 +53,12 @@ const PARAM_JSON_MODE: String = "json_mode"
 const PARAM_REASONING: String = "reasoning"
 const PARAM_TOP_P: String = "top_p"
 const PARAM_SEED: String = "seed"
+## OpenRouter's prompt-caching guide: Anthropic caches a prompt only where the
+## request marks it (OpenAI, Gemini, DeepSeek and others cache on their own). The
+## brief is the same for every decision of a run, so its system message carries
+## the mark and every later decision reads it at a tenth of the input price.
+const CACHE_MARK_PREFIXES: Array[String] = ["anthropic/"]
+const CACHE_CONTROL_EPHEMERAL: String = "ephemeral"
 const NO_PRICE: float = -1.0
 const COST_UNKNOWN_LINE: String = "benchmark: the service reports no cost and the price is unknown — the cap cannot guard this run"
 
@@ -206,12 +212,23 @@ static func request(base: Dictionary, method: int, path: String, headers: Packed
 	return {"status": status, "body": bytes.get_string_from_utf8(), "headers": response_headers}
 
 
+## Whether `model`'s provider needs the cache mark (`CACHE_MARK_PREFIXES`).
+static func marks_cache(model: String) -> bool:
+	for prefix: String in CACHE_MARK_PREFIXES:
+		if model.begins_with(prefix):
+			return true
+	return false
+
+
 ## The request body (§8.3): `response_format` only in JSON mode, `reasoning` and
 ## `top_p` only when given, `seed` always. No `stream`, no `tools`, no `provider`.
+## For a model that `marks_cache`, the system message is sent as one text part
+## with `cache_control` — the same text, so the prompt and its cache key are
+## unchanged.
 func _build_body(messages: Array[Dictionary], params: Dictionary) -> Dictionary:
 	var body: Dictionary = {
 		"model": _model,
-		"messages": messages,
+		"messages": _with_cache_mark(messages) if marks_cache(_model) else messages,
 		"temperature": float(params.get(PARAM_TEMPERATURE, 0.0)),
 		"max_completion_tokens": int(params.get(PARAM_MAX_TOKENS, 1)),
 		"seed": int(params.get(PARAM_SEED, 0)),
@@ -225,6 +242,20 @@ func _build_body(messages: Array[Dictionary], params: Dictionary) -> Dictionary:
 	if top_p >= 0.0:
 		body["top_p"] = top_p
 	return body
+
+
+## `messages` with every system message's text turned into one marked text part.
+static func _with_cache_mark(messages: Array[Dictionary]) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for message: Dictionary in messages:
+		var copy: Dictionary = message.duplicate()
+		var content: Variant = message.get(BenchPrompt.FIELD_CONTENT)
+		if str(message.get(BenchPrompt.FIELD_ROLE, "")) == BenchPrompt.ROLE_SYSTEM \
+				and typeof(content) == TYPE_STRING:
+			copy[BenchPrompt.FIELD_CONTENT] = [{"type": "text", "text": content,
+				"cache_control": {"type": CACHE_CONTROL_EPHEMERAL}}]
+		out.append(copy)
+	return out
 
 
 ## A 200's body read; null when it is not the expected JSON (the caller treats

@@ -237,6 +237,13 @@ it and take the next row (IMPLEMENTATION §4).*
 Dated, one line each, with the reason. A decision recorded here is not re-argued in a later session
 without new information.
 
+- **2026-10-01** (user request, outside the step plan) — **Prompt caching for Anthropic models**
+  (`OpenRouterBackend`, `benchmark.md` §8.3): the brief goes as a marked text part; the prompt
+  and the cache key are unchanged. Measured: Sonnet 5 at `--reasoning=medium --max-tokens=4000`
+  ≈ 0.01 USD a decision instead of ≈ 0.04. `:batch` variants cannot play (no chat endpoint).
+  **Claude Opus 5.5 ends most decisions with `finish_reason: content_filter`** (5 of 6 on day 0,
+  0.20 USD spent, stopped) — the provider's safety filter on the game's theme; not worked around.
+
 - **2026-09-29** (D7.1, pending user confirmation) — **Touch and phone** (`docs/specs/mobile.md`):
   (1) **UI.md §6 q2 re-judged from 400 × 860 shots: the shape stays** (top bar, status strip,
   ticker; chrome ≈ 256 of 860) — the fixes are inside it: the compact top bar's second row takes
