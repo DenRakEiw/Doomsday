@@ -105,6 +105,12 @@ func _list_body() -> String:
 	data.append({"id": "vendor/painter", "name": "Painter",
 		"architecture": {"output_modalities": ["image"]},
 		"pricing": {"prompt": "0.000001", "completion": "0.000001"}})
+	data.append({"id": "fixture/lyria", "name": "Fixture: Lyria Audio",
+		"architecture": {"output_modalities": ["text", "audio"]},
+		"pricing": {"prompt": "0.000001", "completion": "0.000004"}})
+	data.append({"id": "fixture/steady:batch", "name": "Fixture: Steady (batch)",
+		"architecture": {"output_modalities": ["text"]},
+		"pricing": {"prompt": "0.00000005", "completion": "0.0000002"}})
 	data.append({"id": PRICEY, "name": "Fixture: Pricey",
 		"pricing": {"prompt": "0.001", "completion": "0.004"}})
 	data.append({"id": "typesafe/jev-latest", "name": "TypeSafe Jev",
@@ -134,7 +140,8 @@ func _likely(id: String, effort: String) -> float:
 
 func test_models_that_cannot_play_are_left_out() -> void:
 	var ids: Array[String] = _ids()
-	for id: String in ["vendor/guard-content-safety", "openrouter/auto", "vendor/painter"]:
+	for id: String in ["vendor/guard-content-safety", "openrouter/auto", "vendor/painter",
+			"fixture/lyria", "fixture/steady:batch"]:
 		assert_false(ids.has(id), id)
 	for id: String in [FREE_ID, STEADY, THINKER, DEEP, PONDER, PRICEY, BROKEN,
 			"typesafe/jev-latest"]:
@@ -319,3 +326,23 @@ func test_list_that_cannot_be_loaded_says_so() -> void:
 	var modal: Control = _new_modal()
 	modal.call(&"open")
 	assert_eq(modal.call(&"list_status"), tr("UI_BENCH_RUN_LIST_FAILED"))
+
+
+## S6.12h (§20.13 item 1): a start refused because a benchmark is already
+## running shows `UI_BENCH_RUN_START_BUSY`; any other refusal shows
+## `UI_BENCH_RUN_START_FAILED`.
+func test_start_refusals_show_busy_or_failed_line() -> void:
+	_modal.call(&"choose", FREE_ID)
+	BenchJobs.start(STEADY, BenchEffort.NORMAL, 2.0)
+	BenchJobs.wait_started()
+	var reason: String = await _modal.call(&"start")
+	assert_eq(reason, BenchJobs.REASON_RUNNING)
+	assert_eq(_modal.call(&"start_failure_text"), tr("UI_BENCH_RUN_START_BUSY"))
+	BenchJobs.stop()
+	BenchJobs.set("_state", null)
+	var saved_sup: int = BenchKeyStore.supported_override
+	BenchKeyStore.supported_override = 0
+	var other: String = await _modal.call(&"start")
+	BenchKeyStore.supported_override = saved_sup
+	assert_eq(other, BenchJobs.REASON_UNSUPPORTED)
+	assert_eq(_modal.call(&"start_failure_text"), tr("UI_BENCH_RUN_START_FAILED"))

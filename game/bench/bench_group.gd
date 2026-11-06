@@ -21,6 +21,9 @@ var runs: int = 0
 ## The runs, by seed, and the files they were read from.
 var entries: Array[BenchEntry] = []
 var paths: Array[String] = []
+## §20.7: true when opened from *Submit through GitHub instead* on a *Not listed*
+## group row, skipping the Supabase consent step.
+var github_only: bool = false
 
 ## Where `copy_files` gathers; the suite points it at a folder of its own.
 static var submit_root: String = UserPaths.at(SUBMIT_FOLDER)
@@ -28,15 +31,17 @@ static var submit_root: String = UserPaths.at(SUBMIT_FOLDER)
 
 ## The groups among `library`'s entries read from `own_dir` (the player's
 ## recorded runs) that may be submitted: complete by `config`'s suites, on
-## `content_hash`, neither a bot's nor a mock's. Best score first, then model.
+## `content_hash`, neither a bot's nor a mock's (except `allow_mock` for a debug
+## `--bench-mock` end-to-end check, §20.9). Best score first, then model.
 static func own_groups(library: BenchLibrary, own_dir: String, content_hash: String,
-		config: BenchConfig) -> Array[BenchGroup]:
+		config: BenchConfig, allow_mock: bool = false) -> Array[BenchGroup]:
 	var grouped: Dictionary[String, BenchGroup] = {}
 	var order: Array[String] = []
 	for i: int in library.entries.size():
 		var entry: BenchEntry = library.entries[i]
 		if not library.paths[i].begins_with(own_dir) or entry.is_bot() \
-				or entry.backend.begins_with(MOCK_PREFIX) or entry.content_hash != content_hash \
+				or (entry.backend.begins_with(MOCK_PREFIX) and not allow_mock) \
+				or entry.content_hash != content_hash \
 				or content_hash.is_empty():
 			continue
 		# The board's own grouping (§10.3), so a submitted group is one row there.

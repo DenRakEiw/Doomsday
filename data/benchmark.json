@@ -3,29 +3,65 @@
 	"version": 1,
 	"prompt_version": 1,
 	"parser_version": 1,
-	"setup": {"architecture": "language_model", "directives": [], "difficulty": "standard", "scenario": ""},
+	"setup": {
+		"architecture": "language_model",
+		"directives": [],
+		"difficulty": "standard",
+		"scenario": ""
+	},
 	"max_days": 2000,
 	"interval_days": 10,
 	"max_calls": 250,
 	"max_actions": 12,
 	"retry_invalid": 1,
-	"digest": {"log_max": 30, "targets_max": 20},
-	"suites": {
-		"standard": [1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010],
-		"quick": [1001, 1002, 1003]
+	"digest": {
+		"log_max": 30,
+		"targets_max": 20
 	},
-	"score": {"win_base": 50.0, "win_speed": 50.0},
-	"defaults": {"temperature": 0.0, "max_completion_tokens": 1200, "json_mode": true, "locale": "en"},
+	"suites": {
+		"standard": [
+			1001,
+			1002,
+			1003,
+			1004,
+			1005,
+			1006,
+			1007,
+			1008,
+			1009,
+			1010
+		],
+		"quick": [
+			1001,
+			1002,
+			1003
+		]
+	},
+	"score": {
+		"win_base": 50,
+		"win_speed": 50
+	},
+	"defaults": {
+		"temperature": 0,
+		"max_completion_tokens": 1200,
+		"json_mode": true,
+		"locale": "en"
+	},
 	"http": {
 		"base_url": "https://openrouter.ai/api/v1",
 		"key_env": "OPENROUTER_API_KEY",
 		"timeout_s": 180,
 		"retries": 5,
-		"backoff_s": 2.0,
-		"max_cost_usd": 2.0,
+		"backoff_s": 2,
+		"max_cost_usd": 2,
 		"models_path": "/models"
 	},
-	"estimate": {"chars_per_token": 4, "calls_per_run": 80, "digest_growth": 1.5, "output_tokens_per_call": 300},
+	"estimate": {
+		"chars_per_token": 4,
+		"calls_per_run": 80,
+		"digest_growth": 1.5,
+		"output_tokens_per_call": 300
+	},
 	"global": {
 		"leaderboard_url": "https://raw.githubusercontent.com/DenRakEiw/doomsday-leaderboard/main/leaderboard.json",
 		"run_base_url": "https://raw.githubusercontent.com/DenRakEiw/doomsday-leaderboard/main/",
@@ -36,12 +72,18 @@
 		"max_rows": 500,
 		"min_refetch_s": 300,
 		"cache_runs_max": 50,
-		"verify_limit": 100
+		"verify_limit": 100,
+		"collect_limit": 20
 	},
 	"choice": {
 		"choice_version": 1,
 		"max_options": 255,
-		"max_picks": {"buy": 3, "use": 2, "wake": 2, "sleep": 2}
+		"max_picks": {
+			"buy": 3,
+			"use": 2,
+			"wake": 2,
+			"sleep": 2
+		}
 	},
 	"typesafe": {
 		"model_prefix": "typesafe/",
@@ -49,27 +91,67 @@
 		"path": "/systemone",
 		"key_env": "TYPESAFE_API_KEY",
 		"price_input_usd_per_mtok": 0.042,
-		"price_output_usd_per_mtok": 0.0,
+		"price_output_usd_per_mtok": 0,
 		"max_requests": 3000,
 		"question_tokens_per_call": 1500,
 		"state_limit_tokens": 32000,
 		"request_limit_tokens": 64000
 	},
 	"effort": {
-		"high": {"reasoning": ["high"], "max_completion_tokens": 16000, "output_tokens_per_call": 3000, "timeout_s": 600},
-		"ultra": {"reasoning": ["max", "xhigh", "high"], "max_completion_tokens": 32000, "output_tokens_per_call": 8000, "timeout_s": 900}
+		"high": {
+			"reasoning": [
+				"high"
+			],
+			"max_completion_tokens": 16000,
+			"output_tokens_per_call": 3000,
+			"timeout_s": 600
+		},
+		"ultra": {
+			"reasoning": [
+				"max",
+				"xhigh",
+				"high"
+			],
+			"max_completion_tokens": 32000,
+			"output_tokens_per_call": 8000,
+			"timeout_s": 900
+		}
 	},
 	"player": {
 		"suite": "quick",
 		"workers_paid": 3,
 		"workers_free": 1,
-		"cap_choices": [0.5, 1.0, 2.0, 5.0, 10.0, 20.0],
-		"default_cap_usd": 2.0,
-		"poll_s": 1.0,
+		"cap_choices": [
+			0.5,
+			1,
+			2,
+			5,
+			10,
+			20
+		],
+		"default_cap_usd": 2,
+		"poll_s": 1,
 		"jobs_kept": 5,
 		"models_max_age_s": 86400,
 		"models_shown": 200,
 		"keys_url": "https://openrouter.ai/settings/keys",
-		"submit_url": "https://github.com/DenRakEiw/doomsday-leaderboard/fork"
+		"submit_url": "https://github.com/DenRakEiw/doomsday-leaderboard/fork",
+		"model_exclude_suffixes": [
+			"-content-safety",
+			":batch"
+		],
+		"model_exclude_prefixes": [
+			"openrouter/"
+		],
+		"submit": {
+			"api_url": "https://zwooxqxvrtizjsrlccll.supabase.co",
+			"publishable_key": "sb_publishable_-dOf_851PbtdWTmxwKFoCg_NpzKan1l",
+			"function": "submit_runs",
+			"max_files": 10,
+			"max_file_bytes": 1000000,
+			"max_total_bytes": 3000000,
+			"timeout_s": 30,
+			"not_listed_days": 2
+		}
 	}
 }

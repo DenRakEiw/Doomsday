@@ -51,8 +51,9 @@ const KEY_AUDIO_BACKGROUND: String = "audio_background"
 const KEY_ANNOUNCE_HEADLINES: String = "announce_headlines"
 ## accessibility.md §5.2: action → physical keycode, only the player's overrides.
 const KEY_KEYS: String = "keys"
-## benchmark.md §16.6: the online leaderboard may be fetched when the benchmark
-## list opens. Off, the game never touches the network.
+## benchmark.md §16.6, §20.5: what the game fetches by itself when the
+## benchmark list opens and when a listed run is watched. Explicit acts (own
+## benchmark, *Check*, *Submit*) have their own controls and consent.
 const KEY_BENCH_ONLINE: String = "bench_online"
 ## benchmark.md §19.8 item 6: the cost cap the player last chose for their own
 ## benchmark, in USD; `BENCH_CAP_UNSET` until they chose one.

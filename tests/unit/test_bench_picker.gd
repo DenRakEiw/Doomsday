@@ -31,11 +31,15 @@ func test_content_classifiers_routers_and_image_models_are_left_out() -> void:
 		{"id": "vendor/x-content-safety"}, {"id": "openrouter/auto"},
 		{"id": "vendor/painter", "architecture": {"output_modalities": ["image"]}},
 		{"id": "vendor/speaker", "architecture": {"output_modalities": ["text", "audio"]}},
+		{"id": "fixture/lyria", "architecture": {"output_modalities": ["text", "audio"]}},
+		{"id": "fixture/steady:batch", "architecture": {"output_modalities": ["text"]}},
 	]), _config))
 	assert_false(ids.has("vendor/x-content-safety"))
 	assert_false(ids.has("openrouter/auto"))
 	assert_false(ids.has("vendor/painter"))
-	assert_true(ids.has("vendor/speaker"), "text among others is text")
+	assert_false(ids.has("vendor/speaker"), "audio output is excluded (§20.13 item 4)")
+	assert_false(ids.has("fixture/lyria"), "fixture audio model is excluded")
+	assert_false(ids.has("fixture/steady:batch"), "batch variant is excluded")
 
 
 func test_a_typesafe_id_reads_as_a_decision_model() -> void:

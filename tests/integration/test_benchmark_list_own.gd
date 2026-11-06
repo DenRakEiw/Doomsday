@@ -46,6 +46,7 @@ func before_each() -> void:
 	Fixtures.remove_root(JOBS)
 	Fixtures.remove_root(BenchLibrary.user_dir)
 	Fixtures.remove_root(BenchGroup.submit_root)
+	Fixtures.remove_root(BenchSubmitLog.default_dir)
 	GlobalBoardClient.forget_fetch()
 
 
@@ -66,6 +67,7 @@ func after_each() -> void:
 	Fixtures.remove_root(JOBS)
 	Fixtures.remove_root(BenchLibrary.user_dir)
 	Fixtures.remove_root(BenchGroup.submit_root)
+	Fixtures.remove_root(BenchSubmitLog.default_dir)
 	GlobalBoardClient.forget_fetch()
 
 
@@ -245,6 +247,10 @@ func test_submit_names_the_known_boards_content() -> void:
 
 func _submit_modal() -> Control:
 	var modal: Control = SUBMIT.instantiate() as Control
+	var cfg: BenchConfig = BenchConfig.load_file()
+	cfg.submit_api_url = ""
+	cfg.submit_publishable_key = ""
+	modal.set("config_override", cfg)
 	modal.set("shell", func(kind: String, target: String) -> void: _shell.append([kind, target]))
 	add_child_autofree(modal)
 	return modal
@@ -327,3 +333,148 @@ func test_settings_hide_the_key_row_on_the_web() -> void:
 	var menu: Control = _menu()
 	assert_false((menu.call(&"key_button") as ConsoleButton).is_visible_in_tree())
 	assert_false((menu.call(&"key_state_label") as Label).is_visible_in_tree())
+
+
+# ------------------------------------------------------- direct submit (S6.12h)
+
+
+func _direct_config() -> BenchConfig:
+	var cfg: BenchConfig = BenchConfig.load_file()
+	cfg.submit_api_url = "https://example.supabase.co"
+	cfg.submit_publishable_key = "sb_publishable_test"
+	return cfg
+
+
+func test_direct_submit_shows_consent_sends_and_handles_every_answer() -> void:
+	_record_suite()
+	Settings.bench_online = false
+	var group: BenchGroup = _own_group()
+	var modal: Control = _submit_modal()
+	var cfg: BenchConfig = _direct_config()
+	modal.set("config_override", cfg)
+	var sent_calls: Array[Dictionary] = []
+	var reply: Dictionary = {
+		"code": 200,
+		"body": JSON.stringify({"status": "received", "id": 99}),
+	}
+	modal.set("transport", func(url: String, headers: PackedStringArray, body: String,
+			done: Callable) -> void:
+		sent_calls.append({"url": url, "headers": headers, "body": body})
+		done.call(int(reply["code"]), str(reply["body"]).to_utf8_buffer()))
+
+	# 1. Consent stage, online switch off does not block Send.
+	modal.call(&"open", group, "", Game.content().content_hash)
+	assert_eq(modal.call(&"message_text"), tr("UI_BENCH_SUBMIT_CONSENT").format({"count": 3}))
+	assert_true((modal.call(&"send_button") as ConsoleButton).visible)
+	assert_true((modal.call(&"github_button") as ConsoleButton).visible)
+	assert_false((modal.call(&"again_button") as ConsoleButton).visible)
+
+	# 2. RECEIVED -> UI_BENCH_SUBMIT_SENT, Close only, recorded in BenchSubmitLog.
+	(modal.call(&"send_button") as ConsoleButton).pressed.emit()
+	assert_eq(sent_calls.size(), 1)
+	assert_eq(modal.call(&"message_text"), tr("UI_BENCH_SUBMIT_SENT"))
+	assert_false((modal.call(&"send_button") as ConsoleButton).visible)
+	assert_false((modal.call(&"retry_button") as ConsoleButton).visible)
+	assert_false((modal.call(&"github_button") as ConsoleButton).visible)
+	assert_false(str(modal.get("last_log_line")).contains(MODEL), "log line never holds body")
+	assert_eq(BenchSubmitLog.load_log().sent.size(), 1)
+
+	# 3. ALREADY -> UI_BENCH_SUBMIT_ALREADY.
+	reply["body"] = JSON.stringify({"status": "already", "id": 99})
+	modal.call(&"open", group, "", Game.content().content_hash)
+	(modal.call(&"send_button") as ConsoleButton).pressed.emit()
+	assert_eq(modal.call(&"message_text"), tr("UI_BENCH_SUBMIT_ALREADY"))
+
+	# 4. BUSY -> UI_BENCH_SUBMIT_BUSY, Retry + GitHub + Close; Retry sends again.
+	reply["code"] = 400
+	reply["body"] = JSON.stringify({"message": "submit:busy"})
+	modal.call(&"open", group, "", Game.content().content_hash)
+	(modal.call(&"send_button") as ConsoleButton).pressed.emit()
+	assert_eq(modal.call(&"message_text"), tr("UI_BENCH_SUBMIT_BUSY"))
+	assert_true((modal.call(&"retry_button") as ConsoleButton).visible)
+	assert_true((modal.call(&"github_button") as ConsoleButton).visible)
+	var before_retry: int = sent_calls.size()
+	(modal.call(&"retry_button") as ConsoleButton).pressed.emit()
+	assert_eq(sent_calls.size(), before_retry + 1)
+
+	# 5. CLOSED -> UI_BENCH_SUBMIT_CLOSED, GitHub + Close.
+	reply["body"] = JSON.stringify({"message": "submit:closed"})
+	modal.call(&"open", group, "", Game.content().content_hash)
+	(modal.call(&"send_button") as ConsoleButton).pressed.emit()
+	assert_eq(modal.call(&"message_text"), tr("UI_BENCH_SUBMIT_CLOSED"))
+	assert_false((modal.call(&"retry_button") as ConsoleButton).visible)
+	assert_true((modal.call(&"github_button") as ConsoleButton).visible)
+
+	# 6. REFUSED -> UI_BENCH_SUBMIT_REFUSED, GitHub + Close.
+	reply["body"] = JSON.stringify({"message": "submit:bad_json"})
+	modal.call(&"open", group, "", Game.content().content_hash)
+	(modal.call(&"send_button") as ConsoleButton).pressed.emit()
+	assert_eq(modal.call(&"message_text"), tr("UI_BENCH_SUBMIT_REFUSED"))
+
+	# 7. NETWORK -> UI_BENCH_SUBMIT_NET_FAILED, Retry + GitHub + Close; GitHub button runs fork route.
+	reply["code"] = 0
+	reply["body"] = ""
+	modal.call(&"open", group, "", Game.content().content_hash)
+	(modal.call(&"send_button") as ConsoleButton).pressed.emit()
+	assert_eq(modal.call(&"message_text"), tr("UI_BENCH_SUBMIT_NET_FAILED"))
+	assert_true((modal.call(&"retry_button") as ConsoleButton).visible)
+	(modal.call(&"github_button") as ConsoleButton).pressed.emit()
+	assert_eq(_shell.size(), 2)
+	assert_eq(modal.call(&"message_text"), tr("UI_BENCH_SUBMIT_STEPS").format({"count": 3}))
+
+
+func test_group_row_shows_sent_not_listed_and_listed_states() -> void:
+	_record_suite()
+	var group: BenchGroup = _own_group()
+	var sub: BenchSubmission = BenchSubmission.from_group(group, BenchJobs.config())
+	BenchSubmitLog.load_log().record(sub, 55, "2026-09-28")
+
+	var list: Control = _list()
+	assert_eq(_buttons(list, "UI_BENCH_SUBMIT").size(), 0)
+	assert_true(_texts(list).has(tr("UI_BENCH_GROUP_SENT").format({"date": "2026-09-28"})))
+
+	# Board generated 2 days later without the group's hashes -> Not listed + GitHub button.
+	var board_later: GlobalBoard = GlobalBoard.parse(JSON.stringify({
+		"version": 1,
+		"generated": "2026-09-30T03:23:00Z",
+		"content_hash": Game.content().content_hash,
+		"rows": [],
+	}), BenchJobs.config())
+	(list.call(&"client") as GlobalBoardClient).board_changed.emit(board_later,
+		GlobalBoardClient.SOURCE_ONLINE, false)
+	assert_true(_texts(list).has(tr("UI_BENCH_GROUP_NOT_LISTED").format({"date": "2026-09-28"})))
+	assert_eq(_buttons(list, "UI_BENCH_SUBMIT_GITHUB").size(), 1)
+
+	# Board with all 3 file hashes -> Listed, no button.
+	var seeds: Array[Dictionary] = []
+	for i: int in sub.file_sha.size():
+		seeds.append({
+			"seed": 1001 + i,
+			"file": "runs/f%d.json" % i,
+			"sha256": sub.file_sha[i],
+			"outcome": "win_merge",
+			"days": 400,
+			"score": 80.0,
+		})
+	var board_listed: GlobalBoard = GlobalBoard.parse(JSON.stringify({
+		"version": 1,
+		"generated": "2026-09-30T03:23:00Z",
+		"content_hash": Game.content().content_hash,
+		"rows": [{
+			"model": MODEL,
+			"params_id": "00000000",
+			"suite": BenchConfig.SUITE_QUICK,
+			"content_hash": Game.content().content_hash,
+			"complete": true,
+			"runs": 3,
+			"of": 3,
+			"wins": 3,
+			"score": 80.0,
+			"seeds": seeds,
+		}],
+	}), BenchJobs.config())
+	(list.call(&"client") as GlobalBoardClient).board_changed.emit(board_listed,
+		GlobalBoardClient.SOURCE_ONLINE, false)
+	assert_true(_texts(list).has(tr("UI_BENCH_GROUP_LISTED")))
+	assert_eq(_buttons(list, "UI_BENCH_SUBMIT_GITHUB").size(), 0)
+	assert_eq(_buttons(list, "UI_BENCH_SUBMIT").size(), 0)

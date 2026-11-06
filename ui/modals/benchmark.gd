@@ -59,6 +59,10 @@ const KEY_SEED: String = "UI_SPECTATOR_SEED"
 const KEY_RUN_OPEN: String = "UI_BENCH_RUN_OPEN"
 const KEY_GROUP_ROW: String = "UI_BENCH_GROUP_ROW"
 const KEY_SUBMIT: String = "UI_BENCH_SUBMIT"
+const KEY_SUBMIT_GITHUB: String = "UI_BENCH_SUBMIT_GITHUB"
+const KEY_GROUP_SENT: String = "UI_BENCH_GROUP_SENT"
+const KEY_GROUP_LISTED: String = "UI_BENCH_GROUP_LISTED"
+const KEY_GROUP_NOT_LISTED: String = "UI_BENCH_GROUP_NOT_LISTED"
 const PREFIX_GLOBAL_FAIL: String = "UI_BENCH_GLOBAL_FAIL_"
 const PREFIX_CMD_FAIL: String = "CMD_FAIL_"
 const PREFIX_OUTCOME: String = "UI_OUTCOME_"
@@ -321,10 +325,16 @@ func _build_local() -> void:
 	_local_box = _section(KEY_LOCAL_TITLE)
 	_local_box.name = "LocalRuns"
 	var content_hash: String = _content_hash()
+	var group_count: int = 0
 	if has_own_benchmark():
 		for group: BenchGroup in BenchGroup.own_groups(_library, BenchLibrary.user_dir,
-				content_hash, BenchJobs.config()):
+				content_hash, BenchJobs.config(), BenchJobs.mock and Game.debug_allowed):
 			_add_group_row(group)
+			group_count += 1
+	if group_count > 0 and not _library.entries.is_empty():
+		var sep: HSeparator = HSeparator.new()
+		sep.theme_type_variation = &"PanelRule"
+		_local_box.add_child(sep)
 	var order: Array[int] = []
 	for i: int in _library.entries.size():
 		order.append(i)
@@ -350,37 +360,81 @@ static func _local_before(a: BenchEntry, b: BenchEntry, content_hash: String) ->
 	return a.seed_value < b.seed_value
 
 
-## §19.9.3: one of the player's complete benchmarks, above the single runs.
+## §19.9.3, §20.7: one of the player's complete benchmarks, above the single runs.
 func _add_group_row(group: BenchGroup) -> void:
+	var card: PanelContainer = _card(_local_box, &"ConsolePanel")
 	var lines: VBoxContainer = _lines()
-	_model_label(lines, group.model)
-	_caption(lines, tr(KEY_GROUP_ROW).format({"score": Format.decimal(group.score, 1),
+	_ranked_header(lines, group.model, group.score, 0, true)
+	var summary: Label = _caption(lines, tr(KEY_GROUP_ROW).format({"score": Format.decimal(group.score, 1),
 		"wins": group.wins, "runs": group.runs}))
+	summary.theme_type_variation = &"LabelCaptionHint"
 	_caption(lines, BenchEffort.line(group.effort))
+	var status: Dictionary = BenchSubmitLog.load_log().group_status(group, _board,
+		BenchJobs.config())
+	var state: String = str(status.get("state", BenchSubmitLog.STATE_SUBMIT))
+	var date: String = str(status.get("date", ""))
+	if state == BenchSubmitLog.STATE_LISTED:
+		var listed_lbl: Label = _caption(lines, tr(KEY_GROUP_LISTED))
+		listed_lbl.theme_type_variation = &"LabelCaptionAccent"
+		card.add_child(lines)
+		return
+	if state == BenchSubmitLog.STATE_SENT:
+		var sent_lbl: Label = _caption(lines, tr(KEY_GROUP_SENT).format({
+			"date": date if not date.is_empty() else DATE_UNKNOWN}))
+		sent_lbl.theme_type_variation = &"LabelCaptionHint"
+		card.add_child(lines)
+		return
+	var github_only: bool = state == BenchSubmitLog.STATE_NOT_LISTED
+	if github_only:
+		_caption(lines, tr(KEY_GROUP_NOT_LISTED).format({
+			"date": date if not date.is_empty() else DATE_UNKNOWN}))
 	var submit: ConsoleButton = ConsoleButton.new()
-	submit.label_key = KEY_SUBMIT
+	submit.label_key = KEY_SUBMIT_GITHUB if github_only else KEY_SUBMIT
 	submit.compact = true
 	submit.name = "Submit"
-	_pair(_local_box, lines, submit)
-	submit.pressed.connect(_on_submit_pressed.bind(group))
+	_pair(card, lines, submit)
+	submit.pressed.connect(_on_submit_pressed.bind(group, github_only))
 	_name_toggle(submit, group.model)
 
 
-func _on_submit_pressed(group: BenchGroup) -> void:
+func _on_submit_pressed(group: BenchGroup, github_only: bool = false) -> void:
+	group.github_only = github_only
 	submit_requested.emit(group, "" if _board == null else _board.content_hash)
 
 
+## §20.7: refreshes the local group lines after a submission or board update.
+func refresh_submitted() -> void:
+	if visible:
+		_rebuild_local()
+
+
+func _rebuild_local() -> void:
+	if _local_box != null and is_instance_valid(_local_box):
+		_list.remove_child(_local_box)
+		_local_box.queue_free()
+		_local_box = null
+	var kept: Array[BoxContainer] = []
+	for pair: BoxContainer in _pairs:
+		if is_instance_valid(pair) and pair.is_inside_tree() and not pair.is_queued_for_deletion():
+			kept.append(pair)
+	_pairs = kept
+	_build_local()
+	_apply_compact()
+
+
 func _add_local_row(entry: BenchEntry, content_hash: String) -> void:
+	var card: PanelContainer = _card(_local_box, &"ChartFrame")
 	var lines: VBoxContainer = _lines()
 	_model_label(lines, entry.model)
-	_caption(lines, _row_text(entry.seed_value, entry.outcome, entry.days, entry.score))
+	var summary: Label = _caption(lines, _row_text(entry.seed_value, entry.outcome, entry.days, entry.score))
+	summary.theme_type_variation = &"LabelCaptionHint"
 	_caption(lines, BenchEffort.line(BenchEffort.of_entry(entry)))
 	var current: bool = entry.content_hash == content_hash
 	if not current:
 		_caption(lines, tr(KEY_OTHER_VERSION))
 	var watch: ConsoleButton = _watch_button(entry.model, entry.seed_value)
 	watch.disabled = not current
-	var row: VBoxContainer = _pair(_local_box, lines, watch)
+	var row: VBoxContainer = _pair(card, lines, watch)
 	var failure: Label = _caption(row, "")
 	failure.theme_type_variation = &"LabelCaptionAlert"
 	failure.visible = false
@@ -485,19 +539,24 @@ func _status_line() -> String:
 
 
 func _add_global_row(into: VBoxContainer, row: GlobalBoardRow, rank: int) -> void:
+	var card: PanelContainer = _card(into, &"ConsolePanel")
 	var lines: VBoxContainer = _lines()
-	_model_label(lines, row.model)
-	_caption(lines, _global_row_text(row, rank))
+	_ranked_header(lines, row.model, row.score, rank, rank == 1)
+	var summary: Label = _caption(lines, _global_row_text(row, rank))
+	summary.theme_type_variation = &"LabelCaptionHint"
 	_caption(lines, BenchEffort.line(row.effort))
 	if not row.complete:
 		_caption(lines, tr(KEY_GLOBAL_PARTIAL).format({"runs": row.runs, "of": row.of}))
 	var toggle: ConsoleButton = ConsoleButton.new()
 	toggle.label_key = KEY_GLOBAL_RUNS
 	toggle.compact = true
-	var box: VBoxContainer = _pair(into, lines, toggle)
+	var box: VBoxContainer = _pair(card, lines, toggle)
 	var runs: VBoxContainer = VBoxContainer.new()
 	runs.theme_type_variation = &"StackTight"
 	runs.visible = false
+	var sep: HSeparator = HSeparator.new()
+	sep.theme_type_variation = &"PanelRule"
+	runs.add_child(sep)
 	box.add_child(runs)
 	for run: GlobalBoardRun in row.seeds:
 		_add_run(runs, row, run)
@@ -508,19 +567,22 @@ func _add_global_row(into: VBoxContainer, row: GlobalBoardRow, rank: int) -> voi
 ## §16.6 item 4: no *Runs* button — they cannot be replayed here. A quick-suite
 ## row says so, since it ranks among its own suite only.
 func _add_other_row(row: GlobalBoardRow, rank: int) -> void:
+	var card: PanelContainer = _card(_other_rows, &"ConsolePanel")
 	var lines: VBoxContainer = _lines()
-	_model_label(lines, row.model)
-	_caption(lines, _global_row_text(row, rank))
+	_ranked_header(lines, row.model, row.score, rank, false)
+	var summary: Label = _caption(lines, _global_row_text(row, rank))
+	summary.theme_type_variation = &"LabelCaptionHint"
 	if row.is_quick():
 		_caption(lines, tr(KEY_GLOBAL_QUICK_TITLE))
 	_caption(lines, BenchEffort.line(row.effort))
 	_caption(lines, tr(KEY_OTHER_VERSION))
-	_other_rows.add_child(lines)
+	card.add_child(lines)
 
 
 func _add_run(into: VBoxContainer, row: GlobalBoardRow, run: GlobalBoardRun) -> void:
 	var lines: VBoxContainer = _lines()
-	_caption(lines, _row_text(run.seed_value, run.outcome, run.days, run.score))
+	var summary: Label = _caption(lines, _row_text(run.seed_value, run.outcome, run.days, run.score))
+	summary.theme_type_variation = &"LabelCaptionHint"
 	var watch: ConsoleButton = _watch_button(row.model, run.seed_value)
 	var box: VBoxContainer = _pair(into, lines, watch)
 	var caption: Label = _caption(box, "")
@@ -547,6 +609,7 @@ func _on_client_board_changed(board: GlobalBoard, source: String, loading: bool)
 	_loading = loading
 	if visible:
 		_render_board()
+		_rebuild_local()
 
 
 func _on_runs_toggled(toggle: ConsoleButton, runs: VBoxContainer, model: String) -> void:
@@ -626,6 +689,34 @@ func _lines() -> VBoxContainer:
 	return lines
 
 
+func _card(into: Container, variation: StringName) -> PanelContainer:
+	var card: PanelContainer = PanelContainer.new()
+	card.theme_type_variation = variation
+	into.add_child(card)
+	return card
+
+
+func _ranked_header(into: Container, model: String, score: float, rank: int,
+		highlight: bool) -> void:
+	var header: HBoxContainer = HBoxContainer.new()
+	header.theme_type_variation = &"RowSnug"
+	into.add_child(header)
+	if rank > 0:
+		var badge: Chip = Chip.new()
+		badge.kind = Chip.Kind.ACCENT if rank == 1 else Chip.Kind.DEFAULT
+		badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		badge.set_text("#%d" % rank)
+		header.add_child(badge)
+	var name_lbl: Label = _model_label(header, model)
+	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_lbl.theme_type_variation = &"LabelHeading"
+	var score_lbl: Label = Label.new()
+	score_lbl.theme_type_variation = &"ValueLabelUp" if highlight else &"ValueLabel"
+	score_lbl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	score_lbl.text = Format.decimal(score, 1)
+	header.add_child(score_lbl)
+
+
 ## A text and its button, side by side (one above the other in compact), in a
 ## box that can take a caption under both.
 func _pair(into: Container, lines: Control, button: ConsoleButton) -> VBoxContainer:
@@ -633,17 +724,17 @@ func _pair(into: Container, lines: Control, button: ConsoleButton) -> VBoxContai
 	outer.theme_type_variation = &"StackTight"
 	into.add_child(outer)
 	var pair: BoxContainer = BoxContainer.new()
-	pair.theme_type_variation = &"Row"
+	pair.theme_type_variation = &"RowWide"
 	outer.add_child(pair)
 	pair.add_child(lines)
-	button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	pair.add_child(button)
 	_pairs.append(pair)
 	return outer
 
 
 ## The model as it was submitted — a bot's reference row says it is one.
-func _model_label(into: Container, model: String) -> void:
+func _model_label(into: Container, model: String) -> Label:
 	var label: Label = Label.new()
 	label.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
 	if model.begins_with(BenchEntry.MODEL_BOT_PREFIX):
@@ -651,6 +742,7 @@ func _model_label(into: Container, model: String) -> void:
 	else:
 		label.text = model
 	into.add_child(label)
+	return label
 
 
 func _watch_button(model: String, seed_value: int) -> ConsoleButton:

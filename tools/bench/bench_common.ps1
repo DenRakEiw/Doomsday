@@ -24,14 +24,74 @@ function Resolve-BenchGodot([string]$Given) {
 	throw "Godot not found: pass -Godot <path to the *_console.exe>, or set GODOT."
 }
 
+function Get-DoomsdayCredentialType {
+	if (-not ("DoomsdayCredential" -as [type])) {
+		Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+public static class DoomsdayCredential {
+	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+	struct Credential {
+		public int Flags; public int Type; public string TargetName; public string Comment;
+		public long LastWritten; public int CredentialBlobSize; public IntPtr CredentialBlob;
+		public int Persist; public int AttributeCount; public IntPtr Attributes;
+		public string TargetAlias; public string UserName;
+	}
+	[DllImport("advapi32.dll", EntryPoint = "CredWriteW", CharSet = CharSet.Unicode, SetLastError = true)]
+	static extern bool CredWrite(ref Credential credential, int flags);
+	[DllImport("advapi32.dll", EntryPoint = "CredReadW", CharSet = CharSet.Unicode, SetLastError = true)]
+	static extern bool CredRead(string target, int type, int flags, out IntPtr credential);
+	[DllImport("advapi32.dll")]
+	static extern void CredFree(IntPtr buffer);
+	const int Generic = 1;
+	const int LocalMachine = 2;
+	public static bool Write(string target, string user, string secret) {
+		byte[] blob = System.Text.Encoding.Unicode.GetBytes(secret);
+		Credential credential = new Credential();
+		credential.Type = Generic;
+		credential.TargetName = target;
+		credential.UserName = user;
+		credential.Persist = LocalMachine;
+		credential.CredentialBlobSize = blob.Length;
+		credential.CredentialBlob = Marshal.AllocHGlobal(blob.Length);
+		try {
+			Marshal.Copy(blob, 0, credential.CredentialBlob, blob.Length);
+			return CredWrite(ref credential, 0);
+		} finally {
+			Marshal.FreeHGlobal(credential.CredentialBlob);
+		}
+	}
+	public static string Read(string target) {
+		IntPtr pointer;
+		if (!CredRead(target, Generic, 0, out pointer)) { return null; }
+		try {
+			Credential credential = (Credential)Marshal.PtrToStructure(pointer, typeof(Credential));
+			return Marshal.PtrToStringUni(credential.CredentialBlob, credential.CredentialBlobSize / 2);
+		} finally {
+			CredFree(pointer);
+		}
+	}
+}
+'@
+	}
+}
+
 function Import-BenchKey([string]$Name) {
 	# Makes the key visible to the child processes: from this process's
 	# environment, else from the user's (HKCU\Environment, where set_api_key.ps1
-	# stores it - a window opened before that does not see it). Returns whether
-	# a key was found; the key itself is never printed or returned.
+	# stores it - a window opened before that does not see it), else for
+	# OPENROUTER_API_KEY from the Windows Credential Manager entry Doomsday/OpenRouter
+	# that the in-game key dialog writes. Returns whether a key was found;
+	# the key itself is never printed or returned.
 	$value = [Environment]::GetEnvironmentVariable($Name, "Process")
 	if (-not $value) {
 		$value = [Environment]::GetEnvironmentVariable($Name, "User")
+		if (-not $value -and $Name -eq "OPENROUTER_API_KEY") {
+			try {
+				Get-DoomsdayCredentialType
+				$value = [DoomsdayCredential]::Read("Doomsday/OpenRouter")
+			} catch { }
+		}
 		if ($value) { [Environment]::SetEnvironmentVariable($Name, $value, "Process") }
 	}
 	return [bool]$value

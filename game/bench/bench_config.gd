@@ -62,6 +62,7 @@ var global_max_rows: int = 500
 var global_min_refetch_s: int = 300
 var global_cache_runs_max: int = 50
 var global_verify_limit: int = 100
+var global_collect_limit: int = 20
 
 ## §17: bumped by any change to how a choice run is asked and combined; goes into
 ## its params.
@@ -106,6 +107,29 @@ var player_models_max_age_s: int = 86400
 var player_models_shown: int = 200
 var player_keys_url: String = ""
 var player_submit_url: String = ""
+var player_model_exclude_suffixes: Array[String] = []
+var player_model_exclude_prefixes: Array[String] = []
+
+## §20.5: the Supabase inbox for in-game *Submit*. `submit_api_url` or
+## `submit_publishable_key` empty keeps S6.12g's fork route only.
+var submit_api_url: String = ""
+var submit_publishable_key: String = ""
+var submit_function: String = ""
+var submit_max_files: int = 10
+var submit_max_file_bytes: int = 1000000
+var submit_max_total_bytes: int = 3000000
+var submit_timeout_s: int = 30
+var submit_not_listed_days: int = 2
+
+
+## Whether the Supabase inbox is configured for direct in-game *Submit* (§20.5).
+func has_direct_submit() -> bool:
+	return not submit_api_url.is_empty() and not submit_publishable_key.is_empty()
+
+
+## The RPC endpoint `submit_runs` is called at (§20.3).
+func submit_rpc_url() -> String:
+	return submit_api_url.trim_suffix("/") + "/rest/v1/rpc/" + submit_function
 
 
 ## The file at `path`, read; a file that is missing or not a JSON object is one
@@ -191,6 +215,7 @@ func _read(d: Dictionary) -> void:
 	global_min_refetch_s = _int(global, "min_refetch_s", 0, "global.")
 	global_cache_runs_max = _int(global, "cache_runs_max", 0, "global.")
 	global_verify_limit = _int(global, "verify_limit", 1, "global.")
+	global_collect_limit = _int(global, "collect_limit", 1, "global.")
 	var choice: Dictionary = _object(d, "choice")
 	choice_version = _int(choice, "choice_version", 1, "choice.")
 	max_options = _int(choice, "max_options", 2, "choice.")
@@ -248,6 +273,25 @@ func _read_player(d: Dictionary) -> void:
 	player_models_shown = _int(d, "models_shown", 1, PREFIX)
 	player_keys_url = _string(d, "keys_url", PREFIX)
 	player_submit_url = _string(d, "submit_url", PREFIX)
+	player_model_exclude_suffixes = _string_list(d, "model_exclude_suffixes", PREFIX)
+	player_model_exclude_prefixes = _string_list(d, "model_exclude_prefixes", PREFIX)
+	_read_submit(_object(d, "submit", PREFIX))
+
+
+## §20.5: `api_url` and `publishable_key` may be empty strings (when not empty,
+## `api_url` starts with `https://`); every key is required.
+func _read_submit(d: Dictionary) -> void:
+	const PREFIX: String = "player.submit."
+	submit_api_url = _optional_string(d, "api_url", PREFIX)
+	if not submit_api_url.is_empty() and not submit_api_url.begins_with("https://"):
+		errors.append(PREFIX + "api_url: must begin with https://")
+	submit_publishable_key = _optional_string(d, "publishable_key", PREFIX)
+	submit_function = _string(d, "function", PREFIX)
+	submit_max_files = _int(d, "max_files", 1, PREFIX)
+	submit_max_file_bytes = _int(d, "max_file_bytes", 1, PREFIX)
+	submit_max_total_bytes = _int(d, "max_total_bytes", 1, PREFIX)
+	submit_timeout_s = _int(d, "timeout_s", 1, PREFIX)
+	submit_not_listed_days = _int(d, "not_listed_days", 1, PREFIX)
 
 
 ## One level of `effort` (§18): every key required, `reasoning` a non-empty
@@ -296,9 +340,9 @@ func _read_suites(d: Dictionary) -> void:
 		errors.append("suites.%s: missing" % SUITE_STANDARD)
 
 
-func _object(d: Dictionary, key: String) -> Dictionary:
+func _object(d: Dictionary, key: String, prefix: String = "") -> Dictionary:
 	if typeof(d.get(key)) != TYPE_DICTIONARY:
-		errors.append("%s: missing or not an object" % key)
+		errors.append("%s%s: missing or not an object" % [prefix, key])
 		return {}
 	return d[key]
 
@@ -333,6 +377,27 @@ func _string(d: Dictionary, key: String, prefix: String = "") -> String:
 		errors.append("%s%s: missing or not a string" % [prefix, key])
 		return ""
 	return str(d[key])
+
+
+func _optional_string(d: Dictionary, key: String, prefix: String = "") -> String:
+	if typeof(d.get(key)) != TYPE_STRING:
+		errors.append("%s%s: missing or not a string" % [prefix, key])
+		return ""
+	return str(d[key])
+
+
+func _string_list(d: Dictionary, key: String, prefix: String = "") -> Array[String]:
+	var out: Array[String] = []
+	if typeof(d.get(key)) != TYPE_ARRAY or (d[key] as Array).is_empty():
+		errors.append("%s%s: missing or not a list of strings" % [prefix, key])
+		return out
+	for value: Variant in d[key]:
+		if typeof(value) != TYPE_STRING or str(value).is_empty():
+			errors.append("%s%s: missing or not a list of strings" % [prefix, key])
+			out.clear()
+			return out
+		out.append(str(value))
+	return out
 
 
 static func _is_whole(value: Variant) -> bool:

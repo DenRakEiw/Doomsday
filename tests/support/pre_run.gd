@@ -27,6 +27,7 @@ const TEST_BENCH_JOBS: String = "user://test_bench_jobs/"
 ## S6.12g: the model list's cache and *Submit*'s folder likewise.
 const TEST_BENCH_MODELS: String = "user://test_bench_models/"
 const TEST_BENCH_SUBMIT: String = "user://test_bench_submit/"
+const TEST_BENCH_SUBMIT_LOG: String = "user://test_bench_submit_log/"
 
 
 func run() -> void:
@@ -39,6 +40,7 @@ func run() -> void:
 	BenchJobs.out_dir = TEST_BENCH_JOBS
 	ModelListCache.default_dir = TEST_BENCH_MODELS
 	BenchGroup.submit_root = TEST_BENCH_SUBMIT
+	BenchSubmitLog.default_dir = TEST_BENCH_SUBMIT_LOG
 	BenchJobs.key_store.backend_override = func(_op: String, _key: String) -> Dictionary:
 		return {BenchKeyStore.FIELD_STATUS: BenchKeyStore.STATUS_ERROR}
 	# *Reset progress* keeps the achievements (release.md §2.2); the suite's

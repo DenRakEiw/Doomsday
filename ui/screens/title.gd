@@ -158,6 +158,7 @@ func _build_bench_modals() -> void:
 	_bench_submit = BENCH_SUBMIT_SCENE.instantiate() as Control
 	_host.add_child(_bench_submit)
 	_bench_submit.connect(&"closed", _host.close)
+	_bench_submit.connect(&"submitted", _benchmark.call.bind(&"refresh_submitted"))
 	_benchmark.connect(&"submit_requested", _open_bench_submit)
 
 

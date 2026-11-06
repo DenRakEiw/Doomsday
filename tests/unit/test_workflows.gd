@@ -7,10 +7,12 @@ extends GutTest
 const WORKFLOW: String = "res://.github/workflows/leaderboard.yml"
 const TRIGGERS: Array[String] = ["schedule", "workflow_dispatch"]
 const SECRET: String = "secrets.LEADERBOARD_DEPLOY_KEY"
+const SUBMIT_SECRET: String = "secrets.SUPABASE_SECRET_KEY"
 const KNOWN_HOST: String = "github.com ssh-ed25519" \
 	+ " AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl"
 const STOP: String = "echo \"::stop-commands::$token\""
 const RESUME: String = "echo \"::$token::\""
+const COLLECTOR: String = "tools/bench/collect_submissions.gd"
 const VERIFIER: String = "tools/bench/verify_runs.gd"
 
 var _lines: PackedStringArray = []
@@ -65,15 +67,24 @@ func test_its_token_reads_only() -> void:
 func test_the_deploy_key_reaches_a_step_only_through_env() -> void:
 	var uses: int = 0
 	var shape: RegEx = RegEx.create_from_string(
-		"^ +[A-Z_]+: \\$\\{\\{ secrets\\.LEADERBOARD_DEPLOY_KEY( != '')? \\}\\}$")
+		"^ +[A-Z_]+: \\$\\{\\{ secrets\\.(LEADERBOARD_DEPLOY_KEY|SUPABASE_SECRET_KEY).*\\}\\}$")
 	for i: int in _lines.size():
 		if not _lines[i].contains("secrets."):
 			continue
 		uses += 1
-		assert_true(_lines[i].contains(SECRET), "no other secret: " + _lines[i])
+		assert_true(_lines[i].contains(SECRET) or _lines[i].contains(SUBMIT_SECRET),
+			"no other secret: " + _lines[i])
 		assert_not_null(shape.search(_lines[i]), "an env value, nothing else: " + _lines[i])
 		assert_eq(_parent(i), "env:", "under an env block: " + _lines[i])
 	assert_gt(uses, 0)
+
+
+func test_workflow_commands_are_stopped_around_the_collector() -> void:
+	var collect: int = _text.find(COLLECTOR)
+	var stop: int = _text.rfind(STOP, collect)
+	var resume: int = _text.find(RESUME, collect)
+	assert_true(stop >= 0 and collect >= 0 and resume >= 0)
+	assert_true(stop < collect and collect < resume, "stop, collect, resume")
 
 
 func test_the_host_key_is_pinned_and_never_scanned() -> void:
@@ -83,9 +94,9 @@ func test_the_host_key_is_pinned_and_never_scanned() -> void:
 
 
 func test_workflow_commands_are_stopped_around_the_verifier() -> void:
-	var stop: int = _text.find(STOP)
 	var run: int = _text.find(VERIFIER)
-	var resume: int = _text.find(RESUME)
+	var stop: int = _text.rfind(STOP, run)
+	var resume: int = _text.find(RESUME, run)
 	assert_true(stop >= 0 and run >= 0 and resume >= 0)
 	assert_true(stop < run and run < resume, "stop, verify, resume")
 

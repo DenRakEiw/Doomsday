@@ -134,6 +134,15 @@ func test_the_player_block_reads_as_written() -> void:
 	assert_eq(config.player_models_shown, 200)
 	assert_eq(config.player_keys_url, "https://openrouter.ai/settings/keys")
 	assert_true(config.player_submit_url.begins_with("https://github.com/"))
+	assert_eq(config.player_model_exclude_suffixes, ["-content-safety", ":batch"] as Array[String])
+	assert_eq(config.player_model_exclude_prefixes, ["openrouter/"] as Array[String])
+	assert_eq(config.global_collect_limit, 20)
+	assert_eq(config.submit_function, "submit_runs")
+	assert_eq(config.submit_max_files, 10)
+	assert_eq(config.submit_max_file_bytes, 1000000)
+	assert_eq(config.submit_max_total_bytes, 3000000)
+	assert_eq(config.submit_timeout_s, 30)
+	assert_eq(config.submit_not_listed_days, 2)
 
 
 func test_a_player_block_that_does_not_fit_gives_a_reason() -> void:

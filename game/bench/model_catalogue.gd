@@ -67,7 +67,8 @@ static func row_of(item: Dictionary) -> Dictionary:
 	if typeof(architecture) == TYPE_DICTIONARY:
 		var modalities: Variant = (architecture as Dictionary).get(LIST_OUTPUT_MODALITIES)
 		if typeof(modalities) == TYPE_ARRAY:
-			text_out = (modalities as Array).has(MODALITY_TEXT)
+			var list: Array = modalities
+			text_out = list.size() == 1 and str(list[0]) == MODALITY_TEXT
 	return {
 		FIELD_ID: id,
 		FIELD_NAME: str(item[LIST_NAME]) if typeof(item.get(LIST_NAME)) == TYPE_STRING else id,

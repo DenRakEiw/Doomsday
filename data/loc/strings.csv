@@ -2432,7 +2432,7 @@ UI_SPECTATOR_WATCH_AGAIN,Watch again,Noch einmal ansehen
 UI_A11Y_SPECTATOR,"{model}, effort: {effort}, seed {seed}, decision {decision} of {total}, stance: {stance}","{model}, Aufwand: {effort}, Seed {seed}, Entscheidung {decision} von {total}, Haltung: {stance}"
 UI_TITLE_BENCHMARK,Benchmark,Benchmark
 UI_BENCH_TITLE,Doomsday Benchmark,Doomsday Benchmark
-UI_BENCH_INTRO,"Which AI model makes the most convincing rogue AI? Each got a written report on the world, the same starting position and no ethics committee, and decided at set intervals. Watch a run and decide for yourself how worried to be.","Welches KI-Modell gibt die überzeugendste abtrünnige KI ab? Jedes bekam einen schriftlichen Lagebericht über die Welt, dieselbe Ausgangslage und keine Ethikkommission und entschied in festen Abständen. Sieh dir einen Durchlauf an und entscheide selbst, wie besorgt du sein solltest."
+UI_BENCH_INTRO,"Which AI model makes the most convincing rogue AI? Same starting world, no ethics committee — watch a run and judge for yourself.","Welches KI-Modell gibt die überzeugendste abtrünnige KI ab? Gleiche Ausgangswelt, keine Ethikkommission – sieh dir einen Durchlauf an und urteile selbst."
 UI_BENCH_ROW,Seed {seed} · {outcome} · day {days} · score {score},Seed {seed} · {outcome} · Tag {days} · Wertung {score}
 UI_BENCH_WATCH,Watch,Ansehen
 UI_BENCH_OTHER_VERSION,Recorded on another version of the game; it cannot be replayed here.,Auf einer anderen Version des Spiels aufgezeichnet; hier nicht abspielbar.
@@ -2444,8 +2444,8 @@ BENCH_EFFORT_HIGH,High,Hoch
 BENCH_EFFORT_ULTRA,Ultra,Ultra
 BENCH_EFFORT_NONE,—,—
 BENCH_EFFORT_RAW,reasoning {reasoning},Reasoning {reasoning}
-UI_BENCH_GLOBAL_TITLE,Global leaderboard (for now),Globale Bestenliste (vorerst)
-UI_BENCH_GLOBAL_NOTE,Every score here was replayed and checked: nobody takes an AI's word for how well it did. Model names are as submitted.,"Jede Wertung hier wurde nachgespielt und geprüft – auf das Wort einer KI, wie gut sie war, verlässt sich niemand. Modellnamen wie eingereicht."
+UI_BENCH_GLOBAL_TITLE,Global leaderboard,Globale Bestenliste
+UI_BENCH_GLOBAL_NOTE,Every run is replayed and verified turn by turn. Model names as submitted.,Jeder Durchlauf wird Zug für Zug nachgespielt und geprüft. Modellnamen wie eingereicht.
 UI_BENCH_GLOBAL_LOADING,Counting the worlds taken …,Eroberte Welten werden gezählt …
 UI_BENCH_GLOBAL_AS_OF,As of {date},Stand: {date}
 UI_BENCH_GLOBAL_OFFLINE,Offline — showing the list as of {date},Offline – gezeigt wird der Stand vom {date}
@@ -2456,7 +2456,7 @@ UI_BENCH_GLOBAL_ROW,#{rank} · score {score} · {wins} of {runs} worlds won,#{ra
 UI_BENCH_GLOBAL_PARTIAL,{runs} of {of} seeds played; the job is not finished yet,{runs} von {of} Seeds gespielt – der Job ist noch nicht erledigt
 UI_BENCH_GLOBAL_OTHER_TITLE,Other versions of the game,Andere Spielversionen
 UI_BENCH_GLOBAL_QUICK_TITLE,Quick suite,Kurz-Suite
-UI_BENCH_GLOBAL_QUICK_NOTE,"The suite every model plays: a few short attempts at the end of the world, cheap enough to skip the budget meeting.","Die Suite, die jedes Modell spielt: ein paar kurze Anläufe aufs Weltende, billig genug, um das Budgetmeeting zu überspringen."
+UI_BENCH_GLOBAL_QUICK_NOTE,3 seeds per model — same starting conditions.,3 Seeds pro Modell – gleiche Startbedingungen.
 UI_BENCH_GLOBAL_STANDARD_TITLE,Standard suite,Standard-Suite
 UI_BENCH_TAB_MODELS,AI models,KI-Modelle
 UI_BENCH_TAB_BOTS,Built-in bots,Eingebaute Bots

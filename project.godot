@@ -14,7 +14,7 @@ config/name="Doomsday"
 config/description="A strategy simulation in which a rogue AI takes over the world."
 ; release.md §4: always numeric MAJOR.MINOR.PATCH, the next release's number;
 ; a `v<version>` tag must equal it. Pre-1.0 the minor is the milestone.
-config/version="0.6.0"
+config/version="0.7.0"
 run/main_scene="res://game/main.tscn"
 ; release.md §11.3: the `perf` preset starts the frame-time bench (S6.11).
 run/main_scene.perf="res://tools/perf/perf_bench.tscn"

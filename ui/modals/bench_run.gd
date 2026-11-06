@@ -45,7 +45,8 @@ const KEY_TIME_NOTE: String = "UI_BENCH_RUN_TIME_NOTE"
 const KEY_PRIVACY: String = "UI_BENCH_RUN_PRIVACY"
 const KEY_START: String = "UI_BENCH_RUN_START"
 const KEY_CONFIRM: String = "UI_BENCH_RUN_CONFIRM"
-const KEY_START_FAILED: String = "UI_BENCH_JOB_FAIL_ERROR"
+const KEY_START_BUSY: String = "UI_BENCH_RUN_START_BUSY"
+const KEY_START_FAILED: String = "UI_BENCH_RUN_START_FAILED"
 const KEY_CLOSE: String = "UI_COMMON_CLOSE"
 const KEY_LABEL_VALUE: String = "UI_A11Y_LABEL_VALUE"
 ## `start`'s answer when the player said *Cancel*.
@@ -175,6 +176,10 @@ func start_button() -> ConsoleButton:
 	return _start
 
 
+func start_failure_text() -> String:
+	return _start_failure.text if _start_failure.visible else ""
+
+
 func confirm_modal() -> ConfirmModal:
 	return _confirm
 
@@ -259,10 +264,12 @@ func start() -> String:
 			return REASON_CANCELLED
 	var reason: String = BenchJobs.start(str(row[ModelCatalogue.FIELD_ID]), effort, cap_usd,
 		BenchPicker.reasoning(row, effort, _config), BenchPicker.is_free(row))
-	# DESIGN? §19.8 names no line for a start the jobs refuse (a second one, no
-	# folder); the benchmark's own "stopped unexpectedly" stands in.
 	_start_failure.visible = not reason.is_empty()
-	_start_failure.text = tr(KEY_START_FAILED)
+	if reason == BenchJobs.REASON_RUNNING:
+		_start_failure.text = tr(KEY_START_BUSY)
+	elif not reason.is_empty():
+		print("bench_run: start refused (%s)" % reason)
+		_start_failure.text = tr(KEY_START_FAILED)
 	_holding_job = _holding_job or reason.is_empty()
 	_refresh_sections()
 	return reason

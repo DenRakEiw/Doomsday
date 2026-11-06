@@ -17,14 +17,17 @@ const FIELD_CHOICE: String = "choice"
 
 
 ## The rows of `ModelCatalogue.parse` a player may choose: without the content
-## classifiers, the router ids and the models that do not answer in text. A
-## `typesafe/*` id plays through the decision-model backend (§17), so its row is
-## the decision model's: no effort levels, its estimate from the data.
+## The rows of `ModelCatalogue.parse(body)` the picker may offer (§19.8 item 4,
+## §20.13 item 4): every listed model except those excluded by
+## `player.model_exclude_suffixes` / `player.model_exclude_prefixes` and the
+## models that do not answer in text only. A `typesafe/*` id plays through the
+## decision-model backend (§17), so its row is the decision model's: no effort
+## levels, its estimate from the data.
 static func candidates(rows: Array[Dictionary], config: BenchConfig) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for row: Dictionary in rows:
 		var id: String = str(row[ModelCatalogue.FIELD_ID])
-		if id.ends_with(SUFFIX_CONTENT_SAFETY) or id.begins_with(PREFIX_ROUTER):
+		if _excluded(id, config):
 			continue
 		if not bool(row.get(ModelCatalogue.FIELD_TEXT_OUT, true)):
 			continue
@@ -40,6 +43,16 @@ static func candidates(rows: Array[Dictionary], config: BenchConfig) -> Array[Di
 			continue
 		out.append(row)
 	return out
+
+
+static func _excluded(id: String, config: BenchConfig) -> bool:
+	for suffix: String in config.player_model_exclude_suffixes:
+		if id.ends_with(suffix):
+			return true
+	for prefix: String in config.player_model_exclude_prefixes:
+		if id.begins_with(prefix):
+			return true
+	return false
 
 
 ## The rows to list (§19.8 item 4): those the search and *Free only* keep —

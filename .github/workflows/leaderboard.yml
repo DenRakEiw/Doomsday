@@ -27,6 +27,7 @@ jobs:
       image: barichello/godot-ci:4.7.2
     env:
       HAS_KEY: ${{ secrets.LEADERBOARD_DEPLOY_KEY != '' }}
+      HAS_SUBMIT: ${{ secrets.SUPABASE_SECRET_KEY != '' && vars.SUPABASE_URL != '' }}
     steps:
       - name: Gate
         if: env.HAS_KEY != 'true'
@@ -76,6 +77,25 @@ jobs:
           else
             git clone --depth 50 https://github.com/DenRakEiw/doomsday-leaderboard.git "$board"
           fi
+
+      - name: Collect submissions
+        # §20.4, §20.8: takes waiting player submissions from Supabase, replays each file,
+        # and writes accepted runs into $BOARD/runs/ before the verifier runs.
+        if: (env.HAS_KEY == 'true' || github.event_name == 'workflow_dispatch') && env.HAS_SUBMIT == 'true'
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: |
+          token="$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')"
+          echo "::stop-commands::$token"
+          set +e
+          godot --headless --path . -s tools/bench/collect_submissions.gd -- \
+            --board="$BOARD" --out="$RUNNER_TEMP/collected.json"
+          status=$?
+          set -e
+          echo "::$token::"
+          exit "$status"
 
       - name: Bot reference rows
         # §16.4: plays only what the board lacks on this content; the verifier checks them
@@ -129,3 +149,14 @@ jobs:
             git -C "$BOARD" "${bot[@]}" pull --rebase origin main
             git -C "$BOARD" push origin HEAD:main
           fi
+
+      - name: Confirm submissions
+        # §20.4, §20.8: marks judged submissions in Supabase only after Publish succeeded.
+        if: env.HAS_KEY == 'true' && env.HAS_SUBMIT == 'true'
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: |
+          godot --headless --path . -s tools/bench/collect_submissions.gd -- \
+            --confirm="$RUNNER_TEMP/collected.json"

@@ -47,6 +47,8 @@ param(
 	[double]$MaxTotal = -1,
 	# Start without asking.
 	[switch]$Yes,
+	# Route TypeSafe decision models (typesafe/*) through OpenRouter using OPENROUTER_API_KEY.
+	[switch]$ViaOpenRouter,
 	# The mock backend: no key, no request (tests and a dry run of the whole flow).
 	[switch]$Mock,
 	# Where the runs go (bench_run.gd --out); with -Mock a scratch folder unless given.
@@ -124,11 +126,18 @@ if ($refused.Count -gt 0) { exit 1 }
 # Keys: only the services this batch talks to, and never printed.
 if (-not $Mock) {
 	$needs = @()
-	if (@($plans | Where-Object { -not $_.typesafe }).Count -gt 0) { $needs += "OPENROUTER_API_KEY" }
-	if (@($plans | Where-Object { $_.typesafe }).Count -gt 0) { $needs += "TYPESAFE_API_KEY" }
-	foreach ($name in $needs) {
+	if (@($plans | Where-Object { -not $_.typesafe }).Count -gt 0 -or $ViaOpenRouter) { $needs += "OPENROUTER_API_KEY" }
+	if (@($plans | Where-Object { $_.typesafe }).Count -gt 0 -and -not $ViaOpenRouter) {
+		if (-not (Import-BenchKey "TYPESAFE_API_KEY") -and (Import-BenchKey "OPENROUTER_API_KEY")) {
+			$ViaOpenRouter = $true
+			Write-Output "run_models: TYPESAFE_API_KEY is not set - routing typesafe/* models through OpenRouter (--via-openrouter)"
+		} else {
+			$needs += "TYPESAFE_API_KEY"
+		}
+	}
+	foreach ($name in ($needs | Select-Object -Unique)) {
 		if (-not (Import-BenchKey $name)) {
-			Write-Output "run_models: $name is not set. Set it once with:"
+			Write-Output "run_models: $name is not set. Set it in-game (Settings -> OpenRouter API key) or with:"
 			Write-Output "  powershell -ExecutionPolicy Bypass -File tools\bench\set_api_key.ps1 -Name $name"
 			exit 1
 		}
@@ -228,6 +237,7 @@ foreach ($plan in $plans) {
 			# Resolved once for all shards: one params_id, one row (benchmark.md section 18.2).
 			if ($plan.reasoning_sent) { $arguments += "--effort-reasoning=$($plan.reasoning_sent)" }
 		}
+		if ($plan.typesafe -and $ViaOpenRouter) { $arguments += "--via-openrouter" }
 		if ($Mock) { $arguments += "--backend=$MockBackend" }
 		$log = Join-Path $LogDir "$slug`__s$($seeds[$first])-$($seeds[$last]).log"
 		$logs[$plan.id] += $log

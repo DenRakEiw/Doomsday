@@ -112,6 +112,13 @@ if ([string]::IsNullOrEmpty($key)) {
 }
 
 [System.Environment]::SetEnvironmentVariable($Name, $key, 'User')
+if ($Name -eq 'OPENROUTER_API_KEY') {
+    try {
+        . (Join-Path $PSScriptRoot 'bench_common.ps1')
+        Get-DoomsdayCredentialType
+        $null = [DoomsdayCredential]::Write('Doomsday/OpenRouter', 'openrouter', $key)
+    } catch { }
+}
 
 $prefix = $ExpectedPrefix[$Name]
 if ($null -eq $prefix) {
