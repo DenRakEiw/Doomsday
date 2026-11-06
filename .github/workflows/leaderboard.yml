@@ -97,15 +97,6 @@ jobs:
           echo "::$token::"
           exit "$status"
 
-      - name: Bot reference rows
-        # §16.4: plays only what the board lacks on this content; the verifier checks them
-        # like any run and rebuilds the board.
-        if: env.HAS_KEY == 'true' || github.event_name == 'workflow_dispatch'
-        shell: bash
-        run: |
-          godot --headless --path . -s tools/bench/bench_run.gd -- \
-            --bots --suite=standard --out="$BOARD" --if-missing --no-rebuild
-
       - name: Verify
         # Workflow commands are stopped around the verifier's output, so nothing a run file
         # holds can become one. Exit 1-3 fail the job and nothing is pushed.
