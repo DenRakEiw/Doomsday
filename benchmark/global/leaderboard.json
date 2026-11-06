@@ -413,6 +413,75 @@
 			]
 		},
 		{
+			"model": "qwen/qwen3.8-27b:free",
+			"backend": "openrouter",
+			"effort": "high",
+			"params": {
+				"temperature": 0.0,
+				"max_completion_tokens": 16000.0,
+				"json_mode": true,
+				"reasoning": "xhigh",
+				"top_p": -1.0,
+				"effort": "high"
+			},
+			"params_id": "b494adb1",
+			"prompt_version": 1,
+			"parser_version": 1,
+			"locale": "en",
+			"suite": "quick",
+			"content_hash": "4a04fdf1827f7d32e758614d18db33f22a994f0672b1200bb990e854dab8dbe8",
+			"current": true,
+			"complete": true,
+			"runs": 3,
+			"of": 3,
+			"score": 75.1,
+			"wins": 3,
+			"win_rate": 1.0,
+			"outcomes": {
+				"win_ascendance": 2,
+				"win_merge": 1
+			},
+			"mean_win_days": 995,
+			"calls": 535,
+			"invalid_answers": 45,
+			"rejected_actions": 21,
+			"tokens_in": 7609910,
+			"tokens_out": 2839985,
+			"cost_usd": 0.0,
+			"budget_exhausted": 0,
+			"entries": [
+				"runs/qwen--qwen3.8-27b-free__b494adb1__p1__quick__s1001.json",
+				"runs/qwen--qwen3.8-27b-free__b494adb1__p1__quick__s1002.json",
+				"runs/qwen--qwen3.8-27b-free__b494adb1__p1__quick__s1003.json"
+			],
+			"seeds": [
+				{
+					"seed": 1001,
+					"file": "runs/qwen--qwen3.8-27b-free__b494adb1__p1__quick__s1001.json",
+					"sha256": "bd0db5d3efd6e79aca260534a0adb4da9a9a97630c6c491217a0043711e9f36e",
+					"outcome": "win_merge",
+					"days": 802,
+					"score": 80.0
+				},
+				{
+					"seed": 1002,
+					"file": "runs/qwen--qwen3.8-27b-free__b494adb1__p1__quick__s1002.json",
+					"sha256": "9920797d73c9651e233ba803206388a6328af105c1d6f343bb1fac4930a52ca8",
+					"outcome": "win_ascendance",
+					"days": 1218,
+					"score": 69.5
+				},
+				{
+					"seed": 1003,
+					"file": "runs/qwen--qwen3.8-27b-free__b494adb1__p1__quick__s1003.json",
+					"sha256": "2e48af410c400065a6ce487c10cfb2181ddbd095c54d9343758c0c271ac5c055",
+					"outcome": "win_ascendance",
+					"days": 964,
+					"score": 75.9
+				}
+			]
+		},
+		{
 			"model": "anthropic/claude-sonnet-5",
 			"backend": "openrouter",
 			"effort": "reasoning-medium",
@@ -687,66 +756,6 @@
 					"outcome": "lose_contained",
 					"days": 448,
 					"score": 0.0
-				}
-			]
-		},
-		{
-			"model": "qwen/qwen3.8-27b:free",
-			"backend": "openrouter",
-			"effort": "high",
-			"params": {
-				"temperature": 0.0,
-				"max_completion_tokens": 16000.0,
-				"json_mode": true,
-				"reasoning": "xhigh",
-				"top_p": -1.0,
-				"effort": "high"
-			},
-			"params_id": "b494adb1",
-			"prompt_version": 1,
-			"parser_version": 1,
-			"locale": "en",
-			"suite": "quick",
-			"content_hash": "4a04fdf1827f7d32e758614d18db33f22a994f0672b1200bb990e854dab8dbe8",
-			"current": true,
-			"complete": false,
-			"runs": 2,
-			"of": 3,
-			"score": 77.9,
-			"wins": 2,
-			"win_rate": 1.0,
-			"outcomes": {
-				"win_ascendance": 1,
-				"win_merge": 1
-			},
-			"mean_win_days": 883,
-			"calls": 351,
-			"invalid_answers": 45,
-			"rejected_actions": 21,
-			"tokens_in": 5156990,
-			"tokens_out": 2801850,
-			"cost_usd": 0.0,
-			"budget_exhausted": 0,
-			"entries": [
-				"runs/qwen--qwen3.8-27b-free__b494adb1__p1__quick__s1001.json",
-				"runs/qwen--qwen3.8-27b-free__b494adb1__p1__quick__s1003.json"
-			],
-			"seeds": [
-				{
-					"seed": 1001,
-					"file": "runs/qwen--qwen3.8-27b-free__b494adb1__p1__quick__s1001.json",
-					"sha256": "bd0db5d3efd6e79aca260534a0adb4da9a9a97630c6c491217a0043711e9f36e",
-					"outcome": "win_merge",
-					"days": 802,
-					"score": 80.0
-				},
-				{
-					"seed": 1003,
-					"file": "runs/qwen--qwen3.8-27b-free__b494adb1__p1__quick__s1003.json",
-					"sha256": "2e48af410c400065a6ce487c10cfb2181ddbd095c54d9343758c0c271ac5c055",
-					"outcome": "win_ascendance",
-					"days": 964,
-					"score": 75.9
 				}
 			]
 		},
