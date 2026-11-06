@@ -110,8 +110,8 @@ static func markdown(rows: Array[Dictionary], config: BenchConfig, generator: St
 				"" if current else " — older content"])
 			lines.append("")
 			lines.append("| Rank | Model | Effort | Params | Score | Wins | Outcomes | Mean win day"
-				+ " | Calls | Unreadable |")
-			lines.append("| ---: | --- | --- | --- | ---: | ---: | --- | ---: | ---: | ---: |")
+				+ " | Calls |")
+			lines.append("| ---: | --- | --- | --- | ---: | ---: | --- | ---: | ---: |")
 			var ranked: bool = suite == BenchConfig.SUITE_STANDARD
 			for i: int in group.size():
 				lines.append(_table_row(group[i], i + 1 if ranked else 0))
@@ -192,7 +192,6 @@ static func _table_row(row: Dictionary, rank: int) -> String:
 		_cell(", ".join(outcomes)),
 		str(mean_days) if mean_days >= 0 else NONE_MARK,
 		str(int(row["calls"])),
-		str(int(row["invalid_answers"])),
 	]
 	return "| " + " | ".join(cells) + " |"
 
