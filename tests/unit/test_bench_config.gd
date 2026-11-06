@@ -131,7 +131,7 @@ func test_the_player_block_reads_as_written() -> void:
 	assert_almost_eq(config.player_poll_s, 1.0, 0.0001)
 	assert_eq(config.player_jobs_kept, 5)
 	assert_eq(config.player_models_max_age_s, 86400)
-	assert_eq(config.player_models_shown, 200)
+	assert_eq(config.player_models_shown, 500)
 	assert_eq(config.player_keys_url, "https://openrouter.ai/settings/keys")
 	assert_true(config.player_submit_url.begins_with("https://github.com/"))
 	assert_eq(config.player_model_exclude_suffixes, ["-content-safety", ":batch"] as Array[String])

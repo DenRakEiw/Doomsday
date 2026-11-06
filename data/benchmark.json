@@ -133,7 +133,7 @@
 		"poll_s": 1,
 		"jobs_kept": 5,
 		"models_max_age_s": 86400,
-		"models_shown": 200,
+		"models_shown": 500,
 		"keys_url": "https://openrouter.ai/settings/keys",
 		"submit_url": "https://github.com/DenRakEiw/doomsday-leaderboard/fork",
 		"model_exclude_suffixes": [

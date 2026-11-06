@@ -372,6 +372,14 @@ func _render_rows() -> void:
 	var still_shown: bool = false
 	for prov: String in order:
 		var prov_rows: Array = groups[prov]
+		prov_rows.sort_custom(func(a: Variant, b: Variant) -> bool:
+			var da: Dictionary = a as Dictionary
+			var db: Dictionary = b as Dictionary
+			var af: bool = BenchPicker.is_free(da)
+			var bf: bool = BenchPicker.is_free(db)
+			if af != bf:
+				return af
+			return str(da[ModelCatalogue.FIELD_ID]) > str(db[ModelCatalogue.FIELD_ID]))
 		_add_provider_header(prov, prov_rows.size())
 		for item: Variant in prov_rows:
 			var row: Dictionary = item as Dictionary
