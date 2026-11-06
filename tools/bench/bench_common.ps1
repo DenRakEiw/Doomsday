@@ -83,17 +83,21 @@ function Import-BenchKey([string]$Name) {
 	# OPENROUTER_API_KEY from the Windows Credential Manager entry Doomsday/OpenRouter
 	# that the in-game key dialog writes. Returns whether a key was found;
 	# the key itself is never printed or returned.
-	$value = [Environment]::GetEnvironmentVariable($Name, "Process")
-	if (-not $value) {
-		$value = [Environment]::GetEnvironmentVariable($Name, "User")
-		if (-not $value -and $Name -eq "OPENROUTER_API_KEY") {
-			try {
-				Get-DoomsdayCredentialType
-				$value = [DoomsdayCredential]::Read("Doomsday/OpenRouter")
-			} catch { }
-		}
-		if ($value) { [Environment]::SetEnvironmentVariable($Name, $value, "Process") }
+	$procVal = [Environment]::GetEnvironmentVariable($Name, "Process")
+	$userVal = [Environment]::GetEnvironmentVariable($Name, "User")
+	$value = $null
+	if ($Name -eq "OPENROUTER_API_KEY") {
+		try {
+			Get-DoomsdayCredentialType
+			$credVal = [DoomsdayCredential]::Read("Doomsday/OpenRouter")
+			# Prefer the Credential Manager key unless the process explicitly set a test key
+			if ($credVal -and (-not $procVal -or $procVal.StartsWith("sk-or-v1-"))) {
+				$value = $credVal
+			}
+		} catch { }
 	}
+	if (-not $value) { $value = if ($procVal) { $procVal } else { $userVal } }
+	if ($value) { [Environment]::SetEnvironmentVariable($Name, $value, "Process") }
 	return [bool]$value
 }
 

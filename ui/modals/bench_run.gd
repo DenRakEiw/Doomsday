@@ -55,6 +55,12 @@ const USD_DECIMALS: int = 2
 const TOKENS_PER_MILLION: float = 1_000_000.0
 ## The dash for a price the list does not give.
 const UNKNOWN_MARK: String = "—"
+const MODEL_LIST_MIN_HEIGHT: float = 280.0
+const PROVIDER_SEP: String = "/"
+const FEATURED_PROVIDERS: Array[String] = [
+	"anthropic", "openai", "google", "deepseek", "qwen", "z-ai", "x-ai",
+	"nvidia", "mistralai", "meta-llama", "stealth", "typesafe", "moonshotai",
+]
 const CONFIRM_SCENE: PackedScene = preload("res://ui/modals/confirm_modal.tscn")
 
 ## Test seams: `list_fetcher() -> String` answers the body of OpenRouter's list
@@ -71,6 +77,7 @@ var effort: String = BenchEffort.NORMAL
 var cap_usd: float = 0.0
 var search_text: String = ""
 var free_only: bool = false
+var provider_filter: String = ""
 
 ## The token measures of the estimate, per content: they take a moment.
 static var _tokens: Dictionary = {}
@@ -97,7 +104,11 @@ var _job: BenchJobView = null
 var _picker: VBoxContainer = null
 var _search: LineEdit = null
 var _free_toggle: ConsoleButton = null
+var _change_key: ConsoleButton = null
+var _provider_row: HFlowContainer = null
 var _list_status: Label = null
+var _rows_frame: PanelContainer = null
+var _rows_scroll: ScrollContainer = null
 var _rows: VBoxContainer = null
 var _choose_group: ButtonGroup = ButtonGroup.new()
 var _effort_title: CapsLabel = null
@@ -337,47 +348,153 @@ func _render_rows() -> void:
 		child.queue_free()
 	_choose_group = ButtonGroup.new()
 	rows_shown = BenchPicker.shown(_candidates, search_text, free_only, effort, _tokens, _config)
+	_render_provider_filters(rows_shown)
+	var visible_rows: Array[Dictionary] = _filtered_by_provider(rows_shown)
 	var status: String = ""
 	if _loading:
 		status = tr(KEY_LOADING)
 	elif _failed:
 		status = tr(KEY_LIST_FAILED)
-	elif rows_shown.is_empty():
+	elif visible_rows.is_empty():
 		status = tr(KEY_NO_MATCH)
 	_list_status.text = status
 	_list_status.visible = not status.is_empty()
+	_rows_frame.visible = not visible_rows.is_empty()
+	var groups: Dictionary = {}
+	var order: Array[String] = []
+	for row: Dictionary in visible_rows:
+		var prov: String = _provider_of(str(row[ModelCatalogue.FIELD_ID]))
+		if not groups.has(prov):
+			groups[prov] = []
+			order.append(prov)
+		(groups[prov] as Array).append(row)
+	order = _sorted_providers(order)
 	var still_shown: bool = false
-	for row: Dictionary in rows_shown:
-		_add_row(row)
-		still_shown = still_shown or str(row[ModelCatalogue.FIELD_ID]) == chosen_id
+	for prov: String in order:
+		var prov_rows: Array = groups[prov]
+		_add_provider_header(prov, prov_rows.size())
+		for item: Variant in prov_rows:
+			var row: Dictionary = item as Dictionary
+			_add_row(row)
+			still_shown = still_shown or str(row[ModelCatalogue.FIELD_ID]) == chosen_id
 	if not still_shown:
 		chosen_id = ""
 
 
+static func _provider_of(id: String) -> String:
+	var raw: String = id.lstrip("~")
+	var slash: int = raw.find(PROVIDER_SEP)
+	return raw.substr(0, slash) if slash > 0 else raw
+
+
+static func _sorted_providers(providers: Array[String]) -> Array[String]:
+	var featured: Array[String] = []
+	for p: String in FEATURED_PROVIDERS:
+		if providers.has(p):
+			featured.append(p)
+	var rest: Array[String] = []
+	for p: String in providers:
+		if not featured.has(p):
+			rest.append(p)
+	rest.sort()
+	featured.append_array(rest)
+	return featured
+
+
+func _filtered_by_provider(source: Array[Dictionary]) -> Array[Dictionary]:
+	if provider_filter.is_empty():
+		return source
+	var out: Array[Dictionary] = []
+	for row: Dictionary in source:
+		if _provider_of(str(row[ModelCatalogue.FIELD_ID])) == provider_filter:
+			out.append(row)
+	return out
+
+
+func _render_provider_filters(source: Array[Dictionary]) -> void:
+	if _provider_row == null:
+		return
+	for child: Node in _provider_row.get_children():
+		_provider_row.remove_child(child)
+		child.queue_free()
+	var counts: Dictionary = {}
+	var providers: Array[String] = []
+	for row: Dictionary in source:
+		var prov: String = _provider_of(str(row[ModelCatalogue.FIELD_ID]))
+		if not counts.has(prov):
+			counts[prov] = 0
+			providers.append(prov)
+		counts[prov] = int(counts[prov]) + 1
+	if not provider_filter.is_empty() and not counts.has(provider_filter):
+		provider_filter = ""
+	if providers.size() <= 1:
+		_provider_row.visible = false
+		return
+	_provider_row.visible = true
+	for prov: String in _sorted_providers(providers):
+		var btn: ConsoleButton = ConsoleButton.new()
+		btn.text = "%s (%d)" % [prov.to_upper(), int(counts[prov])]
+		btn.toggle_mode = true
+		btn.compact = true
+		btn.set_pressed_no_signal(prov == provider_filter)
+		btn.pressed.connect(_on_provider_pressed.bind(prov))
+		_provider_row.add_child(btn)
+
+
+func _on_provider_pressed(prov: String) -> void:
+	provider_filter = "" if provider_filter == prov else prov
+	_render_rows()
+	_refresh_choice()
+
+
+func _add_provider_header(prov: String, count: int) -> void:
+	var header: HBoxContainer = HBoxContainer.new()
+	header.theme_type_variation = &"RowSnug"
+	_rows.add_child(header)
+	var chip: Chip = Chip.new()
+	chip.kind = Chip.Kind.ACCENT if FEATURED_PROVIDERS.has(prov) else Chip.Kind.DEFAULT
+	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	chip.set_text("%s · %d" % [prov.to_upper(), count])
+	header.add_child(chip)
+	var rule: HSeparator = HSeparator.new()
+	rule.theme_type_variation = &"PanelRule"
+	rule.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rule.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	header.add_child(rule)
+
+
 func _add_row(row: Dictionary) -> void:
 	var id: String = str(row[ModelCatalogue.FIELD_ID])
+	var card: ConsolePanel = ConsolePanel.new()
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_rows.add_child(card)
 	var pair: BoxContainer = BoxContainer.new()
-	pair.theme_type_variation = &"Row"
-	_rows.add_child(pair)
+	pair.theme_type_variation = &"RowWide"
+	pair.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.add_child(pair)
 	var lines: VBoxContainer = VBoxContainer.new()
 	lines.theme_type_variation = &"StackLines"
 	lines.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	pair.add_child(lines)
 	var name_label: Label = Label.new()
-	name_label.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+	name_label.theme_type_variation = &"LabelHeading"
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.text = str(row[ModelCatalogue.FIELD_NAME])
 	lines.add_child(name_label)
 	var id_label: Label = _caption(lines, id)
 	id_label.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
-	_caption(lines, price_line(row))
+	var meta_text: String = price_line(row)
 	if bool(row[ModelCatalogue.FIELD_REASONING]):
-		_caption(lines, tr(KEY_REASONING))
+		meta_text += "  ·  " + tr(KEY_REASONING)
+	var meta_label: Label = _caption(lines, meta_text)
+	meta_label.theme_type_variation = &"LabelCaptionHint" if BenchPicker.is_free(row) \
+		else &"LabelCaption"
 	var choose_button: ConsoleButton = ConsoleButton.new()
 	choose_button.label_key = KEY_CHOOSE
 	choose_button.toggle_mode = true
 	choose_button.compact = true
 	choose_button.button_group = _choose_group
-	choose_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	choose_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	choose_button.set_pressed_no_signal(id == chosen_id)
 	choose_button.pressed.connect(choose.bind(id))
 	pair.add_child(choose_button)
@@ -607,12 +724,37 @@ func _build_picker(column: VBoxContainer) -> void:
 	_free_toggle.compact = true
 	_free_toggle.toggled.connect(_on_free_toggled)
 	search_row.add_child(_free_toggle)
+	_change_key = ConsoleButton.new()
+	_change_key.label_key = KEY_SET
+	_change_key.compact = true
+	_change_key.pressed.connect(key_requested.emit)
+	search_row.add_child(_change_key)
+	_provider_row = HFlowContainer.new()
+	_provider_row.name = "ProviderFilters"
+	_provider_row.theme_type_variation = &"Flow"
+	_provider_row.visible = false
+	_picker.add_child(_provider_row)
 	_list_status = _caption(_picker, "")
 	_list_status.name = "ListStatus"
+	_rows_frame = PanelContainer.new()
+	_rows_frame.name = "ModelRowsFrame"
+	_rows_frame.theme_type_variation = &"ChartFrame"
+	_rows_frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_rows_frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_picker.add_child(_rows_frame)
+	_rows_scroll = ScrollContainer.new()
+	_rows_scroll.name = "ModelRowsScroll"
+	_rows_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_rows_scroll.follow_focus = true
+	_rows_scroll.custom_minimum_size = Vector2(0.0, MODEL_LIST_MIN_HEIGHT)
+	_rows_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_rows_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_rows_frame.add_child(_rows_scroll)
 	_rows = VBoxContainer.new()
 	_rows.name = "ModelRows"
 	_rows.theme_type_variation = &"StackTight"
-	_picker.add_child(_rows)
+	_rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_rows_scroll.add_child(_rows)
 	_effort_title = CapsLabel.new()
 	_effort_title.label_key = KEY_EFFORT
 	_picker.add_child(_effort_title)
